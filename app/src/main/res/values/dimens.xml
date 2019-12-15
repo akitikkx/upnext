@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="toolbar_elevation">4dp</dimen>
+
+    <dimen name="margin_vertical">16dp</dimen>
+    <dimen name="margin_vertical_half">8dp</dimen>
+    <dimen name="margin_horizontal">8dp</dimen>
+    <dimen name="margin_horizontal_half">4dp</dimen>
+
+    <dimen name="poster_frame_width">100dp</dimen>
+    <dimen name="shows_list_poster_height">150dp</dimen>
+</resources>

@@ -16,7 +16,7 @@ interface UpnextDao {
     fun deleteAllRecommendedShows()
 }
 
-@Database(entities = [UpnextDatabase::class], version = 1, exportSchema = false)
+@Database(entities = [DatabaseRecommendedShows::class], version = 1, exportSchema = false)
 abstract class UpnextDatabase : RoomDatabase() {
     abstract val upnextDao: UpnextDao
 }

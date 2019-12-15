@@ -4,10 +4,10 @@ import com.squareup.moshi.JsonClass
 import com.theupnextapp.database.DatabaseRecommendedShows
 
 @JsonClass(generateAdapter = true)
-data class NetworkRecentPremierResponse(val recommendedShows: NetworkRecommendedShows)
+data class NetworkRecentPremierResponse(val data: List<NetworkDatum>)
 
 fun NetworkRecentPremierResponse.asDatabaseModel(): Array<DatabaseRecommendedShows> {
-    return recommendedShows.data.map {
+    return data.map {
         DatabaseRecommendedShows(
             id = it.id,
             url = it.url,

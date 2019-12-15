@@ -11,8 +11,8 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.GET
 
 interface UpnextService {
-    @GET("/shows/recommended")
-    fun getRecommendedShows(): Deferred<NetworkRecentPremierResponse>
+    @GET("shows/recommended")
+    fun getRecommendedShowsAsync(): Deferred<NetworkRecentPremierResponse>
 }
 
 private val moshi = Moshi.Builder()
@@ -20,7 +20,7 @@ private val moshi = Moshi.Builder()
     .build()
 
 object Network {
-    private const val BASE_URL = "https://theupnextapp.com/api"
+    private const val BASE_URL = "https://theupnextapp.com/api/"
 
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY

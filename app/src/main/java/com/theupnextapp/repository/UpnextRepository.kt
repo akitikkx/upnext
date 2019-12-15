@@ -19,10 +19,10 @@ class UpnextRepository(private val database: UpnextDatabase) {
             it.asDomainModel()
         }
 
-    suspend fun refreshRecentPremier() {
+    suspend fun refreshRecommendedShows() {
         withContext(Dispatchers.IO) {
             try {
-                val recommendedShowsList = Network.upnextApi.getRecommendedShows().await()
+                val recommendedShowsList = Network.upnextApi.getRecommendedShowsAsync().await()
                 database.upnextDao.apply {
                     deleteAllRecommendedShows()
                     insertAllRecommendedShows(*recommendedShowsList.asDatabaseModel())

@@ -8,7 +8,7 @@ data class RecommendedShows(
     val airTime: String?,
     val runtime: String?,
     val premiered: String?,
-    val trailerUrl: Any?,
+    val trailerUrl: String?,
     val mediumImageUrl: String?,
     val originalImageUrl: String?,
     val createDate: String? = null,

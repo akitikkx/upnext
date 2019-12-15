@@ -5,16 +5,16 @@ import androidx.room.PrimaryKey
 import com.theupnextapp.domain.RecommendedShows
 
 @Entity(tableName = "recommended_shows")
-data class DatabaseRecommendedShows(
+data class DatabaseRecommendedShows constructor(
     @PrimaryKey
-    var id: String?,
+    var id: String,
     val url: String?,
     val name: String?,
     val status: String?,
     val air_time: String?,
     val runtime: String?,
     val premiered: String?,
-    val trailer_url: Any?,
+    val trailer_url: String?,
     val medium_image_url: String?,
     val original_image_url: String?,
     val create_date: String?,
