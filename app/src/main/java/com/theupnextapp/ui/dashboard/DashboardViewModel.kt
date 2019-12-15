@@ -21,10 +21,13 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
     init {
         viewModelScope.launch {
             upnextRepository.refreshRecommendedShows()
+            upnextRepository.refreshNewShows()
         }
     }
 
     val recommendedShowsList = upnextRepository.recommendedShows
+
+    val newShowsList = upnextRepository.newShows
 
     override fun onCleared() {
         super.onCleared()

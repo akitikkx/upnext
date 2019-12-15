@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="show"
+            type="com.theupnextapp.domain.NewShows" />
+
+        <variable
+            name="listener"
+            type="com.theupnextapp.ui.dashboard.NewShowsAdapter.NewShowsAdapterListener" />
+    </data>
+
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="@dimen/poster_frame_width"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <ProgressBar
+            android:id="@+id/poster_progress"
+            style="?android:attr/progressBarStyleSmall"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            app:goneIfNotNull="@{show.originalImageUrl}" />
+
+        <ImageView
+            android:id="@+id/poster"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/shows_list_poster_height"
+            android:layout_marginEnd="@dimen/margin_horizontal_half"
+            android:contentDescription="@{String.format(@string/show_poster, show.name)}"
+            android:scaleType="centerCrop"
+            app:imageUrl="@{show.originalImageUrl}" />
+    </FrameLayout>
+
+</layout>

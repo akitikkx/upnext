@@ -5,12 +5,24 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal">
+        android:orientation="vertical">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/new_shows_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_horizontal_half"
+            android:layout_marginTop="@dimen/margin_vertical"
+            android:layout_marginEnd="@dimen/margin_horizontal_half"
+            android:clickable="true"
+            android:clipToPadding="false"
+            android:focusable="true"
+            tools:listitem="@layout/recommended_show_list_item" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recommended_shows_list"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_horizontal_half"
             android:layout_marginTop="@dimen/margin_vertical"
             android:layout_marginEnd="@dimen/margin_horizontal_half"

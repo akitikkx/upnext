@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import com.theupnextapp.database.UpnextDatabase
 import com.theupnextapp.database.asDomainModel
+import com.theupnextapp.domain.NewShows
 import com.theupnextapp.domain.RecommendedShows
 import com.theupnextapp.network.Network
 import com.theupnextapp.network.asDatabaseModel
@@ -19,6 +20,11 @@ class UpnextRepository(private val database: UpnextDatabase) {
             it.asDomainModel()
         }
 
+    val newShows: LiveData<List<NewShows>> =
+        Transformations.map(database.upnextDao.getNewShows()) {
+            it.asDomainModel()
+        }
+
     suspend fun refreshRecommendedShows() {
         withContext(Dispatchers.IO) {
             try {
@@ -27,6 +33,21 @@ class UpnextRepository(private val database: UpnextDatabase) {
                     deleteAllRecommendedShows()
                     insertAllRecommendedShows(*recommendedShowsList.asDatabaseModel())
                 }
+            } catch (e: HttpException) {
+                Timber.e(e)
+            }
+        }
+    }
+
+    suspend fun refreshNewShows() {
+        withContext(Dispatchers.IO) {
+            try {
+                val newShowsList = Network.upnextApi.getNewShowsAsync().await()
+                database.upnextDao.apply {
+                    deleteAllNewShows()
+                    insertAllNewShows(*newShowsList.asDatabaseModel())
+                }
+
             } catch (e: HttpException) {
                 Timber.e(e)
             }

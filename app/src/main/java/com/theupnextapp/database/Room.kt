@@ -14,9 +14,22 @@ interface UpnextDao {
 
     @Query("delete from recommended_shows")
     fun deleteAllRecommendedShows()
+
+    @Query("select * from new_shows")
+    fun getNewShows(): LiveData<List<DatabaseNewShows>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertAllNewShows(vararg newShows: DatabaseNewShows)
+
+    @Query("delete from new_shows")
+    fun deleteAllNewShows()
 }
 
-@Database(entities = [DatabaseRecommendedShows::class], version = 1, exportSchema = false)
+@Database(
+    entities = [DatabaseRecommendedShows::class, DatabaseNewShows::class],
+    version = 1,
+    exportSchema = false
+)
 abstract class UpnextDatabase : RoomDatabase() {
     abstract val upnextDao: UpnextDao
 }

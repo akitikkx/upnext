@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">Upnext 4</string>
+    <string name="app_name">Upnext: TV Series Manager</string>
+    <string name="show_poster">%1$s poster</string>
 </resources>

@@ -12,7 +12,10 @@ import retrofit2.http.GET
 
 interface UpnextService {
     @GET("shows/recommended")
-    fun getRecommendedShowsAsync(): Deferred<NetworkRecentPremierResponse>
+    fun getRecommendedShowsAsync(): Deferred<NetworkRecommendedShowsResponse>
+
+    @GET("shows/new")
+    fun getNewShowsAsync(): Deferred<NetworkNewShowsResponse>
 }
 
 private val moshi = Moshi.Builder()
