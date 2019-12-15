@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">Upnext: TV Series Manager</string>
     <string name="show_poster">%1$s poster</string>
+
+    <string name="title_new_shows">New Shows</string>
+    <string name="title_recommended_shows">Recommended Shows</string>
 </resources>
