@@ -15,6 +15,26 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal"
+                android:text="@string/title_yesterday_shows"
+                android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/yesterday_shows_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_horizontal_half"
+                android:layout_marginTop="@dimen/margin_vertical"
+                android:layout_marginEnd="@dimen/margin_horizontal_half"
+                android:layout_marginBottom="@dimen/margin_vertical"
+                android:clickable="true"
+                android:clipToPadding="false"
+                android:focusable="true"
+                tools:listitem="@layout/yesterday_show_list_item" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_horizontal"
                 android:text="@string/title_new_shows"
                 android:textAppearance="@style/TextAppearance.AppCompat.Title" />
 

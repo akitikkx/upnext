@@ -5,11 +5,11 @@
 
         <variable
             name="show"
-            type="com.theupnextapp.domain.RecommendedShows" />
+            type="com.theupnextapp.domain.ScheduleShow" />
 
         <variable
             name="listener"
-            type="com.theupnextapp.ui.dashboard.RecommendedShowsAdapter.RecommendedShowsAdapterListener" />
+            type="com.theupnextapp.ui.dashboard.YesterdayShowsAdapter.YesterdayShowsAdapterListener" />
     </data>
 
     <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -23,7 +23,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            app:goneIfNotNull="@{show.originalImageUrl}" />
+            app:goneIfNotNull="@{show.image}" />
 
         <ImageView
             android:id="@+id/poster"
@@ -32,7 +32,7 @@
             android:layout_marginEnd="@dimen/margin_horizontal_half"
             android:contentDescription="@{String.format(@string/show_poster, show.name)}"
             android:scaleType="centerCrop"
-            app:imageUrl="@{show.originalImageUrl}" />
+            app:imageUrl="@{show.image}" />
     </FrameLayout>
 
 </layout>

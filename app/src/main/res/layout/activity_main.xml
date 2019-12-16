@@ -12,6 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:elevation="@dimen/toolbar_elevation"
+        android:theme="@style/ToolbarTheme"
         app:title="@string/app_name" />
 
     <fragment

@@ -13,6 +13,7 @@ import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentDashboardBinding
 import com.theupnextapp.domain.NewShows
 import com.theupnextapp.domain.RecommendedShows
+import com.theupnextapp.domain.ScheduleShow
 
 class DashboardFragment : Fragment() {
 
@@ -20,6 +21,7 @@ class DashboardFragment : Fragment() {
 
     private var recommendedShowsAdapter: RecommendedShowsAdapter? = null
     private var newShowsAdapter: NewShowsAdapter? = null
+    private var yesterdayShowsAdapter: YesterdayShowsAdapter? = null
 
     private val viewModel: DashboardViewModel by lazy {
         val activity = requireNotNull(activity) {
@@ -49,6 +51,11 @@ class DashboardFragment : Fragment() {
 
         })
 
+        yesterdayShowsAdapter =
+            YesterdayShowsAdapter(YesterdayShowsAdapter.YesterdayShowsAdapterListener {
+
+            })
+
         binding.root.findViewById<RecyclerView>(R.id.recommended_shows_list).apply {
             layoutManager = LinearLayoutManager(context).apply {
                 orientation = LinearLayoutManager.HORIZONTAL
@@ -61,6 +68,13 @@ class DashboardFragment : Fragment() {
                 orientation = LinearLayoutManager.HORIZONTAL
             }
             adapter = newShowsAdapter
+        }
+
+        binding.root.findViewById<RecyclerView>(R.id.yesterday_shows_list).apply {
+            layoutManager = LinearLayoutManager(context).apply {
+                orientation = LinearLayoutManager.HORIZONTAL
+            }
+            adapter = yesterdayShowsAdapter
         }
 
         return binding.root
@@ -81,5 +95,14 @@ class DashboardFragment : Fragment() {
                 newShowsAdapter?.newShows = newShows
             }
         })
+
+        viewModel.yesterdayShowsList.observe(
+            viewLifecycleOwner,
+            Observer<List<ScheduleShow>> { yesterdayShows ->
+                yesterdayShows.apply {
+                    yesterdayShowsAdapter?.yesterdayShows = yesterdayShows
+                }
+            })
+
     }
 }

@@ -2,6 +2,7 @@ package com.theupnextapp.network
 
 import com.theupnextapp.database.DatabaseNewShows
 import com.theupnextapp.database.DatabaseRecommendedShows
+import com.theupnextapp.database.DatabaseYesterdaySchedule
 
 fun NetworkRecommendedShowsResponse.asDatabaseModel(): Array<DatabaseRecommendedShows> {
     return data.map {
@@ -41,4 +42,21 @@ fun NetworkNewShowsResponse.asDatabaseModel(): Array<DatabaseNewShows> {
             local_image_url = it.local_image_url
         )
     }.toTypedArray()
+}
+
+fun YesterdayNetworkSchedule.asDatabaseModel(): DatabaseYesterdaySchedule {
+    return DatabaseYesterdaySchedule(
+        id = show.id.toString(),
+        image = show.image?.original,
+        language = show.language,
+        name = show.name,
+        officialSite = show.officialSite,
+        premiered = show.premiered,
+        runtime = show.runtime.toString(),
+        status = show.status,
+        summary = show.summary,
+        type = show.type,
+        updated = show.updated.toString(),
+        url = show.url
+    )
 }

@@ -4,4 +4,5 @@
 
     <string name="title_new_shows">New Shows</string>
     <string name="title_recommended_shows">Recommended Shows</string>
+    <string name="title_yesterday_shows">Aired Yesterday</string>
 </resources>

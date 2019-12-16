@@ -22,7 +22,7 @@ private val moshi = Moshi.Builder()
     .add(KotlinJsonAdapterFactory())
     .build()
 
-object Network {
+object UpnextNetwork {
     private const val BASE_URL = "https://theupnextapp.com/api/"
 
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
