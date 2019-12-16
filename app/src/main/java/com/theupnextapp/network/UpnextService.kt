@@ -40,5 +40,5 @@ object UpnextNetwork {
         .addCallAdapterFactory(CoroutineCallAdapterFactory())
         .build()
 
-    val upnextApi = retrofit.create(UpnextService::class.java)
+    val upnextApi: UpnextService = retrofit.create(UpnextService::class.java)
 }

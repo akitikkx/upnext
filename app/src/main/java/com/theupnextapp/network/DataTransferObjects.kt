@@ -1,8 +1,6 @@
 package com.theupnextapp.network
 
-import com.theupnextapp.database.DatabaseNewShows
-import com.theupnextapp.database.DatabaseRecommendedShows
-import com.theupnextapp.database.DatabaseYesterdaySchedule
+import com.theupnextapp.database.*
 
 fun NetworkRecommendedShowsResponse.asDatabaseModel(): Array<DatabaseRecommendedShows> {
     return data.map {
@@ -46,6 +44,40 @@ fun NetworkNewShowsResponse.asDatabaseModel(): Array<DatabaseNewShows> {
 
 fun YesterdayNetworkSchedule.asDatabaseModel(): DatabaseYesterdaySchedule {
     return DatabaseYesterdaySchedule(
+        id = show.id.toString(),
+        image = show.image?.original,
+        language = show.language,
+        name = show.name,
+        officialSite = show.officialSite,
+        premiered = show.premiered,
+        runtime = show.runtime.toString(),
+        status = show.status,
+        summary = show.summary,
+        type = show.type,
+        updated = show.updated.toString(),
+        url = show.url
+    )
+}
+
+fun TodayNetworkSchedule.asDatabaseModel(): DatabaseTodaySchedule {
+    return DatabaseTodaySchedule(
+        id = show.id.toString(),
+        image = show.image?.original,
+        language = show.language,
+        name = show.name,
+        officialSite = show.officialSite,
+        premiered = show.premiered,
+        runtime = show.runtime.toString(),
+        status = show.status,
+        summary = show.summary,
+        type = show.type,
+        updated = show.updated.toString(),
+        url = show.url
+    )
+}
+
+fun TomorrowNetworkSchedule.asDatabaseModel(): DatabaseTomorrowSchedule {
+    return DatabaseTomorrowSchedule(
         id = show.id.toString(),
         image = show.image?.original,
         language = show.language,

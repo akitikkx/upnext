@@ -28,6 +28,8 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
             upnextRepository.refreshRecommendedShows()
             upnextRepository.refreshNewShows()
             upnextRepository.refreshYesterdayShows(DEFAULT_COUNTRY_CODE, yesterdayDate())
+            upnextRepository.refreshTodayShows(DEFAULT_COUNTRY_CODE, currentDate())
+            upnextRepository.refreshTomorrowShows(DEFAULT_COUNTRY_CODE, tomorrowDate())
         }
     }
 
@@ -36,6 +38,10 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
     val newShowsList = upnextRepository.newShows
 
     val yesterdayShowsList = upnextRepository.yesterdayShows
+
+    val todayShowsList = upnextRepository.todayShows
+
+    val tomorrowShowsList = upnextRepository.tomorrowShows
 
     override fun onCleared() {
         super.onCleared()

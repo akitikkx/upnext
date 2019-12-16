@@ -18,12 +18,12 @@ interface TvMazeService {
     @GET("schedule")
     fun getTodayScheduleAsync(
         @Query("country") countryCode: String, @Query("date") date: String?
-    ): Deferred<NetworkTodayScheduleResponse>
+    ): Deferred<List<TodayNetworkSchedule>>
 
     @GET("schedule")
     fun getTomorrowScheduleAsync(
         @Query("country") countryCode: String, @Query("date") date: String?
-    ): Deferred<NetworkTomorrowScheduleResponse>
+    ): Deferred<List<TomorrowNetworkSchedule>>
 }
 
 object TvMazeNetwork {
@@ -44,5 +44,5 @@ object TvMazeNetwork {
         .addCallAdapterFactory(CoroutineCallAdapterFactory())
         .build()
 
-    val tvMazeApi = retrofit.create(TvMazeService::class.java)
+    val tvMazeApi: TvMazeService = retrofit.create(TvMazeService::class.java)
 }

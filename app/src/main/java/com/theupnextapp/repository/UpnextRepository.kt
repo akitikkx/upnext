@@ -2,9 +2,7 @@ package com.theupnextapp.repository
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
-import com.theupnextapp.database.DatabaseYesterdaySchedule
-import com.theupnextapp.database.UpnextDatabase
-import com.theupnextapp.database.asDomainModel
+import com.theupnextapp.database.*
 import com.theupnextapp.domain.NewShows
 import com.theupnextapp.domain.RecommendedShows
 import com.theupnextapp.domain.ScheduleShow
@@ -30,6 +28,16 @@ class UpnextRepository(private val database: UpnextDatabase) {
 
     val yesterdayShows: LiveData<List<ScheduleShow>> =
         Transformations.map(database.upnextDao.getYesterdayShows()) {
+            it.asDomainModel()
+        }
+
+    val todayShows: LiveData<List<ScheduleShow>> =
+        Transformations.map(database.upnextDao.getTodayShows()) {
+            it.asDomainModel()
+        }
+
+    val tomorrowShows: LiveData<List<ScheduleShow>> =
+        Transformations.map(database.upnextDao.getTomorrowShows()) {
             it.asDomainModel()
         }
 
@@ -77,6 +85,56 @@ class UpnextRepository(private val database: UpnextDatabase) {
                             if (!it.show.image?.original.isNullOrEmpty()) {
                                 shows.add(it.asDatabaseModel())
                                 insertAllYesterdayShows(*shows.toTypedArray())
+                            }
+                        }
+                    }
+                }
+
+            } catch (e: HttpException) {
+                Timber.e(e)
+            }
+        }
+    }
+
+    suspend fun refreshTodayShows(countryCode: String, date: String?) {
+        withContext(Dispatchers.IO) {
+            try {
+                val shows: MutableList<DatabaseTodaySchedule> = arrayListOf()
+                val todayShowsList =
+                    TvMazeNetwork.tvMazeApi.getTodayScheduleAsync(countryCode, date).await()
+                if (!todayShowsList.isNullOrEmpty()) {
+                    database.upnextDao.apply {
+                        deleteAllTodayShows()
+                        todayShowsList.forEach {
+                            // only adding shows that have an image
+                            if (!it.show.image?.original.isNullOrEmpty()) {
+                                shows.add(it.asDatabaseModel())
+                                insertAllTodayShows(*shows.toTypedArray())
+                            }
+                        }
+                    }
+                }
+
+            } catch (e: HttpException) {
+                Timber.e(e)
+            }
+        }
+    }
+
+    suspend fun refreshTomorrowShows(countryCode: String, date: String?) {
+        withContext(Dispatchers.IO) {
+            try {
+                val shows: MutableList<DatabaseTomorrowSchedule> = arrayListOf()
+                val tomorrowShowsList =
+                    TvMazeNetwork.tvMazeApi.getTomorrowScheduleAsync(countryCode, date).await()
+                if (!tomorrowShowsList.isNullOrEmpty()) {
+                    database.upnextDao.apply {
+                        deleteAllTomorrowShows()
+                        tomorrowShowsList.forEach {
+                            // only adding shows that have an image
+                            if (!it.show.image?.original.isNullOrEmpty()) {
+                                shows.add(it.asDatabaseModel())
+                                insertAllTomorrowShows(*shows.toTypedArray())
                             }
                         }
                     }

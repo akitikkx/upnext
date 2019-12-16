@@ -22,6 +22,8 @@ class DashboardFragment : Fragment() {
     private var recommendedShowsAdapter: RecommendedShowsAdapter? = null
     private var newShowsAdapter: NewShowsAdapter? = null
     private var yesterdayShowsAdapter: YesterdayShowsAdapter? = null
+    private var todayShowsAdapter: TodayShowsAdapter? = null
+    private var tomorrowShowsAdapter: TomorrowShowsAdapter? = null
 
     private val viewModel: DashboardViewModel by lazy {
         val activity = requireNotNull(activity) {
@@ -56,6 +58,16 @@ class DashboardFragment : Fragment() {
 
             })
 
+        todayShowsAdapter =
+            TodayShowsAdapter(TodayShowsAdapter.TodayShowsAdapterListener {
+
+            })
+
+        tomorrowShowsAdapter =
+            TomorrowShowsAdapter(TomorrowShowsAdapter.TomorrowShowsAdapterListener {
+
+            })
+
         binding.root.findViewById<RecyclerView>(R.id.recommended_shows_list).apply {
             layoutManager = LinearLayoutManager(context).apply {
                 orientation = LinearLayoutManager.HORIZONTAL
@@ -75,6 +87,20 @@ class DashboardFragment : Fragment() {
                 orientation = LinearLayoutManager.HORIZONTAL
             }
             adapter = yesterdayShowsAdapter
+        }
+
+        binding.root.findViewById<RecyclerView>(R.id.today_shows_list).apply {
+            layoutManager = LinearLayoutManager(context).apply {
+                orientation = LinearLayoutManager.HORIZONTAL
+            }
+            adapter = todayShowsAdapter
+        }
+
+        binding.root.findViewById<RecyclerView>(R.id.tomorrow_shows_list).apply {
+            layoutManager = LinearLayoutManager(context).apply {
+                orientation = LinearLayoutManager.HORIZONTAL
+            }
+            adapter = tomorrowShowsAdapter
         }
 
         return binding.root
@@ -101,6 +127,22 @@ class DashboardFragment : Fragment() {
             Observer<List<ScheduleShow>> { yesterdayShows ->
                 yesterdayShows.apply {
                     yesterdayShowsAdapter?.yesterdayShows = yesterdayShows
+                }
+            })
+
+        viewModel.todayShowsList.observe(
+            viewLifecycleOwner,
+            Observer<List<ScheduleShow>> { todayShows ->
+                todayShows.apply {
+                    todayShowsAdapter?.todayShows = todayShows
+                }
+            })
+
+        viewModel.tomorrowShowsList.observe(
+            viewLifecycleOwner,
+            Observer<List<ScheduleShow>> { tomorrowShows ->
+                tomorrowShows.apply {
+                    tomorrowShowsAdapter?.tomorrowShows = tomorrowShows
                 }
             })
 

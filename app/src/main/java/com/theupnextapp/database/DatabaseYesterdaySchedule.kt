@@ -4,8 +4,8 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.theupnextapp.domain.ScheduleShow
 
-@Entity(tableName = "schedule_today")
-data class DatabaseTodaySchedule(
+@Entity(tableName = "schedule_yesterday")
+data class DatabaseYesterdaySchedule(
     @PrimaryKey
     val id: String,
     val image: String?,
@@ -21,7 +21,7 @@ data class DatabaseTodaySchedule(
     val url: String?
 )
 
-fun List<DatabaseTodaySchedule>.asDomainModel(): List<ScheduleShow> {
+fun List<DatabaseYesterdaySchedule>.asDomainModel(): List<ScheduleShow> {
     return map {
         ScheduleShow(
             id = it.id,
