@@ -1,7 +1,7 @@
 package com.theupnextapp.network
 
-data class NetworkDatum(
-    var id: String,
+data class NetworkShowData(
+    var id: Int,
     val url: String?,
     val name: String?,
     val status: String?,

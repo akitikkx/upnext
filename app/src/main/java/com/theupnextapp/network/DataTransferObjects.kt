@@ -44,7 +44,7 @@ fun NetworkNewShowsResponse.asDatabaseModel(): Array<DatabaseNewShows> {
 
 fun YesterdayNetworkSchedule.asDatabaseModel(): DatabaseYesterdaySchedule {
     return DatabaseYesterdaySchedule(
-        id = show.id.toString(),
+        id = show.id,
         image = show.image?.original,
         language = show.language,
         name = show.name,
@@ -61,7 +61,7 @@ fun YesterdayNetworkSchedule.asDatabaseModel(): DatabaseYesterdaySchedule {
 
 fun TodayNetworkSchedule.asDatabaseModel(): DatabaseTodaySchedule {
     return DatabaseTodaySchedule(
-        id = show.id.toString(),
+        id = show.id,
         image = show.image?.original,
         language = show.language,
         name = show.name,
@@ -78,7 +78,7 @@ fun TodayNetworkSchedule.asDatabaseModel(): DatabaseTodaySchedule {
 
 fun TomorrowNetworkSchedule.asDatabaseModel(): DatabaseTomorrowSchedule {
     return DatabaseTomorrowSchedule(
-        id = show.id.toString(),
+        id = show.id,
         image = show.image?.original,
         language = show.language,
         name = show.name,

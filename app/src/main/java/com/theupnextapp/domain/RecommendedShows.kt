@@ -1,7 +1,7 @@
 package com.theupnextapp.domain
 
 data class RecommendedShows(
-    var id: String?,
+    var id: Int,
     val url: String?,
     val name: String?,
     val status: String?,

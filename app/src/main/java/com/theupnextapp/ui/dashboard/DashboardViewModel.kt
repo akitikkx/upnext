@@ -1,9 +1,7 @@
 package com.theupnextapp.ui.dashboard
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.*
 import com.theupnextapp.database.getDatabase
 import com.theupnextapp.repository.UpnextRepository
 import kotlinx.coroutines.CoroutineScope
@@ -22,6 +20,11 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
     private val database = getDatabase(application)
 
     private val upnextRepository = UpnextRepository(database)
+
+    private val _navigateToSelectedShow = MutableLiveData<Int>()
+
+    val navigateToSelectedShow: LiveData<Int>
+        get() = _navigateToSelectedShow
 
     init {
         viewModelScope.launch {
@@ -42,6 +45,14 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
     val todayShowsList = upnextRepository.todayShows
 
     val tomorrowShowsList = upnextRepository.tomorrowShows
+
+    fun displayShowDetails(showId: Int) {
+        _navigateToSelectedShow.value = showId
+    }
+
+    fun displayShowDetailsComplete() {
+        _navigateToSelectedShow.value = null
+    }
 
     override fun onCleared() {
         super.onCleared()
@@ -74,7 +85,7 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
         const val DEFAULT_COUNTRY_CODE = "US"
     }
 
-    class Factory(val app : Application) : ViewModelProvider.Factory {
+    class Factory(val app: Application) : ViewModelProvider.Factory {
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(DashboardViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")

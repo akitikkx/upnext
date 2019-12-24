@@ -3,6 +3,7 @@ package com.theupnextapp.database
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import com.theupnextapp.domain.ShowInfo
 
 @Dao
 interface UpnextDao {
@@ -54,6 +55,15 @@ interface UpnextDao {
 
     @Query("delete from schedule_tomorrow")
     fun deleteAllTomorrowShows()
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertAllShowInfo(showInfo: DatabaseShowInfo)
+
+    @Query("delete from shows_info where id = :id")
+    fun deleteAllShowInfo(id: Int)
+
+    @Query("select * from shows_info where id = :id")
+    fun getShowWithId(id: Int): ShowInfo
 }
 
 @Database(
@@ -62,7 +72,8 @@ interface UpnextDao {
         DatabaseNewShows::class,
         DatabaseYesterdaySchedule::class,
         DatabaseTodaySchedule::class,
-        DatabaseTomorrowSchedule::class
+        DatabaseTomorrowSchedule::class,
+        DatabaseShowInfo::class
     ],
     version = 1,
     exportSchema = false

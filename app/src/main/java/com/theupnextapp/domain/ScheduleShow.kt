@@ -1,7 +1,7 @@
 package com.theupnextapp.domain
 
 data class ScheduleShow(
-    val id: String,
+    val id: Int,
     val image: String?,
     val language: String?,
     val name: String?,

@@ -7,7 +7,7 @@ import com.theupnextapp.domain.ScheduleShow
 @Entity(tableName = "schedule_yesterday")
 data class DatabaseYesterdaySchedule(
     @PrimaryKey
-    val id: String,
+    val id: Int,
     val image: String?,
     val language: String?,
     val name: String?,

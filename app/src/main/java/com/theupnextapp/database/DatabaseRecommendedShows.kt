@@ -7,7 +7,7 @@ import com.theupnextapp.domain.RecommendedShows
 @Entity(tableName = "recommended_shows")
 data class DatabaseRecommendedShows constructor(
     @PrimaryKey
-    var id: String,
+    var id: Int,
     val url: String?,
     val name: String?,
     val status: String?,

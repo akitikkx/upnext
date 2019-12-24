@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.theupnextapp.R
@@ -46,26 +47,26 @@ class DashboardFragment : Fragment() {
 
         recommendedShowsAdapter =
             RecommendedShowsAdapter(RecommendedShowsAdapter.RecommendedShowsAdapterListener {
-                // TODO handle click of show
+                viewModel.displayShowDetails(it.id)
             })
 
         newShowsAdapter = NewShowsAdapter(NewShowsAdapter.NewShowsAdapterListener {
-
+            viewModel.displayShowDetails(it.id)
         })
 
         yesterdayShowsAdapter =
             YesterdayShowsAdapter(YesterdayShowsAdapter.YesterdayShowsAdapterListener {
-
+                viewModel.displayShowDetails(it.id)
             })
 
         todayShowsAdapter =
             TodayShowsAdapter(TodayShowsAdapter.TodayShowsAdapterListener {
-
+                viewModel.displayShowDetails(it.id)
             })
 
         tomorrowShowsAdapter =
             TomorrowShowsAdapter(TomorrowShowsAdapter.TomorrowShowsAdapterListener {
-
+                viewModel.displayShowDetails(it.id)
             })
 
         binding.root.findViewById<RecyclerView>(R.id.recommended_shows_list).apply {
@@ -146,5 +147,13 @@ class DashboardFragment : Fragment() {
                 }
             })
 
+        viewModel.navigateToSelectedShow.observe(viewLifecycleOwner, Observer {
+            if (null != it) {
+                this.findNavController().navigate(
+                    DashboardFragmentDirections.actionDashboardFragmentToShowDetailFragment(it)
+                )
+                viewModel.displayShowDetailsComplete()
+            }
+        })
     }
 }

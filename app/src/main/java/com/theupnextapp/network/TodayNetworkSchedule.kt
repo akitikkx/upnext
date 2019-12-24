@@ -1,7 +1,7 @@
 package com.theupnextapp.network
 
 data class TodayNetworkSchedule(
-    val _links: Links,
+    val _links: NetworkShowEpisodeLinks,
     val airdate: String,
     val airstamp: String,
     val airtime: String,

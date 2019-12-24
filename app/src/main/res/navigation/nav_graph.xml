@@ -1,10 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/nav_graph"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
     app:startDestination="@id/dashboardFragment">
 
     <fragment
         android:id="@+id/dashboardFragment"
         android:name="com.theupnextapp.ui.dashboard.DashboardFragment"
-        android:label="DashboardFragment" />
+        android:label="DashboardFragment">
+        <action
+            android:id="@+id/action_dashboardFragment_to_showDetailFragment"
+            app:destination="@id/showDetailFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/showDetailFragment"
+        android:name="com.theupnextapp.ui.showDetail.ShowDetailFragment"
+        android:label="ShowDetailFragment">
+        <argument
+            android:name="showId"
+            app:argType="integer" />
+        <action
+            android:id="@id/action_dashboardFragment_to_showDetailFragment"
+            app:destination="@id/dashboardFragment"
+            app:launchSingleTop="false"
+            app:popUpTo="@id/dashboardFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
 </navigation>

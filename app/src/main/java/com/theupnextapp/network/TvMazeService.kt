@@ -7,6 +7,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface TvMazeService {
@@ -24,6 +25,15 @@ interface TvMazeService {
     fun getTomorrowScheduleAsync(
         @Query("country") countryCode: String, @Query("date") date: String?
     ): Deferred<List<TomorrowNetworkSchedule>>
+
+    @GET("shows/{id}")
+    fun getShowSummaryAsync(@Path("id") id: String?): Deferred<NetworkShowInfoResponse>
+
+    @GET("/episodes/{id}")
+    fun getNextEpisodeAsync(@Path("id") name: String?): Deferred<NetworkShowEpisode>
+
+    @GET("/episodes/{id}")
+    fun getPreviousEpisodeAsync(@Path("id") name: String?): Deferred<NetworkShowEpisode>
 }
 
 object TvMazeNetwork {

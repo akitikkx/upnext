@@ -7,7 +7,7 @@ import com.theupnextapp.domain.NewShows
 @Entity(tableName = "new_shows")
 data class DatabaseNewShows constructor(
     @PrimaryKey
-    var id: String,
+    var id: Int,
     val url: String?,
     val name: String?,
     val status: String?,

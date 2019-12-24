@@ -6,5 +6,5 @@ data class NetworkRecommendedShows(
     var code: Int?,
     val status: Int?,
     val message: Any?,
-    val data: List<NetworkDatum> = ArrayList()
+    val data: List<NetworkShowData> = ArrayList()
 )

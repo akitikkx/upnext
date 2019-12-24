@@ -1,11 +1,14 @@
 package com.theupnextapp.repository
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.theupnextapp.database.*
 import com.theupnextapp.domain.NewShows
 import com.theupnextapp.domain.RecommendedShows
 import com.theupnextapp.domain.ScheduleShow
+import com.theupnextapp.domain.ShowInfo
+import com.theupnextapp.network.NetworkShowInfoCombined
 import com.theupnextapp.network.TvMazeNetwork
 import com.theupnextapp.network.UpnextNetwork
 import com.theupnextapp.network.asDatabaseModel
@@ -40,6 +43,11 @@ class UpnextRepository(private val database: UpnextDatabase) {
         Transformations.map(database.upnextDao.getTomorrowShows()) {
             it.asDomainModel()
         }
+
+    private val _showInfo = MutableLiveData<ShowInfo>()
+
+    val showInfo: LiveData<ShowInfo>
+        get() = _showInfo
 
     suspend fun refreshRecommendedShows() {
         withContext(Dispatchers.IO) {
@@ -139,7 +147,42 @@ class UpnextRepository(private val database: UpnextDatabase) {
                         }
                     }
                 }
+            } catch (e: HttpException) {
+                Timber.e(e)
+            }
+        }
+    }
 
+    private suspend fun addShowData(showId: Int) {
+        withContext(Dispatchers.IO) {
+            try {
+                val showInfo =
+                    TvMazeNetwork.tvMazeApi.getShowSummaryAsync(showId.toString()).await()
+                val showPreviousEpisode =
+                    TvMazeNetwork.tvMazeApi.getPreviousEpisodeAsync(showId.toString()).await()
+                val showNextEpisode =
+                    TvMazeNetwork.tvMazeApi.getNextEpisodeAsync(showId.toString()).await()
+                val showInfoCombined = NetworkShowInfoCombined(
+                    showInfoResponse = showInfo,
+                    previousEpisode = showPreviousEpisode,
+                    nextEpisode = showNextEpisode
+                )
+                database.upnextDao.apply {
+                    deleteAllShowInfo(showId)
+                    insertAllShowInfo(showInfoCombined.asDatabaseModel())
+                }
+            } catch (e: HttpException) {
+                Timber.e(e)
+            }
+        }
+    }
+
+    suspend fun getShowData(showId: Int) {
+        withContext(Dispatchers.IO) {
+            try {
+                addShowData(showId)
+                val showInfo = database.upnextDao.getShowWithId(showId)
+                _showInfo.postValue(showInfo)
             } catch (e: HttpException) {
                 Timber.e(e)
             }

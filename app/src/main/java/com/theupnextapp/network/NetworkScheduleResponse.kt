@@ -1,9 +1,7 @@
 package com.theupnextapp.network
 
-import com.squareup.moshi.JsonClass
-
 data class Links(
-    val self: Self
+    val self: NetworkShowEpisodeSelf
 )
 
 data class Self(
