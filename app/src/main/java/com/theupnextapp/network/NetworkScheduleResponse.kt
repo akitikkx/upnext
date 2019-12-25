@@ -4,6 +4,14 @@ data class Links(
     val self: NetworkShowEpisodeSelf
 )
 
+data class NetworkShowEpisodeSelf(
+    val href: String
+)
+
+data class NetworkShowEpisodeLinks(
+    val self: NetworkShowNextEpisodeSelf
+)
+
 data class Self(
     val href: String
 )

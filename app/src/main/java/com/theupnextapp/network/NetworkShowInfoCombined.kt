@@ -4,8 +4,8 @@ import com.theupnextapp.database.DatabaseShowInfo
 
 data class NetworkShowInfoCombined constructor(
     val showInfoResponse: NetworkShowInfoResponse,
-    val previousEpisode: NetworkShowEpisode,
-    val nextEpisode : NetworkShowEpisode
+    val previousEpisode: NetworkShowPreviousEpisode?,
+    val nextEpisode : NetworkShowNextEpisode?
 )
 
 fun NetworkShowInfoCombined.asDatabaseModel(): DatabaseShowInfo {
@@ -18,29 +18,39 @@ fun NetworkShowInfoCombined.asDatabaseModel(): DatabaseShowInfo {
         averageRating = showInfoResponse.rating?.average.toString(),
         airDays = showInfoResponse.schedule?.days?.joinToString(),
         time = showInfoResponse.schedule?.time,
-        nextEpisodeId = nextEpisode.id,
-        nextEpisodeUrl = nextEpisode.url,
-        nextEpisodeSummary = nextEpisode.summary,
-        nextEpisodeSeason = nextEpisode.season.toString(),
-        nextEpisodeRuntime = nextEpisode.runtime.toString(),
-        nextEpisodeNumber = nextEpisode.number.toString(),
-        nextEpisodeName = nextEpisode.name,
-        nextEpisodeMediumImageUrl = nextEpisode.image?.medium,
-        nextEpisodeOriginalImageUrl = nextEpisode.image?.original,
-        nextEpisodeAirtime = nextEpisode.airtime,
-        nextEpisodeAirstamp = nextEpisode.airstamp,
-        nextEpisodeAirdate = nextEpisode.airdate,
-        previousEpisodeId = previousEpisode.id,
-        previousEpisodeUrl = previousEpisode.url,
-        previousEpisodeSummary = previousEpisode.summary,
-        previousEpisodeSeason = previousEpisode.season.toString(),
-        previousEpisodeRuntime = previousEpisode.runtime.toString(),
-        previousEpisodeNumber = previousEpisode.number.toString(),
-        previousEpisodeName = previousEpisode.name,
-        previousEpisodeMediumImageUrl = previousEpisode.image?.medium,
-        previousEpisodeOriginalImageUrl = previousEpisode.image?.original,
-        previousEpisodeAirtime = previousEpisode.airtime,
-        previousEpisodeAirstamp = previousEpisode.airstamp,
-        previousEpisodeAirdate = previousEpisode.airdate
+        nextEpisodeLinkedId = showInfoResponse._links?.nextepisode?.href?.substring(31)?.let {
+            Integer.parseInt(
+                it
+            )
+        },
+        previousEpisodeLinkedId = showInfoResponse._links?.nextepisode?.href?.substring(31)?.let {
+            Integer.parseInt(
+                it
+            )
+        },
+        nextEpisodeId = nextEpisode?.id,
+        nextEpisodeUrl = nextEpisode?.url,
+        nextEpisodeSummary = nextEpisode?.summary,
+        nextEpisodeSeason = nextEpisode?.season.toString(),
+        nextEpisodeRuntime = nextEpisode?.runtime.toString(),
+        nextEpisodeNumber = nextEpisode?.number.toString(),
+        nextEpisodeName = nextEpisode?.name,
+        nextEpisodeMediumImageUrl = nextEpisode?.image?.medium,
+        nextEpisodeOriginalImageUrl = nextEpisode?.image?.original,
+        nextEpisodeAirtime = nextEpisode?.airtime,
+        nextEpisodeAirstamp = nextEpisode?.airstamp,
+        nextEpisodeAirdate = nextEpisode?.airdate,
+        previousEpisodeId = previousEpisode?.id,
+        previousEpisodeUrl = previousEpisode?.url,
+        previousEpisodeSummary = previousEpisode?.summary,
+        previousEpisodeSeason = previousEpisode?.season.toString(),
+        previousEpisodeRuntime = previousEpisode?.runtime.toString(),
+        previousEpisodeNumber = previousEpisode?.number.toString(),
+        previousEpisodeName = previousEpisode?.name,
+        previousEpisodeMediumImageUrl = previousEpisode?.image?.medium,
+        previousEpisodeOriginalImageUrl = previousEpisode?.image?.original,
+        previousEpisodeAirtime = previousEpisode?.airtime,
+        previousEpisodeAirstamp = previousEpisode?.airstamp,
+        previousEpisodeAirdate = previousEpisode?.airdate
     )
 }

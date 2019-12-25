@@ -3,6 +3,7 @@ package com.theupnextapp.ui.dashboard
 import android.app.Application
 import androidx.lifecycle.*
 import com.theupnextapp.database.getDatabase
+import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.repository.UpnextRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,10 +22,15 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
 
     private val upnextRepository = UpnextRepository(database)
 
-    private val _navigateToSelectedShow = MutableLiveData<Int>()
+    private val _navigateToSelectedShow = MutableLiveData<ShowDetailArg>()
 
-    val navigateToSelectedShow: LiveData<Int>
+    private val _showProgressLoader = MutableLiveData<Boolean>()
+
+    val navigateToSelectedShow: LiveData<ShowDetailArg>
         get() = _navigateToSelectedShow
+
+    val showProgressLoader: LiveData<Boolean>
+        get() = _showProgressLoader
 
     init {
         viewModelScope.launch {
@@ -46,12 +52,22 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
 
     val tomorrowShowsList = upnextRepository.tomorrowShows
 
-    fun displayShowDetails(showId: Int) {
-        _navigateToSelectedShow.value = showId
+    val isLoading = upnextRepository.isLoading
+
+    fun displayShowDetails(showDetailArg: ShowDetailArg) {
+        _navigateToSelectedShow.value = showDetailArg
     }
 
     fun displayShowDetailsComplete() {
         _navigateToSelectedShow.value = null
+    }
+
+    fun displayProgressLoader() {
+        _showProgressLoader.value = true
+    }
+
+    fun displayProgressLoaderComplete() {
+        _showProgressLoader.value = false
     }
 
     override fun onCleared() {

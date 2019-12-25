@@ -1,7 +1,7 @@
 package com.theupnextapp.network
 
 data class NetworkShowInfoResponse constructor(
-    val _links: NetworkShowInfoLinks,
+    val _links: NetworkShowInfoLinks?,
     val externals: NetworkShowInfoExternals,
     val genres: List<String>,
     val id: Int,
@@ -24,11 +24,16 @@ data class NetworkShowInfoResponse constructor(
 )
 
 data class NetworkShowInfoLinks(
-    val previousepisode: NetworkShowInfoNextEpsiode,
-    val self: NetworkShowInfoSelf
+    val nextepisode: NetworkShowInfoNextEpisode?,
+    val previousepisode: NetworkShowInfoPreviousEpsiode?,
+    val self: NetworkShowInfoSelf?
 )
 
-data class NetworkShowInfoNextEpsiode(
+data class NetworkShowInfoPreviousEpsiode(
+    val href: String
+)
+
+data class NetworkShowInfoNextEpisode(
     val href: String
 )
 

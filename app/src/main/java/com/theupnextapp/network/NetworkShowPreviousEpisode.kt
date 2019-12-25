@@ -1,12 +1,12 @@
 package com.theupnextapp.network
 
-data class NetworkShowEpisode constructor(
-    val _links: NetworkShowEpisodeLinks?,
+data class NetworkShowPreviousEpisode constructor(
+    val _links: NetworkShowPreviousEpisodeLinks?,
     val airdate: String?,
     val airstamp: String?,
     val airtime: String?,
     val id: Int,
-    val image: NetworkShowEpisodeImage?,
+    val image: NetworkShowPreviousEpisodeImage?,
     val name: String?,
     val number: Int,
     val runtime: Int?,
@@ -15,15 +15,15 @@ data class NetworkShowEpisode constructor(
     val url: String?
 )
 
-data class NetworkShowEpisodeLinks(
-    val self: NetworkShowEpisodeSelf
+data class NetworkShowPreviousEpisodeLinks(
+    val self: NetworkShowPreviousEpisodeSelf
 )
 
-data class NetworkShowEpisodeSelf(
+data class NetworkShowPreviousEpisodeSelf(
     val href: String
 )
 
-data class NetworkShowEpisodeImage(
+data class NetworkShowPreviousEpisodeImage(
     val medium: String,
     val original: String
 )

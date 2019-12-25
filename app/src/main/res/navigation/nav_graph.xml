@@ -17,8 +17,8 @@
         android:name="com.theupnextapp.ui.showDetail.ShowDetailFragment"
         android:label="ShowDetailFragment">
         <argument
-            android:name="showId"
-            app:argType="integer" />
+            android:name="show"
+            app:argType="com.theupnextapp.domain.ShowDetailArg" />
         <action
             android:id="@id/action_dashboardFragment_to_showDetailFragment"
             app:destination="@id/dashboardFragment"

@@ -1,115 +1,176 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.theupnextapp.ui.dashboard.DashboardViewModel" />
+    </data>
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
 
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="192dp"
+                android:indeterminateTint="@color/colorAccent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:showProgress="@{viewModel.showProgressLoader}" />
+
             <TextView
-                android:layout_width="match_parent"
+                android:id="@+id/yesterday_shows_title"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal"
                 android:text="@string/title_yesterday_shows"
-                android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+                android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:loadingVisibility="@{viewModel.showProgressLoader}" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/yesterday_shows_list"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal_half"
                 android:layout_marginTop="@dimen/margin_vertical"
                 android:layout_marginEnd="@dimen/margin_horizontal_half"
                 android:layout_marginBottom="@dimen/margin_vertical"
-                android:clickable="true"
                 android:clipToPadding="false"
-                android:focusable="true"
+                app:canClickItem="@{viewModel.showProgressLoader}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/yesterday_shows_title"
+                app:loadingVisibility="@{viewModel.showProgressLoader}"
                 tools:listitem="@layout/yesterday_show_list_item" />
 
             <TextView
-                android:layout_width="match_parent"
+                android:id="@+id/today_shows_title"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal"
                 android:text="@string/title_today_shows"
-                android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+                android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/yesterday_shows_list"
+                app:loadingVisibility="@{viewModel.showProgressLoader}" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/today_shows_list"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal_half"
                 android:layout_marginTop="@dimen/margin_vertical"
                 android:layout_marginEnd="@dimen/margin_horizontal_half"
                 android:layout_marginBottom="@dimen/margin_vertical"
-                android:clickable="true"
                 android:clipToPadding="false"
-                android:focusable="true"
+                app:canClickItem="@{viewModel.showProgressLoader}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/today_shows_title"
+                app:loadingVisibility="@{viewModel.showProgressLoader}"
                 tools:listitem="@layout/today_show_list_item" />
 
             <TextView
-                android:layout_width="match_parent"
+                android:id="@+id/tomorrow_shows_title"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal"
                 android:text="@string/title_tomorrow_shows"
-                android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+                android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/today_shows_list"
+                app:loadingVisibility="@{viewModel.showProgressLoader}" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/tomorrow_shows_list"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal_half"
                 android:layout_marginTop="@dimen/margin_vertical"
                 android:layout_marginEnd="@dimen/margin_horizontal_half"
                 android:layout_marginBottom="@dimen/margin_vertical"
-                android:clickable="true"
                 android:clipToPadding="false"
-                android:focusable="true"
+                app:canClickItem="@{viewModel.showProgressLoader}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tomorrow_shows_title"
+                app:loadingVisibility="@{viewModel.showProgressLoader}"
                 tools:listitem="@layout/tomorrow_show_list_item" />
 
             <TextView
-                android:layout_width="match_parent"
+                android:id="@+id/new_shows_title"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal"
                 android:text="@string/title_new_shows"
-                android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+                android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tomorrow_shows_list"
+                app:loadingVisibility="@{viewModel.showProgressLoader}" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/new_shows_list"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal_half"
                 android:layout_marginTop="@dimen/margin_vertical"
                 android:layout_marginEnd="@dimen/margin_horizontal_half"
                 android:layout_marginBottom="@dimen/margin_vertical"
-                android:clickable="true"
                 android:clipToPadding="false"
-                android:focusable="true"
+                app:canClickItem="@{viewModel.showProgressLoader}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/new_shows_title"
+                app:loadingVisibility="@{viewModel.showProgressLoader}"
                 tools:listitem="@layout/recommended_show_list_item" />
 
             <TextView
-                android:layout_width="match_parent"
+                android:id="@+id/recommended_shows_title"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal"
                 android:text="@string/title_recommended_shows"
-                android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+                android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/new_shows_list"
+                app:loadingVisibility="@{viewModel.showProgressLoader}" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recommended_shows_list"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal_half"
                 android:layout_marginTop="@dimen/margin_vertical"
                 android:layout_marginEnd="@dimen/margin_horizontal_half"
-                android:clickable="true"
                 android:clipToPadding="false"
-                android:focusable="true"
+                app:canClickItem="@{viewModel.showProgressLoader}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/recommended_shows_title"
+                app:loadingVisibility="@{viewModel.showProgressLoader}"
                 tools:listitem="@layout/recommended_show_list_item" />
-        </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.core.widget.NestedScrollView>
 

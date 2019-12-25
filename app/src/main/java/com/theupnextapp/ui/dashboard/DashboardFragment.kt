@@ -15,6 +15,7 @@ import com.theupnextapp.databinding.FragmentDashboardBinding
 import com.theupnextapp.domain.NewShows
 import com.theupnextapp.domain.RecommendedShows
 import com.theupnextapp.domain.ScheduleShow
+import com.theupnextapp.domain.ShowDetailArg
 
 class DashboardFragment : Fragment() {
 
@@ -45,28 +46,30 @@ class DashboardFragment : Fragment() {
 
         binding.lifecycleOwner = viewLifecycleOwner
 
+        binding.viewModel = viewModel
+
         recommendedShowsAdapter =
             RecommendedShowsAdapter(RecommendedShowsAdapter.RecommendedShowsAdapterListener {
-                viewModel.displayShowDetails(it.id)
+                viewModel.displayShowDetails(ShowDetailArg(it.id, it.name))
             })
 
         newShowsAdapter = NewShowsAdapter(NewShowsAdapter.NewShowsAdapterListener {
-            viewModel.displayShowDetails(it.id)
+            viewModel.displayShowDetails(ShowDetailArg(it.id, it.name))
         })
 
         yesterdayShowsAdapter =
             YesterdayShowsAdapter(YesterdayShowsAdapter.YesterdayShowsAdapterListener {
-                viewModel.displayShowDetails(it.id)
+                viewModel.displayShowDetails(ShowDetailArg(it.id, it.name))
             })
 
         todayShowsAdapter =
             TodayShowsAdapter(TodayShowsAdapter.TodayShowsAdapterListener {
-                viewModel.displayShowDetails(it.id)
+                viewModel.displayShowDetails(ShowDetailArg(it.id, it.name))
             })
 
         tomorrowShowsAdapter =
             TomorrowShowsAdapter(TomorrowShowsAdapter.TomorrowShowsAdapterListener {
-                viewModel.displayShowDetails(it.id)
+                viewModel.displayShowDetails(ShowDetailArg(it.id, it.name))
             })
 
         binding.root.findViewById<RecyclerView>(R.id.recommended_shows_list).apply {
@@ -146,6 +149,14 @@ class DashboardFragment : Fragment() {
                     tomorrowShowsAdapter?.tomorrowShows = tomorrowShows
                 }
             })
+
+        viewModel.isLoading.observe(viewLifecycleOwner, Observer {
+            if (it) {
+                viewModel.displayProgressLoader()
+            } else {
+                viewModel.displayProgressLoaderComplete()
+            }
+        })
 
         viewModel.navigateToSelectedShow.observe(viewLifecycleOwner, Observer {
             if (null != it) {

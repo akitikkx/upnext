@@ -30,10 +30,10 @@ interface TvMazeService {
     fun getShowSummaryAsync(@Path("id") id: String?): Deferred<NetworkShowInfoResponse>
 
     @GET("/episodes/{id}")
-    fun getNextEpisodeAsync(@Path("id") name: String?): Deferred<NetworkShowEpisode>
+    fun getNextEpisodeAsync(@Path("id") name: String?): Deferred<NetworkShowNextEpisode>
 
     @GET("/episodes/{id}")
-    fun getPreviousEpisodeAsync(@Path("id") name: String?): Deferred<NetworkShowEpisode>
+    fun getPreviousEpisodeAsync(@Path("id") name: String?): Deferred<NetworkShowPreviousEpisode>
 }
 
 object TvMazeNetwork {
