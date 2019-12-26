@@ -7,6 +7,13 @@
     <dimen name="margin_horizontal">8dp</dimen>
     <dimen name="margin_horizontal_half">4dp</dimen>
 
+    <!-- Dashboard -->
     <dimen name="poster_frame_width">100dp</dimen>
     <dimen name="shows_list_poster_height">150dp</dimen>
+
+    <!-- Show Detail -->
+    <dimen name="detail_poster_width">130dp</dimen>
+    <dimen name="detail_poster_height">250dp</dimen>
+    <dimen name="show_backdrop_height">200dp</dimen>
+    <dimen name="show_video_thumbnail_width">200dp</dimen>
 </resources>

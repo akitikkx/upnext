@@ -8,6 +8,8 @@ import com.theupnextapp.domain.ShowInfo
 data class DatabaseShowInfo constructor(
     @PrimaryKey
     var id: Int,
+    val name : String?,
+    val summary : String?,
     val mediumImageUrl: String?,
     val originalImageUrl: String?,
     val genres: String?,
@@ -15,6 +17,7 @@ data class DatabaseShowInfo constructor(
     val averageRating: String?,
     val airDays: String?,
     val time: String?,
+    val status : String?,
     val nextEpisodeLinkedId : Int?,
     val previousEpisodeLinkedId : Int?,
     val nextEpisodeId: Int?,
@@ -46,6 +49,8 @@ data class DatabaseShowInfo constructor(
 fun DatabaseShowInfo.asDomainModel(): ShowInfo {
     return ShowInfo(
         id = id,
+        name = name,
+        summary = summary,
         mediumImageUrl = mediumImageUrl,
         originalImageUrl = originalImageUrl,
         genres = genres.toString(),
@@ -53,6 +58,9 @@ fun DatabaseShowInfo.asDomainModel(): ShowInfo {
         averageRating = averageRating,
         airDays = airDays.toString(),
         time = time,
+        status = status,
+        nextEpisodeLinkedId = nextEpisodeLinkedId,
+        previousEpisodeLinkedId = previousEpisodeLinkedId,
         nextEpisodeId = nextEpisodeId,
         nextEpisodeAirdate = nextEpisodeAirdate,
         nextEpisodeAirstamp = nextEpisodeAirstamp,

@@ -31,6 +31,8 @@ class ShowDetailViewModel(
         }
     }
 
+    val isLoading = upnextRepository.isLoading
+
     val showInfo = upnextRepository.showInfo
 
     override fun onCleared() {

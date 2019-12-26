@@ -1,14 +1,19 @@
 package com.theupnextapp.domain
 
 data class ShowInfo(
+    val airDays: String?,
+    val averageRating: String?,
     var id : Int,
-    val mediumImageUrl: String?,
-    val originalImageUrl: String?,
     val genres: String?,
     val language: String?,
-    val averageRating: String?,
-    val airDays: String?,
+    val mediumImageUrl: String?,
+    val name : String?,
+    val originalImageUrl: String?,
+    val summary : String?,
     val time: String?,
+    val status : String?,
+    val nextEpisodeLinkedId : Int?,
+    val previousEpisodeLinkedId : Int?,
     val nextEpisodeId: Int?,
     val nextEpisodeAirdate: String?,
     val nextEpisodeAirstamp: String?,

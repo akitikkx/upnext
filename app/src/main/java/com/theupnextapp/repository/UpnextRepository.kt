@@ -57,13 +57,25 @@ class UpnextRepository(private val database: UpnextDatabase) {
                 _isLoading.postValue(true)
                 val recommendedShowsList =
                     UpnextNetwork.upnextApi.getRecommendedShowsAsync().await()
+
+                saveRecommendedShows(recommendedShowsList)
+
+                _isLoading.postValue(false)
+            } catch (e: HttpException) {
+                _isLoading.postValue(false)
+                Timber.e(e)
+            }
+        }
+    }
+
+    private suspend fun saveRecommendedShows(recommendedShowsList: NetworkRecommendedShowsResponse) {
+        withContext(Dispatchers.IO) {
+            try {
                 database.upnextDao.apply {
                     deleteAllRecommendedShows()
                     insertAllRecommendedShows(*recommendedShowsList.asDatabaseModel())
                 }
-                _isLoading.postValue(false)
             } catch (e: HttpException) {
-                _isLoading.postValue(false)
                 Timber.e(e)
             }
         }
@@ -144,9 +156,23 @@ class UpnextRepository(private val database: UpnextDatabase) {
         withContext(Dispatchers.IO) {
             try {
                 _isLoading.postValue(true)
-                val shows: MutableList<DatabaseTomorrowSchedule> = arrayListOf()
                 val tomorrowShowsList =
                     TvMazeNetwork.tvMazeApi.getTomorrowScheduleAsync(countryCode, date).await()
+
+                saveTomorrowShows(tomorrowShowsList)
+
+                _isLoading.postValue(false)
+            } catch (e: HttpException) {
+                _isLoading.postValue(false)
+                Timber.e(e)
+            }
+        }
+    }
+
+    private suspend fun saveTomorrowShows(tomorrowShowsList: List<TomorrowNetworkSchedule>) {
+        withContext(Dispatchers.IO) {
+            try {
+                val shows: MutableList<DatabaseTomorrowSchedule> = arrayListOf()
                 if (!tomorrowShowsList.isNullOrEmpty()) {
                     database.upnextDao.apply {
                         deleteAllTomorrowShows()
@@ -159,9 +185,7 @@ class UpnextRepository(private val database: UpnextDatabase) {
                         }
                     }
                 }
-                _isLoading.postValue(false)
             } catch (e: HttpException) {
-                _isLoading.postValue(false)
                 Timber.e(e)
             }
         }
@@ -209,7 +233,7 @@ class UpnextRepository(private val database: UpnextDatabase) {
         }
     }
 
-    suspend fun getShowData(showId: Int) {
+    suspend fun getShowDataWithInsert(showId: Int) {
         withContext(Dispatchers.IO) {
             try {
                 _isLoading.postValue(true)
@@ -219,6 +243,48 @@ class UpnextRepository(private val database: UpnextDatabase) {
                 _isLoading.postValue(false)
             } catch (e: HttpException) {
                 _isLoading.postValue(false)
+                Timber.e(e)
+            }
+        }
+    }
+
+    suspend fun getShowData(showId: Int) {
+        withContext(Dispatchers.IO) {
+            try {
+                _isLoading.postValue(true)
+                val showInfo =
+                    TvMazeNetwork.tvMazeApi.getShowSummaryAsync(showId.toString()).await()
+
+                val previousEpisodeLink = showInfo._links?.previousepisode?.href?.substring(31)
+                val nextEpisodeLink = showInfo._links?.nextepisode?.href?.substring(31)
+
+                var showPreviousEpisode: NetworkShowPreviousEpisode? = null
+                var showNextEpisode: NetworkShowNextEpisode? = null
+                if (!previousEpisodeLink.isNullOrEmpty()) {
+                    showPreviousEpisode =
+                        TvMazeNetwork.tvMazeApi.getPreviousEpisodeAsync(
+                            showInfo._links.previousepisode.href.substring(
+                                31
+                            )
+                        ).await()
+                }
+                if (!nextEpisodeLink.isNullOrEmpty()) {
+                    showNextEpisode =
+                        TvMazeNetwork.tvMazeApi.getNextEpisodeAsync(
+                            showInfo._links.nextepisode.href.substring(
+                                31
+                            )
+                        ).await()
+                }
+                val showInfoCombined = NetworkShowInfoCombined(
+                    showInfoResponse = showInfo,
+                    previousEpisode = showPreviousEpisode,
+                    nextEpisode = showNextEpisode
+                )
+                _showInfo.postValue(showInfoCombined.asDomainModel())
+                _isLoading.postValue(true)
+            } catch (e: HttpException) {
+                _isLoading.postValue(true)
                 Timber.e(e)
             }
         }

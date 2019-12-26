@@ -1,12 +1,12 @@
 package com.theupnextapp.network
 
 data class NetworkShowInfoResponse constructor(
-    val _links: NetworkShowInfoLinks?,
-    val externals: NetworkShowInfoExternals,
-    val genres: List<String>,
     val id: Int,
     val image: NetworkShowInfoImage?,
+    val externals: NetworkShowInfoExternals,
+    val genres: List<String>,
     val language: String?,
+    val _links: NetworkShowInfoLinks?,
     val name: String?,
     val network: NetworkShowInfoNetwork?,
     val officialSite: String?,

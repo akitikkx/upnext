@@ -1,33 +1,227 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <variable
             name="viewModel"
             type="com.theupnextapp.ui.showDetail.ShowDetailViewModel" />
     </data>
 
-    <LinearLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-        
-        <TextView
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="@android:color/white"
-            app:fromHtml="@{viewModel.showInfo.nextEpisodeSummary}"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"/>
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingBottom="@dimen/margin_vertical">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="@android:color/white"
-            app:fromHtml="@{viewModel.showInfo.previousEpisodeSummary}"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"/>
+            <FrameLayout
+                android:id="@+id/show_detail_backdrop"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
+                <ProgressBar
+                    android:id="@+id/poster_progress"
+                    style="?android:attr/progressBarStyleSmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    app:goneIfNotNull="@{viewModel.showInfo.originalImageUrl}" />
 
-    </LinearLayout>
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/show_backdrop_height"
+                    android:contentDescription="@{String.format(@string/show_backdrop_image, viewModel.showInfo.name)}"
+                    android:scaleType="centerCrop"
+                    app:imageUrl="@{viewModel.showInfo.originalImageUrl}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/show_detail_title"
+                style="@style/ShowDetail.Title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_horizontal"
+                android:layout_marginTop="@dimen/margin_vertical_half"
+                android:layout_marginEnd="@dimen/margin_horizontal"
+                android:text="@{viewModel.showInfo.name}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/show_detail_backdrop"
+                tools:text="Show Title" />
+
+            <TextView
+                android:id="@+id/show_detail_summary"
+                style="@style/ShowDetail.Description"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_horizontal"
+                android:layout_marginTop="@dimen/margin_vertical_half"
+                android:layout_marginEnd="@dimen/margin_horizontal"
+                app:fromHtml="@{viewModel.showInfo.summary}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/show_detail_title"
+                tools:text="Show Summary" />
+
+            <FrameLayout
+                android:id="@+id/show_detail_poster"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/shows_list_poster_height"
+                android:layout_marginStart="@dimen/margin_horizontal"
+                android:layout_marginTop="@dimen/margin_vertical_half"
+                android:layout_marginEnd="@dimen/margin_horizontal"
+                android:orientation="vertical"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/show_detail_summary">
+
+                <ProgressBar
+                    android:id="@+id/show_detail_poster_progress"
+                    style="?android:attr/progressBarStyleSmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    app:goneIfNotNull="@{viewModel.showInfo.originalImageUrl}" />
+
+                <ImageView
+                    android:id="@+id/poster"
+                    android:layout_width="@dimen/poster_frame_width"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="@dimen/margin_horizontal_half"
+                    android:contentDescription="@{String.format(@string/show_poster, viewModel.showInfo.name)}"
+                    android:scaleType="centerCrop"
+                    app:imageUrl="@{viewModel.showInfo.originalImageUrl}" />
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_horizontal"
+                android:layout_marginEnd="@dimen/margin_horizontal"
+                android:gravity="top"
+                android:orientation="vertical"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/show_detail_poster"
+                app:layout_constraintTop_toTopOf="@id/show_detail_poster">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Test text" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Test text" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Test text" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/show_detail_next_episode_heading"
+                style="@style/ShowDetail.Subtitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_horizontal"
+                android:layout_marginTop="@dimen/margin_vertical"
+                android:layout_marginEnd="@dimen/margin_horizontal"
+                android:text="@string/show_detail_next_episode_heading"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/show_detail_poster"
+                app:showHideStringContent="@{viewModel.showInfo.nextEpisodeSummary}" />
+
+            <TextView
+                android:id="@+id/show_detail_next_episode_season_info"
+                style="@style/ShowDetail.Caption"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_horizontal"
+                android:layout_marginTop="@dimen/margin_vertical_half"
+                android:layout_marginEnd="@dimen/margin_horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/show_detail_next_episode_heading"
+                app:nextEpisodeInfo="@{viewModel.showInfo}"
+                app:showHideStringContent="@{viewModel.showInfo.nextEpisodeSummary}"
+                tools:text="Next Episode Season Info" />
+
+            <TextView
+                android:id="@+id/show_detail_next_episode_summary"
+                style="@style/ShowDetail.Description"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_horizontal"
+                android:layout_marginTop="@dimen/margin_vertical_half"
+                android:layout_marginEnd="@dimen/margin_horizontal"
+                app:fromHtml="@{viewModel.showInfo.nextEpisodeSummary}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/show_detail_next_episode_season_info"
+                app:showHideStringContent="@{viewModel.showInfo.nextEpisodeSummary}"
+                tools:text="Next Episode Summary" />
+
+            <TextView
+                android:id="@+id/show_detail_previous_episode_heading"
+                style="@style/ShowDetail.Subtitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_horizontal"
+                android:layout_marginTop="@dimen/margin_vertical"
+                android:layout_marginEnd="@dimen/margin_horizontal"
+                android:text="@string/show_detail_previous_episode_heading"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/show_detail_next_episode_summary"
+                app:showHideStringContent="@{viewModel.showInfo.previousEpisodeSummary}" />
+
+            <TextView
+                android:id="@+id/show_detail_previous_episode_season_info"
+                style="@style/ShowDetail.Caption"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_horizontal"
+                android:layout_marginTop="@dimen/margin_vertical_half"
+                android:layout_marginEnd="@dimen/margin_horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/show_detail_previous_episode_heading"
+                app:previousEpisodeInfo="@{viewModel.showInfo}"
+                app:showHideStringContent="@{viewModel.showInfo.previousEpisodeSummary}"
+                tools:text="Previous Episode Season Info" />
+
+            <TextView
+                style="@style/ShowDetail.Description"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_horizontal"
+                android:layout_marginTop="@dimen/margin_vertical_half"
+                android:layout_marginEnd="@dimen/margin_horizontal"
+                app:fromHtml="@{viewModel.showInfo.previousEpisodeSummary}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/show_detail_previous_episode_season_info"
+                app:showHideStringContent="@{viewModel.showInfo.previousEpisodeSummary}"
+                tools:text="Previous Episode Summary" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.core.widget.NestedScrollView>
 
 </layout>

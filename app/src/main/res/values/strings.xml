@@ -1,10 +1,16 @@
 <resources>
     <string name="app_name">Upnext: TV Series Manager</string>
     <string name="show_poster">%1$s poster</string>
+    <string name="show_backdrop_image">%1$s backdrop image</string>
 
     <string name="title_new_shows">New Shows</string>
     <string name="title_recommended_shows">Recommended Shows</string>
     <string name="title_yesterday_shows">Aired Yesterday</string>
     <string name="title_today_shows">Airing Today</string>
     <string name="title_tomorrow_shows">Airing Tomorrow</string>
+
+    <!-- Show Detail -->
+    <string name="show_detail_next_episode_heading">Next Episode</string>
+    <string name="show_detail_previous_episode_heading">Previous Episode</string>
+    <string name="show_detail_episode_season_info">S%1$sE%2$s, %3$s</string>
 </resources>
