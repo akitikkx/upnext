@@ -16,4 +16,9 @@
     <string name="splash_screen_loading_text">Preparing the shows...</string>
 
     <string name="pref_first_time_launch">first_time_launch</string>
+    <string name="splash_screen_loading_text_tomorrow_schedule">Fetching tomorrow\'s schedule...</string>
+    <string name="splash_screen_loading_text_today_schedule">Fetching today\'s schedule...</string>
+    <string name="splash_screen_loading_text_yesterday_schedule">Fetching yesterday\'s schedule...</string>
+    <string name="splash_screen_loading_text_new_shows">Fetching new shows...</string>
+    <string name="splash_screen_loading_text_recommended_shows">Fetching recommended shows...</string>
 </resources>

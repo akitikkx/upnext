@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
+import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentSplashScreenBinding
 
 class SplashScreenFragment : Fragment() {
@@ -60,9 +61,41 @@ class SplashScreenFragment : Fragment() {
             }
         })
 
-        viewModel.isLoading.observe(viewLifecycleOwner, Observer {
+        viewModel.isLoadingRecommendedShows.observe(viewLifecycleOwner, Observer {
             if (it) {
-                viewModel.displayLoadingText()
+                viewModel.displayLoadingText(getString(R.string.splash_screen_loading_text_recommended_shows))
+            } else {
+                viewModel.displayLoadingTextComplete()
+            }
+        })
+
+        viewModel.isLoadingNewShows.observe(viewLifecycleOwner, Observer {
+            if (it) {
+                viewModel.displayLoadingText(getString(R.string.splash_screen_loading_text_new_shows))
+            } else {
+                viewModel.displayLoadingTextComplete()
+            }
+        })
+
+        viewModel.isLoadingYesterdayShows.observe(viewLifecycleOwner, Observer {
+            if (it) {
+                viewModel.displayLoadingText(getString(R.string.splash_screen_loading_text_yesterday_schedule))
+            } else {
+                viewModel.displayLoadingTextComplete()
+            }
+        })
+
+        viewModel.isLoadingTodayShows.observe(viewLifecycleOwner, Observer {
+            if (it) {
+                viewModel.displayLoadingText(getString(R.string.splash_screen_loading_text_today_schedule))
+            } else {
+                viewModel.displayLoadingTextComplete()
+            }
+        })
+
+        viewModel.isLoadingTomorrowShows.observe(viewLifecycleOwner, Observer {
+            if (it) {
+                viewModel.displayLoadingText(getString(R.string.splash_screen_loading_text_tomorrow_schedule))
             } else {
                 viewModel.displayLoadingTextComplete()
                 viewModel.showDashboard()

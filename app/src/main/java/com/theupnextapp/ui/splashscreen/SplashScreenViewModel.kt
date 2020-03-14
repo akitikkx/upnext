@@ -34,7 +34,17 @@ class SplashScreenViewModel(application: Application) : AndroidViewModel(applica
 
     private val _navigateToDashboard = MutableLiveData<Boolean>()
 
-    val isLoading = upnextRepository.isLoading
+    private val _loadingText = MutableLiveData<String>()
+
+    val isLoadingRecommendedShows = upnextRepository.isLoadingRecommendedShows
+
+    val isLoadingNewShows = upnextRepository.isLoadingNewShows
+
+    val isLoadingYesterdayShows = upnextRepository.isLoadingYesterdayShows
+
+    val isLoadingTodayShows = upnextRepository.isLoadingTodayShows
+
+    val isLoadingTomorrowShows = upnextRepository.isLoadingTomorrowShows
 
     val isFreshInstall: LiveData<Boolean>
         get() = _isFreshInstall
@@ -51,6 +61,9 @@ class SplashScreenViewModel(application: Application) : AndroidViewModel(applica
     val navigateToDashboard : LiveData<Boolean>
         get() = _navigateToDashboard
 
+    val loadingText : LiveData<String>
+        get() = _loadingText
+
     init {
         checkIfFirstRun()
     }
@@ -62,8 +75,9 @@ class SplashScreenViewModel(application: Application) : AndroidViewModel(applica
 
     fun updateShows() = requestShowsUpdate()
 
-    fun displayLoadingText() {
+    fun displayLoadingText(loadingText : String) {
         _showLoadingText.value = true
+        _loadingText.value = loadingText
     }
 
     fun displayLoadingTextComplete() {

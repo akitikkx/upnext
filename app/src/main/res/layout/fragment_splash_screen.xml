@@ -28,7 +28,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
-            android:text="@string/splash_screen_loading_text"
+            android:text="@{viewModel.loadingText}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:loadingVisibility="@{viewModel.showLoadingText}"
