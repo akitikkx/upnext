@@ -16,6 +16,6 @@ class MainActivity : AppCompatActivity() {
 
         val navController = Navigation.findNavController(this, R.id.nav_host_fragment)
         setSupportActionBar(toolbar)
-        NavigationUI.setupWithNavController(toolbar, navController)
+        NavigationUI.setupActionBarWithNavController(this, navController)
     }
 }

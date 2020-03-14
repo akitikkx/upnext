@@ -40,52 +40,29 @@
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/show_backdrop_height"
                     android:contentDescription="@{String.format(@string/show_backdrop_image, viewModel.showInfo.name)}"
-                    android:scaleType="centerCrop"
+                    android:scaleType="matrix"
                     app:imageUrl="@{viewModel.showInfo.originalImageUrl}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:layout_gravity="bottom"
+                    android:background="@drawable/gradient_backdrop_bottom"/>
             </FrameLayout>
-
-            <TextView
-                android:id="@+id/show_detail_title"
-                style="@style/ShowDetail.Title"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/margin_horizontal"
-                android:layout_marginTop="@dimen/margin_vertical_half"
-                android:layout_marginEnd="@dimen/margin_horizontal"
-                android:text="@{viewModel.showInfo.name}"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/show_detail_backdrop"
-                tools:text="Show Title" />
-
-            <TextView
-                android:id="@+id/show_detail_summary"
-                style="@style/ShowDetail.Description"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/margin_horizontal"
-                android:layout_marginTop="@dimen/margin_vertical_half"
-                android:layout_marginEnd="@dimen/margin_horizontal"
-                app:fromHtml="@{viewModel.showInfo.summary}"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/show_detail_title"
-                tools:text="Show Summary" />
 
             <FrameLayout
                 android:id="@+id/show_detail_poster"
                 android:layout_width="0dp"
                 android:layout_height="@dimen/shows_list_poster_height"
-                android:layout_marginStart="@dimen/margin_horizontal"
-                android:layout_marginTop="@dimen/margin_vertical_half"
-                android:layout_marginEnd="@dimen/margin_horizontal"
+                android:layout_marginStart="@dimen/margin_horizontal_double"
+                android:layout_marginTop="@dimen/margin_vertical"
+                android:layout_marginEnd="@dimen/margin_horizontal_double"
                 android:orientation="vertical"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/show_detail_summary">
+                app:layout_constraintTop_toBottomOf="@id/show_detail_backdrop">
 
                 <ProgressBar
                     android:id="@+id/show_detail_poster_progress"
@@ -106,32 +83,57 @@
             </FrameLayout>
 
             <LinearLayout
+                android:id="@+id/show_detail_summary"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/margin_horizontal"
+                android:layout_marginStart="@dimen/margin_horizontal_double"
                 android:layout_marginEnd="@dimen/margin_horizontal"
-                android:gravity="top"
                 android:orientation="vertical"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/show_detail_poster"
-                app:layout_constraintTop_toTopOf="@id/show_detail_poster">
+                app:layout_constraintTop_toBottomOf="@id/show_detail_backdrop">
+
+                <TextView
+                    android:id="@+id/show_detail_title"
+                    style="@style/ShowDetail.Title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin_vertical_half"
+                    android:layout_marginEnd="@dimen/margin_horizontal"
+                    android:text="@{viewModel.showInfo.name}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    tools:text="Show Title" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Test text" />
+                    android:text="@{viewModel.showInfo.status}" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Test text" />
+                    android:text="@{viewModel.showInfo.airDays}" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Test text" />
-
+                    android:text="@{viewModel.showInfo.genres}" />
             </LinearLayout>
+
+            <TextView
+                android:id="@+id/show_detail_synopsis"
+                style="@style/ShowDetail.Description"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_horizontal"
+                android:layout_marginTop="@dimen/margin_vertical"
+                android:layout_marginEnd="@dimen/margin_horizontal"
+                app:fromHtml="@{viewModel.showInfo.summary}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/show_detail_poster"
+                tools:text="Show Summary" />
 
             <TextView
                 android:id="@+id/show_detail_next_episode_heading"
@@ -144,7 +146,7 @@
                 android:text="@string/show_detail_next_episode_heading"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/show_detail_poster"
+                app:layout_constraintTop_toBottomOf="@id/show_detail_synopsis"
                 app:showHideStringContent="@{viewModel.showInfo.nextEpisodeSummary}" />
 
             <TextView

@@ -6,16 +6,14 @@
 
     <fragment
         android:id="@+id/dashboardFragment"
-        android:name="com.theupnextapp.ui.dashboard.DashboardFragment"
-        android:label="DashboardFragment">
+        android:name="com.theupnextapp.ui.dashboard.DashboardFragment">
         <action
             android:id="@+id/action_dashboardFragment_to_showDetailFragment"
             app:destination="@id/showDetailFragment" />
     </fragment>
     <fragment
         android:id="@+id/showDetailFragment"
-        android:name="com.theupnextapp.ui.showDetail.ShowDetailFragment"
-        android:label="ShowDetailFragment">
+        android:name="com.theupnextapp.ui.showDetail.ShowDetailFragment">
         <argument
             android:name="show"
             app:argType="com.theupnextapp.domain.ShowDetailArg" />
