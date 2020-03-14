@@ -13,4 +13,7 @@
     <string name="show_detail_next_episode_heading">Next Episode</string>
     <string name="show_detail_previous_episode_heading">Previous Episode</string>
     <string name="show_detail_episode_season_info">S%1$sE%2$s, %3$s</string>
+    <string name="splash_screen_loading_text">Preparing the shows...</string>
+
+    <string name="pref_first_time_launch">first_time_launch</string>
 </resources>

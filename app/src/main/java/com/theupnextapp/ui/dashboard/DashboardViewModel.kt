@@ -32,16 +32,6 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
     val showProgressLoader: LiveData<Boolean>
         get() = _showProgressLoader
 
-    init {
-        viewModelScope.launch {
-            upnextRepository.refreshRecommendedShows()
-            upnextRepository.refreshNewShows()
-            upnextRepository.refreshYesterdayShows(DEFAULT_COUNTRY_CODE, yesterdayDate())
-            upnextRepository.refreshTodayShows(DEFAULT_COUNTRY_CODE, currentDate())
-            upnextRepository.refreshTomorrowShows(DEFAULT_COUNTRY_CODE, tomorrowDate())
-        }
-    }
-
     val recommendedShowsList = upnextRepository.recommendedShows
 
     val newShowsList = upnextRepository.newShows
@@ -73,28 +63,6 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
     override fun onCleared() {
         super.onCleared()
         viewModelJob.cancel()
-    }
-
-    private fun currentDate(): String? {
-        val calendar = Calendar.getInstance()
-        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd")
-        return simpleDateFormat.format(calendar.time)
-    }
-
-    private fun tomorrowDate(): String? {
-        val calendar = Calendar.getInstance()
-        calendar.add(Calendar.DAY_OF_YEAR, 1)
-        val tomorrow = calendar.time
-        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd")
-        return simpleDateFormat.format(tomorrow)
-    }
-
-    private fun yesterdayDate(): String? {
-        val calendar = Calendar.getInstance()
-        calendar.add(Calendar.DAY_OF_YEAR, -1)
-        val yesterday = calendar.time
-        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd")
-        return simpleDateFormat.format(yesterday)
     }
 
     companion object {
