@@ -21,4 +21,5 @@
     <string name="splash_screen_loading_text_yesterday_schedule">Fetching yesterday\'s schedule...</string>
     <string name="splash_screen_loading_text_new_shows">Fetching new shows...</string>
     <string name="splash_screen_loading_text_recommended_shows">Fetching recommended shows...</string>
+    <string name="search_title">Search</string>
 </resources>
