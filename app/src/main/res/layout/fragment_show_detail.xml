@@ -69,7 +69,7 @@
 
             <TextView
                 android:id="@+id/text_view_show_detail_status"
-                style="@style/ShowDetail.Description.Grey"
+                style="@style/Upnext.Description.Grey"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal_double"
@@ -123,23 +123,31 @@
                 app:layout_constraintTop_toTopOf="@id/show_detail_poster">
 
                 <TextView
-                    style="@style/ShowDetail.Description.Grey"
+                    style="@style/Upnext.Description.Grey"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@{viewModel.showInfo.airDays}"
                     tools:text="Air days" />
 
                 <TextView
-                    style="@style/ShowDetail.Description.Grey"
+                    style="@style/Upnext.Description.Grey"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@{viewModel.showInfo.genres}"
                     tools:text="Genres" />
+
+                <TextView
+                    android:id="@+id/text_view_images_attribution"
+                    style="@style/Description6.Grey"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin_vertical"
+                    android:text="@string/tv_maze_creative_commons_attribution_text_multiple" />
             </LinearLayout>
 
             <TextView
                 android:id="@+id/show_detail_synopsis"
-                style="@style/ShowDetail.Description"
+                style="@style/Upnext.Description"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal_double"
@@ -153,7 +161,7 @@
 
             <TextView
                 android:id="@+id/show_detail_next_episode_heading"
-                style="@style/ShowDetail.Subtitle"
+                style="@style/Upnext.Subtitle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal_double"
@@ -167,7 +175,7 @@
 
             <TextView
                 android:id="@+id/show_detail_next_episode_season_info"
-                style="@style/ShowDetail.Caption.Grey"
+                style="@style/Upnext.Caption.Grey"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal_double"
@@ -182,7 +190,7 @@
 
             <TextView
                 android:id="@+id/show_detail_next_episode_summary"
-                style="@style/ShowDetail.Description.Grey"
+                style="@style/Upnext.Description.Grey"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal_double"
@@ -197,7 +205,7 @@
 
             <TextView
                 android:id="@+id/show_detail_previous_episode_heading"
-                style="@style/ShowDetail.Subtitle"
+                style="@style/Upnext.Subtitle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal_double"
@@ -211,7 +219,7 @@
 
             <TextView
                 android:id="@+id/show_detail_previous_episode_season_info"
-                style="@style/ShowDetail.Caption.Grey"
+                style="@style/Upnext.Caption.Grey"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal_double"
@@ -225,7 +233,7 @@
                 tools:text="Previous Episode Season Info" />
 
             <TextView
-                style="@style/ShowDetail.Description.Grey"
+                style="@style/Upnext.Description.Grey"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal_double"

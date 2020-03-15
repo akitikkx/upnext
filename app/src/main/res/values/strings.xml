@@ -15,11 +15,17 @@
     <string name="show_detail_episode_season_info">S%1$sE%2$s, %3$s</string>
     <string name="splash_screen_loading_text">Preparing the shows...</string>
 
-    <string name="pref_first_time_launch">first_time_launch</string>
+    <!-- Splash screen -->
     <string name="splash_screen_loading_text_tomorrow_schedule">Fetching tomorrow\'s schedule...</string>
     <string name="splash_screen_loading_text_today_schedule">Fetching today\'s schedule...</string>
     <string name="splash_screen_loading_text_yesterday_schedule">Fetching yesterday\'s schedule...</string>
     <string name="splash_screen_loading_text_new_shows">Fetching new shows...</string>
     <string name="splash_screen_loading_text_recommended_shows">Fetching recommended shows...</string>
+
     <string name="search_title">Search</string>
+
+    <string name="pref_first_time_launch">first_time_launch</string>
+
+    <string name="tv_maze_creative_commons_attribution_text_single">Image licensed under CC \nBY-SA 4.0</string>
+    <string name="tv_maze_creative_commons_attribution_text_multiple">All images licensed under CC BY-SA 4.0</string>
 </resources>

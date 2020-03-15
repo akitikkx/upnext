@@ -28,25 +28,30 @@
         <item name="android:fontFamily">sans-serif-condensed-light</item>
     </style>
 
-    <style name="ShowDetail.Subtitle" parent="AppTheme">
+    <style name="Upnext.Subtitle" parent="AppTheme">
         <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Headline6
         </item>
     </style>
 
-    <style name="ShowDetail.Description" parent="AppTheme">
+    <style name="Upnext.Description" parent="AppTheme">
         <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Body2</item>
     </style>
 
-    <style name="ShowDetail.Description.Grey" parent="AppTheme">
+    <style name="Upnext.Description.Grey" parent="AppTheme">
         <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Body2</item>
         <item name="android:textColor">@color/colorShowDetailDescriptionGrey</item>
     </style>
 
-    <style name="ShowDetail.Caption" parent="AppTheme">
+    <style name="Upnext.Caption" parent="AppTheme">
         <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Caption</item>
     </style>
 
-    <style name="ShowDetail.Caption.Grey" parent="AppTheme">
+    <style name="Upnext.Caption.Grey" parent="AppTheme">
+        <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Caption</item>
+        <item name="android:textColor">@color/colorShowDetailDescriptionGrey</item>
+    </style>
+
+    <style name="Description6.Grey" parent="AppTheme">
         <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Caption</item>
         <item name="android:textColor">@color/colorShowDetailDescriptionGrey</item>
     </style>

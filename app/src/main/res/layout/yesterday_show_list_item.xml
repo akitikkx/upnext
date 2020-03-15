@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
 
@@ -12,28 +13,47 @@
             type="com.theupnextapp.ui.dashboard.YesterdayShowsAdapter.YesterdayShowsAdapterListener" />
     </data>
 
-    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="@dimen/poster_frame_width"
-        android:layout_height="wrap_content"
-        android:onClick="@{() -> listener.onClick(show)}"
-        android:orientation="vertical">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
 
-        <ProgressBar
-            android:id="@+id/poster_progress"
-            style="?android:attr/progressBarStyleSmall"
-            android:layout_width="match_parent"
+        <FrameLayout
+            android:id="@+id/dashboard_poster"
+            android:layout_width="@dimen/poster_frame_width"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            app:goneIfNotNull="@{show.image}" />
+            android:onClick="@{() -> listener.onClick(show)}"
+            android:orientation="vertical"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-        <ImageView
-            android:id="@+id/poster"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/shows_list_poster_height"
-            android:layout_marginEnd="@dimen/margin_horizontal_half"
-            android:contentDescription="@{String.format(@string/show_poster, show.name)}"
-            android:scaleType="centerCrop"
-            app:imageUrl="@{show.image}" />
-    </FrameLayout>
+            <ProgressBar
+                android:id="@+id/poster_progress"
+                style="?android:attr/progressBarStyleSmall"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                app:goneIfNotNull="@{show.image}" />
+
+            <ImageView
+                android:id="@+id/poster"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/shows_list_poster_height"
+                android:layout_marginEnd="@dimen/margin_horizontal_half"
+                android:contentDescription="@{String.format(@string/show_poster, show.name)}"
+                android:scaleType="centerCrop"
+                app:imageUrl="@{show.image}" />
+        </FrameLayout>
+
+        <TextView
+            style="@style/Description6.Grey"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="@string/tv_maze_creative_commons_attribution_text_single"
+            app:layout_constraintEnd_toEndOf="@id/dashboard_poster"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/dashboard_poster" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>
