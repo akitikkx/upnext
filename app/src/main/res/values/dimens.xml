@@ -16,5 +16,7 @@
     <dimen name="detail_poster_width">130dp</dimen>
     <dimen name="detail_poster_height">250dp</dimen>
     <dimen name="show_backdrop_height">250dp</dimen>
-    <dimen name="show_video_thumbnail_width">200dp</dimen>
+
+    <!-- Splash screen -->
+    <dimen name="splash_screen_logo_height">200dp</dimen>
 </resources>
