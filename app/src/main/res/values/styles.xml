@@ -37,8 +37,18 @@
         <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Body2</item>
     </style>
 
+    <style name="ShowDetail.Description.Grey" parent="AppTheme">
+        <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Body2</item>
+        <item name="android:textColor">@color/colorShowDetailDescriptionGrey</item>
+    </style>
+
     <style name="ShowDetail.Caption" parent="AppTheme">
         <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Caption</item>
+    </style>
+
+    <style name="ShowDetail.Caption.Grey" parent="AppTheme">
+        <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Caption</item>
+        <item name="android:textColor">@color/colorShowDetailDescriptionGrey</item>
     </style>
 
 </resources>
