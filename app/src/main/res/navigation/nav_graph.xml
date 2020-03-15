@@ -42,7 +42,6 @@
     </fragment>
     <fragment
         android:id="@+id/searchFragment"
-        android:name="com.theupnextapp.ui.search.SearchFragment"
-        android:label="SearchFragment" />
+        android:name="com.theupnextapp.ui.search.SearchFragment" />
 
 </navigation>
