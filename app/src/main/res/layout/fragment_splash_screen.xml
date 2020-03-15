@@ -16,8 +16,8 @@
         <ImageView
             android:id="@+id/image_view_splash_logo"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:src="@drawable/upnext_logo_184x100"
+            android:layout_height="@dimen/splash_screen_logo_height"
+            android:src="@drawable/upnext_logo_512x512"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
