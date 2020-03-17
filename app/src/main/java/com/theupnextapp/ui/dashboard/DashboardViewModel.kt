@@ -5,18 +5,11 @@ import androidx.lifecycle.*
 import com.theupnextapp.database.getDatabase
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.repository.UpnextRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.*
 
 class DashboardViewModel(application: Application) : AndroidViewModel(application) {
 
     private val viewModelJob = SupervisorJob()
-
-    private val viewModelScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
     private val database = getDatabase(application)
 
