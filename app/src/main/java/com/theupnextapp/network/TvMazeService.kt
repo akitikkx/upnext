@@ -26,6 +26,9 @@ interface TvMazeService {
         @Query("country") countryCode: String, @Query("date") date: String?
     ): Deferred<List<TomorrowNetworkSchedule>>
 
+    @GET("search/shows")
+    fun getSuggestionListAsync(@Query("q") name: String): Deferred<List<NetworkShowSearchResponse>>
+
     @GET("shows/{id}")
     fun getShowSummaryAsync(@Path("id") id: String?): Deferred<NetworkShowInfoResponse>
 

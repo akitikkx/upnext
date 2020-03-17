@@ -4,10 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.theupnextapp.database.*
-import com.theupnextapp.domain.NewShows
-import com.theupnextapp.domain.RecommendedShows
-import com.theupnextapp.domain.ScheduleShow
-import com.theupnextapp.domain.ShowInfo
+import com.theupnextapp.domain.*
 import com.theupnextapp.network.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -43,8 +40,13 @@ class UpnextRepository(private val database: UpnextDatabase) {
 
     private val _showInfo = MutableLiveData<ShowInfo>()
 
+    private val _showSearch = MutableLiveData<List<ShowSearch>>()
+
     val showInfo: LiveData<ShowInfo>
         get() = _showInfo
+
+    val showSearch: LiveData<List<ShowSearch>>
+        get() = _showSearch
 
     private val _isLoading = MutableLiveData<Boolean>()
 
@@ -75,6 +77,19 @@ class UpnextRepository(private val database: UpnextDatabase) {
 
     val isLoadingTomorrowShows: LiveData<Boolean>
         get() = _isLoadingTomorrowShows
+
+    suspend fun getSearchSuggestions(name: String?) {
+        if (!name.isNullOrEmpty()) {
+            withContext(Dispatchers.IO) {
+                try {
+                    val searchList = TvMazeNetwork.tvMazeApi.getSuggestionListAsync(name).await()
+                    _showSearch.postValue(searchList.asDomainModel())
+                } catch (e: HttpException) {
+                    Timber.e(e)
+                }
+            }
+        }
+    }
 
     suspend fun refreshRecommendedShows() {
         withContext(Dispatchers.IO) {

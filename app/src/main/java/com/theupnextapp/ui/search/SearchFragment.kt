@@ -1,12 +1,14 @@
 package com.theupnextapp.ui.search
 
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import com.theupnextapp.databinding.FragmentSearchBinding
 import androidx.appcompat.widget.SearchView.OnQueryTextListener
+import androidx.lifecycle.Observer
 import com.theupnextapp.R
 
 class SearchFragment : Fragment(),
@@ -52,9 +54,16 @@ class SearchFragment : Fragment(),
 
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
-        val menuItem  = menu.findItem(R.id.searchFragment)
+        val menuItem = menu.findItem(R.id.searchFragment)
         menuItem.isVisible = false
+    }
 
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+
+        viewModel.searchResults.observe(viewLifecycleOwner, Observer {
+            Log.d("SearchFragment", it.toString())
+        })
     }
 
     override fun onQueryTextSubmit(query: String?): Boolean {
