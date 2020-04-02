@@ -26,8 +26,6 @@ class UpnextApplication : Application() {
 
     private fun launchBackgroundTasks() {
         val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.UNMETERED)
-            .setRequiresCharging(true)
             .setRequiresBatteryNotLow(true)
             .apply {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -42,7 +40,7 @@ class UpnextApplication : Application() {
         val workManager = WorkManager.getInstance(this)
         workManager.enqueueUniquePeriodicWork(
             RefreshShowsWorker.WORK_NAME,
-            ExistingPeriodicWorkPolicy.KEEP,
+            ExistingPeriodicWorkPolicy.REPLACE,
             refreshShowsRequest
         )
     }

@@ -9,12 +9,16 @@ import androidx.lifecycle.ViewModelProviders
 import com.theupnextapp.databinding.FragmentSearchBinding
 import androidx.appcompat.widget.SearchView.OnQueryTextListener
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.theupnextapp.R
 
 class SearchFragment : Fragment(),
     OnQueryTextListener {
 
     private lateinit var binding: FragmentSearchBinding
+
+    private var searchAdapter: SearchAdapter? = null
 
     private val viewModel: SearchViewModel by lazy {
         val activity = requireNotNull(activity) {
@@ -49,6 +53,17 @@ class SearchFragment : Fragment(),
         binding.search.queryHint = "Start typing the show name here..."
         binding.search.setOnQueryTextListener(this)
 
+        searchAdapter = SearchAdapter(SearchAdapter.SearchAdapterListener {
+
+        })
+
+        binding.root.findViewById<RecyclerView>(R.id.search_list).apply {
+            layoutManager = LinearLayoutManager(context).apply {
+                orientation = LinearLayoutManager.VERTICAL
+            }
+            adapter = searchAdapter
+        }
+
         return binding.root
     }
 
@@ -62,9 +77,10 @@ class SearchFragment : Fragment(),
         super.onActivityCreated(savedInstanceState)
 
         viewModel.searchResults.observe(viewLifecycleOwner, Observer {
-            Log.d("SearchFragment", it.toString())
+            searchAdapter?.searchResults = it
         })
     }
+
 
     override fun onQueryTextSubmit(query: String?): Boolean {
         viewModel.onQueryTextSubmit(query)

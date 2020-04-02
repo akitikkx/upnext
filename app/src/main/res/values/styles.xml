@@ -22,8 +22,14 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light" />
 
-    <style name="ShowDetail.Title" parent="AppTheme">
+    <style name="Upnext.Title" parent="AppTheme">
         <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Headline4
+        </item>
+        <item name="android:fontFamily">sans-serif-condensed-light</item>
+    </style>
+
+    <style name="Upnext.Search.Title" parent="AppTheme">
+        <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Headline6
         </item>
         <item name="android:fontFamily">sans-serif-condensed-light</item>
     </style>

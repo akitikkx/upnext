@@ -8,11 +8,16 @@ import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
 import com.theupnextapp.R
 import com.theupnextapp.domain.ShowInfo
+import com.theupnextapp.domain.ShowSearch
 import org.jsoup.Jsoup
 
 @BindingAdapter("imageUrl")
 fun setImageUrl(imageView: ImageView, url: String?) {
-    Glide.with(imageView.context).load(url).into(imageView)
+    Glide.with(imageView.context)
+        .load(url)
+        .placeholder(R.drawable.loading_list_placeholder)
+        .error(R.drawable.ic_filter_b_and_w_grey600_48dp)
+        .into(imageView)
 }
 
 @BindingAdapter("goneIfNotNull")
@@ -68,6 +73,31 @@ fun previousEpisodeInfo(view: TextView, showInfo: ShowInfo?) {
             showInfo?.previousEpisodeSeason,
             showInfo?.previousEpisodeNumber,
             showInfo?.previousEpisodeName
+        )
+    }
+}
+
+@BindingAdapter("showNameAndReleaseYear")
+fun showNameAndReleaseYear(view: TextView, showSearch: ShowSearch) {
+    if (!showSearch.status.isNullOrEmpty()) {
+        if (showSearch.status != "Ended") {
+            view.text = view.resources.getString(
+                R.string.search_item_not_ended,
+                showSearch.name,
+                showSearch.premiered?.substring(0,4)
+            )
+        } else {
+            view.text = view.resources.getString(
+                R.string.search_item_ended,
+                showSearch.name,
+                showSearch.premiered?.substring(0,4)
+            )
+        }
+    } else {
+        view.text = view.resources.getString(
+            R.string.search_item_ended,
+            showSearch.name,
+            showSearch.premiered?.substring(0,4)
         )
     }
 }

@@ -55,7 +55,7 @@
 
             <TextView
                 android:id="@+id/text_view_show_detail_title"
-                style="@style/ShowDetail.Title"
+                style="@style/Upnext.Title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal_double"
