@@ -67,12 +67,6 @@ class SearchFragment : Fragment(),
         return binding.root
     }
 
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        super.onPrepareOptionsMenu(menu)
-        val menuItem = menu.findItem(R.id.searchFragment)
-        menuItem.isVisible = false
-    }
-
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
@@ -80,7 +74,6 @@ class SearchFragment : Fragment(),
             searchAdapter?.searchResults = it
         })
     }
-
 
     override fun onQueryTextSubmit(query: String?): Boolean {
         viewModel.onQueryTextSubmit(query)

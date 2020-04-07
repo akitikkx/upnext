@@ -9,6 +9,11 @@
     <string name="title_today_shows">Airing Today</string>
     <string name="title_tomorrow_shows">Airing Tomorrow</string>
 
+    <!-- Bottom navigation -->
+    <string name="bottom_nav_title_search">Search</string>
+    <string name="bottom_nav_title_dashboard">Dashboard</string>
+    <string name="bottom_nav_title_collection">Collection</string>
+
     <!-- Show Detail -->
     <string name="show_detail_next_episode_heading">Next Episode</string>
     <string name="show_detail_previous_episode_heading">Previous Episode</string>

@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
     app:startDestination="@id/splashScreenFragment">
 
     <fragment
         android:id="@+id/splashScreenFragment"
         android:name="com.theupnextapp.ui.splashscreen.SplashScreenFragment"
-        android:label="SplashScreenFragment">
+        android:label="SplashScreenFragment"
+        tools:layout="@layout/fragment_splash_screen">
         <action
             android:id="@+id/action_splashScreenFragment_to_dashboardFragment"
             app:destination="@id/dashboardFragment"
@@ -18,14 +20,17 @@
 
     <fragment
         android:id="@+id/dashboardFragment"
-        android:name="com.theupnextapp.ui.dashboard.DashboardFragment">
+        android:name="com.theupnextapp.ui.dashboard.DashboardFragment"
+        tools:layout="@layout/fragment_dashboard">
         <action
             android:id="@+id/action_dashboardFragment_to_showDetailFragment"
             app:destination="@id/showDetailFragment" />
     </fragment>
+
     <fragment
         android:id="@+id/showDetailFragment"
-        android:name="com.theupnextapp.ui.showDetail.ShowDetailFragment">
+        android:name="com.theupnextapp.ui.showDetail.ShowDetailFragment"
+        tools:layout="@layout/fragment_show_detail">
         <argument
             android:name="show"
             app:argType="com.theupnextapp.domain.ShowDetailArg" />
@@ -40,8 +45,15 @@
             app:popUpTo="@id/dashboardFragment"
             app:popUpToInclusive="true" />
     </fragment>
+
     <fragment
         android:id="@+id/searchFragment"
-        android:name="com.theupnextapp.ui.search.SearchFragment" />
+        android:name="com.theupnextapp.ui.search.SearchFragment"
+        tools:layout="@layout/fragment_search" />
+
+    <fragment
+        android:id="@+id/collectionFragment"
+        android:name="com.theupnextapp.ui.collection.CollectionFragment"
+        tools:layout="@layout/fragment_collection" />
 
 </navigation>

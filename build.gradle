@@ -14,8 +14,8 @@ buildscript {
         okhttp_logging_interceptor_version = "3.10.0"
         retrofit_version = "2.5.0"
         retrofit_coroutines_adapter_version = "0.9.2"
-        room_version = "2.2.4"
-        work_version = "2.3.3"
+        room_version = "2.2.5"
+        work_version = "2.3.4"
         timber_version = "4.7.1"
     }
     repositories {
@@ -24,7 +24,7 @@ buildscript {
 
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.6.1'
+        classpath 'com.android.tools.build:gradle:3.6.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$navigation_version"
         // NOTE: Do not place your application dependencies here; they belong
