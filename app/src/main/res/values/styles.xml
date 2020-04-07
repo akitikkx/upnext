@@ -22,6 +22,14 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light" />
 
+    <style name="BottomNavigation.TextActive" parent="AppTheme">
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
+    <style name="BottomNavigation.TextInactive" parent="AppTheme">
+        <item name="android:textColor">@android:color/darker_gray</item>
+    </style>
+
     <style name="Upnext.Title" parent="AppTheme">
         <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Headline4
         </item>
