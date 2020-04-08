@@ -25,6 +25,11 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    buildTypes.each {
+        it.buildConfigField 'String', 'TRAKT_CLIENT_ID', TraktClientID
+        it.buildConfigField 'String', 'TRAKT_CLIENT_SECRET', TraktClientSecret
+        it.buildConfigField 'String', 'TRAKT_REDIRECT_URI', TraktRedirectURI
+    }
 
     dataBinding {
         enabled = true

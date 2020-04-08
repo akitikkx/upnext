@@ -20,7 +20,7 @@
             android:background="?attr/colorPrimary"
             android:contentInsetStart="0dp"
             android:contentInsetLeft="0dp"
-            android:theme="@style/ToolbarTheme"
+            android:theme="@style/ToolbarTheme.Search"
             app:contentInsetLeft="0dp"
             app:contentInsetStart="0dp"
             app:popupTheme="@style/AppTheme.PopupOverlay">

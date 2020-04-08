@@ -13,11 +13,49 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <TextView
+        <ImageView
+            android:id="@+id/trakt_logo"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_horizontal"
+            android:layout_marginTop="@dimen/margin_vertical"
+            android:layout_marginEnd="@dimen/margin_horizontal"
+            android:contentDescription="@string/trakt_logo_description"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_trakt_wide_red_white" />
+
+        <TextView
+            style="@style/Upnext.Description"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_horizontal"
+            android:layout_marginEnd="@dimen/margin_horizontal"
+            android:padding="@dimen/padding_standard"
+            android:text="@string/trakt_connect_description"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/trakt_logo" />
+
+        <Button
+            style="@style/Widget.MaterialComponents.Button.Icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_horizontal"
+            android:layout_marginTop="@dimen/margin_vertical"
+            android:layout_marginEnd="@dimen/margin_horizontal"
+            android:backgroundTint="@android:color/holo_red_dark"
+            android:clickable="true"
+            android:focusable="true"
+            android:onClick="@{() -> viewModel.onConnectClick()}"
             android:gravity="center_horizontal"
-            android:text="Collections"
+            android:paddingStart="@dimen/padding_standard_double"
+            android:paddingTop="@dimen/padding_standard"
+            android:paddingEnd="@dimen/padding_standard_double"
+            android:paddingBottom="@dimen/padding_standard"
+            android:text="@string/trakt_button_text"
+            app:icon="@drawable/ic_cloud_done_white_24dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

@@ -20,6 +20,11 @@
         <item name="android:fontFamily">sans-serif-condensed</item>
     </style>
 
+    <style name="ToolbarTheme.Search" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar">
+        <item name="android:fontFamily">sans-serif-condensed</item>
+        <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Headline3</item>
+    </style>
+
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light" />
 
     <style name="BottomNavigation.TextActive" parent="AppTheme">
@@ -68,6 +73,11 @@
     <style name="Description6.Grey" parent="AppTheme">
         <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Caption</item>
         <item name="android:textColor">@color/colorShowDetailDescriptionGrey</item>
+    </style>
+
+    <style name="TraktButton" parent="TextAppearance.MaterialComponents.Button">
+        <item name="android:background">@android:color/holo_red_dark</item>
+        <item name="android:textColor">@android:color/white</item>
     </style>
 
 </resources>

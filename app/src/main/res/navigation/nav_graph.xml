@@ -54,6 +54,12 @@
     <fragment
         android:id="@+id/collectionFragment"
         android:name="com.theupnextapp.ui.collection.CollectionFragment"
-        tools:layout="@layout/fragment_collection" />
+        tools:layout="@layout/fragment_collection">
+        <argument
+            android:name="traktUri"
+            android:defaultValue="@null"
+            app:argType="com.theupnextapp.domain.TraktConnectionArg"
+            app:nullable="true" />
+    </fragment>
 
 </navigation>

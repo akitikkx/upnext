@@ -1,10 +1,13 @@
 package com.theupnextapp
 
+import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.os.bundleOf
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -12,6 +15,8 @@ import androidx.navigation.ui.onNavDestinationSelected
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.theupnextapp.domain.TraktConnectionArg
+import com.theupnextapp.ui.collection.CollectionFragment
 
 class MainActivity : AppCompatActivity() {
 
@@ -19,7 +24,7 @@ class MainActivity : AppCompatActivity() {
         get() = findNavController(R.id.nav_host_fragment)
 
     private lateinit var bottomNavigationView: BottomNavigationView
-    private lateinit var toolbar : Toolbar
+    private lateinit var toolbar: Toolbar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,6 +46,21 @@ class MainActivity : AppCompatActivity() {
 
         setupActionBarWithNavController(navController, appBarConfiguration)
         bottomNavigationView.setupWithNavController(navController)
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        val uri: Uri? = intent?.data
+
+        if (uri != null && uri.toString().startsWith(BuildConfig.TRAKT_REDIRECT_URI)) {
+            val code = uri.getQueryParameter("code")
+
+            val collectionFragmentArg = TraktConnectionArg(code)
+
+            val bundle = bundleOf(CollectionFragment.EXTRA_TRAKT_URI to collectionFragmentArg)
+            navController.navigate(R.id.collectionFragment, bundle)
+        }
     }
 
     override fun onSupportNavigateUp(): Boolean {

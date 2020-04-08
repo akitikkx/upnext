@@ -8,11 +8,12 @@
     <string name="title_yesterday_shows">Aired Yesterday</string>
     <string name="title_today_shows">Airing Today</string>
     <string name="title_tomorrow_shows">Airing Tomorrow</string>
+    <string name="title_trakt_collection">Trakt Collection</string>
 
     <!-- Bottom navigation -->
     <string name="bottom_nav_title_search">Search</string>
     <string name="bottom_nav_title_dashboard">Dashboard</string>
-    <string name="bottom_nav_title_collection">Collection</string>
+    <string name="bottom_nav_title_collection">Trakt Collection</string>
 
     <!-- Show Detail -->
     <string name="show_detail_next_episode_heading">Next Episode</string>
@@ -27,13 +28,22 @@
     <string name="splash_screen_loading_text_new_shows">Fetching new shows…</string>
     <string name="splash_screen_loading_text_recommended_shows">Fetching recommended shows…</string>
 
+    <!-- Search -->
     <string name="search_title">Search</string>
+    <string name="search_item_not_ended">%1$s (%2$s - )</string>
+    <string name="search_item_ended">%1$s (%2$s)</string>
 
     <string name="pref_first_time_launch">first_time_launch</string>
 
     <string name="tv_maze_creative_commons_attribution_text_single">Image licensed under CC \nBY-SA 4.0</string>
     <string name="tv_maze_creative_commons_attribution_text_multiple">All images licensed under CC BY-SA 4.0</string>
 
-    <string name="search_item_not_ended">%1$s (%2$s - )</string>
-    <string name="search_item_ended">%1$s (%2$s)</string>
+
+    <string name="trakt_logo_description">Trakt logo</string>
+    <string name="trakt_connect_description">Trakt is a platform that does many things, but primarily
+        keeps track of TV shows and movies you watch. If you would like to connect your Trakt account so you can manage your shows from the UpNext
+        app, click the connect button below. You will be redirected to the Trakt website where you will be required
+        to authorize the UpNext app. You can revoke the access at any time from your Trakt account.</string>
+
+    <string name="trakt_button_text">Connect your Trakt account</string>
 </resources>
