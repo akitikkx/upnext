@@ -48,7 +48,7 @@
             android:layout_marginEnd="@dimen/margin_horizontal"
             android:backgroundTint="@android:color/holo_red_dark"
             android:clickable="true"
-            android:enabled="@{viewModel.connectButtonEnabled}"
+            android:enabled="@{!viewModel.isAuthorizedOnTrakt}"
             android:focusable="true"
             android:gravity="center_horizontal"
             android:onClick="@{() -> viewModel.onConnectClick()}"

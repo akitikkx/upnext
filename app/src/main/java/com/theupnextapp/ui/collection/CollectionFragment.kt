@@ -60,7 +60,7 @@ class CollectionFragment : Fragment() {
             }
         })
 
-        viewModel.launchConnectWindow.observe(viewLifecycleOwner, Observer {
+        viewModel.launchTraktConnectWindow.observe(viewLifecycleOwner, Observer {
             if (it) {
                 val intent = Intent(
                     Intent.ACTION_VIEW,
@@ -72,9 +72,9 @@ class CollectionFragment : Fragment() {
             }
         })
 
-        viewModel.accessToken.observe(viewLifecycleOwner, Observer {
+        viewModel.traktAccessToken.observe(viewLifecycleOwner, Observer {
             if (it != null) {
-                viewModel.onAccessTokenReceived(it)
+                viewModel.onTraktAccessTokenReceived(it)
             }
         })
 
@@ -83,29 +83,29 @@ class CollectionFragment : Fragment() {
                 Snackbar.make(
                     binding.root,
                     getString(R.string.fetch_access_token_progress_text),
-                    Snackbar.LENGTH_INDEFINITE
+                    Snackbar.LENGTH_LONG
                 ).show()
             } else {
                 Snackbar.make(
                     binding.root,
                     getString(R.string.fetch_access_token_progress_text),
-                    Snackbar.LENGTH_INDEFINITE
+                    Snackbar.LENGTH_LONG
                 ).dismiss()
             }
         })
 
-        viewModel.storingAccessTokenInProgress.observe(viewLifecycleOwner, Observer {
+        viewModel.storingTraktAccessTokenInProgress.observe(viewLifecycleOwner, Observer {
             if (it) {
                 Snackbar.make(
                     binding.root,
                     getString(R.string.storing_access_token_progress_text),
-                    Snackbar.LENGTH_INDEFINITE
+                    Snackbar.LENGTH_LONG
                 ).show()
             } else {
                 Snackbar.make(
                     binding.root,
                     getString(R.string.fetch_access_token_progress_text),
-                    Snackbar.LENGTH_INDEFINITE
+                    Snackbar.LENGTH_LONG
                 ).dismiss()
             }
         })
