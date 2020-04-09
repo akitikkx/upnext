@@ -4,7 +4,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.os.bundleOf
@@ -50,7 +49,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        handleDeepLinks()
+    }
 
+    private fun handleDeepLinks() {
         val uri: Uri? = intent?.data
 
         if (uri != null && uri.toString().startsWith(BuildConfig.TRAKT_REDIRECT_URI)) {
@@ -60,7 +62,15 @@ class MainActivity : AppCompatActivity() {
 
             val bundle = bundleOf(CollectionFragment.EXTRA_TRAKT_URI to collectionFragmentArg)
             navController.navigate(R.id.collectionFragment, bundle)
+            clearIntent()
         }
+    }
+
+    private fun clearIntent() {
+        intent.replaceExtras(Bundle())
+        intent.action = ""
+        intent.data = null
+        intent.flags = 0
     }
 
     override fun onSupportNavigateUp(): Boolean {

@@ -14,6 +14,7 @@
     <string name="bottom_nav_title_search">Search</string>
     <string name="bottom_nav_title_dashboard">Dashboard</string>
     <string name="bottom_nav_title_collection">Trakt Collection</string>
+    <string name="bottom_nav_title_watchlist">Trakt Watchlist</string>
 
     <!-- Show Detail -->
     <string name="show_detail_next_episode_heading">Next Episode</string>
