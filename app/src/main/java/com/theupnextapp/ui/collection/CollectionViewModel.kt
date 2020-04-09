@@ -8,6 +8,7 @@ import com.theupnextapp.database.getDatabase
 import com.theupnextapp.domain.TraktAccessToken
 import com.theupnextapp.domain.TraktConnectionArg
 import com.theupnextapp.repository.UpnextRepository
+import com.theupnextapp.ui.splashscreen.SplashScreenViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -33,6 +34,12 @@ class CollectionViewModel(
 
     private val _transactionInProgress = MutableLiveData<Boolean>()
 
+    private val _isAuthorizedOnTrakt = MutableLiveData<Boolean>(ifValidAccessTokenExists())
+
+    private val _connectButtonEnabled = MutableLiveData<Boolean>(
+        _transactionInProgress.value == false && _isAuthorizedOnTrakt.value == false
+    )
+
     val launchConnectWindow: LiveData<Boolean>
         get() = _launchConnectWindow
 
@@ -45,12 +52,38 @@ class CollectionViewModel(
     val transactionInProgress: LiveData<Boolean>
         get() = _transactionInProgress
 
+    val isAuthorizedOnTrakt: LiveData<Boolean>
+        get() = _isAuthorizedOnTrakt
+
+    val connectButtonEnabled: LiveData<Boolean>
+        get() = _connectButtonEnabled
+
     fun onConnectClick() {
         _launchConnectWindow.value = true
     }
 
     fun launchConnectWindowComplete() {
         _launchConnectWindow.value = false
+    }
+
+    init {
+        if (ifValidAccessTokenExists()) {
+            _isAuthorizedOnTrakt.value = true
+        }
+    }
+
+    fun loadTraktCollection() {
+
+    }
+
+    private fun ifValidAccessTokenExists(): Boolean {
+        val sharedPreferences = getApplication<Application>().getSharedPreferences(
+            SplashScreenViewModel.SHARED_PREF_NAME,
+            Context.MODE_PRIVATE
+        )
+
+        val accessToken = sharedPreferences.getString(SHARED_PREF_TRAKT_ACCESS_TOKEN, null)
+        return accessToken != null
     }
 
     val accessToken = upnextRepository.traktAccessToken

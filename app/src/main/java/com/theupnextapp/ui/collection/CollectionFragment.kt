@@ -54,6 +54,12 @@ class CollectionFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
+        viewModel.isAuthorizedOnTrakt.observe(viewLifecycleOwner, Observer {
+            if (it) {
+                viewModel.loadTraktCollection()
+            }
+        })
+
         viewModel.launchConnectWindow.observe(viewLifecycleOwner, Observer {
             if (it) {
                 val intent = Intent(

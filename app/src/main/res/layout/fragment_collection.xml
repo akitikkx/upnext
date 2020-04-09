@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
@@ -47,7 +48,7 @@
             android:layout_marginEnd="@dimen/margin_horizontal"
             android:backgroundTint="@android:color/holo_red_dark"
             android:clickable="true"
-            android:enabled="@{!viewModel.transactionInProgress}"
+            android:enabled="@{viewModel.connectButtonEnabled}"
             android:focusable="true"
             android:gravity="center_horizontal"
             android:onClick="@{() -> viewModel.onConnectClick()}"
@@ -55,12 +56,13 @@
             android:paddingTop="@dimen/padding_standard"
             android:paddingEnd="@dimen/padding_standard_double"
             android:paddingBottom="@dimen/padding_standard"
-            android:text="@string/trakt_button_text"
+            app:dynamicText="@{viewModel.isAuthorizedOnTrakt}"
             app:icon="@drawable/ic_cloud_done_white_24dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="@string/trakt_button_text_not_connected" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
