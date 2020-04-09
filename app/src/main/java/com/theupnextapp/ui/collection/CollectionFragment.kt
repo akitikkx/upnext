@@ -11,9 +11,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import com.google.android.material.snackbar.Snackbar
 import com.theupnextapp.BuildConfig
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentCollectionBinding
+import com.theupnextapp.domain.TraktConnectionArg
 
 class CollectionFragment : Fragment() {
 
@@ -40,7 +42,11 @@ class CollectionFragment : Fragment() {
 
         binding.viewModel = viewModel
 
-        viewModel.onTraktConnectionBundleReceived(arguments)
+        val args = arguments
+
+        if (args?.getParcelable<TraktConnectionArg>(CollectionViewModel.EXTRA_TRAKT_URI) != null) {
+            viewModel.onTraktConnectionBundleReceived(arguments)
+        }
 
         return binding.root
     }
@@ -57,6 +63,44 @@ class CollectionFragment : Fragment() {
                 intent.putExtra(Browser.EXTRA_APPLICATION_ID, activity?.packageName)
                 startActivity(intent)
                 viewModel.launchConnectWindowComplete()
+            }
+        })
+
+        viewModel.accessToken.observe(viewLifecycleOwner, Observer {
+            if (it != null) {
+                viewModel.onAccessTokenReceived(it)
+            }
+        })
+
+        viewModel.fetchAccessTokenInProgress.observe(viewLifecycleOwner, Observer {
+            if (it) {
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.fetch_access_token_progress_text),
+                    Snackbar.LENGTH_INDEFINITE
+                ).show()
+            } else {
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.fetch_access_token_progress_text),
+                    Snackbar.LENGTH_INDEFINITE
+                ).dismiss()
+            }
+        })
+
+        viewModel.storingAccessTokenInProgress.observe(viewLifecycleOwner, Observer {
+            if (it) {
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.storing_access_token_progress_text),
+                    Snackbar.LENGTH_INDEFINITE
+                ).show()
+            } else {
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.fetch_access_token_progress_text),
+                    Snackbar.LENGTH_INDEFINITE
+                ).dismiss()
             }
         })
     }

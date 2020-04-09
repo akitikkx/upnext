@@ -3,6 +3,7 @@ package com.theupnextapp.repository
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
+import com.theupnextapp.BuildConfig
 import com.theupnextapp.database.*
 import com.theupnextapp.domain.*
 import com.theupnextapp.network.*
@@ -42,12 +43,6 @@ class UpnextRepository(private val database: UpnextDatabase) {
 
     private val _showSearch = MutableLiveData<List<ShowSearch>>()
 
-    val showInfo: LiveData<ShowInfo>
-        get() = _showInfo
-
-    val showSearch: LiveData<List<ShowSearch>>
-        get() = _showSearch
-
     private val _isLoading = MutableLiveData<Boolean>()
 
     private val _isLoadingRecommendedShows = MutableLiveData<Boolean>()
@@ -59,6 +54,8 @@ class UpnextRepository(private val database: UpnextDatabase) {
     private val _isLoadingTodayShows = MutableLiveData<Boolean>()
 
     private val _isLoadingTomorrowShows = MutableLiveData<Boolean>()
+
+    private val _traktAccessToken = MutableLiveData<TraktAccessToken>()
 
     val isLoading: LiveData<Boolean>
         get() = _isLoading
@@ -78,6 +75,15 @@ class UpnextRepository(private val database: UpnextDatabase) {
     val isLoadingTomorrowShows: LiveData<Boolean>
         get() = _isLoadingTomorrowShows
 
+    val showInfo: LiveData<ShowInfo>
+        get() = _showInfo
+
+    val showSearch: LiveData<List<ShowSearch>>
+        get() = _showSearch
+
+    val traktAccessToken: LiveData<TraktAccessToken>
+        get() = _traktAccessToken
+
     suspend fun getSearchSuggestions(name: String?) {
         if (!name.isNullOrEmpty()) {
             withContext(Dispatchers.IO) {
@@ -86,6 +92,28 @@ class UpnextRepository(private val database: UpnextDatabase) {
                     _showSearch.postValue(searchList.asDomainModel())
                 } catch (e: HttpException) {
                     Timber.e(e)
+                }
+            }
+        }
+    }
+
+    suspend fun getTraktAccessToken(code: String?) {
+        if (!code.isNullOrEmpty()) {
+            withContext(Dispatchers.IO) {
+                try {
+                    val traktAccessTokenRequest =
+                        TraktAccessTokenRequest(
+                            code = code,
+                            client_id = BuildConfig.TRAKT_CLIENT_ID,
+                            client_secret = BuildConfig.TRAKT_CLIENT_SECRET,
+                            redirect_uri = BuildConfig.TRAKT_REDIRECT_URI,
+                            grant_type = "authorization_code"
+                        )
+
+                    val accessTokenResponse = TraktNetwork.traktApi.getAccessTokenAsync(traktAccessTokenRequest).await()
+                    _traktAccessToken.postValue(accessTokenResponse.asDomainModel())
+                } catch (e: HttpException) {
+                    Timber.d(e)
                 }
             }
         }

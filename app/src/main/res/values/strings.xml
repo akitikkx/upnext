@@ -46,4 +46,6 @@
         to authorize the UpNext app. You can revoke the access at any time from your Trakt account.</string>
 
     <string name="trakt_button_text">Connect your Trakt account</string>
+    <string name="fetch_access_token_progress_text">Validating access with Trakt, please wait...</string>
+    <string name="storing_access_token_progress_text">Validation complete, setting up your account...</string>
 </resources>
