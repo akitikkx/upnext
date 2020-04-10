@@ -157,15 +157,17 @@ class UpnextRepository(private val database: UpnextDatabase) {
                         for (searchItem in tvMazeSearch) {
                             val showSearchItem: NetworkShowSearchResponse = searchItem
                             if (showSearchItem.show.externals.imdb == imdbID) {
-                                watchListItem.show?.originalImageUrl = showSearchItem.show.image?.medium
-                                watchListItem.show?.mediumImageUrl = showSearchItem.show.image?.original
+                                watchListItem.show?.originalImageUrl =
+                                    showSearchItem.show.image?.medium
+                                watchListItem.show?.mediumImageUrl =
+                                    showSearchItem.show.image?.original
                                 watchListItem.show?.ids?.tvMaze = showSearchItem.show.id
                             }
                         }
                     }
-                    updatedWatchList.add(item.asDatabaseModel())
-                    saveTraktWatchlist(updatedWatchList)
+                    updatedWatchList.add(watchListItem.asDatabaseModel())
                 }
+                saveTraktWatchlist(updatedWatchList)
             } catch (e: HttpException) {
                 Timber.e(e)
             }
