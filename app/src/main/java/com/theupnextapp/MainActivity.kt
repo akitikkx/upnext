@@ -61,7 +61,7 @@ class MainActivity : AppCompatActivity() {
             val collectionFragmentArg = TraktConnectionArg(code)
 
             val bundle = bundleOf(CollectionFragment.EXTRA_TRAKT_URI to collectionFragmentArg)
-            navController.navigate(R.id.collectionFragment, bundle)
+            navController.navigate(R.id.watchlistFragment, bundle)
             clearIntent()
         }
     }
