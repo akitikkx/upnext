@@ -62,4 +62,15 @@
             app:nullable="true" />
     </fragment>
 
+    <fragment
+        android:id="@+id/watchlistFragment"
+        android:name="com.theupnextapp.ui.watchlist.WatchlistFragment"
+        tools:layout="@layout/fragment_watchlist">
+        <argument
+            android:name="traktUri"
+            android:defaultValue="@null"
+            app:argType="com.theupnextapp.domain.TraktConnectionArg"
+            app:nullable="true" />
+    </fragment>
+
 </navigation>

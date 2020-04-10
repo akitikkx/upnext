@@ -1,4 +1,4 @@
-package com.theupnextapp.ui.collection
+package com.theupnextapp.ui.watchlist
 
 import android.app.Application
 import android.content.Context
@@ -17,9 +17,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
-class CollectionViewModel(
-    application: Application
-) : TraktViewModel(application) {
+class WatchlistViewModel(application: Application) : TraktViewModel(application) {
 
     private val viewModelJob = SupervisorJob()
 
@@ -68,7 +66,7 @@ class CollectionViewModel(
         }
     }
 
-    fun loadTraktCollection() {
+    fun loadTraktWatchilist() {
         val sharedPreferences = getApplication<Application>().getSharedPreferences(
             SHARED_PREF_NAME,
             Context.MODE_PRIVATE
@@ -77,11 +75,13 @@ class CollectionViewModel(
         val accessToken = sharedPreferences.getString(SHARED_PREF_TRAKT_ACCESS_TOKEN, null)
 
         viewModelScope.launch {
-            upnextRepository.getTraktCollection(accessToken)
+            upnextRepository.getTraktWatchlist(accessToken)
         }
     }
 
     val traktAccessToken = upnextRepository.traktAccessToken
+
+    val traktWatchlist = upnextRepository.traktWatchlist
 
     fun onTraktConnectionBundleReceived(bundle: Bundle?) {
         _transactionInProgress.value = true
@@ -116,9 +116,9 @@ class CollectionViewModel(
     class Factory(val app: Application) :
         ViewModelProvider.Factory {
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(CollectionViewModel::class.java)) {
+            if (modelClass.isAssignableFrom(WatchlistViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
-                return CollectionViewModel(
+                return WatchlistViewModel(
                     app
                 ) as T
             }

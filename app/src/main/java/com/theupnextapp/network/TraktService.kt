@@ -7,11 +7,29 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
+import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 
 interface TraktService {
     @POST(" oauth/token")
-    fun getAccessTokenAsync(@Body traktAccessTokenRequest: TraktAccessTokenRequest): Deferred<TraktAccessTokenResponse>
+    fun getAccessTokenAsync(@Body traktAccessTokenRequest: NetworkTraktAccessTokenRequest): Deferred<TraktAccessTokenResponse>
+
+    @GET("sync/collection/shows")
+    fun getCollectionAsync(
+        @Header("Content-Type") contentType: String,
+        @Header("Authorization") token: String,
+        @Header("trakt-api-version") version: String = "2",
+        @Header("trakt-api-key") apiKey: String?
+    ): Deferred<NetworkTraktCollectionResponse>
+
+    @GET("sync/watchlist/shows/rank")
+    fun getWatchlistAsync(
+        @Header("Content-Type") contentType: String,
+        @Header("Authorization") token: String,
+        @Header("trakt-api-version") version: String = "2",
+        @Header("trakt-api-key") apiKey: String?
+    ): Deferred<NetworkTraktWatchlistResponse>
 }
 
 object TraktNetwork {

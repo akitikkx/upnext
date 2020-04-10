@@ -1,6 +1,6 @@
 package com.theupnextapp.network
 
-data class TraktAccessTokenRequest(
+data class NetworkTraktAccessTokenRequest(
     val code: String?,
     val client_id: String?,
     val client_secret: String?,

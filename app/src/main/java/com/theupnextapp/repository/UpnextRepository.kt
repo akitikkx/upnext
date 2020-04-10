@@ -39,6 +39,11 @@ class UpnextRepository(private val database: UpnextDatabase) {
             it.asDomainModel()
         }
 
+    val traktWatchlist: LiveData<List<TraktWatchlist>> =
+        Transformations.map(database.upnextDao.getTraktWatchlist()) {
+            it.asDomainModel()
+        }
+
     private val _showInfo = MutableLiveData<ShowInfo>()
 
     private val _showSearch = MutableLiveData<List<ShowSearch>>()
@@ -56,6 +61,8 @@ class UpnextRepository(private val database: UpnextDatabase) {
     private val _isLoadingTomorrowShows = MutableLiveData<Boolean>()
 
     private val _traktAccessToken = MutableLiveData<TraktAccessToken>()
+
+    private val _traktCollection = MutableLiveData<TraktCollection>()
 
     val isLoading: LiveData<Boolean>
         get() = _isLoading
@@ -102,7 +109,7 @@ class UpnextRepository(private val database: UpnextDatabase) {
             withContext(Dispatchers.IO) {
                 try {
                     val traktAccessTokenRequest =
-                        TraktAccessTokenRequest(
+                        NetworkTraktAccessTokenRequest(
                             code = code,
                             client_id = BuildConfig.TRAKT_CLIENT_ID,
                             client_secret = BuildConfig.TRAKT_CLIENT_SECRET,
@@ -110,11 +117,89 @@ class UpnextRepository(private val database: UpnextDatabase) {
                             grant_type = "authorization_code"
                         )
 
-                    val accessTokenResponse = TraktNetwork.traktApi.getAccessTokenAsync(traktAccessTokenRequest).await()
+                    val accessTokenResponse =
+                        TraktNetwork.traktApi.getAccessTokenAsync(traktAccessTokenRequest).await()
                     _traktAccessToken.postValue(accessTokenResponse.asDomainModel())
                 } catch (e: HttpException) {
                     Timber.d(e)
                 }
+            }
+        }
+    }
+
+    suspend fun getTraktWatchlist(accessToken: String?) {
+        withContext(Dispatchers.IO) {
+            try {
+                val updatedWatchList: MutableList<DatabaseTraktWatchlist> = arrayListOf()
+
+                val watchlistResponse = TraktNetwork.traktApi.getWatchlistAsync(
+                    contentType = "application/json",
+                    token = "Bearer $accessToken",
+                    version = "2",
+                    apiKey = BuildConfig.TRAKT_CLIENT_ID
+                ).await()
+
+                // loop through each watchlist item to get the title and IMDB link
+                for (item in watchlistResponse) {
+                    var watchListItem: NetworkTraktWatchlistResponseItem = item
+                    val imdbID = watchListItem.show?.ids?.imdb
+                    val traktTitle = watchListItem.show?.title
+
+                    // perform a TvMaze search for the Trakt item using the Trakt title
+                    val tvMazeSearch =
+                        traktTitle?.let {
+                            TvMazeNetwork.tvMazeApi.getSuggestionListAsync(it).await()
+                        }
+
+                    // loop through the search results from TvMaze and find a match for the IMDb ID
+                    // and update the watchlist item by adding the TvMaze ID
+                    if (!tvMazeSearch.isNullOrEmpty()) {
+                        for (searchItem in tvMazeSearch) {
+                            val showSearchItem: NetworkShowSearchResponse = searchItem
+                            if (showSearchItem.show.externals.imdb == imdbID) {
+                                watchListItem.show?.originalImageUrl = showSearchItem.show.image?.medium
+                                watchListItem.show?.mediumImageUrl = showSearchItem.show.image?.original
+                                watchListItem.show?.ids?.tvMaze = showSearchItem.show.id
+                            }
+                        }
+                    }
+                    updatedWatchList.add(item.asDatabaseModel())
+                    saveTraktWatchlist(updatedWatchList)
+                }
+            } catch (e: HttpException) {
+                Timber.e(e)
+            }
+        }
+    }
+
+
+    private suspend fun saveTraktWatchlist(list: List<DatabaseTraktWatchlist>) {
+        if (!list.isNullOrEmpty()) {
+            withContext(Dispatchers.IO) {
+                try {
+                    database.upnextDao.apply {
+                        deleteAllTraktWatchlist()
+                        insertAllTraktWatchlist(*list.toTypedArray())
+                    }
+
+                } catch (e: Exception) {
+                    Timber.e(e)
+                }
+            }
+        }
+    }
+
+    suspend fun getTraktCollection(accessToken: String?) {
+        withContext(Dispatchers.IO) {
+            try {
+                val collectionResponse = TraktNetwork.traktApi.getCollectionAsync(
+                    contentType = "application/json",
+                    token = "Bearer $accessToken",
+                    version = "2",
+                    apiKey = BuildConfig.TRAKT_CLIENT_ID
+                ).await()
+            } catch (e: HttpException) {
+                Timber.e(e)
             }
         }
     }
@@ -143,7 +228,7 @@ class UpnextRepository(private val database: UpnextDatabase) {
                     deleteAllRecommendedShows()
                     insertAllRecommendedShows(*recommendedShowsList.asDatabaseModel())
                 }
-            } catch (e: HttpException) {
+            } catch (e: Exception) {
                 Timber.e(e)
             }
         }
@@ -253,7 +338,7 @@ class UpnextRepository(private val database: UpnextDatabase) {
                         }
                     }
                 }
-            } catch (e: HttpException) {
+            } catch (e: Exception) {
                 Timber.e(e)
             }
         }

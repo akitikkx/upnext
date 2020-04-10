@@ -64,6 +64,15 @@ interface UpnextDao {
 
     @Query("select * from shows_info where id = :id")
     fun getShowWithId(id: Int): ShowInfo
+
+    @Query("delete from trakt_watchlist")
+    fun deleteAllTraktWatchlist()
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertAllTraktWatchlist(vararg traktWatchlist: DatabaseTraktWatchlist)
+
+    @Query("select * from trakt_watchlist")
+    fun getTraktWatchlist(): LiveData<List<DatabaseTraktWatchlist>>
 }
 
 @Database(
@@ -73,10 +82,11 @@ interface UpnextDao {
         DatabaseYesterdaySchedule::class,
         DatabaseTodaySchedule::class,
         DatabaseTomorrowSchedule::class,
-        DatabaseShowInfo::class
+        DatabaseShowInfo::class,
+        DatabaseTraktWatchlist::class
     ],
-    version = 1,
-    exportSchema = false
+    version = 2,
+    exportSchema = true
 )
 abstract class UpnextDatabase : RoomDatabase() {
     abstract val upnextDao: UpnextDao
@@ -91,7 +101,9 @@ fun getDatabase(context: Context): UpnextDatabase {
                 context.applicationContext,
                 UpnextDatabase::class.java,
                 "upnext"
-            ).build()
+            )
+            .addMigrations(MIGRATION_1_2)
+            .build()
         }
     }
     return INSTANCE

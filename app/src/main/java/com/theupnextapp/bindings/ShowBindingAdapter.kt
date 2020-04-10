@@ -25,6 +25,15 @@ fun goneIfNotNull(view: View, it: Any?) {
     view.visibility = if (it != null) View.GONE else View.VISIBLE
 }
 
+@BindingAdapter("showHideView")
+fun showHideView(view: View, show : Boolean) {
+    if (show) {
+        view.visibility = View.VISIBLE
+    } else {
+        view.visibility = View.GONE
+    }
+}
+
 @BindingAdapter("showHideStringContent")
 fun showHideStringContent(view: View, content: String?) {
     view.visibility = if (!content.isNullOrEmpty()) View.VISIBLE else View.GONE
