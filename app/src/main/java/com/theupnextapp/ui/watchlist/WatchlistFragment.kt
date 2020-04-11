@@ -11,15 +11,21 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.theupnextapp.BuildConfig
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentWatchlistBinding
+import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.TraktConnectionArg
 
 class WatchlistFragment : Fragment() {
 
-    private lateinit var binding : FragmentWatchlistBinding
+    private lateinit var binding: FragmentWatchlistBinding
+
+    private var watchlistAdapter: WatchlistAdapter? = null
 
     private val viewModel: WatchlistViewModel by lazy {
         val activity = requireNotNull(activity) {
@@ -46,6 +52,17 @@ class WatchlistFragment : Fragment() {
 
         if (args?.getParcelable<TraktConnectionArg>(WatchlistViewModel.EXTRA_TRAKT_URI) != null) {
             viewModel.onTraktConnectionBundleReceived(arguments)
+        }
+
+        watchlistAdapter = WatchlistAdapter(WatchlistAdapter.WatchlistAdapterListener {
+            viewModel.displayShowDetails(ShowDetailArg(it.tvMazeID, it.title))
+        })
+
+        binding.root.findViewById<RecyclerView>(R.id.watch_list).apply {
+            layoutManager = LinearLayoutManager(context).apply {
+                orientation = LinearLayoutManager.VERTICAL
+            }
+            adapter = watchlistAdapter
         }
 
         return binding.root
@@ -107,6 +124,19 @@ class WatchlistFragment : Fragment() {
                     getString(R.string.fetch_access_token_progress_text),
                     Snackbar.LENGTH_LONG
                 ).dismiss()
+            }
+        })
+
+        viewModel.traktWatchlist.observe(viewLifecycleOwner, Observer {
+            watchlistAdapter?.watchlist = it
+        })
+
+        viewModel.navigateToSelectedShow.observe(viewLifecycleOwner, Observer {
+            if (null != it) {
+                this.findNavController().navigate(
+                    WatchlistFragmentDirections.actionWatchlistFragmentToShowDetailFragment(it)
+                )
+                viewModel.displayShowDetailsComplete()
             }
         })
     }

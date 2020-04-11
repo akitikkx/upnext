@@ -58,6 +58,7 @@
             android:paddingTop="@dimen/padding_standard"
             android:paddingEnd="@dimen/padding_standard_double"
             android:paddingBottom="@dimen/padding_standard"
+            app:showHideView="@{!viewModel.isAuthorizedOnTrakt()}"
             app:dynamicText="@{viewModel.isAuthorizedOnTrakt}"
             app:icon="@drawable/ic_cloud_done_white_24dp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -65,6 +66,22 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="@string/trakt_button_text_not_connected" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/watch_list"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="@dimen/margin_horizontal_half"
+            android:layout_marginTop="@dimen/margin_vertical"
+            android:layout_marginEnd="@dimen/margin_horizontal_half"
+            android:layout_marginBottom="@dimen/margin_vertical"
+            android:clipToPadding="false"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:showHideView="@{viewModel.isAuthorizedOnTrakt()}"
+            tools:listitem="@layout/trakt_watchlist_item" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

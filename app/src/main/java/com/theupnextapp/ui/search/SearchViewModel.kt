@@ -1,10 +1,9 @@
 package com.theupnextapp.ui.search
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.*
 import com.theupnextapp.database.getDatabase
+import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.repository.UpnextRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,6 +20,11 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     private val upnextRepository = UpnextRepository(database)
 
+    private val _navigateToSelectedShow = MutableLiveData<ShowDetailArg>()
+
+    val navigateToSelectedShow: LiveData<ShowDetailArg>
+        get() = _navigateToSelectedShow
+
     val searchResults = upnextRepository.showSearch
 
     fun onQueryTextSubmit(query: String?) {
@@ -33,6 +37,14 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch {
             upnextRepository.getSearchSuggestions(newText)
         }
+    }
+
+    fun displayShowDetails(showDetailArg: ShowDetailArg) {
+        _navigateToSelectedShow.value = showDetailArg
+    }
+
+    fun displayShowDetailsComplete() {
+        _navigateToSelectedShow.value = null
     }
 
     class Factory(val app: Application) : ViewModelProvider.Factory {

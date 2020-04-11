@@ -39,6 +39,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.splashScreenFragment,
                 R.id.searchFragment,
                 R.id.dashboardFragment,
+                R.id.watchlistFragment,
                 R.id.collectionFragment
             )
             .build()

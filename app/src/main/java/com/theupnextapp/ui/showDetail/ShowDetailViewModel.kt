@@ -27,7 +27,7 @@ class ShowDetailViewModel(
 
     init {
         viewModelScope.launch {
-            upnextRepository.getShowData(show.showId)
+            show.showId?.let { upnextRepository.getShowData(it) }
         }
     }
 

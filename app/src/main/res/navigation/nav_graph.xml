@@ -49,7 +49,11 @@
     <fragment
         android:id="@+id/searchFragment"
         android:name="com.theupnextapp.ui.search.SearchFragment"
-        tools:layout="@layout/fragment_search" />
+        tools:layout="@layout/fragment_search" >
+        <action
+            android:id="@+id/action_searchFragment_to_showDetailFragment"
+            app:destination="@id/showDetailFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/collectionFragment"
@@ -71,6 +75,9 @@
             android:defaultValue="@null"
             app:argType="com.theupnextapp.domain.TraktConnectionArg"
             app:nullable="true" />
+        <action
+            android:id="@+id/action_watchlistFragment_to_showDetailFragment"
+            app:destination="@id/showDetailFragment" />
     </fragment>
 
 </navigation>

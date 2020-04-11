@@ -22,7 +22,8 @@
 
     <style name="ToolbarTheme.Search" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar">
         <item name="android:fontFamily">sans-serif-condensed</item>
-        <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Headline3</item>
+        <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Headline3
+        </item>
     </style>
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light" />
@@ -42,8 +43,9 @@
     </style>
 
     <style name="Upnext.Search.Title" parent="AppTheme">
-        <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Headline6
+        <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Subtitle1
         </item>
+        <item name="android:textStyle">bold</item>
         <item name="android:fontFamily">sans-serif-condensed-light</item>
     </style>
 

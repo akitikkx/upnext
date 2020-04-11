@@ -1,17 +1,20 @@
 package com.theupnextapp.ui.search
 
 import android.os.Bundle
-import android.util.Log
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProviders
-import com.theupnextapp.databinding.FragmentSearchBinding
 import androidx.appcompat.widget.SearchView.OnQueryTextListener
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.theupnextapp.R
+import com.theupnextapp.databinding.FragmentSearchBinding
+import com.theupnextapp.domain.ShowDetailArg
 
 class SearchFragment : Fragment(),
     OnQueryTextListener {
@@ -54,7 +57,7 @@ class SearchFragment : Fragment(),
         binding.search.setOnQueryTextListener(this)
 
         searchAdapter = SearchAdapter(SearchAdapter.SearchAdapterListener {
-
+            viewModel.displayShowDetails(ShowDetailArg(it.id, it.name))
         })
 
         binding.root.findViewById<RecyclerView>(R.id.search_list).apply {
@@ -72,6 +75,15 @@ class SearchFragment : Fragment(),
 
         viewModel.searchResults.observe(viewLifecycleOwner, Observer {
             searchAdapter?.searchResults = it
+        })
+
+        viewModel.navigateToSelectedShow.observe(viewLifecycleOwner, Observer {
+            if (null != it) {
+                this.findNavController().navigate(
+                    SearchFragmentDirections.actionSearchFragmentToShowDetailFragment(it)
+                )
+                viewModel.displayShowDetailsComplete()
+            }
         })
     }
 

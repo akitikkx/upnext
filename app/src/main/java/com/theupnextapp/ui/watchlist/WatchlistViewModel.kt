@@ -8,6 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.theupnextapp.database.getDatabase
+import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.TraktAccessToken
 import com.theupnextapp.domain.TraktConnectionArg
 import com.theupnextapp.repository.UpnextRepository
@@ -37,6 +38,8 @@ class WatchlistViewModel(application: Application) : TraktViewModel(application)
 
     private val _isAuthorizedOnTrakt = MutableLiveData<Boolean>(ifValidAccessTokenExists())
 
+    private val _navigateToSelectedShow = MutableLiveData<ShowDetailArg>()
+
     val launchTraktConnectWindow: LiveData<Boolean>
         get() = _launchTraktConnectWindow
 
@@ -51,6 +54,10 @@ class WatchlistViewModel(application: Application) : TraktViewModel(application)
 
     val isAuthorizedOnTrakt: LiveData<Boolean>
         get() = _isAuthorizedOnTrakt
+
+    val navigateToSelectedShow: LiveData<ShowDetailArg>
+        get() = _navigateToSelectedShow
+
 
     fun onConnectClick() {
         _launchTraktConnectWindow.value = true
@@ -107,6 +114,14 @@ class WatchlistViewModel(application: Application) : TraktViewModel(application)
         _transactionInProgress.value = false
         _isAuthorizedOnTrakt.value = true
         _storingTraktAccessTokenInProgress.value = false
+    }
+
+    fun displayShowDetails(showDetailArg: ShowDetailArg) {
+        _navigateToSelectedShow.value = showDetailArg
+    }
+
+    fun displayShowDetailsComplete() {
+        _navigateToSelectedShow.value = null
     }
 
     companion object {

@@ -4,16 +4,17 @@ import android.os.Parcel
 import android.os.Parcelable
 
 data class ShowDetailArg(
-    val showId: Int,
+    val showId: Int?,
     val showTitle: String?
 ) : Parcelable {
+
     constructor(parcel: Parcel) : this(
-        parcel.readInt(),
+        parcel.readValue(Int::class.java.classLoader) as? Int,
         parcel.readString()
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeInt(showId)
+        parcel.writeValue(showId)
         parcel.writeString(showTitle)
     }
 
@@ -30,4 +31,5 @@ data class ShowDetailArg(
             return arrayOfNulls(size)
         }
     }
+
 }
