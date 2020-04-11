@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "9ff81289cf6d374ebe27f3343ef024cf",
+    "identityHash": "0bf436bdfc7db3869db954ca1ccae127",
     "entities": [
       {
         "tableName": "recommended_shows",
@@ -684,13 +684,13 @@
       },
       {
         "tableName": "trakt_watchlist",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER, `listed_at` TEXT, `rank` INTEGER, `title` TEXT, `mediumImageUrl` TEXT, `originalImageUrl` TEXT, `imdbID` TEXT, `slug` TEXT, `tmdbID` INTEGER, `traktID` INTEGER, `tvdbID` INTEGER, `tvrageID` INTEGER, `tvMazeID` INTEGER, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `listed_at` TEXT, `rank` INTEGER, `title` TEXT, `mediumImageUrl` TEXT, `originalImageUrl` TEXT, `imdbID` TEXT, `slug` TEXT, `tmdbID` INTEGER, `traktID` INTEGER, `tvdbID` INTEGER, `tvrageID` INTEGER, `tvMazeID` INTEGER, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
             "columnName": "id",
             "affinity": "INTEGER",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "listed_at",
@@ -778,7 +778,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9ff81289cf6d374ebe27f3343ef024cf')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '0bf436bdfc7db3869db954ca1ccae127')"
     ]
   }
 }

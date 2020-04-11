@@ -85,7 +85,7 @@ interface UpnextDao {
         DatabaseShowInfo::class,
         DatabaseTraktWatchlist::class
     ],
-    version = 2,
+    version = 4,
     exportSchema = true
 )
 abstract class UpnextDatabase : RoomDatabase() {
@@ -102,7 +102,7 @@ fun getDatabase(context: Context): UpnextDatabase {
                 UpnextDatabase::class.java,
                 "upnext"
             )
-            .addMigrations(MIGRATION_1_2)
+            .fallbackToDestructiveMigration()
             .build()
         }
     }

@@ -1,0 +1,56 @@
+{
+  "project_info": {
+    "project_number": "941850274227",
+    "firebase_url": "https://upnext-1130.firebaseio.com",
+    "project_id": "upnext-1130",
+    "storage_bucket": "upnext-1130.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:941850274227:android:0d8a0bf47030093e",
+        "android_client_info": {
+          "package_name": "com.theupnextapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "941850274227-va215qtthra3f00hou49ioa5pr1slq74.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.theupnextapp",
+            "certificate_hash": "9028ed886857e1e702c1768dfe82d1cc42195e64"
+          }
+        },
+        {
+          "client_id": "941850274227-kogjk654ce3h0odl7hhkktsvch1hdfnc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.theupnextapp",
+            "certificate_hash": "1e89a2d772b596a0332916d646209c2af185910c"
+          }
+        },
+        {
+          "client_id": "941850274227-6sqe0sfg1f0sm5ldilorqauebqmqh1ua.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA-c5u7umm0GuZnMm_tJXK2TJZWhUhNrjM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "941850274227-6sqe0sfg1f0sm5ldilorqauebqmqh1ua.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

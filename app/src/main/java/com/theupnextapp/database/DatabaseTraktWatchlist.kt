@@ -7,7 +7,7 @@ import com.theupnextapp.domain.TraktWatchlist
 @Entity(tableName = "trakt_watchlist")
 data class DatabaseTraktWatchlist constructor(
     @PrimaryKey
-    val id: Int?,
+    val id: Int,
     val listed_at: String?,
     val rank: Int?,
     val title: String?,
