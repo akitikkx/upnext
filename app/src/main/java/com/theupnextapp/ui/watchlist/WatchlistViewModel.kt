@@ -40,6 +40,8 @@ class WatchlistViewModel(application: Application) : TraktViewModel(application)
 
     private val _navigateToSelectedShow = MutableLiveData<ShowDetailArg>()
 
+    private val _watchlistEmpty = MutableLiveData<Boolean>()
+
     val launchTraktConnectWindow: LiveData<Boolean>
         get() = _launchTraktConnectWindow
 
@@ -58,6 +60,12 @@ class WatchlistViewModel(application: Application) : TraktViewModel(application)
     val navigateToSelectedShow: LiveData<ShowDetailArg>
         get() = _navigateToSelectedShow
 
+    val watchlistEmpty: LiveData<Boolean>
+        get() = _watchlistEmpty
+
+    fun onWatchlistEmpty(empty: Boolean) {
+        _watchlistEmpty.value = empty
+    }
 
     fun onConnectClick() {
         _launchTraktConnectWindow.value = true
@@ -68,6 +76,7 @@ class WatchlistViewModel(application: Application) : TraktViewModel(application)
     }
 
     init {
+        _watchlistEmpty.value = false
         if (ifValidAccessTokenExists()) {
             _isAuthorizedOnTrakt.value = true
         }

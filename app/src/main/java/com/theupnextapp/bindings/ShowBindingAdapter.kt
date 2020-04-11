@@ -9,6 +9,7 @@ import com.bumptech.glide.Glide
 import com.theupnextapp.R
 import com.theupnextapp.domain.ShowInfo
 import com.theupnextapp.domain.ShowSearch
+import com.theupnextapp.domain.TraktWatchlist
 import org.jsoup.Jsoup
 
 @BindingAdapter("imageUrl")
@@ -26,7 +27,7 @@ fun goneIfNotNull(view: View, it: Any?) {
 }
 
 @BindingAdapter("showHideView")
-fun showHideView(view: View, show : Boolean) {
+fun showHideView(view: View, show: Boolean) {
     if (show) {
         view.visibility = View.VISIBLE
     } else {
@@ -93,20 +94,32 @@ fun showNameAndReleaseYear(view: TextView, showSearch: ShowSearch) {
             view.text = view.resources.getString(
                 R.string.search_item_not_ended,
                 showSearch.name,
-                showSearch.premiered?.substring(0,4)
+                showSearch.premiered?.substring(0, 4)
             )
         } else {
             view.text = view.resources.getString(
                 R.string.search_item_ended,
                 showSearch.name,
-                showSearch.premiered?.substring(0,4)
+                showSearch.premiered?.substring(0, 4)
             )
         }
     } else {
         view.text = view.resources.getString(
             R.string.search_item_ended,
             showSearch.name,
-            showSearch.premiered?.substring(0,4)
+            showSearch.premiered?.substring(0, 4)
         )
+    }
+}
+
+@BindingAdapter("showListedAt")
+fun showListedAt(view: TextView, watchlist: TraktWatchlist) {
+    if (!watchlist.listed_at.isNullOrEmpty()) {
+        view.text = view.resources.getString(
+            R.string.watchlist_item_listed_at,
+            watchlist.listed_at
+        )
+    } else {
+        view.visibility = View.GONE
     }
 }

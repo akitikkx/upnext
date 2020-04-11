@@ -15,6 +15,19 @@
         android:layout_height="match_parent">
 
         <ImageView
+            android:id="@+id/watchlist_header"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/trakt_watchlist_header_height"
+            android:layout_marginTop="?attr/actionBarSize"
+            android:textAppearance="@style/TextAppearance.AppCompat.Title"
+            app:layout_constraintBottom_toTopOf="@id/watch_list"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:showHideView="@{!viewModel.watchlistEmpty}"
+            app:srcCompat="@drawable/ic_trakt_wide_red_white" />
+
+        <ImageView
             android:id="@+id/trakt_logo"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -25,8 +38,9 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:showHideView="@{!viewModel.isAuthorizedOnTrakt()}"
-            app:srcCompat="@drawable/ic_trakt_wide_red_white" />
+            app:showHideView="@{!viewModel.isAuthorizedOnTrakt}"
+            app:srcCompat="@drawable/ic_trakt_wide_red_white"
+            tools:visibility="gone" />
 
         <TextView
             style="@style/Upnext.Description"
@@ -39,7 +53,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/trakt_logo"
-            app:showHideView="@{!viewModel.isAuthorizedOnTrakt()}" />
+            app:showHideView="@{!viewModel.isAuthorizedOnTrakt}"
+            tools:visibility="gone" />
 
         <Button
             style="@style/Widget.MaterialComponents.Button.Icon"
@@ -58,14 +73,15 @@
             android:paddingTop="@dimen/padding_standard"
             android:paddingEnd="@dimen/padding_standard_double"
             android:paddingBottom="@dimen/padding_standard"
-            app:showHideView="@{!viewModel.isAuthorizedOnTrakt()}"
             app:dynamicText="@{viewModel.isAuthorizedOnTrakt}"
             app:icon="@drawable/ic_cloud_done_white_24dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="@string/trakt_button_text_not_connected" />
+            app:showHideView="@{!viewModel.isAuthorizedOnTrakt}"
+            tools:text="@string/trakt_button_text_not_connected"
+            tools:visibility="gone" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/watch_list"
@@ -79,9 +95,46 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:showHideView="@{viewModel.isAuthorizedOnTrakt()}"
+            app:layout_constraintTop_toBottomOf="@id/watchlist_header"
+            app:showHideView="@{!viewModel.watchlistEmpty}"
             tools:listitem="@layout/trakt_watchlist_item" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="parent"
+            app:showHideView="@{viewModel.watchlistEmpty}">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                app:srcCompat="@drawable/empty_state_box_icon" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginStart="@dimen/margin_horizontal"
+                android:layout_marginEnd="@dimen/margin_horizontal"
+                android:gravity="center_horizontal"
+                android:text="@string/watchlist_empty_state_text"
+                android:textAppearance="@style/Upnext.Description.EmptyState" />
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/trakt_watchlist_header_height"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="@dimen/margin_vertical"
+                android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:srcCompat="@drawable/ic_trakt_wide_red_white" />
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

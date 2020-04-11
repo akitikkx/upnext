@@ -51,4 +51,8 @@
     <string name="trakt_button_text_is_connected">Trakt account is connected</string>
     <string name="fetch_access_token_progress_text">Validating access with Trakt, please wait…</string>
     <string name="storing_access_token_progress_text">Validation complete, setting up your account…</string>
+
+    <!-- Trakt Watchlist -->
+    <string name="watchlist_item_listed_at">Listed at: %1$s</string>
+    <string name="watchlist_empty_state_text">Your Trakt watchlist is empty. Add shows to your watchlist in your Trakt account and they will appear here</string>
 </resources>

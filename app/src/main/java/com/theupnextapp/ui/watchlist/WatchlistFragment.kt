@@ -128,7 +128,12 @@ class WatchlistFragment : Fragment() {
         })
 
         viewModel.traktWatchlist.observe(viewLifecycleOwner, Observer {
-            watchlistAdapter?.watchlist = it
+            if (it.isEmpty()) {
+                viewModel.onWatchlistEmpty(true)
+            } else {
+                viewModel.onWatchlistEmpty(false)
+                watchlistAdapter?.watchlist = it
+            }
         })
 
         viewModel.navigateToSelectedShow.observe(viewLifecycleOwner, Observer {

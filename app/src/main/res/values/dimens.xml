@@ -27,4 +27,7 @@
 
     <!-- Splash screen -->
     <dimen name="splash_screen_logo_height">200dp</dimen>
+
+    <!-- Trakt Watchlist -->
+    <dimen name="trakt_watchlist_header_height">30dp</dimen>
 </resources>

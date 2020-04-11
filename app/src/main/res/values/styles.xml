@@ -54,12 +54,11 @@
         </item>
     </style>
 
-    <style name="Upnext.Description" parent="AppTheme">
-        <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Body2</item>
-    </style>
+    <style name="Upnext.Description" parent="TextAppearance.AppCompat.Body2" />
 
-    <style name="Upnext.Description.Grey" parent="AppTheme">
-        <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Body2</item>
+    <style name="Upnext.Description.EmptyState" parent="TextAppearance.MaterialComponents.Headline5" />
+
+    <style name="Upnext.Description.Grey" parent="TextAppearance.AppCompat.Body2">
         <item name="android:textColor">@color/colorShowDetailDescriptionGrey</item>
     </style>
 
@@ -67,13 +66,11 @@
         <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Caption</item>
     </style>
 
-    <style name="Upnext.Caption.Grey" parent="AppTheme">
-        <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Caption</item>
+    <style name="Upnext.Caption.Grey" parent="TextAppearance.AppCompat.Caption">
         <item name="android:textColor">@color/colorShowDetailDescriptionGrey</item>
     </style>
 
-    <style name="Description6.Grey" parent="AppTheme">
-        <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Caption</item>
+    <style name="Description6.Grey" parent="TextAppearance.AppCompat.Caption">
         <item name="android:textColor">@color/colorShowDetailDescriptionGrey</item>
     </style>
 

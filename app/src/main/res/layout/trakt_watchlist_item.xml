@@ -78,7 +78,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_vertical_quarter"
                 android:gravity="center_vertical"
-                android:text="@{show.listed_at}"
+                app:showListedAt="@{show}"
                 tools:text="Show Status" />
 
         </LinearLayout>
