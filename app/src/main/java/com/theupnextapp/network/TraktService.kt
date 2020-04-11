@@ -30,6 +30,22 @@ interface TraktService {
         @Header("trakt-api-version") version: String = "2",
         @Header("trakt-api-key") apiKey: String?
     ): Deferred<NetworkTraktWatchlistResponse>
+
+    @GET("sync/watched/shows")
+    fun getWatchedAsync(
+        @Header("Content-Type") contentType: String,
+        @Header("Authorization") token: String,
+        @Header("trakt-api-version") version: String = "2",
+        @Header("trakt-api-key") apiKey: String?
+    ): Deferred<NetworkTraktWatchedResponse>
+
+    @GET("sync/history")
+    fun getHistoryAsync(
+        @Header("Content-Type") contentType: String,
+        @Header("Authorization") token: String,
+        @Header("trakt-api-version") version: String = "2",
+        @Header("trakt-api-key") apiKey: String?
+    ): Deferred<NetworkTraktHistoryResponse>
 }
 
 object TraktNetwork {
