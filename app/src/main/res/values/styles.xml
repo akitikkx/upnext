@@ -54,7 +54,9 @@
         </item>
     </style>
 
-    <style name="Upnext.Description" parent="TextAppearance.AppCompat.Body2" />
+    <style name="Upnext.Description" parent="TextAppearance.AppCompat.Body2" >
+        <item name="android:textColor">@android:color/white</item>
+    </style>
 
     <style name="Upnext.Description.EmptyState" parent="TextAppearance.MaterialComponents.Headline5" />
 

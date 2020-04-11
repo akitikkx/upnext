@@ -24,7 +24,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:showHideView="@{!viewModel.watchlistEmpty}"
+            app:showHideView="@{viewModel.isAuthorizedOnTrakt() &amp;&amp; !viewModel.watchlistEmpty}"
             app:srcCompat="@drawable/ic_trakt_wide_red_white" />
 
         <ImageView
@@ -96,7 +96,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/watchlist_header"
-            app:showHideView="@{!viewModel.watchlistEmpty}"
+            app:showHideView="@{viewModel.isAuthorizedOnTrakt() &amp;&amp; !viewModel.watchlistEmpty}"
             tools:listitem="@layout/trakt_watchlist_item" />
 
         <LinearLayout
@@ -108,7 +108,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="parent"
-            app:showHideView="@{viewModel.watchlistEmpty}">
+            app:showHideView="@{viewModel.watchlistEmpty &amp;&amp; viewModel.isAuthorizedOnTrakt()}">
 
             <ImageView
                 android:layout_width="wrap_content"
