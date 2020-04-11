@@ -3,6 +3,7 @@ package com.theupnextapp.repository
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
+import com.crashlytics.android.Crashlytics
 import com.theupnextapp.BuildConfig
 import com.theupnextapp.database.*
 import com.theupnextapp.domain.*
@@ -98,7 +99,7 @@ class UpnextRepository(private val database: UpnextDatabase) {
                     val searchList = TvMazeNetwork.tvMazeApi.getSuggestionListAsync(name).await()
                     _showSearch.postValue(searchList.asDomainModel())
                 } catch (e: HttpException) {
-                    Timber.e(e)
+                    Timber.d(e)
                 }
             }
         }
@@ -169,11 +170,28 @@ class UpnextRepository(private val database: UpnextDatabase) {
                 }
                 saveTraktWatchlist(updatedWatchList)
             } catch (e: HttpException) {
-                Timber.e(e)
+                Timber.d(e)
+                Crashlytics.logException(e)
             }
         }
     }
 
+    suspend fun getTraktWatched(accessToken: String?) {
+        withContext(Dispatchers.IO) {
+            try {
+                val watchlistResponse = TraktNetwork.traktApi.getWatchedAsync(
+                    contentType = "application/json",
+                    token = "Bearer $accessToken",
+                    version = "2",
+                    apiKey = BuildConfig.TRAKT_CLIENT_ID
+                ).await()
+                Timber.d(watchlistResponse.toString())
+            } catch (e : HttpException) {
+                Timber.d(e)
+                Crashlytics.logException(e)
+            }
+        }
+    }
 
     private suspend fun saveTraktWatchlist(list: List<DatabaseTraktWatchlist>) {
         if (!list.isNullOrEmpty()) {
@@ -185,7 +203,7 @@ class UpnextRepository(private val database: UpnextDatabase) {
                     }
 
                 } catch (e: Exception) {
-                    Timber.e(e)
+                    Timber.d(e)
                 }
             }
         }
@@ -201,7 +219,8 @@ class UpnextRepository(private val database: UpnextDatabase) {
                     apiKey = BuildConfig.TRAKT_CLIENT_ID
                 ).await()
             } catch (e: HttpException) {
-                Timber.e(e)
+                Timber.d(e)
+                Crashlytics.logException(e)
             }
         }
     }
@@ -218,7 +237,8 @@ class UpnextRepository(private val database: UpnextDatabase) {
                 _isLoadingRecommendedShows.postValue(false)
             } catch (e: HttpException) {
                 _isLoadingRecommendedShows.postValue(false)
-                Timber.e(e)
+                Timber.d(e)
+                Crashlytics.logException(e)
             }
         }
     }
@@ -231,7 +251,8 @@ class UpnextRepository(private val database: UpnextDatabase) {
                     insertAllRecommendedShows(*recommendedShowsList.asDatabaseModel())
                 }
             } catch (e: Exception) {
-                Timber.e(e)
+                Timber.d(e)
+                Crashlytics.logException(e)
             }
         }
     }
@@ -248,7 +269,8 @@ class UpnextRepository(private val database: UpnextDatabase) {
                 _isLoadingNewShows.postValue(false)
             } catch (e: HttpException) {
                 _isLoadingNewShows.postValue(false)
-                Timber.e(e)
+                Timber.d(e)
+                Crashlytics.logException(e)
             }
         }
     }
@@ -275,7 +297,8 @@ class UpnextRepository(private val database: UpnextDatabase) {
                 _isLoadingYesterdayShows.postValue(false)
             } catch (e: HttpException) {
                 _isLoadingYesterdayShows.postValue(false)
-                Timber.e(e)
+                Timber.d(e)
+                Crashlytics.logException(e)
             }
         }
     }
@@ -302,7 +325,8 @@ class UpnextRepository(private val database: UpnextDatabase) {
                 _isLoadingTodayShows.postValue(false)
             } catch (e: HttpException) {
                 _isLoadingTodayShows.postValue(false)
-                Timber.e(e)
+                Timber.d(e)
+                Crashlytics.logException(e)
             }
         }
     }
@@ -319,7 +343,8 @@ class UpnextRepository(private val database: UpnextDatabase) {
                 _isLoadingTomorrowShows.postValue(false)
             } catch (e: HttpException) {
                 _isLoadingTomorrowShows.postValue(false)
-                Timber.e(e)
+                Timber.d(e)
+                Crashlytics.logException(e)
             }
         }
     }
@@ -341,7 +366,8 @@ class UpnextRepository(private val database: UpnextDatabase) {
                     }
                 }
             } catch (e: Exception) {
-                Timber.e(e)
+                Timber.d(e)
+                Crashlytics.logException(e)
             }
         }
     }
@@ -383,7 +409,8 @@ class UpnextRepository(private val database: UpnextDatabase) {
                     insertAllShowInfo(showInfoCombined.asDatabaseModel())
                 }
             } catch (e: HttpException) {
-                Timber.e(e)
+                Timber.d(e)
+                Crashlytics.logException(e)
             }
         }
     }
@@ -398,7 +425,8 @@ class UpnextRepository(private val database: UpnextDatabase) {
                 _isLoading.postValue(false)
             } catch (e: HttpException) {
                 _isLoading.postValue(false)
-                Timber.e(e)
+                Timber.d(e)
+                Crashlytics.logException(e)
             }
         }
     }
@@ -440,7 +468,8 @@ class UpnextRepository(private val database: UpnextDatabase) {
                 _isLoading.postValue(true)
             } catch (e: HttpException) {
                 _isLoading.postValue(true)
-                Timber.e(e)
+                Timber.d(e)
+                Crashlytics.logException(e)
             }
         }
     }
