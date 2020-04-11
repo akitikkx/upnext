@@ -5,7 +5,7 @@ import com.theupnextapp.database.DatabaseTraktWatchlist
 class NetworkTraktWatchlistResponse : ArrayList<NetworkTraktWatchlistResponseItem>()
 
 data class NetworkTraktWatchlistResponseItem(
-    val id: Int?,
+    val id: Int,
     val listed_at: String?,
     val rank: Int?,
     val show: TraktWatchlistShow?,
