@@ -73,6 +73,15 @@ interface UpnextDao {
 
     @Query("select * from trakt_watchlist")
     fun getTraktWatchlist(): LiveData<List<DatabaseTraktWatchlist>>
+
+    @Query("delete from trakt_history")
+    fun deleteAllTraktHistory()
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertAllTraktHistory(vararg traktHistory: DatabaseTraktHistory)
+
+    @Query("select * from trakt_history")
+    fun getTraktHistory(): LiveData<List<DatabaseTraktHistory>>
 }
 
 @Database(
@@ -83,9 +92,10 @@ interface UpnextDao {
         DatabaseTodaySchedule::class,
         DatabaseTomorrowSchedule::class,
         DatabaseShowInfo::class,
-        DatabaseTraktWatchlist::class
+        DatabaseTraktWatchlist::class,
+        DatabaseTraktHistory::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = true
 )
 abstract class UpnextDatabase : RoomDatabase() {
@@ -102,8 +112,8 @@ fun getDatabase(context: Context): UpnextDatabase {
                 UpnextDatabase::class.java,
                 "upnext"
             )
-            .fallbackToDestructiveMigration()
-            .build()
+                .fallbackToDestructiveMigration()
+                .build()
         }
     }
     return INSTANCE

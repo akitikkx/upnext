@@ -24,10 +24,10 @@
         app:showAsAction="always" />
 
     <item
-        android:id="@+id/collectionFragment"
-        android:icon="@drawable/ic_video_library_white_24dp"
+        android:id="@+id/historyFragment"
+        android:icon="@drawable/ic_history_white_24dp"
         android:orderInCategory="4"
-        android:title="@string/bottom_nav_title_collection"
+        android:title="@string/bottom_nav_title_history"
         app:showAsAction="always" />
 
 </menu>

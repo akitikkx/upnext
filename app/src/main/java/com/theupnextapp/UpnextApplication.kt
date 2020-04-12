@@ -37,11 +37,22 @@ class UpnextApplication : Application() {
             .setConstraints(constraints)
             .build()
 
+        val refreshTraktData = PeriodicWorkRequestBuilder<RefreshShowsWorker>(30, TimeUnit.MINUTES)
+            .setConstraints(constraints)
+            .build()
+
         val workManager = WorkManager.getInstance(this)
+
         workManager.enqueueUniquePeriodicWork(
-            RefreshShowsWorker.WORK_NAME,
+            RefreshShowsWorker.UPNEXT_WORK_NAME,
             ExistingPeriodicWorkPolicy.REPLACE,
             refreshShowsRequest
+        )
+
+        workManager.enqueueUniquePeriodicWork(
+            RefreshShowsWorker.TRAKT_WORK_NAME,
+            ExistingPeriodicWorkPolicy.REPLACE,
+            refreshTraktData
         )
     }
 

@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
         <variable
             name="show"
-            type="com.theupnextapp.domain.ShowSearch" />
+            type="com.theupnextapp.domain.TraktHistory" />
 
         <variable
             name="listener"
-            type="com.theupnextapp.ui.search.SearchAdapter.SearchAdapterListener" />
+            type="com.theupnextapp.ui.history.HistoryAdapter.HistoryAdapterListener" />
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/margin_vertical"
@@ -23,7 +24,7 @@
         android:onClick="@{() -> listener.onClick(show)}">
 
         <FrameLayout
-            android:id="@+id/dashboard_poster"
+            android:id="@+id/history_poster"
             android:layout_width="@dimen/search_poster_width"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_horizontal_double"
@@ -44,7 +45,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/search_poster_height"
                 android:layout_marginEnd="@dimen/margin_horizontal_half"
-                android:contentDescription="@{String.format(@string/show_poster, show.name)}"
+                android:contentDescription="@{String.format(@string/show_poster, show.showTitle)}"
                 android:scaleType="centerCrop"
                 app:imageUrl="@{show.originalImageUrl}"
                 tools:srcCompat="@drawable/loading_list_placeholder" />
@@ -58,16 +59,15 @@
             android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/dashboard_poster"
+            app:layout_constraintStart_toEndOf="@id/history_poster"
             app:layout_constraintTop_toTopOf="parent">
 
             <TextView
-                android:id="@+id/text_view_search_title"
                 style="@style/Upnext.Search.Title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                app:showNameAndReleaseYear="@{show}"
+                android:text="@{show.showTitle}"
                 tools:text="Show Name" />
 
             <TextView
@@ -76,11 +76,18 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_vertical_quarter"
                 android:gravity="center_vertical"
-                android:text="@{show.status}"
-                tools:text="Show Status" />
+                android:text="@{show.episodeTitle}"
+                tools:text="Episode Title" />
 
+            <TextView
+                style="@style/Upnext.Caption.Grey"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_vertical_quarter"
+                android:gravity="center_vertical"
+                app:historyEpisodeDetails="@{show}"
+                tools:text="Season 1 Episode 4" />
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
 </layout>

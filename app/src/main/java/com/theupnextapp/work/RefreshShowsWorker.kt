@@ -68,7 +68,8 @@ class RefreshShowsWorker(appContext: Context, workerParameters: WorkerParameters
     }
 
     companion object {
-        const val WORK_NAME = "RefreshUpnextShowsWorker"
+        const val UPNEXT_WORK_NAME = "RefreshUpnextShowsWorker"
+        const val TRAKT_WORK_NAME = "RefreshTraktShowsWorker"
         const val DEFAULT_COUNTRY_CODE = "US"
     }
 }

@@ -1,4 +1,4 @@
-package com.theupnextapp.ui.watchlist
+package com.theupnextapp.ui.history
 
 import android.app.Application
 import android.content.Context
@@ -18,7 +18,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
-class WatchlistViewModel(application: Application) : TraktViewModel(application) {
+class HistoryViewModel(application: Application) : TraktViewModel(application) {
 
     private val viewModelJob = SupervisorJob()
 
@@ -40,7 +40,7 @@ class WatchlistViewModel(application: Application) : TraktViewModel(application)
 
     private val _navigateToSelectedShow = MutableLiveData<ShowDetailArg>()
 
-    private val _watchlistEmpty = MutableLiveData<Boolean>()
+    private val _historyEmpty = MutableLiveData<Boolean>()
 
     val launchTraktConnectWindow: LiveData<Boolean>
         get() = _launchTraktConnectWindow
@@ -60,11 +60,11 @@ class WatchlistViewModel(application: Application) : TraktViewModel(application)
     val navigateToSelectedShow: LiveData<ShowDetailArg>
         get() = _navigateToSelectedShow
 
-    val watchlistEmpty: LiveData<Boolean>
-        get() = _watchlistEmpty
+    val historyEmpty: LiveData<Boolean>
+        get() = _historyEmpty
 
-    fun onWatchlistEmpty(empty: Boolean) {
-        _watchlistEmpty.value = empty
+    fun onHistoryEmpty(empty: Boolean) {
+        _historyEmpty.value = empty
     }
 
     fun onConnectClick() {
@@ -76,13 +76,13 @@ class WatchlistViewModel(application: Application) : TraktViewModel(application)
     }
 
     init {
-        _watchlistEmpty.value = false
+        _historyEmpty.value = false
         if (ifValidAccessTokenExists()) {
             _isAuthorizedOnTrakt.value = true
         }
     }
 
-    fun loadTraktWatchilist() {
+    fun loadTraktHistory() {
         val sharedPreferences = getApplication<Application>().getSharedPreferences(
             SHARED_PREF_NAME,
             Context.MODE_PRIVATE
@@ -91,13 +91,13 @@ class WatchlistViewModel(application: Application) : TraktViewModel(application)
         val accessToken = sharedPreferences.getString(SHARED_PREF_TRAKT_ACCESS_TOKEN, null)
 
         viewModelScope.launch {
-            upnextRepository.refreshTraktWatchlist(accessToken)
+            upnextRepository.refreshTraktHistory(accessToken)
         }
     }
 
     val traktAccessToken = upnextRepository.traktAccessToken
 
-    val traktWatchlist = upnextRepository.traktWatchlist
+    val traktHistory = upnextRepository.traktHistory
 
     fun onTraktConnectionBundleReceived(bundle: Bundle?) {
         _transactionInProgress.value = true
@@ -140,9 +140,9 @@ class WatchlistViewModel(application: Application) : TraktViewModel(application)
     class Factory(val app: Application) :
         ViewModelProvider.Factory {
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(WatchlistViewModel::class.java)) {
+            if (modelClass.isAssignableFrom(HistoryViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
-                return WatchlistViewModel(
+                return HistoryViewModel(
                     app
                 ) as T
             }

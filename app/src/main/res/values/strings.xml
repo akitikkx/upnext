@@ -10,11 +10,13 @@
     <string name="title_tomorrow_shows">Airing Tomorrow</string>
     <string name="title_trakt_collection">Trakt Collection</string>
     <string name="title_trakt_watchlist">Trakt Watchlist</string>
+    <string name="title_trakt_history">Trakt History</string>
 
     <!-- Bottom navigation -->
     <string name="bottom_nav_title_search">Search</string>
     <string name="bottom_nav_title_dashboard">Dashboard</string>
     <string name="bottom_nav_title_collection">Trakt Collection</string>
+    <string name="bottom_nav_title_history">Trakt History</string>
     <string name="bottom_nav_title_watchlist">Trakt Watchlist</string>
 
     <!-- Show Detail -->
@@ -55,4 +57,7 @@
     <!-- Trakt Watchlist -->
     <string name="watchlist_item_listed_at">Listed at: %1$s</string>
     <string name="watchlist_empty_state_text">Your Trakt watchlist is empty. Add shows to your watchlist in your Trakt account and they will appear here</string>
+
+    <!-- Trakt History -->
+    <string name="trakt_history_episode_details">Season %1$d Episode %2$d</string>
 </resources>
