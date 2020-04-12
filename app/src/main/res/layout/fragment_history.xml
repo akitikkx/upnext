@@ -7,7 +7,7 @@
 
         <variable
             name="viewModel"
-            type="com.theupnextapp.ui.watchlist.WatchlistViewModel" />
+            type="com.theupnextapp.ui.history.HistoryViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -15,16 +15,16 @@
         android:layout_height="match_parent">
 
         <ImageView
-            android:id="@+id/watchlist_header"
+            android:id="@+id/history_header"
             android:layout_width="0dp"
             android:layout_height="@dimen/trakt_watchlist_header_height"
             android:layout_marginTop="?attr/actionBarSize"
             android:textAppearance="@style/TextAppearance.AppCompat.Title"
-            app:layout_constraintBottom_toTopOf="@id/watch_list"
+            app:layout_constraintBottom_toTopOf="@id/history_list"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:showHideView="@{viewModel.isAuthorizedOnTrakt() &amp;&amp; !viewModel.watchlistEmpty}"
+            app:showHideView="@{viewModel.isAuthorizedOnTrakt() &amp;&amp; !viewModel.historyEmpty}"
             app:srcCompat="@drawable/ic_trakt_wide_red_white"
             tools:visibility="gone" />
 
@@ -86,7 +86,7 @@
             tools:visibility="visible" />
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/watch_list"
+            android:id="@+id/history_list"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_marginStart="@dimen/margin_horizontal_half"
@@ -97,9 +97,9 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/watchlist_header"
-            app:showHideView="@{viewModel.isAuthorizedOnTrakt() &amp;&amp; !viewModel.watchlistEmpty}"
-            tools:listitem="@layout/trakt_watchlist_item"
+            app:layout_constraintTop_toBottomOf="@id/history_header"
+            app:showHideView="@{viewModel.isAuthorizedOnTrakt() &amp;&amp; !viewModel.historyEmpty}"
+            tools:listitem="@layout/trakt_history_item"
             tools:visibility="gone" />
 
         <LinearLayout
@@ -111,7 +111,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="parent"
-            app:showHideView="@{viewModel.watchlistEmpty &amp;&amp; viewModel.isAuthorizedOnTrakt()}"
+            app:showHideView="@{viewModel.historyEmpty &amp;&amp; viewModel.isAuthorizedOnTrakt()}"
             tools:visibility="gone">
 
             <ImageView
@@ -141,4 +141,5 @@
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>

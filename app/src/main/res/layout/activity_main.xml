@@ -36,6 +36,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
+        app:labelVisibilityMode="labeled"
         app:itemIconTint="@android:color/white"
         app:itemTextAppearanceActive="@style/BottomNavigation.TextActive"
         app:itemTextAppearanceInactive="@style/BottomNavigation.TextActive"

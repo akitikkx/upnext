@@ -9,6 +9,7 @@ import com.bumptech.glide.Glide
 import com.theupnextapp.R
 import com.theupnextapp.domain.ShowInfo
 import com.theupnextapp.domain.ShowSearch
+import com.theupnextapp.domain.TraktHistory
 import com.theupnextapp.domain.TraktWatchlist
 import org.jsoup.Jsoup
 
@@ -119,6 +120,20 @@ fun showListedAt(view: TextView, watchlist: TraktWatchlist) {
             R.string.watchlist_item_listed_at,
             watchlist.listed_at
         )
+    } else {
+        view.visibility = View.GONE
+    }
+}
+
+@BindingAdapter("historyEpisodeDetails")
+fun historyEpisodeDetails(view: TextView, show: TraktHistory) {
+    if (show.episodeNumber != null && show.episodeSeasonNumber != null) {
+        view.text = view.resources.getString(
+            R.string.trakt_history_episode_details,
+            show.episodeSeasonNumber,
+            show.episodeNumber
+        )
+        view.visibility = View.VISIBLE
     } else {
         view.visibility = View.GONE
     }

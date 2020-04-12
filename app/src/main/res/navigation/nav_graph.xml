@@ -80,4 +80,13 @@
             app:destination="@id/showDetailFragment" />
     </fragment>
 
+    <fragment
+        android:id="@+id/historyFragment"
+        android:name="com.theupnextapp.ui.history.HistoryFragment"
+        tools:layout="@layout/fragment_history">
+        <action
+            android:id="@+id/action_historyFragment_to_showDetailFragment"
+            app:destination="@id/showDetailFragment" />
+    </fragment>
+
 </navigation>

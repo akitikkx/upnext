@@ -77,7 +77,7 @@ class CollectionViewModel(
         val accessToken = sharedPreferences.getString(SHARED_PREF_TRAKT_ACCESS_TOKEN, null)
 
         viewModelScope.launch {
-            upnextRepository.getTraktCollection(accessToken)
+            upnextRepository.refreshTraktCollection(accessToken)
         }
     }
 

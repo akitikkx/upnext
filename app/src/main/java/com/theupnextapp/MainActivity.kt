@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.searchFragment,
                 R.id.dashboardFragment,
                 R.id.watchlistFragment,
-                R.id.collectionFragment
+                R.id.historyFragment
             )
             .build()
 
