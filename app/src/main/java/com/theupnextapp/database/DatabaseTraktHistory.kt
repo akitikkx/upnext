@@ -49,3 +49,25 @@ fun List<DatabaseTraktHistory>.asDomainModel(): List<TraktHistory> {
         )
     }
 }
+
+fun DatabaseTraktHistory.asDomainModel() : TraktHistory {
+    return TraktHistory(
+        id = id,
+        showTitle = showTitle,
+        showYear = showYear,
+        episodeTitle = episodeTitle,
+        episodeNumber = episodeNumber,
+        episodeSeasonNumber = episodeSeasonNumber,
+        historyType = historyType,
+        historyAction = historyAction,
+        watchedAt = watchedAt,
+        mediumImageUrl = mediumImageUrl,
+        originalImageUrl = originalImageUrl,
+        imdbID = imdbID,
+        slug = slug,
+        tmdbID = tmdbID,
+        traktID = traktID,
+        tvdbID = tvdbID,
+        tvMazeID = tvMazeID
+    )
+}

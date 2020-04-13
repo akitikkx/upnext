@@ -42,9 +42,9 @@ data class NetworkShowInfoSelf(
 )
 
 data class NetworkShowInfoExternals(
-    val imdb: String,
-    val thetvdb: Int,
-    val tvrage: Int
+    val imdb: String?,
+    val thetvdb: Int?,
+    val tvrage: Int?
 )
 
 data class NetworkShowInfoImage(

@@ -133,6 +133,11 @@ class WatchlistViewModel(application: Application) : TraktViewModel(application)
         _navigateToSelectedShow.value = null
     }
 
+    override fun onCleared() {
+        super.onCleared()
+        viewModelJob.cancel()
+    }
+
     companion object {
         const val EXTRA_TRAKT_URI = "extra_trakt_uri"
     }

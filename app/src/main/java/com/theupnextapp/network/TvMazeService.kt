@@ -2,6 +2,7 @@ package com.theupnextapp.network
 
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import kotlinx.coroutines.Deferred
+import okhttp3.ConnectionPool
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -9,6 +10,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
+import java.util.concurrent.TimeUnit
 
 interface TvMazeService {
     @GET("schedule")
@@ -48,6 +50,10 @@ object TvMazeNetwork {
 
     private val client = OkHttpClient().newBuilder()
         .addInterceptor(loggingInterceptor)
+        .connectTimeout(30, TimeUnit.SECONDS)
+        .retryOnConnectionFailure(true)
+        .readTimeout(30, TimeUnit.SECONDS)
+        .connectionPool(ConnectionPool(0, 1, TimeUnit.SECONDS))
         .build()
 
     private val retrofit = Retrofit.Builder()

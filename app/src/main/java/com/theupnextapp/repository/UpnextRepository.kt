@@ -50,6 +50,11 @@ class UpnextRepository(private val database: UpnextDatabase) {
             it.asDomainModel()
         }
 
+    fun traktWatchlistItem(imdbID: String?): LiveData<TraktHistory> =
+        Transformations.map(database.upnextDao.checkifInTraktWatchlist(imdbID)) {
+            it.asDomainModel()
+        }
+
     private val _showInfo = MutableLiveData<ShowInfo>()
 
     private val _showSearch = MutableLiveData<List<ShowSearch>>()
@@ -115,8 +120,9 @@ class UpnextRepository(private val database: UpnextDatabase) {
                 try {
                     val searchList = TvMazeNetwork.tvMazeApi.getSuggestionListAsync(name).await()
                     _showSearch.postValue(searchList.asDomainModel())
-                } catch (e: HttpException) {
+                } catch (e: Exception) {
                     Timber.d(e)
+                    Crashlytics.logException(e)
                 }
             }
         }
@@ -138,8 +144,9 @@ class UpnextRepository(private val database: UpnextDatabase) {
                     val accessTokenResponse =
                         TraktNetwork.traktApi.getAccessTokenAsync(traktAccessTokenRequest).await()
                     _traktAccessToken.postValue(accessTokenResponse.asDomainModel())
-                } catch (e: HttpException) {
+                } catch (e: Exception) {
                     Timber.d(e)
+                    Crashlytics.logException(e)
                 }
             }
         }
@@ -188,7 +195,7 @@ class UpnextRepository(private val database: UpnextDatabase) {
                 }
                 saveTraktWatchlist(updatedWatchList)
                 _isLoadingTraktWatchlist.postValue(false)
-            } catch (e: HttpException) {
+            } catch (e: Exception) {
                 Timber.d(e)
                 Crashlytics.logException(e)
                 _isLoadingTraktWatchlist.postValue(false)
@@ -207,6 +214,7 @@ class UpnextRepository(private val database: UpnextDatabase) {
 
                 } catch (e: Exception) {
                     Timber.d(e)
+                    Crashlytics.logException(e)
                 }
             }
         }
@@ -257,7 +265,7 @@ class UpnextRepository(private val database: UpnextDatabase) {
                     saveTraktHistory(updatedHistoryList)
                 }
                 _isLoadingTraktHistory.postValue(false)
-            } catch (e: HttpException) {
+            } catch (e: Exception) {
                 Timber.d(e)
                 Crashlytics.logException(e)
                 _isLoadingTraktHistory.postValue(false)
@@ -276,6 +284,7 @@ class UpnextRepository(private val database: UpnextDatabase) {
 
                 } catch (e: Exception) {
                     Timber.d(e)
+                    Crashlytics.logException(e)
                 }
             }
         }
@@ -307,7 +316,7 @@ class UpnextRepository(private val database: UpnextDatabase) {
                     version = "2",
                     apiKey = BuildConfig.TRAKT_CLIENT_ID
                 ).await()
-            } catch (e: HttpException) {
+            } catch (e: Exception) {
                 Timber.d(e)
                 Crashlytics.logException(e)
             }
@@ -324,7 +333,7 @@ class UpnextRepository(private val database: UpnextDatabase) {
                 saveRecommendedShows(recommendedShowsList)
 
                 _isLoadingRecommendedShows.postValue(false)
-            } catch (e: HttpException) {
+            } catch (e: Exception) {
                 _isLoadingRecommendedShows.postValue(false)
                 Timber.d(e)
                 Crashlytics.logException(e)
@@ -356,7 +365,7 @@ class UpnextRepository(private val database: UpnextDatabase) {
                     insertAllNewShows(*newShowsList.asDatabaseModel())
                 }
                 _isLoadingNewShows.postValue(false)
-            } catch (e: HttpException) {
+            } catch (e: Exception) {
                 _isLoadingNewShows.postValue(false)
                 Timber.d(e)
                 Crashlytics.logException(e)
@@ -384,7 +393,7 @@ class UpnextRepository(private val database: UpnextDatabase) {
                     }
                 }
                 _isLoadingYesterdayShows.postValue(false)
-            } catch (e: HttpException) {
+            } catch (e: Exception) {
                 _isLoadingYesterdayShows.postValue(false)
                 Timber.d(e)
                 Crashlytics.logException(e)
@@ -412,7 +421,7 @@ class UpnextRepository(private val database: UpnextDatabase) {
                     }
                 }
                 _isLoadingTodayShows.postValue(false)
-            } catch (e: HttpException) {
+            } catch (e: Exception) {
                 _isLoadingTodayShows.postValue(false)
                 Timber.d(e)
                 Crashlytics.logException(e)
@@ -430,7 +439,7 @@ class UpnextRepository(private val database: UpnextDatabase) {
                 saveTomorrowShows(tomorrowShowsList)
 
                 _isLoadingTomorrowShows.postValue(false)
-            } catch (e: HttpException) {
+            } catch (e: Exception) {
                 _isLoadingTomorrowShows.postValue(false)
                 Timber.d(e)
                 Crashlytics.logException(e)
@@ -497,7 +506,7 @@ class UpnextRepository(private val database: UpnextDatabase) {
                     deleteAllShowInfo(showId)
                     insertAllShowInfo(showInfoCombined.asDatabaseModel())
                 }
-            } catch (e: HttpException) {
+            } catch (e: Exception) {
                 Timber.d(e)
                 Crashlytics.logException(e)
             }
@@ -512,7 +521,7 @@ class UpnextRepository(private val database: UpnextDatabase) {
                 val showInfo = database.upnextDao.getShowWithId(showId)
                 _showInfo.postValue(showInfo)
                 _isLoading.postValue(false)
-            } catch (e: HttpException) {
+            } catch (e: Exception) {
                 _isLoading.postValue(false)
                 Timber.d(e)
                 Crashlytics.logException(e)
@@ -555,7 +564,7 @@ class UpnextRepository(private val database: UpnextDatabase) {
                 )
                 _showInfo.postValue(showInfoCombined.asDomainModel())
                 _isLoading.postValue(true)
-            } catch (e: HttpException) {
+            } catch (e: Exception) {
                 _isLoading.postValue(true)
                 Timber.d(e)
                 Crashlytics.logException(e)

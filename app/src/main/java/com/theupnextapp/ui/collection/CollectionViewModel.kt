@@ -109,6 +109,11 @@ class CollectionViewModel(
         _storingTraktAccessTokenInProgress.value = false
     }
 
+    override fun onCleared() {
+        super.onCleared()
+        viewModelJob.cancel()
+    }
+
     companion object {
         const val EXTRA_TRAKT_URI = "extra_trakt_uri"
     }
