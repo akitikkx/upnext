@@ -54,7 +54,7 @@
         </item>
     </style>
 
-    <style name="Upnext.Description" parent="TextAppearance.AppCompat.Body2" >
+    <style name="Upnext.Description" parent="TextAppearance.MaterialComponents.Body2" >
         <item name="android:textColor">@android:color/white</item>
     </style>
 
@@ -68,11 +68,11 @@
         <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Caption</item>
     </style>
 
-    <style name="Upnext.Caption.Grey" parent="TextAppearance.AppCompat.Caption">
+    <style name="Upnext.Caption.Grey" parent="TextAppearance.MaterialComponents.Caption">
         <item name="android:textColor">@color/colorShowDetailDescriptionGrey</item>
     </style>
 
-    <style name="Description6.Grey" parent="TextAppearance.AppCompat.Caption">
+    <style name="Description6.Grey" parent="TextAppearance.MaterialComponents.Caption">
         <item name="android:textColor">@color/colorShowDetailDescriptionGrey</item>
     </style>
 
