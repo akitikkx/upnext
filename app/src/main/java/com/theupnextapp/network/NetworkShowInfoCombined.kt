@@ -12,6 +12,7 @@ data class NetworkShowInfoCombined constructor(
 fun NetworkShowInfoCombined.asDatabaseModel(): DatabaseShowInfo {
     return DatabaseShowInfo(
         id = showInfoResponse.id,
+        imdbID = showInfoResponse.externals.imdb,
         name = showInfoResponse.name,
         status = showInfoResponse.status,
         summary = showInfoResponse.summary,
@@ -62,6 +63,7 @@ fun NetworkShowInfoCombined.asDatabaseModel(): DatabaseShowInfo {
 fun NetworkShowInfoCombined.asDomainModel(): ShowInfo {
     return ShowInfo(
         id = showInfoResponse.id,
+        imdbID = showInfoResponse.externals.imdb,
         name = showInfoResponse.name,
         summary = showInfoResponse.summary,
         status = showInfoResponse.status,

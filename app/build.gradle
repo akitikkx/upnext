@@ -19,7 +19,7 @@ android {
         applicationId "com.theupnextapp"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 70
+        versionCode 71
         versionName "3.0.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -110,6 +110,8 @@ dependencies {
 
     // Jsoup
     implementation "org.jsoup:jsoup:$jsoup_version"
+
+    implementation "com.google.firebase:firebase-core:17.3.0"
 
     // Analytics
     implementation "com.google.firebase:firebase-analytics:$analytics_version"

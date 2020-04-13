@@ -4,6 +4,7 @@ data class ShowInfo(
     val airDays: String?,
     val averageRating: String?,
     var id : Int,
+    val imdbID: String?,
     val genres: String?,
     val language: String?,
     val mediumImageUrl: String?,

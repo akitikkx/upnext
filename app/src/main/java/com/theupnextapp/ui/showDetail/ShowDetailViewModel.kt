@@ -1,11 +1,11 @@
 package com.theupnextapp.ui.showDetail
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.*
 import com.theupnextapp.database.getDatabase
 import com.theupnextapp.domain.ShowDetailArg
+import com.theupnextapp.domain.ShowInfo
+import com.theupnextapp.domain.TraktHistory
 import com.theupnextapp.repository.UpnextRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,6 +25,12 @@ class ShowDetailViewModel(
 
     private val upnextRepository = UpnextRepository(database)
 
+    private val _watchlistRecord = MutableLiveData<TraktHistory>()
+
+    private val _onWatchlist = MutableLiveData<Boolean>()
+
+    private val _notOnWatchlist = MutableLiveData<Boolean>()
+
     init {
         viewModelScope.launch {
             show.showId?.let { upnextRepository.getShowData(it) }
@@ -34,6 +40,31 @@ class ShowDetailViewModel(
     val isLoading = upnextRepository.isLoading
 
     val showInfo = upnextRepository.showInfo
+
+    val onWatchlist: LiveData<Boolean>
+        get() = _onWatchlist
+
+    val notOnWatchlist: LiveData<Boolean>
+        get() = _notOnWatchlist
+
+    val watchlistRecord: LiveData<TraktHistory>
+        get() = _watchlistRecord
+
+    fun onShowInfoReceived(showInfo: ShowInfo) {
+        viewModelScope.launch {
+            _watchlistRecord.value = upnextRepository.traktWatchlistItem(showInfo.imdbID).value
+        }
+    }
+
+    fun onWatchlistRecordReceived(traktHistory: TraktHistory?) {
+        if (traktHistory == null) {
+            _notOnWatchlist.value = true
+            _onWatchlist.value = false
+        } else {
+            _onWatchlist.value = true
+            _notOnWatchlist.value = false
+        }
+    }
 
     override fun onCleared() {
         super.onCleared()

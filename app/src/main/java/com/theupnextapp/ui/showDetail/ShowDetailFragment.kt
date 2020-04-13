@@ -47,8 +47,12 @@ class ShowDetailFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
         viewModel.showInfo.observe(viewLifecycleOwner, Observer{
             if (it != null) {
-
+                viewModel.onShowInfoReceived(it)
             }
+        })
+
+        viewModel.watchlistRecord.observe(viewLifecycleOwner, Observer {
+            viewModel.onWatchlistRecordReceived(it)
         })
     }
 

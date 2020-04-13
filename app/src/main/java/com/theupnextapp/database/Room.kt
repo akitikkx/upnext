@@ -82,6 +82,9 @@ interface UpnextDao {
 
     @Query("select * from trakt_history")
     fun getTraktHistory(): LiveData<List<DatabaseTraktHistory>>
+
+    @Query("select * from trakt_watchlist where imdbID = :imdbID")
+    fun checkifInTraktWatchlist(imdbID : String?) : LiveData<DatabaseTraktHistory>
 }
 
 @Database(
@@ -95,7 +98,7 @@ interface UpnextDao {
         DatabaseTraktWatchlist::class,
         DatabaseTraktHistory::class
     ],
-    version = 5,
+    version = 6,
     exportSchema = true
 )
 abstract class UpnextDatabase : RoomDatabase() {

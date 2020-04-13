@@ -8,6 +8,7 @@ import com.theupnextapp.domain.ShowInfo
 data class DatabaseShowInfo constructor(
     @PrimaryKey
     var id: Int,
+    var imdbID: String?,
     val name : String?,
     val summary : String?,
     val mediumImageUrl: String?,
@@ -49,6 +50,7 @@ data class DatabaseShowInfo constructor(
 fun DatabaseShowInfo.asDomainModel(): ShowInfo {
     return ShowInfo(
         id = id,
+        imdbID = imdbID,
         name = name,
         summary = summary,
         mediumImageUrl = mediumImageUrl,
