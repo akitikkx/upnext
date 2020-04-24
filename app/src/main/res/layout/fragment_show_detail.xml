@@ -153,8 +153,9 @@
                     android:layout_marginEnd="@dimen/margin_horizontal"
                     android:clickable="true"
                     android:focusable="true"
-                    app:showHideView="@{viewModel.notOnWatchlist}"
                     android:text="@string/show_detail_add_to_watchlist_button"
+                    app:icon="@drawable/ic_radio_button_unchecked_black_24dp"
+                    app:showHideView="@{viewModel.notOnWatchlist}"
                     tools:visibility="visible" />
 
                 <Button
@@ -166,8 +167,9 @@
                     android:layout_marginEnd="@dimen/margin_horizontal"
                     android:clickable="true"
                     android:focusable="true"
-                    app:showHideView="@{viewModel.onWatchlist}"
                     android:text="@string/show_detail_remove_from_watchlist_button"
+                    app:icon="@drawable/ic_check_circle_white_24dp"
+                    app:showHideView="@{viewModel.onWatchlist}"
                     tools:visibility="visible" />
             </LinearLayout>
 

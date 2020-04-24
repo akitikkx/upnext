@@ -91,12 +91,10 @@
 
     <style name="Button.AddToWatchlist" parent="Upnext.Button">
         <item name="android:textColor">@android:color/white</item>
-        <item name="icon">@drawable/ic_radio_button_unchecked_black_24dp</item>
         <item name="android:backgroundTint">@color/colorPrimaryDark</item>
     </style>
 
     <style name="Button.RemoveFromWatchlist" parent="Upnext.Button">
-        <item name="icon">@drawable/ic_check_circle_white_24dp</item>
         <item name="android:backgroundTint">@color/colorAccent</item>
     </style>
 

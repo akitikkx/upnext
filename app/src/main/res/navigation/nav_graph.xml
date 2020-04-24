@@ -85,7 +85,11 @@
             app:nullable="true" />
         <action
             android:id="@+id/action_watchlistFragment_to_showDetailFragment"
-            app:destination="@id/showDetailFragment" />
+            app:destination="@id/showDetailFragment"
+            app:enterAnim="@anim/fragment_open_enter"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
     </fragment>
 
     <fragment
@@ -94,7 +98,11 @@
         tools:layout="@layout/fragment_history">
         <action
             android:id="@+id/action_historyFragment_to_showDetailFragment"
-            app:destination="@id/showDetailFragment" />
+            app:destination="@id/showDetailFragment"
+            app:enterAnim="@anim/fragment_open_enter"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
     </fragment>
 
 </navigation>
