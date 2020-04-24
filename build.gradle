@@ -13,7 +13,7 @@ buildscript {
         kotlin_coroutines_version = "1.1.0"
         lifecycle_extensions_version = "2.2.0"
         moshi_version = "1.8.0"
-        navigation_version = "2.2.1"
+        navigation_version = "2.2.2"
         okhttp_version = "3.12.0"
         okhttp_logging_interceptor_version = "3.10.0"
         retrofit_version = "2.5.0"
@@ -31,7 +31,7 @@ buildscript {
 
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.6.2'
+        classpath 'com.android.tools.build:gradle:3.6.3'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$navigation_version"
         classpath "com.google.gms:google-services:$google_services"

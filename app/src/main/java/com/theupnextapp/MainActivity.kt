@@ -14,6 +14,7 @@ import androidx.navigation.ui.onNavDestinationSelected
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.theupnextapp.domain.TraktConnectionArg
 import com.theupnextapp.ui.collection.CollectionFragment
 
@@ -24,10 +25,13 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var bottomNavigationView: BottomNavigationView
     private lateinit var toolbar: Toolbar
+    private lateinit var firebaseAnalytics: FirebaseAnalytics
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        firebaseAnalytics = FirebaseAnalytics.getInstance(this)
 
         toolbar = findViewById<Toolbar>(R.id.toolbar)
         bottomNavigationView = findViewById(R.id.bottom_navigation)
