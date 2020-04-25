@@ -13,11 +13,13 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.theupnextapp.R
+import com.theupnextapp.common.extensions.waitForTransition
 import com.theupnextapp.databinding.FragmentSearchBinding
 import com.theupnextapp.domain.ShowDetailArg
+import com.theupnextapp.domain.ShowSearch
 
 class SearchFragment : Fragment(),
-    OnQueryTextListener {
+    OnQueryTextListener, SearchAdapter.SearchAdapterListener {
 
     private lateinit var binding: FragmentSearchBinding
 
@@ -56,14 +58,13 @@ class SearchFragment : Fragment(),
         binding.search.queryHint = "Start typing the show name here..."
         binding.search.setOnQueryTextListener(this)
 
-        searchAdapter = SearchAdapter(SearchAdapter.SearchAdapterListener {
-            viewModel.displayShowDetails(ShowDetailArg(it.id, it.name))
-        })
+        searchAdapter = SearchAdapter(this)
 
         binding.root.findViewById<RecyclerView>(R.id.search_list).apply {
             layoutManager = LinearLayoutManager(context).apply {
                 orientation = LinearLayoutManager.VERTICAL
             }
+            waitForTransition(this)
             adapter = searchAdapter
         }
 
@@ -100,5 +101,17 @@ class SearchFragment : Fragment(),
     override fun onResume() {
         super.onResume()
         (activity as AppCompatActivity).supportActionBar?.title = "Show search"
+    }
+
+    override fun onSearchItemClick(view: View, showSearch: ShowSearch) {
+        viewModel.displayShowDetails(
+            ShowDetailArg(
+                source = "history",
+                showId = showSearch.id,
+                showTitle = showSearch.name,
+                showImageUrl = showSearch.originalImageUrl,
+                imageView = view
+            )
+        )
     }
 }

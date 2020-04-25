@@ -31,6 +31,8 @@ class ShowDetailViewModel(
 
     private val _notOnWatchlist = MutableLiveData<Boolean>()
 
+    private val _show = MutableLiveData<ShowDetailArg>(show)
+
     init {
         viewModelScope.launch {
             show.showId?.let { upnextRepository.getShowData(it) }
@@ -49,6 +51,9 @@ class ShowDetailViewModel(
 
     val watchlistRecord: LiveData<TraktHistory>
         get() = _watchlistRecord
+
+    val showDetailArg: LiveData<ShowDetailArg>
+        get() = _show
 
     fun onShowInfoReceived(showInfo: ShowInfo) {
         viewModelScope.launch {

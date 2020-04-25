@@ -8,17 +8,23 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.theupnextapp.R
+import com.theupnextapp.common.extensions.waitForTransition
 import com.theupnextapp.databinding.FragmentDashboardBinding
 import com.theupnextapp.domain.NewShows
 import com.theupnextapp.domain.RecommendedShows
 import com.theupnextapp.domain.ScheduleShow
 import com.theupnextapp.domain.ShowDetailArg
 
-class DashboardFragment : Fragment() {
+class DashboardFragment : Fragment(), RecommendedShowsAdapter.RecommendedShowsAdapterListener,
+    NewShowsAdapter.NewShowsAdapterListener,
+    TodayShowsAdapter.TodayShowsAdapterListener,
+    YesterdayShowsAdapter.YesterdayShowsAdapterListener,
+    TomorrowShowsAdapter.TomorrowShowsAdapterListener {
 
     private lateinit var binding: FragmentDashboardBinding
 
@@ -49,34 +55,21 @@ class DashboardFragment : Fragment() {
 
         binding.viewModel = viewModel
 
-        recommendedShowsAdapter =
-            RecommendedShowsAdapter(RecommendedShowsAdapter.RecommendedShowsAdapterListener {
-                viewModel.displayShowDetails(ShowDetailArg(it.id, it.name))
-            })
+        recommendedShowsAdapter = RecommendedShowsAdapter(this)
 
-        newShowsAdapter = NewShowsAdapter(NewShowsAdapter.NewShowsAdapterListener {
-            viewModel.displayShowDetails(ShowDetailArg(it.id, it.name))
-        })
+        newShowsAdapter = NewShowsAdapter(this)
 
-        yesterdayShowsAdapter =
-            YesterdayShowsAdapter(YesterdayShowsAdapter.YesterdayShowsAdapterListener {
-                viewModel.displayShowDetails(ShowDetailArg(it.id, it.name))
-            })
+        yesterdayShowsAdapter = YesterdayShowsAdapter(this)
 
-        todayShowsAdapter =
-            TodayShowsAdapter(TodayShowsAdapter.TodayShowsAdapterListener {
-                viewModel.displayShowDetails(ShowDetailArg(it.id, it.name))
-            })
+        todayShowsAdapter = TodayShowsAdapter(this)
 
-        tomorrowShowsAdapter =
-            TomorrowShowsAdapter(TomorrowShowsAdapter.TomorrowShowsAdapterListener {
-                viewModel.displayShowDetails(ShowDetailArg(it.id, it.name))
-            })
+        tomorrowShowsAdapter = TomorrowShowsAdapter(this)
 
         binding.root.findViewById<RecyclerView>(R.id.recommended_shows_list).apply {
             layoutManager = LinearLayoutManager(context).apply {
                 orientation = LinearLayoutManager.HORIZONTAL
             }
+            waitForTransition(this)
             adapter = recommendedShowsAdapter
         }
 
@@ -84,6 +77,7 @@ class DashboardFragment : Fragment() {
             layoutManager = LinearLayoutManager(context).apply {
                 orientation = LinearLayoutManager.HORIZONTAL
             }
+            waitForTransition(this)
             adapter = newShowsAdapter
         }
 
@@ -91,6 +85,7 @@ class DashboardFragment : Fragment() {
             layoutManager = LinearLayoutManager(context).apply {
                 orientation = LinearLayoutManager.HORIZONTAL
             }
+            waitForTransition(this)
             adapter = yesterdayShowsAdapter
         }
 
@@ -98,6 +93,7 @@ class DashboardFragment : Fragment() {
             layoutManager = LinearLayoutManager(context).apply {
                 orientation = LinearLayoutManager.HORIZONTAL
             }
+            waitForTransition(this)
             adapter = todayShowsAdapter
         }
 
@@ -105,6 +101,7 @@ class DashboardFragment : Fragment() {
             layoutManager = LinearLayoutManager(context).apply {
                 orientation = LinearLayoutManager.HORIZONTAL
             }
+            waitForTransition(this)
             adapter = tomorrowShowsAdapter
         }
 
@@ -161,8 +158,13 @@ class DashboardFragment : Fragment() {
 
         viewModel.navigateToSelectedShow.observe(viewLifecycleOwner, Observer {
             if (null != it) {
+                val extras = FragmentNavigatorExtras(
+                    it.imageView to "${it.source}_${it.showImageUrl}"
+                )
+
                 this.findNavController().navigate(
-                    DashboardFragmentDirections.actionDashboardFragmentToShowDetailFragment(it)
+                    DashboardFragmentDirections.actionDashboardFragmentToShowDetailFragment(it),
+                    extras
                 )
                 viewModel.displayShowDetailsComplete()
             }
@@ -172,5 +174,65 @@ class DashboardFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         (activity as AppCompatActivity).supportActionBar?.title = getString(R.string.app_name)
+    }
+
+    override fun onYesterdayShowClick(view: View, yesterdayShow: ScheduleShow) {
+        viewModel.displayShowDetails(
+            ShowDetailArg(
+                source = "yesterday",
+                showId = yesterdayShow.id,
+                showTitle = yesterdayShow.name,
+                showImageUrl = yesterdayShow.image,
+                imageView = view
+            )
+        )
+    }
+
+    override fun onRecommendedShowClick(view: View, recommendedShow: RecommendedShows) {
+        viewModel.displayShowDetails(
+            ShowDetailArg(
+                source = "recommended",
+                showId = recommendedShow.id,
+                showTitle = recommendedShow.name,
+                showImageUrl = recommendedShow.originalImageUrl,
+                imageView = view
+            )
+        )
+    }
+
+    override fun onNewShowClick(view: View, newShow: NewShows) {
+        viewModel.displayShowDetails(
+            ShowDetailArg(
+                source = "new",
+                showId = newShow.id,
+                showTitle = newShow.name,
+                showImageUrl = newShow.originalImageUrl,
+                imageView = view
+            )
+        )
+    }
+
+    override fun onTodayShowClick(view: View, scheduleShow: ScheduleShow) {
+        viewModel.displayShowDetails(
+            ShowDetailArg(
+                source = "today",
+                showId = scheduleShow.id,
+                showTitle = scheduleShow.name,
+                showImageUrl = scheduleShow.image,
+                imageView = view
+            )
+        )
+    }
+
+    override fun onTomorrowShowClick(view: View, scheduleShow: ScheduleShow) {
+        viewModel.displayShowDetails(
+            ShowDetailArg(
+                source = "tomorrow",
+                showId = scheduleShow.id,
+                showTitle = scheduleShow.name,
+                showImageUrl = scheduleShow.image,
+                imageView = view
+            )
+        )
     }
 }

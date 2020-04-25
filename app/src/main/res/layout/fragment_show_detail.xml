@@ -41,10 +41,11 @@
                     android:layout_height="@dimen/show_backdrop_height"
                     android:contentDescription="@{String.format(@string/show_backdrop_image, viewModel.showInfo.name)}"
                     android:scaleType="matrix"
-                    app:imageUrl="@{viewModel.showInfo.originalImageUrl}"
+                    app:imageUrl="@{viewModel.showDetailArg.showImageUrl}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:showDetailTransitionName="@{viewModel.showDetailArg}" />
 
                 <View
                     android:layout_width="match_parent"
@@ -61,7 +62,7 @@
                 android:layout_marginStart="@dimen/margin_horizontal_double"
                 android:layout_marginTop="@dimen/margin_vertical_half"
                 android:layout_marginEnd="@dimen/margin_horizontal_double"
-                android:text="@{viewModel.showInfo.name}"
+                android:text="@{viewModel.showDetailArg.showTitle}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/show_detail_poster"
                 app:layout_constraintTop_toBottomOf="@id/show_detail_backdrop"
@@ -108,7 +109,7 @@
                     android:layout_marginEnd="@dimen/margin_horizontal_half"
                     android:contentDescription="@{String.format(@string/show_poster, viewModel.showInfo.name)}"
                     android:scaleType="centerCrop"
-                    app:imageUrl="@{viewModel.showInfo.originalImageUrl}" />
+                    app:imageUrl="@{viewModel.showDetailArg.showImageUrl}" />
             </FrameLayout>
 
             <LinearLayout

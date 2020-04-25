@@ -18,10 +18,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/margin_vertical"
-        android:background="?android:attr/selectableItemBackground"
-        android:clickable="true"
-        android:focusable="true"
-        android:onClick="@{() -> listener.onClick(show)}">
+        android:background="?android:attr/selectableItemBackground">
 
         <FrameLayout
             android:id="@+id/watchlist_poster"
@@ -41,11 +38,14 @@
                 app:showHideView="@{show.originalImageUrl != null}" />
 
             <ImageView
-                android:id="@+id/poster"
+                android:id="@+id/trakt_watchlist_poster"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/search_poster_height"
                 android:layout_marginEnd="@dimen/margin_horizontal_half"
+                android:clickable="true"
                 android:contentDescription="@{String.format(@string/show_poster, show.title)}"
+                android:focusable="true"
+                android:onClick="@{(view) -> listener.onWatchlistShowClick(view, show)}"
                 android:scaleType="centerCrop"
                 app:imageUrl="@{show.originalImageUrl}"
                 tools:srcCompat="@drawable/loading_list_placeholder" />

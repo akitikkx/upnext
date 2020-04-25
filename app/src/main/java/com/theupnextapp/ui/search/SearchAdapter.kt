@@ -34,13 +34,14 @@ class SearchAdapter(val listener: SearchAdapterListener) :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.viewDataBinding.also {
+            it.searchItemPoster.transitionName = "search_${searchResults[position].originalImageUrl}"
             it.show = searchResults[position]
             it.listener = listener
         }
     }
 
-    class SearchAdapterListener(val block: (ShowSearch) -> Unit) {
-        fun onClick(showSearch: ShowSearch) = block(showSearch)
+    interface SearchAdapterListener {
+        fun onSearchItemClick(view: View, showSearch: ShowSearch)
     }
 
     class ViewHolder(val viewDataBinding: SearchItemBinding) :

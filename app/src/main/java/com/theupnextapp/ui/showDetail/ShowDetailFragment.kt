@@ -10,12 +10,13 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.navArgs
+import androidx.transition.TransitionInflater
 import com.theupnextapp.MainActivity
 import com.theupnextapp.databinding.FragmentShowDetailBinding
 
 class ShowDetailFragment : Fragment() {
 
-    private lateinit var binding : FragmentShowDetailBinding
+    private lateinit var binding: FragmentShowDetailBinding
 
     val args by navArgs<ShowDetailFragmentArgs>()
 
@@ -27,6 +28,12 @@ class ShowDetailFragment : Fragment() {
             this,
             ShowDetailViewModel.Factory(activity.application, args.show)
         ).get(ShowDetailViewModel::class.java)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        sharedElementEnterTransition =
+            TransitionInflater.from(context).inflateTransition(android.R.transition.move)
     }
 
     override fun onCreateView(
@@ -45,7 +52,7 @@ class ShowDetailFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel.showInfo.observe(viewLifecycleOwner, Observer{
+        viewModel.showInfo.observe(viewLifecycleOwner, Observer {
             if (it != null) {
                 viewModel.onShowInfoReceived(it)
             }
