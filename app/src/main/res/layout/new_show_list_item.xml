@@ -21,7 +21,6 @@
             android:id="@+id/dashboard_poster"
             android:layout_width="@dimen/poster_frame_width"
             android:layout_height="wrap_content"
-            android:onClick="@{() -> listener.onClick(show)}"
             android:orientation="vertical"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -35,11 +34,12 @@
                 app:goneIfNotNull="@{show.originalImageUrl}" />
 
             <ImageView
-                android:id="@+id/poster"
+                android:id="@+id/new_show_poster"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/shows_list_poster_height"
                 android:layout_marginEnd="@dimen/margin_horizontal_half"
                 android:contentDescription="@{String.format(@string/show_poster, show.name)}"
+                android:onClick="@{(view) -> listener.onNewShowClick(view, show)}"
                 android:scaleType="centerCrop"
                 app:imageUrl="@{show.originalImageUrl}" />
         </FrameLayout>

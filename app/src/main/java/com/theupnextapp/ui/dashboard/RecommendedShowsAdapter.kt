@@ -1,6 +1,7 @@
 package com.theupnextapp.ui.dashboard
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
@@ -30,6 +31,7 @@ class RecommendedShowsAdapter(val listener: RecommendedShowsAdapterListener) :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.viewDataBinding.also {
+            it.recommendedShowPoster.transitionName = "recommended_${recommendedShows[position].originalImageUrl}"
             it.show = recommendedShows[position]
             it.listener = listener
         }
@@ -37,8 +39,8 @@ class RecommendedShowsAdapter(val listener: RecommendedShowsAdapterListener) :
 
     override fun getItemCount(): Int = recommendedShows.size
 
-    class RecommendedShowsAdapterListener(val block: (RecommendedShows) -> Unit) {
-        fun onClick(recommendedShow: RecommendedShows) = block(recommendedShow)
+    interface RecommendedShowsAdapterListener {
+        fun onRecommendedShowClick(view : View, recommendedShow: RecommendedShows)
     }
 
     class ViewHolder(val viewDataBinding: RecommendedShowListItemBinding) :

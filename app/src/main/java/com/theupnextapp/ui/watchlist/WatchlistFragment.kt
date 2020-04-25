@@ -17,11 +17,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.theupnextapp.BuildConfig
 import com.theupnextapp.R
+import com.theupnextapp.common.extensions.waitForTransition
 import com.theupnextapp.databinding.FragmentWatchlistBinding
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.TraktConnectionArg
+import com.theupnextapp.domain.TraktWatchlist
 
-class WatchlistFragment : Fragment() {
+class WatchlistFragment : Fragment(), WatchlistAdapter.WatchlistAdapterListener {
 
     private lateinit var binding: FragmentWatchlistBinding
 
@@ -54,14 +56,13 @@ class WatchlistFragment : Fragment() {
             viewModel.onTraktConnectionBundleReceived(arguments)
         }
 
-        watchlistAdapter = WatchlistAdapter(WatchlistAdapter.WatchlistAdapterListener {
-            viewModel.displayShowDetails(ShowDetailArg(it.tvMazeID, it.title))
-        })
+        watchlistAdapter = WatchlistAdapter(this)
 
         binding.root.findViewById<RecyclerView>(R.id.watch_list).apply {
             layoutManager = LinearLayoutManager(context).apply {
                 orientation = LinearLayoutManager.VERTICAL
             }
+            waitForTransition(this)
             adapter = watchlistAdapter
         }
 
@@ -156,5 +157,17 @@ class WatchlistFragment : Fragment() {
         const val EXTRA_TRAKT_URI = "extra_trakt_uri"
         const val TRAKT_API_URL = "https://api.trakt.tv"
         const val TRAKT_OAUTH_ENDPOINT = "/oauth/authorize"
+    }
+
+    override fun onWatchlistShowClick(view: View, watchlistItem: TraktWatchlist) {
+        viewModel.displayShowDetails(
+            ShowDetailArg(
+                source = "watchlist",
+                showId = watchlistItem.tvMazeID,
+                showTitle = watchlistItem.title,
+                showImageUrl = watchlistItem.originalImageUrl,
+                imageView = view
+            )
+        )
     }
 }

@@ -17,12 +17,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.theupnextapp.BuildConfig
 import com.theupnextapp.R
+import com.theupnextapp.common.extensions.waitForTransition
 import com.theupnextapp.databinding.FragmentHistoryBinding
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.TraktConnectionArg
+import com.theupnextapp.domain.TraktHistory
 import com.theupnextapp.ui.watchlist.WatchlistFragment
 
-class HistoryFragment : Fragment() {
+class HistoryFragment : Fragment(), HistoryAdapter.HistoryAdapterListener {
 
     private lateinit var binding: FragmentHistoryBinding
 
@@ -55,14 +57,13 @@ class HistoryFragment : Fragment() {
             viewModel.onTraktConnectionBundleReceived(arguments)
         }
 
-        historyAdapter = HistoryAdapter(HistoryAdapter.HistoryAdapterListener {
-            viewModel.displayShowDetails(ShowDetailArg(it.tvMazeID, it.showTitle))
-        })
+        historyAdapter = HistoryAdapter(this)
 
         binding.root.findViewById<RecyclerView>(R.id.history_list).apply {
             layoutManager = LinearLayoutManager(context).apply {
                 orientation = LinearLayoutManager.VERTICAL
             }
+            waitForTransition(this)
             adapter = historyAdapter
         }
 
@@ -157,5 +158,17 @@ class HistoryFragment : Fragment() {
         const val EXTRA_TRAKT_URI = "extra_trakt_uri"
         const val TRAKT_API_URL = "https://api.trakt.tv"
         const val TRAKT_OAUTH_ENDPOINT = "/oauth/authorize"
+    }
+
+    override fun onHistoryShowClick(view: View, historyItem: TraktHistory) {
+        viewModel.displayShowDetails(
+            ShowDetailArg(
+                source = "history",
+                showId = historyItem.tvMazeID,
+                showTitle = historyItem.showTitle,
+                showImageUrl = historyItem.originalImageUrl,
+                imageView = view
+            )
+        )
     }
 }

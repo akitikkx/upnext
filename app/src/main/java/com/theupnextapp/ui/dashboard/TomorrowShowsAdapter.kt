@@ -1,6 +1,7 @@
 package com.theupnextapp.ui.dashboard
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
@@ -30,6 +31,7 @@ class TomorrowShowsAdapter(val listener: TomorrowShowsAdapterListener) :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.viewDataBinding.also {
+            it.tomorrowShowPoster.transitionName = "tomorrow_${tomorrowShows[position].image}"
             it.show = tomorrowShows[position]
             it.listener = listener
         }
@@ -37,8 +39,8 @@ class TomorrowShowsAdapter(val listener: TomorrowShowsAdapterListener) :
 
     override fun getItemCount(): Int = tomorrowShows.size
 
-    class TomorrowShowsAdapterListener(val block: (ScheduleShow) -> Unit) {
-        fun onClick(scheduleShow: ScheduleShow) = block(scheduleShow)
+    interface TomorrowShowsAdapterListener {
+        fun onTomorrowShowClick(view : View, scheduleShow: ScheduleShow)
     }
 
     class ViewHolder(val viewDataBinding: TomorrowShowListItemBinding) :

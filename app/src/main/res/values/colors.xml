@@ -6,5 +6,6 @@
     <color name="windowDarkBackground">#181818</color>
     <color name="appTextColor">#ffffff</color>
 
+    <color name="showBackdropBackground">#FFD3DADB</color>
     <color name="colorShowDetailDescriptionGrey">#8e8e8e</color>
 </resources>

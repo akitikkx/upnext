@@ -1,6 +1,7 @@
 package com.theupnextapp.ui.dashboard
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
@@ -30,6 +31,7 @@ class TodayShowsAdapter(val listener: TodayShowsAdapterListener) :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.viewDataBinding.also {
+            it.todayShowPoster.transitionName = "today_${todayShows[position].image}"
             it.show = todayShows[position]
             it.listener = listener
         }
@@ -37,8 +39,8 @@ class TodayShowsAdapter(val listener: TodayShowsAdapterListener) :
 
     override fun getItemCount(): Int = todayShows.size
 
-    class TodayShowsAdapterListener(val block: (ScheduleShow) -> Unit) {
-        fun onClick(scheduleShow: ScheduleShow) = block(scheduleShow)
+    interface TodayShowsAdapterListener {
+        fun onTodayShowClick(view : View, scheduleShow: ScheduleShow)
     }
 
     class ViewHolder(val viewDataBinding: TodayShowListItemBinding) :

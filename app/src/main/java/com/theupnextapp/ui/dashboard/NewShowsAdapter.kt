@@ -1,6 +1,7 @@
 package com.theupnextapp.ui.dashboard
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
@@ -30,6 +31,7 @@ class NewShowsAdapter(val listener: NewShowsAdapterListener) :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.viewDataBinding.also {
+            it.newShowPoster.transitionName = "new_${newShows[position].originalImageUrl}"
             it.show = newShows[position]
             it.listener = listener
         }
@@ -37,8 +39,8 @@ class NewShowsAdapter(val listener: NewShowsAdapterListener) :
 
     override fun getItemCount(): Int = newShows.size
 
-    class NewShowsAdapterListener(val block: (NewShows) -> Unit) {
-        fun onClick(newShow: NewShows) = block(newShow)
+    interface NewShowsAdapterListener {
+        fun onNewShowClick(view : View, newShow: NewShows)
     }
 
     class ViewHolder(val viewDataBinding: NewShowListItemBinding) :

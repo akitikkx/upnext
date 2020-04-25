@@ -7,17 +7,14 @@ import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
 import com.theupnextapp.R
-import com.theupnextapp.domain.ShowInfo
-import com.theupnextapp.domain.ShowSearch
-import com.theupnextapp.domain.TraktHistory
-import com.theupnextapp.domain.TraktWatchlist
+import com.theupnextapp.domain.*
 import org.jsoup.Jsoup
 
 @BindingAdapter("imageUrl")
 fun setImageUrl(imageView: ImageView, url: String?) {
     Glide.with(imageView.context)
         .load(url)
-        .placeholder(R.drawable.loading_list_placeholder)
+        .placeholder(R.color.showBackdropBackground)
         .error(R.drawable.ic_filter_b_and_w_grey600_48dp)
         .into(imageView)
 }
@@ -136,5 +133,12 @@ fun historyEpisodeDetails(view: TextView, show: TraktHistory) {
         view.visibility = View.VISIBLE
     } else {
         view.visibility = View.GONE
+    }
+}
+
+@BindingAdapter("showDetailTransitionName")
+fun getTransitionName(view: ImageView, showDetailArg: ShowDetailArg) {
+    if (!showDetailArg.source.isNullOrEmpty() && !showDetailArg.showImageUrl.isNullOrEmpty()) {
+        view.transitionName = "${showDetailArg.source}_${showDetailArg.showImageUrl}"
     }
 }
