@@ -148,14 +148,6 @@ class DashboardFragment : Fragment(), RecommendedShowsAdapter.RecommendedShowsAd
                 }
             })
 
-        viewModel.isLoading.observe(viewLifecycleOwner, Observer {
-            if (it) {
-                viewModel.displayProgressLoader()
-            } else {
-                viewModel.displayProgressLoaderComplete()
-            }
-        })
-
         viewModel.navigateToSelectedShow.observe(viewLifecycleOwner, Observer {
             if (null != it) {
                 val extras = FragmentNavigatorExtras(

@@ -63,6 +63,8 @@ class WatchlistViewModel(application: Application) : TraktViewModel(application)
     val watchlistEmpty: LiveData<Boolean>
         get() = _watchlistEmpty
 
+    val isLoadingWatchlist = upnextRepository.isLoadingTraktWatchlist
+
     fun onWatchlistEmpty(empty: Boolean) {
         _watchlistEmpty.value = empty
     }
@@ -78,6 +80,7 @@ class WatchlistViewModel(application: Application) : TraktViewModel(application)
     init {
         _watchlistEmpty.value = false
         if (ifValidAccessTokenExists()) {
+            loadTraktWatchilist()
             _isAuthorizedOnTrakt.value = true
         }
     }

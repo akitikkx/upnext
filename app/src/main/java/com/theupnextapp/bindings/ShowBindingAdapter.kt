@@ -15,7 +15,7 @@ fun setImageUrl(imageView: ImageView, url: String?) {
     Glide.with(imageView.context)
         .load(url)
         .placeholder(R.color.showBackdropBackground)
-        .error(R.drawable.ic_filter_b_and_w_grey600_48dp)
+        .error(R.color.showBackdropBackground)
         .into(imageView)
 }
 
