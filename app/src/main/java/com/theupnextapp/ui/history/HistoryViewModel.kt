@@ -42,6 +42,8 @@ class HistoryViewModel(application: Application) : TraktViewModel(application) {
 
     private val _historyEmpty = MutableLiveData<Boolean>()
 
+    val isLoadingHistory = upnextRepository.isLoadingTraktHistory
+
     val launchTraktConnectWindow: LiveData<Boolean>
         get() = _launchTraktConnectWindow
 
@@ -78,6 +80,7 @@ class HistoryViewModel(application: Application) : TraktViewModel(application) {
     init {
         _historyEmpty.value = false
         if (ifValidAccessTokenExists()) {
+            loadTraktHistory()
             _isAuthorizedOnTrakt.value = true
         }
     }

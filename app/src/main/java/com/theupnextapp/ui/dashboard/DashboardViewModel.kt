@@ -17,13 +17,8 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
 
     private val _navigateToSelectedShow = MutableLiveData<ShowDetailArg>()
 
-    private val _showProgressLoader = MutableLiveData<Boolean>()
-
     val navigateToSelectedShow: LiveData<ShowDetailArg>
         get() = _navigateToSelectedShow
-
-    val showProgressLoader: LiveData<Boolean>
-        get() = _showProgressLoader
 
     val recommendedShowsList = upnextRepository.recommendedShows
 
@@ -43,14 +38,6 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun displayShowDetailsComplete() {
         _navigateToSelectedShow.value = null
-    }
-
-    fun displayProgressLoader() {
-        _showProgressLoader.value = true
-    }
-
-    fun displayProgressLoaderComplete() {
-        _showProgressLoader.value = false
     }
 
     override fun onCleared() {

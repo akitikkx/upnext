@@ -30,7 +30,7 @@
                 app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:showProgress="@{viewModel.showProgressLoader}" />
+                app:showProgress="@{viewModel.isLoading()}" />
 
             <TextView
                 android:id="@+id/yesterday_shows_title"
@@ -43,7 +43,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:loadingVisibility="@{viewModel.showProgressLoader}" />
+                app:loadingVisibility="@{viewModel.isLoading()}" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/yesterday_shows_list"
@@ -54,11 +54,11 @@
                 android:layout_marginEnd="@dimen/margin_horizontal_half"
                 android:layout_marginBottom="@dimen/margin_vertical"
                 android:clipToPadding="false"
-                app:canClickItem="@{viewModel.showProgressLoader}"
+                app:canClickItem="@{viewModel.isLoading()}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/yesterday_shows_title"
-                app:loadingVisibility="@{viewModel.showProgressLoader}"
+                app:loadingVisibility="@{viewModel.isLoading()}"
                 tools:listitem="@layout/yesterday_show_list_item" />
 
             <TextView
@@ -72,7 +72,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/yesterday_shows_list"
-                app:loadingVisibility="@{viewModel.showProgressLoader}" />
+                app:loadingVisibility="@{viewModel.isLoading()}" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/today_shows_list"
@@ -83,11 +83,11 @@
                 android:layout_marginEnd="@dimen/margin_horizontal_half"
                 android:layout_marginBottom="@dimen/margin_vertical"
                 android:clipToPadding="false"
-                app:canClickItem="@{viewModel.showProgressLoader}"
+                app:canClickItem="@{viewModel.isLoading()}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/today_shows_title"
-                app:loadingVisibility="@{viewModel.showProgressLoader}"
+                app:loadingVisibility="@{viewModel.isLoading()}"
                 tools:listitem="@layout/today_show_list_item" />
 
             <TextView
@@ -101,7 +101,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/today_shows_list"
-                app:loadingVisibility="@{viewModel.showProgressLoader}" />
+                app:loadingVisibility="@{viewModel.isLoading()}" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/tomorrow_shows_list"
@@ -112,11 +112,11 @@
                 android:layout_marginEnd="@dimen/margin_horizontal_half"
                 android:layout_marginBottom="@dimen/margin_vertical"
                 android:clipToPadding="false"
-                app:canClickItem="@{viewModel.showProgressLoader}"
+                app:canClickItem="@{viewModel.isLoading()}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tomorrow_shows_title"
-                app:loadingVisibility="@{viewModel.showProgressLoader}"
+                app:loadingVisibility="@{viewModel.isLoading()}"
                 tools:listitem="@layout/tomorrow_show_list_item" />
 
             <TextView
@@ -130,7 +130,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tomorrow_shows_list"
-                app:loadingVisibility="@{viewModel.showProgressLoader}" />
+                app:loadingVisibility="@{viewModel.isLoading()}" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/new_shows_list"
@@ -141,11 +141,11 @@
                 android:layout_marginEnd="@dimen/margin_horizontal_half"
                 android:layout_marginBottom="@dimen/margin_vertical"
                 android:clipToPadding="false"
-                app:canClickItem="@{viewModel.showProgressLoader}"
+                app:canClickItem="@{viewModel.isLoading()}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/new_shows_title"
-                app:loadingVisibility="@{viewModel.showProgressLoader}"
+                app:loadingVisibility="@{viewModel.isLoading()}"
                 tools:listitem="@layout/recommended_show_list_item" />
 
             <TextView
@@ -159,7 +159,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/new_shows_list"
-                app:loadingVisibility="@{viewModel.showProgressLoader}" />
+                app:loadingVisibility="@{viewModel.isLoading()}" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recommended_shows_list"
@@ -169,11 +169,11 @@
                 android:layout_marginTop="@dimen/margin_vertical"
                 android:layout_marginEnd="@dimen/margin_horizontal_half"
                 android:clipToPadding="false"
-                app:canClickItem="@{viewModel.showProgressLoader}"
+                app:canClickItem="@{viewModel.isLoading()}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/recommended_shows_title"
-                app:loadingVisibility="@{viewModel.showProgressLoader}"
+                app:loadingVisibility="@{viewModel.isLoading()}"
                 tools:listitem="@layout/recommended_show_list_item" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 

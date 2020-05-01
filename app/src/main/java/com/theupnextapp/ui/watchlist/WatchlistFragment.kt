@@ -72,12 +72,6 @@ class WatchlistFragment : Fragment(), WatchlistAdapter.WatchlistAdapterListener 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        viewModel.isAuthorizedOnTrakt.observe(viewLifecycleOwner, Observer {
-            if (it) {
-                viewModel.loadTraktWatchilist()
-            }
-        })
-
         viewModel.launchTraktConnectWindow.observe(viewLifecycleOwner, Observer {
             if (it) {
                 val intent = Intent(

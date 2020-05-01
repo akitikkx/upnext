@@ -73,12 +73,6 @@ class HistoryFragment : Fragment(), HistoryAdapter.HistoryAdapterListener {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        viewModel.isAuthorizedOnTrakt.observe(viewLifecycleOwner, Observer {
-            if (it) {
-                viewModel.loadTraktHistory()
-            }
-        })
-
         viewModel.launchTraktConnectWindow.observe(viewLifecycleOwner, Observer {
             if (it) {
                 val intent = Intent(
