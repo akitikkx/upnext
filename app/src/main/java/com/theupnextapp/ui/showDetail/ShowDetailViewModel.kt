@@ -36,6 +36,12 @@ class ShowDetailViewModel(
 
     private val _showCastEmpty = MutableLiveData<Boolean>()
 
+    private val _showCastBottomSheet = MutableLiveData<ShowCast>()
+
+    fun displayCastBottomSheetComplete() {
+        _showCastBottomSheet.value = null
+    }
+
     init {
         viewModelScope.launch {
             show.showId?.let {
@@ -66,6 +72,9 @@ class ShowDetailViewModel(
     val showDetailArg: LiveData<ShowDetailArg>
         get() = _show
 
+    val showCastBottomSheet: LiveData<ShowCast>
+        get() = _showCastBottomSheet
+
     fun onShowInfoReceived(showInfo: ShowInfo) {
         viewModelScope.launch {
             _watchlistRecord.value = upnextRepository.traktWatchlistItem(showInfo.imdbID).value
@@ -74,6 +83,10 @@ class ShowDetailViewModel(
 
     fun onShowCastInfoReceived(showCast: List<ShowCast>) {
         _showCastEmpty.value = showCast.isNullOrEmpty()
+    }
+
+    fun onShowCastItemClicked(showCast: ShowCast) {
+        _showCastBottomSheet.value = showCast
     }
 
     fun onWatchlistRecordReceived(traktHistory: TraktHistory?) {

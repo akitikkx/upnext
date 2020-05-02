@@ -82,6 +82,19 @@ class ShowDetailFragment : Fragment(), ShowCastAdapter.ShowCastAdapterListener {
                 showCastAdapter?.cast = it
             }
         })
+
+        viewModel.showCastBottomSheet.observe(viewLifecycleOwner, Observer {
+            if (it != null) {
+                val showCastBottomSheet = ShowCastBottomSheetFragment()
+
+                val args = Bundle()
+                args.putParcelable(ARG_SHOW_CAST, it)
+                showCastBottomSheet.arguments = args
+
+                activity?.supportFragmentManager?.let { activity -> showCastBottomSheet.show(activity, ShowCastBottomSheetFragment.TAG) }
+                viewModel.displayCastBottomSheetComplete()
+            }
+        })
     }
 
     override fun onResume() {
@@ -100,7 +113,11 @@ class ShowDetailFragment : Fragment(), ShowCastAdapter.ShowCastAdapterListener {
     }
 
     override fun onShowCastClick(view: View, castItem: ShowCast) {
+        viewModel.onShowCastItemClicked(castItem)
+    }
 
+    companion object {
+        const val ARG_SHOW_CAST = "show_cast"
     }
 
 }

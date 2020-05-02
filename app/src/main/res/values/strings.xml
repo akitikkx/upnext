@@ -66,4 +66,10 @@
 
     <!-- Transitions -->
     <string name="transition_poster_name">transition poster</string>
+
+    <!-- Cast Bottomsheet -->
+    <string name="cast_info_date_of_birth">Date of birth</string>
+    <string name="cast_info_date_of_death">Died</string>
+    <string name="cast_info_country">Country</string>
+    <string name="cast_info_gender">Gender</string>
 </resources>

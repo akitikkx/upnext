@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.theupnextapp.ui.showDetail.ShowCastBottomSheetViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingBottom="@dimen/margin_vertical">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/show_cast_image"
+            android:layout_width="@dimen/cast_poster_width"
+            android:layout_height="@dimen/cast_poster_height"
+            android:layout_marginTop="@dimen/margin_vertical"
+            android:scaleType="centerCrop"
+            app:imageUrl="@{viewModel.showCast.originalImageUrl}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearanceOverlay="@style/Image.Circle"
+            app:showHideStringContent="@{viewModel.showCast.originalImageUrl}" />
+
+        <TextView
+            android:id="@+id/show_cast_name"
+            style="@style/Upnext.Title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_horizontal_double"
+            android:layout_marginTop="@dimen/margin_vertical_half"
+            android:layout_marginEnd="@dimen/margin_horizontal_double"
+            android:gravity="center_horizontal"
+            android:text="@{viewModel.showCast.name}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/show_cast_image"
+            app:showHideStringContent="@{viewModel.showCast.name}"
+            tools:text="Cast Name" />
+
+        <TextView
+            android:id="@+id/show_cast_character_name"
+            style="@style/Upnext.Description.Grey"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_horizontal_double"
+            android:layout_marginTop="@dimen/margin_vertical_half"
+            android:layout_marginEnd="@dimen/margin_horizontal_double"
+            android:gravity="center_horizontal"
+            android:text="@{viewModel.showCast.characterName}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/show_cast_name"
+            app:showHideStringContent="@{viewModel.showCast.characterName}"
+            tools:text="Cast Character Name" />
+
+        <TextView
+            android:id="@+id/show_cast_country_heading"
+            style="@style/Upnext.Subtitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_horizontal_double"
+            android:layout_marginTop="@dimen/margin_vertical"
+            android:layout_marginEnd="@dimen/margin_horizontal_double"
+            android:text="@string/cast_info_country"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/show_cast_character_name"
+            app:showHideStringContent="@{viewModel.showCast.country}" />
+
+        <TextView
+            android:id="@+id/show_cast_country"
+            style="@style/Upnext.Description.Grey"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_horizontal_double"
+            android:layout_marginTop="@dimen/margin_vertical_half"
+            android:layout_marginEnd="@dimen/margin_horizontal_double"
+            android:text="@{viewModel.showCast.country}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/show_cast_country_heading"
+            app:showHideStringContent="@{viewModel.showCast.country}"
+            tools:text="USA" />
+
+        <TextView
+            android:id="@+id/show_cast_birthday_heading"
+            style="@style/Upnext.Subtitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_horizontal_double"
+            android:layout_marginTop="@dimen/margin_vertical"
+            android:layout_marginEnd="@dimen/margin_horizontal_double"
+            android:text="@string/cast_info_date_of_birth"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/show_cast_country"
+            app:showHideStringContent="@{viewModel.showCast.birthday}" />
+
+        <TextView
+            android:id="@+id/show_cast_birthday"
+            style="@style/Upnext.Description.Grey"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_horizontal_double"
+            android:layout_marginTop="@dimen/margin_vertical_half"
+            android:layout_marginEnd="@dimen/margin_horizontal_double"
+            android:text="@{viewModel.showCast.birthday}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/show_cast_birthday_heading"
+            app:showHideStringContent="@{viewModel.showCast.birthday}"
+            tools:text="2020-01-01" />
+
+        <TextView
+            android:id="@+id/show_cast_deathday_heading"
+            style="@style/Upnext.Subtitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_horizontal_double"
+            android:layout_marginTop="@dimen/margin_vertical"
+            android:layout_marginEnd="@dimen/margin_horizontal_double"
+            android:text="@string/cast_info_date_of_death"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/show_cast_birthday"
+            app:showHideStringContent="@{viewModel.showCast.deathday}" />
+
+        <TextView
+            android:id="@+id/show_cast_deathday"
+            style="@style/Upnext.Description.Grey"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_horizontal_double"
+            android:layout_marginTop="@dimen/margin_vertical_half"
+            android:layout_marginEnd="@dimen/margin_horizontal_double"
+            android:text="@{viewModel.showCast.deathday}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/show_cast_deathday_heading"
+            app:showHideStringContent="@{viewModel.showCast.deathday}"
+            tools:text="2020-01-01" />
+
+        <TextView
+            android:id="@+id/show_cast_gender_heading"
+            style="@style/Upnext.Subtitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_horizontal_double"
+            android:layout_marginTop="@dimen/margin_vertical"
+            android:layout_marginEnd="@dimen/margin_horizontal_double"
+            android:text="@string/cast_info_gender"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/show_cast_deathday"
+            app:showHideStringContent="@{viewModel.showCast.gender}" />
+
+        <TextView
+            android:id="@+id/show_cast_gender"
+            style="@style/Upnext.Description.Grey"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_horizontal_double"
+            android:layout_marginTop="@dimen/margin_vertical_half"
+            android:layout_marginEnd="@dimen/margin_horizontal_double"
+            android:text="@{viewModel.showCast.gender}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/show_cast_gender_heading"
+            app:showHideStringContent="@{viewModel.showCast.gender}"
+            tools:text="Gender" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
