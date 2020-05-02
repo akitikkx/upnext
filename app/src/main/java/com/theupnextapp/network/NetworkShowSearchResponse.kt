@@ -55,7 +55,7 @@ data class NetworkShowSearchResponseImage(
 )
 
 data class Network(
-    val country: Country?,
+    val country: NetworkShowCastCountry?,
     val id: Int,
     val name: String?
 )

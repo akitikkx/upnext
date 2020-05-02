@@ -81,6 +81,8 @@ class UpnextRepository(private val database: UpnextDatabase) {
 
     private val _traktHistory = MutableLiveData<TraktHistory>()
 
+    private val _showCast = MutableLiveData<List<ShowCast>>()
+
     val isLoading: LiveData<Boolean>
         get() = _isLoading
 
@@ -113,6 +115,9 @@ class UpnextRepository(private val database: UpnextDatabase) {
 
     val traktAccessToken: LiveData<TraktAccessToken>
         get() = _traktAccessToken
+
+    val showCast: LiveData<List<ShowCast>>
+        get() = _showCast
 
     suspend fun getSearchSuggestions(name: String?) {
         if (!name.isNullOrEmpty()) {
@@ -566,6 +571,21 @@ class UpnextRepository(private val database: UpnextDatabase) {
                 _isLoading.postValue(true)
             } catch (e: Exception) {
                 _isLoading.postValue(true)
+                Timber.d(e)
+                Crashlytics.logException(e)
+            }
+        }
+    }
+
+    suspend fun getShowCast(showId: Int) {
+        withContext(Dispatchers.IO) {
+            try {
+                _isLoading.postValue(true)
+                val showCast = TvMazeNetwork.tvMazeApi.getShowCastAsync(showId.toString()).await()
+                _showCast.postValue(showCast.asDomainModel())
+                _isLoading.postValue(false)
+            } catch (e: Exception) {
+                _isLoading.postValue(false)
                 Timber.d(e)
                 Crashlytics.logException(e)
             }

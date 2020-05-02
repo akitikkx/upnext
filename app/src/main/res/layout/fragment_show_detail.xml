@@ -20,6 +20,15 @@
             android:orientation="vertical"
             android:paddingBottom="@dimen/margin_vertical">
 
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:showProgress="@{viewModel.isLoading}" />
+
             <FrameLayout
                 android:id="@+id/show_detail_backdrop"
                 android:layout_width="0dp"
@@ -190,6 +199,38 @@
                 tools:text="Show Summary" />
 
             <TextView
+                android:id="@+id/cast_title"
+                style="@style/Upnext.Subtitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_horizontal_double"
+                android:layout_marginTop="@dimen/margin_vertical"
+                android:layout_marginEnd="@dimen/margin_horizontal_double"
+                android:text="@string/show_detail_cast_list"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/show_detail_synopsis"
+                app:loadingVisibility="@{viewModel.isLoading()}"
+                app:showHideView="@{!viewModel.showCastEmpty}" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/cast_list"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_horizontal_double"
+                android:layout_marginTop="@dimen/margin_vertical"
+                android:layout_marginEnd="@dimen/margin_horizontal_double"
+                android:layout_marginBottom="@dimen/margin_vertical"
+                android:clipToPadding="false"
+                app:canClickItem="@{viewModel.isLoading()}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/cast_title"
+                app:loadingVisibility="@{viewModel.isLoading()}"
+                app:showHideView="@{!viewModel.showCastEmpty}"
+                tools:listitem="@layout/show_cast_item" />
+
+            <TextView
                 android:id="@+id/show_detail_next_episode_heading"
                 style="@style/Upnext.Subtitle"
                 android:layout_width="0dp"
@@ -200,7 +241,7 @@
                 android:text="@string/show_detail_next_episode_heading"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/show_detail_synopsis"
+                app:layout_constraintTop_toBottomOf="@id/cast_list"
                 app:showHideStringContent="@{viewModel.showInfo.nextEpisodeSummary}" />
 
             <TextView
@@ -267,7 +308,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal_double"
-                android:layout_marginTop="@dimen/margin_vertical_half"
+                android:layout_marginTop="@dimen/margin_vertical"
                 android:layout_marginEnd="@dimen/margin_horizontal_double"
                 app:fromHtml="@{viewModel.showInfo.previousEpisodeSummary}"
                 app:layout_constraintEnd_toEndOf="parent"

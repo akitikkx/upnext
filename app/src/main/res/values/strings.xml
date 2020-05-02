@@ -26,6 +26,7 @@
     <string name="splash_screen_loading_text">Preparing the shows…</string>
     <string name="show_detail_add_to_watchlist_button">Add to watchlist</string>
     <string name="show_detail_remove_from_watchlist_button">Remove from watchlist</string>
+    <string name="show_detail_cast_list">Cast</string>
 
     <!-- Splash screen -->
     <string name="splash_screen_loading_text_tomorrow_schedule">Fetching tomorrow\'s schedule…</string>

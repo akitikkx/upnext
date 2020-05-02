@@ -3,6 +3,7 @@ package com.theupnextapp.ui.showDetail
 import android.app.Application
 import androidx.lifecycle.*
 import com.theupnextapp.database.getDatabase
+import com.theupnextapp.domain.ShowCast
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.ShowInfo
 import com.theupnextapp.domain.TraktHistory
@@ -33,15 +34,25 @@ class ShowDetailViewModel(
 
     private val _show = MutableLiveData<ShowDetailArg>(show)
 
+    private val _showCastEmpty = MutableLiveData<Boolean>()
+
     init {
         viewModelScope.launch {
-            show.showId?.let { upnextRepository.getShowData(it) }
+            show.showId?.let {
+                upnextRepository.getShowData(it)
+                upnextRepository.getShowCast(it)
+            }
         }
     }
 
     val isLoading = upnextRepository.isLoading
 
     val showInfo = upnextRepository.showInfo
+
+    val showCast = upnextRepository.showCast
+
+    val showCastEmpty: LiveData<Boolean>
+        get() = _showCastEmpty
 
     val onWatchlist: LiveData<Boolean>
         get() = _onWatchlist
@@ -59,6 +70,10 @@ class ShowDetailViewModel(
         viewModelScope.launch {
             _watchlistRecord.value = upnextRepository.traktWatchlistItem(showInfo.imdbID).value
         }
+    }
+
+    fun onShowCastInfoReceived(showCast: List<ShowCast>) {
+        _showCastEmpty.value = showCast.isNullOrEmpty()
     }
 
     fun onWatchlistRecordReceived(traktHistory: TraktHistory?) {
