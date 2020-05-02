@@ -87,26 +87,34 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun hideBottomNavigation() {
-        if (bottomNavigationView.visibility == View.VISIBLE) {
-            bottomNavigationView.visibility = View.GONE
+        if (::bottomNavigationView.isInitialized) {
+            if (bottomNavigationView.visibility == View.VISIBLE) {
+                bottomNavigationView.visibility = View.GONE
+            }
         }
     }
 
     fun showBottomNavigation() {
-        if (bottomNavigationView.visibility == View.GONE) {
-            bottomNavigationView.visibility = View.VISIBLE
+        if (::bottomNavigationView.isInitialized) {
+            if (bottomNavigationView.visibility == View.GONE) {
+                bottomNavigationView.visibility = View.VISIBLE
+            }
         }
     }
 
     fun hideToolbar() {
-        if (toolbar.visibility == View.VISIBLE) {
-            toolbar.visibility = View.GONE
+        if (::toolbar.isInitialized) {
+            if (toolbar.visibility == View.VISIBLE) {
+                toolbar.visibility = View.GONE
+            }
         }
     }
 
     fun showToolbar() {
-        if (toolbar.visibility == View.GONE) {
-            toolbar.visibility = View.VISIBLE
+        if (::toolbar.isInitialized) {
+            if (toolbar.visibility == View.GONE) {
+                toolbar.visibility = View.VISIBLE
+            }
         }
     }
 }

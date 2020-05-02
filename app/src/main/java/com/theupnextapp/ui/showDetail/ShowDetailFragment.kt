@@ -10,13 +10,18 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionInflater
 import com.theupnextapp.MainActivity
+import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentShowDetailBinding
+import com.theupnextapp.domain.ShowCast
 
-class ShowDetailFragment : Fragment() {
+class ShowDetailFragment : Fragment(), ShowCastAdapter.ShowCastAdapterListener {
 
     private lateinit var binding: FragmentShowDetailBinding
+    private var showCastAdapter: ShowCastAdapter? = null
 
     val args by navArgs<ShowDetailFragmentArgs>()
 
@@ -47,6 +52,15 @@ class ShowDetailFragment : Fragment() {
 
         binding.viewModel = viewModel
 
+        showCastAdapter = ShowCastAdapter(this)
+
+        binding.root.findViewById<RecyclerView>(R.id.cast_list).apply {
+            layoutManager = LinearLayoutManager(context).apply {
+                orientation = LinearLayoutManager.HORIZONTAL
+            }
+            adapter = showCastAdapter
+        }
+
         return binding.root
     }
 
@@ -60,6 +74,13 @@ class ShowDetailFragment : Fragment() {
 
         viewModel.watchlistRecord.observe(viewLifecycleOwner, Observer {
             viewModel.onWatchlistRecordReceived(it)
+        })
+
+        viewModel.showCast.observe(viewLifecycleOwner, Observer {
+            viewModel.onShowCastInfoReceived(it)
+            if (it != null) {
+                showCastAdapter?.cast = it
+            }
         })
     }
 
@@ -76,6 +97,10 @@ class ShowDetailFragment : Fragment() {
     override fun onDetach() {
         super.onDetach()
         (activity as MainActivity).showBottomNavigation()
+    }
+
+    override fun onShowCastClick(view: View, castItem: ShowCast) {
+
     }
 
 }
