@@ -30,4 +30,8 @@
 
     <!-- Trakt Watchlist -->
     <dimen name="trakt_watchlist_header_height">30dp</dimen>
+
+    <!-- Cast Bottomsheet -->
+    <dimen name="cast_poster_width">200dp</dimen>
+    <dimen name="cast_poster_height">210dp</dimen>
 </resources>

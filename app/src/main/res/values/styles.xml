@@ -36,22 +36,19 @@
         <item name="android:textColor">@android:color/darker_gray</item>
     </style>
 
-    <style name="Upnext.Title" parent="AppTheme">
-        <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Headline4
-        </item>
+    <style name="Upnext.Title" parent="TextAppearance.MaterialComponents.Headline4">
+        <item name="android:textColor">@color/appTextColor</item>
         <item name="android:fontFamily">sans-serif-condensed-light</item>
     </style>
 
-    <style name="Upnext.Search.Title" parent="AppTheme">
-        <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Subtitle1
-        </item>
+    <style name="Upnext.Search.Title" parent="TextAppearance.MaterialComponents.Subtitle1">
         <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/appTextColor</item>
         <item name="android:fontFamily">sans-serif-condensed-light</item>
     </style>
 
-    <style name="Upnext.Subtitle" parent="AppTheme">
-        <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Headline6
-        </item>
+    <style name="Upnext.Subtitle" parent="TextAppearance.MaterialComponents.Headline6">
+        <item name="android:textColor">@color/appTextColor</item>
     </style>
 
     <style name="Upnext.Description" parent="TextAppearance.MaterialComponents.Body2">
@@ -96,6 +93,31 @@
 
     <style name="Button.RemoveFromWatchlist" parent="Upnext.Button">
         <item name="android:backgroundTint">@color/colorAccent</item>
+    </style>
+
+    <!-- Bottomsheet -->
+    <style name="BottomSheetShapeAppearance" parent="ShapeAppearance.MaterialComponents.LargeComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">12dp</item>
+        <item name="cornerSizeTopRight">12dp</item>
+    </style>
+
+    <style name="BottomSheet" parent="@style/Widget.Design.BottomSheet.Modal">
+        <item name="shapeAppearance">@style/BottomSheetShapeAppearance</item>
+        <item name="android:background">@color/windowDarkBackground</item>
+    </style>
+
+    <style name="BottomSheet.Base" parent="@style/Theme.Design.BottomSheetDialog">
+        <item name="android:windowIsFloating">false</item>
+        <item name="bottomSheetStyle">@style/BottomSheet</item>
+    </style>
+
+    <style name="BottomSheetTheme" parent="@style/BottomSheet.Base" />
+
+    <!-- Shapeable image -->
+    <style name="Image.Circle" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
     </style>
 
 </resources>
