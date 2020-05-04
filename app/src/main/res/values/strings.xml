@@ -72,4 +72,7 @@
     <string name="cast_info_date_of_death">Died</string>
     <string name="cast_info_country">Country</string>
     <string name="cast_info_gender">Gender</string>
+
+    <string name="empty_state_icon">Empty state icon</string>
+    <string name="device_not_connected_to_internet_error">You are not connected to the internet</string>
 </resources>

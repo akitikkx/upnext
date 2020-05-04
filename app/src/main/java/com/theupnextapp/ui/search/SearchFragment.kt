@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView.OnQueryTextListener
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.FragmentNavigatorExtras
@@ -18,8 +17,9 @@ import com.theupnextapp.common.extensions.waitForTransition
 import com.theupnextapp.databinding.FragmentSearchBinding
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.ShowSearch
+import com.theupnextapp.ui.common.BaseFragment
 
-class SearchFragment : Fragment(),
+class SearchFragment : BaseFragment(),
     OnQueryTextListener, SearchAdapter.SearchAdapterListener {
 
     private lateinit var binding: FragmentSearchBinding

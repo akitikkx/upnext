@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.FragmentNavigatorExtras
@@ -19,8 +18,9 @@ import com.theupnextapp.domain.NewShows
 import com.theupnextapp.domain.RecommendedShows
 import com.theupnextapp.domain.ScheduleShow
 import com.theupnextapp.domain.ShowDetailArg
+import com.theupnextapp.ui.common.BaseFragment
 
-class DashboardFragment : Fragment(), RecommendedShowsAdapter.RecommendedShowsAdapterListener,
+class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedShowsAdapterListener,
     NewShowsAdapter.NewShowsAdapterListener,
     TodayShowsAdapter.TodayShowsAdapterListener,
     YesterdayShowsAdapter.YesterdayShowsAdapterListener,
@@ -114,12 +114,18 @@ class DashboardFragment : Fragment(), RecommendedShowsAdapter.RecommendedShowsAd
             viewLifecycleOwner,
             Observer<List<RecommendedShows>> { recommendedShows ->
                 recommendedShows.apply {
+                    if (recommendedShows.isNullOrEmpty()) {
+                        viewModel.onRecommendedShowsListEmpty()
+                    }
                     recommendedShowsAdapter?.recommendedShows = recommendedShows
                 }
             })
 
         viewModel.newShowsList.observe(viewLifecycleOwner, Observer<List<NewShows>> { newShows ->
             newShows.apply {
+                if (newShows.isNullOrEmpty()) {
+                    viewModel.onNewShowsListEmpty()
+                }
                 newShowsAdapter?.newShows = newShows
             }
         })
@@ -128,6 +134,9 @@ class DashboardFragment : Fragment(), RecommendedShowsAdapter.RecommendedShowsAd
             viewLifecycleOwner,
             Observer<List<ScheduleShow>> { yesterdayShows ->
                 yesterdayShows.apply {
+                    if (yesterdayShows.isNullOrEmpty()) {
+                        viewModel.onYesterdayShowsListEmpty()
+                    }
                     yesterdayShowsAdapter?.yesterdayShows = yesterdayShows
                 }
             })
@@ -136,6 +145,9 @@ class DashboardFragment : Fragment(), RecommendedShowsAdapter.RecommendedShowsAd
             viewLifecycleOwner,
             Observer<List<ScheduleShow>> { todayShows ->
                 todayShows.apply {
+                    if (todayShows.isNullOrEmpty()) {
+                        viewModel.onTodayShowsListEmpty()
+                    }
                     todayShowsAdapter?.todayShows = todayShows
                 }
             })
@@ -144,6 +156,9 @@ class DashboardFragment : Fragment(), RecommendedShowsAdapter.RecommendedShowsAd
             viewLifecycleOwner,
             Observer<List<ScheduleShow>> { tomorrowShows ->
                 tomorrowShows.apply {
+                    if (tomorrowShows.isNullOrEmpty()) {
+                        viewModel.onTomorrowShowsListEmpty()
+                    }
                     tomorrowShowsAdapter?.tomorrowShows = tomorrowShows
                 }
             })

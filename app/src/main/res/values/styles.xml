@@ -38,7 +38,8 @@
 
     <style name="Upnext.Title" parent="TextAppearance.MaterialComponents.Headline4">
         <item name="android:textColor">@color/appTextColor</item>
-        <item name="android:fontFamily">sans-serif-condensed-light</item>
+        <item name="android:fontFamily">sans-serif-light</item>
+        <item name="fontStyle">normal</item>
     </style>
 
     <style name="Upnext.Search.Title" parent="TextAppearance.MaterialComponents.Subtitle1">
