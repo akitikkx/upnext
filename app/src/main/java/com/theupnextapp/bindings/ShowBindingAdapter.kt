@@ -6,9 +6,12 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
+import com.crashlytics.android.Crashlytics
 import com.theupnextapp.R
 import com.theupnextapp.domain.*
 import org.jsoup.Jsoup
+import java.text.SimpleDateFormat
+import java.util.*
 
 @BindingAdapter("imageUrl")
 fun setImageUrl(imageView: ImageView, url: String?) {
@@ -113,10 +116,18 @@ fun showNameAndReleaseYear(view: TextView, showSearch: ShowSearch) {
 @BindingAdapter("showListedAt")
 fun showListedAt(view: TextView, watchlist: TraktWatchlist) {
     if (!watchlist.listed_at.isNullOrEmpty()) {
-        view.text = view.resources.getString(
-            R.string.watchlist_item_listed_at,
-            watchlist.listed_at
-        )
+        try {
+            val format =
+                SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.000Z'", Locale.getDefault())
+            val formattedDate: Date = format.parse(watchlist.listed_at)
+
+            view.text = view.resources.getString(
+                R.string.watchlist_item_listed_at,
+                formattedDate
+            )
+        } catch (e: Exception) {
+            Crashlytics.logException(e)
+        }
     } else {
         view.visibility = View.GONE
     }

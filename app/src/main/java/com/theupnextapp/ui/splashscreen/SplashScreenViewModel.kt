@@ -113,7 +113,7 @@ class SplashScreenViewModel(application: Application) : AndroidViewModel(applica
 
     private fun currentDate(): String? {
         val calendar = Calendar.getInstance()
-        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd")
+        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         return simpleDateFormat.format(calendar.time)
     }
 
@@ -121,7 +121,7 @@ class SplashScreenViewModel(application: Application) : AndroidViewModel(applica
         val calendar = Calendar.getInstance()
         calendar.add(Calendar.DAY_OF_YEAR, 1)
         val tomorrow = calendar.time
-        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd")
+        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         return simpleDateFormat.format(tomorrow)
     }
 
@@ -129,7 +129,7 @@ class SplashScreenViewModel(application: Application) : AndroidViewModel(applica
         val calendar = Calendar.getInstance()
         calendar.add(Calendar.DAY_OF_YEAR, -1)
         val yesterday = calendar.time
-        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd")
+        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         return simpleDateFormat.format(yesterday)
     }
 

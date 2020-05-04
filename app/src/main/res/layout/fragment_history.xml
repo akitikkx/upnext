@@ -138,7 +138,7 @@
                 android:layout_marginStart="@dimen/margin_horizontal"
                 android:layout_marginEnd="@dimen/margin_horizontal"
                 android:gravity="center_horizontal"
-                android:text="@string/watchlist_empty_state_text"
+                android:text="@string/history_empty_state_text"
                 android:textAppearance="@style/Upnext.Description.EmptyState" />
 
             <ImageView

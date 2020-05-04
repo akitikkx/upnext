@@ -54,7 +54,7 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
     fun onYesterdayShowsListEmpty() {
         viewModelScope.launch {
             upnextRepository.refreshYesterdayShows(
-                DashboardViewModel.DEFAULT_COUNTRY_CODE,
+                DEFAULT_COUNTRY_CODE,
                 yesterdayDate()
             )
         }
@@ -63,7 +63,7 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
     fun onTodayShowsListEmpty() {
         viewModelScope.launch {
             upnextRepository.refreshTodayShows(
-                DashboardViewModel.DEFAULT_COUNTRY_CODE,
+                DEFAULT_COUNTRY_CODE,
                 currentDate()
             )
         }
@@ -72,7 +72,7 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
     fun onTomorrowShowsListEmpty() {
         viewModelScope.launch {
             upnextRepository.refreshTomorrowShows(
-                DashboardViewModel.DEFAULT_COUNTRY_CODE,
+                DEFAULT_COUNTRY_CODE,
                 tomorrowDate()
             )
         }
@@ -88,7 +88,7 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
 
     private fun currentDate(): String? {
         val calendar = Calendar.getInstance()
-        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd")
+        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         return simpleDateFormat.format(calendar.time)
     }
 
@@ -96,7 +96,7 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
         val calendar = Calendar.getInstance()
         calendar.add(Calendar.DAY_OF_YEAR, 1)
         val tomorrow = calendar.time
-        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd")
+        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         return simpleDateFormat.format(tomorrow)
     }
 
@@ -104,7 +104,7 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
         val calendar = Calendar.getInstance()
         calendar.add(Calendar.DAY_OF_YEAR, -1)
         val yesterday = calendar.time
-        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd")
+        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         return simpleDateFormat.format(yesterday)
     }
 

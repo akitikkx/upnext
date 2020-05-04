@@ -85,7 +85,7 @@ class WatchlistViewModel(application: Application) : TraktViewModel(application)
         }
     }
 
-    fun loadTraktWatchilist() {
+    private fun loadTraktWatchilist() {
         val sharedPreferences = getApplication<Application>().getSharedPreferences(
             SHARED_PREF_NAME,
             Context.MODE_PRIVATE
@@ -126,6 +126,8 @@ class WatchlistViewModel(application: Application) : TraktViewModel(application)
         _transactionInProgress.value = false
         _isAuthorizedOnTrakt.value = true
         _storingTraktAccessTokenInProgress.value = false
+
+        loadTraktWatchilist()
     }
 
     fun displayShowDetails(showDetailArg: ShowDetailArg) {
