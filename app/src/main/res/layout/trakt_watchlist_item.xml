@@ -18,6 +18,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/margin_vertical"
+        android:clickable="true"
+        android:focusable="true"
+        android:onClick="@{(view) -> listener.onWatchlistShowClick(view, show)}"
         android:background="?android:attr/selectableItemBackground">
 
         <FrameLayout
@@ -25,9 +28,6 @@
             android:layout_width="@dimen/search_poster_width"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_horizontal_double"
-            android:clickable="true"
-            android:focusable="true"
-            android:onClick="@{(view) -> listener.onWatchlistShowClick(view, show)}"
             android:orientation="vertical"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
