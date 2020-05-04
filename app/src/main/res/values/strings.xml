@@ -63,6 +63,7 @@
 
     <!-- Trakt History -->
     <string name="trakt_history_episode_details">Season %1$d Episode %2$d</string>
+    <string name="history_empty_state_text">Your Trakt history is empty. When you mark episodes as watched in Trakt, they will appear here</string>
 
     <!-- Transitions -->
     <string name="transition_poster_name">transition poster</string>

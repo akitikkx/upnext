@@ -80,7 +80,7 @@ interface UpnextDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAllTraktHistory(vararg traktHistory: DatabaseTraktHistory)
 
-    @Query("select * from trakt_history")
+    @Query("select * from trakt_history order by watchedAt desc")
     fun getTraktHistory(): LiveData<List<DatabaseTraktHistory>>
 
     @Query("select * from trakt_watchlist where imdbID = :imdbID")
