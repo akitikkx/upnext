@@ -15,11 +15,15 @@ import java.util.*
 
 @BindingAdapter("imageUrl")
 fun setImageUrl(imageView: ImageView, url: String?) {
-    Glide.with(imageView.context)
-        .load(url)
-        .placeholder(R.color.showBackdropBackground)
-        .error(R.color.showBackdropBackground)
-        .into(imageView)
+    try {
+        Glide.with(imageView.context)
+            .load(url)
+            .placeholder(R.color.showBackdropBackground)
+            .error(R.color.showBackdropBackground)
+            .into(imageView)
+    } catch (e: Exception) {
+        Crashlytics.logException(e)
+    }
 }
 
 @BindingAdapter("goneIfNotNull")
