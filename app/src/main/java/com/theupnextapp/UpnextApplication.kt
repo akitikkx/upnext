@@ -3,6 +3,7 @@ package com.theupnextapp
 import android.app.Application
 import android.os.Build
 import androidx.work.*
+import com.theupnextapp.common.utils.NetworkConnectivityUtil
 import com.theupnextapp.work.RefreshShowsWorker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

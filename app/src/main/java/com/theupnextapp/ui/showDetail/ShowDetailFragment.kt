@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.navArgs
@@ -17,8 +16,9 @@ import com.theupnextapp.MainActivity
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentShowDetailBinding
 import com.theupnextapp.domain.ShowCast
+import com.theupnextapp.ui.common.BaseFragment
 
-class ShowDetailFragment : Fragment(), ShowCastAdapter.ShowCastAdapterListener {
+class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListener {
 
     private lateinit var binding: FragmentShowDetailBinding
     private var showCastAdapter: ShowCastAdapter? = null

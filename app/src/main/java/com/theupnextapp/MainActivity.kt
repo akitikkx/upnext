@@ -1,11 +1,15 @@
 package com.theupnextapp
 
+import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.os.bundleOf
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
@@ -14,6 +18,7 @@ import androidx.navigation.ui.onNavDestinationSelected
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.theupnextapp.domain.TraktConnectionArg
 import com.theupnextapp.ui.collection.CollectionFragment
@@ -25,7 +30,9 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var bottomNavigationView: BottomNavigationView
     private lateinit var toolbar: Toolbar
+    private lateinit var container: ConstraintLayout
     private lateinit var firebaseAnalytics: FirebaseAnalytics
+    private lateinit var snackbar: Snackbar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,6 +42,7 @@ class MainActivity : AppCompatActivity() {
 
         toolbar = findViewById<Toolbar>(R.id.toolbar)
         bottomNavigationView = findViewById(R.id.bottom_navigation)
+        container = findViewById(R.id.container)
 
         setSupportActionBar(toolbar)
 
@@ -57,6 +65,14 @@ class MainActivity : AppCompatActivity() {
         handleDeepLinks()
     }
 
+    override fun onSupportNavigateUp(): Boolean {
+        return navController.navigateUp() || super.onSupportNavigateUp()
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
+    }
+
     private fun handleDeepLinks() {
         val uri: Uri? = intent?.data
 
@@ -76,14 +92,6 @@ class MainActivity : AppCompatActivity() {
         intent.action = ""
         intent.data = null
         intent.flags = 0
-    }
-
-    override fun onSupportNavigateUp(): Boolean {
-        return navController.navigateUp() || super.onSupportNavigateUp()
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
     }
 
     fun hideBottomNavigation() {
@@ -116,5 +124,52 @@ class MainActivity : AppCompatActivity() {
                 toolbar.visibility = View.VISIBLE
             }
         }
+    }
+
+    fun displayConnectionErrorMessage() {
+        if (::container.isInitialized) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                snackbar = Snackbar.make(
+                    container,
+                    getString(R.string.device_not_connected_to_internet_error),
+                    Snackbar.LENGTH_INDEFINITE
+                )
+                snackbar.setAction("Settings") { showNetworkSettings() }
+                snackbar.show()
+            } else {
+                snackbar = Snackbar.make(
+                    container,
+                    getString(R.string.device_not_connected_to_internet_error),
+                    Snackbar.LENGTH_INDEFINITE
+                )
+                snackbar.show()
+            }
+        } else {
+            snackbar = Snackbar.make(
+                container,
+                getString(R.string.device_not_connected_to_internet_error),
+                Snackbar.LENGTH_INDEFINITE
+            )
+            snackbar.show()
+        }
+    }
+
+    fun hideConnectionErrorMessage() {
+        if (::snackbar.isInitialized) {
+            if (snackbar.isShown) {
+                snackbar.dismiss()
+            }
+        }
+    }
+
+    private fun showNetworkSettings() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val intent = Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY)
+            startActivityForResult(intent, REQUEST_CODE_INTERNET)
+        }
+    }
+
+    companion object {
+        const val REQUEST_CODE_INTERNET = 10
     }
 }

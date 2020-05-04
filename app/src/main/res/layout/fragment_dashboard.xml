@@ -34,12 +34,12 @@
 
             <TextView
                 android:id="@+id/yesterday_shows_title"
+                style="@style/Upnext.Subtitle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal"
                 android:layout_marginTop="@dimen/margin_vertical_half"
                 android:text="@string/title_yesterday_shows"
-                android:textAppearance="@style/TextAppearance.AppCompat.Title"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -63,12 +63,12 @@
 
             <TextView
                 android:id="@+id/today_shows_title"
+                style="@style/Upnext.Subtitle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal"
                 android:layout_marginTop="@dimen/margin_vertical_half"
                 android:text="@string/title_today_shows"
-                android:textAppearance="@style/TextAppearance.AppCompat.Title"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/yesterday_shows_list"
@@ -92,12 +92,12 @@
 
             <TextView
                 android:id="@+id/tomorrow_shows_title"
+                style="@style/Upnext.Subtitle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal"
                 android:layout_marginTop="@dimen/margin_vertical_half"
                 android:text="@string/title_tomorrow_shows"
-                android:textAppearance="@style/TextAppearance.AppCompat.Title"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/today_shows_list"
@@ -121,12 +121,12 @@
 
             <TextView
                 android:id="@+id/new_shows_title"
+                style="@style/Upnext.Subtitle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal"
                 android:layout_marginTop="@dimen/margin_vertical_half"
                 android:text="@string/title_new_shows"
-                android:textAppearance="@style/TextAppearance.AppCompat.Title"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tomorrow_shows_list"
@@ -150,12 +150,12 @@
 
             <TextView
                 android:id="@+id/recommended_shows_title"
+                style="@style/Upnext.Subtitle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal"
                 android:layout_marginTop="@dimen/margin_vertical_half"
                 android:text="@string/title_recommended_shows"
-                android:textAppearance="@style/TextAppearance.AppCompat.Title"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/new_shows_list"

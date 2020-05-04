@@ -8,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
@@ -22,9 +21,10 @@ import com.theupnextapp.databinding.FragmentHistoryBinding
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.TraktConnectionArg
 import com.theupnextapp.domain.TraktHistory
+import com.theupnextapp.ui.common.BaseFragment
 import com.theupnextapp.ui.watchlist.WatchlistFragment
 
-class HistoryFragment : Fragment(), HistoryAdapter.HistoryAdapterListener {
+class HistoryFragment : BaseFragment(), HistoryAdapter.HistoryAdapterListener {
 
     private lateinit var binding: FragmentHistoryBinding
 

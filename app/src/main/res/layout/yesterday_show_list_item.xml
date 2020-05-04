@@ -31,7 +31,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                app:goneIfNotNull="@{show.image}" />
+                app:showHideStringContent="@{show.image}" />
 
             <ImageView
                 android:id="@+id/yesterday_show_poster"

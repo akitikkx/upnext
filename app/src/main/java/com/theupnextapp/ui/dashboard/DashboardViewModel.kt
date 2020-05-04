@@ -5,11 +5,18 @@ import androidx.lifecycle.*
 import com.theupnextapp.database.getDatabase
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.repository.UpnextRepository
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.*
 
 class DashboardViewModel(application: Application) : AndroidViewModel(application) {
 
     private val viewModelJob = SupervisorJob()
+
+    private val viewModelScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
     private val database = getDatabase(application)
 
@@ -32,12 +39,73 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
 
     val isLoading = upnextRepository.isLoading
 
+    fun onRecommendedShowsListEmpty() {
+        viewModelScope.launch {
+            upnextRepository.refreshRecommendedShows()
+        }
+    }
+
+    fun onNewShowsListEmpty() {
+        viewModelScope.launch {
+            upnextRepository.refreshNewShows()
+        }
+    }
+
+    fun onYesterdayShowsListEmpty() {
+        viewModelScope.launch {
+            upnextRepository.refreshYesterdayShows(
+                DashboardViewModel.DEFAULT_COUNTRY_CODE,
+                yesterdayDate()
+            )
+        }
+    }
+
+    fun onTodayShowsListEmpty() {
+        viewModelScope.launch {
+            upnextRepository.refreshTodayShows(
+                DashboardViewModel.DEFAULT_COUNTRY_CODE,
+                currentDate()
+            )
+        }
+    }
+
+    fun onTomorrowShowsListEmpty() {
+        viewModelScope.launch {
+            upnextRepository.refreshTomorrowShows(
+                DashboardViewModel.DEFAULT_COUNTRY_CODE,
+                tomorrowDate()
+            )
+        }
+    }
+
     fun displayShowDetails(showDetailArg: ShowDetailArg) {
         _navigateToSelectedShow.value = showDetailArg
     }
 
     fun displayShowDetailsComplete() {
         _navigateToSelectedShow.value = null
+    }
+
+    private fun currentDate(): String? {
+        val calendar = Calendar.getInstance()
+        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd")
+        return simpleDateFormat.format(calendar.time)
+    }
+
+    private fun tomorrowDate(): String? {
+        val calendar = Calendar.getInstance()
+        calendar.add(Calendar.DAY_OF_YEAR, 1)
+        val tomorrow = calendar.time
+        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd")
+        return simpleDateFormat.format(tomorrow)
+    }
+
+    private fun yesterdayDate(): String? {
+        val calendar = Calendar.getInstance()
+        calendar.add(Calendar.DAY_OF_YEAR, -1)
+        val yesterday = calendar.time
+        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd")
+        return simpleDateFormat.format(yesterday)
     }
 
     override fun onCleared() {
