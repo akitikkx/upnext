@@ -66,11 +66,6 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel.showInfo.observe(viewLifecycleOwner, Observer {
-            if (it != null) {
-                viewModel.onShowInfoReceived(it)
-            }
-        })
 
         viewModel.watchlistRecord.observe(viewLifecycleOwner, Observer {
             viewModel.onWatchlistRecordReceived(it)

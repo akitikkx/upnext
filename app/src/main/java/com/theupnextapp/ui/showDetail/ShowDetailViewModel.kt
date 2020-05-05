@@ -5,7 +5,6 @@ import androidx.lifecycle.*
 import com.theupnextapp.database.getDatabase
 import com.theupnextapp.domain.ShowCast
 import com.theupnextapp.domain.ShowDetailArg
-import com.theupnextapp.domain.ShowInfo
 import com.theupnextapp.domain.TraktHistory
 import com.theupnextapp.repository.UpnextRepository
 import kotlinx.coroutines.CoroutineScope
@@ -26,17 +25,21 @@ class ShowDetailViewModel(
 
     private val upnextRepository = UpnextRepository(database)
 
-    private val _watchlistRecord = MutableLiveData<TraktHistory>()
-
     private val _onWatchlist = MutableLiveData<Boolean>()
 
     private val _notOnWatchlist = MutableLiveData<Boolean>()
 
-    private val _show = MutableLiveData<ShowDetailArg>(show)
+    private val _show = MutableLiveData(show)
 
     private val _showCastEmpty = MutableLiveData<Boolean>()
 
     private val _showCastBottomSheet = MutableLiveData<ShowCast>()
+
+    val isLoading = upnextRepository.isLoading
+
+    val showInfo = upnextRepository.showInfo
+
+    val showCast = upnextRepository.showCast
 
     fun displayCastBottomSheetComplete() {
         _showCastBottomSheet.value = null
@@ -51,35 +54,19 @@ class ShowDetailViewModel(
         }
     }
 
-    val isLoading = upnextRepository.isLoading
+    val showCastEmpty: LiveData<Boolean> = _showCastEmpty
 
-    val showInfo = upnextRepository.showInfo
+    val onWatchlist: LiveData<Boolean> = _onWatchlist
 
-    val showCast = upnextRepository.showCast
+    val notOnWatchlist: LiveData<Boolean> = _notOnWatchlist
 
-    val showCastEmpty: LiveData<Boolean>
-        get() = _showCastEmpty
-
-    val onWatchlist: LiveData<Boolean>
-        get() = _onWatchlist
-
-    val notOnWatchlist: LiveData<Boolean>
-        get() = _notOnWatchlist
-
-    val watchlistRecord: LiveData<TraktHistory>
-        get() = _watchlistRecord
-
-    val showDetailArg: LiveData<ShowDetailArg>
-        get() = _show
-
-    val showCastBottomSheet: LiveData<ShowCast>
-        get() = _showCastBottomSheet
-
-    fun onShowInfoReceived(showInfo: ShowInfo) {
-        viewModelScope.launch {
-            _watchlistRecord.value = upnextRepository.traktWatchlistItem(showInfo.imdbID).value
-        }
+    val watchlistRecord = Transformations.switchMap(showInfo) { showInfo ->
+        showInfo.imdbID?.let { it -> upnextRepository.traktWatchlistItem(it) }
     }
+
+    val showDetailArg: LiveData<ShowDetailArg> = _show
+
+    val showCastBottomSheet: LiveData<ShowCast> = _showCastBottomSheet
 
     fun onShowCastInfoReceived(showCast: List<ShowCast>) {
         _showCastEmpty.value = showCast.isNullOrEmpty()

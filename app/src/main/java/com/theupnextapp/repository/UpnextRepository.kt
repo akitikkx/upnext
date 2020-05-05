@@ -50,9 +50,9 @@ class UpnextRepository(private val database: UpnextDatabase) {
             it.asDomainModel()
         }
 
-    fun traktWatchlistItem(imdbID: String?): LiveData<TraktHistory> =
-        Transformations.map(database.upnextDao.checkifInTraktWatchlist(imdbID)) {
-            it.asDomainModel()
+    fun traktWatchlistItem(imdbID: String): LiveData<TraktHistory?> =
+        Transformations.map(database.upnextDao.checkIfInTraktWatchlist(imdbID)) { result ->
+            result?.asDomainModel()
         }
 
     private val _showInfo = MutableLiveData<ShowInfo>()
@@ -83,41 +83,29 @@ class UpnextRepository(private val database: UpnextDatabase) {
 
     private val _showCast = MutableLiveData<List<ShowCast>>()
 
-    val isLoading: LiveData<Boolean>
-        get() = _isLoading
+    val isLoading: LiveData<Boolean> = _isLoading
 
-    val isLoadingRecommendedShows: LiveData<Boolean>
-        get() = _isLoadingRecommendedShows
+    val isLoadingRecommendedShows: LiveData<Boolean> = _isLoadingRecommendedShows
 
-    val isLoadingNewShows: LiveData<Boolean>
-        get() = _isLoadingNewShows
+    val isLoadingNewShows: LiveData<Boolean> = _isLoadingNewShows
 
-    val isLoadingYesterdayShows: LiveData<Boolean>
-        get() = _isLoadingYesterdayShows
+    val isLoadingYesterdayShows: LiveData<Boolean> = _isLoadingYesterdayShows
 
-    val isLoadingTodayShows: LiveData<Boolean>
-        get() = _isLoadingTodayShows
+    val isLoadingTodayShows: LiveData<Boolean> = _isLoadingTodayShows
 
-    val isLoadingTomorrowShows: LiveData<Boolean>
-        get() = _isLoadingTomorrowShows
+    val isLoadingTomorrowShows: LiveData<Boolean> = _isLoadingTomorrowShows
 
-    val isLoadingTraktWatchlist: LiveData<Boolean>
-        get() = _isLoadingTraktWatchlist
+    val isLoadingTraktWatchlist: LiveData<Boolean> = _isLoadingTraktWatchlist
 
-    val isLoadingTraktHistory: LiveData<Boolean>
-        get() = _isLoadingTraktHistory
+    val isLoadingTraktHistory: LiveData<Boolean> = _isLoadingTraktHistory
 
-    val showInfo: LiveData<ShowInfo>
-        get() = _showInfo
+    val showInfo: LiveData<ShowInfo> = _showInfo
 
-    val showSearch: LiveData<List<ShowSearch>>
-        get() = _showSearch
+    val showSearch: LiveData<List<ShowSearch>> = _showSearch
 
-    val traktAccessToken: LiveData<TraktAccessToken>
-        get() = _traktAccessToken
+    val traktAccessToken: LiveData<TraktAccessToken> = _traktAccessToken
 
-    val showCast: LiveData<List<ShowCast>>
-        get() = _showCast
+    val showCast: LiveData<List<ShowCast>> = _showCast
 
     suspend fun getSearchSuggestions(name: String?) {
         if (!name.isNullOrEmpty()) {
