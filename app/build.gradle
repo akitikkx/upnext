@@ -86,6 +86,7 @@ dependencies {
 
     // Glide for images
     implementation "com.github.bumptech.glide:glide:$glide_version"
+    kapt "com.github.bumptech.glide:compiler:$glide_version"
 
     // ViewModel and LiveData (arch components)
     implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_extensions_version"

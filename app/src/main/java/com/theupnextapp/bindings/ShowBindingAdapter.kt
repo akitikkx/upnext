@@ -6,6 +6,8 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.RequestOptions
 import com.crashlytics.android.Crashlytics
 import com.theupnextapp.R
 import com.theupnextapp.domain.*
@@ -15,11 +17,16 @@ import java.util.*
 
 @BindingAdapter("imageUrl")
 fun setImageUrl(imageView: ImageView, url: String?) {
+    val requestOptions = RequestOptions()
+        .placeholder(R.color.showBackdropBackground)
+        .diskCacheStrategy(DiskCacheStrategy.ALL)
+        .error(R.color.showBackdropBackground)
+        .fallback(R.color.showBackdropBackground)
+
     try {
         Glide.with(imageView.context)
             .load(url)
-            .placeholder(R.color.showBackdropBackground)
-            .error(R.color.showBackdropBackground)
+            .apply(requestOptions)
             .into(imageView)
     } catch (e: Exception) {
         Crashlytics.logException(e)
@@ -123,7 +130,7 @@ fun showListedAt(view: TextView, watchlist: TraktWatchlist) {
         try {
             val format =
                 SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.000Z'", Locale.getDefault())
-            val formattedDate: Date = format.parse(watchlist.listed_at)
+            val formattedDate: Date? = format.parse(watchlist.listed_at)
 
             view.text = view.resources.getString(
                 R.string.watchlist_item_listed_at,
