@@ -101,6 +101,12 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
             }
         })
 
+        viewModel.removeFromWatchlistResponse.observe(viewLifecycleOwner, Observer {
+            if (it != null) {
+                viewModel.onRemoveFromWatchlistResponseReceived(it)
+            }
+        })
+
         viewModel.launchTraktConnectWindow.observe(viewLifecycleOwner, Observer {
             if (it) {
                 val intent = Intent(

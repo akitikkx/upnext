@@ -64,6 +64,15 @@ interface TraktService {
         @Header("trakt-api-key") apiKey: String?,
         @Body request: NetworkTraktAddToWatchlistRequest
     ): Deferred<NetworkTraktAddToWatchlistResponse>
+
+    @POST("sync/watchlist/remove")
+    fun removeFromWatchlistAsync(
+        @Header("Content-Type") contentType: String,
+        @Header("Authorization") token: String,
+        @Header("trakt-api-version") version: String = "2",
+        @Header("trakt-api-key") apiKey: String?,
+        @Body request: NetworkTraktRemoveFromWatchlistRequest
+    ): Deferred<NetworkTraktRemoveFromWatchlistResponse>
 }
 
 object TraktNetwork {

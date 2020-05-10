@@ -8,7 +8,7 @@ data class NetworkTraktAddToWatchlistRequest(
 )
 
 data class Episode(
-    val ids: NetworkTraktAddToWatchlistRequestEpisodeIds
+    val ids: NetworkTraktRemoveFromWatchlistRequestEpisodeIds
 )
 
 data class NetworkTraktAddToWatchlistRequestMovy(
@@ -18,12 +18,12 @@ data class NetworkTraktAddToWatchlistRequestMovy(
 )
 
 data class Season(
-    val ids: NetworkTraktAddToWatchlistRequestIdsXX
+    val ids: NetworkTraktRemoveFromWatchlistRequestIdsXX
 )
 
 data class NetworkTraktAddToWatchlistRequestShow(
-    val ids: NetworkTraktAddToWatchlistResponseIds,
-    val seasons: List<NetworkTraktAddToWatchlistRequestSeasonX?>,
+    val ids: Any,
+    val seasons: List<NetworkTraktRemoveFromWatchlistRequestSeasonX?>,
     val title: String,
     val year: Int
 )
@@ -57,7 +57,7 @@ data class NetworkTraktAddToWatchlistRequestIds(
 )
 
 data class NetworkTraktAddToWatchlistRequestSeasonX(
-    val episodes: List<NetworkTraktAddToWatchlistRequestEpisodeX>,
+    val episodes: List<NetworkTraktRemoveFromWatchlistRequestEpisodeX>,
     val number: Int
 )
 

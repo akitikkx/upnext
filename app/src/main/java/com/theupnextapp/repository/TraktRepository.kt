@@ -46,6 +46,8 @@ class TraktRepository(private val database: UpnextDatabase) {
 
     private val _addToWatchlistResponse = MutableLiveData<TraktAddToWatchlist>()
 
+    private val _removeFromWatchlistResponse = MutableLiveData<TraktRemoveFromWatchlist>()
+
     val isLoadingTraktWatchlist: LiveData<Boolean> = _isLoadingTraktWatchlist
 
     val isLoadingTraktHistory: LiveData<Boolean> = _isLoadingTraktHistory
@@ -53,6 +55,9 @@ class TraktRepository(private val database: UpnextDatabase) {
     val traktAccessToken: LiveData<TraktAccessToken> = _traktAccessToken
 
     val addToWatchlistResponse: LiveData<TraktAddToWatchlist> = _addToWatchlistResponse
+
+    val removeFromWatchlistResponse: LiveData<TraktRemoveFromWatchlist> =
+        _removeFromWatchlistResponse
 
     val isLoading: LiveData<Boolean> = _isLoading
 
@@ -259,10 +264,26 @@ class TraktRepository(private val database: UpnextDatabase) {
     }
 
     suspend fun traktAddToWatchlist(accessToken: String?, imdbID: String) {
+        traktPerformWatchlistAction(accessToken, imdbID, WATCHLIST_ACTION_ADD)
+    }
+
+    suspend fun traktRemoveFromWatchlist(accessToken: String?, imdbID: String) {
+        traktPerformWatchlistAction(accessToken, imdbID, WATCHLIST_ACTION_REMOVE)
+    }
+
+    private suspend fun traktPerformWatchlistAction(
+        accessToken: String?,
+        imdbID: String,
+        action: String
+    ) {
         withContext(Dispatchers.IO) {
             try {
                 _isLoading.postValue(true)
-                val addToWatchlistShowsList: MutableList<NetworkTraktAddToWatchlistRequestShow> = arrayListOf()
+                val addToWatchlistShowsList: MutableList<NetworkTraktAddToWatchlistRequestShow> =
+                    arrayListOf()
+                val removeFromWatchlistShowsList: MutableList<NetworkTraktRemoveFromWatchlistRequestShow> =
+                    arrayListOf()
+
                 val searchList = TraktNetwork.traktApi.getIDLookupAsync(
                     contentType = "application/json",
                     token = "Bearer $accessToken",
@@ -273,58 +294,96 @@ class TraktRepository(private val database: UpnextDatabase) {
                 ).await()
 
                 if (!searchList.isNullOrEmpty()) {
-                    for (item in searchList) {
-                        val watchlistItem: NetworkTraktIDLookupResponseItem = item
-                        val addToWatchlistItem = NetworkTraktAddToWatchlistRequestShow(
-                            ids = watchlistItem.show.ids,
-                            title = watchlistItem.show.title,
-                            year = watchlistItem.show.year,
-                            seasons = emptyList()
-                        )
-                        addToWatchlistShowsList.add(addToWatchlistItem)
-                        val addToWatchlist = TraktNetwork.traktApi.addToWatchlistAsync(
-                            contentType = "application/json",
-                            token = "Bearer $accessToken",
-                            version = "2",
-                            apiKey = BuildConfig.TRAKT_CLIENT_ID,
-                            request = NetworkTraktAddToWatchlistRequest(
-                                shows = addToWatchlistShowsList,
-                                movies = emptyList(),
-                                seasons = emptyList(),
-                                episodes = emptyList()
+                    when (action) {
+                        WATCHLIST_ACTION_ADD -> {
+                            performAddToTraktRequestAction(
+                                accessToken = accessToken,
+                                response = searchList,
+                                addToWatchlistShowsList = addToWatchlistShowsList
                             )
-                        ).await()
-                        _addToWatchlistResponse.postValue(addToWatchlist.asDomainModel())
+                        }
+                        WATCHLIST_ACTION_REMOVE -> {
+                            performRemoveFromTraktRequestAction(
+                                accessToken = accessToken,
+                                response = searchList,
+                                removeFromWatchlistShowsList = removeFromWatchlistShowsList
+                            )
+                        }
                     }
                 }
                 _isLoading.postValue(false)
             } catch (e: Exception) {
-                _isLoading.postValue(false)
                 Timber.d(e)
                 Crashlytics.logException(e)
+                _isLoading.postValue(false)
             }
         }
     }
 
-    suspend fun traktRemoveFromWatchlist(accessToken: String?, imdbID: String) {
-        withContext(Dispatchers.IO) {
-            try {
-                val searchList = TraktNetwork.traktApi.getIDLookupAsync(
+    private suspend fun performAddToTraktRequestAction(
+        accessToken: String?,
+        response: NetworkTraktIDLookupResponse,
+        addToWatchlistShowsList: MutableList<NetworkTraktAddToWatchlistRequestShow>
+    ) {
+        for (item in response) {
+            val watchlistItem: NetworkTraktIDLookupResponseItem = item
+            val addToWatchlistItem = NetworkTraktAddToWatchlistRequestShow(
+                ids = watchlistItem.show.ids,
+                title = watchlistItem.show.title,
+                year = watchlistItem.show.year,
+                seasons = emptyList()
+            )
+            addToWatchlistShowsList.add(addToWatchlistItem)
+            val addToWatchlist = TraktNetwork.traktApi.addToWatchlistAsync(
+                contentType = "application/json",
+                token = "Bearer $accessToken",
+                version = "2",
+                apiKey = BuildConfig.TRAKT_CLIENT_ID,
+                request = NetworkTraktAddToWatchlistRequest(
+                    shows = addToWatchlistShowsList,
+                    movies = emptyList(),
+                    seasons = emptyList(),
+                    episodes = emptyList()
+                )
+            ).await()
+            _addToWatchlistResponse.postValue(addToWatchlist.asDomainModel())
+        }
+    }
+
+    private suspend fun performRemoveFromTraktRequestAction(
+        accessToken: String?,
+        response: NetworkTraktIDLookupResponse,
+        removeFromWatchlistShowsList: MutableList<NetworkTraktRemoveFromWatchlistRequestShow>
+    ) {
+        for (item in response) {
+            val watchlistItem: NetworkTraktIDLookupResponseItem = item
+            val removeFromWatchlistItem =
+                NetworkTraktRemoveFromWatchlistRequestShow(
+                    ids = watchlistItem.show.ids,
+                    title = watchlistItem.show.title,
+                    year = watchlistItem.show.year,
+                    seasons = emptyList()
+                )
+            removeFromWatchlistShowsList.add(removeFromWatchlistItem)
+            val removeFromWatchlist =
+                TraktNetwork.traktApi.removeFromWatchlistAsync(
                     contentType = "application/json",
                     token = "Bearer $accessToken",
                     version = "2",
                     apiKey = BuildConfig.TRAKT_CLIENT_ID,
-                    id = imdbID,
-                    type = "show"
+                    request = NetworkTraktRemoveFromWatchlistRequest(
+                        shows = removeFromWatchlistShowsList,
+                        movies = emptyList(),
+                        seasons = emptyList(),
+                        episodes = emptyList()
+                    )
                 ).await()
-
-                if (!searchList.isNullOrEmpty()) {
-
-                }
-            } catch (e: Exception) {
-                Timber.d(e)
-                Crashlytics.logException(e)
-            }
+            _removeFromWatchlistResponse.postValue(removeFromWatchlist.asDomainModel())
         }
+    }
+
+    companion object {
+        const val WATCHLIST_ACTION_ADD = "add_to_watchlist"
+        const val WATCHLIST_ACTION_REMOVE = "remove_from_watchlist"
     }
 }

@@ -8,7 +8,7 @@ data class NetworkTraktIDLookupResponseItem(
 )
 
 data class NetworkTraktIDLookupShow(
-    val ids: NetworkTraktAddToWatchlistResponseIds,
+    val ids: Any,
     val title: String,
     val year: Int
 )
