@@ -19,7 +19,7 @@ android {
         applicationId "com.theupnextapp"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 82
+        versionCode 83
         versionName "3.0.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -87,11 +87,6 @@ dependencies {
     // Glide for images
     implementation "com.github.bumptech.glide:glide:$glide_version"
     kapt "com.github.bumptech.glide:compiler:$glide_version"
-
-    // Firebase messaging
-    implementation "com.google.firebase:firebase-messaging:$firebase_messaging_version"
-    implementation "com.google.firebase:firebase-inappmessaging-display:$firebase_inapp_messaging_version"
-    implementation "com.google.guava:guava:$guava_version"
 
     // ViewModel and LiveData (arch components)
     implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_extensions_version"
