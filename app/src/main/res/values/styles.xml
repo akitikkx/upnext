@@ -28,6 +28,10 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light" />
 
+    <style name="ProgressBarTheme" parent="Widget.AppCompat.ProgressBar">
+        <item name="android:indeterminateTint">@android:color/holo_red_dark</item>
+    </style>
+
     <style name="BottomNavigation.TextActive" parent="AppTheme">
         <item name="android:textColor">@android:color/white</item>
     </style>

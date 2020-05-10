@@ -124,7 +124,7 @@ class HistoryFragment : BaseFragment(), HistoryAdapter.HistoryAdapterListener {
         })
 
         viewModel.traktHistory.observe(viewLifecycleOwner, Observer {
-            if (it.isEmpty()) {
+            if (it.isNullOrEmpty()) {
                 viewModel.onHistoryEmpty(true)
             } else {
                 viewModel.onHistoryEmpty(false)

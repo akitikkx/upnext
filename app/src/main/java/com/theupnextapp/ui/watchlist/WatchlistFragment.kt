@@ -123,7 +123,7 @@ class WatchlistFragment : Fragment(), WatchlistAdapter.WatchlistAdapterListener 
         })
 
         viewModel.traktWatchlist.observe(viewLifecycleOwner, Observer {
-            if (it.isEmpty()) {
+            if (it.isNullOrEmpty()) {
                 viewModel.onWatchlistEmpty(true)
             } else {
                 viewModel.onWatchlistEmpty(false)
