@@ -55,7 +55,7 @@ class CollectionFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
 
         viewModel.isAuthorizedOnTrakt.observe(viewLifecycleOwner, Observer {
-            if (it) {
+            if (it != null && it == true) {
                 viewModel.loadTraktCollection()
             }
         })

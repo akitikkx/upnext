@@ -3,9 +3,15 @@ package com.theupnextapp.ui.common
 import android.app.Application
 import android.content.Context
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.theupnextapp.domain.TraktAccessToken
 
 open class TraktViewModel(application: Application) : AndroidViewModel(application) {
+
+    protected val _isAuthorizedOnTrakt = MutableLiveData<Boolean?>(ifValidAccessTokenExists())
+
+    val isAuthorizedOnTrakt: LiveData<Boolean?> = _isAuthorizedOnTrakt
 
     protected fun ifValidAccessTokenExists(): Boolean {
         val sharedPreferences = getApplication<Application>().getSharedPreferences(
