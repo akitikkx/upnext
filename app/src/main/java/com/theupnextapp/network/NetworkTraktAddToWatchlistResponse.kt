@@ -29,7 +29,7 @@ data class NetworkTraktAddToWatchlistResponseNotFound(
     val shows: List<Any>
 )
 
-data class Movy(
+data class NetworkTraktAddToWatchlistMovy(
     val ids: NetworkTraktAddToWatchlistResponseIds
 )
 

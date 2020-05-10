@@ -7,6 +7,7 @@ import com.theupnextapp.database.getDatabase
 import com.theupnextapp.domain.ShowCast
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.TraktAddToWatchlist
+import com.theupnextapp.domain.TraktRemoveFromWatchlist
 import com.theupnextapp.domain.TraktHistory
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.UpnextRepository
@@ -54,6 +55,8 @@ class ShowDetailViewModel(
     val showCast = upnextRepository.showCast
 
     val addToWatchlistResponse = traktRepository.addToWatchlistResponse
+
+    val removeFromWatchlistResponse = traktRepository.removeFromWatchlistResponse
 
     val onWatchlist: LiveData<Boolean> = _onWatchList
 
@@ -123,22 +126,38 @@ class ShowDetailViewModel(
     }
 
     fun onAddToWatchlistClick() {
+        onWatchlistAction(WATCHLIST_ACTION_ADD)
+    }
+
+    fun onRemoveFromWatchlistClick() {
+        onWatchlistAction(WATCHLIST_ACTION_REMOVE)
+    }
+
+    private fun onWatchlistAction(action: String) {
         if (ifValidAccessTokenExists()) {
             _isAuthorizedOnTrakt.value = true
-            val sharedPreferences = getApplication<Application>().getSharedPreferences(
-                SHARED_PREF_NAME,
-                Context.MODE_PRIVATE
-            )
+            val accessToken = getAccessToken()
 
-            val accessToken =
-                sharedPreferences.getString(SHARED_PREF_TRAKT_ACCESS_TOKEN, null)
-
-            viewModelScope.launch {
-                showInfo.value?.imdbID?.let { imdbID ->
-                    traktRepository.traktAddToWatchlist(
-                        accessToken,
-                        imdbID
-                    )
+            when (action) {
+                WATCHLIST_ACTION_ADD -> {
+                    viewModelScope.launch {
+                        showInfo.value?.imdbID?.let { imdbID ->
+                            traktRepository.traktAddToWatchlist(
+                                accessToken,
+                                imdbID
+                            )
+                        }
+                    }
+                }
+                WATCHLIST_ACTION_REMOVE -> {
+                    viewModelScope.launch {
+                        showInfo.value?.imdbID?.let { imdbID ->
+                            traktRepository.traktRemoveFromWatchlist(
+                                accessToken,
+                                imdbID
+                            )
+                        }
+                    }
                 }
             }
         } else {
@@ -147,6 +166,10 @@ class ShowDetailViewModel(
     }
 
     fun onAddToWatchlistResponseReceived(addToWatchlist: TraktAddToWatchlist) {
+        requestWatchlistRefresh()
+    }
+
+    fun onRemoveFromWatchlistResponseReceived(removeFromWatchlist: TraktRemoveFromWatchlist) {
         requestWatchlistRefresh()
     }
 
@@ -169,13 +192,14 @@ class ShowDetailViewModel(
         }
     }
 
-    fun onRemoveFromWatchlistClick() {
-
-    }
-
     override fun onCleared() {
         super.onCleared()
         viewModelJob.cancel()
+    }
+
+    companion object {
+        const val WATCHLIST_ACTION_ADD = "add_to_watchlist"
+        const val WATCHLIST_ACTION_REMOVE = "remove_from_watchlist"
     }
 
     class Factory(

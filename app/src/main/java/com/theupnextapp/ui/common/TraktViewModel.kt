@@ -14,6 +14,8 @@ open class TraktViewModel(application: Application) : AndroidViewModel(applicati
     val isAuthorizedOnTrakt: LiveData<Boolean?> = _isAuthorizedOnTrakt
 
     protected fun ifValidAccessTokenExists(): Boolean {
+        // TODO Add functionality to determine if the access token has not yet expired, if so retrieve a new one
+
         val sharedPreferences = getApplication<Application>().getSharedPreferences(
             SHARED_PREF_NAME,
             Context.MODE_PRIVATE
@@ -21,6 +23,15 @@ open class TraktViewModel(application: Application) : AndroidViewModel(applicati
 
         val accessToken = sharedPreferences.getString(SHARED_PREF_TRAKT_ACCESS_TOKEN, null)
         return accessToken != null
+    }
+
+    protected fun getAccessToken(): String? {
+        val sharedPreferences = getApplication<Application>().getSharedPreferences(
+            SHARED_PREF_NAME,
+            Context.MODE_PRIVATE
+        )
+
+        return sharedPreferences.getString(SHARED_PREF_TRAKT_ACCESS_TOKEN, null)
     }
 
     protected fun storeTraktAccessToken(traktAccessTokenResponse: TraktAccessToken) {
