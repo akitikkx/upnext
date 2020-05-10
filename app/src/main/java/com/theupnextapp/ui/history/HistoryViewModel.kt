@@ -11,6 +11,7 @@ import com.theupnextapp.database.getDatabase
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.TraktAccessToken
 import com.theupnextapp.domain.TraktConnectionArg
+import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.UpnextRepository
 import com.theupnextapp.ui.common.TraktViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -26,7 +27,7 @@ class HistoryViewModel(application: Application) : TraktViewModel(application) {
 
     private val database = getDatabase(application)
 
-    private val upnextRepository = UpnextRepository(database)
+    private val traktRepository = TraktRepository(database)
 
     private val _launchTraktConnectWindow = MutableLiveData<Boolean>()
 
@@ -36,31 +37,21 @@ class HistoryViewModel(application: Application) : TraktViewModel(application) {
 
     private val _transactionInProgress = MutableLiveData<Boolean>()
 
-    private val _isAuthorizedOnTrakt = MutableLiveData<Boolean>(ifValidAccessTokenExists())
-
     private val _navigateToSelectedShow = MutableLiveData<ShowDetailArg>()
 
     private val _historyEmpty = MutableLiveData<Boolean>()
 
-    val isLoadingHistory = upnextRepository.isLoadingTraktHistory
+    val isLoadingHistory = traktRepository.isLoadingTraktHistory
 
-    val launchTraktConnectWindow: LiveData<Boolean>
-        get() = _launchTraktConnectWindow
+    val launchTraktConnectWindow: LiveData<Boolean> = _launchTraktConnectWindow
 
-    val fetchAccessTokenInProgress: LiveData<Boolean>
-        get() = _fetchingAccessTokenInProgress
+    val fetchAccessTokenInProgress: LiveData<Boolean> = _fetchingAccessTokenInProgress
 
-    val storingTraktAccessTokenInProgress: LiveData<Boolean>
-        get() = _storingTraktAccessTokenInProgress
+    val storingTraktAccessTokenInProgress: LiveData<Boolean> = _storingTraktAccessTokenInProgress
 
-    val transactionInProgress: LiveData<Boolean>
-        get() = _transactionInProgress
+    val transactionInProgress: LiveData<Boolean> = _transactionInProgress
 
-    val isAuthorizedOnTrakt: LiveData<Boolean>
-        get() = _isAuthorizedOnTrakt
-
-    val navigateToSelectedShow: LiveData<ShowDetailArg>
-        get() = _navigateToSelectedShow
+    val navigateToSelectedShow: LiveData<ShowDetailArg> = _navigateToSelectedShow
 
     val historyEmpty: LiveData<Boolean>
         get() = _historyEmpty
@@ -94,13 +85,13 @@ class HistoryViewModel(application: Application) : TraktViewModel(application) {
         val accessToken = sharedPreferences.getString(SHARED_PREF_TRAKT_ACCESS_TOKEN, null)
 
         viewModelScope.launch {
-            upnextRepository.refreshTraktHistory(accessToken)
+            traktRepository.refreshTraktHistory(accessToken)
         }
     }
 
-    val traktAccessToken = upnextRepository.traktAccessToken
+    val traktAccessToken = traktRepository.traktAccessToken
 
-    val traktHistory = upnextRepository.traktHistory
+    val traktHistory = traktRepository.traktHistory
 
     fun onTraktConnectionBundleReceived(bundle: Bundle?) {
         _transactionInProgress.value = true
@@ -113,7 +104,7 @@ class HistoryViewModel(application: Application) : TraktViewModel(application) {
         _fetchingAccessTokenInProgress.value = true
 
         viewModelScope.launch {
-            upnextRepository.getTraktAccessToken(traktConnectionArg?.code)
+            traktRepository.getTraktAccessToken(traktConnectionArg?.code)
         }
     }
 

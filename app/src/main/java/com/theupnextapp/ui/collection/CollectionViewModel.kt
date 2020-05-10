@@ -10,7 +10,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.theupnextapp.database.getDatabase
 import com.theupnextapp.domain.TraktAccessToken
 import com.theupnextapp.domain.TraktConnectionArg
-import com.theupnextapp.repository.UpnextRepository
+import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.ui.common.TraktViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -27,7 +27,7 @@ class CollectionViewModel(
 
     private val database = getDatabase(application)
 
-    private val upnextRepository = UpnextRepository(database)
+    private val traktRepository = TraktRepository(database)
 
     private val _launchTraktConnectWindow = MutableLiveData<Boolean>()
 
@@ -37,22 +37,13 @@ class CollectionViewModel(
 
     private val _transactionInProgress = MutableLiveData<Boolean>()
 
-    private val _isAuthorizedOnTrakt = MutableLiveData<Boolean>(ifValidAccessTokenExists())
+    val launchTraktConnectWindow: LiveData<Boolean> = _launchTraktConnectWindow
 
-    val launchTraktConnectWindow: LiveData<Boolean>
-        get() = _launchTraktConnectWindow
+    val fetchAccessTokenInProgress: LiveData<Boolean> = _fetchingAccessTokenInProgress
 
-    val fetchAccessTokenInProgress: LiveData<Boolean>
-        get() = _fetchingAccessTokenInProgress
+    val storingTraktAccessTokenInProgress: LiveData<Boolean> = _storingTraktAccessTokenInProgress
 
-    val storingTraktAccessTokenInProgress: LiveData<Boolean>
-        get() = _storingTraktAccessTokenInProgress
-
-    val transactionInProgress: LiveData<Boolean>
-        get() = _transactionInProgress
-
-    val isAuthorizedOnTrakt: LiveData<Boolean>
-        get() = _isAuthorizedOnTrakt
+    val transactionInProgress: LiveData<Boolean> = _transactionInProgress
 
     fun onConnectClick() {
         _launchTraktConnectWindow.value = true
@@ -77,11 +68,11 @@ class CollectionViewModel(
         val accessToken = sharedPreferences.getString(SHARED_PREF_TRAKT_ACCESS_TOKEN, null)
 
         viewModelScope.launch {
-            upnextRepository.refreshTraktCollection(accessToken)
+            traktRepository.refreshTraktCollection(accessToken)
         }
     }
 
-    val traktAccessToken = upnextRepository.traktAccessToken
+    val traktAccessToken = traktRepository.traktAccessToken
 
     fun onTraktConnectionBundleReceived(bundle: Bundle?) {
         _transactionInProgress.value = true
@@ -94,7 +85,7 @@ class CollectionViewModel(
         _fetchingAccessTokenInProgress.value = true
 
         viewModelScope.launch {
-            upnextRepository.getTraktAccessToken(traktConnectionArg?.code)
+            traktRepository.getTraktAccessToken(traktConnectionArg?.code)
         }
     }
 

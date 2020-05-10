@@ -1,12 +1,16 @@
 package com.theupnextapp.ui.showDetail
 
 import android.app.Application
+import android.content.Context
 import androidx.lifecycle.*
 import com.theupnextapp.database.getDatabase
 import com.theupnextapp.domain.ShowCast
 import com.theupnextapp.domain.ShowDetailArg
+import com.theupnextapp.domain.TraktAddToWatchlist
 import com.theupnextapp.domain.TraktHistory
+import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.UpnextRepository
+import com.theupnextapp.ui.common.TraktViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -15,7 +19,7 @@ import kotlinx.coroutines.launch
 class ShowDetailViewModel(
     application: Application,
     show: ShowDetailArg
-) : AndroidViewModel(application) {
+) : TraktViewModel(application) {
 
     private val viewModelJob = SupervisorJob()
 
@@ -25,7 +29,9 @@ class ShowDetailViewModel(
 
     private val upnextRepository = UpnextRepository(database)
 
-    private val _onWatchlist = MutableLiveData<Boolean>()
+    private val traktRepository = TraktRepository(database)
+
+    private val _onWatchList = MutableLiveData<Boolean>()
 
     private val _notOnWatchlist = MutableLiveData<Boolean>()
 
@@ -35,14 +41,30 @@ class ShowDetailViewModel(
 
     private val _showCastBottomSheet = MutableLiveData<ShowCast>()
 
-    val isLoading = upnextRepository.isLoading
+    private val _launchTraktConnectWindow = MutableLiveData<Boolean>()
+
+    private val isUpnextRepositoryLoading = upnextRepository.isLoading
+
+    private val isTraktRepositoryLoading = traktRepository.isLoading
+
+    val isLoading = MediatorLiveData<Boolean>()
 
     val showInfo = upnextRepository.showInfo
 
     val showCast = upnextRepository.showCast
 
+    val addToWatchlistResponse = traktRepository.addToWatchlistResponse
+
+    val onWatchlist: LiveData<Boolean> = _onWatchList
+
+    val notOnWatchlist: LiveData<Boolean> = _notOnWatchlist
+
     fun displayCastBottomSheetComplete() {
         _showCastBottomSheet.value = null
+    }
+
+    fun onConnectClick() {
+        _launchTraktConnectWindow.value = true
     }
 
     init {
@@ -52,21 +74,30 @@ class ShowDetailViewModel(
                 upnextRepository.getShowCast(it)
             }
         }
+
+        isLoading.addSource(isUpnextRepositoryLoading) { result ->
+            isLoading.value = result == true
+        }
+        isLoading.addSource(isTraktRepositoryLoading) { result ->
+            isLoading.value = result == true
+        }
     }
 
     val showCastEmpty: LiveData<Boolean> = _showCastEmpty
 
-    val onWatchlist: LiveData<Boolean> = _onWatchlist
-
-    val notOnWatchlist: LiveData<Boolean> = _notOnWatchlist
-
     val watchlistRecord = Transformations.switchMap(showInfo) { showInfo ->
-        showInfo.imdbID?.let { it -> upnextRepository.traktWatchlistItem(it) }
+        showInfo.imdbID?.let { it -> traktRepository.traktWatchlistItem(it) }
     }
 
     val showDetailArg: LiveData<ShowDetailArg> = _show
 
     val showCastBottomSheet: LiveData<ShowCast> = _showCastBottomSheet
+
+    val launchTraktConnectWindow: LiveData<Boolean> = _launchTraktConnectWindow
+
+    fun launchConnectWindowComplete() {
+        _launchTraktConnectWindow.value = false
+    }
 
     fun onShowCastInfoReceived(showCast: List<ShowCast>) {
         _showCastEmpty.value = showCast.isNullOrEmpty()
@@ -77,13 +108,69 @@ class ShowDetailViewModel(
     }
 
     fun onWatchlistRecordReceived(traktHistory: TraktHistory?) {
-        if (traktHistory == null) {
-            _notOnWatchlist.value = true
-            _onWatchlist.value = false
-        } else {
-            _onWatchlist.value = true
+        if (_isAuthorizedOnTrakt.value == false) {
             _notOnWatchlist.value = false
+            _onWatchList.value = false
+        } else {
+            if (traktHistory == null) {
+                _notOnWatchlist.value = true
+                _onWatchList.value = false
+            } else {
+                _onWatchList.value = true
+                _notOnWatchlist.value = false
+            }
         }
+    }
+
+    fun onAddToWatchlistClick() {
+        if (ifValidAccessTokenExists()) {
+            _isAuthorizedOnTrakt.value = true
+            val sharedPreferences = getApplication<Application>().getSharedPreferences(
+                SHARED_PREF_NAME,
+                Context.MODE_PRIVATE
+            )
+
+            val accessToken =
+                sharedPreferences.getString(SHARED_PREF_TRAKT_ACCESS_TOKEN, null)
+
+            viewModelScope.launch {
+                showInfo.value?.imdbID?.let { imdbID ->
+                    traktRepository.traktAddToWatchlist(
+                        accessToken,
+                        imdbID
+                    )
+                }
+            }
+        } else {
+            _isAuthorizedOnTrakt.value = false
+        }
+    }
+
+    fun onAddToWatchlistResponseReceived(addToWatchlist: TraktAddToWatchlist) {
+        requestWatchlistRefresh()
+    }
+
+    private fun requestWatchlistRefresh() {
+        if (ifValidAccessTokenExists()) {
+            loadTraktWatchilist()
+        }
+    }
+
+    private fun loadTraktWatchilist() {
+        val sharedPreferences = getApplication<Application>().getSharedPreferences(
+            SHARED_PREF_NAME,
+            Context.MODE_PRIVATE
+        )
+
+        val accessToken = sharedPreferences.getString(SHARED_PREF_TRAKT_ACCESS_TOKEN, null)
+
+        viewModelScope.launch {
+            traktRepository.refreshTraktWatchlist(accessToken)
+        }
+    }
+
+    fun onRemoveFromWatchlistClick() {
+
     }
 
     override fun onCleared() {

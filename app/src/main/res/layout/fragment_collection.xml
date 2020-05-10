@@ -25,7 +25,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:showHideView="@{!viewModel.isAuthorizedOnTrakt()}"
+            app:showHideView="@{!viewModel.isAuthorizedOnTrakt}"
             app:srcCompat="@drawable/ic_trakt_wide_red_white" />
 
         <TextView
@@ -41,7 +41,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/trakt_logo"
-            app:showHideView="@{!viewModel.isAuthorizedOnTrakt()}" />
+            app:showHideView="@{!viewModel.isAuthorizedOnTrakt}" />
 
         <Button
             style="@style/Widget.MaterialComponents.Button.Icon"

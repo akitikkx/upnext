@@ -1,7 +1,10 @@
 package com.theupnextapp.ui.showDetail
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Browser
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +15,7 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionInflater
+import com.theupnextapp.BuildConfig
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentShowDetailBinding
@@ -90,6 +94,24 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
                 viewModel.displayCastBottomSheetComplete()
             }
         })
+
+        viewModel.addToWatchlistResponse.observe(viewLifecycleOwner, Observer {
+            if (it != null) {
+                viewModel.onAddToWatchlistResponseReceived(it)
+            }
+        })
+
+        viewModel.launchTraktConnectWindow.observe(viewLifecycleOwner, Observer {
+            if (it) {
+                val intent = Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("${TRAKT_API_URL}${TRAKT_OAUTH_ENDPOINT}?response_type=code&client_id=${BuildConfig.TRAKT_CLIENT_ID}&redirect_uri=${BuildConfig.TRAKT_REDIRECT_URI}")
+                )
+                intent.putExtra(Browser.EXTRA_APPLICATION_ID, activity?.packageName)
+                startActivity(intent)
+                viewModel.launchConnectWindowComplete()
+            }
+        })
     }
 
     override fun onResume() {
@@ -113,6 +135,9 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
 
     companion object {
         const val ARG_SHOW_CAST = "show_cast"
+        const val EXTRA_TRAKT_URI = "extra_trakt_uri"
+        const val TRAKT_API_URL = "https://api.trakt.tv"
+        const val TRAKT_OAUTH_ENDPOINT = "/oauth/authorize"
     }
 
 }

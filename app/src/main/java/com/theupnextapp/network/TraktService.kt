@@ -7,10 +7,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.Header
-import retrofit2.http.POST
+import retrofit2.http.*
 import java.util.concurrent.TimeUnit
 
 interface TraktService {
@@ -48,6 +45,25 @@ interface TraktService {
         @Header("trakt-api-version") version: String = "2",
         @Header("trakt-api-key") apiKey: String?
     ): Deferred<NetworkTraktHistoryResponse>
+
+    @GET("search/imdb/{id}")
+    fun getIDLookupAsync(
+        @Header("Content-Type") contentType: String,
+        @Header("Authorization") token: String,
+        @Header("trakt-api-version") version: String = "2",
+        @Header("trakt-api-key") apiKey: String?,
+        @Path("id") id: String,
+        @Query("type") type: String
+    ): Deferred<NetworkTraktIDLookupResponse>
+
+    @POST("sync/watchlist")
+    fun addToWatchlistAsync(
+        @Header("Content-Type") contentType: String,
+        @Header("Authorization") token: String,
+        @Header("trakt-api-version") version: String = "2",
+        @Header("trakt-api-key") apiKey: String?,
+        @Body request: NetworkTraktAddToWatchlistRequest
+    ): Deferred<NetworkTraktAddToWatchlistResponse>
 }
 
 object TraktNetwork {
