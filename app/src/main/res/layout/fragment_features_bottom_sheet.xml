@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.theupnextapp.ui.features.FeaturesBottomSheetViewModel" />
+    </data>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingBottom="@dimen/margin_vertical">
+
+            <TextView
+                android:id="@+id/features_bottom_sheet_title"
+                style="@style/Upnext.Subtitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_horizontal"
+                android:layout_marginTop="@dimen/margin_vertical"
+                android:layout_marginEnd="@dimen/margin_horizontal"
+                android:gravity="center_horizontal"
+                android:text="@string/features_bottom_sheet_title"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/features_bottom_sheet_dashboard_icon"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_horizontal"
+                android:layout_marginTop="@dimen/margin_vertical"
+                app:layout_constraintEnd_toStartOf="@+id/guideline"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/features_bottom_sheet_title"
+                app:srcCompat="@drawable/ic_home_black_24dp" />
+
+            <TextView
+                android:id="@+id/features_bottom_sheet_dashboard"
+                style="@style/Upnext.Description"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_vertical"
+                android:layout_marginEnd="@dimen/margin_horizontal"
+                android:gravity="start"
+                android:text="@string/features_bottom_sheet_dashboard"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/guideline"
+                app:layout_constraintTop_toBottomOf="@id/features_bottom_sheet_title" />
+
+            <ImageView
+                android:id="@+id/features_bottom_sheet_search_icon"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_horizontal"
+                android:layout_marginTop="@dimen/margin_vertical"
+                app:layout_constraintEnd_toStartOf="@+id/guideline"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/features_bottom_sheet_dashboard"
+                app:srcCompat="@drawable/ic_search_black_24dp" />
+
+            <TextView
+                android:id="@+id/features_bottom_sheet_search"
+                style="@style/Upnext.Description"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_vertical"
+                android:layout_marginEnd="@dimen/margin_horizontal"
+                android:gravity="start"
+                android:text="@string/features_bottom_sheet_search"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/guideline"
+                app:layout_constraintTop_toBottomOf="@id/features_bottom_sheet_dashboard" />
+
+            <TextView
+                android:id="@+id/features_bottom_sheet_trakt_logo_alt"
+                style="@style/Upnext.Description"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_horizontal"
+                android:layout_marginTop="@dimen/margin_vertical"
+                android:layout_marginEnd="@dimen/margin_horizontal"
+                android:gravity="center_horizontal"
+                android:text="@string/features_bottom_sheet_trakt_logo_alt"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/features_bottom_sheet_search" />
+
+            <ImageView
+                android:id="@+id/features_bottom_sheet_trakt_logo"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="@dimen/margin_horizontal"
+                android:layout_marginTop="@dimen/margin_vertical"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/features_bottom_sheet_trakt_logo_alt"
+                app:srcCompat="@drawable/ic_trakt_wide_red_white" />
+
+            <TextView
+                android:id="@+id/features_bottom_sheet_trakt_logo_alt_support"
+                style="@style/Upnext.Description"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_vertical"
+                android:layout_marginEnd="@dimen/margin_horizontal"
+                android:gravity="start"
+                android:text="@string/features_bottom_sheet_trakt_logo_alt_support"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/guideline"
+                app:layout_constraintTop_toBottomOf="@id/features_bottom_sheet_trakt_logo" />
+
+            <ImageView
+                android:id="@+id/features_bottom_sheet_watchlist_icon"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_horizontal"
+                android:layout_marginTop="@dimen/margin_vertical"
+                app:layout_constraintEnd_toStartOf="@+id/guideline"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/features_bottom_sheet_trakt_logo_alt_support"
+                app:srcCompat="@drawable/ic_check_circle_white_24dp" />
+
+            <TextView
+                android:id="@+id/features_bottom_sheet_watchlist"
+                style="@style/Upnext.Description"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_vertical"
+                android:layout_marginEnd="@dimen/margin_horizontal"
+                android:gravity="start"
+                android:text="@string/features_bottom_sheet_watchlist"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/features_bottom_sheet_watchlist_icon"
+                app:layout_constraintStart_toStartOf="@+id/guideline"
+                app:layout_constraintTop_toBottomOf="@id/features_bottom_sheet_trakt_logo_alt_support" />
+
+            <ImageView
+                android:id="@+id/features_bottom_sheet_history_icon"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_horizontal"
+                android:layout_marginTop="@dimen/margin_vertical"
+                app:layout_constraintEnd_toStartOf="@+id/guideline"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/features_bottom_sheet_watchlist"
+                app:srcCompat="@drawable/ic_history_white_24dp" />
+
+            <TextView
+                android:id="@+id/features_bottom_sheet_history"
+                style="@style/Upnext.Description"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_vertical"
+                android:layout_marginEnd="@dimen/margin_horizontal"
+                android:gravity="start"
+                android:text="@string/features_bottom_sheet_watchlist"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/features_bottom_sheet_history_icon"
+                app:layout_constraintStart_toStartOf="@+id/guideline"
+                app:layout_constraintTop_toBottomOf="@id/features_bottom_sheet_watchlist" />
+
+            <Button
+                android:id="@+id/remove_from_watchlist_button"
+                style="@style/Button.RemoveFromWatchlist"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_horizontal"
+                android:layout_marginTop="@dimen/margin_vertical"
+                android:layout_marginEnd="@dimen/margin_horizontal"
+                android:clickable="true"
+                android:focusable="true"
+                android:onClick="@{() -> viewModel.onGotItClick()}"
+                android:text="@string/features_confirm_button"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/features_bottom_sheet_history" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_begin="54dp" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</layout>

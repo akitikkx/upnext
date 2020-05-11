@@ -19,6 +19,7 @@ import com.theupnextapp.domain.RecommendedShows
 import com.theupnextapp.domain.ScheduleShow
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.ui.common.BaseFragment
+import com.theupnextapp.ui.features.FeaturesBottomSheetFragment
 
 class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedShowsAdapterListener,
     NewShowsAdapter.NewShowsAdapterListener,
@@ -110,6 +111,16 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+        viewModel.showFeaturesBottomSheet.observe(viewLifecycleOwner, Observer {
+            if (it != null && it == true) {
+                val featuresBottomSheet = FeaturesBottomSheetFragment()
+                activity?.supportFragmentManager?.let { fragmentManager ->
+                    featuresBottomSheet.show(fragmentManager, FeaturesBottomSheetFragment.TAG)
+                    viewModel.showFeaturesBottomSheetComplete()
+                }
+            }
+        })
+
         viewModel.recommendedShowsList.observe(
             viewLifecycleOwner,
             Observer<List<RecommendedShows>> { recommendedShows ->
