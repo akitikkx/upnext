@@ -90,7 +90,12 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
                 args.putParcelable(ARG_SHOW_CAST, it)
                 showCastBottomSheet.arguments = args
 
-                activity?.supportFragmentManager?.let { activity -> showCastBottomSheet.show(activity, ShowCastBottomSheetFragment.TAG) }
+                activity?.supportFragmentManager?.let { fragmentManager ->
+                    showCastBottomSheet.show(
+                        fragmentManager,
+                        ShowCastBottomSheetFragment.TAG
+                    )
+                }
                 viewModel.displayCastBottomSheetComplete()
             }
         })

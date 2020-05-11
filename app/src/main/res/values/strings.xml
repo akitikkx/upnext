@@ -76,4 +76,21 @@
 
     <string name="empty_state_icon">Empty state icon</string>
     <string name="device_not_connected_to_internet_error">You are not connected to the internet</string>
+
+    <!-- Features bottomsheet -->
+    <string name="features_bottom_sheet_title">Introducing a whole new and updated UpNext</string>
+    <string name="features_bottom_sheet_search">You can still search for your favorite shows by clicking on the search icon on the bottom menu.</string>
+    <string name="features_bottom_sheet_dashboard">The dashboard now contains a nicely curated list of the TV schedules (Yesterday\'s, Today\s and Tomorrow\'s),
+        New and Recommended shows.
+    </string>
+    <string name="features_bottom_sheet_trakt_logo_alt">And our new integration:</string>
+    <string name="features_bottom_sheet_trakt_logo_alt_support">Trakt is well established platform that allows you to be able to track your shows, episode by episode, season by season.
+    We want to make sure you have that capability when viewing any of the show information you come across in Upnext. You will first need to connect your Trakt
+    account (a button will be displayed where a Trakt account link is required).</string>
+    <string name="features_bottom_sheet_watchlist">If you have a show you want to watch or are currently watching, you can simply add the show to your watchlist
+        from the show detail screen\'s \"Add to Watchlist\" button (which will only appear if you have connected your Trakt account). When you mark all seasons or episodes of that show as watched, Trakt will automatically
+    remove it from your watchlist.</string>
+    <string name="features_bottom_sheet_trakt_history">Any shows that are marked as watched either through UpNext, some third-party software or directly on the
+    Trakt.tv platform will be displayed here.</string>
+    <string name="features_confirm_button">Got it</string>
 </resources>

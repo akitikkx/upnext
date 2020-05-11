@@ -24,6 +24,8 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
 
     private val _navigateToSelectedShow = MutableLiveData<ShowDetailArg>()
 
+    private val _showFeaturesBottomSheet = MutableLiveData<Boolean>()
+
     val navigateToSelectedShow: LiveData<ShowDetailArg>
         get() = _navigateToSelectedShow
 
@@ -38,6 +40,8 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
     val tomorrowShowsList = upnextRepository.tomorrowShows
 
     val isLoading = upnextRepository.isLoading
+
+    val showFeaturesBottomSheet: LiveData<Boolean> = _showFeaturesBottomSheet
 
     fun onRecommendedShowsListEmpty() {
         viewModelScope.launch {
@@ -84,6 +88,14 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun displayShowDetailsComplete() {
         _navigateToSelectedShow.value = null
+    }
+
+    fun showFeaturesBottomSheetComplete() {
+        _showFeaturesBottomSheet.value = false
+    }
+
+    init {
+        // TODO show features bottom sheet when ready
     }
 
     private fun currentDate(): String? {
