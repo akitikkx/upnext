@@ -1,8 +1,8 @@
 package com.theupnextapp.ui.splashscreen
 
 import android.app.Application
-import android.content.Context
 import androidx.lifecycle.*
+import androidx.preference.PreferenceManager
 import com.theupnextapp.BuildConfig
 import com.theupnextapp.database.getDatabase
 import com.theupnextapp.repository.UpnextRepository
@@ -136,12 +136,10 @@ class SplashScreenViewModel(application: Application) : AndroidViewModel(applica
     private fun checkIfFirstRun() {
         val currentAppVersionCode = BuildConfig.VERSION_CODE
 
-        val sharedPreferences = getApplication<Application>().getSharedPreferences(
-            SHARED_PREF_NAME,
-            Context.MODE_PRIVATE
-        )
+        val preferences = PreferenceManager.getDefaultSharedPreferences(getApplication())
+
         val savedVersionCode =
-            sharedPreferences.getInt(SHARED_PREF_VERSION_CODE_KEY, SHARED_PREF_NOT_FOUND)
+            preferences.getInt(SHARED_PREF_VERSION_CODE_KEY, SHARED_PREF_NOT_FOUND)
 
         when {
             currentAppVersionCode == savedVersionCode -> {
@@ -155,11 +153,10 @@ class SplashScreenViewModel(application: Application) : AndroidViewModel(applica
             }
         }
 
-        sharedPreferences.edit().putInt(SHARED_PREF_VERSION_CODE_KEY, currentAppVersionCode).apply()
+        preferences.edit().putInt(SHARED_PREF_VERSION_CODE_KEY, currentAppVersionCode).apply()
     }
 
     companion object {
-        const val SHARED_PREF_NAME = "UpnextPreferences"
         const val SHARED_PREF_VERSION_CODE_KEY = "version_code"
         const val SHARED_PREF_NOT_FOUND = -1
     }

@@ -1,18 +1,17 @@
 package com.theupnextapp.ui.watchlist
 
 import android.app.Application
-import android.content.Context
 import android.os.Bundle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.preference.PreferenceManager
 import com.theupnextapp.database.getDatabase
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.TraktAccessToken
 import com.theupnextapp.domain.TraktConnectionArg
 import com.theupnextapp.repository.TraktRepository
-import com.theupnextapp.repository.UpnextRepository
 import com.theupnextapp.ui.common.TraktViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -70,18 +69,14 @@ class WatchlistViewModel(application: Application) : TraktViewModel(application)
     init {
         _watchlistEmpty.value = false
         if (ifValidAccessTokenExists()) {
-            loadTraktWatchilist()
+            loadTraktWatchlist()
             _isAuthorizedOnTrakt.value = true
         }
     }
 
-    private fun loadTraktWatchilist() {
-        val sharedPreferences = getApplication<Application>().getSharedPreferences(
-            SHARED_PREF_NAME,
-            Context.MODE_PRIVATE
-        )
-
-        val accessToken = sharedPreferences.getString(SHARED_PREF_TRAKT_ACCESS_TOKEN, null)
+    private fun loadTraktWatchlist() {
+        val preferences = PreferenceManager.getDefaultSharedPreferences(getApplication())
+        val accessToken = preferences.getString(SHARED_PREF_TRAKT_ACCESS_TOKEN, null)
 
         viewModelScope.launch {
             traktRepository.refreshTraktWatchlist(accessToken)
@@ -117,7 +112,7 @@ class WatchlistViewModel(application: Application) : TraktViewModel(application)
         _isAuthorizedOnTrakt.value = true
         _storingTraktAccessTokenInProgress.value = false
 
-        loadTraktWatchilist()
+        loadTraktWatchlist()
     }
 
     fun displayShowDetails(showDetailArg: ShowDetailArg) {

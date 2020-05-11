@@ -1,14 +1,10 @@
 package com.theupnextapp.ui.showDetail
 
 import android.app.Application
-import android.content.Context
 import androidx.lifecycle.*
+import androidx.preference.PreferenceManager
 import com.theupnextapp.database.getDatabase
-import com.theupnextapp.domain.ShowCast
-import com.theupnextapp.domain.ShowDetailArg
-import com.theupnextapp.domain.TraktAddToWatchlist
-import com.theupnextapp.domain.TraktRemoveFromWatchlist
-import com.theupnextapp.domain.TraktHistory
+import com.theupnextapp.domain.*
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.UpnextRepository
 import com.theupnextapp.ui.common.TraktViewModel
@@ -180,12 +176,8 @@ class ShowDetailViewModel(
     }
 
     private fun loadTraktWatchilist() {
-        val sharedPreferences = getApplication<Application>().getSharedPreferences(
-            SHARED_PREF_NAME,
-            Context.MODE_PRIVATE
-        )
-
-        val accessToken = sharedPreferences.getString(SHARED_PREF_TRAKT_ACCESS_TOKEN, null)
+        val preferences = PreferenceManager.getDefaultSharedPreferences(getApplication())
+        val accessToken = preferences.getString(SHARED_PREF_TRAKT_ACCESS_TOKEN, null)
 
         viewModelScope.launch {
             traktRepository.refreshTraktWatchlist(accessToken)
