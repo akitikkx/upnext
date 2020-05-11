@@ -1,12 +1,12 @@
 package com.theupnextapp.ui.collection
 
 import android.app.Application
-import android.content.Context
 import android.os.Bundle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.preference.PreferenceManager
 import com.theupnextapp.database.getDatabase
 import com.theupnextapp.domain.TraktAccessToken
 import com.theupnextapp.domain.TraktConnectionArg
@@ -60,12 +60,8 @@ class CollectionViewModel(
     }
 
     fun loadTraktCollection() {
-        val sharedPreferences = getApplication<Application>().getSharedPreferences(
-            SHARED_PREF_NAME,
-            Context.MODE_PRIVATE
-        )
-
-        val accessToken = sharedPreferences.getString(SHARED_PREF_TRAKT_ACCESS_TOKEN, null)
+        val preferences = PreferenceManager.getDefaultSharedPreferences(getApplication())
+        val accessToken = preferences.getString(SHARED_PREF_TRAKT_ACCESS_TOKEN, null)
 
         viewModelScope.launch {
             traktRepository.refreshTraktCollection(accessToken)
