@@ -8,7 +8,7 @@ import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
-import com.crashlytics.android.Crashlytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.theupnextapp.R
 import com.theupnextapp.domain.*
 import org.jsoup.Jsoup
@@ -29,7 +29,7 @@ fun setImageUrl(imageView: ImageView, url: String?) {
             .apply(requestOptions)
             .into(imageView)
     } catch (e: Exception) {
-        Crashlytics.logException(e)
+        FirebaseCrashlytics.getInstance().recordException(e)
     }
 }
 
@@ -137,7 +137,7 @@ fun showListedAt(view: TextView, watchlist: TraktWatchlist) {
                 formattedDate
             )
         } catch (e: Exception) {
-            Crashlytics.logException(e)
+            FirebaseCrashlytics.getInstance().recordException(e)
         }
     } else {
         view.visibility = View.GONE

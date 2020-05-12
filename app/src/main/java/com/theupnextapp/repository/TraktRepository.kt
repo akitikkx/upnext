@@ -3,7 +3,7 @@ package com.theupnextapp.repository
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
-import com.crashlytics.android.Crashlytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.theupnextapp.BuildConfig
 import com.theupnextapp.database.DatabaseTraktHistory
 import com.theupnextapp.database.DatabaseTraktWatchlist
@@ -79,7 +79,7 @@ class TraktRepository(private val database: UpnextDatabase) {
                     _traktAccessToken.postValue(accessTokenResponse.asDomainModel())
                 } catch (e: Exception) {
                     Timber.d(e)
-                    Crashlytics.logException(e)
+                    FirebaseCrashlytics.getInstance().recordException(e)
                 }
             }
         }
@@ -134,7 +134,7 @@ class TraktRepository(private val database: UpnextDatabase) {
                 _isLoadingTraktWatchlist.postValue(false)
             } catch (e: Exception) {
                 Timber.d(e)
-                Crashlytics.logException(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
                 _isLoading.postValue(false)
                 _isLoadingTraktWatchlist.postValue(false)
             }
@@ -152,7 +152,7 @@ class TraktRepository(private val database: UpnextDatabase) {
 
                 } catch (e: Exception) {
                     Timber.d(e)
-                    Crashlytics.logException(e)
+                    FirebaseCrashlytics.getInstance().recordException(e)
                 }
             }
         }
@@ -207,7 +207,7 @@ class TraktRepository(private val database: UpnextDatabase) {
                 _isLoadingTraktHistory.postValue(false)
             } catch (e: Exception) {
                 Timber.d(e)
-                Crashlytics.logException(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
                 _isLoadingTraktHistory.postValue(false)
             }
         }
@@ -224,7 +224,7 @@ class TraktRepository(private val database: UpnextDatabase) {
 
                 } catch (e: Exception) {
                     Timber.d(e)
-                    Crashlytics.logException(e)
+                    FirebaseCrashlytics.getInstance().recordException(e)
                 }
             }
         }
@@ -242,7 +242,7 @@ class TraktRepository(private val database: UpnextDatabase) {
                 Timber.d(watchlistResponse.toString())
             } catch (e: Exception) {
                 Timber.d(e)
-                Crashlytics.logException(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
             }
         }
     }
@@ -258,7 +258,7 @@ class TraktRepository(private val database: UpnextDatabase) {
                 ).await()
             } catch (e: Exception) {
                 Timber.d(e)
-                Crashlytics.logException(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
             }
         }
     }
@@ -314,7 +314,7 @@ class TraktRepository(private val database: UpnextDatabase) {
                 _isLoading.postValue(false)
             } catch (e: Exception) {
                 Timber.d(e)
-                Crashlytics.logException(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
                 _isLoading.postValue(false)
             }
         }

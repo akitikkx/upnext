@@ -3,14 +3,12 @@ package com.theupnextapp.repository
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
-import com.crashlytics.android.Crashlytics
-import com.theupnextapp.BuildConfig
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.theupnextapp.database.*
 import com.theupnextapp.domain.*
 import com.theupnextapp.network.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import retrofit2.HttpException
 import timber.log.Timber
 
 class UpnextRepository(private val database: UpnextDatabase) {
@@ -84,7 +82,7 @@ class UpnextRepository(private val database: UpnextDatabase) {
                     _showSearch.postValue(searchList.asDomainModel())
                 } catch (e: Exception) {
                     Timber.d(e)
-                    Crashlytics.logException(e)
+                    FirebaseCrashlytics.getInstance().recordException(e)
                 }
             }
         }
@@ -103,7 +101,7 @@ class UpnextRepository(private val database: UpnextDatabase) {
             } catch (e: Exception) {
                 _isLoadingRecommendedShows.postValue(false)
                 Timber.d(e)
-                Crashlytics.logException(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
             }
         }
     }
@@ -117,7 +115,7 @@ class UpnextRepository(private val database: UpnextDatabase) {
                 }
             } catch (e: Exception) {
                 Timber.d(e)
-                Crashlytics.logException(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
             }
         }
     }
@@ -135,7 +133,7 @@ class UpnextRepository(private val database: UpnextDatabase) {
             } catch (e: Exception) {
                 _isLoadingNewShows.postValue(false)
                 Timber.d(e)
-                Crashlytics.logException(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
             }
         }
     }
@@ -163,7 +161,7 @@ class UpnextRepository(private val database: UpnextDatabase) {
             } catch (e: Exception) {
                 _isLoadingYesterdayShows.postValue(false)
                 Timber.d(e)
-                Crashlytics.logException(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
             }
         }
     }
@@ -191,7 +189,7 @@ class UpnextRepository(private val database: UpnextDatabase) {
             } catch (e: Exception) {
                 _isLoadingTodayShows.postValue(false)
                 Timber.d(e)
-                Crashlytics.logException(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
             }
         }
     }
@@ -209,7 +207,7 @@ class UpnextRepository(private val database: UpnextDatabase) {
             } catch (e: Exception) {
                 _isLoadingTomorrowShows.postValue(false)
                 Timber.d(e)
-                Crashlytics.logException(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
             }
         }
     }
@@ -232,7 +230,7 @@ class UpnextRepository(private val database: UpnextDatabase) {
                 }
             } catch (e: Exception) {
                 Timber.d(e)
-                Crashlytics.logException(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
             }
         }
     }
@@ -275,7 +273,7 @@ class UpnextRepository(private val database: UpnextDatabase) {
                 }
             } catch (e: Exception) {
                 Timber.d(e)
-                Crashlytics.logException(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
             }
         }
     }
@@ -291,7 +289,7 @@ class UpnextRepository(private val database: UpnextDatabase) {
             } catch (e: Exception) {
                 _isLoading.postValue(false)
                 Timber.d(e)
-                Crashlytics.logException(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
             }
         }
     }
@@ -334,7 +332,7 @@ class UpnextRepository(private val database: UpnextDatabase) {
             } catch (e: Exception) {
                 _isLoading.postValue(true)
                 Timber.d(e)
-                Crashlytics.logException(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
             }
         }
     }
@@ -349,7 +347,7 @@ class UpnextRepository(private val database: UpnextDatabase) {
             } catch (e: Exception) {
                 _isLoading.postValue(false)
                 Timber.d(e)
-                Crashlytics.logException(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
             }
         }
     }

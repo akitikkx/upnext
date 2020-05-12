@@ -4,7 +4,7 @@ buildscript {
     ext {
         androidx_preference_version = "1.1.1"
         analytics_version = "17.4.1"
-        crashlytics_version = "2.10.1"
+        crashlytics_version = "17.0.0"
         glide_version = "4.11.0"
         google_services = "4.3.3"
         gson_version = "2.4.0"
@@ -12,6 +12,7 @@ buildscript {
         fabric_version = "1.31.2"
         firebase_inapp_messaging_version = "19.0.6"
         firebase_messaging_version = "20.1.7"
+        firebase_performance_monitoring_version = "19.0.7"
         jsoup_version = "1.8.1"
         kotlin_version = '1.3.61'
         kotlin_coroutines_version = "1.1.0"
@@ -39,7 +40,8 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$navigation_version"
         classpath "com.google.gms:google-services:$google_services"
-        classpath "io.fabric.tools:gradle:$fabric_version"
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.1.0'
+        classpath 'com.google.firebase:perf-plugin:1.3.1'
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
