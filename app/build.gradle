@@ -10,7 +10,9 @@ apply plugin: "androidx.navigation.safeargs"
 
 apply plugin: 'com.google.gms.google-services'
 
-apply plugin: 'io.fabric'
+apply plugin: 'com.google.firebase.crashlytics'
+
+apply plugin: 'com.google.firebase.firebase-perf'
 
 android {
     compileSdkVersion 29
@@ -118,7 +120,10 @@ dependencies {
     implementation "com.google.firebase:firebase-analytics:$analytics_version"
 
     // Crashlytics
-    implementation "com.crashlytics.sdk.android:crashlytics:$crashlytics_version"
+    implementation "com.google.firebase:firebase-crashlytics:$crashlytics_version"
+
+    // Performance Monitoring
+    implementation "com.google.firebase:firebase-perf:$firebase_performance_monitoring_version"
 
     // PreferenceManager
     implementation "androidx.preference:preference:$androidx_preference_version"
