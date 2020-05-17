@@ -83,6 +83,14 @@ class MainActivity : AppCompatActivity() {
         return item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        _bottomNavigationView = null
+        _toolbar = null
+        _container = null
+        _firebaseAnalytics = null
+    }
+
     private fun handleDeepLinks() {
         val uri: Uri? = intent?.data
 
@@ -169,14 +177,6 @@ class MainActivity : AppCompatActivity() {
                 getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        _bottomNavigationView = null
-        _toolbar = null
-        _container = null
-        _firebaseAnalytics = null
     }
 
     companion object {
