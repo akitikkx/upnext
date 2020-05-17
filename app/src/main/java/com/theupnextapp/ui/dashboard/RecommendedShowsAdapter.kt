@@ -31,7 +31,6 @@ class RecommendedShowsAdapter(val listener: RecommendedShowsAdapterListener) :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.viewDataBinding.also {
-            it.recommendedShowPoster.transitionName = "recommended_${recommendedShows[position].originalImageUrl}"
             it.show = recommendedShows[position]
             it.listener = listener
         }

@@ -1,5 +1,6 @@
 package com.theupnextapp
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -7,6 +8,7 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.MenuItem
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -28,21 +30,29 @@ class MainActivity : AppCompatActivity() {
     private val navController: NavController
         get() = findNavController(R.id.nav_host_fragment)
 
-    private lateinit var bottomNavigationView: BottomNavigationView
-    private lateinit var toolbar: Toolbar
-    private lateinit var container: ConstraintLayout
-    private lateinit var firebaseAnalytics: FirebaseAnalytics
+    private var _bottomNavigationView: BottomNavigationView? = null
+    private val bottomNavigationView get() = _bottomNavigationView!!
+
+    private var _toolbar: Toolbar? = null
+    private val toolbar get() = _toolbar!!
+
+    private var _container: ConstraintLayout? = null
+    private val container get() = _container!!
+
+    private var _firebaseAnalytics: FirebaseAnalytics? = null
+    private val firebaseAnalytics get() = _firebaseAnalytics!!
+
     private lateinit var snackbar: Snackbar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        firebaseAnalytics = FirebaseAnalytics.getInstance(this)
+        _firebaseAnalytics = FirebaseAnalytics.getInstance(this)
 
-        toolbar = findViewById<Toolbar>(R.id.toolbar)
-        bottomNavigationView = findViewById(R.id.bottom_navigation)
-        container = findViewById(R.id.container)
+        _toolbar = findViewById<Toolbar>(R.id.toolbar)
+        _bottomNavigationView = findViewById(R.id.bottom_navigation)
+        _container = findViewById(R.id.container)
 
         setSupportActionBar(toolbar)
 
@@ -95,55 +105,38 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun hideBottomNavigation() {
-        if (::bottomNavigationView.isInitialized) {
-            if (bottomNavigationView.visibility == View.VISIBLE) {
-                bottomNavigationView.visibility = View.GONE
-            }
+        if (bottomNavigationView != null && bottomNavigationView.visibility == View.VISIBLE) {
+            bottomNavigationView.visibility = View.GONE
         }
     }
 
     fun showBottomNavigation() {
-        if (::bottomNavigationView.isInitialized) {
-            if (bottomNavigationView.visibility == View.GONE) {
-                bottomNavigationView.visibility = View.VISIBLE
-            }
+        if (bottomNavigationView != null && bottomNavigationView.visibility == View.GONE) {
+            bottomNavigationView.visibility = View.VISIBLE
         }
     }
 
     fun hideToolbar() {
-        if (::toolbar.isInitialized) {
-            if (toolbar.visibility == View.VISIBLE) {
-                toolbar.visibility = View.GONE
-            }
+        if (toolbar.visibility == View.VISIBLE) {
+            toolbar.visibility = View.GONE
         }
     }
 
     fun showToolbar() {
-        if (::toolbar.isInitialized) {
-            if (toolbar.visibility == View.GONE) {
-                toolbar.visibility = View.VISIBLE
-            }
+        if (toolbar.visibility == View.GONE) {
+            toolbar.visibility = View.VISIBLE
         }
     }
 
     fun displayConnectionErrorMessage() {
-        if (::container.isInitialized) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                snackbar = Snackbar.make(
-                    container,
-                    getString(R.string.device_not_connected_to_internet_error),
-                    Snackbar.LENGTH_INDEFINITE
-                )
-                snackbar.setAction("Settings") { showNetworkSettings() }
-                snackbar.show()
-            } else {
-                snackbar = Snackbar.make(
-                    container,
-                    getString(R.string.device_not_connected_to_internet_error),
-                    Snackbar.LENGTH_INDEFINITE
-                )
-                snackbar.show()
-            }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            snackbar = Snackbar.make(
+                container,
+                getString(R.string.device_not_connected_to_internet_error),
+                Snackbar.LENGTH_INDEFINITE
+            )
+            snackbar.setAction("Settings") { showNetworkSettings() }
+            snackbar.show()
         } else {
             snackbar = Snackbar.make(
                 container,
@@ -167,6 +160,23 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY)
             startActivityForResult(intent, REQUEST_CODE_INTERNET)
         }
+    }
+
+    fun hideKeyboard() {
+        val view = this.currentFocus
+        if (view != null) {
+            val inputMethodManager: InputMethodManager =
+                getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        _bottomNavigationView = null
+        _toolbar = null
+        _container = null
+        _firebaseAnalytics = null
     }
 
     companion object {

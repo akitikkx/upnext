@@ -32,7 +32,6 @@ class YesterdayShowsAdapter(val listener: YesterdayShowsAdapterListener) :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.viewDataBinding.also {
-            it.yesterdayShowPoster.transitionName = "yesterday_${yesterdayShows[position].image}"
             it.show = yesterdayShows[position]
             it.listener = listener
         }

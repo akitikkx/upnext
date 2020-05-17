@@ -33,7 +33,6 @@ class HistoryAdapter(val listener: HistoryAdapterListener) :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.viewDataBinding.also {
-            it.historyPoster.transitionName = "history_${history[position].originalImageUrl}"
             it.listener = listener
             it.show = history[position]
         }

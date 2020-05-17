@@ -32,7 +32,6 @@ class WatchlistAdapter(val listener: WatchlistAdapterListener) : RecyclerView.Ad
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.viewDataBinding.also {
-            it.traktWatchlistPoster.transitionName = "watchlist_${watchlist[position].originalImageUrl}"
             it.show = watchlist[position]
             it.listener = listener
         }

@@ -20,6 +20,17 @@
             android:orientation="vertical"
             android:paddingBottom="@dimen/margin_vertical">
 
+            <ProgressBar
+                style="@style/ProgressBarTheme"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminateTint="@android:color/holo_red_dark"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:showProgress="@{viewModel.isLoading}" />
+
             <FrameLayout
                 android:id="@+id/show_detail_backdrop"
                 android:layout_width="0dp"
@@ -109,8 +120,7 @@
                     android:layout_marginEnd="@dimen/margin_horizontal_half"
                     android:contentDescription="@{String.format(@string/show_poster, viewModel.showInfo.name)}"
                     android:scaleType="centerCrop"
-                    app:imageUrl="@{viewModel.showDetailArg.showImageUrl}"
-                    app:showDetailTransitionName="@{viewModel.showDetailArg}" />
+                    app:imageUrl="@{viewModel.showDetailArg.showImageUrl}" />
             </FrameLayout>
 
             <LinearLayout
@@ -335,25 +345,6 @@
                 app:layout_constraintTop_toBottomOf="@id/show_detail_previous_episode_season_info"
                 app:showHideStringContent="@{viewModel.showInfo.previousEpisodeSummary}"
                 tools:text="Previous Episode Summary" />
-
-            <FrameLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <ProgressBar
-                    style="@style/ProgressBarTheme"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="@dimen/margin_vertical"
-                    android:indeterminateTint="@android:color/holo_red_dark"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:showProgress="@{viewModel.isLoading}" />
-
-            </FrameLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

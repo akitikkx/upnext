@@ -11,7 +11,8 @@ import com.theupnextapp.databinding.FragmentFeaturesBottomSheetBinding
 
 class FeaturesBottomSheetFragment : BottomSheetDialogFragment() {
 
-    private lateinit var binding: FragmentFeaturesBottomSheetBinding
+    private var _binding: FragmentFeaturesBottomSheetBinding? = null
+    private val binding get() = _binding!!
 
     private val viewModel: FeaturesBottomSheetViewModel by lazy {
         val activity = requireNotNull(activity) {
@@ -30,13 +31,18 @@ class FeaturesBottomSheetFragment : BottomSheetDialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentFeaturesBottomSheetBinding.inflate(inflater)
+        _binding = FragmentFeaturesBottomSheetBinding.inflate(inflater)
 
         binding.lifecycleOwner = viewLifecycleOwner
 
         binding.viewModel = viewModel
 
         return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     companion object {

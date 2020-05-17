@@ -8,10 +8,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView.OnQueryTextListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.theupnextapp.MainActivity
 import com.theupnextapp.R
 import com.theupnextapp.common.extensions.waitForTransition
 import com.theupnextapp.databinding.FragmentSearchBinding
@@ -22,7 +22,8 @@ import com.theupnextapp.ui.common.BaseFragment
 class SearchFragment : BaseFragment(),
     OnQueryTextListener, SearchAdapter.SearchAdapterListener {
 
-    private lateinit var binding: FragmentSearchBinding
+    private var _binding: FragmentSearchBinding? = null
+    private val binding get() = _binding!!
 
     private var searchAdapter: SearchAdapter? = null
 
@@ -46,7 +47,7 @@ class SearchFragment : BaseFragment(),
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentSearchBinding.inflate(inflater)
+        _binding = FragmentSearchBinding.inflate(inflater)
 
         binding.lifecycleOwner = viewLifecycleOwner
 
@@ -81,10 +82,6 @@ class SearchFragment : BaseFragment(),
 
         viewModel.navigateToSelectedShow.observe(viewLifecycleOwner, Observer {
             if (null != it) {
-                val extras = FragmentNavigatorExtras(
-                    it.imageView to "${it.source}_${it.showImageUrl}"
-                )
-
                 this.findNavController().navigate(
                     SearchFragmentDirections.actionSearchFragmentToShowDetailFragment(it)
                 )
@@ -108,14 +105,20 @@ class SearchFragment : BaseFragment(),
         (activity as AppCompatActivity).supportActionBar?.title = "Show search"
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+        searchAdapter = null
+        (activity as MainActivity).hideKeyboard()
+    }
+
     override fun onSearchItemClick(view: View, showSearch: ShowSearch) {
         viewModel.displayShowDetails(
             ShowDetailArg(
                 source = "history",
                 showId = showSearch.id,
                 showTitle = showSearch.name,
-                showImageUrl = showSearch.originalImageUrl,
-                imageView = view
+                showImageUrl = showSearch.originalImageUrl
             )
         )
     }

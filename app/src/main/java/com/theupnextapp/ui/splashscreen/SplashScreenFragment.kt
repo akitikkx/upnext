@@ -16,7 +16,8 @@ import com.theupnextapp.databinding.FragmentSplashScreenBinding
 
 class SplashScreenFragment : Fragment() {
 
-    private lateinit var binding: FragmentSplashScreenBinding
+    private var _binding: FragmentSplashScreenBinding? = null
+    private val binding get() = _binding!!
 
     private val viewModel: SplashScreenViewModel by lazy {
         val activity = requireNotNull(activity) {
@@ -34,7 +35,7 @@ class SplashScreenFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-        binding = FragmentSplashScreenBinding.inflate(inflater)
+        _binding = FragmentSplashScreenBinding.inflate(inflater)
 
         binding.lifecycleOwner = viewLifecycleOwner
 
@@ -133,5 +134,10 @@ class SplashScreenFragment : Fragment() {
     override fun onDetach() {
         super.onDetach()
         (activity as MainActivity).showBottomNavigation()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

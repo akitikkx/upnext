@@ -19,7 +19,8 @@ import com.theupnextapp.domain.TraktConnectionArg
 
 class CollectionFragment : Fragment() {
 
-    private lateinit var binding: FragmentCollectionBinding
+    private var _binding: FragmentCollectionBinding? = null
+    private val binding get() = _binding!!
 
     private val viewModel: CollectionViewModel by lazy {
         val activity = requireNotNull(activity) {
@@ -36,7 +37,7 @@ class CollectionFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentCollectionBinding.inflate(inflater)
+        _binding = FragmentCollectionBinding.inflate(inflater)
 
         binding.lifecycleOwner = viewLifecycleOwner
 
@@ -115,6 +116,11 @@ class CollectionFragment : Fragment() {
         super.onResume()
         (activity as AppCompatActivity).supportActionBar?.title =
             getString(R.string.title_trakt_collection)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     companion object {

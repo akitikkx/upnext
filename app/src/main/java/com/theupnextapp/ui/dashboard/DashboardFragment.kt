@@ -27,12 +27,17 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
     YesterdayShowsAdapter.YesterdayShowsAdapterListener,
     TomorrowShowsAdapter.TomorrowShowsAdapterListener {
 
-    private lateinit var binding: FragmentDashboardBinding
+    private var _binding: FragmentDashboardBinding? = null
+    private val binding get() = _binding!!
 
     private var recommendedShowsAdapter: RecommendedShowsAdapter? = null
+
     private var newShowsAdapter: NewShowsAdapter? = null
+
     private var yesterdayShowsAdapter: YesterdayShowsAdapter? = null
+
     private var todayShowsAdapter: TodayShowsAdapter? = null
+
     private var tomorrowShowsAdapter: TomorrowShowsAdapter? = null
 
     private val viewModel: DashboardViewModel by lazy {
@@ -50,7 +55,7 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentDashboardBinding.inflate(inflater)
+        _binding = FragmentDashboardBinding.inflate(inflater)
 
         binding.lifecycleOwner = viewLifecycleOwner
 
@@ -176,13 +181,8 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
 
         viewModel.navigateToSelectedShow.observe(viewLifecycleOwner, Observer {
             if (null != it) {
-                val extras = FragmentNavigatorExtras(
-                    it.imageView to "${it.source}_${it.showImageUrl}"
-                )
-
                 this.findNavController().navigate(
-                    DashboardFragmentDirections.actionDashboardFragmentToShowDetailFragment(it),
-                    extras
+                    DashboardFragmentDirections.actionDashboardFragmentToShowDetailFragment(it)
                 )
                 viewModel.displayShowDetailsComplete()
             }
@@ -194,14 +194,23 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
         (activity as AppCompatActivity).supportActionBar?.title = getString(R.string.app_name)
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+        recommendedShowsAdapter = null
+        newShowsAdapter = null
+        yesterdayShowsAdapter = null
+        todayShowsAdapter = null
+        tomorrowShowsAdapter = null
+    }
+
     override fun onYesterdayShowClick(view: View, yesterdayShow: ScheduleShow) {
         viewModel.displayShowDetails(
             ShowDetailArg(
                 source = "yesterday",
                 showId = yesterdayShow.id,
                 showTitle = yesterdayShow.name,
-                showImageUrl = yesterdayShow.image,
-                imageView = view
+                showImageUrl = yesterdayShow.image
             )
         )
     }
@@ -212,8 +221,7 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
                 source = "recommended",
                 showId = recommendedShow.id,
                 showTitle = recommendedShow.name,
-                showImageUrl = recommendedShow.originalImageUrl,
-                imageView = view
+                showImageUrl = recommendedShow.originalImageUrl
             )
         )
     }
@@ -224,8 +232,7 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
                 source = "new",
                 showId = newShow.id,
                 showTitle = newShow.name,
-                showImageUrl = newShow.originalImageUrl,
-                imageView = view
+                showImageUrl = newShow.originalImageUrl
             )
         )
     }
@@ -236,8 +243,7 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
                 source = "today",
                 showId = scheduleShow.id,
                 showTitle = scheduleShow.name,
-                showImageUrl = scheduleShow.image,
-                imageView = view
+                showImageUrl = scheduleShow.image
             )
         )
     }
@@ -248,8 +254,7 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
                 source = "tomorrow",
                 showId = scheduleShow.id,
                 showTitle = scheduleShow.name,
-                showImageUrl = scheduleShow.image,
-                imageView = view
+                showImageUrl = scheduleShow.image
             )
         )
     }

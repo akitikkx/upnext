@@ -31,7 +31,6 @@ class NewShowsAdapter(val listener: NewShowsAdapterListener) :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.viewDataBinding.also {
-            it.newShowPoster.transitionName = "new_${newShows[position].originalImageUrl}"
             it.show = newShows[position]
             it.listener = listener
         }
