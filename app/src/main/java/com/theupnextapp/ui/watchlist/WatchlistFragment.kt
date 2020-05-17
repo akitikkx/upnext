@@ -25,7 +25,8 @@ import com.theupnextapp.domain.TraktWatchlist
 
 class WatchlistFragment : Fragment(), WatchlistAdapter.WatchlistAdapterListener {
 
-    private lateinit var binding: FragmentWatchlistBinding
+    private var _binding: FragmentWatchlistBinding? = null
+    private val binding get() = _binding!!
 
     private var watchlistAdapter: WatchlistAdapter? = null
 
@@ -44,7 +45,7 @@ class WatchlistFragment : Fragment(), WatchlistAdapter.WatchlistAdapterListener 
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentWatchlistBinding.inflate(inflater)
+        _binding = FragmentWatchlistBinding.inflate(inflater)
 
         binding.viewModel = viewModel
 
@@ -147,6 +148,12 @@ class WatchlistFragment : Fragment(), WatchlistAdapter.WatchlistAdapterListener 
             getString(R.string.title_trakt_watchlist)
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+        watchlistAdapter = null
+    }
+
     companion object {
         const val EXTRA_TRAKT_URI = "extra_trakt_uri"
         const val TRAKT_API_URL = "https://api.trakt.tv"
@@ -159,8 +166,7 @@ class WatchlistFragment : Fragment(), WatchlistAdapter.WatchlistAdapterListener 
                 source = "watchlist",
                 showId = watchlistItem.tvMazeID,
                 showTitle = watchlistItem.title,
-                showImageUrl = watchlistItem.originalImageUrl,
-                imageView = view
+                showImageUrl = watchlistItem.originalImageUrl
             )
         )
     }

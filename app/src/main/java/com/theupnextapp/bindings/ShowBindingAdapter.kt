@@ -157,10 +157,3 @@ fun historyEpisodeDetails(view: TextView, show: TraktHistory) {
         view.visibility = View.GONE
     }
 }
-
-@BindingAdapter("showDetailTransitionName")
-fun getTransitionName(view: ImageView, showDetailArg: ShowDetailArg) {
-    if (!showDetailArg.source.isNullOrEmpty() && !showDetailArg.showImageUrl.isNullOrEmpty()) {
-        view.transitionName = "${showDetailArg.source}_${showDetailArg.showImageUrl}"
-    }
-}

@@ -34,7 +34,6 @@ class SearchAdapter(val listener: SearchAdapterListener) :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.viewDataBinding.also {
-            it.searchItemPoster.transitionName = "search_${searchResults[position].originalImageUrl}"
             it.show = searchResults[position]
             it.listener = listener
         }

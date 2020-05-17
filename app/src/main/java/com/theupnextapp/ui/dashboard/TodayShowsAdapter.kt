@@ -31,7 +31,6 @@ class TodayShowsAdapter(val listener: TodayShowsAdapterListener) :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.viewDataBinding.also {
-            it.todayShowPoster.transitionName = "today_${todayShows[position].image}"
             it.show = todayShows[position]
             it.listener = listener
         }

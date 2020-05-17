@@ -26,7 +26,8 @@ import com.theupnextapp.ui.watchlist.WatchlistFragment
 
 class HistoryFragment : BaseFragment(), HistoryAdapter.HistoryAdapterListener {
 
-    private lateinit var binding: FragmentHistoryBinding
+    private var _binding: FragmentHistoryBinding? = null
+    private val binding get() = _binding!!
 
     private var historyAdapter: HistoryAdapter? = null
 
@@ -45,7 +46,7 @@ class HistoryFragment : BaseFragment(), HistoryAdapter.HistoryAdapterListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentHistoryBinding.inflate(inflater)
+        _binding = FragmentHistoryBinding.inflate(inflater)
 
         binding.viewModel = viewModel
 
@@ -148,6 +149,12 @@ class HistoryFragment : BaseFragment(), HistoryAdapter.HistoryAdapterListener {
             getString(R.string.title_trakt_history)
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+        historyAdapter = null
+    }
+
     companion object {
         const val EXTRA_TRAKT_URI = "extra_trakt_uri"
         const val TRAKT_API_URL = "https://api.trakt.tv"
@@ -160,8 +167,7 @@ class HistoryFragment : BaseFragment(), HistoryAdapter.HistoryAdapterListener {
                 source = "history",
                 showId = historyItem.tvMazeID,
                 showTitle = historyItem.showTitle,
-                showImageUrl = historyItem.originalImageUrl,
-                imageView = view
+                showImageUrl = historyItem.originalImageUrl
             )
         )
     }

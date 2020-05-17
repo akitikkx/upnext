@@ -11,7 +11,8 @@ import com.theupnextapp.databinding.FragmentShowCastBottomSheetBinding
 
 class ShowCastBottomSheetFragment: BottomSheetDialogFragment() {
 
-    private lateinit var binding: FragmentShowCastBottomSheetBinding
+    private var _binding: FragmentShowCastBottomSheetBinding? = null
+    private val binding get() = _binding!!
 
     private val viewModel: ShowCastBottomSheetViewModel by lazy {
         val activity = requireNotNull(activity) {
@@ -30,13 +31,18 @@ class ShowCastBottomSheetFragment: BottomSheetDialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentShowCastBottomSheetBinding.inflate(inflater)
+        _binding = FragmentShowCastBottomSheetBinding.inflate(inflater)
 
         binding.lifecycleOwner = viewLifecycleOwner
 
         binding.viewModel = viewModel
 
         return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     companion object {

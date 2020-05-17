@@ -24,8 +24,11 @@ import com.theupnextapp.ui.common.BaseFragment
 
 class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListener {
 
-    private lateinit var binding: FragmentShowDetailBinding
-    private var showCastAdapter: ShowCastAdapter? = null
+    private var _binding: FragmentShowDetailBinding? = null
+    private val binding get() = _binding!!
+
+    private var _showCastAdapter: ShowCastAdapter? = null
+    private val showCastAdapter get() = _showCastAdapter!!
 
     val args by navArgs<ShowDetailFragmentArgs>()
 
@@ -50,13 +53,13 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentShowDetailBinding.inflate(inflater)
+        _binding = FragmentShowDetailBinding.inflate(inflater)
 
         binding.lifecycleOwner = viewLifecycleOwner
 
         binding.viewModel = viewModel
 
-        showCastAdapter = ShowCastAdapter(this)
+        _showCastAdapter = ShowCastAdapter(this)
 
         binding.root.findViewById<RecyclerView>(R.id.cast_list).apply {
             layoutManager = LinearLayoutManager(context).apply {
@@ -78,7 +81,7 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
         viewModel.showCast.observe(viewLifecycleOwner, Observer {
             viewModel.onShowCastInfoReceived(it)
             if (it != null) {
-                showCastAdapter?.cast = it
+                showCastAdapter.cast = it
             }
         })
 
@@ -138,6 +141,12 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
     override fun onDetach() {
         super.onDetach()
         (activity as MainActivity).showBottomNavigation()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+        _showCastAdapter = null
     }
 
     override fun onShowCastClick(view: View, castItem: ShowCast) {
