@@ -24,8 +24,6 @@ class ShowCastBottomSheetFragment: BottomSheetDialogFragment() {
         ).get(ShowCastBottomSheetViewModel::class.java)
     }
 
-    override fun getTheme(): Int = R.style.BottomSheetTheme
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

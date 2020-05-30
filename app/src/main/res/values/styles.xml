@@ -1,128 +1,19 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:textColor">@color/appTextColor</item>
-        <item name="android:windowBackground">@color/windowDarkBackground</item>
-    </style>
+    <style name="ThemeOverlay.Upnext.Toolbar.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light" />
 
-    <style name="AppTheme.NoActionBar">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-        <item name="android:fontFamily">sans-serif-condensed</item>
-    </style>
-
-    <style name="ToolbarTheme" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar">
-        <item name="android:fontFamily">sans-serif-condensed</item>
-    </style>
-
-    <style name="ToolbarTheme.Search" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar">
-        <item name="android:fontFamily">sans-serif-condensed</item>
-        <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Headline3
-        </item>
-    </style>
-
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light" />
-
-    <style name="ProgressBarTheme" parent="Widget.AppCompat.ProgressBar">
-        <item name="android:indeterminateTint">@android:color/holo_red_dark</item>
-    </style>
-
-    <style name="BottomNavigation.TextActive" parent="AppTheme">
-        <item name="android:textColor">@android:color/white</item>
-    </style>
-
-    <style name="BottomNavigation.TextInactive" parent="AppTheme">
-        <item name="android:textColor">@android:color/darker_gray</item>
-    </style>
-
-    <style name="Upnext.Title" parent="TextAppearance.MaterialComponents.Headline4">
-        <item name="android:textColor">@color/appTextColor</item>
-        <item name="android:fontFamily">sans-serif-light</item>
-        <item name="fontStyle">normal</item>
-    </style>
-
-    <style name="Upnext.Search.Title" parent="TextAppearance.MaterialComponents.Subtitle1">
-        <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@color/appTextColor</item>
-        <item name="android:fontFamily">sans-serif-condensed-light</item>
-    </style>
-
-    <style name="Upnext.Subtitle" parent="TextAppearance.MaterialComponents.Headline6">
-        <item name="android:textColor">@color/appTextColor</item>
-    </style>
-
-    <style name="Upnext.Description" parent="TextAppearance.MaterialComponents.Body2">
-        <item name="android:textColor">@android:color/white</item>
-    </style>
-
-    <style name="Upnext.Description.EmptyState" parent="TextAppearance.MaterialComponents.Headline5" />
-
-    <style name="Upnext.Description.Grey" parent="TextAppearance.AppCompat.Body2">
-        <item name="android:textColor">@color/colorShowDetailDescriptionGrey</item>
-    </style>
-
-    <style name="Upnext.Caption" parent="AppTheme">
-        <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Caption</item>
-    </style>
-
-    <style name="Upnext.Caption.Grey" parent="TextAppearance.MaterialComponents.Caption">
-        <item name="android:textColor">@color/colorShowDetailDescriptionGrey</item>
-    </style>
-
-    <style name="Description6.Grey" parent="TextAppearance.MaterialComponents.Caption">
-        <item name="android:textColor">@color/colorShowDetailDescriptionGrey</item>
-    </style>
-
-    <style name="TraktButton" parent="TextAppearance.MaterialComponents.Button">
-        <item name="android:background">@android:color/holo_red_dark</item>
-        <item name="android:textColor">@android:color/white</item>
-    </style>
-
-    <style name="Upnext.Button" parent="Widget.MaterialComponents.Button.Icon">
-        <item name="android:paddingStart">@dimen/padding_standard_double</item>
-        <item name="android:paddingEnd">@dimen/padding_standard_double</item>
-        <item name="android:paddingTop">@dimen/padding_standard</item>
-        <item name="android:paddingBottom">@dimen/padding_standard</item>
-        <item name="android:gravity">center_horizontal</item>
-    </style>
-
-    <style name="Button.AddToWatchlist" parent="Upnext.Button">
-        <item name="android:textColor">@android:color/white</item>
-        <item name="android:backgroundTint">@color/colorPrimaryDark</item>
-    </style>
-
-    <style name="Button.RemoveFromWatchlist" parent="Upnext.Button">
-        <item name="android:backgroundTint">@color/colorAccent</item>
-    </style>
-
-    <!-- Bottomsheet -->
-    <style name="BottomSheetShapeAppearance" parent="ShapeAppearance.MaterialComponents.LargeComponent">
-        <item name="cornerFamily">rounded</item>
-        <item name="cornerSizeTopLeft">12dp</item>
-        <item name="cornerSizeTopRight">12dp</item>
-    </style>
-
-    <style name="BottomSheet" parent="@style/Widget.Design.BottomSheet.Modal">
-        <item name="shapeAppearance">@style/BottomSheetShapeAppearance</item>
-        <item name="android:background">@color/windowDarkBackground</item>
-    </style>
-
-    <style name="BottomSheet.Base" parent="@style/Theme.MaterialComponents.BottomSheetDialog">
+    <!-- Bottom Sheet -->
+    <style name="ThemeOverlay.Upnext.BottomSheetDialog" parent="Theme.MaterialComponents.BottomSheetDialog">
         <item name="android:windowIsFloating">false</item>
-        <item name="bottomSheetStyle">@style/BottomSheet</item>
+        <item name="bottomSheetStyle">@style/Widget.Upnext.BottomSheet.Modal</item>
+        <item name="android:navigationBarColor">?attr/colorSurface</item>
+        <item name="android:windowAnimationStyle">@style/Animation.Upnext.BottomSheet.Modal</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarDividerColor" tools:ignore="NewApi">@android:color/transparent</item>
     </style>
 
-    <style name="BottomSheetTheme" parent="@style/BottomSheet.Base" />
-
-    <!-- Shapeable image -->
-    <style name="Image.Circle" parent="">
-        <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">50%</item>
+    <style name="Widget.Upnext.BottomSheet.Modal" parent="@style/Widget.Design.BottomSheet.Modal">
+        <item name="shapeAppearanceOverlay">?attr/shapeAppearanceLargeComponent</item>
     </style>
 
 </resources>

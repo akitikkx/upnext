@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="searchToolbarPopupStyle" format="reference" />
+    <attr name="bottomNavigationActive" format="reference" />
+    <attr name="bottomNavigationInactive" format="reference" />
+    <attr name="shapeAppearanceShowCast" format="reference" />
+    <attr name="showBackdropImageBackgroundColor" format="color" />
+</resources>

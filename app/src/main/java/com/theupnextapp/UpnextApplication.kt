@@ -2,8 +2,11 @@ package com.theupnextapp
 
 import android.app.Application
 import android.os.Build
-import androidx.work.*
-import com.theupnextapp.common.utils.NetworkConnectivityUtil
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.theupnextapp.work.RefreshShowsWorker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -11,6 +14,10 @@ import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
 class UpnextApplication : Application() {
+
+    init {
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+    }
 
     private val applicationScope = CoroutineScope(Dispatchers.Default)
 

@@ -93,4 +93,5 @@
     <string name="features_bottom_sheet_trakt_history">Any shows that are marked as watched either through UpNext, some third-party software or directly on the
     Trakt.tv platform will be displayed here.</string>
     <string name="features_confirm_button">Got it</string>
+    <string name="upnext_logo">Upnext logo</string>
 </resources>

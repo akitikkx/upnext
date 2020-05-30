@@ -18,10 +18,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/margin_vertical"
+        android:background="?android:attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true"
-        android:onClick="@{(view) -> listener.onHistoryShowClick(view, show)}"
-        android:background="?android:attr/selectableItemBackground">
+        android:onClick="@{(view) -> listener.onHistoryShowClick(view, show)}">
 
         <FrameLayout
             android:id="@+id/history_poster"
@@ -63,28 +63,28 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <TextView
-                style="@style/Upnext.Search.Title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:text="@{show.showTitle}"
+                android:textAppearance="?attr/textAppearanceSubtitle1"
                 tools:text="Show Name" />
 
             <TextView
-                style="@style/Upnext.Caption.Grey"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_vertical_quarter"
                 android:gravity="center_vertical"
                 android:text="@{show.episodeTitle}"
+                android:textAppearance="?attr/textAppearanceCaption"
                 tools:text="Episode Title" />
 
             <TextView
-                style="@style/Upnext.Caption.Grey"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_vertical_quarter"
                 android:gravity="center_vertical"
+                android:textAppearance="?attr/textAppearanceCaption"
                 app:historyEpisodeDetails="@{show}"
                 tools:text="Season 1 Episode 4" />
         </LinearLayout>

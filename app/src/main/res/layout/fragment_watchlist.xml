@@ -15,7 +15,7 @@
         android:layout_height="match_parent">
 
         <ProgressBar
-            style="@style/ProgressBarTheme"
+            style="?attr/progressBarStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -26,7 +26,6 @@
 
         <ImageView
             android:id="@+id/watchlist_header"
-            style="@style/Upnext.Subtitle"
             android:layout_width="0dp"
             android:layout_height="@dimen/trakt_watchlist_header_height"
             android:layout_marginTop="?attr/actionBarSize"
@@ -56,7 +55,6 @@
 
         <TextView
             android:id="@+id/connection_description"
-            style="@style/Upnext.Description"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_horizontal"
@@ -64,6 +62,7 @@
             android:gravity="center_horizontal"
             android:padding="@dimen/padding_standard"
             android:text="@string/trakt_connect_description"
+            android:textAppearance="?attr/textAppearanceBody2"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/trakt_logo"
@@ -71,7 +70,6 @@
             tools:visibility="visible" />
 
         <Button
-            style="@style/Widget.MaterialComponents.Button.Icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_horizontal"
@@ -88,7 +86,6 @@
             android:paddingEnd="@dimen/padding_standard_double"
             android:paddingBottom="@dimen/padding_standard"
             app:dynamicText="@{viewModel.isAuthorizedOnTrakt}"
-            app:icon="@drawable/ic_cloud_done_white_24dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/connection_description"
@@ -140,7 +137,7 @@
                 android:layout_marginEnd="@dimen/margin_horizontal"
                 android:gravity="center_horizontal"
                 android:text="@string/watchlist_empty_state_text"
-                android:textAppearance="@style/Upnext.Description.EmptyState" />
+                android:textAppearance="?attr/textAppearanceBody2" />
 
             <ImageView
                 android:layout_width="match_parent"

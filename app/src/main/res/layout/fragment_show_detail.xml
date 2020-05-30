@@ -21,7 +21,7 @@
             android:paddingBottom="@dimen/margin_vertical">
 
             <ProgressBar
-                style="@style/ProgressBarTheme"
+                style="?attr/progressBarStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:indeterminateTint="@android:color/holo_red_dark"
@@ -52,7 +52,7 @@
                     android:layout_height="@dimen/show_backdrop_height"
                     android:contentDescription="@{String.format(@string/show_backdrop_image, viewModel.showInfo.name)}"
                     android:scaleType="matrix"
-                    android:src="@color/showBackdropBackground"
+                    android:src="@color/grey_light"
                     app:imageUrl="@{viewModel.showDetailArg.showImageUrl}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -67,13 +67,13 @@
 
             <TextView
                 android:id="@+id/text_view_show_detail_title"
-                style="@style/Upnext.Title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal_double"
                 android:layout_marginTop="@dimen/margin_vertical_half"
                 android:layout_marginEnd="@dimen/margin_horizontal_double"
                 android:text="@{viewModel.showDetailArg.showTitle}"
+                android:textAppearance="?attr/textAppearanceHeadline4"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/show_detail_poster"
                 app:layout_constraintTop_toBottomOf="@id/show_detail_backdrop"
@@ -81,7 +81,6 @@
 
             <TextView
                 android:id="@+id/text_view_show_detail_status"
-                style="@style/Upnext.Description.Grey"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal_double"
@@ -89,6 +88,7 @@
                 android:layout_marginEnd="@dimen/margin_horizontal_double"
                 android:layout_marginBottom="@dimen/margin_vertical"
                 android:text="@{viewModel.showInfo.status}"
+                android:textAppearance="?attr/textAppearanceBody2"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/text_view_show_detail_title"
@@ -135,29 +135,28 @@
                 app:layout_constraintTop_toTopOf="@id/show_detail_poster">
 
                 <TextView
-                    style="@style/Upnext.Description.Grey"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@{viewModel.showInfo.airDays}"
+                    android:textAppearance="?attr/textAppearanceBody2"
                     tools:text="Air days" />
 
                 <TextView
-                    style="@style/Upnext.Description.Grey"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@{viewModel.showInfo.genres}"
+                    android:textAppearance="?attr/textAppearanceBody2"
                     tools:text="Genres" />
 
                 <TextView
                     android:id="@+id/text_view_images_attribution"
-                    style="@style/Description6.Grey"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/margin_vertical"
-                    android:text="@string/tv_maze_creative_commons_attribution_text_multiple" />
+                    android:text="@string/tv_maze_creative_commons_attribution_text_multiple"
+                    android:textAppearance="?attr/textAppearanceCaption" />
 
                 <Button
-                    style="@style/Widget.MaterialComponents.Button.Icon"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/margin_vertical"
@@ -172,7 +171,6 @@
                     android:paddingEnd="@dimen/padding_standard_double"
                     android:paddingBottom="@dimen/padding_standard"
                     app:dynamicText="@{viewModel.isAuthorizedOnTrakt}"
-                    app:icon="@drawable/ic_cloud_done_white_24dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/connection_description"
@@ -182,7 +180,7 @@
 
                 <Button
                     android:id="@+id/add_to_watchlist_button"
-                    style="@style/Button.AddToWatchlist"
+                    style="?materialButtonOutlinedStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/margin_vertical"
@@ -192,13 +190,11 @@
                     android:focusable="true"
                     android:onClick="@{() -> viewModel.onAddToWatchlistClick()}"
                     android:text="@string/show_detail_add_to_watchlist_button"
-                    app:icon="@drawable/ic_radio_button_unchecked_black_24dp"
                     app:showHideView="@{viewModel.notOnWatchlist}"
                     tools:visibility="visible" />
 
                 <Button
                     android:id="@+id/remove_from_watchlist_button"
-                    style="@style/Button.RemoveFromWatchlist"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/margin_vertical"
@@ -208,19 +204,18 @@
                     android:focusable="true"
                     android:onClick="@{() -> viewModel.onRemoveFromWatchlistClick()}"
                     android:text="@string/show_detail_remove_from_watchlist_button"
-                    app:icon="@drawable/ic_check_circle_white_24dp"
                     app:showHideView="@{viewModel.onWatchlist}"
                     tools:visibility="visible" />
             </LinearLayout>
 
             <TextView
                 android:id="@+id/show_detail_synopsis"
-                style="@style/Upnext.Description"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal_double"
                 android:layout_marginTop="@dimen/margin_vertical"
                 android:layout_marginEnd="@dimen/margin_horizontal_double"
+                android:textAppearance="?attr/textAppearanceBody2"
                 app:fromHtml="@{viewModel.showInfo.summary}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -229,13 +224,13 @@
 
             <TextView
                 android:id="@+id/cast_title"
-                style="@style/Upnext.Subtitle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal_double"
                 android:layout_marginTop="@dimen/margin_vertical"
                 android:layout_marginEnd="@dimen/margin_horizontal_double"
                 android:text="@string/show_detail_cast_list"
+                android:textAppearance="?attr/textAppearanceHeadline6"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/show_detail_synopsis"
@@ -261,13 +256,13 @@
 
             <TextView
                 android:id="@+id/show_detail_next_episode_heading"
-                style="@style/Upnext.Subtitle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal_double"
                 android:layout_marginTop="@dimen/margin_vertical"
                 android:layout_marginEnd="@dimen/margin_horizontal_double"
                 android:text="@string/show_detail_next_episode_heading"
+                android:textAppearance="?attr/textAppearanceHeadline6"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/cast_list"
@@ -275,12 +270,12 @@
 
             <TextView
                 android:id="@+id/show_detail_next_episode_season_info"
-                style="@style/Upnext.Caption.Grey"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal_double"
                 android:layout_marginTop="@dimen/margin_vertical_half"
                 android:layout_marginEnd="@dimen/margin_horizontal_double"
+                android:textAppearance="?attr/textAppearanceCaption"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/show_detail_next_episode_heading"
@@ -290,12 +285,12 @@
 
             <TextView
                 android:id="@+id/show_detail_next_episode_summary"
-                style="@style/Upnext.Description.Grey"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal_double"
                 android:layout_marginTop="@dimen/margin_vertical_half"
                 android:layout_marginEnd="@dimen/margin_horizontal_double"
+                android:textAppearance="?attr/textAppearanceBody2"
                 app:fromHtml="@{viewModel.showInfo.nextEpisodeSummary}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -305,13 +300,13 @@
 
             <TextView
                 android:id="@+id/show_detail_previous_episode_heading"
-                style="@style/Upnext.Subtitle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal_double"
                 android:layout_marginTop="@dimen/margin_vertical"
                 android:layout_marginEnd="@dimen/margin_horizontal_double"
                 android:text="@string/show_detail_previous_episode_heading"
+                android:textAppearance="?attr/textAppearanceHeadline6"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/show_detail_next_episode_summary"
@@ -319,12 +314,12 @@
 
             <TextView
                 android:id="@+id/show_detail_previous_episode_season_info"
-                style="@style/Upnext.Caption.Grey"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal_double"
                 android:layout_marginTop="@dimen/margin_vertical_half"
                 android:layout_marginEnd="@dimen/margin_horizontal_double"
+                android:textAppearance="?attr/textAppearanceCaption"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/show_detail_previous_episode_heading"
@@ -333,12 +328,12 @@
                 tools:text="Previous Episode Season Info" />
 
             <TextView
-                style="@style/Upnext.Description.Grey"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal_double"
                 android:layout_marginTop="@dimen/margin_vertical"
                 android:layout_marginEnd="@dimen/margin_horizontal_double"
+                android:textAppearance="?attr/textAppearanceBody2"
                 app:fromHtml="@{viewModel.showInfo.previousEpisodeSummary}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

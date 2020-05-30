@@ -13,17 +13,16 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <androidx.appcompat.widget.Toolbar
+        <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
+            style="?attr/toolbarStyle"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
             android:contentInsetStart="0dp"
             android:contentInsetLeft="0dp"
-            android:theme="@style/ToolbarTheme.Search"
             app:contentInsetLeft="0dp"
             app:contentInsetStart="0dp"
-            app:popupTheme="@style/AppTheme.PopupOverlay">
+            app:popupTheme="?attr/searchToolbarPopupStyle">
 
             <!-- dummy to catch focus -->
             <LinearLayout
@@ -39,7 +38,7 @@
                 android:nextFocusLeft="@id/search"
                 android:nextFocusUp="@id/search" />
 
-        </androidx.appcompat.widget.Toolbar>
+        </com.google.android.material.appbar.MaterialToolbar>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"

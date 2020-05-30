@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!--Top level DayNight theme to be used in AndroidManifest.xml-->
+    <style name="Theme.Upnext" parent="Base.Theme.Upnext" />
+
+    <style name="Base.Theme.Upnext" parent="Base.Theme.MaterialTheme">
+        <item name="colorPrimary">@color/teal_500</item>
+        <item name="colorPrimaryVariant">@color/teal_700</item>
+        <item name="colorSecondary">@color/orange_200</item>
+        <item name="colorSecondaryVariant">@color/orange_500</item>
+
+        <item name="android:colorBackground">@color/white_50</item>
+        <item name="colorSurface">@color/white_50</item>
+        <item name="colorError">@color/red_600</item>
+
+        <item name="colorOnPrimary">@color/white_50</item>
+        <item name="colorOnBackground">@color/black_900</item>
+        <item name="colorOnSurface">@color/black_900</item>
+        <item name="colorOnSecondary">@color/black_900</item>
+        <item name="colorOnError">@color/white_50</item>
+
+        <item name="showBackdropImageBackgroundColor">@color/grey_light</item>
+
+        <!-- Material Shape Attributes -->
+        <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.Upnext.LargeComponent
+        </item>
+        <item name="shapeAppearanceShowCast">@style/ShapeAppearance.Upnext.Image.Circle</item>
+
+        <!-- Material Components -->
+        <item name="bottomSheetDialogTheme">@style/ThemeOverlay.Upnext.BottomSheetDialog</item>
+        <item name="toolbarStyle">@style/Widget.MaterialComponents.Toolbar.PrimarySurface</item>
+        <item name="searchToolbarPopupStyle">@style/ThemeOverlay.Upnext.Toolbar.PopupOverlay</item>
+
+        <!--Material type attributes-->
+        <item name="textAppearanceHeadline1">@style/TextAppearance.Upnext.Headline1</item>
+        <item name="textAppearanceHeadline2">@style/TextAppearance.Upnext.Headline2</item>
+        <item name="textAppearanceHeadline3">@style/TextAppearance.Upnext.Headline3</item>
+        <item name="textAppearanceHeadline4">@style/TextAppearance.Upnext.Headline4</item>
+        <item name="textAppearanceHeadline5">@style/TextAppearance.Upnext.Headline5</item>
+        <item name="textAppearanceHeadline6">@style/TextAppearance.Upnext.Headline6</item>
+        <item name="textAppearanceSubtitle1">@style/TextAppearance.Upnext.Subtitle1</item>
+        <item name="textAppearanceSubtitle2">@style/TextAppearance.Upnext.Subtitle2</item>
+        <item name="textAppearanceBody1">@style/TextAppearance.Upnext.Body1</item>
+        <item name="textAppearanceBody2">@style/TextAppearance.Upnext.Body2</item>
+        <item name="textAppearanceButton">@style/TextAppearance.Upnext.Button</item>
+        <item name="textAppearanceCaption">@style/TextAppearance.Upnext.Caption</item>
+        <item name="textAppearanceOverline">@style/TextAppearance.Upnext.Overline</item>
+        <item name="bottomNavigationActive">@style/TextAppearance.Upnext.BottomNavigation.TextActive
+        </item>
+        <item name="bottomNavigationInactive">
+            @style/TextAppearance.Upnext.BottomNavigation.TextInactive
+        </item>
+    </style>
+
+    <style name="Base.Theme.MaterialTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="android:statusBarColor">?attr/colorSurface</item>
+        <item name="android:windowLightStatusBar" tools:ignore="NewApi">true</item>
+        <item name="android:navigationBarColor">?android:attr/colorBackground</item>
+        <item name="android:windowLightNavigationBar" tools:ignore="NewApi">true</item>
+        <item name="android:navigationBarDividerColor" tools:ignore="NewApi">
+            ?attr/colorControlHighlight
+        </item>
+    </style>
+
+</resources>

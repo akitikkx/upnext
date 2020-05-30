@@ -1,11 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#000000</color>
-    <color name="colorPrimaryDark">#000000</color>
-    <color name="colorAccent">#00bcd4</color>
-    <color name="windowDarkBackground">#121212</color>
-    <color name="appTextColor">#ffffff</color>
-    <color name="showBackdropBackground">#FFD3DADB</color>
-    <color name="colorShowDetailDescriptionGrey">#8e8e8e</color>
-    <color name="bottomNavigationInactiveColor">#7e7e7e</color>
+    <color name="teal_200">#80cbc4</color> <!--Color primary (dark)-->
+    <color name="teal_500">#009688</color> <!--Color primary (light)-->
+    <color name="teal_600">#00897b</color> <!--Color primary variant (dark)-->
+    <color name="teal_700">#00796b</color> <!--Color primary variant (light)-->
+
+    <color name="orange_200">#bb86fc</color> <!--Color secondary-->
+    <color name="orange_500">#6200ee</color> <!--Color secondary variant-->
+
+    <!--Color surface (light), color on error (light), -->
+    <!--color on surface (dark), color on surface (dark)-->
+    <color name="white_50">#ffffff</color>
+
+    <color name="black_800">#121212</color> <!--Color surface (dark)-->
+    <!--Color on secondary (light), color on background (light),-->
+    <!--color on surface (light)-->
+    <color name="black_900">#000000</color>
+
+    <color name="red_200">#cf6679</color> <!--Color error (dark)-->
+    <color name="red_600">#b00020</color> <!--Color error (light)-->
+
+    <color name="grey_light">#FFD3DADB</color>
 </resources>
