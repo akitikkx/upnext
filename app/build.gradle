@@ -43,9 +43,9 @@ android {
         }
     }
     buildTypes.each {
-        it.buildConfigField 'String', 'TRAKT_CLIENT_ID', TraktClientID
-        it.buildConfigField 'String', 'TRAKT_CLIENT_SECRET', TraktClientSecret
-        it.buildConfigField 'String', 'TRAKT_REDIRECT_URI', TraktRedirectURI
+        it.buildConfigField('String', 'TRAKT_CLIENT_ID', TraktClientID)
+        it.buildConfigField('String', 'TRAKT_CLIENT_SECRET', TraktClientSecret)
+        it.buildConfigField('String', 'TRAKT_REDIRECT_URI', TraktRedirectURI)
     }
 
     buildFeatures {

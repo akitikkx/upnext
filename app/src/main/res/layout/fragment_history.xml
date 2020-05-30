@@ -103,6 +103,7 @@
             android:layout_marginEnd="@dimen/margin_horizontal_half"
             android:layout_marginBottom="@dimen/margin_vertical"
             android:clipToPadding="false"
+            app:loadingVisibility="@{viewModel.isLoadingHistory}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
