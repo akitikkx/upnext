@@ -73,6 +73,15 @@ interface TraktService {
         @Header("trakt-api-key") apiKey: String?,
         @Body request: NetworkTraktRemoveFromWatchlistRequest
     ): Deferred<NetworkTraktRemoveFromWatchlistResponse>
+
+    @GET("shows/{id}/ratings")
+    fun getShowRatingsAsync(
+        @Header("Content-Type") contentType: String,
+        @Header("Authorization") token: String,
+        @Header("trakt-api-version") version: String = "2",
+        @Header("trakt-api-key") apiKey: String?,
+        @Path("id") id: String
+    ): Deferred<NetworkTraktShowRatingResponse>
 }
 
 object TraktNetwork {

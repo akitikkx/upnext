@@ -40,11 +40,15 @@ class ShowDetailViewModel(
 
     private val _launchTraktConnectWindow = MutableLiveData<Boolean>()
 
+    val onWatchlist: LiveData<Boolean> = _onWatchList
+
+    val notOnWatchlist: LiveData<Boolean> = _notOnWatchlist
+
+    val isLoading = MediatorLiveData<Boolean>()
+
     private val isUpnextRepositoryLoading = upnextRepository.isLoading
 
     private val isTraktRepositoryLoading = traktRepository.isLoading
-
-    val isLoading = MediatorLiveData<Boolean>()
 
     val showInfo = upnextRepository.showInfo
 
@@ -54,9 +58,7 @@ class ShowDetailViewModel(
 
     val removeFromWatchlistResponse = traktRepository.removeFromWatchlistResponse
 
-    val onWatchlist: LiveData<Boolean> = _onWatchList
-
-    val notOnWatchlist: LiveData<Boolean> = _notOnWatchlist
+    val showRating = traktRepository.traktShowRating
 
     fun displayCastBottomSheetComplete() {
         _showCastBottomSheet.value = null
@@ -71,6 +73,7 @@ class ShowDetailViewModel(
             show.showId?.let {
                 upnextRepository.getShowData(it)
                 upnextRepository.getShowCast(it)
+                traktRepository.getTraktShowRating(getAccessToken(), showInfo.value?.imdbID)
             }
         }
 
