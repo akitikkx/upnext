@@ -24,12 +24,11 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:shapeAppearanceOverlay="@style/Image.Circle"
+            app:shapeAppearanceOverlay="?attr/shapeAppearanceShowCast"
             app:showHideStringContent="@{viewModel.showCast.originalImageUrl}" />
 
         <TextView
             android:id="@+id/show_cast_name"
-            style="@style/Upnext.Title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_horizontal_double"
@@ -37,6 +36,7 @@
             android:layout_marginEnd="@dimen/margin_horizontal_double"
             android:gravity="center_horizontal"
             android:text="@{viewModel.showCast.name}"
+            android:textAppearance="?attr/textAppearanceHeadline4"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/show_cast_image"
@@ -45,7 +45,6 @@
 
         <TextView
             android:id="@+id/show_cast_character_name"
-            style="@style/Upnext.Description.Grey"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_horizontal_double"
@@ -53,6 +52,7 @@
             android:layout_marginEnd="@dimen/margin_horizontal_double"
             android:gravity="center_horizontal"
             android:text="@{viewModel.showCast.characterName}"
+            android:textAppearance="?attr/textAppearanceBody2"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/show_cast_name"
@@ -61,13 +61,13 @@
 
         <TextView
             android:id="@+id/show_cast_country_heading"
-            style="@style/Upnext.Subtitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_horizontal_double"
             android:layout_marginTop="@dimen/margin_vertical"
             android:layout_marginEnd="@dimen/margin_horizontal_double"
             android:text="@string/cast_info_country"
+            android:textAppearance="?attr/textAppearanceHeadline6"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/show_cast_character_name"
@@ -75,13 +75,13 @@
 
         <TextView
             android:id="@+id/show_cast_country"
-            style="@style/Upnext.Description.Grey"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_horizontal_double"
             android:layout_marginTop="@dimen/margin_vertical_half"
             android:layout_marginEnd="@dimen/margin_horizontal_double"
             android:text="@{viewModel.showCast.country}"
+            android:textAppearance="?attr/textAppearanceBody2"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/show_cast_country_heading"
@@ -90,13 +90,13 @@
 
         <TextView
             android:id="@+id/show_cast_birthday_heading"
-            style="@style/Upnext.Subtitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_horizontal_double"
             android:layout_marginTop="@dimen/margin_vertical"
             android:layout_marginEnd="@dimen/margin_horizontal_double"
             android:text="@string/cast_info_date_of_birth"
+            android:textAppearance="?attr/textAppearanceHeadline6"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/show_cast_country"
@@ -104,13 +104,13 @@
 
         <TextView
             android:id="@+id/show_cast_birthday"
-            style="@style/Upnext.Description.Grey"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_horizontal_double"
             android:layout_marginTop="@dimen/margin_vertical_half"
             android:layout_marginEnd="@dimen/margin_horizontal_double"
             android:text="@{viewModel.showCast.birthday}"
+            android:textAppearance="?attr/textAppearanceBody2"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/show_cast_birthday_heading"
@@ -119,13 +119,13 @@
 
         <TextView
             android:id="@+id/show_cast_deathday_heading"
-            style="@style/Upnext.Subtitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_horizontal_double"
             android:layout_marginTop="@dimen/margin_vertical"
             android:layout_marginEnd="@dimen/margin_horizontal_double"
             android:text="@string/cast_info_date_of_death"
+            android:textAppearance="?attr/textAppearanceHeadline6"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/show_cast_birthday"
@@ -133,13 +133,13 @@
 
         <TextView
             android:id="@+id/show_cast_deathday"
-            style="@style/Upnext.Description.Grey"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_horizontal_double"
             android:layout_marginTop="@dimen/margin_vertical_half"
             android:layout_marginEnd="@dimen/margin_horizontal_double"
             android:text="@{viewModel.showCast.deathday}"
+            android:textAppearance="?attr/textAppearanceBody2"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/show_cast_deathday_heading"
@@ -148,13 +148,13 @@
 
         <TextView
             android:id="@+id/show_cast_gender_heading"
-            style="@style/Upnext.Subtitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_horizontal_double"
             android:layout_marginTop="@dimen/margin_vertical"
             android:layout_marginEnd="@dimen/margin_horizontal_double"
             android:text="@string/cast_info_gender"
+            android:textAppearance="?attr/textAppearanceHeadline6"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/show_cast_deathday"
@@ -162,13 +162,13 @@
 
         <TextView
             android:id="@+id/show_cast_gender"
-            style="@style/Upnext.Description.Grey"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_horizontal_double"
             android:layout_marginTop="@dimen/margin_vertical_half"
             android:layout_marginEnd="@dimen/margin_horizontal_double"
             android:text="@{viewModel.showCast.gender}"
+            android:textAppearance="?attr/textAppearanceBody2"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/show_cast_gender_heading"

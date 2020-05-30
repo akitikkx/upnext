@@ -17,6 +17,7 @@
             android:id="@+id/image_view_splash_logo"
             android:layout_width="0dp"
             android:layout_height="@dimen/splash_screen_logo_height"
+            android:contentDescription="@string/upnext_logo"
             android:src="@drawable/upnext_logo_512x512"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -24,15 +25,15 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            style="@style/Upnext.Subtitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:text="@{viewModel.loadingText}"
+            android:textAppearance="?attr/textAppearanceHeadline6"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:loadingVisibility="@{viewModel.showLoadingText}"
-            app:layout_constraintTop_toBottomOf="@id/image_view_splash_logo" />
+            app:layout_constraintTop_toBottomOf="@id/image_view_splash_logo"
+            app:loadingVisibility="@{viewModel.showLoadingText}" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

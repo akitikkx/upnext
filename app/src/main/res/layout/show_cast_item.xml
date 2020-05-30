@@ -50,11 +50,11 @@
 
         <TextView
             android:id="@+id/cast_name"
-            style="@style/Upnext.Description"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:text="@{cast.name}"
+            android:textAppearance="?attr/textAppearanceBody2"
             app:layout_constraintEnd_toEndOf="@id/dashboard_poster"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/dashboard_poster"
@@ -62,22 +62,22 @@
 
         <TextView
             android:id="@+id/cast_character_name"
-            style="@style/Upnext.Caption.Grey"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:text="@{cast.characterName}"
+            android:textAppearance="?attr/textAppearanceCaption"
             app:layout_constraintEnd_toEndOf="@id/cast_name"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/cast_name"
             tools:text="Cast Character name" />
 
         <TextView
-            style="@style/Description6.Grey"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:text="@string/tv_maze_creative_commons_attribution_text_single"
+            android:textAppearance="?attr/textAppearanceCaption"
             app:layout_constraintEnd_toEndOf="@id/cast_character_name"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/cast_character_name" />

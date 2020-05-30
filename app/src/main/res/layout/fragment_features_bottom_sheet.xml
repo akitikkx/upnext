@@ -20,7 +20,6 @@
 
             <TextView
                 android:id="@+id/features_bottom_sheet_title"
-                style="@style/Upnext.Subtitle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal"
@@ -28,6 +27,7 @@
                 android:layout_marginEnd="@dimen/margin_horizontal"
                 android:gravity="center_horizontal"
                 android:text="@string/features_bottom_sheet_title"
+                android:textAppearance="?attr/textAppearanceHeadline6"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -45,13 +45,13 @@
 
             <TextView
                 android:id="@+id/features_bottom_sheet_dashboard"
-                style="@style/Upnext.Description"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_vertical"
                 android:layout_marginEnd="@dimen/margin_horizontal"
                 android:gravity="start"
                 android:text="@string/features_bottom_sheet_dashboard"
+                android:textAppearance="?attr/textAppearanceBody2"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/guideline"
                 app:layout_constraintTop_toBottomOf="@id/features_bottom_sheet_title" />
@@ -69,20 +69,19 @@
 
             <TextView
                 android:id="@+id/features_bottom_sheet_search"
-                style="@style/Upnext.Description"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_vertical"
                 android:layout_marginEnd="@dimen/margin_horizontal"
                 android:gravity="start"
                 android:text="@string/features_bottom_sheet_search"
+                android:textAppearance="?attr/textAppearanceBody2"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/guideline"
                 app:layout_constraintTop_toBottomOf="@id/features_bottom_sheet_dashboard" />
 
             <TextView
                 android:id="@+id/features_bottom_sheet_trakt_logo_alt"
-                style="@style/Upnext.Description"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal"
@@ -90,6 +89,7 @@
                 android:layout_marginEnd="@dimen/margin_horizontal"
                 android:gravity="center_horizontal"
                 android:text="@string/features_bottom_sheet_trakt_logo_alt"
+                android:textAppearance="?attr/textAppearanceBody2"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/features_bottom_sheet_search" />
@@ -107,13 +107,13 @@
 
             <TextView
                 android:id="@+id/features_bottom_sheet_trakt_logo_alt_support"
-                style="@style/Upnext.Description"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_vertical"
                 android:layout_marginEnd="@dimen/margin_horizontal"
                 android:gravity="start"
                 android:text="@string/features_bottom_sheet_trakt_logo_alt_support"
+                android:textAppearance="?attr/textAppearanceBody2"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/guideline"
                 app:layout_constraintTop_toBottomOf="@id/features_bottom_sheet_trakt_logo" />
@@ -131,13 +131,13 @@
 
             <TextView
                 android:id="@+id/features_bottom_sheet_watchlist"
-                style="@style/Upnext.Description"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_vertical"
                 android:layout_marginEnd="@dimen/margin_horizontal"
                 android:gravity="start"
                 android:text="@string/features_bottom_sheet_watchlist"
+                android:textAppearance="?attr/textAppearanceBody2"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/features_bottom_sheet_watchlist_icon"
                 app:layout_constraintStart_toStartOf="@+id/guideline"
@@ -156,13 +156,13 @@
 
             <TextView
                 android:id="@+id/features_bottom_sheet_history"
-                style="@style/Upnext.Description"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_vertical"
                 android:layout_marginEnd="@dimen/margin_horizontal"
                 android:gravity="start"
                 android:text="@string/features_bottom_sheet_watchlist"
+                android:textAppearance="?attr/textAppearanceBody2"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/features_bottom_sheet_history_icon"
                 app:layout_constraintStart_toStartOf="@+id/guideline"
@@ -170,7 +170,6 @@
 
             <Button
                 android:id="@+id/remove_from_watchlist_button"
-                style="@style/Button.RemoveFromWatchlist"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal"

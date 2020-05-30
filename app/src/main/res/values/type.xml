@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="TextAppearance.Upnext.Headline1" parent="TextAppearance.MaterialComponents.Headline1">
+        <!--Your custom type style here-->
+    </style>
+
+    <style name="TextAppearance.Upnext.Headline2" parent="TextAppearance.MaterialComponents.Headline2">
+        <!--Your custom type style here-->
+    </style>
+
+    <style name="TextAppearance.Upnext.Headline3" parent="TextAppearance.MaterialComponents.Headline3">
+        <!--Your custom type style here-->
+    </style>
+
+    <style name="TextAppearance.Upnext.Headline4" parent="TextAppearance.MaterialComponents.Headline4">
+        <item name="android:fontFamily">sans-serif-light</item>
+        <item name="fontStyle">normal</item>
+    </style>
+
+    <style name="TextAppearance.Upnext.Headline5" parent="TextAppearance.MaterialComponents.Headline5">
+        <!--Your custom type style here-->
+    </style>
+
+    <style name="TextAppearance.Upnext.Headline6" parent="TextAppearance.MaterialComponents.Headline6">
+        <!--Your custom type style here-->
+    </style>
+
+    <style name="TextAppearance.Upnext.Subtitle1" parent="TextAppearance.MaterialComponents.Subtitle1">
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif-condensed-light</item>
+    </style>
+
+    <style name="TextAppearance.Upnext.Subtitle2" parent="TextAppearance.MaterialComponents.Subtitle2">
+        <!--Your custom type style here-->
+    </style>
+
+    <style name="TextAppearance.Upnext.Body1" parent="TextAppearance.MaterialComponents.Body1">
+        <!--Your custom type style here-->
+    </style>
+
+    <style name="TextAppearance.Upnext.Body2" parent="TextAppearance.MaterialComponents.Body2">
+        <!--Your custom type style here-->
+    </style>
+
+    <style name="TextAppearance.Upnext.Button" parent="TextAppearance.MaterialComponents.Button">
+        <!--Your custom type style here-->
+    </style>
+
+    <style name="TextAppearance.Upnext.Caption" parent="TextAppearance.MaterialComponents.Caption">
+        <!--Your custom type style here-->
+    </style>
+
+    <style name="TextAppearance.Upnext.Overline" parent="TextAppearance.MaterialComponents.Overline">
+        <!--Your custom type style here-->
+    </style>
+
+    <style name="TextAppearance.Upnext.BottomNavigation.TextActive" parent="">
+        <item name="android:textColor">?android:attr/colorControlActivated</item>
+    </style>
+
+    <style name="TextAppearance.Upnext.BottomNavigation.TextInactive" parent="">
+        <item name="android:textColor">?android:attr/colorControlNormal</item>
+    </style>
+
+</resources>

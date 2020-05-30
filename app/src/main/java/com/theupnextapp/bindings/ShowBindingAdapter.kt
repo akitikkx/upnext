@@ -18,10 +18,10 @@ import java.util.*
 @BindingAdapter("imageUrl")
 fun setImageUrl(imageView: ImageView, url: String?) {
     val requestOptions = RequestOptions()
-        .placeholder(R.color.showBackdropBackground)
+        .placeholder(R.color.grey_light)
         .diskCacheStrategy(DiskCacheStrategy.ALL)
-        .error(R.color.showBackdropBackground)
-        .fallback(R.color.showBackdropBackground)
+        .error(R.color.grey_light)
+        .fallback(R.color.grey_light)
 
     try {
         Glide.with(imageView.context)
