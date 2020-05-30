@@ -48,6 +48,8 @@ class TraktRepository(private val database: UpnextDatabase) {
 
     private val _removeFromWatchlistResponse = MutableLiveData<TraktRemoveFromWatchlist>()
 
+    private val _traktShowRating = MutableLiveData<TraktShowRating>()
+
     val isLoadingTraktWatchlist: LiveData<Boolean> = _isLoadingTraktWatchlist
 
     val isLoadingTraktHistory: LiveData<Boolean> = _isLoadingTraktHistory
@@ -60,6 +62,8 @@ class TraktRepository(private val database: UpnextDatabase) {
         _removeFromWatchlistResponse
 
     val isLoading: LiveData<Boolean> = _isLoading
+
+    val traktShowRating: LiveData<TraktShowRating> = _traktShowRating
 
     suspend fun getTraktAccessToken(code: String?) {
         if (!code.isNullOrEmpty()) {
@@ -379,6 +383,34 @@ class TraktRepository(private val database: UpnextDatabase) {
                     )
                 ).await()
             _removeFromWatchlistResponse.postValue(removeFromWatchlist.asDomainModel())
+        }
+    }
+
+    suspend fun getTraktShowRating(
+        accessToken: String?,
+        imdbID: String?
+    ) {
+        if (imdbID.isNullOrEmpty()) {
+            return
+        }
+
+        withContext(Dispatchers.IO) {
+            try {
+                _isLoading.postValue(true)
+                val showRatingResponse = TraktNetwork.traktApi.getShowRatingsAsync(
+                    contentType = "application/json",
+                    token = "Bearer $accessToken",
+                    version = "2",
+                    apiKey = BuildConfig.TRAKT_CLIENT_ID,
+                    id = imdbID
+                ).await()
+                _traktShowRating.postValue(showRatingResponse.asDomainModel())
+                _isLoading.postValue(false)
+            } catch (e: Exception) {
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
+                _isLoading.postValue(false)
+            }
         }
     }
 

@@ -10,7 +10,10 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.theupnextapp.R
-import com.theupnextapp.domain.*
+import com.theupnextapp.domain.ShowInfo
+import com.theupnextapp.domain.ShowSearch
+import com.theupnextapp.domain.TraktHistory
+import com.theupnextapp.domain.TraktWatchlist
 import org.jsoup.Jsoup
 import java.text.SimpleDateFormat
 import java.util.*
@@ -50,6 +53,16 @@ fun showHideView(view: View, show: Boolean) {
 @BindingAdapter("showHideStringContent")
 fun showHideStringContent(view: View, content: String?) {
     view.visibility = if (!content.isNullOrEmpty()) View.VISIBLE else View.GONE
+}
+
+@BindingAdapter("showHideIntContent")
+fun showHideIntContent(view: View, content: Int?) {
+    view.visibility = if (content == null) View.GONE else View.VISIBLE
+}
+
+@BindingAdapter("showHideDoubleContent")
+fun showHideDoubleContent(view: View, content: Double?) {
+    view.visibility = if (content == null) View.GONE else View.VISIBLE
 }
 
 @BindingAdapter("fromHtml")
@@ -151,6 +164,32 @@ fun historyEpisodeDetails(view: TextView, show: TraktHistory) {
             R.string.trakt_history_episode_details,
             show.episodeSeasonNumber,
             show.episodeNumber
+        )
+        view.visibility = View.VISIBLE
+    } else {
+        view.visibility = View.GONE
+    }
+}
+
+@BindingAdapter("showRating")
+fun showRating(view: TextView, rating: Int?) {
+    if (rating != null) {
+        view.text = view.resources.getString(
+            R.string.show_detail_rating,
+            rating
+        )
+        view.visibility = View.VISIBLE
+    } else {
+        view.visibility = View.GONE
+    }
+}
+
+@BindingAdapter("showRatingVotes")
+fun showRatingVotes(view: TextView, votes: Int?) {
+    if (votes != null) {
+        view.text = view.resources.getString(
+            R.string.show_detail_rating_votes,
+            votes
         )
         view.visibility = View.VISIBLE
     } else {
