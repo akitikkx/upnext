@@ -1,12 +1,15 @@
-package com.theupnextapp.network
+package com.theupnextapp.network.models.upnext
 
 import com.theupnextapp.database.DatabaseShowInfo
 import com.theupnextapp.domain.ShowInfo
+import com.theupnextapp.network.models.tvmaze.NetworkShowNextEpisodeResponse
+import com.theupnextapp.network.models.tvmaze.NetworkShowInfoResponse
+import com.theupnextapp.network.models.tvmaze.NetworkShowPreviousEpisodeResponse
 
 data class NetworkShowInfoCombined constructor(
     val showInfoResponse: NetworkShowInfoResponse,
-    val previousEpisode: NetworkShowPreviousEpisode?,
-    val nextEpisode : NetworkShowNextEpisode?
+    val previousEpisode: NetworkShowPreviousEpisodeResponse?,
+    val nextEpisode : NetworkShowNextEpisodeResponse?
 )
 
 fun NetworkShowInfoCombined.asDatabaseModel(): DatabaseShowInfo {

@@ -10,7 +10,10 @@ import com.theupnextapp.database.DatabaseTraktWatchlist
 import com.theupnextapp.database.UpnextDatabase
 import com.theupnextapp.database.asDomainModel
 import com.theupnextapp.domain.*
-import com.theupnextapp.network.*
+import com.theupnextapp.network.models.tvmaze.NetworkShowSearchResponse
+import com.theupnextapp.network.TraktNetwork
+import com.theupnextapp.network.TvMazeNetwork
+import com.theupnextapp.network.models.trakt.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -375,12 +378,13 @@ class TraktRepository(private val database: UpnextDatabase) {
     ) {
         for (item in response) {
             val watchlistItem: NetworkTraktIDLookupResponseItem = item
-            val addToWatchlistItem = NetworkTraktAddToWatchlistRequestShow(
-                ids = watchlistItem.show.ids,
-                title = watchlistItem.show.title,
-                year = watchlistItem.show.year,
-                seasons = emptyList()
-            )
+            val addToWatchlistItem =
+                NetworkTraktAddToWatchlistRequestShow(
+                    ids = watchlistItem.show.ids,
+                    title = watchlistItem.show.title,
+                    year = watchlistItem.show.year,
+                    seasons = emptyList()
+                )
             addToWatchlistShowsList.add(addToWatchlistItem)
             val addToWatchlist = TraktNetwork.traktApi.addToWatchlistAsync(
                 contentType = "application/json",

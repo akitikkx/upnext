@@ -1,6 +1,11 @@
 package com.theupnextapp.network
 
 import com.theupnextapp.database.*
+import com.theupnextapp.network.models.tvmaze.NetworkTodayScheduleResponse
+import com.theupnextapp.network.models.tvmaze.NetworkTomorrowScheduleResponse
+import com.theupnextapp.network.models.tvmaze.NetworkYesterdayScheduleResponse
+import com.theupnextapp.network.models.upnext.NetworkNewShowsResponse
+import com.theupnextapp.network.models.upnext.NetworkRecommendedShowsResponse
 
 fun NetworkRecommendedShowsResponse.asDatabaseModel(): Array<DatabaseRecommendedShows> {
     return data.map {
@@ -42,7 +47,7 @@ fun NetworkNewShowsResponse.asDatabaseModel(): Array<DatabaseNewShows> {
     }.toTypedArray()
 }
 
-fun YesterdayNetworkSchedule.asDatabaseModel(): DatabaseYesterdaySchedule {
+fun NetworkYesterdayScheduleResponse.asDatabaseModel(): DatabaseYesterdaySchedule {
     return DatabaseYesterdaySchedule(
         id = show.id,
         image = show.image?.original,
@@ -59,7 +64,7 @@ fun YesterdayNetworkSchedule.asDatabaseModel(): DatabaseYesterdaySchedule {
     )
 }
 
-fun TodayNetworkSchedule.asDatabaseModel(): DatabaseTodaySchedule {
+fun NetworkTodayScheduleResponse.asDatabaseModel(): DatabaseTodaySchedule {
     return DatabaseTodaySchedule(
         id = show.id,
         image = show.image?.original,
@@ -76,7 +81,7 @@ fun TodayNetworkSchedule.asDatabaseModel(): DatabaseTodaySchedule {
     )
 }
 
-fun TomorrowNetworkSchedule.asDatabaseModel(): DatabaseTomorrowSchedule {
+fun NetworkTomorrowScheduleResponse.asDatabaseModel(): DatabaseTomorrowSchedule {
     return DatabaseTomorrowSchedule(
         id = show.id,
         image = show.image?.original,

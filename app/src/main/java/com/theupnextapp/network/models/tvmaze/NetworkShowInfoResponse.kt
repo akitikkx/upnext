@@ -1,4 +1,4 @@
-package com.theupnextapp.network
+package com.theupnextapp.network.models.tvmaze
 
 data class NetworkShowInfoResponse constructor(
     val id: Int,

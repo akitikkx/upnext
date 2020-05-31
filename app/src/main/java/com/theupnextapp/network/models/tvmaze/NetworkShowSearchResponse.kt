@@ -1,4 +1,4 @@
-package com.theupnextapp.network
+package com.theupnextapp.network.models.tvmaze
 
 import com.theupnextapp.domain.ShowSearch
 

@@ -1,6 +1,6 @@
-package com.theupnextapp.network
+package com.theupnextapp.network.models.tvmaze
 
-data class TomorrowNetworkSchedule(
+data class NetworkYesterdayScheduleResponse(
     val _links: NetworkShowEpisodeLinks,
     val airdate: String,
     val airstamp: String,

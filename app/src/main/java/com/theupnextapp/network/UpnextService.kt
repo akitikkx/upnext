@@ -3,6 +3,8 @@ package com.theupnextapp.network
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import com.theupnextapp.network.models.upnext.NetworkNewShowsResponse
+import com.theupnextapp.network.models.upnext.NetworkRecommendedShowsResponse
 import kotlinx.coroutines.Deferred
 import okhttp3.ConnectionPool
 import okhttp3.OkHttpClient
