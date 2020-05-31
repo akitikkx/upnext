@@ -215,7 +215,9 @@
                 android:id="@+id/trakt_show_stats"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_horizontal"
                 android:layout_marginTop="@dimen/margin_vertical"
+                android:layout_marginEnd="@dimen/margin_horizontal"
                 android:baselineAligned="false"
                 android:orientation="horizontal"
                 android:weightSum="3"
@@ -235,7 +237,7 @@
                         android:gravity="center_horizontal"
                         android:text="@string/show_detail_watchers_heading"
                         android:textAllCaps="true"
-                        android:textAppearance="?attr/textAppearanceBody2"
+                        android:textAppearance="?attr/textAppearanceCaption"
                         android:textStyle="bold"
                         app:showHideIntContent="@{viewModel.showStats.watchers}" />
 
@@ -262,7 +264,7 @@
                         android:gravity="center_horizontal"
                         android:text="@string/show_detail_rating_heading"
                         android:textAllCaps="true"
-                        android:textAppearance="?attr/textAppearanceBody2"
+                        android:textAppearance="?attr/textAppearanceCaption"
                         android:textStyle="bold"
                         app:showHideIntContent="@{viewModel.showRating.rating}" />
 
@@ -297,7 +299,7 @@
                         android:gravity="center_horizontal"
                         android:text="@string/show_detail_plays_heading"
                         android:textAllCaps="true"
-                        android:textAppearance="?attr/textAppearanceBody2"
+                        android:textAppearance="?attr/textAppearanceCaption"
                         android:textStyle="bold"
                         app:showHideIntContent="@{viewModel.showStats.plays}" />
 
