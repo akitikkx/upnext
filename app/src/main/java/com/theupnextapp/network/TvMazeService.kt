@@ -1,6 +1,7 @@
 package com.theupnextapp.network
 
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
+import com.theupnextapp.network.models.tvmaze.*
 import kotlinx.coroutines.Deferred
 import okhttp3.ConnectionPool
 import okhttp3.OkHttpClient
@@ -16,17 +17,17 @@ interface TvMazeService {
     @GET("schedule")
     fun getYesterdayScheduleAsync(
         @Query("country") countryCode: String, @Query("date") date: String?
-    ): Deferred<List<YesterdayNetworkSchedule>>
+    ): Deferred<List<NetworkYesterdayScheduleResponse>>
 
     @GET("schedule")
     fun getTodayScheduleAsync(
         @Query("country") countryCode: String, @Query("date") date: String?
-    ): Deferred<List<TodayNetworkSchedule>>
+    ): Deferred<List<NetworkTodayScheduleResponse>>
 
     @GET("schedule")
     fun getTomorrowScheduleAsync(
         @Query("country") countryCode: String, @Query("date") date: String?
-    ): Deferred<List<TomorrowNetworkSchedule>>
+    ): Deferred<List<NetworkTomorrowScheduleResponse>>
 
     @GET("search/shows")
     fun getSuggestionListAsync(@Query("q") name: String): Deferred<List<NetworkShowSearchResponse>>
@@ -35,10 +36,10 @@ interface TvMazeService {
     fun getShowSummaryAsync(@Path("id") id: String?): Deferred<NetworkShowInfoResponse>
 
     @GET("/episodes/{id}")
-    fun getNextEpisodeAsync(@Path("id") name: String?): Deferred<NetworkShowNextEpisode>
+    fun getNextEpisodeAsync(@Path("id") name: String?): Deferred<NetworkShowNextEpisodeResponse>
 
     @GET("/episodes/{id}")
-    fun getPreviousEpisodeAsync(@Path("id") name: String?): Deferred<NetworkShowPreviousEpisode>
+    fun getPreviousEpisodeAsync(@Path("id") name: String?): Deferred<NetworkShowPreviousEpisodeResponse>
 
     @GET("shows/{id}/cast")
     fun getShowCastAsync(@Path("id") id: String?): Deferred<NetworkShowCastResponse>

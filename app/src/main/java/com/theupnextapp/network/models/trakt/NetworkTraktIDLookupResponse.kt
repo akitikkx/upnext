@@ -1,4 +1,4 @@
-package com.theupnextapp.network
+package com.theupnextapp.network.models.trakt
 
 class NetworkTraktIDLookupResponse : ArrayList<NetworkTraktIDLookupResponseItem>()
 

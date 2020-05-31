@@ -1,4 +1,4 @@
-package com.theupnextapp.network
+package com.theupnextapp.network.models.trakt
 
 data class NetworkTraktAddToWatchlistRequest(
     val episodes: List<Episode>,

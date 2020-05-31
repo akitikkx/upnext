@@ -1,6 +1,6 @@
-package com.theupnextapp.network
+package com.theupnextapp.network.models.tvmaze
 
-data class NetworkShowNextEpisode constructor(
+data class NetworkShowNextEpisodeResponse constructor(
     val _links: NetworkShowNextEpisodeLinks?,
     val airdate: String?,
     val airstamp: String?,

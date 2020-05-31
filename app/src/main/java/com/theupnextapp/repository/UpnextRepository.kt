@@ -7,6 +7,14 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.theupnextapp.database.*
 import com.theupnextapp.domain.*
 import com.theupnextapp.network.*
+import com.theupnextapp.network.models.tvmaze.NetworkShowNextEpisodeResponse
+import com.theupnextapp.network.models.tvmaze.NetworkShowPreviousEpisodeResponse
+import com.theupnextapp.network.models.tvmaze.NetworkTomorrowScheduleResponse
+import com.theupnextapp.network.models.tvmaze.asDomainModel
+import com.theupnextapp.network.models.upnext.NetworkRecommendedShowsResponse
+import com.theupnextapp.network.models.upnext.NetworkShowInfoCombined
+import com.theupnextapp.network.models.upnext.asDatabaseModel
+import com.theupnextapp.network.models.upnext.asDomainModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -212,7 +220,7 @@ class UpnextRepository(private val database: UpnextDatabase) {
         }
     }
 
-    private suspend fun saveTomorrowShows(tomorrowShowsList: List<TomorrowNetworkSchedule>) {
+    private suspend fun saveTomorrowShows(tomorrowShowsList: List<NetworkTomorrowScheduleResponse>) {
         withContext(Dispatchers.IO) {
             try {
                 val shows: MutableList<DatabaseTomorrowSchedule> = arrayListOf()
@@ -244,8 +252,8 @@ class UpnextRepository(private val database: UpnextDatabase) {
                 val previousEpisodeLink = showInfo._links?.previousepisode?.href?.substring(31)
                 val nextEpisodeLink = showInfo._links?.nextepisode?.href?.substring(31)
 
-                var showPreviousEpisode: NetworkShowPreviousEpisode? = null
-                var showNextEpisode: NetworkShowNextEpisode? = null
+                var showPreviousEpisode: NetworkShowPreviousEpisodeResponse? = null
+                var showNextEpisode: NetworkShowNextEpisodeResponse? = null
                 if (!previousEpisodeLink.isNullOrEmpty()) {
                     showPreviousEpisode =
                         TvMazeNetwork.tvMazeApi.getPreviousEpisodeAsync(
@@ -262,11 +270,12 @@ class UpnextRepository(private val database: UpnextDatabase) {
                             )
                         ).await()
                 }
-                val showInfoCombined = NetworkShowInfoCombined(
-                    showInfoResponse = showInfo,
-                    previousEpisode = showPreviousEpisode,
-                    nextEpisode = showNextEpisode
-                )
+                val showInfoCombined =
+                    NetworkShowInfoCombined(
+                        showInfoResponse = showInfo,
+                        previousEpisode = showPreviousEpisode,
+                        nextEpisode = showNextEpisode
+                    )
                 database.upnextDao.apply {
                     deleteAllShowInfo(showId)
                     insertAllShowInfo(showInfoCombined.asDatabaseModel())
@@ -304,8 +313,8 @@ class UpnextRepository(private val database: UpnextDatabase) {
                 val previousEpisodeLink = showInfo._links?.previousepisode?.href?.substring(31)
                 val nextEpisodeLink = showInfo._links?.nextepisode?.href?.substring(31)
 
-                var showPreviousEpisode: NetworkShowPreviousEpisode? = null
-                var showNextEpisode: NetworkShowNextEpisode? = null
+                var showPreviousEpisode: NetworkShowPreviousEpisodeResponse? = null
+                var showNextEpisode: NetworkShowNextEpisodeResponse? = null
                 if (!previousEpisodeLink.isNullOrEmpty()) {
                     showPreviousEpisode =
                         TvMazeNetwork.tvMazeApi.getPreviousEpisodeAsync(
@@ -322,11 +331,12 @@ class UpnextRepository(private val database: UpnextDatabase) {
                             )
                         ).await()
                 }
-                val showInfoCombined = NetworkShowInfoCombined(
-                    showInfoResponse = showInfo,
-                    previousEpisode = showPreviousEpisode,
-                    nextEpisode = showNextEpisode
-                )
+                val showInfoCombined =
+                    NetworkShowInfoCombined(
+                        showInfoResponse = showInfo,
+                        previousEpisode = showPreviousEpisode,
+                        nextEpisode = showNextEpisode
+                    )
                 _showInfo.postValue(showInfoCombined.asDomainModel())
                 _isLoading.postValue(true)
             } catch (e: Exception) {

@@ -1,6 +1,7 @@
 package com.theupnextapp.network
 
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
+import com.theupnextapp.network.models.trakt.*
 import kotlinx.coroutines.Deferred
 import okhttp3.ConnectionPool
 import okhttp3.OkHttpClient
