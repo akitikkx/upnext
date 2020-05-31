@@ -12,7 +12,10 @@ import java.util.concurrent.TimeUnit
 
 interface TraktService {
     @POST(" oauth/token")
-    fun getAccessTokenAsync(@Body traktAccessTokenRequest: NetworkTraktAccessTokenRequest): Deferred<TraktAccessTokenResponse>
+    fun getAccessTokenAsync(@Body traktAccessTokenRequest: NetworkTraktAccessTokenRequest): Deferred<NetworkTraktAccessTokenResponse>
+
+    @POST(" oauth/token")
+    fun getAccessRefreshTokenAsync(@Body traktAccessRefreshTokenRequest: NetworkTraktAccessRefreshTokenRequest): Deferred<NetworkTraktAccessRefreshTokenResponse>
 
     @GET("sync/collection/shows")
     fun getCollectionAsync(
