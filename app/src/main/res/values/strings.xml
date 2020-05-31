@@ -27,7 +27,9 @@
     <string name="show_detail_add_to_watchlist_button">Add to watchlist</string>
     <string name="show_detail_remove_from_watchlist_button">Remove from watchlist</string>
     <string name="show_detail_cast_list">Cast</string>
-    <string name="show_detail_rating_heading">Rating</string>
+    <string name="show_detail_rating_heading">Trakt Rating</string>
+    <string name="show_detail_plays_heading">Trakt Plays</string>
+    <string name="show_detail_watchers_heading">Trakt Watchers</string>
     <string name="show_detail_rating">%1$d/10</string>
     <string name="show_detail_rating_votes">%1$d votes</string>
 

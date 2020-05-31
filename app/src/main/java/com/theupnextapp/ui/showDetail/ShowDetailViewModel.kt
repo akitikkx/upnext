@@ -60,6 +60,8 @@ class ShowDetailViewModel(
 
     val showRating = traktRepository.traktShowRating
 
+    val showStats = traktRepository.traktShowStats
+
     fun displayCastBottomSheetComplete() {
         _showCastBottomSheet.value = null
     }
@@ -74,6 +76,7 @@ class ShowDetailViewModel(
                 upnextRepository.getShowData(it)
                 upnextRepository.getShowCast(it)
                 traktRepository.getTraktShowRating(getAccessToken(), showInfo.value?.imdbID)
+                traktRepository.getTraktShowStats(getAccessToken(), showInfo.value?.imdbID)
             }
         }
 

@@ -141,7 +141,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@{viewModel.showInfo.airDays}"
-                    android:textAppearance="?attr/textAppearanceBody2"
+                    android:textAppearance="?attr/textAppearanceBody1"
                     tools:text="Air days" />
 
                 <TextView
@@ -216,38 +216,101 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_vertical"
-                android:orientation="vertical"
+                android:baselineAligned="false"
+                android:orientation="horizontal"
+                android:weightSum="3"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/show_detail_summary">
 
-                <TextView
-                    android:layout_width="match_parent"
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:text="@string/show_detail_rating_heading"
-                    android:textAllCaps="true"
-                    android:textAppearance="?attr/textAppearanceBody2"
-                    android:textStyle="bold"
-                    app:showHideIntContent="@{viewModel.showRating.rating}" />
+                    android:layout_weight="1"
+                    android:orientation="vertical">
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:textAppearance="?attr/textAppearanceBody1"
-                    app:showHideIntContent="@{viewModel.showRating.rating}"
-                    app:showRating="@{viewModel.showRating.rating}"
-                    tools:text="9/10" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
+                        android:text="@string/show_detail_watchers_heading"
+                        android:textAllCaps="true"
+                        android:textAppearance="?attr/textAppearanceBody2"
+                        android:textStyle="bold"
+                        app:showHideIntContent="@{viewModel.showStats.watchers}" />
 
-                <TextView
-                    android:layout_width="match_parent"
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
+                        android:text="@{String.valueOf(viewModel.showStats.watchers)}"
+                        android:textAppearance="?attr/textAppearanceBody1"
+                        app:showHideIntContent="@{viewModel.showStats.watchers}"
+                        tools:text="10 000" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:textAppearance="?attr/textAppearanceCaption"
-                    app:showHideIntContent="@{viewModel.showRating.votes}"
-                    app:showRatingVotes="@{viewModel.showRating.votes}"
-                    tools:text="1000 votes" />
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
+                        android:text="@string/show_detail_rating_heading"
+                        android:textAllCaps="true"
+                        android:textAppearance="?attr/textAppearanceBody2"
+                        android:textStyle="bold"
+                        app:showHideIntContent="@{viewModel.showRating.rating}" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
+                        android:textAppearance="?attr/textAppearanceBody1"
+                        app:showHideIntContent="@{viewModel.showRating.rating}"
+                        app:showRating="@{viewModel.showRating.rating}"
+                        tools:text="9/10" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
+                        android:textAppearance="?attr/textAppearanceCaption"
+                        app:showHideIntContent="@{viewModel.showRating.votes}"
+                        app:showRatingVotes="@{viewModel.showRating.votes}"
+                        tools:text="1000 votes" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
+                        android:text="@string/show_detail_plays_heading"
+                        android:textAllCaps="true"
+                        android:textAppearance="?attr/textAppearanceBody2"
+                        android:textStyle="bold"
+                        app:showHideIntContent="@{viewModel.showStats.plays}" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
+                        android:text="@{String.valueOf(viewModel.showStats.plays)}"
+                        android:textAppearance="?attr/textAppearanceBody1"
+                        app:showHideIntContent="@{viewModel.showStats.plays}"
+                        tools:text="1 400 345" />
+                </LinearLayout>
+
             </LinearLayout>
 
             <TextView
