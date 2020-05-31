@@ -113,14 +113,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun hideBottomNavigation() {
-        if (bottomNavigationView != null && bottomNavigationView.visibility == View.VISIBLE) {
-            bottomNavigationView.visibility = View.GONE
+        if (bottomNavigationView != null) {
+            if (bottomNavigationView.visibility == View.VISIBLE) {
+                bottomNavigationView.visibility = View.GONE
+            }
         }
     }
 
     fun showBottomNavigation() {
-        if (bottomNavigationView != null && bottomNavigationView.visibility == View.GONE) {
-            bottomNavigationView.visibility = View.VISIBLE
+        if (bottomNavigationView != null) {
+            if (bottomNavigationView.visibility == View.GONE) {
+                bottomNavigationView.visibility = View.VISIBLE
+            }
         }
     }
 

@@ -50,6 +50,8 @@ class TraktRepository(private val database: UpnextDatabase) {
 
     private val _traktShowRating = MutableLiveData<TraktShowRating>()
 
+    private val _traktShowStats = MutableLiveData<TraktShowStats>()
+
     val isLoadingTraktWatchlist: LiveData<Boolean> = _isLoadingTraktWatchlist
 
     val isLoadingTraktHistory: LiveData<Boolean> = _isLoadingTraktHistory
@@ -64,6 +66,8 @@ class TraktRepository(private val database: UpnextDatabase) {
     val isLoading: LiveData<Boolean> = _isLoading
 
     val traktShowRating: LiveData<TraktShowRating> = _traktShowRating
+
+    val traktShowStats: LiveData<TraktShowStats> = _traktShowStats
 
     suspend fun getTraktAccessToken(code: String?) {
         if (!code.isNullOrEmpty()) {
@@ -405,6 +409,34 @@ class TraktRepository(private val database: UpnextDatabase) {
                     id = imdbID
                 ).await()
                 _traktShowRating.postValue(showRatingResponse.asDomainModel())
+                _isLoading.postValue(false)
+            } catch (e: Exception) {
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
+                _isLoading.postValue(false)
+            }
+        }
+    }
+
+    suspend fun getTraktShowStats(
+        accessToken: String?,
+        imdbID: String?
+    ) {
+        if (imdbID.isNullOrEmpty()) {
+            return
+        }
+
+        withContext(Dispatchers.IO) {
+            try {
+                _isLoading.postValue(true)
+                val showStatsResponse = TraktNetwork.traktApi.getShowStatsAsync(
+                    contentType = "application/json",
+                    token = "Bearer $accessToken",
+                    version = "2",
+                    apiKey = BuildConfig.TRAKT_CLIENT_ID,
+                    id = imdbID
+                ).await()
+                _traktShowStats.postValue(showStatsResponse.asDomainModel())
                 _isLoading.postValue(false)
             } catch (e: Exception) {
                 Timber.d(e)

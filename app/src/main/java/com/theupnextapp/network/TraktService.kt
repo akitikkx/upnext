@@ -82,6 +82,15 @@ interface TraktService {
         @Header("trakt-api-key") apiKey: String?,
         @Path("id") id: String
     ): Deferred<NetworkTraktShowRatingResponse>
+
+    @GET("shows/{id}/stats")
+    fun getShowStatsAsync(
+        @Header("Content-Type") contentType: String,
+        @Header("Authorization") token: String,
+        @Header("trakt-api-version") version: String = "2",
+        @Header("trakt-api-key") apiKey: String?,
+        @Path("id") id: String
+    ): Deferred<NetworkTraktShowStatsResponse>
 }
 
 object TraktNetwork {
