@@ -70,30 +70,70 @@ class TraktRepository(private val database: UpnextDatabase) {
     val traktShowStats: LiveData<TraktShowStats> = _traktShowStats
 
     suspend fun getTraktAccessToken(code: String?) {
-        if (!code.isNullOrEmpty()) {
-            withContext(Dispatchers.IO) {
-                try {
-                    val traktAccessTokenRequest =
-                        NetworkTraktAccessTokenRequest(
-                            code = code,
-                            client_id = BuildConfig.TRAKT_CLIENT_ID,
-                            client_secret = BuildConfig.TRAKT_CLIENT_SECRET,
-                            redirect_uri = BuildConfig.TRAKT_REDIRECT_URI,
-                            grant_type = "authorization_code"
-                        )
+        if (code.isNullOrEmpty()) {
+            return
+        }
 
-                    val accessTokenResponse =
-                        TraktNetwork.traktApi.getAccessTokenAsync(traktAccessTokenRequest).await()
-                    _traktAccessToken.postValue(accessTokenResponse.asDomainModel())
-                } catch (e: Exception) {
-                    Timber.d(e)
-                    FirebaseCrashlytics.getInstance().recordException(e)
-                }
+        withContext(Dispatchers.IO) {
+            try {
+                _isLoading.postValue(true)
+                val traktAccessTokenRequest =
+                    NetworkTraktAccessTokenRequest(
+                        code = code,
+                        client_id = BuildConfig.TRAKT_CLIENT_ID,
+                        client_secret = BuildConfig.TRAKT_CLIENT_SECRET,
+                        redirect_uri = BuildConfig.TRAKT_REDIRECT_URI,
+                        grant_type = "authorization_code"
+                    )
+
+                val accessTokenResponse =
+                    TraktNetwork.traktApi.getAccessTokenAsync(traktAccessTokenRequest).await()
+                _traktAccessToken.postValue(accessTokenResponse.asDomainModel())
+                _isLoading.postValue(false)
+            } catch (e: Exception) {
+                _isLoading.postValue(false)
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
+            }
+        }
+    }
+
+    suspend fun getTraktAccessRefreshToken(refreshToken: String?) {
+        if (refreshToken.isNullOrEmpty()) {
+            return
+        }
+
+        withContext(Dispatchers.IO) {
+            try {
+                _isLoading.postValue(true)
+
+                val traktAccessTokenRequest =
+                    NetworkTraktAccessRefreshTokenRequest(
+                        refresh_token = refreshToken,
+                        client_id = BuildConfig.TRAKT_CLIENT_ID,
+                        client_secret = BuildConfig.TRAKT_CLIENT_SECRET,
+                        redirect_uri = BuildConfig.TRAKT_REDIRECT_URI,
+                        grant_type = "refresh_token"
+                    )
+
+                val accessTokenResponse =
+                    TraktNetwork.traktApi.getAccessRefreshTokenAsync(traktAccessTokenRequest)
+                        .await()
+                _traktAccessToken.postValue(accessTokenResponse.asDomainModel())
+                _isLoading.postValue(false)
+            } catch (e: Exception) {
+                _isLoading.postValue(false)
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
             }
         }
     }
 
     suspend fun refreshTraktWatchlist(accessToken: String?) {
+        if (accessToken.isNullOrEmpty()) {
+            return
+        }
+
         withContext(Dispatchers.IO) {
             try {
                 _isLoading.postValue(true)

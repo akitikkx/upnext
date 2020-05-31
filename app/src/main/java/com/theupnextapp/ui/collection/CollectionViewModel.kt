@@ -7,27 +7,14 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
-import com.theupnextapp.database.getDatabase
 import com.theupnextapp.domain.TraktAccessToken
 import com.theupnextapp.domain.TraktConnectionArg
-import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.ui.common.TraktViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
 class CollectionViewModel(
     application: Application
 ) : TraktViewModel(application) {
-
-    private val viewModelJob = SupervisorJob()
-
-    private val viewModelScope = CoroutineScope(viewModelJob + Dispatchers.Main)
-
-    private val database = getDatabase(application)
-
-    private val traktRepository = TraktRepository(database)
 
     private val _launchTraktConnectWindow = MutableLiveData<Boolean>()
 
@@ -63,7 +50,7 @@ class CollectionViewModel(
         val preferences = PreferenceManager.getDefaultSharedPreferences(getApplication())
         val accessToken = preferences.getString(SHARED_PREF_TRAKT_ACCESS_TOKEN, null)
 
-        viewModelScope.launch {
+        viewModelScope?.launch {
             traktRepository.refreshTraktCollection(accessToken)
         }
     }
@@ -80,7 +67,7 @@ class CollectionViewModel(
 
         _fetchingAccessTokenInProgress.value = true
 
-        viewModelScope.launch {
+        viewModelScope?.launch {
             traktRepository.getTraktAccessToken(traktConnectionArg?.code)
         }
     }

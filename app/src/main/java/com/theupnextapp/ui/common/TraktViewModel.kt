@@ -5,20 +5,51 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.preference.PreferenceManager
+import com.theupnextapp.database.getDatabase
 import com.theupnextapp.domain.TraktAccessToken
+import com.theupnextapp.repository.TraktRepository
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
 
 open class TraktViewModel(application: Application) : AndroidViewModel(application) {
 
     protected val _isAuthorizedOnTrakt = MutableLiveData<Boolean?>(ifValidAccessTokenExists())
 
+    protected val viewModelJob = SupervisorJob()
+
+    protected val viewModelScope: CoroutineScope? = CoroutineScope(viewModelJob + Dispatchers.Main)
+
+    protected val database = getDatabase(application)
+
+    protected val traktRepository = TraktRepository(database)
+
     val isAuthorizedOnTrakt: LiveData<Boolean?> = _isAuthorizedOnTrakt
 
     protected fun ifValidAccessTokenExists(): Boolean {
-        // TODO Add functionality to determine if the access token has not yet expired, if so retrieve a new one
-
         val preferences = PreferenceManager.getDefaultSharedPreferences(getApplication())
+
+        val refreshToken = preferences.getString(SHARED_PREF_TRAKT_ACCESS_TOKEN_REFRESH_TOKEN, null)
+        val createdDateEpoch = preferences.getInt(SHARED_PREF_TRAKT_ACCESS_TOKEN_CREATED_AT, 0)
+        val expiresInEpoch = preferences.getInt(SHARED_PREF_TRAKT_ACCESS_TOKEN_EXPIRES_IN, 0)
+        val expiryDateEpoch = createdDateEpoch + expiresInEpoch
+        val currentDateEpoch = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())
+
+        if (!refreshToken.isNullOrEmpty() && currentDateEpoch >= expiryDateEpoch) {
+            refreshAccessToken(refreshToken)
+            return false
+        }
+
         val accessToken = preferences.getString(SHARED_PREF_TRAKT_ACCESS_TOKEN, null)
         return accessToken != null
+    }
+
+    private fun refreshAccessToken(refreshToken: String?) {
+        viewModelScope?.launch {
+            traktRepository.getTraktAccessRefreshToken(refreshToken)
+        }
     }
 
     protected fun getAccessToken(): String? {

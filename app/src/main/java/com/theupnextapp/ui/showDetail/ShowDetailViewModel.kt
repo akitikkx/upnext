@@ -3,14 +3,9 @@ package com.theupnextapp.ui.showDetail
 import android.app.Application
 import androidx.lifecycle.*
 import androidx.preference.PreferenceManager
-import com.theupnextapp.database.getDatabase
 import com.theupnextapp.domain.*
-import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.UpnextRepository
 import com.theupnextapp.ui.common.TraktViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
 class ShowDetailViewModel(
@@ -18,15 +13,7 @@ class ShowDetailViewModel(
     show: ShowDetailArg
 ) : TraktViewModel(application) {
 
-    private val viewModelJob = SupervisorJob()
-
-    private val viewModelScope = CoroutineScope(viewModelJob + Dispatchers.Main)
-
-    private val database = getDatabase(application)
-
     private val upnextRepository = UpnextRepository(database)
-
-    private val traktRepository = TraktRepository(database)
 
     private val _onWatchList = MutableLiveData<Boolean>()
 
@@ -71,7 +58,7 @@ class ShowDetailViewModel(
     }
 
     init {
-        viewModelScope.launch {
+        viewModelScope?.launch {
             show.showId?.let {
                 upnextRepository.getShowData(it)
                 upnextRepository.getShowCast(it)
@@ -142,7 +129,7 @@ class ShowDetailViewModel(
 
             when (action) {
                 WATCHLIST_ACTION_ADD -> {
-                    viewModelScope.launch {
+                    viewModelScope?.launch {
                         showInfo.value?.imdbID?.let { imdbID ->
                             traktRepository.traktAddToWatchlist(
                                 accessToken,
@@ -152,7 +139,7 @@ class ShowDetailViewModel(
                     }
                 }
                 WATCHLIST_ACTION_REMOVE -> {
-                    viewModelScope.launch {
+                    viewModelScope?.launch {
                         showInfo.value?.imdbID?.let { imdbID ->
                             traktRepository.traktRemoveFromWatchlist(
                                 accessToken,
@@ -185,7 +172,7 @@ class ShowDetailViewModel(
         val preferences = PreferenceManager.getDefaultSharedPreferences(getApplication())
         val accessToken = preferences.getString(SHARED_PREF_TRAKT_ACCESS_TOKEN, null)
 
-        viewModelScope.launch {
+        viewModelScope?.launch {
             traktRepository.refreshTraktWatchlist(accessToken)
         }
     }
