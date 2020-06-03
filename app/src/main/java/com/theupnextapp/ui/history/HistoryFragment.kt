@@ -141,6 +141,28 @@ class HistoryFragment : BaseFragment(), HistoryAdapter.HistoryAdapterListener {
                 viewModel.displayShowDetailsComplete()
             }
         })
+
+        viewModel.invalidToken.observe(viewLifecycleOwner, Observer {
+            if (it) {
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.trakt_invalid_token_response_received),
+                    Snackbar.LENGTH_LONG
+                ).show()
+                viewModel.onInvalidTokenResponseReceived(it)
+            }
+        })
+
+        viewModel.invalidGrant.observe(viewLifecycleOwner, Observer {
+            if (it) {
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.trakt_invalid_grant_response_received),
+                    Snackbar.LENGTH_LONG
+                ).show()
+                viewModel.onInvalidTokenResponseReceived(it)
+            }
+        })
     }
 
     override fun onResume() {
