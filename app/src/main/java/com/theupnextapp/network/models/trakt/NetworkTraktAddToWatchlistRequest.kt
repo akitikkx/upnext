@@ -1,9 +1,9 @@
 package com.theupnextapp.network.models.trakt
 
 data class NetworkTraktAddToWatchlistRequest(
-    val episodes: List<Episode>,
+    val episodes: List<NetworkTraktWatchedShowProgressSeasonEpisode>,
     val movies: List<NetworkTraktAddToWatchlistRequestMovy>,
-    val seasons: List<Season>,
+    val seasons: List<NetworkTraktWatchedShowProgressSeason>,
     val shows: List<NetworkTraktAddToWatchlistRequestShow>
 )
 

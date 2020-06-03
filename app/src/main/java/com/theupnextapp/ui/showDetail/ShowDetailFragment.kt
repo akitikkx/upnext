@@ -15,11 +15,13 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionInflater
+import com.google.android.material.snackbar.Snackbar
 import com.theupnextapp.BuildConfig
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentShowDetailBinding
 import com.theupnextapp.domain.ShowCast
+import com.theupnextapp.domain.TraktShowWatchedProgress
 import com.theupnextapp.ui.common.BaseFragment
 
 class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListener {
@@ -29,6 +31,8 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
 
     private var _showCastAdapter: ShowCastAdapter? = null
     private val showCastAdapter get() = _showCastAdapter!!
+
+    private var _traktShowWatchedProgress: TraktShowWatchedProgress? = null
 
     val args by navArgs<ShowDetailFragmentArgs>()
 
@@ -126,6 +130,59 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
                 viewModel.launchConnectWindowComplete()
             }
         })
+
+        viewModel.watchedProgress.observe(viewLifecycleOwner, Observer {
+            if (it != null) {
+                _traktShowWatchedProgress = it
+            }
+        })
+
+        viewModel.showWatchedProgressBottomSheet.observe(viewLifecycleOwner, Observer {
+            if (it != null && _traktShowWatchedProgress != null) {
+                val watchedProgressBottomSheet = ShowWatchedProgressBottomSheetFragment()
+
+                val args = Bundle()
+                args.putParcelable(ARG_WATCHED_PROGRESS, _traktShowWatchedProgress)
+                args.putParcelable(ARG_SHOW_DETAIL, this@ShowDetailFragment.args.show)
+                watchedProgressBottomSheet.arguments = args
+
+                activity?.supportFragmentManager?.let { fragmentManager ->
+                    watchedProgressBottomSheet.show(
+                        fragmentManager,
+                        ShowWatchedProgressBottomSheetFragment.TAG
+                    )
+                }
+                viewModel.displayWatchedProgressBottomSheetComplete()
+            } else {
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.show_detail_watched_progress_empty),
+                    Snackbar.LENGTH_LONG
+                ).show()
+            }
+        })
+
+        viewModel.invalidToken.observe(viewLifecycleOwner, Observer {
+            if (it) {
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.trakt_invalid_token_response_received),
+                    Snackbar.LENGTH_LONG
+                ).show()
+                viewModel.onInvalidTokenResponseReceived(it)
+            }
+        })
+
+        viewModel.invalidGrant.observe(viewLifecycleOwner, Observer {
+            if (it) {
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.trakt_invalid_grant_response_received),
+                    Snackbar.LENGTH_LONG
+                ).show()
+                viewModel.onInvalidTokenResponseReceived(it)
+            }
+        })
     }
 
     override fun onResume() {
@@ -155,6 +212,8 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
 
     companion object {
         const val ARG_SHOW_CAST = "show_cast"
+        const val ARG_SHOW_DETAIL = "show_detail"
+        const val ARG_WATCHED_PROGRESS = "watched_progress"
         const val EXTRA_TRAKT_URI = "extra_trakt_uri"
         const val TRAKT_API_URL = "https://api.trakt.tv"
         const val TRAKT_OAUTH_ENDPOINT = "/oauth/authorize"

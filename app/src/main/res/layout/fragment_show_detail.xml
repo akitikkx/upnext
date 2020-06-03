@@ -148,7 +148,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@{viewModel.showInfo.genres}"
-                    android:textAppearance="?attr/textAppearanceBody2"
+                    android:textAppearance="?attr/textAppearanceCaption"
                     tools:text="Genres" />
 
                 <TextView
@@ -329,6 +329,44 @@
                 app:layout_constraintTop_toBottomOf="@id/trakt_show_stats"
                 tools:text="Show Summary" />
 
+            <Button
+                android:id="@+id/watched_progress"
+                style="?materialButtonOutlinedStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_horizontal_double"
+                android:layout_marginTop="@dimen/margin_vertical"
+                android:layout_marginEnd="@dimen/margin_horizontal_double"
+                android:clickable="true"
+                android:enabled="@{!viewModel.isLoading}"
+                android:focusable="true"
+                android:onClick="@{() -> viewModel.onWatchedProgressClick()}"
+                android:text="@string/show_detail_get_watched_progress"
+                app:layout_constraintEnd_toStartOf="@id/show_seasons"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/show_detail_synopsis"
+                app:showHideView="@{viewModel.isAuthorizedOnTrakt}"
+                tools:visibility="visible" />
+
+            <Button
+                android:id="@+id/show_seasons"
+                style="?materialButtonOutlinedStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_horizontal_double"
+                android:layout_marginTop="@dimen/margin_vertical"
+                android:layout_marginEnd="@dimen/margin_horizontal_double"
+                android:clickable="true"
+                android:enabled="@{!viewModel.isLoading}"
+                android:focusable="true"
+                android:onClick="@{() -> viewModel.onWatchedProgressClick()}"
+                android:text="@string/show_detail_seasons"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/watched_progress"
+                app:layout_constraintTop_toBottomOf="@id/show_detail_synopsis"
+                app:showHideView="@{viewModel.isAuthorizedOnTrakt}"
+                tools:visibility="visible" />
+
             <TextView
                 android:id="@+id/cast_title"
                 android:layout_width="0dp"
@@ -340,7 +378,7 @@
                 android:textAppearance="?attr/textAppearanceHeadline6"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/show_detail_synopsis"
+                app:layout_constraintTop_toBottomOf="@id/watched_progress"
                 app:loadingVisibility="@{viewModel.isLoading()}"
                 app:showHideView="@{!viewModel.showCastEmpty}" />
 

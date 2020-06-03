@@ -22,7 +22,7 @@ data class NetworkTraktRemoveFromWatchlistNotFound(
 )
 
 data class NetworkTraktRemoveFromWatchlistMovy(
-    val ids: Ids
+    val ids: NetworkTraktWatchedShowProgressIds
 )
 
 data class NetworkTraktRemoveFromWatchlistIds(

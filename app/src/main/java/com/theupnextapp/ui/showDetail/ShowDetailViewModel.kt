@@ -25,7 +25,7 @@ class ShowDetailViewModel(
 
     private val _showCastBottomSheet = MutableLiveData<ShowCast>()
 
-    private val _launchTraktConnectWindow = MutableLiveData<Boolean>()
+    private val _showWatchedProgressBottomSheet = MutableLiveData<TraktShowWatchedProgress>()
 
     val onWatchlist: LiveData<Boolean> = _onWatchList
 
@@ -33,11 +33,26 @@ class ShowDetailViewModel(
 
     val isLoading = MediatorLiveData<Boolean>()
 
+    val showDetailArg: LiveData<ShowDetailArg> = _show
+
+    val showCastBottomSheet: LiveData<ShowCast> = _showCastBottomSheet
+
+    val showWatchedProgressBottomSheet: LiveData<TraktShowWatchedProgress> =
+        _showWatchedProgressBottomSheet
+
+    val launchTraktConnectWindow: LiveData<Boolean> = _launchTraktConnectWindow
+
+    val showCastEmpty: LiveData<Boolean> = _showCastEmpty
+
     private val isUpnextRepositoryLoading = upnextRepository.isLoading
 
     private val isTraktRepositoryLoading = traktRepository.isLoading
 
     val showInfo = upnextRepository.showInfo
+
+    val watchlistRecord = Transformations.switchMap(showInfo) { showInfo ->
+        showInfo.imdbID?.let { it -> traktRepository.traktWatchlistItem(it) }
+    }
 
     val showCast = upnextRepository.showCast
 
@@ -49,22 +64,23 @@ class ShowDetailViewModel(
 
     val showStats = traktRepository.traktShowStats
 
-    fun displayCastBottomSheetComplete() {
-        _showCastBottomSheet.value = null
-    }
-
-    fun onConnectClick() {
-        _launchTraktConnectWindow.value = true
-    }
+    val watchedProgress = traktRepository.traktWatchedProgress
 
     init {
         viewModelScope?.launch {
             show.showId?.let {
                 upnextRepository.getShowData(it)
                 upnextRepository.getShowCast(it)
-                traktRepository.getTraktShowRating(getAccessToken(), showInfo.value?.imdbID)
-                traktRepository.getTraktShowStats(getAccessToken(), showInfo.value?.imdbID)
             }
+            traktRepository.getTraktShowRating(getAccessToken(), showInfo.value?.imdbID)
+            traktRepository.getTraktShowStats(getAccessToken(), showInfo.value?.imdbID)
+            if (_isAuthorizedOnTrakt.value == true) {
+                traktRepository.getTraktWatchedProgress(
+                    getAccessToken(),
+                    showInfo.value?.imdbID
+                )
+            }
+
         }
 
         isLoading.addSource(isUpnextRepositoryLoading) { result ->
@@ -75,20 +91,12 @@ class ShowDetailViewModel(
         }
     }
 
-    val showCastEmpty: LiveData<Boolean> = _showCastEmpty
-
-    val watchlistRecord = Transformations.switchMap(showInfo) { showInfo ->
-        showInfo.imdbID?.let { it -> traktRepository.traktWatchlistItem(it) }
+    fun displayCastBottomSheetComplete() {
+        _showCastBottomSheet.value = null
     }
 
-    val showDetailArg: LiveData<ShowDetailArg> = _show
-
-    val showCastBottomSheet: LiveData<ShowCast> = _showCastBottomSheet
-
-    val launchTraktConnectWindow: LiveData<Boolean> = _launchTraktConnectWindow
-
-    fun launchConnectWindowComplete() {
-        _launchTraktConnectWindow.value = false
+    fun onConnectClick() {
+        _launchTraktConnectWindow.value = true
     }
 
     fun onShowCastInfoReceived(showCast: List<ShowCast>) {
@@ -120,6 +128,14 @@ class ShowDetailViewModel(
 
     fun onRemoveFromWatchlistClick() {
         onWatchlistAction(WATCHLIST_ACTION_REMOVE)
+    }
+
+    fun onWatchedProgressClick() {
+        _showWatchedProgressBottomSheet.value = watchedProgress.value
+    }
+
+    fun displayWatchedProgressBottomSheetComplete() {
+        _showWatchedProgressBottomSheet.value = null
     }
 
     private fun onWatchlistAction(action: String) {
