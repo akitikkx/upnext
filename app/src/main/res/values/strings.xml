@@ -26,12 +26,21 @@
     <string name="splash_screen_loading_text">Preparing the shows…</string>
     <string name="show_detail_add_to_watchlist_button">Add to watchlist</string>
     <string name="show_detail_remove_from_watchlist_button">Remove from watchlist</string>
+    <string name="show_detail_get_watched_progress">Your Watched Progress</string>
+    <string name="show_detail_seasons">Seasons</string>
     <string name="show_detail_cast_list">Cast</string>
     <string name="show_detail_rating_heading">Trakt Rating</string>
     <string name="show_detail_plays_heading">Trakt Plays</string>
     <string name="show_detail_watchers_heading">Trakt Watchers</string>
     <string name="show_detail_rating">%1$d/10</string>
     <string name="show_detail_rating_votes">%1$d votes</string>
+    <string name="show_detail_watched_progress_empty">You currently have no progress data available for this show</string>
+
+    <!-- Watched progress bottom sheet -->
+    <string name="trakt_watched_progress_episodes_aired_heading">Episodes aired</string>
+    <string name="trakt_watched_progress_episodes_watched_heading">Episodes you watched</string>
+    <string name="trakt_watched_progress_season_and_number">Season %1$d</string>
+    <string name="trakt_watched_progress_season_percentage">%1$d%%</string>
 
     <!-- Splash screen -->
     <string name="splash_screen_loading_text_tomorrow_schedule">Fetching tomorrow\'s schedule…</string>
@@ -49,7 +58,6 @@
 
     <string name="tv_maze_creative_commons_attribution_text_single">Image licensed under CC \nBY-SA 4.0</string>
     <string name="tv_maze_creative_commons_attribution_text_multiple">All images licensed under CC BY-SA 4.0</string>
-
 
     <string name="trakt_logo_description">Trakt logo</string>
     <string name="trakt_connect_description">Trakt is a platform that does many things, but primarily
@@ -99,4 +107,8 @@
     Trakt.tv platform will be displayed here.</string>
     <string name="features_confirm_button">Got it</string>
     <string name="upnext_logo">Upnext logo</string>
+
+    <!-- Error -->
+    <string name="trakt_invalid_token_response_received">There was an error while trying your request. Please try again later</string>
+    <string name="trakt_invalid_grant_response_received">Your Trakt requires a refresh, you will be redirected shortly</string>
 </resources>
