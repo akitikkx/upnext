@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.preference.PreferenceManager
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.theupnextapp.database.getDatabase
 import com.theupnextapp.domain.TraktAccessToken
 import com.theupnextapp.repository.TraktRepository
@@ -18,6 +19,8 @@ open class TraktViewModel(application: Application) : AndroidViewModel(applicati
 
     protected val _isAuthorizedOnTrakt = MutableLiveData<Boolean?>(ifValidAccessTokenExists())
 
+    protected val _launchTraktConnectWindow = MutableLiveData<Boolean>()
+
     protected val viewModelJob = SupervisorJob()
 
     protected val viewModelScope: CoroutineScope? = CoroutineScope(viewModelJob + Dispatchers.Main)
@@ -27,6 +30,10 @@ open class TraktViewModel(application: Application) : AndroidViewModel(applicati
     protected val traktRepository = TraktRepository(database)
 
     val isAuthorizedOnTrakt: LiveData<Boolean?> = _isAuthorizedOnTrakt
+
+    val invalidToken = traktRepository.invalidToken
+
+    val invalidGrant = traktRepository.invalidGrant
 
     protected fun ifValidAccessTokenExists(): Boolean {
         val preferences = PreferenceManager.getDefaultSharedPreferences(getApplication())
@@ -52,6 +59,26 @@ open class TraktViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
+    fun launchConnectWindowComplete() {
+        _launchTraktConnectWindow.value = false
+    }
+
+    fun onInvalidTokenResponseReceived(invalid: Boolean) {
+        val preferences = PreferenceManager.getDefaultSharedPreferences(getApplication())
+
+        val refreshToken = preferences.getString(SHARED_PREF_TRAKT_ACCESS_TOKEN_REFRESH_TOKEN, null)
+
+        if (invalid) {
+            refreshAccessToken(refreshToken)
+        }
+    }
+
+    fun onInvalidGrantResponseReceived(invalid: Boolean) {
+        if (invalid) {
+            _launchTraktConnectWindow.postValue(true)
+        }
+    }
+
     protected fun getAccessToken(): String? {
         val preferences = PreferenceManager.getDefaultSharedPreferences(getApplication())
 
@@ -64,28 +91,38 @@ open class TraktViewModel(application: Application) : AndroidViewModel(applicati
         preferences.edit()
             .putString(SHARED_PREF_TRAKT_ACCESS_TOKEN, traktAccessTokenResponse.access_token)
             .apply()
+
         traktAccessTokenResponse.created_at?.let { createdAt ->
             preferences.edit().putInt(
                 SHARED_PREF_TRAKT_ACCESS_TOKEN_CREATED_AT,
                 createdAt
             ).apply()
-            traktAccessTokenResponse.expires_in?.let { expiresIn ->
-                preferences.edit().putInt(
-                    SHARED_PREF_TRAKT_ACCESS_TOKEN_EXPIRES_IN,
-                    expiresIn
-                ).apply()
-            }
-            preferences.edit().putString(
-                SHARED_PREF_TRAKT_ACCESS_TOKEN_REFRESH_TOKEN,
-                traktAccessTokenResponse.refresh_token
-            ).apply()
-            preferences.edit()
-                .putString(SHARED_PREF_TRAKT_ACCESS_TOKEN_SCOPE, traktAccessTokenResponse.scope)
-                .apply()
-            preferences.edit()
-                .putString(SHARED_PREF_TRAKT_ACCESS_TOKEN_TYPE, traktAccessTokenResponse.token_type)
-                .apply()
         }
+
+        traktAccessTokenResponse.expires_in?.let { expiresIn ->
+            preferences.edit().putInt(
+                SHARED_PREF_TRAKT_ACCESS_TOKEN_EXPIRES_IN,
+                expiresIn
+            ).apply()
+        }
+
+        if (traktAccessTokenResponse.refresh_token.isNullOrEmpty()) {
+            FirebaseCrashlytics.getInstance().recordException(Exception("Refresh token not received"))
+        }
+
+        preferences.edit().putString(
+            SHARED_PREF_TRAKT_ACCESS_TOKEN_REFRESH_TOKEN,
+            traktAccessTokenResponse.refresh_token
+        ).apply()
+
+        preferences.edit()
+            .putString(SHARED_PREF_TRAKT_ACCESS_TOKEN_SCOPE, traktAccessTokenResponse.scope)
+            .apply()
+
+        preferences.edit()
+            .putString(SHARED_PREF_TRAKT_ACCESS_TOKEN_TYPE, traktAccessTokenResponse.token_type)
+            .apply()
+
     }
 
     companion object {
