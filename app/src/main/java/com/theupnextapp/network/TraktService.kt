@@ -1,6 +1,7 @@
 package com.theupnextapp.network
 
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
+import com.theupnextapp.common.utils.TraktConnectionInterceptor
 import com.theupnextapp.network.models.trakt.*
 import kotlinx.coroutines.Deferred
 import okhttp3.ConnectionPool
@@ -20,81 +21,63 @@ interface TraktService {
 
     @GET("sync/collection/shows")
     fun getCollectionAsync(
-        @Header("Content-Type") contentType: String,
-        @Header("Authorization") token: String,
-        @Header("trakt-api-version") version: String = "2",
-        @Header("trakt-api-key") apiKey: String?
+        @Header("Authorization") token: String
     ): Deferred<NetworkTraktCollectionResponse>
 
     @GET("sync/watchlist/shows/rank")
     fun getWatchlistAsync(
-        @Header("Content-Type") contentType: String,
-        @Header("Authorization") token: String,
-        @Header("trakt-api-version") version: String = "2",
-        @Header("trakt-api-key") apiKey: String?
+        @Header("Authorization") token: String
     ): Deferred<NetworkTraktWatchlistResponse>
 
     @GET("sync/watched/shows")
     fun getWatchedAsync(
-        @Header("Content-Type") contentType: String,
-        @Header("Authorization") token: String,
-        @Header("trakt-api-version") version: String = "2",
-        @Header("trakt-api-key") apiKey: String?
+        @Header("Authorization") token: String
     ): Deferred<NetworkTraktWatchedResponse>
 
     @GET("sync/history")
     fun getHistoryAsync(
-        @Header("Content-Type") contentType: String,
-        @Header("Authorization") token: String,
-        @Header("trakt-api-version") version: String = "2",
-        @Header("trakt-api-key") apiKey: String?
+        @Header("Authorization") token: String
     ): Deferred<NetworkTraktHistoryResponse>
 
     @GET("search/imdb/{id}")
     fun getIDLookupAsync(
-        @Header("Content-Type") contentType: String,
         @Header("Authorization") token: String,
-        @Header("trakt-api-version") version: String = "2",
-        @Header("trakt-api-key") apiKey: String?,
         @Path("id") id: String,
         @Query("type") type: String
     ): Deferred<NetworkTraktIDLookupResponse>
 
     @POST("sync/watchlist")
     fun addToWatchlistAsync(
-        @Header("Content-Type") contentType: String,
         @Header("Authorization") token: String,
-        @Header("trakt-api-version") version: String = "2",
-        @Header("trakt-api-key") apiKey: String?,
         @Body request: NetworkTraktAddToWatchlistRequest
     ): Deferred<NetworkTraktAddToWatchlistResponse>
 
     @POST("sync/watchlist/remove")
     fun removeFromWatchlistAsync(
-        @Header("Content-Type") contentType: String,
         @Header("Authorization") token: String,
-        @Header("trakt-api-version") version: String = "2",
-        @Header("trakt-api-key") apiKey: String?,
         @Body request: NetworkTraktRemoveFromWatchlistRequest
     ): Deferred<NetworkTraktRemoveFromWatchlistResponse>
 
     @GET("shows/{id}/ratings")
     fun getShowRatingsAsync(
-        @Header("Content-Type") contentType: String,
         @Header("Authorization") token: String,
-        @Header("trakt-api-version") version: String = "2",
-        @Header("trakt-api-key") apiKey: String?,
         @Path("id") id: String
     ): Deferred<NetworkTraktShowRatingResponse>
 
     @GET("shows/{id}/stats")
     fun getShowStatsAsync(
-        @Header("Content-Type") contentType: String,
         @Header("Authorization") token: String,
-        @Header("trakt-api-version") version: String = "2",
-        @Header("trakt-api-key") apiKey: String?,
         @Path("id") id: String
     ): Deferred<NetworkTraktShowStatsResponse>
+
+    @GET("shows/{id}/progress/watched")
+    fun getShowWatchedProgressAsync(
+        @Header("Authorization") token: String,
+        @Path("id") id: String,
+        @Query("hidden") hidden: String = "false",
+        @Query("specials") specials: String = "false",
+        @Query("count_specials") countSpecials: String = "true"
+    ): Deferred<NetworkTraktShowWatchedProgressResponse>
 }
 
 object TraktNetwork {
@@ -106,6 +89,7 @@ object TraktNetwork {
 
     private val client = OkHttpClient().newBuilder()
         .addInterceptor(loggingInterceptor)
+        .addInterceptor(TraktConnectionInterceptor())
         .connectTimeout(30, TimeUnit.SECONDS)
         .retryOnConnectionFailure(true)
         .readTimeout(30, TimeUnit.SECONDS)

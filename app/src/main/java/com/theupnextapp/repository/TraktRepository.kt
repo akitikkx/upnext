@@ -16,6 +16,7 @@ import com.theupnextapp.network.TvMazeNetwork
 import com.theupnextapp.network.models.trakt.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import retrofit2.HttpException
 import timber.log.Timber
 
 class TraktRepository(private val database: UpnextDatabase) {
@@ -55,6 +56,12 @@ class TraktRepository(private val database: UpnextDatabase) {
 
     private val _traktShowStats = MutableLiveData<TraktShowStats>()
 
+    private val _traktWatchedProgress = MutableLiveData<TraktShowWatchedProgress>()
+
+    private val _invalidToken = MutableLiveData<Boolean>()
+
+    private val _invalidGrant = MutableLiveData<Boolean>()
+
     val isLoadingTraktWatchlist: LiveData<Boolean> = _isLoadingTraktWatchlist
 
     val isLoadingTraktHistory: LiveData<Boolean> = _isLoadingTraktHistory
@@ -71,6 +78,12 @@ class TraktRepository(private val database: UpnextDatabase) {
     val traktShowRating: LiveData<TraktShowRating> = _traktShowRating
 
     val traktShowStats: LiveData<TraktShowStats> = _traktShowStats
+
+    val traktWatchedProgress: LiveData<TraktShowWatchedProgress> = _traktWatchedProgress
+
+    val invalidToken: LiveData<Boolean> = _invalidToken
+
+    val invalidGrant: LiveData<Boolean> = _invalidGrant
 
     suspend fun getTraktAccessToken(code: String?) {
         if (code.isNullOrEmpty()) {
@@ -124,7 +137,8 @@ class TraktRepository(private val database: UpnextDatabase) {
                         .await()
                 _traktAccessToken.postValue(accessTokenResponse.asDomainModel())
                 _isLoading.postValue(false)
-            } catch (e: Exception) {
+            } catch (e: HttpException) {
+                handleTraktError(e)
                 _isLoading.postValue(false)
                 Timber.d(e)
                 FirebaseCrashlytics.getInstance().recordException(e)
@@ -144,10 +158,7 @@ class TraktRepository(private val database: UpnextDatabase) {
                 val updatedWatchList: MutableList<DatabaseTraktWatchlist> = arrayListOf()
 
                 val watchlistResponse = TraktNetwork.traktApi.getWatchlistAsync(
-                    contentType = "application/json",
-                    token = "Bearer $accessToken",
-                    version = "2",
-                    apiKey = BuildConfig.TRAKT_CLIENT_ID
+                    token = "Bearer $accessToken"
                 ).await()
 
                 // loop through each watchlist item to get the title and IMDB link
@@ -183,7 +194,8 @@ class TraktRepository(private val database: UpnextDatabase) {
                 saveTraktWatchlist(updatedWatchList)
                 _isLoading.postValue(false)
                 _isLoadingTraktWatchlist.postValue(false)
-            } catch (e: Exception) {
+            } catch (e: HttpException) {
+                handleTraktError(e)
                 Timber.d(e)
                 FirebaseCrashlytics.getInstance().recordException(e)
                 _isLoading.postValue(false)
@@ -216,10 +228,7 @@ class TraktRepository(private val database: UpnextDatabase) {
                 val updatedHistoryList: MutableList<DatabaseTraktHistory> = arrayListOf()
 
                 val historyResponse = TraktNetwork.traktApi.getHistoryAsync(
-                    contentType = "application/json",
-                    token = "Bearer $accessToken",
-                    version = "2",
-                    apiKey = BuildConfig.TRAKT_CLIENT_ID
+                    token = "Bearer $accessToken"
                 ).await()
 
                 // loop through each watchlist item to get the title and IMDB link
@@ -256,7 +265,8 @@ class TraktRepository(private val database: UpnextDatabase) {
                     }
                 }
                 _isLoadingTraktHistory.postValue(false)
-            } catch (e: Exception) {
+            } catch (e: HttpException) {
+                handleTraktError(e)
                 Timber.d(e)
                 FirebaseCrashlytics.getInstance().recordException(e)
                 _isLoadingTraktHistory.postValue(false)
@@ -285,10 +295,7 @@ class TraktRepository(private val database: UpnextDatabase) {
         withContext(Dispatchers.IO) {
             try {
                 val watchlistResponse = TraktNetwork.traktApi.getWatchedAsync(
-                    contentType = "application/json",
-                    token = "Bearer $accessToken",
-                    version = "2",
-                    apiKey = BuildConfig.TRAKT_CLIENT_ID
+                    token = "Bearer $accessToken"
                 ).await()
                 Timber.d(watchlistResponse.toString())
             } catch (e: Exception) {
@@ -302,10 +309,7 @@ class TraktRepository(private val database: UpnextDatabase) {
         withContext(Dispatchers.IO) {
             try {
                 val collectionResponse = TraktNetwork.traktApi.getCollectionAsync(
-                    contentType = "application/json",
-                    token = "Bearer $accessToken",
-                    version = "2",
-                    apiKey = BuildConfig.TRAKT_CLIENT_ID
+                    token = "Bearer $accessToken"
                 ).await()
             } catch (e: Exception) {
                 Timber.d(e)
@@ -336,10 +340,7 @@ class TraktRepository(private val database: UpnextDatabase) {
                     arrayListOf()
 
                 val searchList = TraktNetwork.traktApi.getIDLookupAsync(
-                    contentType = "application/json",
                     token = "Bearer $accessToken",
-                    version = "2",
-                    apiKey = BuildConfig.TRAKT_CLIENT_ID,
                     id = imdbID,
                     type = "show"
                 ).await()
@@ -387,10 +388,7 @@ class TraktRepository(private val database: UpnextDatabase) {
                 )
             addToWatchlistShowsList.add(addToWatchlistItem)
             val addToWatchlist = TraktNetwork.traktApi.addToWatchlistAsync(
-                contentType = "application/json",
                 token = "Bearer $accessToken",
-                version = "2",
-                apiKey = BuildConfig.TRAKT_CLIENT_ID,
                 request = NetworkTraktAddToWatchlistRequest(
                     shows = addToWatchlistShowsList,
                     movies = emptyList(),
@@ -419,10 +417,7 @@ class TraktRepository(private val database: UpnextDatabase) {
             removeFromWatchlistShowsList.add(removeFromWatchlistItem)
             val removeFromWatchlist =
                 TraktNetwork.traktApi.removeFromWatchlistAsync(
-                    contentType = "application/json",
                     token = "Bearer $accessToken",
-                    version = "2",
-                    apiKey = BuildConfig.TRAKT_CLIENT_ID,
                     request = NetworkTraktRemoveFromWatchlistRequest(
                         shows = removeFromWatchlistShowsList,
                         movies = emptyList(),
@@ -446,10 +441,7 @@ class TraktRepository(private val database: UpnextDatabase) {
             try {
                 _isLoading.postValue(true)
                 val showRatingResponse = TraktNetwork.traktApi.getShowRatingsAsync(
-                    contentType = "application/json",
                     token = "Bearer $accessToken",
-                    version = "2",
-                    apiKey = BuildConfig.TRAKT_CLIENT_ID,
                     id = imdbID
                 ).await()
                 _traktShowRating.postValue(showRatingResponse.asDomainModel())
@@ -474,10 +466,7 @@ class TraktRepository(private val database: UpnextDatabase) {
             try {
                 _isLoading.postValue(true)
                 val showStatsResponse = TraktNetwork.traktApi.getShowStatsAsync(
-                    contentType = "application/json",
                     token = "Bearer $accessToken",
-                    version = "2",
-                    apiKey = BuildConfig.TRAKT_CLIENT_ID,
                     id = imdbID
                 ).await()
                 _traktShowStats.postValue(showStatsResponse.asDomainModel())
@@ -490,8 +479,55 @@ class TraktRepository(private val database: UpnextDatabase) {
         }
     }
 
+    suspend fun getTraktWatchedProgress(
+        accessToken: String?,
+        imdbID: String?
+    ) {
+        if (imdbID.isNullOrEmpty()) {
+            return
+        }
+
+        withContext(Dispatchers.IO) {
+            try {
+                _isLoading.postValue(true)
+                val showWatchedProgress = TraktNetwork.traktApi.getShowWatchedProgressAsync(
+                    token = "Bearer $accessToken",
+                    id = imdbID
+                ).await()
+                _traktWatchedProgress.postValue(showWatchedProgress.asDomainModel())
+                _isLoading.postValue(false)
+            } catch (e: HttpException) {
+                handleTraktError(e)
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
+                _isLoading.postValue(false)
+            }
+        }
+    }
+
+    private fun handleTraktError(exception: HttpException) {
+        when (exception.code()) {
+            401 -> {
+                when (exception.message) {
+                    TRAKT_ERROR_INVALID_TOKEN -> {
+                        _invalidToken.postValue(true)
+                    }
+                    TRAKT_ERROR_INVALID_GRANT -> {
+                        _invalidGrant.postValue(true)
+                    }
+                    else -> {
+                        _invalidToken.postValue(true)
+                    }
+                }
+            }
+        }
+    }
+
     companion object {
         const val WATCHLIST_ACTION_ADD = "add_to_watchlist"
         const val WATCHLIST_ACTION_REMOVE = "remove_from_watchlist"
+
+        const val TRAKT_ERROR_INVALID_TOKEN = "invalid_token"
+        const val TRAKT_ERROR_INVALID_GRANT = "invalid_grant"
     }
 }
