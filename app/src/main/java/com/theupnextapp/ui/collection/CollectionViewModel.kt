@@ -16,8 +16,6 @@ class CollectionViewModel(
     application: Application
 ) : TraktViewModel(application) {
 
-    private val _launchTraktConnectWindow = MutableLiveData<Boolean>()
-
     private val _fetchingAccessTokenInProgress = MutableLiveData<Boolean>()
 
     private val _storingTraktAccessTokenInProgress = MutableLiveData<Boolean>()
@@ -34,10 +32,6 @@ class CollectionViewModel(
 
     fun onConnectClick() {
         _launchTraktConnectWindow.value = true
-    }
-
-    fun launchConnectWindowComplete() {
-        _launchTraktConnectWindow.value = false
     }
 
     init {
