@@ -175,7 +175,9 @@ class ShowDetailViewModel(
     }
 
     fun onRemoveFromWatchlistResponseReceived(removeFromWatchlist: TraktRemoveFromWatchlist) {
-        requestWatchlistRefresh()
+        viewModelScope?.launch {
+            showInfo.value?.imdbID?.let { traktRepository.removeFromWatchlist(it) }
+        }
     }
 
     private fun requestWatchlistRefresh() {

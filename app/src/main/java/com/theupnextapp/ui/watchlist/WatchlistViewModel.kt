@@ -7,9 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
-import com.theupnextapp.domain.ShowDetailArg
-import com.theupnextapp.domain.TraktAccessToken
-import com.theupnextapp.domain.TraktConnectionArg
+import com.theupnextapp.domain.*
 import com.theupnextapp.ui.common.TraktViewModel
 import kotlinx.coroutines.launch
 
@@ -94,6 +92,15 @@ class WatchlistViewModel(application: Application) : TraktViewModel(application)
         _storingTraktAccessTokenInProgress.value = false
 
         loadTraktWatchlist()
+    }
+
+    fun onWatchlistItemDeleteClick(watchlistItem: TraktWatchlist) {
+        viewModelScope?.launch {
+            watchlistItem.imdbID?.let {
+                traktRepository.removeFromWatchlist(it)
+                traktRepository.traktRemoveFromWatchlist(getAccessToken(), it)
+            }
+        }
     }
 
     fun displayShowDetails(showDetailArg: ShowDetailArg) {
