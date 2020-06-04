@@ -33,7 +33,7 @@
                 android:layout_gravity="center_vertical"
                 app:showHideStringContent="@{show.originalImageUrl}" />
 
-            <ImageView
+            <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/new_show_poster"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/shows_list_poster_height"

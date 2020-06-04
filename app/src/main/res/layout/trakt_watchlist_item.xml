@@ -40,7 +40,7 @@
                 android:layout_gravity="center_vertical"
                 app:showHideView="@{show.originalImageUrl != null}" />
 
-            <ImageView
+            <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/trakt_watchlist_poster"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/search_poster_height"
