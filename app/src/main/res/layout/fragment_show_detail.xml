@@ -206,7 +206,7 @@
                     android:enabled="@{!viewModel.isLoading}"
                     android:focusable="true"
                     android:onClick="@{() -> viewModel.onRemoveFromWatchlistClick()}"
-                    android:text="@string/show_detail_remove_from_watchlist_button_description"
+                    android:text="@string/show_detail_remove_from_watchlist_button"
                     app:showHideView="@{viewModel.onWatchlist}"
                     tools:visibility="visible" />
             </LinearLayout>
