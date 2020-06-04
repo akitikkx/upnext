@@ -47,7 +47,7 @@
                     android:layout_gravity="center_vertical"
                     app:showHideStringContent="@{viewModel.showInfo.originalImageUrl}" />
 
-                <ImageView
+                <androidx.appcompat.widget.AppCompatImageView
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/show_backdrop_height"
                     android:contentDescription="@{String.format(@string/show_backdrop_image, viewModel.showInfo.name)}"
@@ -114,7 +114,7 @@
                     android:layout_gravity="center_vertical"
                     app:showHideStringContent="@{viewModel.showInfo.originalImageUrl}" />
 
-                <ImageView
+                <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/poster"
                     android:layout_width="@dimen/poster_frame_width"
                     android:layout_height="match_parent"
