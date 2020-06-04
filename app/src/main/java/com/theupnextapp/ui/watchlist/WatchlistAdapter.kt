@@ -10,7 +10,8 @@ import com.theupnextapp.R
 import com.theupnextapp.databinding.TraktWatchlistItemBinding
 import com.theupnextapp.domain.TraktWatchlist
 
-class WatchlistAdapter(val listener: WatchlistAdapterListener) : RecyclerView.Adapter<WatchlistAdapter.ViewHolder>() {
+class WatchlistAdapter(val listener: WatchlistAdapterListener) :
+    RecyclerView.Adapter<WatchlistAdapter.ViewHolder>() {
 
     var watchlist: List<TraktWatchlist> = emptyList()
         set(value) {
@@ -38,7 +39,9 @@ class WatchlistAdapter(val listener: WatchlistAdapterListener) : RecyclerView.Ad
     }
 
     interface WatchlistAdapterListener {
-        fun onWatchlistShowClick(view : View, watchlistItem: TraktWatchlist)
+        fun onWatchlistShowClick(view: View, watchlistItem: TraktWatchlist)
+
+        fun onWatchlistItemDeleteClick(view: View, watchlistItem: TraktWatchlist)
     }
 
     class ViewHolder(val viewDataBinding: TraktWatchlistItemBinding) :

@@ -221,6 +221,17 @@ class TraktRepository(private val database: UpnextDatabase) {
         }
     }
 
+    suspend fun removeFromWatchlist(imdbID: String) {
+        withContext(Dispatchers.IO) {
+            try {
+                database.upnextDao.deleteWatchlistItem(imdbID)
+            } catch (e: Exception) {
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
+            }
+        }
+    }
+
     suspend fun refreshTraktHistory(accessToken: String?) {
         withContext(Dispatchers.IO) {
             try {

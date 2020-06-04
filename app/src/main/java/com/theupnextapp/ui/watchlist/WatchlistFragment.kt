@@ -14,6 +14,7 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.theupnextapp.BuildConfig
 import com.theupnextapp.R
@@ -191,5 +192,23 @@ class WatchlistFragment : Fragment(), WatchlistAdapter.WatchlistAdapterListener 
                 showImageUrl = watchlistItem.originalImageUrl
             )
         )
+    }
+
+    override fun onWatchlistItemDeleteClick(view: View, watchlistItem: TraktWatchlist) {
+        MaterialAlertDialogBuilder(requireActivity())
+            .setTitle(
+                resources.getString(
+                    R.string.remove_from_watchlist_confirm,
+                    watchlistItem.title
+                )
+            )
+            .setNegativeButton(resources.getString(R.string.remove_from_watchlist_dialog_button_negative)) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .setPositiveButton(resources.getString(R.string.remove_from_watchlist_dialog_button_positive)) { dialog, _ ->
+                viewModel.onWatchlistItemDeleteClick(watchlistItem)
+                dialog.dismiss()
+            }
+            .show()
     }
 }

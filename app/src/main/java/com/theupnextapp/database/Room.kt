@@ -84,7 +84,10 @@ interface UpnextDao {
     fun getTraktHistory(): LiveData<List<DatabaseTraktHistory>>
 
     @Query("select * from trakt_watchlist where imdbID = :imdbID")
-    fun checkIfInTraktWatchlist(imdbID : String) : LiveData<DatabaseTraktHistory?>
+    fun checkIfInTraktWatchlist(imdbID: String): LiveData<DatabaseTraktHistory?>
+
+    @Query("delete from trakt_watchlist where imdbID = :imdbID")
+    fun deleteWatchlistItem(imdbID: String)
 }
 
 @Database(
