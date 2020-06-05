@@ -1,8 +1,10 @@
 package com.theupnextapp.network
 
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
+import com.theupnextapp.UpnextApplication
 import com.theupnextapp.network.models.tvmaze.*
 import kotlinx.coroutines.Deferred
+import okhttp3.Cache
 import okhttp3.ConnectionPool
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -11,6 +13,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
+import java.io.File
 import java.util.concurrent.TimeUnit
 
 interface TvMazeService {
@@ -52,8 +55,19 @@ object TvMazeNetwork {
         level = HttpLoggingInterceptor.Level.BODY
     }
 
+    var httpCacheDirectory: File = File(UpnextApplication.context?.cacheDir, "responses")
+
+    private const val cacheSize = (5 * 1024 * 1024).toLong()
+
     private val client = OkHttpClient().newBuilder()
+        .cache(Cache(httpCacheDirectory, cacheSize))
         .addInterceptor(loggingInterceptor)
+        .addInterceptor { chain ->
+            var request = chain.request()
+            request =
+                request.newBuilder().header("Cache-Control", "public, max-age=" + 60 * 5).build()
+            chain.proceed(request)
+        }
         .connectTimeout(30, TimeUnit.SECONDS)
         .retryOnConnectionFailure(true)
         .readTimeout(30, TimeUnit.SECONDS)

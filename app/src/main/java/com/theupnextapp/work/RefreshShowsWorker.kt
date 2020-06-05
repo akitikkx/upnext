@@ -1,8 +1,10 @@
 package com.theupnextapp.work
 
 import android.content.Context
+import android.os.Bundle
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.theupnextapp.database.getDatabase
 import com.theupnextapp.repository.UpnextRepository
 import kotlinx.coroutines.async
@@ -21,6 +23,9 @@ class RefreshShowsWorker(appContext: Context, workerParameters: WorkerParameters
         val jobs = (0 until 100).map {
             async {
                 refreshShows(repository)
+                val bundle = Bundle()
+                bundle.putBoolean("Refresh shows job run", true)
+                FirebaseAnalytics.getInstance(this@RefreshShowsWorker.applicationContext).logEvent("RefreshShowsWorker", bundle)
             }
         }
 
