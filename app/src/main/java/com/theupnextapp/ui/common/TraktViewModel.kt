@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.preference.PreferenceManager
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.theupnextapp.common.utils.UpnextPreferenceManager
 import com.theupnextapp.database.getDatabase
 import com.theupnextapp.domain.TraktAccessToken
 import com.theupnextapp.repository.TraktRepository
@@ -36,11 +37,11 @@ open class TraktViewModel(application: Application) : AndroidViewModel(applicati
     val invalidGrant = traktRepository.invalidGrant
 
     protected fun ifValidAccessTokenExists(): Boolean {
-        val preferences = PreferenceManager.getDefaultSharedPreferences(getApplication())
+        val preferences = UpnextPreferenceManager(getApplication())
 
-        val refreshToken = preferences.getString(SHARED_PREF_TRAKT_ACCESS_TOKEN_REFRESH_TOKEN, null)
-        val createdDateEpoch = preferences.getInt(SHARED_PREF_TRAKT_ACCESS_TOKEN_CREATED_AT, 0)
-        val expiresInEpoch = preferences.getInt(SHARED_PREF_TRAKT_ACCESS_TOKEN_EXPIRES_IN, 0)
+        val refreshToken = preferences.getTraktAccessTokenRefresh()
+        val createdDateEpoch = preferences.getTraktAccessTokenCreatedAt()
+        val expiresInEpoch = preferences.getTraktAccessTokenExpiresIn()
         val expiryDateEpoch = createdDateEpoch + expiresInEpoch
         val currentDateEpoch = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())
 
@@ -49,7 +50,7 @@ open class TraktViewModel(application: Application) : AndroidViewModel(applicati
             return false
         }
 
-        val accessToken = preferences.getString(SHARED_PREF_TRAKT_ACCESS_TOKEN, null)
+        val accessToken = preferences.getTraktAccessToken()
         return accessToken != null
     }
 
@@ -86,43 +87,28 @@ open class TraktViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     protected fun storeTraktAccessToken(traktAccessTokenResponse: TraktAccessToken) {
-        val preferences = PreferenceManager.getDefaultSharedPreferences(getApplication())
+        val preferences = UpnextPreferenceManager(getApplication())
 
-        preferences.edit()
-            .putString(SHARED_PREF_TRAKT_ACCESS_TOKEN, traktAccessTokenResponse.access_token)
-            .apply()
+        preferences.saveTraktAccessToken(traktAccessTokenResponse.access_token)
 
         traktAccessTokenResponse.created_at?.let { createdAt ->
-            preferences.edit().putInt(
-                SHARED_PREF_TRAKT_ACCESS_TOKEN_CREATED_AT,
-                createdAt
-            ).apply()
+            preferences.saveTraktAccessTokenCreatedAt(createdAt)
         }
 
         traktAccessTokenResponse.expires_in?.let { expiresIn ->
-            preferences.edit().putInt(
-                SHARED_PREF_TRAKT_ACCESS_TOKEN_EXPIRES_IN,
-                expiresIn
-            ).apply()
+            preferences.saveTraktAccessTokenExpiresIn(expiresIn)
         }
 
         if (traktAccessTokenResponse.refresh_token.isNullOrEmpty()) {
-            FirebaseCrashlytics.getInstance().recordException(Exception("Refresh token not received"))
+            FirebaseCrashlytics.getInstance()
+                .recordException(Exception("Refresh token not received"))
         }
 
-        preferences.edit().putString(
-            SHARED_PREF_TRAKT_ACCESS_TOKEN_REFRESH_TOKEN,
-            traktAccessTokenResponse.refresh_token
-        ).apply()
+        preferences.saveTraktAccessTokenRefresh(traktAccessTokenResponse.refresh_token)
 
-        preferences.edit()
-            .putString(SHARED_PREF_TRAKT_ACCESS_TOKEN_SCOPE, traktAccessTokenResponse.scope)
-            .apply()
+        preferences.saveTraktAccessTokenScope(traktAccessTokenResponse.scope)
 
-        preferences.edit()
-            .putString(SHARED_PREF_TRAKT_ACCESS_TOKEN_TYPE, traktAccessTokenResponse.token_type)
-            .apply()
-
+        preferences.saveTraktAccessTokenType(traktAccessTokenResponse.token_type)
     }
 
     companion object {

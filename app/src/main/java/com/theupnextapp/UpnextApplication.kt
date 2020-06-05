@@ -1,6 +1,7 @@
 package com.theupnextapp
 
 import android.app.Application
+import android.content.Context
 import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.work.Constraints
@@ -16,6 +17,7 @@ import java.util.concurrent.TimeUnit
 class UpnextApplication : Application() {
 
     init {
+        application = this
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
     }
 
@@ -34,7 +36,6 @@ class UpnextApplication : Application() {
 
     private fun launchBackgroundTasks() {
         val constraints = Constraints.Builder()
-            .setRequiresBatteryNotLow(true)
             .apply {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     setRequiresDeviceIdle(true)
@@ -52,6 +53,22 @@ class UpnextApplication : Application() {
             ExistingPeriodicWorkPolicy.REPLACE,
             refreshShowsRequest
         )
+    }
+
+    companion object {
+        private var application: UpnextApplication? = null
+
+        @get:Synchronized
+        val instance: UpnextApplication?
+            get() {
+                if (application == null) {
+                    application = UpnextApplication()
+                }
+                return application
+            }
+
+        val context: Context?
+            get() = application
     }
 
 }
