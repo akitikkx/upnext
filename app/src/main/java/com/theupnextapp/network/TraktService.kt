@@ -61,6 +61,18 @@ interface TraktService {
         @Body request: NetworkTraktRemoveFromWatchlistRequest
     ): Deferred<NetworkTraktRemoveFromWatchlistResponse>
 
+    @POST("sync/history")
+    fun addToHistoryAsync(
+        @Header("Authorization") token: String,
+        @Body request: NetworkTraktAddToHistoryRequest
+    ): Deferred<NetworkTraktAddToHistoryResponse>
+
+    @POST("sync/watchlist/remove")
+    fun removeFromHistoryAsync(
+        @Header("Authorization") token: String,
+        @Body request: NetworkTraktRemoveFromHistoryRequest
+    ): Deferred<NetworkTraktRemoveFromHistoryResponse>
+
     @GET("shows/{id}/ratings")
     fun getShowRatingsAsync(
         @Header("Authorization") token: String,
