@@ -21,6 +21,7 @@ import com.theupnextapp.MainActivity
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentShowDetailBinding
 import com.theupnextapp.domain.ShowCast
+import com.theupnextapp.domain.ShowInfo
 import com.theupnextapp.domain.ShowSeason
 import com.theupnextapp.domain.TraktShowWatchedProgress
 import com.theupnextapp.ui.common.BaseFragment
@@ -35,6 +36,7 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
 
     private var _traktShowWatchedProgress: TraktShowWatchedProgress? = null
     private var _showSeasons: List<ShowSeason>? = null
+    private var showInfo: ShowInfo? = null
 
     val args by navArgs<ShowDetailFragmentArgs>()
 
@@ -79,6 +81,12 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+
+        viewModel.showInfo.observe(viewLifecycleOwner, Observer {
+            if (it != null) {
+                showInfo = it
+            }
+        })
 
         viewModel.watchlistRecord.observe(viewLifecycleOwner, Observer {
             viewModel.onWatchlistRecordReceived(it)
@@ -176,7 +184,7 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
                 val args = Bundle()
                 args.putParcelableArrayList(ARG_SHOW_SEASONS, ArrayList(it))
                 args.putParcelable(ARG_WATCHED_PROGRESS, _traktShowWatchedProgress)
-                args.putParcelable(ARG_SHOW_DETAIL, this@ShowDetailFragment.args.show)
+                args.putParcelable(ARG_SHOW_DETAIL, this@ShowDetailFragment.showInfo)
                 showSeasonsBottomSheet.arguments = args
 
                 activity?.supportFragmentManager?.let { fragmentManager ->
