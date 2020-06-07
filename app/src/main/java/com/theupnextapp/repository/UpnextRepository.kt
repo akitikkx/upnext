@@ -7,16 +7,14 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.theupnextapp.database.*
 import com.theupnextapp.domain.*
 import com.theupnextapp.network.*
-import com.theupnextapp.network.models.tvmaze.NetworkShowNextEpisodeResponse
-import com.theupnextapp.network.models.tvmaze.NetworkShowPreviousEpisodeResponse
-import com.theupnextapp.network.models.tvmaze.NetworkTomorrowScheduleResponse
-import com.theupnextapp.network.models.tvmaze.asDomainModel
+import com.theupnextapp.network.models.tvmaze.*
 import com.theupnextapp.network.models.upnext.NetworkRecommendedShowsResponse
 import com.theupnextapp.network.models.upnext.NetworkShowInfoCombined
 import com.theupnextapp.network.models.upnext.asDatabaseModel
 import com.theupnextapp.network.models.upnext.asDomainModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import retrofit2.HttpException
 import timber.log.Timber
 
 class UpnextRepository(private val database: UpnextDatabase) {
@@ -64,6 +62,8 @@ class UpnextRepository(private val database: UpnextDatabase) {
 
     private val _showCast = MutableLiveData<List<ShowCast>>()
 
+    private val _showSeasons = MutableLiveData<List<ShowSeason>>()
+
     val isLoading: LiveData<Boolean> = _isLoading
 
     val isLoadingRecommendedShows: LiveData<Boolean> = _isLoadingRecommendedShows
@@ -82,12 +82,26 @@ class UpnextRepository(private val database: UpnextDatabase) {
 
     val showCast: LiveData<List<ShowCast>> = _showCast
 
+    val showSeasons: LiveData<List<ShowSeason>> = _showSeasons
+
     suspend fun getSearchSuggestions(name: String?) {
         if (!name.isNullOrEmpty()) {
             withContext(Dispatchers.IO) {
                 try {
                     val searchList = TvMazeNetwork.tvMazeApi.getSuggestionListAsync(name).await()
-                    _showSearch.postValue(searchList.asDomainModel())
+                    val rebuiltList: MutableList<NetworkShowSearchResponse> = arrayListOf()
+
+                    // we need to ensure that the items returned have an IMDB link
+                    if (!searchList.isNullOrEmpty()) {
+                        searchList.forEach {
+                            val item: NetworkShowSearchResponse = it
+                            if (!item.show.externals.imdb.isNullOrEmpty()) {
+                                rebuiltList.add(item)
+                            }
+                        }
+                    }
+
+                    _showSearch.postValue(rebuiltList.asDomainModel())
                 } catch (e: Exception) {
                     Timber.d(e)
                     FirebaseCrashlytics.getInstance().recordException(e)
@@ -158,7 +172,7 @@ class UpnextRepository(private val database: UpnextDatabase) {
                         deleteAllYesterdayShows()
                         yesterdayShowsList.forEach {
                             // only adding shows that have an image
-                            if (!it.show.image?.original.isNullOrEmpty()) {
+                            if (!it.show.image?.original.isNullOrEmpty() && !it.show.externals?.imdb.isNullOrEmpty()) {
                                 shows.add(it.asDatabaseModel())
                                 insertAllYesterdayShows(*shows.toTypedArray())
                             }
@@ -186,7 +200,7 @@ class UpnextRepository(private val database: UpnextDatabase) {
                         deleteAllTodayShows()
                         todayShowsList.forEach {
                             // only adding shows that have an image
-                            if (!it.show.image?.original.isNullOrEmpty()) {
+                            if (!it.show.image?.original.isNullOrEmpty() && !it.show.externals?.imdb.isNullOrEmpty()) {
                                 shows.add(it.asDatabaseModel())
                                 insertAllTodayShows(*shows.toTypedArray())
                             }
@@ -229,7 +243,7 @@ class UpnextRepository(private val database: UpnextDatabase) {
                         deleteAllTomorrowShows()
                         tomorrowShowsList.forEach {
                             // only adding shows that have an image
-                            if (!it.show.image?.original.isNullOrEmpty()) {
+                            if (!it.show.image?.original.isNullOrEmpty() && !it.show.externals?.imdb.isNullOrEmpty()) {
                                 shows.add(it.asDatabaseModel())
                                 insertAllTomorrowShows(*shows.toTypedArray())
                             }
@@ -354,7 +368,23 @@ class UpnextRepository(private val database: UpnextDatabase) {
                 val showCast = TvMazeNetwork.tvMazeApi.getShowCastAsync(showId.toString()).await()
                 _showCast.postValue(showCast.asDomainModel())
                 _isLoading.postValue(false)
-            } catch (e: Exception) {
+            } catch (e: HttpException) {
+                _isLoading.postValue(false)
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
+            }
+        }
+    }
+
+    suspend fun getShowSeasons(showId: Int) {
+        withContext(Dispatchers.IO) {
+            try {
+                _isLoading.postValue(true)
+                val showSeasons =
+                    TvMazeNetwork.tvMazeApi.getShowSeasonsAsync(showId.toString()).await()
+                _showSeasons.postValue(showSeasons.asDomainModel())
+                _isLoading.postValue(false)
+            } catch (e: HttpException) {
                 _isLoading.postValue(false)
                 Timber.d(e)
                 FirebaseCrashlytics.getInstance().recordException(e)

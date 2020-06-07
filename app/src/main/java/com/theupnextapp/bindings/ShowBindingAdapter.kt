@@ -39,7 +39,58 @@ fun canClickItem(view: View, isLoading: Boolean) {
 @BindingAdapter("seasonAndNumber")
 fun seasonAndNumber(view: TextView, number: Int?) {
     view.text = view.resources.getString(
-        R.string.trakt_watched_progress_season_and_number,
+        R.string.show_detail_season_and_number,
         number
     )
+}
+
+@BindingAdapter("seasonCount")
+fun seasonCount(view: TextView, number: Int?) {
+    if (number != null || number == 0) {
+        view.text = view.resources.getString(
+            R.string.show_detail_season_count,
+            number
+        )
+        view.visibility = View.VISIBLE
+    } else {
+        view.visibility = View.GONE
+    }
+}
+
+@BindingAdapter("seasonPremiereDate")
+fun seasonPremiereDate(view: TextView, date: String?) {
+    if (!date.isNullOrEmpty()) {
+        view.text = view.resources.getString(
+            R.string.show_detail_season_premiere_date,
+            date
+        )
+        view.visibility = View.VISIBLE
+    } else {
+        view.visibility = View.GONE
+    }
+}
+
+@BindingAdapter("seasonEndDate")
+fun seasonEndDate(view: TextView, date: String?) {
+    if (!date.isNullOrEmpty()) {
+        view.text = view.resources.getString(
+            R.string.show_detail_season_end_date,
+            date
+        )
+        view.visibility = View.VISIBLE
+    } else {
+        view.visibility = View.GONE
+    }
+}
+
+@BindingAdapter("watchedProgressBottomSheetTitle")
+fun watchedProgressBottomSheetTitle(view: TextView, showName: String?) {
+    if (!showName.isNullOrEmpty()) {
+        view.text = view.resources.getString(
+            R.string.trakt_watched_progress_sheet_title_with_show_name,
+            showName
+        )
+    } else {
+        view.text = view.resources.getString(R.string.trakt_watched_progress_sheet_title)
+    }
 }

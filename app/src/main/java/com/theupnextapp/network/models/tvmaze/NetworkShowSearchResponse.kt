@@ -15,7 +15,7 @@ data class NetworkShowSearchResponseShow(
     val image: NetworkShowSearchResponseImage?,
     val language: String?,
     val name: String?,
-    val network: Network,
+    val network: NetworkShowSeasonsResponseNetwork,
     val officialSite: String?,
     val premiered: String?,
     val rating: Rating,
@@ -44,9 +44,9 @@ data class NetworkShowSearchResponseSelf(
 )
 
 data class Externals(
-    val imdb: String,
-    val thetvdb: Int,
-    val tvrage: Any
+    val imdb: String?,
+    val thetvdb: Int?,
+    val tvrage: Any?
 )
 
 data class NetworkShowSearchResponseImage(

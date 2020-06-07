@@ -31,10 +31,10 @@ class MainActivity : AppCompatActivity() {
         get() = findNavController(R.id.nav_host_fragment)
 
     private var _bottomNavigationView: BottomNavigationView? = null
-    private val bottomNavigationView get() = _bottomNavigationView!!
+    private val bottomNavigationView get() = _bottomNavigationView
 
     private var _toolbar: Toolbar? = null
-    private val toolbar get() = _toolbar!!
+    private val toolbar get() = _toolbar
 
     private var _container: ConstraintLayout? = null
     private val container get() = _container!!
@@ -67,7 +67,7 @@ class MainActivity : AppCompatActivity() {
             .build()
 
         setupActionBarWithNavController(navController, appBarConfiguration)
-        bottomNavigationView.setupWithNavController(navController)
+        bottomNavigationView?.setupWithNavController(navController)
     }
 
     override fun onResume() {
@@ -114,29 +114,29 @@ class MainActivity : AppCompatActivity() {
 
     fun hideBottomNavigation() {
         if (bottomNavigationView != null) {
-            if (bottomNavigationView.visibility == View.VISIBLE) {
-                bottomNavigationView.visibility = View.GONE
+            if (bottomNavigationView?.visibility == View.VISIBLE) {
+                bottomNavigationView?.visibility = View.GONE
             }
         }
     }
 
     fun showBottomNavigation() {
         if (bottomNavigationView != null) {
-            if (bottomNavigationView.visibility == View.GONE) {
-                bottomNavigationView.visibility = View.VISIBLE
+            if (bottomNavigationView?.visibility == View.GONE) {
+                bottomNavigationView?.visibility = View.VISIBLE
             }
         }
     }
 
     fun hideToolbar() {
-        if (toolbar.visibility == View.VISIBLE) {
-            toolbar.visibility = View.GONE
+        if (toolbar?.visibility == View.VISIBLE) {
+            toolbar?.visibility = View.GONE
         }
     }
 
     fun showToolbar() {
-        if (toolbar.visibility == View.GONE) {
-            toolbar.visibility = View.VISIBLE
+        if (toolbar?.visibility == View.GONE) {
+            toolbar?.visibility = View.VISIBLE
         }
     }
 
