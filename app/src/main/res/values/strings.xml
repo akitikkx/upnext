@@ -36,12 +36,25 @@
     <string name="show_detail_rating">%1$d/10</string>
     <string name="show_detail_rating_votes">%1$d votes</string>
     <string name="show_detail_watched_progress_empty">You currently have no progress data available for this show</string>
+    <string name="show_detail_seasons_empty">Season information for this show is currently not available</string>
 
     <!-- Watched progress bottom sheet -->
     <string name="trakt_watched_progress_episodes_aired_heading">Episodes aired</string>
     <string name="trakt_watched_progress_episodes_watched_heading">Episodes you watched</string>
-    <string name="trakt_watched_progress_season_and_number">Season %1$d</string>
     <string name="trakt_watched_progress_season_percentage">%1$d%%</string>
+    <string name="trakt_watched_progress_sheet_title">Your watched progress</string>
+    <string name="trakt_watched_progress_sheet_title_with_show_name">Your %1$s watched progress</string>
+
+    <!-- Show seasons bottom sheet -->
+    <string name="show_detail_season_count">%1$d Episodes</string>
+    <string name="show_detail_season_and_number">Season %1$d</string>
+    <string name="show_detail_season_premiere_date">Premiered: %1$s</string>
+    <string name="show_detail_season_end_date">Ended: %1$s</string>
+    <string name="show_detail_show_seasons_bottom_sheet_title">Seasons Summary</string>
+    <string name="show_detail_show_seasons_bottom_sheet_dialog_add_title">Mark this season as watched on Trakt?</string>
+    <string name="show_detail_show_seasons_bottom_sheet_dialog_remove_title">Mark this season as not watched on Trakt?</string>
+    <string name="show_detail_show_seasons_bottom_sheet_dialog_negative">Cancel</string>
+    <string name="show_detail_show_seasons_bottom_sheet_dialog_positive">Yes</string>
 
     <!-- Splash screen -->
     <string name="splash_screen_loading_text_tomorrow_schedule">Fetching tomorrow\'s schedule…</string>

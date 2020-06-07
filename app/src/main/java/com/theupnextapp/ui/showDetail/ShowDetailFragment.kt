@@ -21,6 +21,7 @@ import com.theupnextapp.MainActivity
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentShowDetailBinding
 import com.theupnextapp.domain.ShowCast
+import com.theupnextapp.domain.ShowSeason
 import com.theupnextapp.domain.TraktShowWatchedProgress
 import com.theupnextapp.ui.common.BaseFragment
 
@@ -33,6 +34,7 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
     private val showCastAdapter get() = _showCastAdapter!!
 
     private var _traktShowWatchedProgress: TraktShowWatchedProgress? = null
+    private var _showSeasons: List<ShowSeason>? = null
 
     val args by navArgs<ShowDetailFragmentArgs>()
 
@@ -137,12 +139,18 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
             }
         })
 
+        viewModel.showSeasons.observe(viewLifecycleOwner, Observer {
+            if (it != null) {
+                _showSeasons = it
+            }
+        })
+
         viewModel.showWatchedProgressBottomSheet.observe(viewLifecycleOwner, Observer {
-            if (it != null && _traktShowWatchedProgress != null) {
+            if (it != null) {
                 val watchedProgressBottomSheet = ShowWatchedProgressBottomSheetFragment()
 
                 val args = Bundle()
-                args.putParcelable(ARG_WATCHED_PROGRESS, _traktShowWatchedProgress)
+                args.putParcelable(ARG_WATCHED_PROGRESS, it)
                 args.putParcelable(ARG_SHOW_DETAIL, this@ShowDetailFragment.args.show)
                 watchedProgressBottomSheet.arguments = args
 
@@ -152,11 +160,35 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
                         ShowWatchedProgressBottomSheetFragment.TAG
                     )
                 }
-                viewModel.displayWatchedProgressBottomSheetComplete()
             } else {
                 Snackbar.make(
                     binding.root,
                     getString(R.string.show_detail_watched_progress_empty),
+                    Snackbar.LENGTH_LONG
+                ).show()
+            }
+        })
+
+        viewModel.showSeasonsBottomSheet.observe(viewLifecycleOwner, Observer {
+            if (!it.isNullOrEmpty()) {
+                val showSeasonsBottomSheet = ShowSeasonsBottomSheetFragment()
+
+                val args = Bundle()
+                args.putParcelableArrayList(ARG_SHOW_SEASONS, ArrayList(it))
+                args.putParcelable(ARG_WATCHED_PROGRESS, _traktShowWatchedProgress)
+                args.putParcelable(ARG_SHOW_DETAIL, this@ShowDetailFragment.args.show)
+                showSeasonsBottomSheet.arguments = args
+
+                activity?.supportFragmentManager?.let { fragmentManager ->
+                    showSeasonsBottomSheet.show(
+                        fragmentManager,
+                        ShowSeasonsBottomSheetFragment.TAG
+                    )
+                }
+            } else {
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.show_detail_seasons_empty),
                     Snackbar.LENGTH_LONG
                 ).show()
             }
@@ -213,6 +245,7 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
     companion object {
         const val ARG_SHOW_CAST = "show_cast"
         const val ARG_SHOW_DETAIL = "show_detail"
+        const val ARG_SHOW_SEASONS = "show_seasons"
         const val ARG_WATCHED_PROGRESS = "watched_progress"
         const val EXTRA_TRAKT_URI = "extra_trakt_uri"
         const val TRAKT_API_URL = "https://api.trakt.tv"

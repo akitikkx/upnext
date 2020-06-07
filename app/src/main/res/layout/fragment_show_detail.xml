@@ -359,7 +359,7 @@
                 android:clickable="true"
                 android:enabled="@{!viewModel.isLoading}"
                 android:focusable="true"
-                android:onClick="@{() -> viewModel.onWatchedProgressClick()}"
+                android:onClick="@{() -> viewModel.onSeasonsClick()}"
                 android:text="@string/show_detail_seasons"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/watched_progress"

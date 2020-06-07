@@ -27,6 +27,8 @@ class ShowDetailViewModel(
 
     private val _showWatchedProgressBottomSheet = MutableLiveData<TraktShowWatchedProgress>()
 
+    private val _showSeasonsBottomSheet = MutableLiveData<List<ShowSeason>>()
+
     val onWatchlist: LiveData<Boolean> = _onWatchList
 
     val notOnWatchlist: LiveData<Boolean> = _notOnWatchlist
@@ -36,6 +38,8 @@ class ShowDetailViewModel(
     val showDetailArg: LiveData<ShowDetailArg> = _show
 
     val showCastBottomSheet: LiveData<ShowCast> = _showCastBottomSheet
+
+    val showSeasonsBottomSheet: LiveData<List<ShowSeason>> = _showSeasonsBottomSheet
 
     val showWatchedProgressBottomSheet: LiveData<TraktShowWatchedProgress> =
         _showWatchedProgressBottomSheet
@@ -56,6 +60,8 @@ class ShowDetailViewModel(
 
     val showCast = upnextRepository.showCast
 
+    val showSeasons = upnextRepository.showSeasons
+
     val addToWatchlistResponse = traktRepository.addToWatchlistResponse
 
     val removeFromWatchlistResponse = traktRepository.removeFromWatchlistResponse
@@ -71,6 +77,7 @@ class ShowDetailViewModel(
             show.showId?.let {
                 upnextRepository.getShowData(it)
                 upnextRepository.getShowCast(it)
+                upnextRepository.getShowSeasons(it)
             }
             traktRepository.getTraktShowRating(getAccessToken(), showInfo.value?.imdbID)
             traktRepository.getTraktShowStats(getAccessToken(), showInfo.value?.imdbID)
@@ -93,6 +100,10 @@ class ShowDetailViewModel(
 
     fun displayCastBottomSheetComplete() {
         _showCastBottomSheet.value = null
+    }
+
+    fun displayShowSeasonsBottomSheetComplete() {
+        _showSeasonsBottomSheet.value = null
     }
 
     fun onConnectClick() {
@@ -134,8 +145,8 @@ class ShowDetailViewModel(
         _showWatchedProgressBottomSheet.value = watchedProgress.value
     }
 
-    fun displayWatchedProgressBottomSheetComplete() {
-        _showWatchedProgressBottomSheet.value = null
+    fun onSeasonsClick() {
+        _showSeasonsBottomSheet.value = showSeasons.value
     }
 
     private fun onWatchlistAction(action: String) {
