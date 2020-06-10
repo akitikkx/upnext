@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -23,17 +24,17 @@ class ShowSeasonsBottomSheetFragment : BottomSheetDialogFragment(),
     private var _adapter: ShowSeasonsAdapter? = null
     private val adapter get() = _adapter!!
 
-    private val viewModel: ShowSeasonsViewModel by lazy {
+    private val viewModel: ShowSeasonsBottomSheetViewModel by lazy {
         val activity = requireNotNull(activity) {
             "You can only access the viewModel after onActivityCreated"
         }
         ViewModelProviders.of(
             this,
-            ShowSeasonsViewModel.Factory(
+            ShowSeasonsBottomSheetViewModel.Factory(
                 activity.application,
                 arguments?.getParcelable(ShowDetailFragment.ARG_SHOW_DETAIL)
             )
-        ).get(ShowSeasonsViewModel::class.java)
+        ).get(ShowSeasonsBottomSheetViewModel::class.java)
     }
 
     override fun onCreateView(
@@ -64,6 +65,28 @@ class ShowSeasonsBottomSheetFragment : BottomSheetDialogFragment(),
         }
 
         return binding.root
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+
+        viewModel.addToHistoryResponse.observe(viewLifecycleOwner, Observer {
+            if (it != null) {
+                viewModel.onAddToHistoryResponseReceived(it)
+            }
+        })
+
+        viewModel.removeFromHistoryResponse.observe(viewLifecycleOwner, Observer {
+            if (it != null) {
+                viewModel.onRemoveFromHistoryResponseReceived(it)
+            }
+        })
+
+        viewModel.watchedProgress.observe(viewLifecycleOwner, Observer {
+            if (it != null) {
+                _adapter?.watchedProgress = it.seasons
+            }
+        })
     }
 
     override fun onDestroyView() {
