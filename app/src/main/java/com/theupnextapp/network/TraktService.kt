@@ -70,7 +70,7 @@ interface TraktService {
     @POST("sync/watchlist/remove")
     fun removeFromHistoryAsync(
         @Header("Authorization") token: String,
-        @Body request: NetworkTraktRemoveFromHistoryRequest
+        @Body request: NetworkTraktRemoveSeasonFromHistoryRequest
     ): Deferred<NetworkTraktRemoveFromHistoryResponse>
 
     @GET("shows/{id}/ratings")
