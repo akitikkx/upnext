@@ -5,10 +5,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.theupnextapp.domain.ShowInfo
 import com.theupnextapp.domain.ShowSeason
+import com.theupnextapp.domain.TraktAddToHistory
+import com.theupnextapp.domain.TraktRemoveFromHistory
 import com.theupnextapp.ui.common.TraktViewModel
 import kotlinx.coroutines.launch
 
-class ShowSeasonsViewModel(
+class ShowSeasonsBottomSheetViewModel(
     application: Application,
     val showDetail: ShowInfo?
 ) : TraktViewModel(application) {
@@ -19,6 +21,36 @@ class ShowSeasonsViewModel(
 
     fun onRemoveSeasonClick(showSeason: ShowSeason) {
         onSeasonHistoryAction(HISTORY_ACTION_REMOVE, showSeason)
+    }
+
+    val isLoading = traktRepository.isLoading
+
+    val addToHistoryResponse = traktRepository.addToHistoryResponse
+
+    val removeFromHistoryResponse = traktRepository.removeFromHistoryResponse
+
+    val watchedProgress = traktRepository.traktWatchedProgress
+
+    fun onAddToHistoryResponseReceived(addToHistory: TraktAddToHistory) {
+        viewModelScope?.launch {
+            if (_isAuthorizedOnTrakt.value == true) {
+                traktRepository.getTraktWatchedProgress(
+                    getAccessToken(),
+                    showDetail?.imdbID
+                )
+            }
+        }
+    }
+
+    fun onRemoveFromHistoryResponseReceived(removeFromHistory: TraktRemoveFromHistory) {
+        viewModelScope?.launch {
+            if (_isAuthorizedOnTrakt.value == true) {
+                traktRepository.getTraktWatchedProgress(
+                    getAccessToken(),
+                    showDetail?.imdbID
+                )
+            }
+        }
     }
 
     private fun onSeasonHistoryAction(action: String, showSeason: ShowSeason) {
@@ -68,9 +100,9 @@ class ShowSeasonsViewModel(
         val showDetail: ShowInfo?
     ) : ViewModelProvider.Factory {
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(ShowSeasonsViewModel::class.java)) {
+            if (modelClass.isAssignableFrom(ShowSeasonsBottomSheetViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
-                return ShowSeasonsViewModel(
+                return ShowSeasonsBottomSheetViewModel(
                     app,
                     showDetail
                 ) as T
