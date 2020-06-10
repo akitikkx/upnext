@@ -77,6 +77,10 @@ class TraktRepository(private val database: UpnextDatabase) {
     val removeFromWatchlistResponse: LiveData<TraktRemoveFromWatchlist> =
         _removeFromWatchlistResponse
 
+    val addToHistoryResponse: LiveData<TraktAddToHistory> = _addToHistoryResponse
+
+    val removeFromHistoryResponse: LiveData<TraktRemoveFromHistory> = _removeFromHistoryResponse
+
     val isLoading: LiveData<Boolean> = _isLoading
 
     val traktShowRating: LiveData<TraktShowRating> = _traktShowRating
@@ -468,7 +472,7 @@ class TraktRepository(private val database: UpnextDatabase) {
         imdbID: String,
         showSeason: ShowSeason
     ) {
-        val season = NetworkTraktRemoveFromHistoryRequestSeasonX(
+        val season = NetworkTraktRemoveSeasonFromHistoryRequestSeasonX(
             number = showSeason.seasonNumber,
             episodes = emptyList()
         )
@@ -486,15 +490,11 @@ class TraktRepository(private val database: UpnextDatabase) {
         imdbID: String,
         action: String,
         seasonToAdd: NetworkTraktAddToHistoryRequestSeasonX? = null,
-        seasonToRemove: NetworkTraktRemoveFromHistoryRequestSeasonX? = null
+        seasonToRemove: NetworkTraktRemoveSeasonFromHistoryRequestSeasonX? = null
     ) {
         withContext(Dispatchers.IO) {
             try {
                 _isLoading.postValue(true)
-                val addToHistoryShowsList: MutableList<NetworkTraktAddToHistoryRequestShow> =
-                    arrayListOf()
-                val removeFromHistoryShowsList: MutableList<NetworkTraktRemoveFromHistoryRequestShow> =
-                    arrayListOf()
 
                 val searchList = TraktNetwork.traktApi.getIDLookupAsync(
                     token = "Bearer $accessToken",
@@ -508,7 +508,6 @@ class TraktRepository(private val database: UpnextDatabase) {
                             performAddToHistoryRequestAction(
                                 accessToken = accessToken,
                                 response = searchList,
-                                addToHistoryShowsList = addToHistoryShowsList,
                                 seasonToAdd = seasonToAdd
                             )
                         }
@@ -516,7 +515,6 @@ class TraktRepository(private val database: UpnextDatabase) {
                             performRemoveFromHistoryRequestAction(
                                 accessToken = accessToken,
                                 response = searchList,
-                                removeFromHistoryShowsList = removeFromHistoryShowsList,
                                 seasonToRemove = seasonToRemove
                             )
                         }
@@ -535,9 +533,11 @@ class TraktRepository(private val database: UpnextDatabase) {
     private suspend fun performAddToHistoryRequestAction(
         accessToken: String?,
         response: NetworkTraktIDLookupResponse,
-        addToHistoryShowsList: MutableList<NetworkTraktAddToHistoryRequestShow>,
         seasonToAdd: NetworkTraktAddToHistoryRequestSeasonX?
     ) {
+        val addToHistoryShowsList: MutableList<NetworkTraktAddToHistoryRequestShow> =
+            arrayListOf()
+
         for (item in response) {
             val historyItem: NetworkTraktIDLookupResponseItem = item
             val addToHistoryListItem =
@@ -564,27 +564,29 @@ class TraktRepository(private val database: UpnextDatabase) {
     private suspend fun performRemoveFromHistoryRequestAction(
         accessToken: String?,
         response: NetworkTraktIDLookupResponse,
-        removeFromHistoryShowsList: MutableList<NetworkTraktRemoveFromHistoryRequestShow>,
-        seasonToRemove: NetworkTraktRemoveFromHistoryRequestSeasonX?
+        seasonToRemove: NetworkTraktRemoveSeasonFromHistoryRequestSeasonX?
     ) {
+        val removeFromHistoryShowsList: MutableList<NetworkTraktRemoveSeasonFromHistoryRequestShow> =
+            arrayListOf()
+
         for (item in response) {
             val historyItem: NetworkTraktIDLookupResponseItem = item
-            val addToHistoryListItem =
-                NetworkTraktRemoveFromHistoryRequestShow(
+            val removeFromHistoryListItem =
+                NetworkTraktRemoveSeasonFromHistoryRequestShow(
                     ids = historyItem.show.ids,
                     title = historyItem.show.title,
                     year = historyItem.show.year,
                     seasons = listOf(seasonToRemove)
                 )
-            removeFromHistoryShowsList.add(addToHistoryListItem)
+            removeFromHistoryShowsList.add(removeFromHistoryListItem)
             val removeFromHistoryList = TraktNetwork.traktApi.removeFromHistoryAsync(
                 token = "Bearer $accessToken",
-                request = NetworkTraktRemoveFromHistoryRequest(
-                    ids = emptyList(),
+                request = NetworkTraktRemoveSeasonFromHistoryRequest(
                     shows = removeFromHistoryShowsList,
                     movies = emptyList(),
                     seasons = emptyList(),
-                    episodes = emptyList()
+                    episodes = emptyList(),
+                    ids = emptyList()
                 )
             ).await()
             _removeFromHistoryResponse.postValue(removeFromHistoryList.asDomainModel())

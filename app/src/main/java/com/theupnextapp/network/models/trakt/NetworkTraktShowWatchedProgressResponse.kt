@@ -6,8 +6,8 @@ import com.theupnextapp.domain.TraktWatchedShowProgressNextEpisode
 import com.theupnextapp.domain.TraktWatchedShowProgressSeason
 
 data class NetworkTraktShowWatchedProgressResponse(
-    val aired: Int?,
-    val completed: Int?,
+    val aired: Int,
+    val completed: Int,
     val hidden_seasons: List<TraktWatchedShowProgressHiddenSeason>?,
     val last_episode: TraktWatchedShowProgressLastEpisode?,
     val last_watched_at: String?,

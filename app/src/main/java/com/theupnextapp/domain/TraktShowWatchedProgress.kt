@@ -4,17 +4,16 @@ import android.os.Parcel
 import android.os.Parcelable
 
 data class TraktShowWatchedProgress(
-    val episodesAired: Int?,
-    val episodesWatched: Int?,
+    val episodesAired: Int,
+    val episodesWatched: Int,
     val lastWatchedAt: String?,
     val nextEpisodeToWatch: TraktWatchedShowProgressNextEpisode?,
     val previousEpisodeWatched: TraktWatchedShowProgressLastEpisode?,
     val seasons: List<TraktWatchedShowProgressSeason>?
 ) : Parcelable {
-
     constructor(parcel: Parcel) : this(
-        parcel.readValue(Int::class.java.classLoader) as? Int,
-        parcel.readValue(Int::class.java.classLoader) as? Int,
+        parcel.readInt(),
+        parcel.readInt(),
         parcel.readString(),
         parcel.readParcelable(TraktWatchedShowProgressNextEpisode::class.java.classLoader),
         parcel.readParcelable(TraktWatchedShowProgressLastEpisode::class.java.classLoader),
@@ -22,8 +21,8 @@ data class TraktShowWatchedProgress(
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeValue(episodesAired)
-        parcel.writeValue(episodesWatched)
+        parcel.writeInt(episodesAired)
+        parcel.writeInt(episodesWatched)
         parcel.writeString(lastWatchedAt)
         parcel.writeParcelable(nextEpisodeToWatch, flags)
         parcel.writeParcelable(previousEpisodeWatched, flags)
@@ -43,6 +42,7 @@ data class TraktShowWatchedProgress(
             return arrayOfNulls(size)
         }
     }
+
 }
 
 data class TraktWatchedShowProgressNextEpisode(
@@ -158,8 +158,7 @@ data class TraktWatchedShowProgressSeason(
         parcel.readInt(),
         parcel.createTypedArrayList(TraktWatchedShowProgressSeasonEpisode),
         parcel.readValue(Int::class.java.classLoader) as? Int
-    ) {
-    }
+    )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(aired)
