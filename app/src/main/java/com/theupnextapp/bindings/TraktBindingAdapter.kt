@@ -7,6 +7,7 @@ import androidx.databinding.BindingAdapter
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.theupnextapp.R
 import com.theupnextapp.domain.TraktHistory
+import com.theupnextapp.domain.TraktShowWatchedProgress
 import com.theupnextapp.domain.TraktWatchedShowProgressSeason
 import com.theupnextapp.domain.TraktWatchlist
 import java.text.SimpleDateFormat
@@ -46,6 +47,35 @@ fun historyEpisodeDetails(view: TextView, show: TraktHistory) {
     }
 }
 
+@BindingAdapter("watchedProgressBottomSheetTitle")
+fun watchedProgressBottomSheetTitle(view: TextView, showName: String?) {
+    if (!showName.isNullOrEmpty()) {
+        view.text = view.resources.getString(
+            R.string.trakt_watched_progress_sheet_title_with_show_name,
+            showName
+        )
+    } else {
+        view.text = view.resources.getString(R.string.trakt_watched_progress_sheet_title)
+    }
+}
+
+@BindingAdapter("watchedOverallProgress")
+fun watchedOverallProgress(view: TextView, watchedProgress: TraktShowWatchedProgress?) {
+    if (watchedProgress != null) {
+        val episodesAired = watchedProgress.episodesAired.toFloat()
+        val episodesWatched = watchedProgress.episodesWatched.toFloat()
+        val overallProgress = (episodesWatched * 100.0f) / episodesAired
+
+        view.text = view.resources.getString(
+            R.string.trakt_watched_overall_progress_percentage,
+            overallProgress.toInt()
+        )
+        view.visibility = View.VISIBLE
+    } else {
+        view.visibility = View.GONE
+    }
+}
+
 @BindingAdapter("watchedSeasonProgressBarLength")
 fun watchedSeasonProgressBarLength(view: ProgressBar, season: TraktWatchedShowProgressSeason?) {
     if (season != null) {
@@ -64,6 +94,9 @@ fun watchedSeasonProgress(view: TextView, season: TraktWatchedShowProgressSeason
         val watchedEpisodes = season.completed.toFloat()
         val completedProgress = (watchedEpisodes * 100.0f) / completedEpisodes
 
-        view.text = view.resources.getString(R.string.trakt_watched_progress_season_percentage, completedProgress.toInt())
+        view.text = view.resources.getString(
+            R.string.trakt_watched_progress_season_percentage,
+            completedProgress.toInt()
+        )
     }
 }

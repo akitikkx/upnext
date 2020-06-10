@@ -82,15 +82,3 @@ fun seasonEndDate(view: TextView, date: String?) {
         view.visibility = View.GONE
     }
 }
-
-@BindingAdapter("watchedProgressBottomSheetTitle")
-fun watchedProgressBottomSheetTitle(view: TextView, showName: String?) {
-    if (!showName.isNullOrEmpty()) {
-        view.text = view.resources.getString(
-            R.string.trakt_watched_progress_sheet_title_with_show_name,
-            showName
-        )
-    } else {
-        view.text = view.resources.getString(R.string.trakt_watched_progress_sheet_title)
-    }
-}
