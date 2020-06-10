@@ -77,6 +77,22 @@
                 app:layout_constraintTop_toBottomOf="@id/watched_progress_episodes_aired_heading" />
 
             <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/watched_progress_overall_percentage"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_horizontal_double"
+                android:layout_marginTop="@dimen/margin_vertical"
+                android:layout_marginEnd="@dimen/margin_horizontal_double"
+                android:gravity="center_horizontal"
+                android:textAppearance="?attr/textAppearanceHeadline4"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/watched_progress_episodes_watched_heading"
+                app:watchedOverallProgress="@{viewModel.watchedProgress}"
+                tools:text="48% watched" />
+
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/watched_progress_episodes_watched"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -102,7 +118,7 @@
                 android:clipToPadding="false"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/watched_progress_episodes_watched"
+                app:layout_constraintTop_toBottomOf="@id/watched_progress_overall_percentage"
                 tools:listitem="@layout/trakt_watched_progress_season_list_item" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
