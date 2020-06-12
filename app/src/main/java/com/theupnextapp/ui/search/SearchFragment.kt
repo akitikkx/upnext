@@ -11,9 +11,11 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
-import com.theupnextapp.common.extensions.waitForTransition
 import com.theupnextapp.databinding.FragmentSearchBinding
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.ShowSearch
@@ -66,7 +68,6 @@ class SearchFragment : BaseFragment(),
             layoutManager = LinearLayoutManager(context).apply {
                 orientation = LinearLayoutManager.VERTICAL
             }
-            waitForTransition(this)
             adapter = searchAdapter
         }
 
@@ -85,6 +86,12 @@ class SearchFragment : BaseFragment(),
                 this.findNavController().navigate(
                     SearchFragmentDirections.actionSearchFragmentToShowDetailFragment(it)
                 )
+                val analyticsBundle = Bundle()
+                analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, it.showId.toString())
+                analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, it.showTitle)
+                analyticsBundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "search_show")
+
+                Firebase.analytics.logEvent("search_show_click", analyticsBundle)
                 viewModel.displayShowDetailsComplete()
             }
         })

@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.*
 import androidx.preference.PreferenceManager
 import com.theupnextapp.BuildConfig
+import com.theupnextapp.common.utils.DateUtils
 import com.theupnextapp.database.getDatabase
 import com.theupnextapp.repository.UpnextRepository
 import com.theupnextapp.ui.dashboard.DashboardViewModel
@@ -98,39 +99,17 @@ class SplashScreenViewModel(application: Application) : AndroidViewModel(applica
             upnextRepository.refreshNewShows()
             upnextRepository.refreshYesterdayShows(
                 DashboardViewModel.DEFAULT_COUNTRY_CODE,
-                yesterdayDate()
+                DateUtils.yesterdayDate()
             )
             upnextRepository.refreshTodayShows(
                 DashboardViewModel.DEFAULT_COUNTRY_CODE,
-                currentDate()
+                DateUtils.currentDate()
             )
             upnextRepository.refreshTomorrowShows(
                 DashboardViewModel.DEFAULT_COUNTRY_CODE,
-                tomorrowDate()
+                DateUtils.tomorrowDate()
             )
         }
-    }
-
-    private fun currentDate(): String? {
-        val calendar = Calendar.getInstance()
-        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        return simpleDateFormat.format(calendar.time)
-    }
-
-    private fun tomorrowDate(): String? {
-        val calendar = Calendar.getInstance()
-        calendar.add(Calendar.DAY_OF_YEAR, 1)
-        val tomorrow = calendar.time
-        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        return simpleDateFormat.format(tomorrow)
-    }
-
-    private fun yesterdayDate(): String? {
-        val calendar = Calendar.getInstance()
-        calendar.add(Calendar.DAY_OF_YEAR, -1)
-        val yesterday = calendar.time
-        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        return simpleDateFormat.format(yesterday)
     }
 
     private fun checkIfFirstRun() {

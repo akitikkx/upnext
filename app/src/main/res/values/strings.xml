@@ -129,4 +129,5 @@
     <!-- Error -->
     <string name="trakt_invalid_token_response_received">There was an error while trying your request. Please try again later</string>
     <string name="trakt_invalid_grant_response_received">Your Trakt requires a refresh, you will be redirected shortly</string>
+    <string name="menu_refresh">Refresh shows</string>
 </resources>
