@@ -30,7 +30,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:loadingVisibility="@{viewModel.isLoading}" />
+                app:loadingVisibility="@{viewModel.isLoadingYesterdayShows}" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/yesterday_shows_list"
@@ -41,11 +41,11 @@
                 android:layout_marginEnd="@dimen/margin_horizontal_half"
                 android:layout_marginBottom="@dimen/margin_vertical"
                 android:clipToPadding="false"
-                app:canClickItem="@{viewModel.isLoading}"
+                app:canClickItem="@{viewModel.isLoadingYesterdayShows}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/yesterday_shows_title"
-                app:loadingVisibility="@{viewModel.isLoading}"
+                app:loadingVisibility="@{viewModel.isLoadingYesterdayShows}"
                 tools:listitem="@layout/yesterday_show_list_item" />
 
             <TextView
@@ -59,7 +59,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/yesterday_shows_list"
-                app:loadingVisibility="@{viewModel.isLoading}" />
+                app:loadingVisibility="@{viewModel.isLoadingTodayShows}" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/today_shows_list"
@@ -70,11 +70,11 @@
                 android:layout_marginEnd="@dimen/margin_horizontal_half"
                 android:layout_marginBottom="@dimen/margin_vertical"
                 android:clipToPadding="false"
-                app:canClickItem="@{viewModel.isLoading}"
+                app:canClickItem="@{viewModel.isLoadingTodayShows}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/today_shows_title"
-                app:loadingVisibility="@{viewModel.isLoading}"
+                app:loadingVisibility="@{viewModel.isLoadingTodayShows}"
                 tools:listitem="@layout/today_show_list_item" />
 
             <TextView
@@ -88,7 +88,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/today_shows_list"
-                app:loadingVisibility="@{viewModel.isLoading}" />
+                app:loadingVisibility="@{viewModel.isLoadingTomorrowShows}" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/tomorrow_shows_list"
@@ -99,11 +99,11 @@
                 android:layout_marginEnd="@dimen/margin_horizontal_half"
                 android:layout_marginBottom="@dimen/margin_vertical"
                 android:clipToPadding="false"
-                app:canClickItem="@{viewModel.isLoading}"
+                app:canClickItem="@{viewModel.isLoadingTomorrowShows}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tomorrow_shows_title"
-                app:loadingVisibility="@{viewModel.isLoading}"
+                app:loadingVisibility="@{viewModel.isLoadingTomorrowShows}"
                 tools:listitem="@layout/tomorrow_show_list_item" />
 
             <TextView
@@ -117,7 +117,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tomorrow_shows_list"
-                app:loadingVisibility="@{viewModel.isLoading}" />
+                app:loadingVisibility="@{viewModel.isLoadingNewShows}" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/new_shows_list"
@@ -128,11 +128,11 @@
                 android:layout_marginEnd="@dimen/margin_horizontal_half"
                 android:layout_marginBottom="@dimen/margin_vertical"
                 android:clipToPadding="false"
-                app:canClickItem="@{viewModel.isLoading()}"
+                app:canClickItem="@{viewModel.isLoadingNewShows}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/new_shows_title"
-                app:loadingVisibility="@{viewModel.isLoading}"
+                app:loadingVisibility="@{viewModel.isLoadingNewShows}"
                 tools:listitem="@layout/recommended_show_list_item" />
 
             <TextView
@@ -146,7 +146,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/new_shows_list"
-                app:loadingVisibility="@{viewModel.isLoading}" />
+                app:loadingVisibility="@{viewModel.isLoadingRecommendedShows}" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recommended_shows_list"
@@ -156,30 +156,12 @@
                 android:layout_marginTop="@dimen/margin_vertical"
                 android:layout_marginEnd="@dimen/margin_horizontal_half"
                 android:clipToPadding="false"
-                app:canClickItem="@{viewModel.isLoading}"
+                app:canClickItem="@{viewModel.isLoadingRecommendedShows}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/recommended_shows_title"
-                app:loadingVisibility="@{viewModel.isLoading}"
+                app:loadingVisibility="@{viewModel.isLoadingRecommendedShows}"
                 tools:listitem="@layout/recommended_show_list_item" />
-
-            <FrameLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <ProgressBar
-                    android:id="@+id/progressBar"
-                    style="?attr/progressBarStyle"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="@dimen/margin_vertical"
-                    app:showProgress="@{viewModel.isLoading}" />
-
-            </FrameLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.core.widget.NestedScrollView>

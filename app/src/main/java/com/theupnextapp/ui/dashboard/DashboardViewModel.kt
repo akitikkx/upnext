@@ -2,6 +2,7 @@ package com.theupnextapp.ui.dashboard
 
 import android.app.Application
 import androidx.lifecycle.*
+import com.theupnextapp.common.utils.DateUtils
 import com.theupnextapp.database.getDatabase
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.repository.UpnextRepository
@@ -9,8 +10,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.*
 
 class DashboardViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -39,7 +38,15 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
 
     val tomorrowShowsList = upnextRepository.tomorrowShows
 
-    val isLoading = upnextRepository.isLoading
+    val isLoadingRecommendedShows = upnextRepository.isLoadingRecommendedShows
+
+    val isLoadingNewShows = upnextRepository.isLoadingNewShows
+
+    val isLoadingYesterdayShows = upnextRepository.isLoadingYesterdayShows
+
+    val isLoadingTodayShows = upnextRepository.isLoadingTodayShows
+
+    val isLoadingTomorrowShows = upnextRepository.isLoadingTomorrowShows
 
     val showFeaturesBottomSheet: LiveData<Boolean> = _showFeaturesBottomSheet
 
@@ -59,7 +66,7 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
         viewModelScope.launch {
             upnextRepository.refreshYesterdayShows(
                 DEFAULT_COUNTRY_CODE,
-                yesterdayDate()
+                DateUtils.yesterdayDate()
             )
         }
     }
@@ -68,7 +75,7 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
         viewModelScope.launch {
             upnextRepository.refreshTodayShows(
                 DEFAULT_COUNTRY_CODE,
-                currentDate()
+                DateUtils.currentDate()
             )
         }
     }
@@ -77,9 +84,13 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
         viewModelScope.launch {
             upnextRepository.refreshTomorrowShows(
                 DEFAULT_COUNTRY_CODE,
-                tomorrowDate()
+                DateUtils.tomorrowDate()
             )
         }
+    }
+
+    fun onRefreshShowsClick() {
+        requestShowsUpdate()
     }
 
     fun displayShowDetails(showDetailArg: ShowDetailArg) {
@@ -94,30 +105,23 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
         _showFeaturesBottomSheet.value = false
     }
 
-    init {
-        // TODO show features bottom sheet when ready
-    }
-
-    private fun currentDate(): String? {
-        val calendar = Calendar.getInstance()
-        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        return simpleDateFormat.format(calendar.time)
-    }
-
-    private fun tomorrowDate(): String? {
-        val calendar = Calendar.getInstance()
-        calendar.add(Calendar.DAY_OF_YEAR, 1)
-        val tomorrow = calendar.time
-        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        return simpleDateFormat.format(tomorrow)
-    }
-
-    private fun yesterdayDate(): String? {
-        val calendar = Calendar.getInstance()
-        calendar.add(Calendar.DAY_OF_YEAR, -1)
-        val yesterday = calendar.time
-        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        return simpleDateFormat.format(yesterday)
+    private fun requestShowsUpdate() {
+        viewModelScope.launch {
+            upnextRepository.refreshYesterdayShows(
+                DEFAULT_COUNTRY_CODE,
+                DateUtils.yesterdayDate()
+            )
+            upnextRepository.refreshTodayShows(
+                DEFAULT_COUNTRY_CODE,
+                DateUtils.currentDate()
+            )
+            upnextRepository.refreshTomorrowShows(
+                DEFAULT_COUNTRY_CODE,
+                DateUtils.tomorrowDate()
+            )
+            upnextRepository.refreshNewShows()
+            upnextRepository.refreshRecommendedShows()
+        }
     }
 
     override fun onCleared() {

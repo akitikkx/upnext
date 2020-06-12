@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".MainActivity">
     <item
-        android:id="@+id/searchFragment"
+        android:id="@+id/menu_refresh"
         android:icon="@android:drawable/ic_menu_search"
-        android:title="@string/search_title"
-        app:showAsAction="collapseActionView|ifRoom" />
+        android:title="@string/menu_refresh"
+        app:showAsAction="never" />
 </menu>

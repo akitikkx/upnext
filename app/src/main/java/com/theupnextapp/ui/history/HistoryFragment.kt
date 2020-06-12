@@ -16,7 +16,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.theupnextapp.BuildConfig
 import com.theupnextapp.R
-import com.theupnextapp.common.extensions.waitForTransition
 import com.theupnextapp.databinding.FragmentHistoryBinding
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.TraktConnectionArg
@@ -64,7 +63,6 @@ class HistoryFragment : BaseFragment(), HistoryAdapter.HistoryAdapterListener {
             layoutManager = LinearLayoutManager(context).apply {
                 orientation = LinearLayoutManager.VERTICAL
             }
-            waitForTransition(this)
             adapter = historyAdapter
         }
 

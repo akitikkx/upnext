@@ -1,9 +1,7 @@
 package com.theupnextapp.ui.dashboard
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -14,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import com.theupnextapp.R
-import com.theupnextapp.common.extensions.waitForTransition
 import com.theupnextapp.databinding.FragmentDashboardBinding
 import com.theupnextapp.domain.NewShows
 import com.theupnextapp.domain.RecommendedShows
@@ -55,6 +52,11 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
         ).get(DashboardViewModel::class.java)
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -82,7 +84,6 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
             layoutManager = LinearLayoutManager(context).apply {
                 orientation = LinearLayoutManager.HORIZONTAL
             }
-            waitForTransition(this)
             adapter = recommendedShowsAdapter
         }
 
@@ -90,7 +91,6 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
             layoutManager = LinearLayoutManager(context).apply {
                 orientation = LinearLayoutManager.HORIZONTAL
             }
-            waitForTransition(this)
             adapter = newShowsAdapter
         }
 
@@ -98,7 +98,6 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
             layoutManager = LinearLayoutManager(context).apply {
                 orientation = LinearLayoutManager.HORIZONTAL
             }
-            waitForTransition(this)
             adapter = yesterdayShowsAdapter
         }
 
@@ -106,7 +105,6 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
             layoutManager = LinearLayoutManager(context).apply {
                 orientation = LinearLayoutManager.HORIZONTAL
             }
-            waitForTransition(this)
             adapter = todayShowsAdapter
         }
 
@@ -114,7 +112,6 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
             layoutManager = LinearLayoutManager(context).apply {
                 orientation = LinearLayoutManager.HORIZONTAL
             }
-            waitForTransition(this)
             adapter = tomorrowShowsAdapter
         }
 
@@ -219,6 +216,22 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
         _firebaseAnalytics = null
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.main, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.menu_refresh -> {
+                viewModel.onRefreshShowsClick()
+                Firebase.analytics.logEvent("dashboard_refresh_shows_click", null)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+
+    }
+
     override fun onYesterdayShowClick(view: View, yesterdayShow: ScheduleShow) {
         viewModel.displayShowDetails(
             ShowDetailArg(
@@ -228,6 +241,12 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
                 showImageUrl = yesterdayShow.image
             )
         )
+        val analyticsBundle = Bundle()
+        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, yesterdayShow.id.toString())
+        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, yesterdayShow.name)
+        analyticsBundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "dashboard_show")
+
+        Firebase.analytics.logEvent("yesterday_shows_click", analyticsBundle)
     }
 
     override fun onRecommendedShowClick(view: View, recommendedShow: RecommendedShows) {
@@ -239,6 +258,12 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
                 showImageUrl = recommendedShow.originalImageUrl
             )
         )
+        val analyticsBundle = Bundle()
+        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, recommendedShow.id.toString())
+        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, recommendedShow.name)
+        analyticsBundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "dashboard_show")
+
+        Firebase.analytics.logEvent("recommended_shows_click", analyticsBundle)
     }
 
     override fun onNewShowClick(view: View, newShow: NewShows) {
@@ -250,6 +275,12 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
                 showImageUrl = newShow.originalImageUrl
             )
         )
+        val analyticsBundle = Bundle()
+        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, newShow.id.toString())
+        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, newShow.name)
+        analyticsBundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "dashboard_show")
+
+        Firebase.analytics.logEvent("new_shows_click", analyticsBundle)
     }
 
     override fun onTodayShowClick(view: View, scheduleShow: ScheduleShow) {
@@ -272,5 +303,11 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
                 showImageUrl = scheduleShow.image
             )
         )
+        val analyticsBundle = Bundle()
+        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, scheduleShow.id.toString())
+        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, scheduleShow.name)
+        analyticsBundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "dashboard_show")
+
+        Firebase.analytics.logEvent("new_shows_click", analyticsBundle)
     }
 }
