@@ -115,13 +115,13 @@ dependencies {
     // Jsoup
     implementation "org.jsoup:jsoup:$jsoup_version"
 
-    implementation "com.google.firebase:firebase-core:$analytics_version"
+    implementation "com.google.firebase:firebase-core:$firebase_core_version"
 
-    // Analytics
-    implementation "com.google.firebase:firebase-analytics:$analytics_version"
+    // Firebase Analytics (Kotlin)
+    implementation "com.google.firebase:firebase-analytics-ktx:$firebase_analytics_version"
 
     // Crashlytics
-    implementation "com.google.firebase:firebase-crashlytics:$crashlytics_version"
+    implementation "com.google.firebase:firebase-crashlytics:$firebase_crashlytics_version"
 
     // Performance Monitoring
     implementation "com.google.firebase:firebase-perf:$firebase_performance_monitoring_version"

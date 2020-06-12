@@ -7,10 +7,12 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import androidx.navigation.fragment.FragmentNavigatorExtras
+import com.google.firebase.analytics.FirebaseAnalytics
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 import com.theupnextapp.R
 import com.theupnextapp.common.extensions.waitForTransition
 import com.theupnextapp.databinding.FragmentDashboardBinding
@@ -29,6 +31,9 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
 
     private var _binding: FragmentDashboardBinding? = null
     private val binding get() = _binding!!
+
+    private var _firebaseAnalytics: FirebaseAnalytics? = null
+    private val firebaseAnalytics get() = _firebaseAnalytics!!
 
     private var recommendedShowsAdapter: RecommendedShowsAdapter? = null
 
@@ -60,6 +65,8 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
         binding.lifecycleOwner = viewLifecycleOwner
 
         binding.viewModel = viewModel
+
+        _firebaseAnalytics = Firebase.analytics
 
         recommendedShowsAdapter = RecommendedShowsAdapter(this)
 
@@ -184,6 +191,13 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
                 this.findNavController().navigate(
                     DashboardFragmentDirections.actionDashboardFragmentToShowDetailFragment(it)
                 )
+                val analyticsBundle = Bundle()
+                analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, it.showId.toString())
+                analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, it.showTitle)
+                analyticsBundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "dashboard_show")
+
+                firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM, analyticsBundle)
+
                 viewModel.displayShowDetailsComplete()
             }
         })
@@ -202,6 +216,7 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
         yesterdayShowsAdapter = null
         todayShowsAdapter = null
         tomorrowShowsAdapter = null
+        _firebaseAnalytics = null
     }
 
     override fun onYesterdayShowClick(view: View, yesterdayShow: ScheduleShow) {
