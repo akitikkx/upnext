@@ -21,7 +21,6 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.analytics.FirebaseAnalytics
 import com.theupnextapp.domain.TraktConnectionArg
 import com.theupnextapp.ui.collection.CollectionFragment
 
@@ -39,16 +38,11 @@ class MainActivity : AppCompatActivity() {
     private var _container: ConstraintLayout? = null
     private val container get() = _container!!
 
-    private var _firebaseAnalytics: FirebaseAnalytics? = null
-    private val firebaseAnalytics get() = _firebaseAnalytics!!
-
     private lateinit var snackbar: Snackbar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        _firebaseAnalytics = FirebaseAnalytics.getInstance(this)
 
         _toolbar = findViewById<Toolbar>(R.id.toolbar)
         _bottomNavigationView = findViewById(R.id.bottom_navigation)
@@ -88,7 +82,6 @@ class MainActivity : AppCompatActivity() {
         _bottomNavigationView = null
         _toolbar = null
         _container = null
-        _firebaseAnalytics = null
     }
 
     private fun handleDeepLinks() {
