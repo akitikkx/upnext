@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.theupnextapp.ui.showDetail.ShowDetailViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/show_detail_air_days_heading"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/show_detail_air_days_heading"
+            android:textAllCaps="true"
+            android:textAppearance="?attr/textAppearanceCaption"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:showHideStringContent="@{viewModel.showInfo.airDays}" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/show_detail_air_days"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@{viewModel.showInfo.airDays}"
+            android:textAppearance="?attr/textAppearanceBody2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/show_detail_air_days_heading"
+            app:showHideStringContent="@{viewModel.showInfo.airDays}"
+            tools:text="Air days" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/show_detail_genres_heading"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_vertical_half"
+            android:text="@string/show_detail_genres_heading"
+            android:textAllCaps="true"
+            android:textAppearance="?attr/textAppearanceCaption"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/show_detail_air_days"
+            app:showHideStringContent="@{viewModel.showInfo.genres}" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/show_detail_genres"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@{viewModel.showInfo.genres}"
+            android:textAppearance="?attr/textAppearanceBody2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/show_detail_genres_heading"
+            app:showHideStringContent="@{viewModel.showInfo.genres}"
+            tools:text="Genres" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/show_detail_runtime_heading"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_vertical_half"
+            android:text="@string/show_detail_airtime_heading"
+            android:textAllCaps="true"
+            android:textAppearance="?attr/textAppearanceCaption"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/show_detail_genres"
+            app:showHideStringContent="@{viewModel.showInfo.time}" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/show_detail_runtime"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@{viewModel.showInfo.time}"
+            android:textAppearance="?attr/textAppearanceBody2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/show_detail_runtime_heading"
+            app:showHideStringContent="@{viewModel.showInfo.time}"
+            tools:text="Airs at" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/text_view_images_attribution"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_vertical"
+            android:text="@string/tv_maze_creative_commons_attribution_text_multiple"
+            android:textAppearance="?attr/textAppearanceCaption"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/show_detail_runtime" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

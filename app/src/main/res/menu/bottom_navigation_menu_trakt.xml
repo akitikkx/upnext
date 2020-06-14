@@ -18,7 +18,7 @@
 
     <item
         android:id="@+id/watchlistFragment"
-        android:icon="@drawable/ic_check_circle_white_24dp"
+        android:icon="@drawable/ic_baseline_playlist_add_check_24"
         android:orderInCategory="3"
         android:title="@string/bottom_nav_title_watchlist"
         app:showAsAction="always" />

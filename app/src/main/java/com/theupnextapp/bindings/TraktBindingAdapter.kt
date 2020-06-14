@@ -1,6 +1,7 @@
 package com.theupnextapp.bindings
 
 import android.view.View
+import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
@@ -12,6 +13,51 @@ import com.theupnextapp.domain.TraktWatchedShowProgressSeason
 import com.theupnextapp.domain.TraktWatchlist
 import java.text.SimpleDateFormat
 import java.util.*
+
+@BindingAdapter("connectToTraktButtonText")
+fun connectToTraktButtonText(view: TextView, isConnected: Boolean) {
+    if (isConnected) {
+        view.text = "Trakt account connected"
+    } else {
+        view.text = "Connect Trakt Account"
+    }
+}
+
+@BindingAdapter("addRemoveFromWatchlistButtonText")
+fun addRemoveFromWatchlistButtonText(view: TextView, isAdded: Boolean) {
+    if (isAdded) {
+        view.text = view.resources.getString(R.string.show_detail_remove_from_watchlist_button)
+    } else {
+        view.text = view.resources.getString(R.string.show_detail_add_to_watchlist_button)
+    }
+}
+
+@BindingAdapter("addRemoveFromWatchlistButtonIcon")
+fun addRemoveFromWatchlistButtonIcon(view: ImageView, isAdded: Boolean) {
+    if (isAdded) {
+        view.setBackgroundResource(R.drawable.ic_baseline_playlist_add_check_24)
+    } else {
+        view.setBackgroundResource(R.drawable.ic_baseline_playlist_add_24)
+    }
+}
+
+@BindingAdapter("addRemoveFromCollectionButtonText")
+fun addRemoveFromCollectionButtonText(view: TextView, isAdded: Boolean) {
+    if (isAdded) {
+        view.text = view.resources.getString(R.string.show_detail_remove_from_collection_button)
+    } else {
+        view.text = view.resources.getString(R.string.show_detail_remove_from_collection_button)
+    }
+}
+
+@BindingAdapter("addRemoveFromCollectionButtonIcon")
+fun addRemoveFromCollectionButtonIcon(view: ImageView, isAdded: Boolean) {
+    if (isAdded) {
+        view.setBackgroundResource(R.drawable.ic_baseline_library_add_check_24)
+    } else {
+        view.setBackgroundResource(R.drawable.ic_baseline_library_add_24)
+    }
+}
 
 @BindingAdapter("showListedAt")
 fun showListedAt(view: TextView, watchlist: TraktWatchlist) {
