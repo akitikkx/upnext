@@ -65,9 +65,9 @@ open class TraktViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     fun onInvalidTokenResponseReceived(invalid: Boolean) {
-        val preferences = PreferenceManager.getDefaultSharedPreferences(getApplication())
+        val preferences = UpnextPreferenceManager(getApplication())
 
-        val refreshToken = preferences.getString(SHARED_PREF_TRAKT_ACCESS_TOKEN_REFRESH_TOKEN, null)
+        val refreshToken = preferences.getTraktAccessTokenRefresh()
 
         if (invalid) {
             refreshAccessToken(refreshToken)
@@ -78,12 +78,6 @@ open class TraktViewModel(application: Application) : AndroidViewModel(applicati
         if (invalid) {
             _launchTraktConnectWindow.postValue(true)
         }
-    }
-
-    protected fun getAccessToken(): String? {
-        val preferences = PreferenceManager.getDefaultSharedPreferences(getApplication())
-
-        return preferences.getString(SHARED_PREF_TRAKT_ACCESS_TOKEN, null)
     }
 
     protected fun storeTraktAccessToken(traktAccessTokenResponse: TraktAccessToken) {

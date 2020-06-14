@@ -3,6 +3,7 @@ package com.theupnextapp.ui.showDetail
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.theupnextapp.common.utils.UpnextPreferenceManager
 import com.theupnextapp.domain.ShowInfo
 import com.theupnextapp.domain.ShowSeason
 import com.theupnextapp.domain.TraktAddToHistory
@@ -35,7 +36,7 @@ class ShowSeasonsBottomSheetViewModel(
         viewModelScope?.launch {
             if (_isAuthorizedOnTrakt.value == true) {
                 traktRepository.getTraktWatchedProgress(
-                    getAccessToken(),
+                    UpnextPreferenceManager(getApplication()).getTraktAccessToken(),
                     showDetail?.imdbID
                 )
             }
@@ -46,7 +47,7 @@ class ShowSeasonsBottomSheetViewModel(
         viewModelScope?.launch {
             if (_isAuthorizedOnTrakt.value == true) {
                 traktRepository.getTraktWatchedProgress(
-                    getAccessToken(),
+                    UpnextPreferenceManager(getApplication()).getTraktAccessToken(),
                     showDetail?.imdbID
                 )
             }
@@ -56,7 +57,7 @@ class ShowSeasonsBottomSheetViewModel(
     private fun onSeasonHistoryAction(action: String, showSeason: ShowSeason) {
         if (ifValidAccessTokenExists()) {
             _isAuthorizedOnTrakt.value = true
-            val accessToken = getAccessToken()
+            val accessToken = UpnextPreferenceManager(getApplication()).getTraktAccessToken()
 
             when (action) {
                 HISTORY_ACTION_ADD -> {

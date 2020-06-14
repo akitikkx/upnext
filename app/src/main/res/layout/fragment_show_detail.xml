@@ -76,7 +76,7 @@
                 android:text="@{viewModel.showDetailArg.showTitle}"
                 android:textAppearance="?attr/textAppearanceHeadline4"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/show_detail_poster"
+                app:layout_constraintStart_toEndOf="@id/poster_and_detail_layer"
                 app:layout_constraintTop_toBottomOf="@id/show_detail_backdrop"
                 tools:text="Show Title" />
 
@@ -95,225 +95,85 @@
                 app:layout_constraintTop_toBottomOf="@id/text_view_show_detail_title"
                 tools:text="Status" />
 
-            <FrameLayout
-                android:id="@+id/show_detail_poster"
-                android:layout_width="0dp"
-                android:layout_height="@dimen/shows_list_poster_height"
-                android:layout_marginStart="@dimen/margin_horizontal_double"
-                android:layout_marginTop="@dimen/margin_vertical"
-                android:layout_marginEnd="@dimen/margin_horizontal_double"
-                android:orientation="vertical"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/text_view_show_detail_status">
-
-                <ProgressBar
-                    android:id="@+id/show_detail_poster_progress"
-                    style="?android:attr/progressBarStyleSmall"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    app:showHideStringContent="@{viewModel.showInfo.originalImageUrl}" />
-
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/poster"
-                    android:layout_width="@dimen/poster_frame_width"
-                    android:layout_height="match_parent"
-                    android:layout_marginEnd="@dimen/margin_horizontal_half"
-                    android:contentDescription="@{String.format(@string/show_poster, viewModel.showInfo.name)}"
-                    android:scaleType="centerCrop"
-                    app:imageUrl="@{viewModel.showDetailArg.showImageUrl}" />
-            </FrameLayout>
-
             <LinearLayout
-                android:id="@+id/show_detail_summary"
+                android:id="@+id/poster_and_detail_layer"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal_double"
-                android:layout_marginTop="@dimen/margin_vertical"
                 android:layout_marginEnd="@dimen/margin_horizontal_double"
-                android:orientation="vertical"
-                app:layout_constraintBottom_toBottomOf="@id/show_detail_poster"
+                android:orientation="horizontal"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/show_detail_poster"
-                app:layout_constraintTop_toTopOf="@id/show_detail_poster">
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/text_view_show_detail_status">
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@{viewModel.showInfo.airDays}"
-                    android:textAppearance="?attr/textAppearanceBody1"
-                    tools:text="Air days" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@{viewModel.showInfo.genres}"
-                    android:textAppearance="?attr/textAppearanceCaption"
-                    tools:text="Genres" />
-
-                <TextView
-                    android:id="@+id/text_view_images_attribution"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                <FrameLayout
+                    android:id="@+id/show_detail_poster"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/shows_list_poster_height"
                     android:layout_marginTop="@dimen/margin_vertical"
-                    android:text="@string/tv_maze_creative_commons_attribution_text_multiple"
-                    android:textAppearance="?attr/textAppearanceCaption" />
-
-                <Button
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/margin_vertical"
-                    android:layout_marginEnd="@dimen/margin_horizontal"
-                    android:backgroundTint="@android:color/holo_red_dark"
-                    android:clickable="true"
-                    android:enabled="@{!viewModel.isLoading}"
-                    android:focusable="true"
-                    android:onClick="@{() -> viewModel.onConnectClick()}"
-                    android:paddingStart="@dimen/padding_standard_double"
-                    android:paddingTop="@dimen/padding_standard"
-                    android:paddingEnd="@dimen/padding_standard_double"
-                    android:paddingBottom="@dimen/padding_standard"
-                    app:dynamicText="@{viewModel.isAuthorizedOnTrakt}"
-                    app:layout_constraintEnd_toEndOf="parent"
+                    android:layout_marginBottom="@dimen/margin_vertical"
+                    android:orientation="vertical"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/connection_description"
-                    app:showHideView="@{!viewModel.isAuthorizedOnTrakt}"
-                    tools:text="@string/trakt_button_text_not_connected"
-                    tools:visibility="visible" />
+                    app:layout_constraintTop_toBottomOf="@id/text_view_show_detail_status">
 
-                <Button
-                    android:id="@+id/add_to_watchlist_button"
-                    style="?materialButtonOutlinedStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/margin_vertical"
-                    android:layout_marginEnd="@dimen/margin_horizontal"
-                    android:clickable="true"
-                    android:enabled="@{!viewModel.isLoading}"
-                    android:focusable="true"
-                    android:onClick="@{() -> viewModel.onAddToWatchlistClick()}"
-                    android:text="@string/show_detail_add_to_watchlist_button"
-                    app:showHideView="@{viewModel.notOnWatchlist}"
-                    tools:visibility="visible" />
+                    <ProgressBar
+                        android:id="@+id/show_detail_poster_progress"
+                        style="?android:attr/progressBarStyleSmall"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        app:showHideStringContent="@{viewModel.showInfo.originalImageUrl}" />
 
-                <Button
-                    android:id="@+id/remove_from_watchlist_button"
-                    android:layout_width="match_parent"
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/poster"
+                        android:layout_width="@dimen/poster_frame_width"
+                        android:layout_height="match_parent"
+                        android:layout_marginEnd="@dimen/margin_horizontal_half"
+                        android:contentDescription="@{String.format(@string/show_poster, viewModel.showInfo.name)}"
+                        android:scaleType="centerCrop"
+                        app:imageUrl="@{viewModel.showDetailArg.showImageUrl}" />
+                </FrameLayout>
+
+                <include
+                    layout="@layout/layout_show_detail_summary_items"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/margin_horizontal_double"
                     android:layout_marginTop="@dimen/margin_vertical"
-                    android:layout_marginEnd="@dimen/margin_horizontal"
-                    android:clickable="true"
-                    android:enabled="@{!viewModel.isLoading}"
-                    android:focusable="true"
-                    android:onClick="@{() -> viewModel.onRemoveFromWatchlistClick()}"
-                    android:text="@string/show_detail_remove_from_watchlist_button"
-                    app:showHideView="@{viewModel.onWatchlist}"
-                    tools:visibility="visible" />
+                    android:layout_marginEnd="@dimen/margin_horizontal_double"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/show_detail_poster"
+                    app:layout_constraintTop_toTopOf="@id/show_detail_poster"
+                    app:viewModel="@{viewModel}" />
             </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/trakt_show_stats"
+            <include
+                android:id="@+id/show_detail_trakt_list_buttons"
+                layout="@layout/layout_show_detail_trakt_list_buttons"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal"
                 android:layout_marginTop="@dimen/margin_vertical"
                 android:layout_marginEnd="@dimen/margin_horizontal"
-                android:baselineAligned="false"
-                android:orientation="horizontal"
-                android:weightSum="3"
+                app:layout_constraintBottom_toTopOf="@id/trakt_show_stats"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/show_detail_summary">
+                app:layout_constraintTop_toBottomOf="@id/poster_and_detail_layer"
+                app:loadingVisibility="@{!viewModel.isLoading}"
+                app:viewModel="@{viewModel}" />
 
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_horizontal"
-                        android:text="@string/show_detail_watchers_heading"
-                        android:textAllCaps="true"
-                        android:textAppearance="?attr/textAppearanceCaption"
-                        android:textStyle="bold"
-                        app:showHideIntContent="@{viewModel.showStats.watchers}" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_horizontal"
-                        android:text="@{String.valueOf(viewModel.showStats.watchers)}"
-                        android:textAppearance="?attr/textAppearanceBody1"
-                        app:showHideIntContent="@{viewModel.showStats.watchers}"
-                        tools:text="10 000" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_horizontal"
-                        android:text="@string/show_detail_rating_heading"
-                        android:textAllCaps="true"
-                        android:textAppearance="?attr/textAppearanceCaption"
-                        android:textStyle="bold"
-                        app:showHideIntContent="@{viewModel.showRating.rating}" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_horizontal"
-                        android:textAppearance="?attr/textAppearanceBody1"
-                        app:showHideIntContent="@{viewModel.showRating.rating}"
-                        app:showRating="@{viewModel.showRating.rating}"
-                        tools:text="9/10" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_horizontal"
-                        android:textAppearance="?attr/textAppearanceCaption"
-                        app:showHideIntContent="@{viewModel.showRating.votes}"
-                        app:showRatingVotes="@{viewModel.showRating.votes}"
-                        tools:text="1000 votes" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_horizontal"
-                        android:text="@string/show_detail_plays_heading"
-                        android:textAllCaps="true"
-                        android:textAppearance="?attr/textAppearanceCaption"
-                        android:textStyle="bold"
-                        app:showHideIntContent="@{viewModel.showStats.plays}" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_horizontal"
-                        android:text="@{String.valueOf(viewModel.showStats.plays)}"
-                        android:textAppearance="?attr/textAppearanceBody1"
-                        app:showHideIntContent="@{viewModel.showStats.plays}"
-                        tools:text="1 400 345" />
-                </LinearLayout>
-
-            </LinearLayout>
+            <include
+                android:id="@+id/trakt_show_stats"
+                layout="@layout/layout_show_detail_trakt_stats"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_horizontal"
+                android:layout_marginTop="@dimen/margin_vertical"
+                android:layout_marginEnd="@dimen/margin_horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/show_detail_trakt_list_buttons"
+                app:viewModel="@{viewModel}" />
 
             <TextView
                 android:id="@+id/show_detail_synopsis"

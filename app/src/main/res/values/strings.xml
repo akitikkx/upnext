@@ -27,7 +27,12 @@
     <string name="show_detail_add_to_watchlist_button">Add to watchlist</string>
     <string name="show_detail_remove_from_watchlist_button">Remove from watchlist</string>
     <string name="show_detail_remove_from_watchlist_button_description">Remove from watchlist button</string>
+    <string name="show_detail_remove_from_collection_button">Remove from collection</string>
+    <string name="show_detail_remove_from_collection_button_description">Remove from collection button</string>
     <string name="show_detail_get_watched_progress">Your Watched Progress</string>
+    <string name="show_detail_genres_heading">Genres</string>
+    <string name="show_detail_air_days_heading">Airs on</string>
+    <string name="show_detail_airtime_heading">Airs at</string>
     <string name="show_detail_seasons">Seasons</string>
     <string name="show_detail_cast_list">Cast</string>
     <string name="show_detail_rating_heading">Trakt Rating</string>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.theupnextapp.ui.showDetail.ShowDetailViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:loadingVisibility="@{viewModel.isLoading}">
+
+        <LinearLayout
+            android:id="@+id/connect_to_trakt_layer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_horizontal"
+            android:clickable="@{!viewModel.isLoading}"
+            android:focusable="@{!viewModel.isLoading}"
+            android:gravity="center_horizontal"
+            android:onClick="@{() -> viewModel.onConnectClick()}"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toStartOf="@id/add_to_watchlist_layer"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:showHideView="@{!viewModel.isAuthorizedOnTrakt}">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                app:srcCompat="@drawable/ic_baseline_public_24" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:textAppearance="?attr/textAppearanceBody2"
+                app:connectToTraktButtonText="@{viewModel.isAuthorizedOnTrakt}"
+                tools:text="Connect Trakt Account" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/add_to_watchlist_layer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_horizontal"
+            android:clickable="@{!viewModel.isLoading}"
+            android:focusable="@{!viewModel.isLoading}"
+            android:gravity="center_horizontal"
+            android:onClick="@{() -> viewModel.onAddRemoveWatchlistClick()}"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toStartOf="@id/add_to_collection_layer"
+            app:layout_constraintStart_toEndOf="@id/connect_to_trakt_layer"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                app:addRemoveFromWatchlistButtonIcon="@{viewModel.onWatchlist}"
+                tools:srcCompat="@drawable/ic_baseline_playlist_add_24" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:gravity="center_horizontal"
+                android:textAppearance="?attr/textAppearanceBody2"
+                app:addRemoveFromWatchlistButtonText="@{viewModel.onWatchlist}"
+                tools:text="Add to watchlist" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/add_to_collection_layer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_horizontal"
+            android:clickable="@{!viewModel.isLoading}"
+            android:focusable="@{!viewModel.isLoading}"
+            android:gravity="center_horizontal"
+            android:onClick="@{()-> viewModel.onAddRemoveCollectionClick()}"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/add_to_watchlist_layer"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                app:addRemoveFromCollectionButtonIcon="@{viewModel.inCollection}"
+                tools:srcCompat="@drawable/ic_baseline_library_add_24" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:gravity="center_horizontal"
+                android:textAppearance="?attr/textAppearanceBody2"
+                app:addRemoveFromCollectionButtonText="@{viewModel.inCollection}"
+                tools:text="Add to collection" />
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
+import com.theupnextapp.common.utils.UpnextPreferenceManager
 import com.theupnextapp.domain.*
 import com.theupnextapp.ui.common.TraktViewModel
 import kotlinx.coroutines.launch
@@ -96,9 +97,12 @@ class WatchlistViewModel(application: Application) : TraktViewModel(application)
 
     fun onWatchlistItemDeleteClick(watchlistItem: TraktWatchlist) {
         viewModelScope?.launch {
-            watchlistItem.imdbID?.let {
-                traktRepository.removeFromWatchlist(it)
-                traktRepository.traktRemoveFromWatchlist(getAccessToken(), it)
+            watchlistItem.imdbID?.let { imdbID ->
+                traktRepository.removeFromWatchlist(imdbID)
+                traktRepository.traktRemoveFromWatchlist(
+                    UpnextPreferenceManager(getApplication()).getTraktAccessToken(),
+                    imdbID
+                )
             }
         }
     }

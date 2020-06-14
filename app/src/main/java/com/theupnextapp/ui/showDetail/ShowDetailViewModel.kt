@@ -2,7 +2,7 @@ package com.theupnextapp.ui.showDetail
 
 import android.app.Application
 import androidx.lifecycle.*
-import androidx.preference.PreferenceManager
+import com.theupnextapp.common.utils.UpnextPreferenceManager
 import com.theupnextapp.domain.*
 import com.theupnextapp.repository.UpnextRepository
 import com.theupnextapp.ui.common.TraktViewModel
@@ -17,7 +17,11 @@ class ShowDetailViewModel(
 
     private val _onWatchList = MutableLiveData<Boolean>()
 
+    private val _inCollection = MutableLiveData<Boolean>(false)
+
     private val _notOnWatchlist = MutableLiveData<Boolean>()
+
+    private val _notInCollection = MutableLiveData<Boolean>(false)
 
     private val _show = MutableLiveData(show)
 
@@ -31,7 +35,11 @@ class ShowDetailViewModel(
 
     val onWatchlist: LiveData<Boolean> = _onWatchList
 
+    val inCollection: LiveData<Boolean> = _inCollection
+
     val notOnWatchlist: LiveData<Boolean> = _notOnWatchlist
+
+    val notInCollection: LiveData<Boolean> = _notInCollection
 
     val isLoading = MediatorLiveData<Boolean>()
 
@@ -73,21 +81,21 @@ class ShowDetailViewModel(
     val watchedProgress = traktRepository.traktWatchedProgress
 
     init {
+        val accessToken = UpnextPreferenceManager(getApplication()).getTraktAccessToken()
         viewModelScope?.launch {
             show.showId?.let {
                 upnextRepository.getShowData(it)
                 upnextRepository.getShowCast(it)
                 upnextRepository.getShowSeasons(it)
             }
-            traktRepository.getTraktShowRating(getAccessToken(), showInfo.value?.imdbID)
-            traktRepository.getTraktShowStats(getAccessToken(), showInfo.value?.imdbID)
+            traktRepository.getTraktShowRating(accessToken, showInfo.value?.imdbID)
+            traktRepository.getTraktShowStats(accessToken, showInfo.value?.imdbID)
             if (_isAuthorizedOnTrakt.value == true) {
                 traktRepository.getTraktWatchedProgress(
-                    getAccessToken(),
+                    accessToken,
                     showInfo.value?.imdbID
                 )
             }
-
         }
 
         isLoading.addSource(isUpnextRepositoryLoading) { result ->
@@ -107,7 +115,9 @@ class ShowDetailViewModel(
     }
 
     fun onConnectClick() {
-        _launchTraktConnectWindow.value = true
+        if (_isAuthorizedOnTrakt.value == false) {
+            _launchTraktConnectWindow.value = true
+        }
     }
 
     fun onShowCastInfoReceived(showCast: List<ShowCast>) {
@@ -133,12 +143,36 @@ class ShowDetailViewModel(
         }
     }
 
+    fun onAddRemoveWatchlistClick() {
+        if (_onWatchList.value == true) {
+            onRemoveFromWatchlistClick()
+        } else {
+            onAddToWatchlistClick()
+        }
+    }
+
     fun onAddToWatchlistClick() {
         onWatchlistAction(WATCHLIST_ACTION_ADD)
     }
 
     fun onRemoveFromWatchlistClick() {
         onWatchlistAction(WATCHLIST_ACTION_REMOVE)
+    }
+
+    fun onAddRemoveCollectionClick() {
+        if (_inCollection.value == true) {
+            onRemoveFromCollectionClick()
+        } else {
+            onAddToCollectionClick()
+        }
+    }
+
+    private fun onAddToCollectionClick() {
+        onCollectionAction(COLLECTION_ACTION_ADD)
+    }
+
+    private fun onRemoveFromCollectionClick() {
+        onCollectionAction(COLLECTION_ACTION_REMOVE)
     }
 
     fun onWatchedProgressClick() {
@@ -152,7 +186,7 @@ class ShowDetailViewModel(
     private fun onWatchlistAction(action: String) {
         if (ifValidAccessTokenExists()) {
             _isAuthorizedOnTrakt.value = true
-            val accessToken = getAccessToken()
+            val accessToken = UpnextPreferenceManager(getApplication()).getTraktAccessToken()
 
             when (action) {
                 WATCHLIST_ACTION_ADD -> {
@@ -191,18 +225,58 @@ class ShowDetailViewModel(
         }
     }
 
-    private fun requestWatchlistRefresh() {
+
+    private fun onCollectionAction(action: String) {
         if (ifValidAccessTokenExists()) {
-            loadTraktWatchilist()
+            _isAuthorizedOnTrakt.value = true
+            val accessToken = UpnextPreferenceManager(getApplication()).getTraktAccessToken()
+
+            when (action) {
+                COLLECTION_ACTION_ADD -> {
+
+                }
+                COLLECTION_ACTION_REMOVE -> {
+
+                }
+            }
+        } else {
+            _isAuthorizedOnTrakt.value = false
         }
     }
 
-    private fun loadTraktWatchilist() {
-        val preferences = PreferenceManager.getDefaultSharedPreferences(getApplication())
-        val accessToken = preferences.getString(SHARED_PREF_TRAKT_ACCESS_TOKEN, null)
+    fun onAddToCollectionResponseReceived() {
+        requestCollectionRefresh()
+    }
+
+    fun onRemoveFromCollectionResponseReceived() {
+
+    }
+
+    private fun requestWatchlistRefresh() {
+        if (ifValidAccessTokenExists()) {
+            loadTraktWatchlist()
+        }
+    }
+
+    private fun loadTraktWatchlist() {
+        val preferences = UpnextPreferenceManager(getApplication())
 
         viewModelScope?.launch {
-            traktRepository.refreshTraktWatchlist(accessToken)
+            traktRepository.refreshTraktWatchlist(preferences.getTraktAccessToken())
+        }
+    }
+
+    private fun requestCollectionRefresh() {
+        if (ifValidAccessTokenExists()) {
+            loadTraktCollection()
+        }
+    }
+
+    private fun loadTraktCollection() {
+        val preferences = UpnextPreferenceManager(getApplication())
+
+        viewModelScope?.launch {
+            traktRepository.refreshTraktCollection(preferences.getTraktAccessToken())
         }
     }
 
@@ -214,6 +288,8 @@ class ShowDetailViewModel(
     companion object {
         const val WATCHLIST_ACTION_ADD = "add_to_watchlist"
         const val WATCHLIST_ACTION_REMOVE = "remove_from_watchlist"
+        const val COLLECTION_ACTION_ADD = "add_to_collection"
+        const val COLLECTION_ACTION_REMOVE = "remove_from_collection"
     }
 
     class Factory(
