@@ -4,10 +4,11 @@ import android.view.View
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import com.theupnextapp.R
+import com.theupnextapp.domain.TraktShowRating
 import org.jsoup.Jsoup
 
 @BindingAdapter("dynamicText")
-fun setDynamicText(textView: TextView, isAlreadyConnected : Boolean) {
+fun setDynamicText(textView: TextView, isAlreadyConnected: Boolean) {
     if (isAlreadyConnected) {
         textView.setText(R.string.trakt_button_text_is_connected)
     } else {
@@ -56,6 +57,26 @@ fun showRating(view: TextView, rating: Int?) {
         view.text = view.resources.getString(
             R.string.show_detail_rating,
             rating
+        )
+        view.visibility = View.VISIBLE
+    } else {
+        view.visibility = View.GONE
+    }
+}
+
+@BindingAdapter("showRatingAndVotes")
+fun showRatingAndVotes(view: TextView, showRating: TraktShowRating?) {
+    if (showRating?.rating != null && showRating.votes != null) {
+        view.text = view.resources.getString(
+            R.string.show_detail_rating_and_votes,
+            showRating.rating,
+            showRating.votes
+        )
+        view.visibility = View.VISIBLE
+    } else if (showRating != null && showRating.votes == null) {
+        view.text = view.resources.getString(
+            R.string.show_detail_rating,
+            showRating.rating
         )
         view.visibility = View.VISIBLE
     } else {

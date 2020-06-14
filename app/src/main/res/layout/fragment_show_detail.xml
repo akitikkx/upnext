@@ -109,7 +109,7 @@
                 <FrameLayout
                     android:id="@+id/show_detail_poster"
                     android:layout_width="wrap_content"
-                    android:layout_height="@dimen/shows_list_poster_height"
+                    android:layout_height="@dimen/show_detail_poster_height"
                     android:layout_marginTop="@dimen/margin_vertical"
                     android:layout_marginBottom="@dimen/margin_vertical"
                     android:orientation="vertical"
@@ -126,7 +126,7 @@
 
                     <androidx.appcompat.widget.AppCompatImageView
                         android:id="@+id/poster"
-                        android:layout_width="@dimen/poster_frame_width"
+                        android:layout_width="@dimen/detail_poster_width"
                         android:layout_height="match_parent"
                         android:layout_marginEnd="@dimen/margin_horizontal_half"
                         android:contentDescription="@{String.format(@string/show_poster, viewModel.showInfo.name)}"
@@ -155,24 +155,10 @@
                 android:layout_marginStart="@dimen/margin_horizontal"
                 android:layout_marginTop="@dimen/margin_vertical"
                 android:layout_marginEnd="@dimen/margin_horizontal"
-                app:layout_constraintBottom_toTopOf="@id/trakt_show_stats"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/poster_and_detail_layer"
                 app:loadingVisibility="@{!viewModel.isLoading}"
-                app:viewModel="@{viewModel}" />
-
-            <include
-                android:id="@+id/trakt_show_stats"
-                layout="@layout/layout_show_detail_trakt_stats"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/margin_horizontal"
-                android:layout_marginTop="@dimen/margin_vertical"
-                android:layout_marginEnd="@dimen/margin_horizontal"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/show_detail_trakt_list_buttons"
                 app:viewModel="@{viewModel}" />
 
             <TextView
@@ -186,8 +172,22 @@
                 app:fromHtml="@{viewModel.showInfo.summary}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/trakt_show_stats"
+                app:layout_constraintTop_toBottomOf="@id/show_detail_trakt_list_buttons"
                 tools:text="Show Summary" />
+
+            <include
+                android:id="@+id/trakt_show_stats"
+                layout="@layout/layout_show_detail_trakt_extra_stats"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_horizontal"
+                android:layout_marginTop="@dimen/margin_vertical"
+                android:layout_marginEnd="@dimen/margin_horizontal"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/show_detail_synopsis"
+                app:viewModel="@{viewModel}" />
 
             <Button
                 android:id="@+id/watched_progress"
@@ -204,7 +204,7 @@
                 android:text="@string/show_detail_get_watched_progress"
                 app:layout_constraintEnd_toStartOf="@id/show_seasons"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/show_detail_synopsis"
+                app:layout_constraintTop_toBottomOf="@id/trakt_show_stats"
                 app:showHideView="@{viewModel.isAuthorizedOnTrakt}"
                 tools:visibility="visible" />
 
@@ -223,7 +223,7 @@
                 android:text="@string/show_detail_seasons"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/watched_progress"
-                app:layout_constraintTop_toBottomOf="@id/show_detail_synopsis"
+                app:layout_constraintTop_toBottomOf="@id/trakt_show_stats"
                 app:showHideView="@{viewModel.isAuthorizedOnTrakt}"
                 tools:visibility="visible" />
 

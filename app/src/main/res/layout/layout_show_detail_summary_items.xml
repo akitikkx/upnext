@@ -64,29 +64,29 @@
             tools:text="Genres" />
 
         <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/show_detail_runtime_heading"
+            android:id="@+id/show_detail_rating_heading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/margin_vertical_half"
-            android:text="@string/show_detail_airtime_heading"
+            android:text="@string/show_detail_rating_heading"
             android:textAllCaps="true"
             android:textAppearance="?attr/textAppearanceCaption"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/show_detail_genres"
-            app:showHideStringContent="@{viewModel.showInfo.time}" />
+            app:showHideIntContent="@{viewModel.showRating.rating}" />
 
         <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/show_detail_runtime"
+            android:id="@+id/show_detail_rating"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@{viewModel.showInfo.time}"
             android:textAppearance="?attr/textAppearanceBody2"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/show_detail_runtime_heading"
-            app:showHideStringContent="@{viewModel.showInfo.time}"
-            tools:text="Airs at" />
+            app:layout_constraintTop_toBottomOf="@id/show_detail_rating_heading"
+            app:showHideIntContent="@{viewModel.showRating.rating}"
+            app:showRatingAndVotes="@{viewModel.showRating}"
+            tools:text="8/10 (1000 votes)" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/text_view_images_attribution"
@@ -97,7 +97,7 @@
             android:textAppearance="?attr/textAppearanceCaption"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/show_detail_runtime" />
+            app:layout_constraintTop_toBottomOf="@id/show_detail_rating" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

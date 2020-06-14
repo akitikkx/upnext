@@ -46,7 +46,7 @@ fun addRemoveFromCollectionButtonText(view: TextView, isAdded: Boolean) {
     if (isAdded) {
         view.text = view.resources.getString(R.string.show_detail_remove_from_collection_button)
     } else {
-        view.text = view.resources.getString(R.string.show_detail_remove_from_collection_button)
+        view.text = view.resources.getString(R.string.show_detail_add_to_collection_button)
     }
 }
 
