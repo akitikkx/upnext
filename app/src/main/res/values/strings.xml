@@ -40,8 +40,6 @@
     <string name="show_detail_rating">%1$d/10</string>
     <string name="show_detail_rating_and_votes">%1$d/10 (%2$d votes)</string>
     <string name="show_detail_rating_votes">%1$d votes</string>
-    <string name="show_detail_watched_progress_empty">You currently have no progress data available for this show</string>
-    <string name="show_detail_seasons_empty">Season information for this show is currently not available</string>
 
     <!-- Watched progress bottom sheet -->
     <string name="trakt_watched_overall_progress_percentage">%1$d%% watched</string>
@@ -134,6 +132,9 @@
     <string name="menu_refresh">Refresh shows</string>
 
     <!-- Error -->
+    <string name="error_connect_to_internet">Settings</string>
+    <string name="error_show_detail_watched_progress_empty">You currently have no progress data available for this show</string>
+    <string name="error_show_detail_seasons_empty">Season information for this show is currently not available</string>
     <string name="error_trakt_invalid_token_response_received">There was an error while trying your request. Please try again later</string>
     <string name="error_trakt_invalid_grant_response_received">Your Trakt requires a refresh, you will be redirected shortly</string>
     <string name="error_device_not_connected_to_internet">You are not connected to the internet</string>

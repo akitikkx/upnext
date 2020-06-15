@@ -21,6 +21,8 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
+import com.theupnextapp.common.utils.FeedBackStatus
+import com.theupnextapp.common.utils.Feedback
 import com.theupnextapp.domain.TraktConnectionArg
 import com.theupnextapp.ui.collection.CollectionFragment
 
@@ -134,21 +136,20 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun displayConnectionErrorMessage() {
+        // Network settings dialog only available from Q and above
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            snackbar = Snackbar.make(
-                container,
-                getString(R.string.error_device_not_connected_to_internet),
-                Snackbar.LENGTH_INDEFINITE
-            )
-            snackbar.setAction("Settings") { showNetworkSettings() }
-            snackbar.show()
+            Feedback(this).showSnackBar(
+                view = container,
+                type = FeedBackStatus.NO_CONNECTION,
+                duration = Snackbar.LENGTH_INDEFINITE,
+                listener = View.OnClickListener { showNetworkSettings() })
         } else {
-            snackbar = Snackbar.make(
-                container,
-                getString(R.string.error_device_not_connected_to_internet),
-                Snackbar.LENGTH_INDEFINITE
+            Feedback(this).showSnackBar(
+                view = container,
+                type = FeedBackStatus.NO_CONNECTION,
+                duration = Snackbar.LENGTH_INDEFINITE,
+                listener = null
             )
-            snackbar.show()
         }
     }
 
