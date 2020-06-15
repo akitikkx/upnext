@@ -137,7 +137,7 @@ class MainActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             snackbar = Snackbar.make(
                 container,
-                getString(R.string.device_not_connected_to_internet_error),
+                getString(R.string.error_device_not_connected_to_internet),
                 Snackbar.LENGTH_INDEFINITE
             )
             snackbar.setAction("Settings") { showNetworkSettings() }
@@ -145,7 +145,7 @@ class MainActivity : AppCompatActivity() {
         } else {
             snackbar = Snackbar.make(
                 container,
-                getString(R.string.device_not_connected_to_internet_error),
+                getString(R.string.error_device_not_connected_to_internet),
                 Snackbar.LENGTH_INDEFINITE
             )
             snackbar.show()

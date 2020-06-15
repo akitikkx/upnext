@@ -33,6 +33,14 @@ class ShowDetailViewModel(
 
     private val _showSeasonsBottomSheet = MutableLiveData<List<ShowSeason>>()
 
+    private val _showWatchlistInfoBottomSheet = MutableLiveData<Boolean>()
+
+    private val _showConnectToTraktInfoBottomSheet = MutableLiveData<Boolean>()
+
+    private val _showCollectionInfoBottomSheet = MutableLiveData<Boolean>()
+
+    private val _showConnectionToTraktRequiredError = MutableLiveData<Boolean>()
+
     val onWatchlist: LiveData<Boolean> = _onWatchList
 
     val inCollection: LiveData<Boolean> = _inCollection
@@ -55,6 +63,14 @@ class ShowDetailViewModel(
     val launchTraktConnectWindow: LiveData<Boolean> = _launchTraktConnectWindow
 
     val showCastEmpty: LiveData<Boolean> = _showCastEmpty
+
+    val showWatchlistInfoBottomSheet: LiveData<Boolean> = _showWatchlistInfoBottomSheet
+
+    val showCollectionInfoBottomSheet: LiveData<Boolean> = _showCollectionInfoBottomSheet
+
+    val showConnectToTraktInfoBottomSheet: LiveData<Boolean> = _showConnectToTraktInfoBottomSheet
+
+    val showConnectionToTraktRequiredError: LiveData<Boolean> = _showConnectionToTraktRequiredError
 
     private val isUpnextRepositoryLoading = upnextRepository.isLoading
 
@@ -110,8 +126,20 @@ class ShowDetailViewModel(
         _showCastBottomSheet.value = null
     }
 
-    fun displayShowSeasonsBottomSheetComplete() {
-        _showSeasonsBottomSheet.value = null
+    fun showConnectionToTraktRequiredComplete() {
+        _showConnectionToTraktRequiredError.value = false
+    }
+
+    fun showWatchlistInfoBottomSheetComplete() {
+        _showWatchlistInfoBottomSheet.value = false
+    }
+
+    fun showCollectionInfoBottomSheetComplete() {
+        _showCollectionInfoBottomSheet.value = false
+    }
+
+    fun showConnectToTraktInfoBottomSheetComplete() {
+        _showConnectToTraktInfoBottomSheet.value = false
     }
 
     fun onConnectClick() {
@@ -144,18 +172,22 @@ class ShowDetailViewModel(
     }
 
     fun onAddRemoveWatchlistClick() {
-        if (_onWatchList.value == true) {
-            onRemoveFromWatchlistClick()
+        if (_isAuthorizedOnTrakt.value == true) {
+            if (_onWatchList.value == true) {
+                onRemoveFromWatchlistClick()
+            } else {
+                onAddToWatchlistClick()
+            }
         } else {
-            onAddToWatchlistClick()
+            _showConnectionToTraktRequiredError.value = true
         }
     }
 
-    fun onAddToWatchlistClick() {
+    private fun onAddToWatchlistClick() {
         onWatchlistAction(WATCHLIST_ACTION_ADD)
     }
 
-    fun onRemoveFromWatchlistClick() {
+    private fun onRemoveFromWatchlistClick() {
         onWatchlistAction(WATCHLIST_ACTION_REMOVE)
     }
 
@@ -181,6 +213,18 @@ class ShowDetailViewModel(
 
     fun onSeasonsClick() {
         _showSeasonsBottomSheet.value = showSeasons.value
+    }
+
+    fun onConnectToTraktInfoClick() {
+        _showConnectToTraktInfoBottomSheet.value = true
+    }
+
+    fun onAddRemoveWatchlistInfoClick() {
+        _showWatchlistInfoBottomSheet.value = true
+    }
+
+    fun onAddRemoveCollectionInfoClick() {
+        _showCollectionInfoBottomSheet.value = true
     }
 
     private fun onWatchlistAction(action: String) {
