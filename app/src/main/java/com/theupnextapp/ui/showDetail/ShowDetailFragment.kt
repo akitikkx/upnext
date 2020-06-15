@@ -19,8 +19,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.theupnextapp.BuildConfig
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
-import com.theupnextapp.common.utils.showSnackBar
-import com.theupnextapp.common.utils.showSnackBarWithAction
+import com.theupnextapp.common.utils.*
 import com.theupnextapp.databinding.FragmentShowDetailBinding
 import com.theupnextapp.domain.ShowCast
 import com.theupnextapp.domain.ShowInfo
@@ -167,7 +166,7 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
             } else {
                 Snackbar.make(
                     binding.root,
-                    getString(R.string.show_detail_watched_progress_empty),
+                    getString(R.string.error_show_detail_watched_progress_empty),
                     Snackbar.LENGTH_LONG
                 ).show()
             }
@@ -175,26 +174,24 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
 
         viewModel.showSeasonsBottomSheet.observe(viewLifecycleOwner, Observer {
             if (!it.isNullOrEmpty()) {
-                val showSeasonsBottomSheet = ShowSeasonsBottomSheetFragment()
-
                 val args = Bundle()
                 args.putParcelableArrayList(ARG_SHOW_SEASONS, ArrayList(it))
                 args.putParcelable(ARG_WATCHED_PROGRESS, _traktShowWatchedProgress)
                 args.putParcelable(ARG_SHOW_DETAIL, this@ShowDetailFragment.showInfo)
-                showSeasonsBottomSheet.arguments = args
 
-                activity?.supportFragmentManager?.let { fragmentManager ->
-                    showSeasonsBottomSheet.show(
-                        fragmentManager,
-                        ShowSeasonsBottomSheetFragment.TAG
-                    )
-                }
+                showBottomSheet(
+                    bottomSheetFragment = ShowSeasonsBottomSheetFragment(),
+                    fragmentArguments = args,
+                    fragmentManager = activity?.supportFragmentManager,
+                    fragmentTag = ShowSeasonsBottomSheetFragment.TAG
+                )
             } else {
-                Snackbar.make(
-                    binding.root,
-                    getString(R.string.show_detail_seasons_empty),
-                    Snackbar.LENGTH_LONG
-                ).show()
+                Feedback(requireContext()).showSnackBar(
+                    view = binding.root,
+                    type = FeedBackStatus.SHOW_SEASONS_EMPTY,
+                    duration = Snackbar.LENGTH_LONG,
+                    listener = null
+                )
             }
         })
 
@@ -222,33 +219,30 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
 
         viewModel.showWatchlistInfoBottomSheet.observe(viewLifecycleOwner, Observer {
             if (it == true) {
-                showSnackBar(binding.root, "Watchlist Info bottom sheet", Snackbar.LENGTH_SHORT)
                 viewModel.showWatchlistInfoBottomSheetComplete()
             }
         })
 
         viewModel.showCollectionInfoBottomSheet.observe(viewLifecycleOwner, Observer {
             if (it == true) {
-                showSnackBar(binding.root, "Collection Info bottom sheet", Snackbar.LENGTH_SHORT)
                 viewModel.showCollectionInfoBottomSheetComplete()
             }
         })
 
         viewModel.showConnectToTraktInfoBottomSheet.observe(viewLifecycleOwner, Observer {
             if (it == true) {
-                showSnackBar(binding.root, "Connect to Trakt Info bottom sheet", Snackbar.LENGTH_SHORT)
                 viewModel.showConnectToTraktInfoBottomSheetComplete()
             }
         })
 
         viewModel.showConnectionToTraktRequiredError.observe(viewLifecycleOwner, Observer {
             if (it == true) {
-                showSnackBarWithAction(
+                Feedback(requireContext()).showSnackBar(
                     view = binding.root,
-                    snackBarText = getString(R.string.error_trakt_account_connection_required),
-                    actionMessage = getString(R.string.error_connect_trakt_account),
-                    listener = View.OnClickListener { connectToTraktWindow() }
-                )
+                    type = FeedBackStatus.CONNECTION_TO_TRAKT_REQUIRED,
+                    duration = Snackbar.LENGTH_LONG,
+                    listener = View.OnClickListener { connectToTraktWindow() })
+
                 viewModel.showConnectionToTraktRequiredComplete()
             }
         })
