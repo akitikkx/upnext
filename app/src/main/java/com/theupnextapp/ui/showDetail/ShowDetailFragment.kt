@@ -19,6 +19,8 @@ import com.google.android.material.snackbar.Snackbar
 import com.theupnextapp.BuildConfig
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
+import com.theupnextapp.common.utils.showSnackBar
+import com.theupnextapp.common.utils.showSnackBarWithAction
 import com.theupnextapp.databinding.FragmentShowDetailBinding
 import com.theupnextapp.domain.ShowCast
 import com.theupnextapp.domain.ShowInfo
@@ -131,13 +133,7 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
 
         viewModel.launchTraktConnectWindow.observe(viewLifecycleOwner, Observer {
             if (it) {
-                val intent = Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse("${TRAKT_API_URL}${TRAKT_OAUTH_ENDPOINT}?response_type=code&client_id=${BuildConfig.TRAKT_CLIENT_ID}&redirect_uri=${BuildConfig.TRAKT_REDIRECT_URI}")
-                )
-                intent.putExtra(Browser.EXTRA_APPLICATION_ID, activity?.packageName)
-                startActivity(intent)
-                viewModel.launchConnectWindowComplete()
+                connectToTraktWindow()
             }
         })
 
@@ -206,7 +202,7 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
             if (it) {
                 Snackbar.make(
                     binding.root,
-                    getString(R.string.trakt_invalid_token_response_received),
+                    getString(R.string.error_trakt_invalid_token_response_received),
                     Snackbar.LENGTH_LONG
                 ).show()
                 viewModel.onInvalidTokenResponseReceived(it)
@@ -217,10 +213,43 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
             if (it) {
                 Snackbar.make(
                     binding.root,
-                    getString(R.string.trakt_invalid_grant_response_received),
+                    getString(R.string.error_trakt_invalid_grant_response_received),
                     Snackbar.LENGTH_LONG
                 ).show()
                 viewModel.onInvalidTokenResponseReceived(it)
+            }
+        })
+
+        viewModel.showWatchlistInfoBottomSheet.observe(viewLifecycleOwner, Observer {
+            if (it == true) {
+                showSnackBar(binding.root, "Watchlist Info bottom sheet", Snackbar.LENGTH_SHORT)
+                viewModel.showWatchlistInfoBottomSheetComplete()
+            }
+        })
+
+        viewModel.showCollectionInfoBottomSheet.observe(viewLifecycleOwner, Observer {
+            if (it == true) {
+                showSnackBar(binding.root, "Collection Info bottom sheet", Snackbar.LENGTH_SHORT)
+                viewModel.showCollectionInfoBottomSheetComplete()
+            }
+        })
+
+        viewModel.showConnectToTraktInfoBottomSheet.observe(viewLifecycleOwner, Observer {
+            if (it == true) {
+                showSnackBar(binding.root, "Connect to Trakt Info bottom sheet", Snackbar.LENGTH_SHORT)
+                viewModel.showConnectToTraktInfoBottomSheetComplete()
+            }
+        })
+
+        viewModel.showConnectionToTraktRequiredError.observe(viewLifecycleOwner, Observer {
+            if (it == true) {
+                showSnackBarWithAction(
+                    view = binding.root,
+                    snackBarText = getString(R.string.error_trakt_account_connection_required),
+                    actionMessage = getString(R.string.error_connect_trakt_account),
+                    listener = View.OnClickListener { connectToTraktWindow() }
+                )
+                viewModel.showConnectionToTraktRequiredComplete()
             }
         })
     }
@@ -248,6 +277,16 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
 
     override fun onShowCastClick(view: View, castItem: ShowCast) {
         viewModel.onShowCastItemClicked(castItem)
+    }
+
+    private fun connectToTraktWindow() {
+        val intent = Intent(
+            Intent.ACTION_VIEW,
+            Uri.parse("${TRAKT_API_URL}${TRAKT_OAUTH_ENDPOINT}?response_type=code&client_id=${BuildConfig.TRAKT_CLIENT_ID}&redirect_uri=${BuildConfig.TRAKT_REDIRECT_URI}")
+        )
+        intent.putExtra(Browser.EXTRA_APPLICATION_ID, activity?.packageName)
+        startActivity(intent)
+        viewModel.launchConnectWindowComplete()
     }
 
     companion object {

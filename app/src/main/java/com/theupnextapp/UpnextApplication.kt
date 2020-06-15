@@ -18,7 +18,7 @@ class UpnextApplication : Application() {
 
     init {
         application = this
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
     }
 
     private val applicationScope = CoroutineScope(Dispatchers.Default)

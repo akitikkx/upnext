@@ -111,7 +111,6 @@
     <string name="cast_info_gender">Gender</string>
 
     <string name="empty_state_icon">Empty state icon</string>
-    <string name="device_not_connected_to_internet_error">You are not connected to the internet</string>
 
     <!-- Features bottomsheet -->
     <string name="features_bottom_sheet_title">Introducing a whole new and updated UpNext</string>
@@ -131,8 +130,13 @@
     <string name="features_confirm_button">Got it</string>
     <string name="upnext_logo">Upnext logo</string>
 
-    <!-- Error -->
-    <string name="trakt_invalid_token_response_received">There was an error while trying your request. Please try again later</string>
-    <string name="trakt_invalid_grant_response_received">Your Trakt requires a refresh, you will be redirected shortly</string>
+    <!-- Contextual menu-->
     <string name="menu_refresh">Refresh shows</string>
+
+    <!-- Error -->
+    <string name="error_trakt_invalid_token_response_received">There was an error while trying your request. Please try again later</string>
+    <string name="error_trakt_invalid_grant_response_received">Your Trakt requires a refresh, you will be redirected shortly</string>
+    <string name="error_device_not_connected_to_internet">You are not connected to the internet</string>
+    <string name="error_trakt_account_connection_required">Connect your Trakt account in order to continue</string>
+    <string name="error_connect_trakt_account">Connect</string>
 </resources>
