@@ -15,13 +15,13 @@ apply plugin: 'com.google.firebase.crashlytics'
 apply plugin: 'com.google.firebase.firebase-perf'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
     buildToolsVersion "29.0.3"
     defaultConfig {
         applicationId "com.theupnextapp"
         minSdkVersion 21
-        targetSdkVersion 29
-        versionCode 97
+        targetSdkVersion 30
+        versionCode 98
         versionName "3.0.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
