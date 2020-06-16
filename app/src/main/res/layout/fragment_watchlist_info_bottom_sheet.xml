@@ -7,7 +7,7 @@
 
         <variable
             name="viewModel"
-            type="com.theupnextapp.ui.helpContent.connectToTrakt.ConnectToTraktInfoBottomSheetViewModel" />
+            type="com.theupnextapp.ui.helpContent.watchlist.WatchlistInfoBottomSheetViewModel" />
     </data>
 
     <androidx.core.widget.NestedScrollView
@@ -19,34 +19,32 @@
             android:layout_height="match_parent">
 
             <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/why_do_need_trakt_account_title"
+                android:id="@+id/what_is_a_watchlist_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/margin_horizontal_double"
+                android:layout_marginStart="@dimen/margin_horizontal"
                 android:layout_marginTop="@dimen/margin_vertical"
-                android:layout_marginEnd="@dimen/margin_horizontal_double"
+                android:layout_marginEnd="@dimen/margin_horizontal"
                 android:gravity="center_horizontal"
-                android:text="@string/why_do_need_trakt_account_title"
+                android:text="@string/what_is_a_watchlist_title"
                 android:textAppearance="?attr/textAppearanceHeadline6"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:text="Why do I need a Trakt Account?" />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/why_do_need_trakt_account_body"
+                android:id="@+id/what_is_a_watchlist_body"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/margin_horizontal_double"
+                android:layout_marginStart="@dimen/margin_horizontal"
                 android:layout_marginTop="@dimen/margin_vertical"
-                android:layout_marginEnd="@dimen/margin_horizontal_double"
+                android:layout_marginEnd="@dimen/margin_horizontal"
                 android:gravity="start"
-                android:text="@string/why_do_need_trakt_account_body"
-                android:textAlignment="viewStart"
+                android:text="@string/what_is_a_watchlist_body"
                 android:textAppearance="?attr/textAppearanceBody2"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/why_do_need_trakt_account_title" />
+                app:layout_constraintTop_toBottomOf="@id/what_is_a_watchlist_title" />
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/trakt_logo"
@@ -58,54 +56,39 @@
                 android:contentDescription="@string/trakt_logo_description"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/why_do_need_trakt_account_body"
+                app:layout_constraintTop_toBottomOf="@id/what_is_a_watchlist_body"
                 app:srcCompat="@drawable/ic_trakt_wide_red_white" />
 
-
             <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/what_is_trakt_title"
+                android:id="@+id/how_trakt_manages_the_watchlist_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/margin_horizontal_double"
+                android:layout_marginStart="@dimen/margin_horizontal"
                 android:layout_marginTop="@dimen/margin_vertical"
-                android:layout_marginEnd="@dimen/margin_horizontal_double"
+                android:layout_marginEnd="@dimen/margin_horizontal"
                 android:gravity="center_horizontal"
-                android:text="@string/what_is_trakt_title"
+                android:text="@string/how_trakt_manages_the_watchlist_title"
                 android:textAppearance="?attr/textAppearanceHeadline6"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/trakt_logo"
-                tools:text="What is Trakt?" />
+                app:layout_constraintTop_toBottomOf="@id/trakt_logo" />
 
             <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/what_is_trakt_body"
+                android:id="@+id/how_trakt_manages_the_watchlist_body"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/margin_horizontal_double"
+                android:layout_marginStart="@dimen/margin_horizontal"
                 android:layout_marginTop="@dimen/margin_vertical"
-                android:layout_marginEnd="@dimen/margin_horizontal_double"
+                android:layout_marginEnd="@dimen/margin_horizontal"
                 android:gravity="start"
-                android:text="@string/what_is_trakt_body"
+                android:text="@string/how_trakt_manages_the_watchlist_body"
                 android:textAppearance="?attr/textAppearanceBody2"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/what_is_trakt_title" />
-
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/what_is_trakt_source"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/margin_horizontal_double"
-                android:layout_marginTop="@dimen/margin_vertical"
-                android:layout_marginEnd="@dimen/margin_horizontal_double"
-                android:gravity="start"
-                android:text="@string/trakt_connect_description_source"
-                android:textAppearance="?attr/textAppearanceCaption"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/what_is_trakt_body" />
+                app:layout_constraintTop_toBottomOf="@id/how_trakt_manages_the_watchlist_title" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.core.widget.NestedScrollView>
+
 </layout>
