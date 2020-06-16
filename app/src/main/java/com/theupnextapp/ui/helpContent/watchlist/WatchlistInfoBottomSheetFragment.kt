@@ -1,4 +1,4 @@
-package com.theupnextapp.ui.helpContent.connectToTrakt
+package com.theupnextapp.ui.helpContent.watchlist
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -6,23 +6,23 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProviders
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.theupnextapp.databinding.FragmentConnectToTraktInfoBottomSheetBinding
+import com.theupnextapp.databinding.FragmentWatchlistInfoBottomSheetBinding
 
-class ConnectToTraktInfoBottomSheetFragment : BottomSheetDialogFragment() {
+class WatchlistInfoBottomSheetFragment : BottomSheetDialogFragment() {
 
-    private var _binding: FragmentConnectToTraktInfoBottomSheetBinding? = null
+    private var _binding: FragmentWatchlistInfoBottomSheetBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: ConnectToTraktInfoBottomSheetViewModel by lazy {
+    private val viewModel: WatchlistInfoBottomSheetViewModel by lazy {
         val activity = requireNotNull(activity) {
             "You can only access the viewModel after onActivityCreated"
         }
         ViewModelProviders.of(
             this,
-            ConnectToTraktInfoBottomSheetViewModel.Factory(
+            WatchlistInfoBottomSheetViewModel.Factory(
                 activity.application
             )
-        ).get(ConnectToTraktInfoBottomSheetViewModel::class.java)
+        ).get(WatchlistInfoBottomSheetViewModel::class.java)
     }
 
     override fun onCreateView(
@@ -30,7 +30,7 @@ class ConnectToTraktInfoBottomSheetFragment : BottomSheetDialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = FragmentConnectToTraktInfoBottomSheetBinding.inflate(inflater)
+        _binding = FragmentWatchlistInfoBottomSheetBinding.inflate(inflater)
 
         binding.lifecycleOwner = viewLifecycleOwner
 
@@ -46,6 +46,6 @@ class ConnectToTraktInfoBottomSheetFragment : BottomSheetDialogFragment() {
     }
 
     companion object {
-        const val TAG = "ConnectToTraktInfoBottomSheetFragment"
+        const val TAG = "WatchlistInfoBottomSheetFragment"
     }
 }

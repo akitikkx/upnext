@@ -219,6 +219,10 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
 
         viewModel.showWatchlistInfoBottomSheet.observe(viewLifecycleOwner, Observer {
             if (it == true) {
+                HelpContentComponent.showContent(
+                    HelpContentType.WATCHLIST_INFO,
+                    activity?.supportFragmentManager
+                )
                 viewModel.showWatchlistInfoBottomSheetComplete()
             }
         })

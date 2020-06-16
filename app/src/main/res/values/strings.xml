@@ -137,16 +137,33 @@
     <!-- Connect Trakt Account bottom sheet-->
     <string name="why_do_need_trakt_account_title">Why do I need a Trakt account?</string>
     <string name="why_do_need_trakt_account_body">The aim of the UpNext TV Series Manager is to not only provide you with series information but also
-        functionality that will allow you to track and manage your favorite shows. \n\n This tracking functionality is offered
-        by the very reputable Trakt service which we have integrated into the management sections of the UpNext TV Series Manager. To be able to take advantage
-    of the Trakt features in the Upnext TV Series Manager such as managing your watchlist, collection or your series watch history,
-        you will need to have a Trakt account
-    and through any of the \"Connect to Trakt\" buttons in the UpNext TV Series Manager we can then link your Trakt account.</string>
+        functionality that will allow you to track and manage your favorite shows. \n\nThis tracking functionality is offered by the very reputable
+        Trakt service which we have integrated into the management sections of the UpNext TV Series Manager. To be able to take advantage of the
+        Trakt features in the Upnext TV Series Manager such as managing your watchlist, collection or your series watch history, you will need
+        to have a Trakt account and through any of the \"Connect to Trakt\" buttons in the UpNext TV Series Manager we can then link your Trakt
+        account. \n\nAt any time you can revoke UpNext TV Series Manager\'s access to your account from your Trakt.tv account. Bear in mind this
+        will then sever any connection UpNext TV Series manager has to your account thus disabling any management features - watchlist, history and collection.
+    </string>
     <string name="what_is_trakt_title">What is Trakt?</string>
     <string name="what_is_trakt_body">Trakt is a platform that does many things, but primarily keeps
         track of TV shows and movies you watch. It integrates with your media center or home theater PC
         to enable scrobbling, so everything is automatic. Some people like to check in from their phone,
         so we enable that too.</string>
+
+    <!-- Watchlist bottom sheet -->
+    <string name="what_is_a_watchlist_title">What is a watchlist?</string>
+    <string name="what_is_a_watchlist_body">If you have a show that you are currently watching or intend to watch, then you can add it to your watchlist.
+    This watchlist will be managed by the Trakt service. You can view items in your watchlist on the UpNext TV Series Manager by going to the
+    \"Watchlist\" tab. Here all items that are on your Trakt watchlist will be listed where you can also remove items which in turn will be removed on
+        Trakt.</string>
+    <string name="how_trakt_manages_the_watchlist_title">How Trakt manages your watchlist</string>
+    <string name="how_trakt_manages_the_watchlist_body">Your watchlist is built in list to keep track of everything you want to watch.
+        Once you watch an item from your watchlist, it automatically gets removed. Watching 1 episode of a show or season will remove that
+        item as well. Your calendars and progress are automatically kept up to date with what you’re watching,
+        no need to keep it on your watchlist. \n\nIf your watched progress for a series is 100% watched, that is, you have watched all the episodes that have
+    aired since the series first premiered up until its most recent episode, then adding to watchlist will not be possible until new episodes become available.
+        A watchlist is intended for shows you want to watch
+    to 100%. In other words you want to watch all the episodes for the series that have aired to date.</string>
 
     <!-- Error -->
     <string name="error_connect_to_internet">Settings</string>
