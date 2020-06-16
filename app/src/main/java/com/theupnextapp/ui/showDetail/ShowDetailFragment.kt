@@ -231,6 +231,10 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
 
         viewModel.showConnectToTraktInfoBottomSheet.observe(viewLifecycleOwner, Observer {
             if (it == true) {
+                HelpContentComponent.showContent(
+                    HelpContentType.CONNECT_TO_TRAKT_INFO,
+                    activity?.supportFragmentManager
+                )
                 viewModel.showConnectToTraktInfoBottomSheetComplete()
             }
         })
