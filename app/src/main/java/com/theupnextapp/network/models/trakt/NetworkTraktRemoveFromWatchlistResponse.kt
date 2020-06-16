@@ -31,11 +31,11 @@ data class NetworkTraktRemoveFromWatchlistIds(
 
 fun NetworkTraktRemoveFromWatchlistResponse.asDomainModel() : TraktRemoveFromWatchlist {
     return TraktRemoveFromWatchlist(
-        deletedShows = deleted?.shows,
-        deletedEpisodes = deleted?.episodes,
-        deletedSeasons = deleted?.seasons,
-        notFoundShows = not_found?.shows?.size,
-        notFoundEpisodes = not_found?.episodes?.size,
-        notFoundSeasons = not_found?.seasons?.size
+        deletedShows = deleted.shows,
+        deletedEpisodes = deleted.episodes,
+        deletedSeasons = deleted.seasons,
+        notFoundShows = not_found.shows.size,
+        notFoundEpisodes = not_found.episodes.size,
+        notFoundSeasons = not_found.seasons.size
     )
 }
