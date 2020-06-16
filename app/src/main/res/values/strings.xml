@@ -78,10 +78,13 @@
     <string name="tv_maze_creative_commons_attribution_text_multiple">All images licensed under CC BY-SA 4.0</string>
 
     <string name="trakt_logo_description">Trakt logo</string>
-    <string name="trakt_connect_description">Trakt is a platform that does many things, but primarily
-        keeps track of TV shows and movies you watch. If you would like to connect your Trakt account so you can manage your shows from the UpNext
+    <string name="trakt_connect_description">Trakt is a platform that does many things, but primarily keeps
+        track of TV shows and movies you watch. It integrates with your media center or home theater PC
+        to enable scrobbling, so everything is automatic. Some people like to check in from their phone,
+        so we enable that too. \n\n If you would like to connect your Trakt account so you can manage your shows from the UpNext
         app, click the connect button below. You will be redirected to the Trakt website where you will be required
         to authorize the UpNext app. You can revoke the access at any time from your Trakt account.</string>
+    <string name="trakt_connect_description_source">[Source: https://trakt.tv/about]</string>
 
     <string name="trakt_button_text_not_connected">Connect Trakt account</string>
     <string name="trakt_button_text_is_connected">Trakt account is connected</string>
@@ -130,6 +133,20 @@
 
     <!-- Contextual menu-->
     <string name="menu_refresh">Refresh shows</string>
+
+    <!-- Connect Trakt Account bottom sheet-->
+    <string name="why_do_need_trakt_account_title">Why do I need a Trakt account?</string>
+    <string name="why_do_need_trakt_account_body">The aim of the UpNext TV Series Manager is to not only provide you with series information but also
+        functionality that will allow you to track and manage your favorite shows. \n\n This tracking functionality is offered
+        by the very reputable Trakt service which we have integrated into the management sections of the UpNext TV Series Manager. To be able to take advantage
+    of the Trakt features in the Upnext TV Series Manager such as managing your watchlist, collection or your series watch history,
+        you will need to have a Trakt account
+    and through any of the \"Connect to Trakt\" buttons in the UpNext TV Series Manager we can then link your Trakt account.</string>
+    <string name="what_is_trakt_title">What is Trakt?</string>
+    <string name="what_is_trakt_body">Trakt is a platform that does many things, but primarily keeps
+        track of TV shows and movies you watch. It integrates with your media center or home theater PC
+        to enable scrobbling, so everything is automatic. Some people like to check in from their phone,
+        so we enable that too.</string>
 
     <!-- Error -->
     <string name="error_connect_to_internet">Settings</string>
