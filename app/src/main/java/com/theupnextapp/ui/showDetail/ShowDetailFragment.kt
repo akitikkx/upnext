@@ -229,6 +229,10 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
 
         viewModel.showCollectionInfoBottomSheet.observe(viewLifecycleOwner, Observer {
             if (it == true) {
+                HelpContentComponent.showContent(
+                    HelpContentType.COLLECTION_INFO,
+                    activity?.supportFragmentManager
+                )
                 viewModel.showCollectionInfoBottomSheetComplete()
             }
         })
