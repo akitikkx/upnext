@@ -81,8 +81,8 @@
     <string name="trakt_connect_description">Trakt is a platform that does many things, but primarily keeps
         track of TV shows and movies you watch. It integrates with your media center or home theater PC
         to enable scrobbling, so everything is automatic. Some people like to check in from their phone,
-        so we enable that too. \n\n If you would like to connect your Trakt account so you can manage your shows from the UpNext
-        app, click the connect button below. You will be redirected to the Trakt website where you will be required
+        so Trakt enable\'s that too. \n\n If you would like to connect your Trakt account so you can manage your shows from the UpNext
+        TV Series Manager app, click the connect button below. You will be redirected to the Trakt website where you will be required
         to authorize the UpNext app. You can revoke the access at any time from your Trakt account.</string>
     <string name="trakt_connect_description_source">[Source: https://trakt.tv/about]</string>
 
@@ -101,6 +101,7 @@
     <!-- Trakt History -->
     <string name="trakt_history_episode_details">Season %1$d Episode %2$d</string>
     <string name="history_empty_state_text">Your Trakt history is empty. When you mark episodes as watched in Trakt, they will appear here</string>
+    <string name="history_screen_subtitle">Your most recently watched episodes of your shows will be shown here</string>
 
     <!-- Transitions -->
     <string name="transition_poster_name">transition poster</string>
