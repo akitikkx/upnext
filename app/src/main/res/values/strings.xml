@@ -166,6 +166,15 @@
         A watchlist is intended for shows you want to watch
     to 100%. In other words you want to watch all the episodes for the series that have aired to date.</string>
 
+    <!-- Collection Info bottom sheet -->
+    <string name="what_is_a_collection_title">What is a collection?</string>
+    <string name="what_is_a_collection_body">Items in your collection will consist of episodes, seasons or even shows that you own digitally or
+        physically and have available to watch.\n\nFrom the UpNext TV Series Manager the \"Add to Collection\" button is what you will need to
+        click in order to add a show, its season or its episode.</string>
+    <string name="how_trakt_manages_your_collection_title">How Trakt manages your collection</string>
+    <string name="how_trakt_manages_your_collection_body">Your collected TV shows will be added to your personal collection page on Trakt [https://trakt.tv/users/me/collection] and can be
+        accessible on the UpNext TV Series Manager by clicking on the Collection tab</string>
+
     <!-- Error -->
     <string name="error_connect_to_internet">Settings</string>
     <string name="error_show_detail_watched_progress_empty">You currently have no progress data available for this show</string>
