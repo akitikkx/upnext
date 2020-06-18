@@ -16,6 +16,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionInflater
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 import com.theupnextapp.BuildConfig
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
@@ -223,6 +225,7 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
                     HelpContentType.WATCHLIST_INFO,
                     activity?.supportFragmentManager
                 )
+                Firebase.analytics.logEvent("watchlist_info_icon_click", null)
                 viewModel.showWatchlistInfoBottomSheetComplete()
             }
         })
@@ -233,6 +236,7 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
                     HelpContentType.COLLECTION_INFO,
                     activity?.supportFragmentManager
                 )
+                Firebase.analytics.logEvent("collection_info_icon_click", null)
                 viewModel.showCollectionInfoBottomSheetComplete()
             }
         })
@@ -243,6 +247,7 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
                     HelpContentType.CONNECT_TO_TRAKT_INFO,
                     activity?.supportFragmentManager
                 )
+                Firebase.analytics.logEvent("trakt_connection_info_icon_click", null)
                 viewModel.showConnectToTraktInfoBottomSheetComplete()
             }
         })
