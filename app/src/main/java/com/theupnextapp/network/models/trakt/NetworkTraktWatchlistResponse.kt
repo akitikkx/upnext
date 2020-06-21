@@ -8,19 +8,19 @@ data class NetworkTraktWatchlistResponseItem(
     val id: Int,
     val listed_at: String?,
     val rank: Int?,
-    val show: TraktWatchlistShow?,
+    val show: NetworkTraktWatchlistResponseItemShow?,
     val type: String?
 )
 
-data class TraktWatchlistShow(
-    val ids: TraktWatchlistIds?,
+data class NetworkTraktWatchlistResponseItemShow(
+    val ids: NetworkTraktWatchlistResponseItemIds?,
     val title: String?,
     val year: Int?,
     var mediumImageUrl: String?,
     var originalImageUrl: String?
 )
 
-data class TraktWatchlistIds(
+data class NetworkTraktWatchlistResponseItemIds(
     val imdb: String?,
     val slug: String?,
     val tmdb: Int?,

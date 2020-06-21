@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.theupnextapp.ui.collection.CollectionViewModel" />
+    </data>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ProgressBar
+                style="?attr/progressBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:showProgress="@{viewModel.isLoadingCollection}"
+                tools:visibility="visible" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/collection_header"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/trakt_watchlist_header_height"
+                android:layout_marginTop="@dimen/margin_vertical"
+                android:contentDescription="@string/trakt_logo_description"
+                android:textAppearance="?attr/textAppearanceHeadline6"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/collection_subtitle"
+                app:layout_constraintTop_toTopOf="parent"
+                app:loadingVisibility="@{viewModel.isLoadingCollection}"
+                app:showHideView="@{viewModel.isAuthorizedOnTrakt &amp;&amp; !viewModel.collectionEmpty}"
+                app:srcCompat="@drawable/ic_trakt_wide_red_white"
+                tools:visibility="visible" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/collection_subtitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_vertical"
+                android:gravity="center_horizontal"
+                android:text="@string/collection_screen_subtitle"
+                android:textAppearance="?attr/textAppearanceCaption"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/collection_header"
+                app:loadingVisibility="@{viewModel.isLoadingCollection}"
+                app:showHideView="@{viewModel.isAuthorizedOnTrakt &amp;&amp; !viewModel.collectionEmpty}" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/collection_list"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_horizontal_half"
+                android:layout_marginTop="@dimen/margin_vertical"
+                android:layout_marginEnd="@dimen/margin_horizontal_half"
+                android:layout_marginBottom="@dimen/margin_vertical"
+                android:clipToPadding="false"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/collection_subtitle"
+                app:loadingVisibility="@{viewModel.isLoadingCollection}"
+                app:showHideView="@{viewModel.isAuthorizedOnTrakt() &amp;&amp; !viewModel.collectionEmpty}"
+                tools:listitem="@layout/trakt_collection_item"
+                tools:visibility="visible" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</layout>

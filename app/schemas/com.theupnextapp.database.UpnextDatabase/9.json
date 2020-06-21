@@ -1,8 +1,8 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 6,
-    "identityHash": "60d7e089363a2fa214811eaea46edb19",
+    "version": 9,
+    "identityHash": "6e63c23d6c8b789799261fa16e6f9c76",
     "entities": [
       {
         "tableName": "recommended_shows",
@@ -898,11 +898,29 @@
       },
       {
         "tableName": "trakt_collection",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`title` TEXT PRIMARY KEY AUTOINCREMENT, `year` INTEGER, `slug` TEXT, `imdbID` TEXT, `tmdbID` INTEGER, `traktID` INTEGER, `tvdbID` INTEGER, `tvrageID` INTEGER, `tvMazeID` INTEGER, `lastCollectedAt` TEXT, `lastUpdatedAt` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT, `mediumImageUrl` TEXT, `originalImageUrl` TEXT, `year` INTEGER, `slug` TEXT, `imdbID` TEXT, `tmdbID` INTEGER, `traktID` INTEGER, `tvdbID` INTEGER, `tvrageID` INTEGER, `tvMazeID` INTEGER, `lastCollectedAt` TEXT, `lastUpdatedAt` TEXT)",
         "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
           {
             "fieldPath": "title",
             "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mediumImageUrl",
+            "columnName": "mediumImageUrl",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "originalImageUrl",
+            "columnName": "originalImageUrl",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -969,7 +987,7 @@
         ],
         "primaryKey": {
           "columnNames": [
-            "title"
+            "id"
           ],
           "autoGenerate": true
         },
@@ -978,8 +996,14 @@
       },
       {
         "tableName": "trakt_collection_seasons",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`imdbID` TEXT PRIMARY KEY AUTOINCREMENT, `seasonNumber` INTEGER)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `imdbID` TEXT, `seasonNumber` INTEGER)",
         "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
           {
             "fieldPath": "imdbID",
             "columnName": "imdbID",
@@ -995,7 +1019,7 @@
         ],
         "primaryKey": {
           "columnNames": [
-            "imdbID"
+            "id"
           ],
           "autoGenerate": true
         },
@@ -1004,8 +1028,14 @@
       },
       {
         "tableName": "trakt_collection_episodes",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`imdbID` TEXT PRIMARY KEY AUTOINCREMENT, `seasonNumber` INTEGER, `episodeNumber` INTEGER, `collectedAt` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `imdbID` TEXT, `seasonNumber` INTEGER, `episodeNumber` INTEGER, `collectedAt` TEXT)",
         "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
           {
             "fieldPath": "imdbID",
             "columnName": "imdbID",
@@ -1033,7 +1063,7 @@
         ],
         "primaryKey": {
           "columnNames": [
-            "imdbID"
+            "id"
           ],
           "autoGenerate": true
         },
@@ -1044,7 +1074,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '60d7e089363a2fa214811eaea46edb19')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6e63c23d6c8b789799261fa16e6f9c76')"
     ]
   }
 }

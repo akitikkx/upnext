@@ -1,30 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
         <variable
             name="show"
-            type="com.theupnextapp.domain.TraktWatchlist" />
+            type="com.theupnextapp.domain.TraktCollection" />
 
         <variable
             name="listener"
-            type="com.theupnextapp.ui.watchlist.WatchlistAdapter.WatchlistAdapterListener" />
+            type="com.theupnextapp.ui.collection.CollectionAdapter.CollectionAdapterListener" />
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/margin_vertical"
-        android:background="?android:attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true"
-        android:onClick="@{(view) -> listener.onWatchlistShowClick(view, show)}">
+        android:onClick="@{(view) -> listener.onCollectionClick(view, show)}">
 
         <FrameLayout
-            android:id="@+id/watchlist_poster"
+            android:id="@+id/collection_poster"
             android:layout_width="@dimen/search_poster_width"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_horizontal_double"
@@ -58,8 +56,8 @@
             android:layout_marginEnd="@dimen/margin_horizontal_double"
             android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/watchlist_delete_button"
-            app:layout_constraintStart_toEndOf="@id/watchlist_poster"
+            app:layout_constraintEnd_toStartOf="@id/collection_delete_button"
+            app:layout_constraintStart_toEndOf="@id/collection_poster"
             app:layout_constraintTop_toTopOf="parent">
 
             <TextView
@@ -77,25 +75,23 @@
                 android:layout_marginTop="@dimen/margin_vertical_quarter"
                 android:gravity="center_vertical"
                 android:textAppearance="?attr/textAppearanceCaption"
-                app:showListedAt="@{show}"
+                app:showLastCollectedAt="@{show}"
                 tools:text="Show Status" />
-
         </LinearLayout>
 
         <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/watchlist_delete_button"
+            android:id="@+id/collection_delete_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/margin_horizontal"
             android:clickable="true"
             android:contentDescription="@string/show_detail_remove_from_watchlist_button_description"
             android:focusable="true"
-            android:onClick="@{(view) -> listener.onWatchlistItemDeleteClick(view, show)}"
+            android:onClick="@{(view) -> listener.onCollectionRemoveClick(view, show)}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_baseline_delete_24" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
 </layout>

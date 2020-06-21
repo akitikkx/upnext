@@ -15,9 +15,9 @@
     <!-- Bottom navigation -->
     <string name="bottom_nav_title_search">Search</string>
     <string name="bottom_nav_title_dashboard">Dashboard</string>
-    <string name="bottom_nav_title_collection">Trakt Collection</string>
-    <string name="bottom_nav_title_history">Trakt History</string>
-    <string name="bottom_nav_title_watchlist">Trakt Watchlist</string>
+    <string name="bottom_nav_title_collection">Collection</string>
+    <string name="bottom_nav_title_history">History</string>
+    <string name="bottom_nav_title_watchlist">Watchlist</string>
 
     <!-- Show Detail -->
     <string name="show_detail_next_episode_heading">Next Episode</string>
@@ -97,6 +97,11 @@
     <string name="remove_from_watchlist_confirm">Remove %1$s from your watchlist?</string>
     <string name="remove_from_watchlist_dialog_button_negative">Cancel</string>
     <string name="remove_from_watchlist_dialog_button_positive">Yes</string>
+
+    <!-- Trakt Collection -->
+    <string name="collection_item_collected_at">Collected at: %1$s</string>
+    <string name="collection_empty_state_text">Your Trakt collection is empty. Add shows to your collection in your Trakt account and they will appear here</string>
+    <string name="collection_screen_subtitle">Shows that you have added to your collection will be shown here</string>
 
     <!-- Trakt History -->
     <string name="trakt_history_episode_details">Season %1$d Episode %2$d</string>

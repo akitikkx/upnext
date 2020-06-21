@@ -55,11 +55,10 @@ class WatchlistViewModel(application: Application) : TraktViewModel(application)
     }
 
     private fun loadTraktWatchlist() {
-        val preferences = PreferenceManager.getDefaultSharedPreferences(getApplication())
-        val accessToken = preferences.getString(SHARED_PREF_TRAKT_ACCESS_TOKEN, null)
+        val preferences = UpnextPreferenceManager(getApplication())
 
         viewModelScope?.launch {
-            traktRepository.refreshTraktWatchlist(accessToken)
+            traktRepository.refreshTraktWatchlist(preferences.getTraktAccessToken())
         }
     }
 

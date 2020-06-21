@@ -15,7 +15,7 @@
         android:layout_height="match_parent">
 
         <include
-            layout="@layout/layout_history_shows_list"
+            layout="@layout/layout_trakt_history_shows_list"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:visibility="gone"
@@ -27,7 +27,7 @@
             tools:visibility="visible" />
 
         <include
-            layout="@layout/layout_trakt_not_connected_state"
+            layout="@layout/layout_trakt_history_not_connected_state"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:visibility="gone"
@@ -38,14 +38,14 @@
             app:viewModel="@{viewModel}" />
 
         <include
-            layout="@layout/layout_history_shows_empty_state"
+            layout="@layout/layout_trakt_history_shows_empty_state"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:showHideView="@{viewModel.historyEmpty &amp;&amp; viewModel.isAuthorizedOnTrakt() &amp;&amp; !viewModel.isLoadingHistory()}"
+            app:showHideView="@{viewModel.historyEmpty &amp;&amp; viewModel.isAuthorizedOnTrakt() &amp;&amp; !viewModel.isLoadingHistory}"
             app:viewModel="@{viewModel}" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
