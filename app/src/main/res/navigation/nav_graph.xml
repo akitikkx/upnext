@@ -72,6 +72,9 @@
             android:defaultValue="@null"
             app:argType="com.theupnextapp.domain.TraktConnectionArg"
             app:nullable="true" />
+        <action
+            android:id="@+id/action_collectionFragment_to_showDetailFragment"
+            app:destination="@id/showDetailFragment" />
     </fragment>
 
     <fragment

@@ -81,35 +81,35 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
         tomorrowShowsAdapter = TomorrowShowsAdapter(this)
 
         binding.root.findViewById<RecyclerView>(R.id.recommended_shows_list).apply {
-            layoutManager = LinearLayoutManager(context).apply {
+            layoutManager = LinearLayoutManager(requireContext()).apply {
                 orientation = LinearLayoutManager.HORIZONTAL
             }
             adapter = recommendedShowsAdapter
         }
 
         binding.root.findViewById<RecyclerView>(R.id.new_shows_list).apply {
-            layoutManager = LinearLayoutManager(context).apply {
+            layoutManager = LinearLayoutManager(requireContext()).apply {
                 orientation = LinearLayoutManager.HORIZONTAL
             }
             adapter = newShowsAdapter
         }
 
         binding.root.findViewById<RecyclerView>(R.id.yesterday_shows_list).apply {
-            layoutManager = LinearLayoutManager(context).apply {
+            layoutManager = LinearLayoutManager(requireContext()).apply {
                 orientation = LinearLayoutManager.HORIZONTAL
             }
             adapter = yesterdayShowsAdapter
         }
 
         binding.root.findViewById<RecyclerView>(R.id.today_shows_list).apply {
-            layoutManager = LinearLayoutManager(context).apply {
+            layoutManager = LinearLayoutManager(requireContext()).apply {
                 orientation = LinearLayoutManager.HORIZONTAL
             }
             adapter = todayShowsAdapter
         }
 
         binding.root.findViewById<RecyclerView>(R.id.tomorrow_shows_list).apply {
-            layoutManager = LinearLayoutManager(context).apply {
+            layoutManager = LinearLayoutManager(requireContext()).apply {
                 orientation = LinearLayoutManager.HORIZONTAL
             }
             adapter = tomorrowShowsAdapter

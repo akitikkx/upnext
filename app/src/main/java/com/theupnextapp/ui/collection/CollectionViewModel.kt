@@ -16,6 +16,8 @@ class CollectionViewModel(
     application: Application
 ) : TraktViewModel(application) {
 
+    private val _collectionEmpty = MutableLiveData<Boolean>()
+
     private val _fetchingAccessTokenInProgress = MutableLiveData<Boolean>()
 
     private val _storingTraktAccessTokenInProgress = MutableLiveData<Boolean>()
@@ -30,17 +32,29 @@ class CollectionViewModel(
 
     val transactionInProgress: LiveData<Boolean> = _transactionInProgress
 
+    val collectionEmpty: LiveData<Boolean> = _collectionEmpty
+
+    val traktCollection = traktRepository.traktCollection
+
+    val isLoadingCollection = traktRepository.isLoadingTraktCollection
+
     fun onConnectClick() {
         _launchTraktConnectWindow.value = true
     }
 
     init {
+        _collectionEmpty.value = false
         if (ifValidAccessTokenExists()) {
+            loadTraktCollection()
             _isAuthorizedOnTrakt.value = true
         }
     }
 
-    fun loadTraktCollection() {
+    fun onCollectionEmpty(empty: Boolean) {
+        _collectionEmpty.value = empty
+    }
+
+    private fun loadTraktCollection() {
         val preferences = PreferenceManager.getDefaultSharedPreferences(getApplication())
         val accessToken = preferences.getString(SHARED_PREF_TRAKT_ACCESS_TOKEN, null)
 

@@ -88,6 +88,58 @@ interface UpnextDao {
 
     @Query("delete from trakt_watchlist where imdbID = :imdbID")
     fun deleteWatchlistItem(imdbID: String)
+
+    // Trakt Collection
+    @Query("delete from trakt_collection")
+    fun deleteAllTraktCollection()
+
+    @Query("delete from trakt_collection where imdbID not in(:collectedShows)")
+    fun deleteAllTraktCollectionButExclude(collectedShows: List<String>)
+
+    @Query("delete from trakt_collection where imdbID = :imdbID")
+    fun deleteAllTraktCollectionByImdbId(imdbID: String)
+
+    @Query("delete from trakt_collection_seasons")
+    fun deleteAllTraktCollectionSeasons()
+
+    @Query("delete from trakt_collection_seasons where imdbID not in(:collectedShows)")
+    fun deleteAllTraktCollectionSeasonsButExclude(collectedShows: List<String>)
+
+    @Query("delete from trakt_collection_seasons where seasonNumber = :seasonNumber and imdbID = :imdbID")
+    fun deleteAllTraktCollectionSeasonsBySeasonNumber(seasonNumber: Int, imdbID: String)
+
+    @Query("delete from trakt_collection_seasons where imdbID = :imdbID")
+    fun deleteAllTraktCollectionSeasonsByImdbId(imdbID: String)
+
+    @Query("delete from trakt_collection_episodes")
+    fun deleteAllTraktCollectionEpisodes()
+
+    @Query("delete from trakt_collection_episodes where imdbID not in(:collectedShows)")
+    fun deleteAllTraktCollectionSeasonEpisodesButExclude(collectedShows: List<String>)
+
+    @Query("delete from trakt_collection_episodes where seasonNumber = :seasonNumber and imdbID = :imdbID")
+    fun deleteAllTraktCollectionEpisodesBySeasonNumber(seasonNumber: Int, imdbID: String)
+
+    @Query("delete from trakt_collection_episodes where imdbID = :imdbID")
+    fun deleteAllTraktCollectionEpisodesByImdbId(imdbID: String)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertAllTraktCollection(vararg traktCollection: DatabaseTraktCollection)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertAllTraktCollectionSeasons(vararg traktCollectionSeason: DatabaseTraktCollectionSeason)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertAllTraktCollectionEpisodes(vararg traktCollectionResponseItemEpisode: DatabaseTraktCollectionEpisode)
+
+    @Query("select * from trakt_collection")
+    fun getTraktCollection(): LiveData<List<DatabaseTraktCollection>>
+
+    @Query("select * from trakt_collection_seasons where imdbID = :imdbID")
+    fun getTraktCollectionSeasons(imdbID: String): LiveData<List<DatabaseTraktCollectionSeason>>
+
+    @Query("select * from trakt_collection_episodes where imdbID = :imdbID")
+    fun getTraktCollectionSeasonEpisodes(imdbID: String): LiveData<List<DatabaseTraktCollectionEpisode>>
 }
 
 @Database(
@@ -99,9 +151,12 @@ interface UpnextDao {
         DatabaseTomorrowSchedule::class,
         DatabaseShowInfo::class,
         DatabaseTraktWatchlist::class,
-        DatabaseTraktHistory::class
+        DatabaseTraktHistory::class,
+        DatabaseTraktCollection::class,
+        DatabaseTraktCollectionSeason::class,
+        DatabaseTraktCollectionEpisode::class
     ],
-    version = 6,
+    version = 9,
     exportSchema = true
 )
 abstract class UpnextDatabase : RoomDatabase() {

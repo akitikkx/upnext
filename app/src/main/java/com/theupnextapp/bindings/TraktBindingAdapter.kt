@@ -7,10 +7,7 @@ import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.theupnextapp.R
-import com.theupnextapp.domain.TraktHistory
-import com.theupnextapp.domain.TraktShowWatchedProgress
-import com.theupnextapp.domain.TraktWatchedShowProgressSeason
-import com.theupnextapp.domain.TraktWatchlist
+import com.theupnextapp.domain.*
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -69,6 +66,26 @@ fun showListedAt(view: TextView, watchlist: TraktWatchlist) {
 
             view.text = view.resources.getString(
                 R.string.watchlist_item_listed_at,
+                formattedDate
+            )
+        } catch (e: Exception) {
+            FirebaseCrashlytics.getInstance().recordException(e)
+        }
+    } else {
+        view.visibility = View.GONE
+    }
+}
+
+@BindingAdapter("showLastCollectedAt")
+fun showLastCollectedAt(view: TextView, collection: TraktCollection) {
+    if (!collection.lastCollectedAt.isNullOrEmpty()) {
+        try {
+            val format =
+                SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.000Z'", Locale.getDefault())
+            val formattedDate: Date? = format.parse(collection.lastCollectedAt)
+
+            view.text = view.resources.getString(
+                R.string.collection_item_collected_at,
                 formattedDate
             )
         } catch (e: Exception) {

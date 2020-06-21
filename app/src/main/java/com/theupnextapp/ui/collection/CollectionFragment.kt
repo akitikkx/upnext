@@ -11,16 +11,22 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.theupnextapp.BuildConfig
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentCollectionBinding
+import com.theupnextapp.domain.TraktCollection
 import com.theupnextapp.domain.TraktConnectionArg
 
-class CollectionFragment : Fragment() {
+class CollectionFragment : Fragment(), CollectionAdapter.CollectionAdapterListener {
 
     private var _binding: FragmentCollectionBinding? = null
     private val binding get() = _binding!!
+
+    private var _adapter: CollectionAdapter? = null
+    private val adapter get() = _adapter!!
 
     private val viewModel: CollectionViewModel by lazy {
         val activity = requireNotNull(activity) {
@@ -43,10 +49,19 @@ class CollectionFragment : Fragment() {
 
         binding.viewModel = viewModel
 
+        _adapter = CollectionAdapter(this)
+
         val args = arguments
 
         if (args?.getParcelable<TraktConnectionArg>(CollectionViewModel.EXTRA_TRAKT_URI) != null) {
             viewModel.onTraktConnectionBundleReceived(arguments)
+        }
+
+        binding.root.findViewById<RecyclerView>(R.id.collection_list).apply {
+            layoutManager = LinearLayoutManager(requireContext()).apply {
+                orientation = LinearLayoutManager.VERTICAL
+            }
+            adapter = this@CollectionFragment.adapter
         }
 
         return binding.root
@@ -54,12 +69,6 @@ class CollectionFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-
-        viewModel.isAuthorizedOnTrakt.observe(viewLifecycleOwner, Observer {
-            if (it != null && it == true) {
-                viewModel.loadTraktCollection()
-            }
-        })
 
         viewModel.launchTraktConnectWindow.observe(viewLifecycleOwner, Observer {
             if (it) {
@@ -110,6 +119,15 @@ class CollectionFragment : Fragment() {
                 ).dismiss()
             }
         })
+
+        viewModel.traktCollection.observe(viewLifecycleOwner, Observer {
+            if (!it.isNullOrEmpty()) {
+                viewModel.onCollectionEmpty(false)
+                adapter.traktCollection = it
+            } else {
+                viewModel.onCollectionEmpty(true)
+            }
+        })
     }
 
     override fun onResume() {
@@ -121,6 +139,16 @@ class CollectionFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        _adapter = null
+    }
+
+
+    override fun onCollectionClick(view: View, traktCollection: TraktCollection) {
+
+    }
+
+    override fun onCollectionRemoveClick(view: View, traktCollection: TraktCollection) {
+
     }
 
     companion object {

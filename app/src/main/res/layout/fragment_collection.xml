@@ -14,56 +14,39 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/trakt_logo"
+        <include
+            layout="@layout/layout_trakt_collection_shows_list"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_horizontal"
-            android:layout_marginTop="@dimen/margin_vertical"
-            android:layout_marginEnd="@dimen/margin_horizontal"
-            android:contentDescription="@string/trakt_logo_description"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:showHideView="@{viewModel.isAuthorizedOnTrakt &amp;&amp; !viewModel.collectionEmpty}"
+            app:viewModel="@{viewModel}"
+            tools:visibility="visible" />
+
+        <include
+            layout="@layout/layout_trakt_collection_not_connected_state"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:showHideView="@{!viewModel.isAuthorizedOnTrakt}"
-            app:srcCompat="@drawable/ic_trakt_wide_red_white" />
+            app:viewModel="@{viewModel}" />
 
-        <TextView
-            android:id="@+id/connection_description"
+        <include
+            layout="@layout/layout_trakt_collection_shows_empty_state"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_horizontal"
-            android:layout_marginEnd="@dimen/margin_horizontal"
-            android:gravity="center_horizontal"
-            android:padding="@dimen/padding_standard"
-            android:text="@string/trakt_connect_description"
-            android:textAppearance="?attr/textAppearanceBody2"
+            android:layout_height="match_parent"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/trakt_logo"
-            app:showHideView="@{!viewModel.isAuthorizedOnTrakt}" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_horizontal"
-            android:layout_marginTop="@dimen/margin_vertical"
-            android:layout_marginEnd="@dimen/margin_horizontal"
-            android:backgroundTint="@android:color/holo_red_dark"
-            android:clickable="true"
-            android:enabled="@{!viewModel.isAuthorizedOnTrakt}"
-            android:focusable="true"
-            android:gravity="center_horizontal"
-            android:onClick="@{() -> viewModel.onConnectClick()}"
-            android:paddingStart="@dimen/padding_standard_double"
-            android:paddingTop="@dimen/padding_standard"
-            android:paddingEnd="@dimen/padding_standard_double"
-            android:paddingBottom="@dimen/padding_standard"
-            app:dynamicText="@{viewModel.isAuthorizedOnTrakt}"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/connection_description"
-            tools:text="@string/trakt_button_text_not_connected" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:showHideView="@{viewModel.collectionEmpty &amp;&amp; viewModel.isAuthorizedOnTrakt() &amp;&amp; !viewModel.isLoadingCollection}"
+            app:viewModel="@{viewModel}" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

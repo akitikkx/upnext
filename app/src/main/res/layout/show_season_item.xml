@@ -115,7 +115,7 @@
                 android:focusable="true"
                 android:onClick="@{(view) -> listener.onShowSeasonAddClick(view, showSeason)}"
                 android:visibility="invisible"
-                app:srcCompat="@drawable/ic_baseline_library_add_24"
+                app:srcCompat="@drawable/ic_baseline_hourglass_empty_24"
                 tools:visibility="visible" />
 
             <androidx.appcompat.widget.AppCompatImageView
@@ -127,7 +127,7 @@
                 android:focusable="true"
                 android:onClick="@{(view) -> listener.onShowSeasonRemoveClick(view, showSeason)}"
                 android:visibility="invisible"
-                app:srcCompat="@drawable/ic_baseline_library_add_check_24"
+                app:srcCompat="@drawable/ic_baseline_hourglass_full_24"
                 tools:visibility="visible" />
 
         </LinearLayout>

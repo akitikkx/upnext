@@ -5,10 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.theupnextapp.BuildConfig
-import com.theupnextapp.database.DatabaseTraktHistory
-import com.theupnextapp.database.DatabaseTraktWatchlist
-import com.theupnextapp.database.UpnextDatabase
-import com.theupnextapp.database.asDomainModel
+import com.theupnextapp.database.*
 import com.theupnextapp.domain.*
 import com.theupnextapp.network.models.tvmaze.NetworkShowSearchResponse
 import com.theupnextapp.network.TraktNetwork
@@ -36,11 +33,18 @@ class TraktRepository(private val database: UpnextDatabase) {
             result?.asDomainModel()
         }
 
+    val traktCollection: LiveData<List<TraktCollection>> =
+        Transformations.map(database.upnextDao.getTraktCollection()) {
+            it.asDomainModel()
+        }
+
     private val _isLoading = MutableLiveData<Boolean>()
 
     private val _traktAccessToken = MutableLiveData<TraktAccessToken>()
 
     private val _isLoadingTraktWatchlist = MutableLiveData<Boolean>()
+
+    private val _isLoadingTraktCollection = MutableLiveData<Boolean>()
 
     private val _isLoadingTraktHistory = MutableLiveData<Boolean>()
 
@@ -67,6 +71,8 @@ class TraktRepository(private val database: UpnextDatabase) {
     private val _invalidGrant = MutableLiveData<Boolean>()
 
     val isLoadingTraktWatchlist: LiveData<Boolean> = _isLoadingTraktWatchlist
+
+    val isLoadingTraktCollection: LiveData<Boolean> = _isLoadingTraktCollection
 
     val isLoadingTraktHistory: LiveData<Boolean> = _isLoadingTraktHistory
 
@@ -161,7 +167,6 @@ class TraktRepository(private val database: UpnextDatabase) {
 
         withContext(Dispatchers.IO) {
             try {
-                _isLoading.postValue(true)
                 _isLoadingTraktWatchlist.postValue(true)
                 val updatedWatchList: MutableList<DatabaseTraktWatchlist> = arrayListOf()
 
@@ -200,13 +205,11 @@ class TraktRepository(private val database: UpnextDatabase) {
                     }
                 }
                 saveTraktWatchlist(updatedWatchList)
-                _isLoading.postValue(false)
                 _isLoadingTraktWatchlist.postValue(false)
             } catch (e: HttpException) {
                 handleTraktError(e)
                 Timber.d(e)
                 FirebaseCrashlytics.getInstance().recordException(e)
-                _isLoading.postValue(false)
                 _isLoadingTraktWatchlist.postValue(false)
             }
         }
@@ -327,9 +330,154 @@ class TraktRepository(private val database: UpnextDatabase) {
     suspend fun refreshTraktCollection(accessToken: String?) {
         withContext(Dispatchers.IO) {
             try {
+                _isLoadingTraktCollection.postValue(true)
+
+                val collectedShows: MutableList<String> = arrayListOf()
+                val updatedCollection: MutableList<DatabaseTraktCollection> = arrayListOf()
+                val updatedCollectionSeasons: MutableList<DatabaseTraktCollectionSeason> =
+                    arrayListOf()
+                val updatedCollectionEpisodes: MutableList<DatabaseTraktCollectionEpisode> =
+                    arrayListOf()
+
                 val collectionResponse = TraktNetwork.traktApi.getCollectionAsync(
                     token = "Bearer $accessToken"
                 ).await()
+                if (!collectionResponse.isEmpty()) {
+                    for (item in collectionResponse) {
+                        val collectionItem: NetworkTraktCollectionResponseItem = item
+                        val imdbID = collectionItem.show?.ids?.imdb
+                        val traktTitle = collectionItem.show?.title
+
+                        if (!collectionItem.seasons.isNullOrEmpty()) {
+                            // creating a list of the IMDB ID's that have been passed
+                            // whatever is not in this list does not need to be in the database anymore
+                            imdbID?.let { collectedShows.add(it) }
+
+                            collectionItem.seasons.forEach { season ->
+                                // Collection Seasons
+                                val collectionItemSeason: NetworkTraktCollectionResponseItemSeason? =
+                                    season
+                                collectionItemSeason?.imdb = imdbID
+                                collectionItemSeason?.asDatabaseModel()
+                                    ?.let { databaseTraktCollectionSeason ->
+                                        updatedCollectionSeasons.add(
+                                            databaseTraktCollectionSeason
+                                        )
+                                    }
+
+                                // Collection Season Episodes
+                                if (!season?.episodes.isNullOrEmpty()) {
+                                    season?.episodes?.forEach { networkTraktCollectionResponseItemEpisode ->
+                                        val collectionItemSeasonEpisode: NetworkTraktCollectionResponseItemEpisode =
+                                            networkTraktCollectionResponseItemEpisode
+                                        collectionItemSeasonEpisode.imdb = imdbID
+                                        collectionItemSeasonEpisode.season_number = season.number
+                                        updatedCollectionEpisodes.add(collectionItemSeasonEpisode.asDatabaseModel())
+                                    }
+                                }
+                            }
+                        } else {
+                            imdbID?.let { removeAllSeasonsAndEpisodesFromCollection(it) }
+                        }
+
+                        // perform a TvMaze search for the Trakt item using the Trakt title
+                        val tvMazeSearch =
+                            traktTitle?.let {
+                                TvMazeNetwork.tvMazeApi.getSuggestionListAsync(it).await()
+                            }
+
+                        // loop through the search results from TvMaze and find a match for the IMDb ID
+                        // and update the watchlist item by adding the TvMaze ID
+                        if (!tvMazeSearch.isNullOrEmpty()) {
+                            for (searchItem in tvMazeSearch) {
+                                val showSearchItem: NetworkShowSearchResponse = searchItem
+                                if (showSearchItem.show.externals.imdb == imdbID) {
+                                    collectionItem.show?.originalImageUrl =
+                                        showSearchItem.show.image?.medium
+                                    collectionItem.show?.mediumImageUrl =
+                                        showSearchItem.show.image?.original
+                                    collectionItem.show?.ids?.tvMaze = showSearchItem.show.id
+                                }
+                            }
+                        }
+                        updatedCollection.add(collectionItem.asDatabaseModel())
+                    }
+                }
+                saveTraktCollection(
+                    traktCollectedShows = collectedShows,
+                    traktCollection = updatedCollection,
+                    traktCollectionSeasons = updatedCollectionSeasons,
+                    traktCollectionSeasonEpisodes = updatedCollectionEpisodes
+                )
+                _isLoadingTraktCollection.postValue(false)
+            } catch (e: Exception) {
+                _isLoadingTraktCollection.postValue(false)
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
+            }
+        }
+    }
+
+    private suspend fun saveTraktCollection(
+        traktCollectedShows: List<String>?,
+        traktCollection: List<DatabaseTraktCollection>,
+        traktCollectionSeasons: List<DatabaseTraktCollectionSeason>,
+        traktCollectionSeasonEpisodes: List<DatabaseTraktCollectionEpisode>
+    ) {
+        withContext(Dispatchers.IO) {
+            try {
+                if (!traktCollectedShows.isNullOrEmpty()) {
+                    database.upnextDao.deleteAllTraktCollectionButExclude(traktCollectedShows)
+                    database.upnextDao.deleteAllTraktCollectionSeasonsButExclude(traktCollectedShows)
+                    database.upnextDao.deleteAllTraktCollectionSeasonEpisodesButExclude(traktCollectedShows)
+                }
+                database.upnextDao.insertAllTraktCollection(*traktCollection.toTypedArray())
+                database.upnextDao.insertAllTraktCollectionSeasons(*traktCollectionSeasons.toTypedArray())
+                database.upnextDao.insertAllTraktCollectionEpisodes(*traktCollectionSeasonEpisodes.toTypedArray())
+            } catch (e: Exception) {
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
+            }
+        }
+    }
+
+    private suspend fun removeSeasonAndEpisodesFromCollection(seasonNumber: Int, imdbID: String) {
+        withContext(Dispatchers.IO) {
+            try {
+                database.upnextDao.deleteAllTraktCollectionEpisodesBySeasonNumber(
+                    seasonNumber,
+                    imdbID
+                )
+                database.upnextDao.deleteAllTraktCollectionSeasonsBySeasonNumber(
+                    seasonNumber,
+                    imdbID
+                )
+                database.upnextDao.deleteAllTraktCollectionByImdbId(imdbID)
+            } catch (e: Exception) {
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
+            }
+        }
+    }
+
+    suspend fun removeCollection(imdbID: String) {
+        withContext(Dispatchers.IO) {
+            try {
+                database.upnextDao.deleteAllTraktCollectionEpisodesByImdbId(imdbID)
+                database.upnextDao.deleteAllTraktCollectionSeasonsByImdbId(imdbID)
+                database.upnextDao.deleteAllTraktCollectionByImdbId(imdbID)
+            } catch (e: Exception) {
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
+            }
+        }
+    }
+
+    private suspend fun removeAllSeasonsAndEpisodesFromCollection(imdbID: String) {
+        withContext(Dispatchers.IO) {
+            try {
+                database.upnextDao.deleteAllTraktCollectionEpisodesByImdbId(imdbID)
+                database.upnextDao.deleteAllTraktCollectionSeasonsByImdbId(imdbID)
             } catch (e: Exception) {
                 Timber.d(e)
                 FirebaseCrashlytics.getInstance().recordException(e)

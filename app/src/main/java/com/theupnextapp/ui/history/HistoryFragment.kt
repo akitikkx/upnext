@@ -60,7 +60,7 @@ class HistoryFragment : BaseFragment(), HistoryAdapter.HistoryAdapterListener {
         historyAdapter = HistoryAdapter(this)
 
         binding.root.findViewById<RecyclerView>(R.id.history_list).apply {
-            layoutManager = LinearLayoutManager(context).apply {
+            layoutManager = LinearLayoutManager(requireContext()).apply {
                 orientation = LinearLayoutManager.VERTICAL
             }
             adapter = historyAdapter
