@@ -53,7 +53,7 @@
     <fragment
         android:id="@+id/searchFragment"
         android:name="com.theupnextapp.ui.search.SearchFragment"
-        tools:layout="@layout/fragment_search" >
+        tools:layout="@layout/fragment_search">
         <action
             android:id="@+id/action_searchFragment_to_showDetailFragment"
             app:destination="@id/showDetailFragment"
@@ -75,6 +75,10 @@
         <action
             android:id="@+id/action_collectionFragment_to_showDetailFragment"
             app:destination="@id/showDetailFragment" />
+
+        <action
+            android:id="@+id/action_collectionFragment_to_collectionSeasonsFragment"
+            app:destination="@id/collectionSeasonsFragment" />
     </fragment>
 
     <fragment
@@ -106,6 +110,16 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/collectionSeasonsFragment"
+        android:name="com.theupnextapp.ui.collectionSeasons.CollectionSeasonsFragment"
+        android:label="CollectionSeasonsFragment"
+        tools:layout="@layout/fragment_collection_seasons">
+        <argument
+            android:name="traktCollection"
+            app:argType="com.theupnextapp.domain.TraktCollectionArg" />
     </fragment>
 
 </navigation>

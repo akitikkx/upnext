@@ -93,17 +93,11 @@ interface UpnextDao {
     @Query("delete from trakt_collection")
     fun deleteAllTraktCollection()
 
-    @Query("delete from trakt_collection where imdbID not in(:collectedShows)")
-    fun deleteAllTraktCollectionButExclude(collectedShows: List<String>)
-
     @Query("delete from trakt_collection where imdbID = :imdbID")
     fun deleteAllTraktCollectionByImdbId(imdbID: String)
 
     @Query("delete from trakt_collection_seasons")
     fun deleteAllTraktCollectionSeasons()
-
-    @Query("delete from trakt_collection_seasons where imdbID not in(:collectedShows)")
-    fun deleteAllTraktCollectionSeasonsButExclude(collectedShows: List<String>)
 
     @Query("delete from trakt_collection_seasons where seasonNumber = :seasonNumber and imdbID = :imdbID")
     fun deleteAllTraktCollectionSeasonsBySeasonNumber(seasonNumber: Int, imdbID: String)
@@ -112,10 +106,10 @@ interface UpnextDao {
     fun deleteAllTraktCollectionSeasonsByImdbId(imdbID: String)
 
     @Query("delete from trakt_collection_episodes")
-    fun deleteAllTraktCollectionEpisodes()
+    fun deleteAllTraktCollectionSeasonEpisodes()
 
-    @Query("delete from trakt_collection_episodes where imdbID not in(:collectedShows)")
-    fun deleteAllTraktCollectionSeasonEpisodesButExclude(collectedShows: List<String>)
+    @Query("delete from trakt_collection_episodes where imdbID in(:collectedShows)")
+    fun deleteAllTraktCollectionSeasonEpisodesButInclude(collectedShows: List<String>)
 
     @Query("delete from trakt_collection_episodes where seasonNumber = :seasonNumber and imdbID = :imdbID")
     fun deleteAllTraktCollectionEpisodesBySeasonNumber(seasonNumber: Int, imdbID: String)
@@ -156,7 +150,7 @@ interface UpnextDao {
         DatabaseTraktCollectionSeason::class,
         DatabaseTraktCollectionEpisode::class
     ],
-    version = 9,
+    version = 10,
     exportSchema = true
 )
 abstract class UpnextDatabase : RoomDatabase() {

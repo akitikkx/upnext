@@ -1,4 +1,4 @@
-package com.theupnextapp.ui.collection
+package com.theupnextapp.ui.collectionSeasons
 
 import android.app.Application
 import android.os.Bundle
@@ -10,13 +10,12 @@ import com.theupnextapp.domain.TraktConnectionArg
 import com.theupnextapp.ui.common.TraktViewModel
 import kotlinx.coroutines.launch
 
-class CollectionViewModel(
-    application: Application
+class CollectionSeasonsViewModel(
+    application: Application,
+    collection: TraktCollectionArg
 ) : TraktViewModel(application) {
 
-    private val _collectionEmpty = MutableLiveData<Boolean>()
-
-    private val _navigateToSelectedCollection = MutableLiveData<TraktCollectionArg>()
+    private val _collectionSeasonsEmpty = MutableLiveData<Boolean>()
 
     private val _fetchingAccessTokenInProgress = MutableLiveData<Boolean>()
 
@@ -32,11 +31,9 @@ class CollectionViewModel(
 
     val transactionInProgress: LiveData<Boolean> = _transactionInProgress
 
-    val collectionEmpty: LiveData<Boolean> = _collectionEmpty
+    val collectionSeasonsEmpty: LiveData<Boolean> = _collectionSeasonsEmpty
 
-    val navigateToSelectedCollection: LiveData<TraktCollectionArg> = _navigateToSelectedCollection
-
-    val traktCollection = traktRepository.traktCollection
+    val traktCollectionSeasons = collection.imdbID?.let { traktRepository.traktCollectionSeasons(it) }
 
     val isLoadingCollection = traktRepository.isLoadingTraktCollection
 
@@ -45,23 +42,15 @@ class CollectionViewModel(
     }
 
     init {
-        _collectionEmpty.value = false
+        _collectionSeasonsEmpty.value = false
         if (ifValidAccessTokenExists()) {
             loadTraktCollection()
             _isAuthorizedOnTrakt.value = true
         }
     }
 
-    fun onCollectionEmpty(empty: Boolean) {
-        _collectionEmpty.value = empty
-    }
-
-    fun displaySeasons(traktCollectionArg: TraktCollectionArg) {
-        _navigateToSelectedCollection.value = traktCollectionArg
-    }
-
-    fun displaySeasonsComplete() {
-        _navigateToSelectedCollection.value = null
+    fun onCollectionSeasonsEmpty(empty: Boolean) {
+        _collectionSeasonsEmpty.value = empty
     }
 
     private fun loadTraktCollection() {
@@ -110,13 +99,17 @@ class CollectionViewModel(
         const val EXTRA_TRAKT_URI = "extra_trakt_uri"
     }
 
-    class Factory(val app: Application) :
+    class Factory(
+        val app: Application,
+        val collection: TraktCollectionArg
+    ) :
         ViewModelProvider.Factory {
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(CollectionViewModel::class.java)) {
+            if (modelClass.isAssignableFrom(CollectionSeasonsViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
-                return CollectionViewModel(
-                    app
+                return CollectionSeasonsViewModel(
+                    app,
+                    collection
                 ) as T
             }
             throw IllegalArgumentException("Unable to construct viewModel")

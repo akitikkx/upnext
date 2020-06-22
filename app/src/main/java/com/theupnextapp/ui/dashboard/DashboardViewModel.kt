@@ -25,8 +25,7 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
 
     private val _showFeaturesBottomSheet = MutableLiveData<Boolean>()
 
-    val navigateToSelectedShow: LiveData<ShowDetailArg>
-        get() = _navigateToSelectedShow
+    val navigateToSelectedShow: LiveData<ShowDetailArg> = _navigateToSelectedShow
 
     val recommendedShowsList = upnextRepository.recommendedShows
 
