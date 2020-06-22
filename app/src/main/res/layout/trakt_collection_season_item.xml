@@ -9,8 +9,12 @@
             type="com.theupnextapp.domain.TraktCollection" />
 
         <variable
+            name="showSeason"
+            type="com.theupnextapp.domain.TraktCollectionSeason" />
+
+        <variable
             name="listener"
-            type="com.theupnextapp.ui.collection.CollectionAdapter.CollectionAdapterListener" />
+            type="com.theupnextapp.ui.collectionSeasons.CollectionSeasonsAdapter.CollectionSeasonsAdapterListener" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -19,7 +23,7 @@
         android:layout_marginBottom="@dimen/margin_vertical"
         android:clickable="true"
         android:focusable="true"
-        android:onClick="@{(view) -> listener.onCollectionClick(view, show)}">
+        android:onClick="@{(view) -> listener.onCollectionSeasonClick(view, showSeason)}">
 
         <FrameLayout
             android:id="@+id/collection_poster"
@@ -66,16 +70,7 @@
                 android:gravity="center_vertical"
                 android:text="@{show.title}"
                 android:textAppearance="?attr/textAppearanceSubtitle1"
-                tools:text="Show Name" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/margin_vertical_quarter"
-                android:gravity="center_vertical"
-                android:textAppearance="?attr/textAppearanceCaption"
-                app:showLastCollectedAt="@{show}"
-                tools:text="Last collected at: Tue Jun 16 18:35" />
+                tools:text="Season Number" />
         </LinearLayout>
 
         <androidx.appcompat.widget.AppCompatImageView
@@ -86,7 +81,7 @@
             android:clickable="true"
             android:contentDescription="@string/show_detail_remove_from_watchlist_button_description"
             android:focusable="true"
-            android:onClick="@{(view) -> listener.onCollectionRemoveClick(view, show)}"
+            android:onClick="@{(view) -> listener.onCollectionSeasonRemoveClick(view, showSeason)}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.theupnextapp.ui.collectionSeasons.CollectionSeasonsViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <include
+            layout="@layout/layout_trakt_collection_seasons_list"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:showHideView="@{viewModel.isAuthorizedOnTrakt &amp;&amp; !viewModel.collectionSeasonsEmpty}"
+            app:viewModel="@{viewModel}"
+            tools:visibility="visible" />
+
+        <include
+            layout="@layout/layout_trakt_collection_seasons_not_connected_state"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:showHideView="@{!viewModel.isAuthorizedOnTrakt}"
+            app:viewModel="@{viewModel}" />
+
+        <include
+            layout="@layout/layout_trakt_collection_seasons_empty_state"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:showHideView="@{viewModel.collectionSeasonsEmpty &amp;&amp; viewModel.isAuthorizedOnTrakt() &amp;&amp; !viewModel.isLoadingCollection}"
+            app:viewModel="@{viewModel}" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

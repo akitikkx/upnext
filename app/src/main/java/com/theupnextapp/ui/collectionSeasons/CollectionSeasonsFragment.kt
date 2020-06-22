@@ -1,4 +1,4 @@
-package com.theupnextapp.ui.collection
+package com.theupnextapp.ui.collectionSeasons
 
 import android.content.Intent
 import android.net.Uri
@@ -11,32 +11,39 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.theupnextapp.BuildConfig
 import com.theupnextapp.R
-import com.theupnextapp.databinding.FragmentCollectionBinding
-import com.theupnextapp.domain.TraktCollection
-import com.theupnextapp.domain.TraktCollectionArg
+import com.theupnextapp.databinding.FragmentCollectionSeasonsBinding
+import com.theupnextapp.domain.TraktCollectionSeason
 import com.theupnextapp.domain.TraktConnectionArg
+import com.theupnextapp.ui.collection.CollectionViewModel
 
-class CollectionFragment : Fragment(), CollectionAdapter.CollectionAdapterListener {
+class CollectionSeasonsFragment : Fragment(),
+    CollectionSeasonsAdapter.CollectionSeasonsAdapterListener {
 
-    private var _binding: FragmentCollectionBinding? = null
+    private var _binding: FragmentCollectionSeasonsBinding? = null
     private val binding get() = _binding!!
 
-    private var _adapter: CollectionAdapter? = null
+    private var _adapter: CollectionSeasonsAdapter? = null
     private val adapter get() = _adapter!!
 
-    private val viewModel: CollectionViewModel by lazy {
+    val args by navArgs<CollectionSeasonsFragmentArgs>()
+
+    private val viewModel: CollectionSeasonsViewModel by lazy {
         val activity = requireNotNull(activity) {
             "You can only access the viewModel after onActivityCreated"
         }
         ViewModelProviders.of(
             this,
-            CollectionViewModel.Factory(activity.application)
-        ).get(CollectionViewModel::class.java)
+            CollectionSeasonsViewModel.Factory(
+                activity.application,
+                args.traktCollection
+            )
+        ).get(CollectionSeasonsViewModel::class.java)
     }
 
     override fun onCreateView(
@@ -44,25 +51,25 @@ class CollectionFragment : Fragment(), CollectionAdapter.CollectionAdapterListen
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = FragmentCollectionBinding.inflate(inflater)
+        _binding = FragmentCollectionSeasonsBinding.inflate(inflater)
 
         binding.lifecycleOwner = viewLifecycleOwner
 
         binding.viewModel = viewModel
 
-        _adapter = CollectionAdapter(this)
-
         val args = arguments
+
+        _adapter = CollectionSeasonsAdapter(this)
 
         if (args?.getParcelable<TraktConnectionArg>(CollectionViewModel.EXTRA_TRAKT_URI) != null) {
             viewModel.onTraktConnectionBundleReceived(arguments)
         }
 
-        binding.root.findViewById<RecyclerView>(R.id.collection_list).apply {
+        binding.root.findViewById<RecyclerView>(R.id.collection_season_list).apply {
             layoutManager = LinearLayoutManager(requireContext()).apply {
                 orientation = LinearLayoutManager.VERTICAL
             }
-            adapter = this@CollectionFragment.adapter
+            adapter = this@CollectionSeasonsFragment.adapter
         }
 
         return binding.root
@@ -121,12 +128,12 @@ class CollectionFragment : Fragment(), CollectionAdapter.CollectionAdapterListen
             }
         })
 
-        viewModel.traktCollection.observe(viewLifecycleOwner, Observer {
+        viewModel.traktCollectionSeasons?.observe(viewLifecycleOwner, Observer {
             if (!it.isNullOrEmpty()) {
-                viewModel.onCollectionEmpty(false)
-                adapter.traktCollection = it
+                viewModel.onCollectionSeasonsEmpty(false)
+                adapter.traktCollectionSeasons = it
             } else {
-                viewModel.onCollectionEmpty(true)
+                viewModel.onCollectionSeasonsEmpty(true)
             }
         })
     }
@@ -140,28 +147,22 @@ class CollectionFragment : Fragment(), CollectionAdapter.CollectionAdapterListen
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        _adapter = null
-    }
-
-
-    override fun onCollectionClick(view: View, traktCollection: TraktCollection) {
-        viewModel.displaySeasons(TraktCollectionArg(
-            imdbID = traktCollection.imdbID,
-            title = traktCollection.title,
-            mediumImageUrl = traktCollection.mediumImageUrl,
-            originalImageUrl = traktCollection.originalImageUrl,
-            lastCollectedAt = traktCollection.lastCollectedAt,
-            lastUpdatedAt = traktCollection.lastUpdatedAt
-        ))
-    }
-
-    override fun onCollectionRemoveClick(view: View, traktCollection: TraktCollection) {
-
     }
 
     companion object {
         const val EXTRA_TRAKT_URI = "extra_trakt_uri"
         const val TRAKT_API_URL = "https://api.trakt.tv"
         const val TRAKT_OAUTH_ENDPOINT = "/oauth/authorize"
+    }
+
+    override fun onCollectionSeasonClick(view: View, traktCollectionSeason: TraktCollectionSeason) {
+
+    }
+
+    override fun onCollectionSeasonRemoveClick(
+        view: View,
+        traktCollectionSeason: TraktCollectionSeason
+    ) {
+
     }
 }

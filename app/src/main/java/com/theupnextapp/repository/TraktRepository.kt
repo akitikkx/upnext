@@ -38,6 +38,16 @@ class TraktRepository(private val database: UpnextDatabase) {
             it.asDomainModel()
         }
 
+    fun traktCollectionSeasons(imdbID: String): LiveData<List<TraktCollectionSeason>> =
+        Transformations.map(database.upnextDao.getTraktCollectionSeasons(imdbID)) {
+            it.asDomainModel()
+        }
+//
+//    fun traktCollectionEpisodes(imdbID: String): LiveData<List<TraktCollectionSeasonEpisode>> =
+//        Transformations.map(database.upnextDao.getTraktCollectionSeasonEpisodes(imdbID)) {
+//            it.asDomainModel()
+//        }
+
     private val _isLoading = MutableLiveData<Boolean>()
 
     private val _traktAccessToken = MutableLiveData<TraktAccessToken>()
@@ -332,7 +342,6 @@ class TraktRepository(private val database: UpnextDatabase) {
             try {
                 _isLoadingTraktCollection.postValue(true)
 
-                val collectedShows: MutableList<String> = arrayListOf()
                 val updatedCollection: MutableList<DatabaseTraktCollection> = arrayListOf()
                 val updatedCollectionSeasons: MutableList<DatabaseTraktCollectionSeason> =
                     arrayListOf()
@@ -349,10 +358,6 @@ class TraktRepository(private val database: UpnextDatabase) {
                         val traktTitle = collectionItem.show?.title
 
                         if (!collectionItem.seasons.isNullOrEmpty()) {
-                            // creating a list of the IMDB ID's that have been passed
-                            // whatever is not in this list does not need to be in the database anymore
-                            imdbID?.let { collectedShows.add(it) }
-
                             collectionItem.seasons.forEach { season ->
                                 // Collection Seasons
                                 val collectionItemSeason: NetworkTraktCollectionResponseItemSeason? =
@@ -392,11 +397,11 @@ class TraktRepository(private val database: UpnextDatabase) {
                             for (searchItem in tvMazeSearch) {
                                 val showSearchItem: NetworkShowSearchResponse = searchItem
                                 if (showSearchItem.show.externals.imdb == imdbID) {
-                                    collectionItem.show?.originalImageUrl =
+                                    collectionItem.show.originalImageUrl =
                                         showSearchItem.show.image?.medium
-                                    collectionItem.show?.mediumImageUrl =
+                                    collectionItem.show.mediumImageUrl =
                                         showSearchItem.show.image?.original
-                                    collectionItem.show?.ids?.tvMaze = showSearchItem.show.id
+                                    collectionItem.show.ids?.tvMaze = showSearchItem.show.id
                                 }
                             }
                         }
@@ -404,7 +409,6 @@ class TraktRepository(private val database: UpnextDatabase) {
                     }
                 }
                 saveTraktCollection(
-                    traktCollectedShows = collectedShows,
                     traktCollection = updatedCollection,
                     traktCollectionSeasons = updatedCollectionSeasons,
                     traktCollectionSeasonEpisodes = updatedCollectionEpisodes
@@ -419,20 +423,19 @@ class TraktRepository(private val database: UpnextDatabase) {
     }
 
     private suspend fun saveTraktCollection(
-        traktCollectedShows: List<String>?,
         traktCollection: List<DatabaseTraktCollection>,
         traktCollectionSeasons: List<DatabaseTraktCollectionSeason>,
         traktCollectionSeasonEpisodes: List<DatabaseTraktCollectionEpisode>
     ) {
         withContext(Dispatchers.IO) {
             try {
-                if (!traktCollectedShows.isNullOrEmpty()) {
-                    database.upnextDao.deleteAllTraktCollectionButExclude(traktCollectedShows)
-                    database.upnextDao.deleteAllTraktCollectionSeasonsButExclude(traktCollectedShows)
-                    database.upnextDao.deleteAllTraktCollectionSeasonEpisodesButExclude(traktCollectedShows)
-                }
+                database.upnextDao.deleteAllTraktCollection()
                 database.upnextDao.insertAllTraktCollection(*traktCollection.toTypedArray())
+
+                database.upnextDao.deleteAllTraktCollectionSeasons()
                 database.upnextDao.insertAllTraktCollectionSeasons(*traktCollectionSeasons.toTypedArray())
+
+                database.upnextDao.deleteAllTraktCollectionSeasonEpisodes()
                 database.upnextDao.insertAllTraktCollectionEpisodes(*traktCollectionSeasonEpisodes.toTypedArray())
             } catch (e: Exception) {
                 Timber.d(e)

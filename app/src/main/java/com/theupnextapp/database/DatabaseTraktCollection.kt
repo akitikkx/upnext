@@ -6,7 +6,7 @@ import com.theupnextapp.domain.TraktCollection
 
 @Entity(tableName = "trakt_collection")
 data class DatabaseTraktCollection(
-    @PrimaryKey(autoGenerate = true)
+    @PrimaryKey
     var id: Long = 0,
     val title: String?,
     var mediumImageUrl: String?,
