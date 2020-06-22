@@ -132,6 +132,7 @@ class CollectionSeasonsFragment : Fragment(),
             if (!it.isNullOrEmpty()) {
                 viewModel.onCollectionSeasonsEmpty(false)
                 adapter.traktCollectionSeasons = it
+                adapter.traktCollection = args?.traktCollection
             } else {
                 viewModel.onCollectionSeasonsEmpty(true)
             }

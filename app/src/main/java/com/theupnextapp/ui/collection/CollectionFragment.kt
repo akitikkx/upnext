@@ -11,9 +11,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 import com.theupnextapp.BuildConfig
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentCollectionBinding
@@ -127,6 +131,22 @@ class CollectionFragment : Fragment(), CollectionAdapter.CollectionAdapterListen
                 adapter.traktCollection = it
             } else {
                 viewModel.onCollectionEmpty(true)
+            }
+        })
+
+        viewModel.navigateToSelectedCollection.observe(viewLifecycleOwner, Observer {
+            if (null != it) {
+                this.findNavController().navigate(
+                    CollectionFragmentDirections.actionCollectionFragmentToCollectionSeasonsFragment(it)
+                )
+                val analyticsBundle = Bundle()
+                analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, it.imdbID)
+                analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, it.title)
+                analyticsBundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "collection_show")
+
+                Firebase.analytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM, analyticsBundle)
+
+                viewModel.displaySeasonsComplete()
             }
         })
     }

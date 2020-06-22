@@ -8,6 +8,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.theupnextapp.R
 import com.theupnextapp.databinding.TraktCollectionSeasonItemBinding
+import com.theupnextapp.domain.TraktCollectionArg
 import com.theupnextapp.domain.TraktCollectionSeason
 
 class CollectionSeasonsAdapter(val listener: CollectionSeasonsAdapterListener) :
@@ -18,6 +19,8 @@ class CollectionSeasonsAdapter(val listener: CollectionSeasonsAdapterListener) :
             field = value
             notifyDataSetChanged()
         }
+
+    var traktCollection: TraktCollectionArg? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val withDataBinding: TraktCollectionSeasonItemBinding = DataBindingUtil.inflate(
@@ -34,6 +37,8 @@ class CollectionSeasonsAdapter(val listener: CollectionSeasonsAdapterListener) :
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.viewDataBinding.also {
             it.showSeason = traktCollectionSeasons[position]
+
+            it.show = traktCollection
 
             it.listener = listener
         }
