@@ -6,7 +6,7 @@
 
         <variable
             name="show"
-            type="com.theupnextapp.domain.TraktCollection" />
+            type="com.theupnextapp.domain.TraktCollectionArg" />
 
         <variable
             name="showSeason"
@@ -68,8 +68,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:text="@{show.title}"
                 android:textAppearance="?attr/textAppearanceSubtitle1"
+                app:seasonAndNumber="@{showSeason.seasonNumber}"
                 tools:text="Season Number" />
         </LinearLayout>
 
