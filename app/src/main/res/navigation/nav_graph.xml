@@ -119,7 +119,6 @@
     <fragment
         android:id="@+id/collectionSeasonsFragment"
         android:name="com.theupnextapp.ui.collectionSeasons.CollectionSeasonsFragment"
-        android:label="CollectionSeasonsFragment"
         tools:layout="@layout/fragment_collection_seasons">
         <argument
             android:name="traktCollection"
