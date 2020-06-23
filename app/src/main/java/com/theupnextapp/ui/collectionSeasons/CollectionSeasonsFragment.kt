@@ -1,5 +1,6 @@
 package com.theupnextapp.ui.collectionSeasons
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -16,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.theupnextapp.BuildConfig
+import com.theupnextapp.MainActivity
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentCollectionSeasonsBinding
 import com.theupnextapp.domain.TraktCollectionSeason
@@ -31,7 +33,7 @@ class CollectionSeasonsFragment : Fragment(),
     private var _adapter: CollectionSeasonsAdapter? = null
     private val adapter get() = _adapter!!
 
-    val args by navArgs<CollectionSeasonsFragmentArgs>()
+    private val args by navArgs<CollectionSeasonsFragmentArgs>()
 
     private val viewModel: CollectionSeasonsViewModel by lazy {
         val activity = requireNotNull(activity) {
@@ -132,7 +134,7 @@ class CollectionSeasonsFragment : Fragment(),
             if (!it.isNullOrEmpty()) {
                 viewModel.onCollectionSeasonsEmpty(false)
                 adapter.traktCollectionSeasons = it
-                adapter.traktCollection = args?.traktCollection
+                adapter.traktCollection = args.traktCollection
             } else {
                 viewModel.onCollectionSeasonsEmpty(true)
             }
@@ -142,12 +144,22 @@ class CollectionSeasonsFragment : Fragment(),
     override fun onResume() {
         super.onResume()
         (activity as AppCompatActivity).supportActionBar?.title =
-            getString(R.string.title_trakt_collection)
+            getString(R.string.title_trakt_collection_seasons, args.traktCollection.title)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        (activity as MainActivity).hideBottomNavigation()
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        (activity as MainActivity).showBottomNavigation()
     }
 
     companion object {

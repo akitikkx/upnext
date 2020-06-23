@@ -9,6 +9,7 @@
     <string name="title_today_shows">Airing Today</string>
     <string name="title_tomorrow_shows">Airing Tomorrow</string>
     <string name="title_trakt_collection">Trakt Collection</string>
+    <string name="title_trakt_collection_seasons">%1$s</string>
     <string name="title_trakt_watchlist">Trakt Watchlist</string>
     <string name="title_trakt_history">Trakt History</string>
 
