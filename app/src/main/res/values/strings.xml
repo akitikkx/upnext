@@ -12,6 +12,7 @@
     <string name="title_trakt_collection_seasons">%1$s</string>
     <string name="title_trakt_watchlist">Trakt Watchlist</string>
     <string name="title_trakt_history">Trakt History</string>
+    <string name="title_settings">Settings</string>
 
     <!-- Bottom navigation -->
     <string name="bottom_nav_title_search">Search</string>
@@ -19,6 +20,7 @@
     <string name="bottom_nav_title_collection">Collection</string>
     <string name="bottom_nav_title_history">History</string>
     <string name="bottom_nav_title_watchlist">Watchlist</string>
+    <string name="bottom_nav_title_settings">Settings</string>
 
     <!-- Show Detail -->
     <string name="show_detail_next_episode_heading">Next Episode</string>
@@ -192,4 +194,19 @@
     <string name="error_device_not_connected_to_internet">You are not connected to the internet</string>
     <string name="error_trakt_account_connection_required">Connect your Trakt account in order to continue</string>
     <string name="error_connect_trakt_account">Connect</string>
+
+    <!-- Preference Titles -->
+    <string name="messages_header">Messages</string>
+    <string name="sync_header">Sync</string>
+
+    <!-- Messages Preferences -->
+    <string name="signature_title">Your signature</string>
+    <string name="reply_title">Default reply action</string>
+
+    <!-- Sync Preferences -->
+    <string name="sync_title">Sync email periodically</string>
+    <string name="attachment_title">Download incoming attachments</string>
+    <string name="attachment_summary_on">Automatically download attachments for incoming emails
+    </string>
+    <string name="attachment_summary_off">Only download attachments when manually requested</string>
 </resources>
