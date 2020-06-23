@@ -126,4 +126,8 @@
             app:argType="com.theupnextapp.domain.TraktCollectionArg" />
     </fragment>
 
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.theupnextapp.ui.settings.SettingsFragment"/>
+
 </navigation>
