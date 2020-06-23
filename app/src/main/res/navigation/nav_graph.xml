@@ -78,7 +78,11 @@
 
         <action
             android:id="@+id/action_collectionFragment_to_collectionSeasonsFragment"
-            app:destination="@id/collectionSeasonsFragment" />
+            app:destination="@id/collectionSeasonsFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
 
     <fragment
