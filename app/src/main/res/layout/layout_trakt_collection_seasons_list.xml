@@ -29,37 +29,69 @@
                 app:showProgress="@{viewModel.isLoadingCollection}"
                 tools:visibility="visible" />
 
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/collection_season_header"
+            <FrameLayout
+                android:id="@+id/collection_backdrop"
                 android:layout_width="0dp"
-                android:layout_height="@dimen/trakt_watchlist_header_height"
-                android:layout_marginTop="@dimen/margin_vertical"
-                android:contentDescription="@string/trakt_logo_description"
-                android:textAppearance="?attr/textAppearanceHeadline6"
+                android:layout_height="wrap_content"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/collection_season_subtitle"
                 app:layout_constraintTop_toTopOf="parent"
+                app:loadingVisibility="@{viewModel.isLoadingCollection}">
+
+                <ProgressBar
+                    android:id="@+id/poster_progress"
+                    style="?android:attr/progressBarStyleSmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    app:showHideStringContent="@{viewModel.collection.originalImageUrl}" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/show_backdrop_height"
+                    android:contentDescription="@{String.format(@string/show_backdrop_image, viewModel.collection.title)}"
+                    android:scaleType="matrix"
+                    android:src="@color/grey_light"
+                    app:imageUrl="@{viewModel.collection.originalImageUrl}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:layout_gravity="bottom"
+                    android:background="@drawable/gradient_backdrop_bottom" />
+            </FrameLayout>
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/collection_season_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_horizontal"
+                android:layout_marginTop="@dimen/margin_vertical"
+                android:layout_marginEnd="@dimen/margin_horizontal"
+                android:text="@{viewModel.collection.title}"
+                android:textAppearance="?attr/textAppearanceHeadline4"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/collection_backdrop"
                 app:loadingVisibility="@{viewModel.isLoadingCollection}"
-                app:showHideView="@{viewModel.isAuthorizedOnTrakt &amp;&amp; !viewModel.collectionSeasonsEmpty}"
-                app:srcCompat="@drawable/ic_trakt_wide_red_white"
-                tools:visibility="visible" />
+                tools:text="Show Title" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/collection_season_subtitle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal"
-                android:layout_marginTop="@dimen/margin_vertical"
+                android:layout_marginTop="@dimen/margin_vertical_half"
                 android:layout_marginEnd="@dimen/margin_horizontal"
-                android:gravity="center_horizontal"
                 android:text="@string/collection_season_screen_subtitle"
                 android:textAppearance="?attr/textAppearanceCaption"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/collection_season_header"
-                app:loadingVisibility="@{viewModel.isLoadingCollection}"
-                app:showHideView="@{viewModel.isAuthorizedOnTrakt &amp;&amp; !viewModel.collectionSeasonsEmpty}" />
+                app:layout_constraintTop_toBottomOf="@id/collection_season_title"
+                app:loadingVisibility="@{viewModel.isLoadingCollection}" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/collection_season_list"
@@ -74,7 +106,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/collection_season_subtitle"
                 app:loadingVisibility="@{viewModel.isLoadingCollection}"
-                app:showHideView="@{viewModel.isAuthorizedOnTrakt() &amp;&amp; !viewModel.collectionSeasonsEmpty}"
                 tools:listitem="@layout/trakt_collection_season_item"
                 tools:visibility="visible" />
 
