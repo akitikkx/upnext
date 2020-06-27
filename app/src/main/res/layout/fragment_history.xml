@@ -27,17 +27,6 @@
             tools:visibility="visible" />
 
         <include
-            layout="@layout/layout_trakt_history_not_connected_state"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:showHideView="@{!viewModel.isAuthorizedOnTrakt}"
-            app:viewModel="@{viewModel}" />
-
-        <include
             layout="@layout/layout_trakt_history_shows_empty_state"
             android:layout_width="0dp"
             android:layout_height="match_parent"
