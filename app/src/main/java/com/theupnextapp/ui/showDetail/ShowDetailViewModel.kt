@@ -60,8 +60,6 @@ class ShowDetailViewModel(
     val showWatchedProgressBottomSheet: LiveData<TraktShowWatchedProgress> =
         _showWatchedProgressBottomSheet
 
-    val launchTraktConnectWindow: LiveData<Boolean> = _launchTraktConnectWindow
-
     val showCastEmpty: LiveData<Boolean> = _showCastEmpty
 
     val showWatchlistInfoBottomSheet: LiveData<Boolean> = _showWatchlistInfoBottomSheet
@@ -140,12 +138,6 @@ class ShowDetailViewModel(
 
     fun showConnectToTraktInfoBottomSheetComplete() {
         _showConnectToTraktInfoBottomSheet.value = false
-    }
-
-    fun onConnectClick() {
-        if (_isAuthorizedOnTrakt.value == false) {
-            _launchTraktConnectWindow.value = true
-        }
     }
 
     fun onShowCastInfoReceived(showCast: List<ShowCast>) {

@@ -1,12 +1,12 @@
 package com.theupnextapp.ui.collection
 
 import android.app.Application
-import android.os.Bundle
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
-import com.theupnextapp.domain.TraktAccessToken
 import com.theupnextapp.domain.TraktCollectionArg
-import com.theupnextapp.domain.TraktConnectionArg
 import com.theupnextapp.ui.common.TraktViewModel
 import kotlinx.coroutines.launch
 
@@ -18,20 +18,6 @@ class CollectionViewModel(
 
     private val _navigateToSelectedCollection = MutableLiveData<TraktCollectionArg>()
 
-    private val _fetchingAccessTokenInProgress = MutableLiveData<Boolean>()
-
-    private val _storingTraktAccessTokenInProgress = MutableLiveData<Boolean>()
-
-    private val _transactionInProgress = MutableLiveData<Boolean>()
-
-    val launchTraktConnectWindow: LiveData<Boolean> = _launchTraktConnectWindow
-
-    val fetchAccessTokenInProgress: LiveData<Boolean> = _fetchingAccessTokenInProgress
-
-    val storingTraktAccessTokenInProgress: LiveData<Boolean> = _storingTraktAccessTokenInProgress
-
-    val transactionInProgress: LiveData<Boolean> = _transactionInProgress
-
     val collectionEmpty: LiveData<Boolean> = _collectionEmpty
 
     val navigateToSelectedCollection: LiveData<TraktCollectionArg> = _navigateToSelectedCollection
@@ -39,10 +25,6 @@ class CollectionViewModel(
     val traktCollection = traktRepository.traktCollection
 
     val isLoadingCollection = traktRepository.isLoadingTraktCollection
-
-    fun onConnectClick() {
-        _launchTraktConnectWindow.value = true
-    }
 
     init {
         _collectionEmpty.value = false
@@ -71,34 +53,6 @@ class CollectionViewModel(
         viewModelScope?.launch {
             traktRepository.refreshTraktCollection(accessToken)
         }
-    }
-
-    val traktAccessToken = traktRepository.traktAccessToken
-
-    fun onTraktConnectionBundleReceived(bundle: Bundle?) {
-        _transactionInProgress.value = true
-        extractCode(bundle)
-    }
-
-    private fun extractCode(bundle: Bundle?) {
-        val traktConnectionArg = bundle?.getParcelable<TraktConnectionArg>(EXTRA_TRAKT_URI)
-
-        _fetchingAccessTokenInProgress.value = true
-
-        viewModelScope?.launch {
-            traktRepository.getTraktAccessToken(traktConnectionArg?.code)
-        }
-    }
-
-    fun onTraktAccessTokenReceived(traktAccessToken: TraktAccessToken) {
-        _fetchingAccessTokenInProgress.value = false
-        _storingTraktAccessTokenInProgress.value = true
-
-        storeTraktAccessToken(traktAccessToken)
-
-        _transactionInProgress.value = false
-        _isAuthorizedOnTrakt.value = true
-        _storingTraktAccessTokenInProgress.value = false
     }
 
     override fun onCleared() {

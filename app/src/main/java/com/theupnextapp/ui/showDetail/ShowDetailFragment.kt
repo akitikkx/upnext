@@ -1,10 +1,7 @@
 package com.theupnextapp.ui.showDetail
 
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.provider.Browser
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,11 +11,9 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.transition.TransitionInflater
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
-import com.theupnextapp.BuildConfig
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
 import com.theupnextapp.common.utils.*
@@ -27,9 +22,9 @@ import com.theupnextapp.domain.ShowCast
 import com.theupnextapp.domain.ShowInfo
 import com.theupnextapp.domain.ShowSeason
 import com.theupnextapp.domain.TraktShowWatchedProgress
-import com.theupnextapp.ui.common.BaseFragment
+import com.theupnextapp.ui.common.TraktFragment
 
-class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListener {
+class ShowDetailFragment : TraktFragment(), ShowCastAdapter.ShowCastAdapterListener {
 
     private var _binding: FragmentShowDetailBinding? = null
     private val binding get() = _binding!!
@@ -126,12 +121,6 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
             }
         })
 
-        viewModel.launchTraktConnectWindow.observe(viewLifecycleOwner, Observer {
-            if (it) {
-                connectToTraktWindow()
-            }
-        })
-
         viewModel.watchedProgress.observe(viewLifecycleOwner, Observer {
             if (it != null) {
                 _traktShowWatchedProgress = it
@@ -188,28 +177,6 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
                     duration = Snackbar.LENGTH_LONG,
                     listener = null
                 )
-            }
-        })
-
-        viewModel.invalidToken.observe(viewLifecycleOwner, Observer {
-            if (it) {
-                Snackbar.make(
-                    binding.root,
-                    getString(R.string.error_trakt_invalid_token_response_received),
-                    Snackbar.LENGTH_LONG
-                ).show()
-                viewModel.onInvalidTokenResponseReceived(it)
-            }
-        })
-
-        viewModel.invalidGrant.observe(viewLifecycleOwner, Observer {
-            if (it) {
-                Snackbar.make(
-                    binding.root,
-                    getString(R.string.error_trakt_invalid_grant_response_received),
-                    Snackbar.LENGTH_LONG
-                ).show()
-                viewModel.onInvalidTokenResponseReceived(it)
             }
         })
 
@@ -284,22 +251,11 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
         viewModel.onShowCastItemClicked(castItem)
     }
 
-    private fun connectToTraktWindow() {
-        val intent = Intent(
-            Intent.ACTION_VIEW,
-            Uri.parse("${TRAKT_API_URL}${TRAKT_OAUTH_ENDPOINT}?response_type=code&client_id=${BuildConfig.TRAKT_CLIENT_ID}&redirect_uri=${BuildConfig.TRAKT_REDIRECT_URI}")
-        )
-        intent.putExtra(Browser.EXTRA_APPLICATION_ID, activity?.packageName)
-        startActivity(intent)
-        viewModel.launchConnectWindowComplete()
-    }
-
     companion object {
         const val ARG_SHOW_CAST = "show_cast"
         const val ARG_SHOW_DETAIL = "show_detail"
         const val ARG_SHOW_SEASONS = "show_seasons"
         const val ARG_WATCHED_PROGRESS = "watched_progress"
-        const val EXTRA_TRAKT_URI = "extra_trakt_uri"
         const val TRAKT_API_URL = "https://api.trakt.tv"
         const val TRAKT_OAUTH_ENDPOINT = "/oauth/authorize"
     }
