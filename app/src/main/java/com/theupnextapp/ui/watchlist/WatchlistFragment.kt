@@ -131,12 +131,6 @@ class WatchlistFragment : Fragment(), WatchlistAdapter.WatchlistAdapterListener 
         watchlistAdapter = null
     }
 
-    companion object {
-        const val EXTRA_TRAKT_URI = "extra_trakt_uri"
-        const val TRAKT_API_URL = "https://api.trakt.tv"
-        const val TRAKT_OAUTH_ENDPOINT = "/oauth/authorize"
-    }
-
     override fun onWatchlistShowClick(view: View, watchlistItem: TraktWatchlist) {
         viewModel.displayShowDetails(
             ShowDetailArg(
