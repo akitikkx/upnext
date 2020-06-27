@@ -4,11 +4,11 @@ import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
-import com.google.firebase.analytics.FirebaseAnalytics
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import com.theupnextapp.R
@@ -46,8 +46,8 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
         val activity = requireNotNull(activity) {
             "You can only access the viewModel after onActivityCreated"
         }
-        ViewModelProviders.of(
-            this,
+        ViewModelProvider(
+            this@DashboardFragment,
             DashboardViewModel.Factory(activity.application)
         ).get(DashboardViewModel::class.java)
     }
@@ -132,7 +132,7 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
 
         viewModel.recommendedShowsList.observe(
             viewLifecycleOwner,
-            Observer<List<RecommendedShows>> { recommendedShows ->
+            Observer { recommendedShows ->
                 recommendedShows.apply {
                     if (recommendedShows.isNullOrEmpty()) {
                         viewModel.onRecommendedShowsListEmpty()
@@ -141,7 +141,7 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
                 }
             })
 
-        viewModel.newShowsList.observe(viewLifecycleOwner, Observer<List<NewShows>> { newShows ->
+        viewModel.newShowsList.observe(viewLifecycleOwner, Observer { newShows ->
             newShows.apply {
                 if (newShows.isNullOrEmpty()) {
                     viewModel.onNewShowsListEmpty()
@@ -152,7 +152,7 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
 
         viewModel.yesterdayShowsList.observe(
             viewLifecycleOwner,
-            Observer<List<ScheduleShow>> { yesterdayShows ->
+            Observer { yesterdayShows ->
                 yesterdayShows.apply {
                     if (yesterdayShows.isNullOrEmpty()) {
                         viewModel.onYesterdayShowsListEmpty()
@@ -163,7 +163,7 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
 
         viewModel.todayShowsList.observe(
             viewLifecycleOwner,
-            Observer<List<ScheduleShow>> { todayShows ->
+            Observer { todayShows ->
                 todayShows.apply {
                     if (todayShows.isNullOrEmpty()) {
                         viewModel.onTodayShowsListEmpty()
@@ -174,7 +174,7 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
 
         viewModel.tomorrowShowsList.observe(
             viewLifecycleOwner,
-            Observer<List<ScheduleShow>> { tomorrowShows ->
+            Observer { tomorrowShows ->
                 tomorrowShows.apply {
                     if (tomorrowShows.isNullOrEmpty()) {
                         viewModel.onTomorrowShowsListEmpty()

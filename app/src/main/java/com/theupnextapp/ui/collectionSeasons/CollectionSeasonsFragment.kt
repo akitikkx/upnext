@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -31,8 +31,8 @@ class CollectionSeasonsFragment : TraktFragment(),
         val activity = requireNotNull(activity) {
             "You can only access the viewModel after onActivityCreated"
         }
-        ViewModelProviders.of(
-            this,
+        ViewModelProvider(
+            this@CollectionSeasonsFragment,
             CollectionSeasonsViewModel.Factory(
                 activity.application,
                 args.traktCollection

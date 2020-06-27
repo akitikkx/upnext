@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView.OnQueryTextListener
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -33,8 +33,8 @@ class SearchFragment : BaseFragment(),
         val activity = requireNotNull(activity) {
             "You can only access the viewModel after onActivityCreated"
         }
-        ViewModelProviders.of(
-            this,
+        ViewModelProvider(
+            this@SearchFragment,
             SearchViewModel.Factory(activity.application)
         ).get(SearchViewModel::class.java)
     }

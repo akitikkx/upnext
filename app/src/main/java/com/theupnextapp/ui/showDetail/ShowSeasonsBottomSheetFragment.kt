@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -28,8 +28,8 @@ class ShowSeasonsBottomSheetFragment : BottomSheetDialogFragment(),
         val activity = requireNotNull(activity) {
             "You can only access the viewModel after onActivityCreated"
         }
-        ViewModelProviders.of(
-            this,
+        ViewModelProvider(
+            this@ShowSeasonsBottomSheetFragment,
             ShowSeasonsBottomSheetViewModel.Factory(
                 activity.application,
                 arguments?.getParcelable(ShowDetailFragment.ARG_SHOW_DETAIL)

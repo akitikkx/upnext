@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
@@ -23,8 +23,8 @@ class SplashScreenFragment : Fragment() {
         val activity = requireNotNull(activity) {
             "You can only access the viewModel after onActivityCreated"
         }
-        ViewModelProviders.of(
-            this,
+        ViewModelProvider(
+            this@SplashScreenFragment,
             SplashScreenViewModel.Factory(activity.application)
         ).get(SplashScreenViewModel::class.java)
     }

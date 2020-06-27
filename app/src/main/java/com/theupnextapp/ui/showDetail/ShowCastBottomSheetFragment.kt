@@ -4,12 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentShowCastBottomSheetBinding
 
-class ShowCastBottomSheetFragment: BottomSheetDialogFragment() {
+class ShowCastBottomSheetFragment : BottomSheetDialogFragment() {
 
     private var _binding: FragmentShowCastBottomSheetBinding? = null
     private val binding get() = _binding!!
@@ -18,9 +17,12 @@ class ShowCastBottomSheetFragment: BottomSheetDialogFragment() {
         val activity = requireNotNull(activity) {
             "You can only access the viewModel after onActivityCreated"
         }
-        ViewModelProviders.of(
-            this,
-            ShowCastBottomSheetViewModel.Factory(activity.application, arguments?.getParcelable(ShowDetailFragment.ARG_SHOW_CAST))
+        ViewModelProvider(
+            this@ShowCastBottomSheetFragment,
+            ShowCastBottomSheetViewModel.Factory(
+                activity.application,
+                arguments?.getParcelable(ShowDetailFragment.ARG_SHOW_CAST)
+            )
         ).get(ShowCastBottomSheetViewModel::class.java)
     }
 

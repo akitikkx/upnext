@@ -4,9 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentFeaturesBottomSheetBinding
 
 class FeaturesBottomSheetFragment : BottomSheetDialogFragment() {
@@ -18,8 +17,8 @@ class FeaturesBottomSheetFragment : BottomSheetDialogFragment() {
         val activity = requireNotNull(activity) {
             "You can only access the viewModel after onActivityCreated"
         }
-        ViewModelProviders.of(
-            this,
+        ViewModelProvider(
+            this@FeaturesBottomSheetFragment,
             FeaturesBottomSheetViewModel.Factory(activity.application)
         ).get(FeaturesBottomSheetViewModel::class.java)
     }

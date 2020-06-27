@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -24,8 +24,8 @@ class ShowWatchedProgressBottomSheetFragment : BottomSheetDialogFragment() {
         val activity = requireNotNull(activity) {
             "You can only access the viewModel after onActivityCreated"
         }
-        ViewModelProviders.of(
-            this,
+        ViewModelProvider(
+            this@ShowWatchedProgressBottomSheetFragment,
             ShowWatchedProgressBottomSheetViewModel.Factory(
                 activity.application,
                 arguments?.getParcelable(ShowDetailFragment.ARG_WATCHED_PROGRESS),
@@ -46,7 +46,8 @@ class ShowWatchedProgressBottomSheetFragment : BottomSheetDialogFragment() {
         binding.viewModel = viewModel
 
         _adapter = ShowWatchedProgressSeasonsAdapter()
-        val watchedProgress: TraktShowWatchedProgress? = arguments?.getParcelable(ShowDetailFragment.ARG_WATCHED_PROGRESS)
+        val watchedProgress: TraktShowWatchedProgress? =
+            arguments?.getParcelable(ShowDetailFragment.ARG_WATCHED_PROGRESS)
         _adapter?.seasons = watchedProgress?.seasons
 
         binding.root.findViewById<RecyclerView>(R.id.watched_progress_season_list).apply {
