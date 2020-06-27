@@ -117,7 +117,11 @@
         <action
             android:id="@+id/action_historyFragment_to_traktAuthenticationFragment"
             app:destination="@id/traktAuthenticationFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
             app:launchSingleTop="true"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"
             app:popUpTo="@id/historyFragment"
             app:popUpToInclusive="true" />
     </fragment>
