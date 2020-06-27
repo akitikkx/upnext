@@ -1,16 +1,12 @@
 package com.theupnextapp.ui.collection
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.provider.Browser
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -18,14 +14,14 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
-import com.theupnextapp.BuildConfig
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentCollectionBinding
 import com.theupnextapp.domain.TraktCollection
 import com.theupnextapp.domain.TraktCollectionArg
 import com.theupnextapp.domain.TraktConnectionArg
+import com.theupnextapp.ui.common.TraktFragment
 
-class CollectionFragment : Fragment(), CollectionAdapter.CollectionAdapterListener {
+class CollectionFragment : TraktFragment(), CollectionAdapter.CollectionAdapterListener {
 
     private var _binding: FragmentCollectionBinding? = null
     private val binding get() = _binding!!
@@ -37,8 +33,8 @@ class CollectionFragment : Fragment(), CollectionAdapter.CollectionAdapterListen
         val activity = requireNotNull(activity) {
             "You can only access the viewModel after onActivityCreated"
         }
-        ViewModelProviders.of(
-            this,
+        ViewModelProvider(
+            this@CollectionFragment,
             CollectionViewModel.Factory(activity.application)
         ).get(CollectionViewModel::class.java)
     }
@@ -74,24 +70,6 @@ class CollectionFragment : Fragment(), CollectionAdapter.CollectionAdapterListen
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-
-        viewModel.launchTraktConnectWindow.observe(viewLifecycleOwner, Observer {
-            if (it) {
-                val intent = Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse("${TRAKT_API_URL}${TRAKT_OAUTH_ENDPOINT}?response_type=code&client_id=${BuildConfig.TRAKT_CLIENT_ID}&redirect_uri=${BuildConfig.TRAKT_REDIRECT_URI}")
-                )
-                intent.putExtra(Browser.EXTRA_APPLICATION_ID, activity?.packageName)
-                startActivity(intent)
-                viewModel.launchConnectWindowComplete()
-            }
-        })
-
-        viewModel.traktAccessToken.observe(viewLifecycleOwner, Observer {
-            if (it != null) {
-                viewModel.onTraktAccessTokenReceived(it)
-            }
-        })
 
         viewModel.fetchAccessTokenInProgress.observe(viewLifecycleOwner, Observer {
             if (it) {
@@ -137,7 +115,9 @@ class CollectionFragment : Fragment(), CollectionAdapter.CollectionAdapterListen
         viewModel.navigateToSelectedCollection.observe(viewLifecycleOwner, Observer {
             if (null != it) {
                 this.findNavController().navigate(
-                    CollectionFragmentDirections.actionCollectionFragmentToCollectionSeasonsFragment(it)
+                    CollectionFragmentDirections.actionCollectionFragmentToCollectionSeasonsFragment(
+                        it
+                    )
                 )
                 val analyticsBundle = Bundle()
                 analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, it.imdbID)
@@ -165,14 +145,16 @@ class CollectionFragment : Fragment(), CollectionAdapter.CollectionAdapterListen
 
 
     override fun onCollectionClick(view: View, traktCollection: TraktCollection) {
-        viewModel.displaySeasons(TraktCollectionArg(
-            imdbID = traktCollection.imdbID,
-            title = traktCollection.title,
-            mediumImageUrl = traktCollection.mediumImageUrl,
-            originalImageUrl = traktCollection.originalImageUrl,
-            lastCollectedAt = traktCollection.lastCollectedAt,
-            lastUpdatedAt = traktCollection.lastUpdatedAt
-        ))
+        viewModel.displaySeasons(
+            TraktCollectionArg(
+                imdbID = traktCollection.imdbID,
+                title = traktCollection.title,
+                mediumImageUrl = traktCollection.mediumImageUrl,
+                originalImageUrl = traktCollection.originalImageUrl,
+                lastCollectedAt = traktCollection.lastCollectedAt,
+                lastUpdatedAt = traktCollection.lastUpdatedAt
+            )
+        )
     }
 
     override fun onCollectionRemoveClick(view: View, traktCollection: TraktCollection) {

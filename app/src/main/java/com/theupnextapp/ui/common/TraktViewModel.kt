@@ -1,15 +1,15 @@
 package com.theupnextapp.ui.common
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.preference.PreferenceManager
+import android.os.Bundle
+import androidx.lifecycle.*
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.theupnextapp.common.utils.UpnextPreferenceManager
 import com.theupnextapp.database.getDatabase
 import com.theupnextapp.domain.TraktAccessToken
+import com.theupnextapp.domain.TraktConnectionArg
 import com.theupnextapp.repository.TraktRepository
+import com.theupnextapp.ui.collection.CollectionViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -18,9 +18,15 @@ import java.util.concurrent.TimeUnit
 
 open class TraktViewModel(application: Application) : AndroidViewModel(application) {
 
-    protected val _isAuthorizedOnTrakt = MutableLiveData<Boolean?>(ifValidAccessTokenExists())
+    protected val _isAuthorizedOnTrakt = MutableLiveData(ifValidAccessTokenExists())
 
     protected val _launchTraktConnectWindow = MutableLiveData<Boolean>()
+
+    private val _fetchingAccessTokenInProgress = MutableLiveData<Boolean>()
+
+    private val _storingTraktAccessTokenInProgress = MutableLiveData<Boolean>()
+
+    private val _transactionInProgress = MutableLiveData<Boolean>()
 
     protected val viewModelJob = SupervisorJob()
 
@@ -30,13 +36,36 @@ open class TraktViewModel(application: Application) : AndroidViewModel(applicati
 
     protected val traktRepository = TraktRepository(database)
 
+    val fetchAccessTokenInProgress: LiveData<Boolean> = _fetchingAccessTokenInProgress
+
+    val launchTraktConnectWindow: LiveData<Boolean> = _launchTraktConnectWindow
+
     val isAuthorizedOnTrakt: LiveData<Boolean?> = _isAuthorizedOnTrakt
+
+    val storingTraktAccessTokenInProgress: LiveData<Boolean> = _storingTraktAccessTokenInProgress
+
+    val traktAccessToken = traktRepository.traktAccessToken
 
     val invalidToken = traktRepository.invalidToken
 
     val invalidGrant = traktRepository.invalidGrant
 
     protected fun ifValidAccessTokenExists(): Boolean {
+        val preferences = UpnextPreferenceManager(getApplication())
+
+        if (checkIfTokenHasExpired()) {
+            return false
+        }
+
+        val accessToken = preferences.getTraktAccessToken()
+        return accessToken != null
+    }
+
+    private fun checkIfTokenHasBeenRevoked() {
+
+    }
+
+    private fun checkIfTokenHasExpired(): Boolean {
         val preferences = UpnextPreferenceManager(getApplication())
 
         val refreshToken = preferences.getTraktAccessTokenRefresh()
@@ -47,11 +76,10 @@ open class TraktViewModel(application: Application) : AndroidViewModel(applicati
 
         if (!refreshToken.isNullOrEmpty() && currentDateEpoch >= expiryDateEpoch) {
             refreshAccessToken(refreshToken)
-            return false
+            return true
         }
 
-        val accessToken = preferences.getTraktAccessToken()
-        return accessToken != null
+        return false
     }
 
     private fun refreshAccessToken(refreshToken: String?) {
@@ -60,8 +88,23 @@ open class TraktViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
+    fun onConnectClick() {
+        _launchTraktConnectWindow.value = true
+    }
+
     fun launchConnectWindowComplete() {
         _launchTraktConnectWindow.value = false
+    }
+
+    fun onTraktAccessTokenReceived(traktAccessToken: TraktAccessToken) {
+        _fetchingAccessTokenInProgress.value = false
+        _storingTraktAccessTokenInProgress.value = true
+
+        storeTraktAccessToken(traktAccessToken)
+
+        _transactionInProgress.value = false
+        _isAuthorizedOnTrakt.value = true
+        _storingTraktAccessTokenInProgress.value = false
     }
 
     fun onInvalidTokenResponseReceived(invalid: Boolean) {
@@ -71,6 +114,21 @@ open class TraktViewModel(application: Application) : AndroidViewModel(applicati
 
         if (invalid) {
             refreshAccessToken(refreshToken)
+        }
+    }
+
+    fun onTraktConnectionBundleReceived(bundle: Bundle?) {
+        _transactionInProgress.value = true
+        extractCode(bundle)
+    }
+
+    private fun extractCode(bundle: Bundle?) {
+        val traktConnectionArg = bundle?.getParcelable<TraktConnectionArg>(CollectionViewModel.EXTRA_TRAKT_URI)
+
+        _fetchingAccessTokenInProgress.value = true
+
+        viewModelScope?.launch {
+            traktRepository.getTraktAccessToken(traktConnectionArg?.code)
         }
     }
 
@@ -106,12 +164,24 @@ open class TraktViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     companion object {
-        const val EXTRA_TRAKT_URI = "extra_trakt_uri"
         const val SHARED_PREF_TRAKT_ACCESS_TOKEN = "trakt_access_token"
         const val SHARED_PREF_TRAKT_ACCESS_TOKEN_CREATED_AT = "trakt_access_token_created_at"
         const val SHARED_PREF_TRAKT_ACCESS_TOKEN_EXPIRES_IN = "trakt_access_token_expires_in"
         const val SHARED_PREF_TRAKT_ACCESS_TOKEN_REFRESH_TOKEN = "trakt_access_token_refresh_token"
         const val SHARED_PREF_TRAKT_ACCESS_TOKEN_SCOPE = "trakt_access_token_scope"
         const val SHARED_PREF_TRAKT_ACCESS_TOKEN_TYPE = "trakt_access_token_token_type"
+    }
+
+    class Factory(val app: Application) :
+        ViewModelProvider.Factory {
+        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+            if (modelClass.isAssignableFrom(TraktViewModel::class.java)) {
+                @Suppress("UNCHECKED_CAST")
+                return TraktViewModel(
+                    app
+                ) as T
+            }
+            throw IllegalArgumentException("Unable to construct viewModel")
+        }
     }
 }

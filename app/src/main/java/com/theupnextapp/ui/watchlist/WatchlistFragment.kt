@@ -1,9 +1,6 @@
 package com.theupnextapp.ui.watchlist
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.provider.Browser
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,7 +13,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
-import com.theupnextapp.BuildConfig
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentWatchlistBinding
 import com.theupnextapp.domain.ShowDetailArg
@@ -72,24 +68,6 @@ class WatchlistFragment : Fragment(), WatchlistAdapter.WatchlistAdapterListener 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        viewModel.launchTraktConnectWindow.observe(viewLifecycleOwner, Observer {
-            if (it) {
-                val intent = Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse("${TRAKT_API_URL}${TRAKT_OAUTH_ENDPOINT}?response_type=code&client_id=${BuildConfig.TRAKT_CLIENT_ID}&redirect_uri=${BuildConfig.TRAKT_REDIRECT_URI}")
-                )
-                intent.putExtra(Browser.EXTRA_APPLICATION_ID, activity?.packageName)
-                startActivity(intent)
-                viewModel.launchConnectWindowComplete()
-            }
-        })
-
-        viewModel.traktAccessToken.observe(viewLifecycleOwner, Observer {
-            if (it != null) {
-                viewModel.onTraktAccessTokenReceived(it)
-            }
-        })
-
         viewModel.fetchAccessTokenInProgress.observe(viewLifecycleOwner, Observer {
             if (it) {
                 Snackbar.make(
@@ -137,28 +115,6 @@ class WatchlistFragment : Fragment(), WatchlistAdapter.WatchlistAdapterListener 
                     WatchlistFragmentDirections.actionWatchlistFragmentToShowDetailFragment(it)
                 )
                 viewModel.displayShowDetailsComplete()
-            }
-        })
-
-        viewModel.invalidToken.observe(viewLifecycleOwner, Observer {
-            if (it) {
-                Snackbar.make(
-                    binding.root,
-                    getString(R.string.error_trakt_invalid_token_response_received),
-                    Snackbar.LENGTH_LONG
-                ).show()
-                viewModel.onInvalidTokenResponseReceived(it)
-            }
-        })
-
-        viewModel.invalidGrant.observe(viewLifecycleOwner, Observer {
-            if (it) {
-                Snackbar.make(
-                    binding.root,
-                    getString(R.string.error_trakt_invalid_grant_response_received),
-                    Snackbar.LENGTH_LONG
-                ).show()
-                viewModel.onInvalidTokenResponseReceived(it)
             }
         })
     }

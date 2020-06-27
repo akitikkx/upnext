@@ -1,9 +1,6 @@
 package com.theupnextapp.ui.history
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.provider.Browser
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,16 +11,13 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
-import com.theupnextapp.BuildConfig
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentHistoryBinding
 import com.theupnextapp.domain.ShowDetailArg
-import com.theupnextapp.domain.TraktConnectionArg
 import com.theupnextapp.domain.TraktHistory
-import com.theupnextapp.ui.common.BaseFragment
-import com.theupnextapp.ui.watchlist.WatchlistFragment
+import com.theupnextapp.ui.common.TraktFragment
 
-class HistoryFragment : BaseFragment(), HistoryAdapter.HistoryAdapterListener {
+class HistoryFragment : TraktFragment(), HistoryAdapter.HistoryAdapterListener {
 
     private var _binding: FragmentHistoryBinding? = null
     private val binding get() = _binding!!
@@ -51,12 +45,6 @@ class HistoryFragment : BaseFragment(), HistoryAdapter.HistoryAdapterListener {
 
         binding.lifecycleOwner = viewLifecycleOwner
 
-        val args = arguments
-
-        if (args?.getParcelable<TraktConnectionArg>(HistoryViewModel.EXTRA_TRAKT_URI) != null) {
-            viewModel.onTraktConnectionBundleReceived(arguments)
-        }
-
         historyAdapter = HistoryAdapter(this)
 
         binding.root.findViewById<RecyclerView>(R.id.history_list).apply {
@@ -71,24 +59,6 @@ class HistoryFragment : BaseFragment(), HistoryAdapter.HistoryAdapterListener {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-
-        viewModel.launchTraktConnectWindow.observe(viewLifecycleOwner, Observer {
-            if (it) {
-                val intent = Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse("${TRAKT_API_URL}${WatchlistFragment.TRAKT_OAUTH_ENDPOINT}?response_type=code&client_id=${BuildConfig.TRAKT_CLIENT_ID}&redirect_uri=${BuildConfig.TRAKT_REDIRECT_URI}")
-                )
-                intent.putExtra(Browser.EXTRA_APPLICATION_ID, activity?.packageName)
-                startActivity(intent)
-                viewModel.launchConnectWindowComplete()
-            }
-        })
-
-        viewModel.traktAccessToken.observe(viewLifecycleOwner, Observer {
-            if (it != null) {
-                viewModel.onTraktAccessTokenReceived(it)
-            }
-        })
 
         viewModel.fetchAccessTokenInProgress.observe(viewLifecycleOwner, Observer {
             if (it) {
@@ -139,28 +109,6 @@ class HistoryFragment : BaseFragment(), HistoryAdapter.HistoryAdapterListener {
                 viewModel.displayShowDetailsComplete()
             }
         })
-
-        viewModel.invalidToken.observe(viewLifecycleOwner, Observer {
-            if (it) {
-                Snackbar.make(
-                    binding.root,
-                    getString(R.string.error_trakt_invalid_token_response_received),
-                    Snackbar.LENGTH_LONG
-                ).show()
-                viewModel.onInvalidTokenResponseReceived(it)
-            }
-        })
-
-        viewModel.invalidGrant.observe(viewLifecycleOwner, Observer {
-            if (it) {
-                Snackbar.make(
-                    binding.root,
-                    getString(R.string.error_trakt_invalid_grant_response_received),
-                    Snackbar.LENGTH_LONG
-                ).show()
-                viewModel.onInvalidTokenResponseReceived(it)
-            }
-        })
     }
 
     override fun onResume() {
@@ -173,12 +121,6 @@ class HistoryFragment : BaseFragment(), HistoryAdapter.HistoryAdapterListener {
         super.onDestroyView()
         _binding = null
         historyAdapter = null
-    }
-
-    companion object {
-        const val EXTRA_TRAKT_URI = "extra_trakt_uri"
-        const val TRAKT_API_URL = "https://api.trakt.tv"
-        const val TRAKT_OAUTH_ENDPOINT = "/oauth/authorize"
     }
 
     override fun onHistoryShowClick(view: View, historyItem: TraktHistory) {

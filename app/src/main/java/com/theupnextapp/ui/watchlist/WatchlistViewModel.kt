@@ -24,12 +24,6 @@ class WatchlistViewModel(application: Application) : TraktViewModel(application)
 
     private val _watchlistEmpty = MutableLiveData<Boolean>()
 
-    val launchTraktConnectWindow: LiveData<Boolean> = _launchTraktConnectWindow
-
-    val fetchAccessTokenInProgress: LiveData<Boolean> = _fetchingAccessTokenInProgress
-
-    val storingTraktAccessTokenInProgress: LiveData<Boolean> = _storingTraktAccessTokenInProgress
-
     val transactionInProgress: LiveData<Boolean> = _transactionInProgress
 
     val navigateToSelectedShow: LiveData<ShowDetailArg> = _navigateToSelectedShow
@@ -40,10 +34,6 @@ class WatchlistViewModel(application: Application) : TraktViewModel(application)
 
     fun onWatchlistEmpty(empty: Boolean) {
         _watchlistEmpty.value = empty
-    }
-
-    fun onConnectClick() {
-        _launchTraktConnectWindow.value = true
     }
 
     init {
@@ -62,14 +52,7 @@ class WatchlistViewModel(application: Application) : TraktViewModel(application)
         }
     }
 
-    val traktAccessToken = traktRepository.traktAccessToken
-
     val traktWatchlist = traktRepository.traktWatchlist
-
-    fun onTraktConnectionBundleReceived(bundle: Bundle?) {
-        _transactionInProgress.value = true
-        extractCode(bundle)
-    }
 
     private fun extractCode(bundle: Bundle?) {
         val traktConnectionArg = bundle?.getParcelable<TraktConnectionArg>(EXTRA_TRAKT_URI)
@@ -79,19 +62,6 @@ class WatchlistViewModel(application: Application) : TraktViewModel(application)
         viewModelScope?.launch {
             traktRepository.getTraktAccessToken(traktConnectionArg?.code)
         }
-    }
-
-    fun onTraktAccessTokenReceived(traktAccessToken: TraktAccessToken) {
-        _fetchingAccessTokenInProgress.value = false
-        _storingTraktAccessTokenInProgress.value = true
-
-        storeTraktAccessToken(traktAccessToken)
-
-        _transactionInProgress.value = false
-        _isAuthorizedOnTrakt.value = true
-        _storingTraktAccessTokenInProgress.value = false
-
-        loadTraktWatchlist()
     }
 
     fun onWatchlistItemDeleteClick(watchlistItem: TraktWatchlist) {
