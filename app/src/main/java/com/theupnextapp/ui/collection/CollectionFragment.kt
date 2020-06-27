@@ -19,9 +19,9 @@ import com.theupnextapp.databinding.FragmentCollectionBinding
 import com.theupnextapp.domain.TraktCollection
 import com.theupnextapp.domain.TraktCollectionArg
 import com.theupnextapp.domain.TraktConnectionArg
-import com.theupnextapp.ui.common.TraktFragment
+import com.theupnextapp.ui.common.BaseFragment
 
-class CollectionFragment : TraktFragment(), CollectionAdapter.CollectionAdapterListener {
+class CollectionFragment : BaseFragment(), CollectionAdapter.CollectionAdapterListener {
 
     private var _binding: FragmentCollectionBinding? = null
     private val binding get() = _binding!!

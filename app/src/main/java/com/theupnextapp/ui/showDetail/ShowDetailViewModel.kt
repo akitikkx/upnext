@@ -104,7 +104,7 @@ class ShowDetailViewModel(
             }
             traktRepository.getTraktShowRating(accessToken, showInfo.value?.imdbID)
             traktRepository.getTraktShowStats(accessToken, showInfo.value?.imdbID)
-            if (_isAuthorizedOnTrakt.value == true) {
+            if (ifValidAccessTokenExists()) {
                 traktRepository.getTraktWatchedProgress(
                     accessToken,
                     showInfo.value?.imdbID

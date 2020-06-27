@@ -3,6 +3,7 @@ package com.theupnextapp.ui.collectionSeasons
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
@@ -14,9 +15,9 @@ import com.theupnextapp.MainActivity
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentCollectionSeasonsBinding
 import com.theupnextapp.domain.TraktCollectionSeason
-import com.theupnextapp.ui.common.TraktFragment
+import com.theupnextapp.ui.common.BaseFragment
 
-class CollectionSeasonsFragment : TraktFragment(),
+class CollectionSeasonsFragment : BaseFragment(),
     CollectionSeasonsAdapter.CollectionSeasonsAdapterListener {
 
     private var _binding: FragmentCollectionSeasonsBinding? = null
@@ -38,6 +39,18 @@ class CollectionSeasonsFragment : TraktFragment(),
                 args.traktCollection
             )
         ).get(CollectionSeasonsViewModel::class.java)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        val settingsItem = menu.findItem(R.id.menu_settings)
+        if (settingsItem != null) {
+            settingsItem.isVisible = false
+        }
     }
 
     override fun onCreateView(

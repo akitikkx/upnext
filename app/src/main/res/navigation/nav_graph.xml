@@ -114,11 +114,18 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_historyFragment_to_traktAuthenticationFragment"
+            app:destination="@id/traktAuthenticationFragment"
+            app:launchSingleTop="true"
+            app:popUpTo="@id/historyFragment"
+            app:popUpToInclusive="true" />
     </fragment>
 
     <fragment
         android:id="@+id/collectionSeasonsFragment"
         android:name="com.theupnextapp.ui.collectionSeasons.CollectionSeasonsFragment"
+        android:label="@string/title_trakt_collection_seasons"
         tools:layout="@layout/fragment_collection_seasons">
         <argument
             android:name="traktCollection"
@@ -127,6 +134,18 @@
 
     <fragment
         android:id="@+id/settingsFragment"
-        android:name="com.theupnextapp.ui.settings.SettingsFragment"/>
+        android:name="com.theupnextapp.ui.settings.SettingsFragment" />
+
+    <fragment
+        android:id="@+id/traktAuthenticationFragment"
+        android:name="com.theupnextapp.ui.traktAuthentication.TraktAuthenticationFragment"
+        tools:layout="@layout/fragment_trakt_authentication" >
+        <action
+            android:id="@+id/action_traktAuthenticationFragment_to_historyFragment"
+            app:destination="@id/historyFragment"
+            app:launchSingleTop="true"
+            app:popUpTo="@id/traktAuthenticationFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
 
 </navigation>

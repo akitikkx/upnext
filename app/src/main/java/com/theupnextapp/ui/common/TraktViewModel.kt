@@ -18,9 +18,18 @@ import java.util.concurrent.TimeUnit
 
 open class TraktViewModel(application: Application) : AndroidViewModel(application) {
 
+    enum class TraktAuthenticationState {
+        AUTHORIZED,
+        NOT_AUTHORIZED
+    }
+
+    private val _traktAuthenticationState = MutableLiveData<TraktAuthenticationState>(
+        if (ifValidAccessTokenExists()) TraktAuthenticationState.AUTHORIZED else TraktAuthenticationState.NOT_AUTHORIZED
+    )
+
     protected val _isAuthorizedOnTrakt = MutableLiveData(ifValidAccessTokenExists())
 
-    protected val _launchTraktConnectWindow = MutableLiveData<Boolean>()
+    private val _launchTraktConnectWindow = MutableLiveData<Boolean>()
 
     private val _fetchingAccessTokenInProgress = MutableLiveData<Boolean>()
 
@@ -35,6 +44,8 @@ open class TraktViewModel(application: Application) : AndroidViewModel(applicati
     protected val database = getDatabase(application)
 
     protected val traktRepository = TraktRepository(database)
+
+    val traktAuthenticationState: LiveData<TraktAuthenticationState> = _traktAuthenticationState
 
     val fetchAccessTokenInProgress: LiveData<Boolean> = _fetchingAccessTokenInProgress
 
@@ -123,7 +134,8 @@ open class TraktViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     private fun extractCode(bundle: Bundle?) {
-        val traktConnectionArg = bundle?.getParcelable<TraktConnectionArg>(CollectionViewModel.EXTRA_TRAKT_URI)
+        val traktConnectionArg =
+            bundle?.getParcelable<TraktConnectionArg>(CollectionViewModel.EXTRA_TRAKT_URI)
 
         _fetchingAccessTokenInProgress.value = true
 

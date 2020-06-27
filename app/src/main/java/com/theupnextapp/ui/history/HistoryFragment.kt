@@ -15,9 +15,10 @@ import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentHistoryBinding
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.TraktHistory
-import com.theupnextapp.ui.common.TraktFragment
+import com.theupnextapp.ui.common.BaseFragment
+import com.theupnextapp.ui.common.TraktViewModel
 
-class HistoryFragment : TraktFragment(), HistoryAdapter.HistoryAdapterListener {
+class HistoryFragment : BaseFragment(), HistoryAdapter.HistoryAdapterListener {
 
     private var _binding: FragmentHistoryBinding? = null
     private val binding get() = _binding!!
@@ -59,6 +60,14 @@ class HistoryFragment : TraktFragment(), HistoryAdapter.HistoryAdapterListener {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+
+        viewModel.traktAuthenticationState.observe(viewLifecycleOwner, Observer { authenticationState ->
+            if (authenticationState == TraktViewModel.TraktAuthenticationState.NOT_AUTHORIZED) {
+                this.findNavController().navigate(
+                    HistoryFragmentDirections.actionHistoryFragmentToTraktAuthenticationFragment()
+                )
+            }
+        })
 
         viewModel.fetchAccessTokenInProgress.observe(viewLifecycleOwner, Observer {
             if (it) {

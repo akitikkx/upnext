@@ -1,8 +1,12 @@
 package com.theupnextapp.ui.showDetail
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Browser
 import android.view.LayoutInflater
+import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
@@ -14,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
+import com.theupnextapp.BuildConfig
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
 import com.theupnextapp.common.utils.*
@@ -22,9 +27,9 @@ import com.theupnextapp.domain.ShowCast
 import com.theupnextapp.domain.ShowInfo
 import com.theupnextapp.domain.ShowSeason
 import com.theupnextapp.domain.TraktShowWatchedProgress
-import com.theupnextapp.ui.common.TraktFragment
+import com.theupnextapp.ui.common.BaseFragment
 
-class ShowDetailFragment : TraktFragment(), ShowCastAdapter.ShowCastAdapterListener {
+class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListener {
 
     private var _binding: FragmentShowDetailBinding? = null
     private val binding get() = _binding!!
@@ -46,6 +51,18 @@ class ShowDetailFragment : TraktFragment(), ShowCastAdapter.ShowCastAdapterListe
             this@ShowDetailFragment,
             ShowDetailViewModel.Factory(activity.application, args.show)
         ).get(ShowDetailViewModel::class.java)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        val settingsItem = menu.findItem(R.id.menu_settings)
+        if (settingsItem != null) {
+            settingsItem.isVisible = false
+        }
     }
 
     override fun onCreateView(
@@ -249,6 +266,16 @@ class ShowDetailFragment : TraktFragment(), ShowCastAdapter.ShowCastAdapterListe
 
     override fun onShowCastClick(view: View, castItem: ShowCast) {
         viewModel.onShowCastItemClicked(castItem)
+    }
+
+    private fun connectToTraktWindow() {
+        val intent = Intent(
+            Intent.ACTION_VIEW,
+            Uri.parse("$TRAKT_API_URL$TRAKT_OAUTH_ENDPOINT?response_type=code&client_id=${BuildConfig.TRAKT_CLIENT_ID}&redirect_uri=${BuildConfig.TRAKT_REDIRECT_URI}")
+        )
+        intent.putExtra(Browser.EXTRA_APPLICATION_ID, activity?.packageName)
+        startActivity(intent)
+        viewModel.launchConnectWindowComplete()
     }
 
     companion object {
