@@ -106,7 +106,7 @@
     <string name="collection_empty_state_text">Your Trakt collection is empty. Add shows to your collection in your Trakt account and they will appear here</string>
     <string name="collection_season_empty_state_text">This show collection has no seasons added</string>
     <string name="collection_screen_subtitle">Shows that you have added to your collection will be shown here</string>
-    <string name="collection_season_screen_subtitle">Shows that you have added to your collection will be shown here</string>
+    <string name="collection_season_screen_subtitle">You have collected episodes from these seasons</string>
 
     <!-- Trakt History -->
     <string name="trakt_history_episode_details">Season %1$d Episode %2$d</string>

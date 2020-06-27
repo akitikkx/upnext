@@ -23,6 +23,8 @@ class CollectionSeasonsViewModel(
 
     private val _transactionInProgress = MutableLiveData<Boolean>()
 
+    private val _collection = MutableLiveData<TraktCollectionArg>(collection)
+
     val launchTraktConnectWindow: LiveData<Boolean> = _launchTraktConnectWindow
 
     val fetchAccessTokenInProgress: LiveData<Boolean> = _fetchingAccessTokenInProgress
@@ -32,6 +34,8 @@ class CollectionSeasonsViewModel(
     val transactionInProgress: LiveData<Boolean> = _transactionInProgress
 
     val collectionSeasonsEmpty: LiveData<Boolean> = _collectionSeasonsEmpty
+
+    val collection: LiveData<TraktCollectionArg> = _collection
 
     val traktCollectionSeasons = collection.imdbID?.let { traktRepository.traktCollectionSeasons(it) }
 

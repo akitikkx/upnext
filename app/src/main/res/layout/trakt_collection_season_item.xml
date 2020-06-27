@@ -22,54 +22,28 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/margin_vertical"
         android:background="?android:attr/selectableItemBackground"
+        android:backgroundTint="?attr/colorAccent"
         android:clickable="true"
         android:focusable="true"
-        android:onClick="@{(view) -> listener.onCollectionSeasonClick(view, showSeason)}">
-
-        <FrameLayout
-            android:id="@+id/collection_poster"
-            android:layout_width="@dimen/search_poster_width"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_horizontal_double"
-            android:orientation="vertical"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <ProgressBar
-                android:id="@+id/poster_progress"
-                style="?android:attr/progressBarStyleSmall"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                app:showHideView="@{show.originalImageUrl != null}" />
-
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/trakt_collection_poster"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/search_poster_height"
-                android:layout_marginEnd="@dimen/margin_horizontal_half"
-                android:contentDescription="@{String.format(@string/show_poster, show.title)}"
-                android:scaleType="centerCrop"
-                app:imageUrl="@{show.originalImageUrl}"
-                tools:srcCompat="@drawable/loading_list_placeholder" />
-        </FrameLayout>
+        android:onClick="@{(view) -> listener.onCollectionSeasonClick(view, showSeason)}"
+        android:padding="@dimen/padding_standard">
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_horizontal_double"
+            android:layout_marginStart="@dimen/margin_horizontal"
             android:layout_marginEnd="@dimen/margin_horizontal_double"
             android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/collection_delete_button"
-            app:layout_constraintStart_toEndOf="@id/collection_poster"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:textAppearance="?attr/textAppearanceSubtitle1"
+                android:textAppearance="?attr/textAppearanceBody2"
                 app:seasonAndNumber="@{showSeason.seasonNumber}"
                 tools:text="Season Number" />
         </LinearLayout>
