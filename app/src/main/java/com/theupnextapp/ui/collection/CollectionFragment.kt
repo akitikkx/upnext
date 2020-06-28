@@ -17,7 +17,6 @@ import com.google.firebase.ktx.Firebase
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentCollectionBinding
 import com.theupnextapp.domain.TraktCollection
-import com.theupnextapp.domain.TraktCollectionArg
 import com.theupnextapp.domain.TraktConnectionArg
 import com.theupnextapp.ui.common.BaseFragment
 
@@ -126,7 +125,7 @@ class CollectionFragment : BaseFragment(), CollectionAdapter.CollectionAdapterLi
 
                 Firebase.analytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM, analyticsBundle)
 
-                viewModel.displaySeasonsComplete()
+                viewModel.navigateToSelectedCollectionComplete()
             }
         })
     }
@@ -145,16 +144,7 @@ class CollectionFragment : BaseFragment(), CollectionAdapter.CollectionAdapterLi
 
 
     override fun onCollectionClick(view: View, traktCollection: TraktCollection) {
-        viewModel.displaySeasons(
-            TraktCollectionArg(
-                imdbID = traktCollection.imdbID,
-                title = traktCollection.title,
-                mediumImageUrl = traktCollection.mediumImageUrl,
-                originalImageUrl = traktCollection.originalImageUrl,
-                lastCollectedAt = traktCollection.lastCollectedAt,
-                lastUpdatedAt = traktCollection.lastUpdatedAt
-            )
-        )
+        viewModel.onCollectionClick(traktCollection)
     }
 
     override fun onCollectionRemoveClick(view: View, traktCollection: TraktCollection) {

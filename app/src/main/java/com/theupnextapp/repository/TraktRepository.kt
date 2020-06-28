@@ -42,11 +42,11 @@ class TraktRepository(private val database: UpnextDatabase) {
         Transformations.map(database.upnextDao.getTraktCollectionSeasons(imdbID)) {
             it.asDomainModel()
         }
-//
-//    fun traktCollectionEpisodes(imdbID: String): LiveData<List<TraktCollectionSeasonEpisode>> =
-//        Transformations.map(database.upnextDao.getTraktCollectionSeasonEpisodes(imdbID)) {
-//            it.asDomainModel()
-//        }
+
+    fun traktCollectionSeasonEpisodes(imdbID: String, seasonNumber: Int): LiveData<List<TraktCollectionSeasonEpisode>> =
+        Transformations.map(database.upnextDao.getTraktCollectionSeasonEpisodes(imdbID, seasonNumber)) {
+            it.asDomainModel()
+        }
 
     private val _isLoading = MutableLiveData<Boolean>()
 
@@ -187,7 +187,7 @@ class TraktRepository(private val database: UpnextDatabase) {
                 // loop through each watchlist item to get the title and IMDB link
                 if (!watchlistResponse.isNullOrEmpty()) {
                     for (item in watchlistResponse) {
-                        var watchListItem: NetworkTraktWatchlistResponseItem = item
+                        val watchListItem: NetworkTraktWatchlistResponseItem = item
                         val imdbID = watchListItem.show?.ids?.imdb
                         val traktTitle = watchListItem.show?.title
 
@@ -266,7 +266,7 @@ class TraktRepository(private val database: UpnextDatabase) {
                 // loop through each watchlist item to get the title and IMDB link
                 if (!historyResponse.isNullOrEmpty()) {
                     for (item in historyResponse) {
-                        var historyItem: NetworkTraktHistoryResponseItem = item
+                        val historyItem: NetworkTraktHistoryResponseItem = item
                         if (item.type == "episode") {
                             val imdbID = historyItem.show?.ids?.imdb
                             val traktTitle = historyItem.show?.title

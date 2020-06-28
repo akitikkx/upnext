@@ -14,9 +14,11 @@ import java.util.*
 @BindingAdapter("connectToTraktButtonText")
 fun connectToTraktButtonText(view: TextView, isConnected: Boolean) {
     if (isConnected) {
-        view.text = "Trakt account connected"
+        view.text =
+            view.resources.getString(R.string.show_detail_connect_to_trakt_button_text_connected)
     } else {
-        view.text = "Connect Trakt Account"
+        view.text =
+            view.resources.getString(R.string.show_detail_connect_to_trakt_button_text_not_connected)
     }
 }
 
@@ -83,6 +85,26 @@ fun showLastCollectedAt(view: TextView, collection: TraktCollection) {
             val format =
                 SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.000Z'", Locale.getDefault())
             val formattedDate: Date? = format.parse(collection.lastCollectedAt)
+
+            view.text = view.resources.getString(
+                R.string.collection_item_collected_at,
+                formattedDate
+            )
+        } catch (e: Exception) {
+            FirebaseCrashlytics.getInstance().recordException(e)
+        }
+    } else {
+        view.visibility = View.GONE
+    }
+}
+
+@BindingAdapter("episodeCollectedAt")
+fun episodeCollectedAt(view: TextView, collectionEpisode: TraktCollectionSeasonEpisode) {
+    if (!collectionEpisode.collectedAt.isNullOrEmpty()) {
+        try {
+            val format =
+                SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.000Z'", Locale.getDefault())
+            val formattedDate: Date? = format.parse(collectionEpisode.collectedAt)
 
             view.text = view.resources.getString(
                 R.string.collection_item_collected_at,

@@ -9,7 +9,8 @@
     <string name="title_today_shows">Airing Today</string>
     <string name="title_tomorrow_shows">Airing Tomorrow</string>
     <string name="title_trakt_collection">Trakt Collection</string>
-    <string name="title_trakt_collection_seasons">%1$s</string>
+    <string name="title_trakt_collection_seasons">Collection Seasons</string>
+    <string name="title_trakt_collection_episodes">Collection Episodes</string>
     <string name="title_trakt_watchlist">Trakt Watchlist</string>
     <string name="title_trakt_history">Trakt History</string>
     <string name="title_settings">Settings</string>
@@ -57,11 +58,15 @@
     <string name="show_detail_season_and_number">Season %1$d</string>
     <string name="show_detail_season_premiere_date">Premiered: %1$s</string>
     <string name="show_detail_season_end_date">Ended: %1$s</string>
+    <string name="show_detail_episode_and_number">Episode %1$d</string>
+    <string name="show_detail_season_and_episode_number">Season %1$d Episode %2$d</string>
     <string name="show_detail_show_seasons_bottom_sheet_title">Seasons Summary</string>
     <string name="show_detail_show_seasons_bottom_sheet_dialog_add_title">Mark this season as watched on Trakt?</string>
     <string name="show_detail_show_seasons_bottom_sheet_dialog_remove_title">Mark this season as not watched on Trakt?</string>
     <string name="show_detail_show_seasons_bottom_sheet_dialog_negative">Cancel</string>
     <string name="show_detail_show_seasons_bottom_sheet_dialog_positive">Yes</string>
+    <string name="show_detail_connect_to_trakt_button_text_connected">Trakt account connected</string>
+    <string name="show_detail_connect_to_trakt_button_text_not_connected">Connect Trakt account</string>
 
     <!-- Splash screen -->
     <string name="splash_screen_loading_text_tomorrow_schedule">Fetching tomorrow\'s schedule…</string>
@@ -107,6 +112,19 @@
     <string name="collection_season_empty_state_text">This show collection has no seasons added</string>
     <string name="collection_screen_subtitle">Shows that you have added to your collection will be shown here</string>
     <string name="collection_season_screen_subtitle">You have collected episodes from these seasons</string>
+
+    <!-- Trakt Collection Season -->
+    <string name="collection_season_delete_button_description">Delete season from collection button</string>
+    <string name="collection_season_remove_dialog_title">Remove this season from your collection?</string>
+    <string name="collection_season_remove_dialog_negative">Cancel</string>
+    <string name="collection_season_remove_dialog_positive">Yes</string>
+
+    <!-- Trakt Collection Season Episode -->
+    <string name="collection_season_episode_delete_button_description">Delete episode from collection button</string>
+    <string name="collection_season_episode_empty_state_text">There are no episodes listed in your collection for this season</string>
+    <string name="collection_season_episode_remove_dialog_title">Remove this episode from your collection?</string>
+    <string name="collection_season_episode_remove_dialog_negative">Cancel</string>
+    <string name="collection_season_episode_remove_dialog_positive">Yes</string>
 
     <!-- Trakt History -->
     <string name="trakt_history_episode_details">Season %1$d Episode %2$d</string>
