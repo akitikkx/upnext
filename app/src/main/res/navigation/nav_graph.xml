@@ -8,7 +8,6 @@
     <fragment
         android:id="@+id/splashScreenFragment"
         android:name="com.theupnextapp.ui.splashscreen.SplashScreenFragment"
-        android:label="SplashScreenFragment"
         tools:layout="@layout/fragment_splash_screen">
         <action
             android:id="@+id/action_splashScreenFragment_to_dashboardFragment"
@@ -83,6 +82,9 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_collectionFragment_to_traktAuthenticationFragment"
+            app:destination="@id/traktAuthenticationFragment" />
     </fragment>
 
     <fragment
@@ -101,6 +103,12 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_watchlistFragment_to_traktAuthenticationFragment"
+            app:destination="@id/traktAuthenticationFragment" />
+        <action
+            android:id="@+id/action_watchlistFragment_to_traktAuthenticationFragment2"
+            app:destination="@id/traktAuthenticationFragment" />
     </fragment>
 
     <fragment
@@ -134,6 +142,29 @@
         <argument
             android:name="traktCollection"
             app:argType="com.theupnextapp.domain.TraktCollectionArg" />
+        <action
+            android:id="@+id/action_collectionSeasonsFragment_to_collectionSeasonEpisodesFragment"
+            app:destination="@id/collectionSeasonEpisodesFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_collectionSeasonsFragment_to_traktAuthenticationFragment"
+            app:destination="@id/traktAuthenticationFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/collectionSeasonEpisodesFragment"
+        android:name="com.theupnextapp.ui.collectionSeasonEpisodes.CollectionSeasonEpisodesFragment"
+        android:label="@string/title_trakt_collection_episodes"
+        tools:layout="@layout/fragment_collection_season_episodes">
+        <argument
+            android:name="traktCollectionSeason"
+            app:argType="com.theupnextapp.domain.TraktCollectionSeasonEpisodeArg" />
+        <action
+            android:id="@+id/action_collectionSeasonEpisodesFragment_to_traktAuthenticationFragment"
+            app:destination="@id/traktAuthenticationFragment" />
     </fragment>
 
     <fragment
@@ -143,13 +174,16 @@
     <fragment
         android:id="@+id/traktAuthenticationFragment"
         android:name="com.theupnextapp.ui.traktAuthentication.TraktAuthenticationFragment"
-        tools:layout="@layout/fragment_trakt_authentication" >
+        tools:layout="@layout/fragment_trakt_authentication">
         <action
             android:id="@+id/action_traktAuthenticationFragment_to_historyFragment"
             app:destination="@id/historyFragment"
             app:launchSingleTop="true"
             app:popUpTo="@id/traktAuthenticationFragment"
             app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_traktAuthenticationFragment_to_collectionFragment"
+            app:destination="@id/collectionFragment" />
     </fragment>
 
 </navigation>

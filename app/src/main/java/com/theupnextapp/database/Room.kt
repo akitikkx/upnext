@@ -132,8 +132,8 @@ interface UpnextDao {
     @Query("select * from trakt_collection_seasons where imdbID = :imdbID")
     fun getTraktCollectionSeasons(imdbID: String): LiveData<List<DatabaseTraktCollectionSeason>>
 
-    @Query("select * from trakt_collection_episodes where imdbID = :imdbID")
-    fun getTraktCollectionSeasonEpisodes(imdbID: String): LiveData<List<DatabaseTraktCollectionEpisode>>
+    @Query("select * from trakt_collection_episodes where imdbID = :imdbID and seasonNumber = :seasonNumber")
+    fun getTraktCollectionSeasonEpisodes(imdbID: String, seasonNumber: Int): LiveData<List<DatabaseTraktCollectionEpisode>>
 }
 
 @Database(

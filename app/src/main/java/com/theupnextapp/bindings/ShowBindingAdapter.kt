@@ -44,6 +44,23 @@ fun seasonAndNumber(view: TextView, number: Int?) {
     )
 }
 
+@BindingAdapter("episodeAndNumber")
+fun episodeAndNumber(view: TextView, number: Int?) {
+    view.text = view.resources.getString(
+        R.string.show_detail_episode_and_number,
+        number
+    )
+}
+
+@BindingAdapter("seasonNumber", "episodeNumber")
+fun seasonAndEpisodeNumber(view: TextView, seasonNumber: Int?, episodeNumber: Int?) {
+    view.text = view.resources.getString(
+        R.string.show_detail_season_and_episode_number,
+        seasonNumber,
+        episodeNumber
+    )
+}
+
 @BindingAdapter("seasonCount")
 fun seasonCount(view: TextView, number: Int?) {
     if (number != null || number == 0) {

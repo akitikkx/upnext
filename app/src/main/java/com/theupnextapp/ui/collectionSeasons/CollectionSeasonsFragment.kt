@@ -8,9 +8,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentCollectionSeasonsBinding
@@ -88,11 +90,23 @@ class CollectionSeasonsFragment : BaseFragment(),
                 viewModel.onCollectionSeasonsEmpty(true)
             }
         })
+
+        viewModel.navigateToSelectedSeason.observe(viewLifecycleOwner, Observer {
+            if (it != null) {
+                this.findNavController().navigate(
+                    CollectionSeasonsFragmentDirections.actionCollectionSeasonsFragmentToCollectionSeasonEpisodesFragment(
+                        it
+                    )
+                )
+                viewModel.navigateToSelectedSeasonComplete()
+            }
+        })
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        _adapter = null
     }
 
     override fun onAttach(context: Context) {
@@ -105,20 +119,22 @@ class CollectionSeasonsFragment : BaseFragment(),
         (activity as MainActivity).showBottomNavigation()
     }
 
-    companion object {
-        const val EXTRA_TRAKT_URI = "extra_trakt_uri"
-        const val TRAKT_API_URL = "https://api.trakt.tv"
-        const val TRAKT_OAUTH_ENDPOINT = "/oauth/authorize"
-    }
-
     override fun onCollectionSeasonClick(view: View, traktCollectionSeason: TraktCollectionSeason) {
-
+        viewModel.onSeasonClick(traktCollectionSeason)
     }
 
     override fun onCollectionSeasonRemoveClick(
         view: View,
         traktCollectionSeason: TraktCollectionSeason
     ) {
-
+        MaterialAlertDialogBuilder(requireActivity())
+            .setTitle(resources.getString(R.string.collection_season_remove_dialog_title))
+            .setNegativeButton(resources.getString(R.string.collection_season_remove_dialog_negative)) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .setPositiveButton(resources.getString(R.string.collection_season_remove_dialog_positive)) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
     }
 }

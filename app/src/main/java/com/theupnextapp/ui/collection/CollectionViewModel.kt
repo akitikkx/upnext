@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
+import com.theupnextapp.domain.TraktCollection
 import com.theupnextapp.domain.TraktCollectionArg
 import com.theupnextapp.ui.common.TraktViewModel
 import kotlinx.coroutines.launch
@@ -38,11 +39,18 @@ class CollectionViewModel(
         _collectionEmpty.value = empty
     }
 
-    fun displaySeasons(traktCollectionArg: TraktCollectionArg) {
-        _navigateToSelectedCollection.value = traktCollectionArg
+    fun onCollectionClick(traktCollection: TraktCollection) {
+        _navigateToSelectedCollection.value = TraktCollectionArg(
+            imdbID = traktCollection.imdbID,
+            title = traktCollection.title,
+            mediumImageUrl = traktCollection.mediumImageUrl,
+            originalImageUrl = traktCollection.originalImageUrl,
+            lastCollectedAt = traktCollection.lastCollectedAt,
+            lastUpdatedAt = traktCollection.lastUpdatedAt
+        )
     }
 
-    fun displaySeasonsComplete() {
+    fun navigateToSelectedCollectionComplete() {
         _navigateToSelectedCollection.value = null
     }
 
