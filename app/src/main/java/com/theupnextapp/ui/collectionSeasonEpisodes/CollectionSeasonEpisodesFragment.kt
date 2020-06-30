@@ -86,7 +86,7 @@ class CollectionSeasonEpisodesFragment : BaseFragment(),
             Observer { authenticationState ->
                 if (authenticationState == TraktViewModel.TraktAuthenticationState.NOT_AUTHORIZED) {
                     this.findNavController().navigate(
-                        CollectionSeasonEpisodesFragmentDirections.actionCollectionSeasonEpisodesFragmentToTraktAuthenticationFragment()
+                        CollectionSeasonEpisodesFragmentDirections.actionCollectionSeasonEpisodesFragmentToLibraryFragment()
                     )
                 }
             })

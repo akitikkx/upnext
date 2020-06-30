@@ -1,35 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+<layout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
 
         <variable
             name="viewModel"
-            type="com.theupnextapp.ui.traktAuthentication.TraktAuthenticationViewModel" />
+            type="com.theupnextapp.ui.library.LibraryViewModel" />
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/trakt_logo"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:showHideView="@{!viewModel.isAuthorizedOnTrakt}"
+            app:srcCompat="@drawable/ic_trakt_wide_red_white"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_horizontal"
             android:layout_marginTop="@dimen/margin_vertical"
             android:layout_marginEnd="@dimen/margin_horizontal"
-            android:contentDescription="@string/trakt_logo_description"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:showHideView="@{!viewModel.isAuthorizedOnTrakt}"
-            app:srcCompat="@drawable/ic_trakt_wide_red_white" />
+            android:contentDescription="@string/trakt_logo_description" />
 
         <TextView
             android:id="@+id/connection_description"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/trakt_logo"
+            app:showHideView="@{!viewModel.isAuthorizedOnTrakt}"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_horizontal"
@@ -37,13 +40,15 @@
             android:gravity="center_horizontal"
             android:padding="@dimen/padding_standard"
             android:text="@string/trakt_connect_description"
-            android:textAppearance="?attr/textAppearanceBody2"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/trakt_logo"
-            app:showHideView="@{!viewModel.isAuthorizedOnTrakt}" />
+            android:textAppearance="?attr/textAppearanceBody2" />
 
         <Button
+            app:dynamicText="@{viewModel.isAuthorizedOnTrakt}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/connection_description"
+            app:showHideView="@{!viewModel.isAuthorizedOnTrakt}"
+            tools:text="@string/trakt_button_text_not_connected"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_horizontal"
@@ -58,13 +63,7 @@
             android:paddingStart="@dimen/padding_standard_double"
             android:paddingTop="@dimen/padding_standard"
             android:paddingEnd="@dimen/padding_standard_double"
-            android:paddingBottom="@dimen/padding_standard"
-            app:dynamicText="@{viewModel.isAuthorizedOnTrakt}"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/connection_description"
-            app:showHideView="@{!viewModel.isAuthorizedOnTrakt}"
-            tools:text="@string/trakt_button_text_not_connected" />
+            android:paddingBottom="@dimen/padding_standard" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

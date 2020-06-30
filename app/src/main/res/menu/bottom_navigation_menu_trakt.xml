@@ -31,10 +31,10 @@
         app:showAsAction="always" />
 
     <item
-        android:id="@+id/historyFragment"
-        android:icon="@drawable/ic_history_white_24dp"
+        android:id="@+id/libraryFragment"
+        android:icon="@drawable/ic_baseline_library_books_24"
         android:orderInCategory="4"
-        android:title="@string/bottom_nav_title_history"
+        android:title="@string/bottom_nav_title_library"
         app:showAsAction="always" />
 
 </menu>
