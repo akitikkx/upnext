@@ -1,6 +1,7 @@
 package com.theupnextapp.ui.library
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
@@ -9,7 +10,7 @@ import com.theupnextapp.R
 import com.theupnextapp.databinding.LibraryListItemBinding
 import com.theupnextapp.domain.LibraryList
 
-class LibraryAdapter : RecyclerView.Adapter<LibraryAdapter.ViewHolder>() {
+class LibraryAdapter(val listener: LibraryAdapterListener) : RecyclerView.Adapter<LibraryAdapter.ViewHolder>() {
 
     var libraryList: List<LibraryList> = emptyList()
         set(value) {
@@ -33,10 +34,16 @@ class LibraryAdapter : RecyclerView.Adapter<LibraryAdapter.ViewHolder>() {
         holder.viewDataBinding.also {
             it.item = libraryList[position]
 
+            it.listener = listener
+
             it.libraryLeftIcon.setBackgroundResource(libraryList[position].leftIcon)
 
             it.libraryRightIcon.setBackgroundResource(libraryList[position].rightIcon)
         }
+    }
+
+    interface LibraryAdapterListener {
+        fun onLibraryItemClick(view: View, libraryList: LibraryList)
     }
 
     class ViewHolder(val viewDataBinding: LibraryListItemBinding) :

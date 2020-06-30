@@ -8,6 +8,10 @@
         <variable
             name="item"
             type="com.theupnextapp.domain.LibraryList" />
+
+        <variable
+            name="listener"
+            type="com.theupnextapp.ui.library.LibraryAdapter.LibraryAdapterListener" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -17,6 +21,7 @@
         android:background="?android:attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true"
+        android:onClick="@{(view) -> listener.onLibraryItemClick(view, item)}"
         android:padding="@dimen/padding_standard">
 
         <androidx.appcompat.widget.AppCompatImageView
