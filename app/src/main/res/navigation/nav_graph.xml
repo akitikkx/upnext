@@ -83,8 +83,8 @@
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
         <action
-            android:id="@+id/action_collectionFragment_to_traktAuthenticationFragment"
-            app:destination="@id/traktAuthenticationFragment" />
+            android:id="@+id/action_collectionFragment_to_libraryFragment"
+            app:destination="@id/libraryFragment" />
     </fragment>
 
     <fragment
@@ -104,11 +104,8 @@
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
         <action
-            android:id="@+id/action_watchlistFragment_to_traktAuthenticationFragment"
-            app:destination="@id/traktAuthenticationFragment" />
-        <action
-            android:id="@+id/action_watchlistFragment_to_traktAuthenticationFragment2"
-            app:destination="@id/traktAuthenticationFragment" />
+            android:id="@+id/action_watchlistFragment_to_libraryFragment"
+            app:destination="@id/libraryFragment" />
     </fragment>
 
     <fragment
@@ -123,15 +120,8 @@
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
         <action
-            android:id="@+id/action_historyFragment_to_traktAuthenticationFragment"
-            app:destination="@id/traktAuthenticationFragment"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:launchSingleTop="true"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right"
-            app:popUpTo="@id/historyFragment"
-            app:popUpToInclusive="true" />
+            android:id="@+id/action_historyFragment_to_libraryFragment"
+            app:destination="@id/libraryFragment" />
     </fragment>
 
     <fragment
@@ -150,8 +140,8 @@
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
         <action
-            android:id="@+id/action_collectionSeasonsFragment_to_traktAuthenticationFragment"
-            app:destination="@id/traktAuthenticationFragment" />
+            android:id="@+id/action_collectionSeasonsFragment_to_libraryFragment"
+            app:destination="@id/libraryFragment" />
     </fragment>
 
     <fragment
@@ -163,26 +153,25 @@
             android:name="traktCollectionSeason"
             app:argType="com.theupnextapp.domain.TraktCollectionSeasonEpisodeArg" />
         <action
-            android:id="@+id/action_collectionSeasonEpisodesFragment_to_traktAuthenticationFragment"
-            app:destination="@id/traktAuthenticationFragment" />
+            android:id="@+id/action_collectionSeasonEpisodesFragment_to_libraryFragment"
+            app:destination="@id/libraryFragment" />
     </fragment>
 
     <fragment
         android:id="@+id/settingsFragment"
         android:name="com.theupnextapp.ui.settings.SettingsFragment" />
-
     <fragment
-        android:id="@+id/traktAuthenticationFragment"
-        android:name="com.theupnextapp.ui.traktAuthentication.TraktAuthenticationFragment"
-        tools:layout="@layout/fragment_trakt_authentication">
+        android:id="@+id/libraryFragment"
+        android:name="com.theupnextapp.ui.library.LibraryFragment"
+        android:label="LibraryFragment" >
         <action
-            android:id="@+id/action_traktAuthenticationFragment_to_historyFragment"
-            app:destination="@id/historyFragment"
-            app:launchSingleTop="true"
-            app:popUpTo="@id/traktAuthenticationFragment"
-            app:popUpToInclusive="true" />
+            android:id="@+id/action_libraryFragment_to_historyFragment"
+            app:destination="@id/historyFragment" />
         <action
-            android:id="@+id/action_traktAuthenticationFragment_to_collectionFragment"
+            android:id="@+id/action_libraryFragment_to_watchlistFragment"
+            app:destination="@id/watchlistFragment" />
+        <action
+            android:id="@+id/action_libraryFragment_to_collectionFragment"
             app:destination="@id/collectionFragment" />
     </fragment>
 

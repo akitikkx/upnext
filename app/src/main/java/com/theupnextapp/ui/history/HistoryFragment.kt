@@ -64,7 +64,7 @@ class HistoryFragment : BaseFragment(), HistoryAdapter.HistoryAdapterListener {
         viewModel.traktAuthenticationState.observe(viewLifecycleOwner, Observer { authenticationState ->
             if (authenticationState == TraktViewModel.TraktAuthenticationState.NOT_AUTHORIZED) {
                 this.findNavController().navigate(
-                    HistoryFragmentDirections.actionHistoryFragmentToTraktAuthenticationFragment()
+                    HistoryFragmentDirections.actionHistoryFragmentToLibraryFragment()
                 )
             }
         })

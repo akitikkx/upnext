@@ -1,4 +1,4 @@
-package com.theupnextapp.ui.traktAuthentication
+package com.theupnextapp.ui.library
 
 import android.content.Context
 import android.content.Intent
@@ -11,26 +11,37 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import com.theupnextapp.BuildConfig
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
-import com.theupnextapp.databinding.FragmentTraktAuthenticationBinding
+import com.theupnextapp.databinding.FragmentLibraryBinding
+import com.theupnextapp.domain.TraktConnectionArg
 import com.theupnextapp.ui.collection.CollectionFragment
 import com.theupnextapp.ui.common.BaseFragment
+import com.theupnextapp.ui.watchlist.WatchlistViewModel
 
-class TraktAuthenticationFragment : BaseFragment() {
+class LibraryFragment : BaseFragment() {
 
-    private var _binding: FragmentTraktAuthenticationBinding? = null
+    private var _binding: FragmentLibraryBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: TraktAuthenticationViewModel by lazy {
+    private var _adapter: LibraryAdapter? = null
+    private val adapter get() = _adapter!!
+
+    private val viewModel: LibraryViewModel by lazy {
         val activity = requireNotNull(activity) {
             "You can only access the viewModel after onActivityCreated"
         }
         ViewModelProvider(
-            this@TraktAuthenticationFragment,
-            TraktAuthenticationViewModel.Factory(activity.application)
-        ).get(TraktAuthenticationViewModel::class.java)
+            this@LibraryFragment,
+            LibraryViewModel.Factory(
+                activity.application
+            )
+        ).get(LibraryViewModel::class.java)
     }
 
     override fun onCreateView(
@@ -38,11 +49,24 @@ class TraktAuthenticationFragment : BaseFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = FragmentTraktAuthenticationBinding.inflate(inflater)
+        _binding = FragmentLibraryBinding.inflate(inflater)
 
         binding.viewModel = viewModel
 
         binding.lifecycleOwner = viewLifecycleOwner
+
+        if (arguments?.getParcelable<TraktConnectionArg>(WatchlistViewModel.EXTRA_TRAKT_URI) != null) {
+            viewModel.onTraktConnectionBundleReceived(arguments)
+        }
+
+        _adapter = LibraryAdapter()
+
+        binding.root.findViewById<RecyclerView>(R.id.library_list).apply {
+            layoutManager = LinearLayoutManager(requireContext()).apply {
+                orientation = LinearLayoutManager.VERTICAL
+            }
+            adapter = this@LibraryFragment.adapter
+        }
 
         return binding.root
     }
@@ -79,11 +103,53 @@ class TraktAuthenticationFragment : BaseFragment() {
                 viewModel.onInvalidTokenResponseReceived(it)
             }
         })
+
+        viewModel.fetchAccessTokenInProgress.observe(viewLifecycleOwner, Observer {
+            if (it) {
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.fetch_access_token_progress_text),
+                    Snackbar.LENGTH_LONG
+                ).show()
+            } else {
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.fetch_access_token_progress_text),
+                    Snackbar.LENGTH_LONG
+                ).dismiss()
+            }
+        })
+
+        viewModel.storingTraktAccessTokenInProgress.observe(viewLifecycleOwner, Observer {
+            if (it) {
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.storing_access_token_progress_text),
+                    Snackbar.LENGTH_LONG
+                ).show()
+
+                this.findNavController()
+                    .navigate(LibraryFragmentDirections.actionLibraryFragmentToHistoryFragment())
+            } else {
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.fetch_access_token_progress_text),
+                    Snackbar.LENGTH_LONG
+                ).dismiss()
+            }
+        })
+
+        viewModel.libraryList.observe(viewLifecycleOwner, Observer {
+            if (!it.isNullOrEmpty()) {
+                adapter.libraryList = it
+            }
+        })
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        _adapter = null
     }
 
     override fun onAttach(context: Context) {

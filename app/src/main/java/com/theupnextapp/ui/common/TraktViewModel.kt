@@ -150,7 +150,7 @@ open class TraktViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-    protected fun storeTraktAccessToken(traktAccessTokenResponse: TraktAccessToken) {
+    private fun storeTraktAccessToken(traktAccessTokenResponse: TraktAccessToken) {
         val preferences = UpnextPreferenceManager(getApplication())
 
         preferences.saveTraktAccessToken(traktAccessTokenResponse.access_token)

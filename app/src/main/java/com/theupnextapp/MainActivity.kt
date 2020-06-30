@@ -60,7 +60,8 @@ class MainActivity : AppCompatActivity() {
                 R.id.dashboardFragment,
                 R.id.collectionFragment,
                 R.id.watchlistFragment,
-                R.id.historyFragment
+                R.id.historyFragment,
+                R.id.libraryFragment
             )
             .build()
 
@@ -103,10 +104,10 @@ class MainActivity : AppCompatActivity() {
         if (uri != null && uri.toString().startsWith(BuildConfig.TRAKT_REDIRECT_URI)) {
             val code = uri.getQueryParameter("code")
 
-            val collectionFragmentArg = TraktConnectionArg(code)
+            val connectionArg = TraktConnectionArg(code)
 
-            val bundle = bundleOf(CollectionFragment.EXTRA_TRAKT_URI to collectionFragmentArg)
-            navController.navigate(R.id.watchlistFragment, bundle)
+            val bundle = bundleOf(CollectionFragment.EXTRA_TRAKT_URI to connectionArg)
+            navController.navigate(R.id.libraryFragment, bundle)
             clearIntent()
         }
     }
