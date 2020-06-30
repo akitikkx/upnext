@@ -16,12 +16,13 @@ import com.google.android.material.snackbar.Snackbar
 import com.theupnextapp.BuildConfig
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentLibraryBinding
+import com.theupnextapp.domain.LibraryList
 import com.theupnextapp.domain.TraktConnectionArg
 import com.theupnextapp.ui.collection.CollectionFragment
 import com.theupnextapp.ui.common.BaseFragment
 import com.theupnextapp.ui.watchlist.WatchlistViewModel
 
-class LibraryFragment : BaseFragment() {
+class LibraryFragment : BaseFragment(), LibraryAdapter.LibraryAdapterListener {
 
     private var _binding: FragmentLibraryBinding? = null
     private val binding get() = _binding!!
@@ -56,7 +57,7 @@ class LibraryFragment : BaseFragment() {
             viewModel.onTraktConnectionBundleReceived(arguments)
         }
 
-        _adapter = LibraryAdapter()
+        _adapter = LibraryAdapter(this)
 
         binding.root.findViewById<RecyclerView>(R.id.library_list).apply {
             layoutManager = LinearLayoutManager(requireContext()).apply {
@@ -147,6 +148,10 @@ class LibraryFragment : BaseFragment() {
         super.onDestroyView()
         _binding = null
         _adapter = null
+    }
+
+    override fun onLibraryItemClick(view: View, libraryList: LibraryList) {
+        this.findNavController().navigate(libraryList.link)
     }
 
 }
