@@ -17,22 +17,36 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
 
     init {
         val list = mutableListOf<LibraryList>()
+
         list.add(
             LibraryList(
-                R.drawable.ic_baseline_playlist_add_check_24,
-                "Watchlist",
-                R.drawable.ic_baseline_chevron_right_24,
-                LibraryFragmentDirections.actionLibraryFragmentToWatchlistFragment()
+                leftIcon = R.drawable.ic_baseline_playlist_add_check_24,
+                title = "Trakt Watchlist",
+                rightIcon = R.drawable.ic_baseline_chevron_right_24,
+                link = LibraryFragmentDirections.actionLibraryFragmentToWatchlistFragment()
+            )
+        )
+
+        list.add(
+            LibraryList(
+                leftIcon = R.drawable.ic_baseline_library_add_check_24,
+                title = "Trakt Collection",
+                rightIcon = R.drawable.ic_baseline_chevron_right_24,
+                link = LibraryFragmentDirections.actionLibraryFragmentToHistoryFragment()
+            )
+        )
+
+        list.add(
+            LibraryList(
+                leftIcon = R.drawable.ic_history_white_24dp,
+                title = "Trakt History",
+                rightIcon = R.drawable.ic_baseline_chevron_right_24,
+                link = LibraryFragmentDirections.actionLibraryFragmentToHistoryFragment()
             )
         )
 
         _libraryList.value = list
     }
-
-    fun onWatchlistItemClick() {
-        // TODO navigate to watchlist
-    }
-
 
     class Factory(
         val app: Application

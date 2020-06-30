@@ -160,10 +160,11 @@
     <fragment
         android:id="@+id/settingsFragment"
         android:name="com.theupnextapp.ui.settings.SettingsFragment" />
+
     <fragment
         android:id="@+id/libraryFragment"
         android:name="com.theupnextapp.ui.library.LibraryFragment"
-        android:label="LibraryFragment" >
+        android:label="@string/title_library" >
         <action
             android:id="@+id/action_libraryFragment_to_historyFragment"
             app:destination="@id/historyFragment" />

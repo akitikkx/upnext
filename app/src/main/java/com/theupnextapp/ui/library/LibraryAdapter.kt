@@ -32,6 +32,10 @@ class LibraryAdapter : RecyclerView.Adapter<LibraryAdapter.ViewHolder>() {
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.viewDataBinding.also {
             it.item = libraryList[position]
+
+            it.libraryLeftIcon.setBackgroundResource(libraryList[position].leftIcon)
+
+            it.libraryRightIcon.setBackgroundResource(libraryList[position].rightIcon)
         }
     }
 
