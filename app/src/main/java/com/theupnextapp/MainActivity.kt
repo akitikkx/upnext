@@ -58,9 +58,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.splashScreenFragment,
                 R.id.searchFragment,
                 R.id.dashboardFragment,
-                R.id.collectionFragment,
-                R.id.watchlistFragment,
-                R.id.historyFragment,
+                R.id.exploreFragment,
                 R.id.libraryFragment
             )
             .build()

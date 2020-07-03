@@ -32,7 +32,7 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
                 leftIcon = R.drawable.ic_baseline_library_add_check_24,
                 title = "Trakt Collection",
                 rightIcon = R.drawable.ic_baseline_chevron_right_24,
-                link = LibraryFragmentDirections.actionLibraryFragmentToHistoryFragment()
+                link = LibraryFragmentDirections.actionLibraryFragmentToCollectionFragment()
             )
         )
 

@@ -75,15 +75,16 @@ interface TraktService {
 
     @GET("shows/{id}/ratings")
     fun getShowRatingsAsync(
-        @Header("Authorization") token: String,
         @Path("id") id: String
     ): Deferred<NetworkTraktShowRatingResponse>
 
     @GET("shows/{id}/stats")
     fun getShowStatsAsync(
-        @Header("Authorization") token: String,
         @Path("id") id: String
     ): Deferred<NetworkTraktShowStatsResponse>
+
+    @GET("shows/trending")
+    fun getTrendingShowAsync(): Deferred<NetworkTraktTrendingShowsResponse>
 
     @GET("shows/{id}/progress/watched")
     fun getShowWatchedProgressAsync(

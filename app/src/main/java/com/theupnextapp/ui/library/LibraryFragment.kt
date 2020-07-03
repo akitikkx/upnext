@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.theupnextapp.BuildConfig
 import com.theupnextapp.R
@@ -74,12 +75,22 @@ class LibraryFragment : BaseFragment(), LibraryAdapter.LibraryAdapterListener {
 
         viewModel.launchTraktConnectWindow.observe(viewLifecycleOwner, Observer {
             if (it) {
-                val intent = Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse("${CollectionFragment.TRAKT_API_URL}${CollectionFragment.TRAKT_OAUTH_ENDPOINT}?response_type=code&client_id=${BuildConfig.TRAKT_CLIENT_ID}&redirect_uri=${BuildConfig.TRAKT_REDIRECT_URI}")
-                )
-                intent.putExtra(Browser.EXTRA_APPLICATION_ID, activity?.packageName)
-                startActivity(intent)
+                MaterialAlertDialogBuilder(requireActivity())
+                    .setTitle(resources.getString(R.string.library_connect_to_trakt_dialog_title))
+                    .setMessage(resources.getString(R.string.library_connect_to_trakt_dialog_message))
+                    .setNegativeButton(resources.getString(R.string.library_connect_to_trakt_dialog_negative)) { dialog, _ ->
+                        dialog.dismiss()
+                    }
+                    .setPositiveButton(resources.getString(R.string.library_connect_to_trakt_dialog_positive)) { dialog, _ ->
+                        val intent = Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse("${CollectionFragment.TRAKT_API_URL}${CollectionFragment.TRAKT_OAUTH_ENDPOINT}?response_type=code&client_id=${BuildConfig.TRAKT_CLIENT_ID}&redirect_uri=${BuildConfig.TRAKT_REDIRECT_URI}")
+                        )
+                        intent.putExtra(Browser.EXTRA_APPLICATION_ID, activity?.packageName)
+                        startActivity(intent)
+                        dialog.dismiss()
+                    }
+                    .show()
                 viewModel.launchConnectWindowComplete()
             }
         })
@@ -125,9 +136,6 @@ class LibraryFragment : BaseFragment(), LibraryAdapter.LibraryAdapterListener {
                     getString(R.string.storing_access_token_progress_text),
                     Snackbar.LENGTH_LONG
                 ).show()
-
-                this.findNavController()
-                    .navigate(LibraryFragmentDirections.actionLibraryFragmentToHistoryFragment())
             } else {
                 Snackbar.make(
                     binding.root,
