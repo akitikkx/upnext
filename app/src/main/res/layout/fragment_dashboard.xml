@@ -19,12 +19,12 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/yesterday_shows_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal"
-                android:layout_marginTop="@dimen/margin_vertical_half"
+                android:layout_marginTop="@dimen/margin_vertical"
                 android:text="@string/title_yesterday_shows"
                 android:textAppearance="?attr/textAppearanceHeadline6"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -48,7 +48,7 @@
                 app:loadingVisibility="@{viewModel.isLoadingYesterdayShows}"
                 tools:listitem="@layout/yesterday_show_list_item" />
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/today_shows_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -77,7 +77,7 @@
                 app:loadingVisibility="@{viewModel.isLoadingTodayShows}"
                 tools:listitem="@layout/today_show_list_item" />
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/tomorrow_shows_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -106,7 +106,7 @@
                 app:loadingVisibility="@{viewModel.isLoadingTomorrowShows}"
                 tools:listitem="@layout/tomorrow_show_list_item" />
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/new_shows_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -135,7 +135,7 @@
                 app:loadingVisibility="@{viewModel.isLoadingNewShows}"
                 tools:listitem="@layout/recommended_show_list_item" />
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/recommended_shows_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"

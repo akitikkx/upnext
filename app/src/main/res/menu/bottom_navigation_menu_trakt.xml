@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <item
         android:id="@+id/searchFragment"
         android:icon="@drawable/ic_search_black_24dp"
         android:orderInCategory="1"
         android:title="@string/bottom_nav_title_search"
-        app:showAsAction="always" />
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction" />
 
     <item
         android:id="@+id/dashboardFragment"
@@ -17,17 +19,10 @@
         app:showAsAction="always" />
 
     <item
-        android:id="@+id/watchlistFragment"
-        android:icon="@drawable/ic_baseline_playlist_add_check_24"
+        android:id="@+id/exploreFragment"
+        android:icon="@drawable/ic_baseline_explore_24"
         android:orderInCategory="3"
-        android:title="@string/bottom_nav_title_watchlist"
-        app:showAsAction="always" />
-
-    <item
-        android:id="@+id/collectionFragment"
-        android:icon="@drawable/ic_baseline_library_add_check_24"
-        android:orderInCategory="4"
-        android:title="@string/bottom_nav_title_collection"
+        android:title="@string/bottom_nav_title_explore"
         app:showAsAction="always" />
 
     <item

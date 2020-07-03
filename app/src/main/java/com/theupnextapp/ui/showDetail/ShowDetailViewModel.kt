@@ -102,8 +102,8 @@ class ShowDetailViewModel(
                 upnextRepository.getShowCast(it)
                 upnextRepository.getShowSeasons(it)
             }
-            traktRepository.getTraktShowRating(accessToken, showInfo.value?.imdbID)
-            traktRepository.getTraktShowStats(accessToken, showInfo.value?.imdbID)
+            traktRepository.getTraktShowRating(showInfo.value?.imdbID)
+            traktRepository.getTraktShowStats(showInfo.value?.imdbID)
             if (ifValidAccessTokenExists()) {
                 traktRepository.getTraktWatchedProgress(
                     accessToken,
