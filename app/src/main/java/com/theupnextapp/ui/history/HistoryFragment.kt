@@ -102,10 +102,7 @@ class HistoryFragment : BaseFragment(), HistoryAdapter.HistoryAdapterListener {
         })
 
         viewModel.traktHistory.observe(viewLifecycleOwner, Observer {
-            if (it.isNullOrEmpty()) {
-                viewModel.onHistoryEmpty(true)
-            } else {
-                viewModel.onHistoryEmpty(false)
+            if (!it.isNullOrEmpty()) {
                 historyAdapter?.history = it
             }
         })

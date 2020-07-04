@@ -1,10 +1,7 @@
 package com.theupnextapp.ui.history
 
 import android.app.Application
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.*
 import androidx.preference.PreferenceManager
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.ui.common.TraktViewModel
@@ -14,24 +11,22 @@ class HistoryViewModel(application: Application) : TraktViewModel(application) {
 
     private val _navigateToSelectedShow = MutableLiveData<ShowDetailArg>()
 
-    private val _historyEmpty = MutableLiveData<Boolean>()
-
     val isLoadingHistory = traktRepository.isLoadingTraktHistory
 
     val navigateToSelectedShow: LiveData<ShowDetailArg> = _navigateToSelectedShow
 
-    val historyEmpty: LiveData<Boolean>
-        get() = _historyEmpty
+    val historyEmpty = MediatorLiveData<Boolean>()
 
-    fun onHistoryEmpty(empty: Boolean) {
-        _historyEmpty.value = empty
-    }
+    val traktHistory = traktRepository.traktHistory
 
     init {
-        _historyEmpty.value = false
         if (ifValidAccessTokenExists()) {
             loadTraktHistory()
             _isAuthorizedOnTrakt.value = true
+        }
+
+        historyEmpty.addSource(traktHistory) {
+            historyEmpty.value = it.isNullOrEmpty() == true
         }
     }
 
@@ -43,8 +38,6 @@ class HistoryViewModel(application: Application) : TraktViewModel(application) {
             traktRepository.refreshTraktHistory(accessToken)
         }
     }
-
-    val traktHistory = traktRepository.traktHistory
 
     fun displayShowDetails(showDetailArg: ShowDetailArg) {
         _navigateToSelectedShow.value = showDetailArg

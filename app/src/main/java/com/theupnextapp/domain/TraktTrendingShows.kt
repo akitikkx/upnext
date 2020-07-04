@@ -1,6 +1,6 @@
 package com.theupnextapp.domain
 
-data class TraktTrending(
+data class TraktTrendingShows(
     val title: String?,
     val year: String?,
     val mediumImageUrl: String?,

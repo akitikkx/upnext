@@ -7,20 +7,20 @@ import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.theupnextapp.R
-import com.theupnextapp.databinding.TrendingShowListItemBinding
-import com.theupnextapp.domain.TraktTrendingShows
+import com.theupnextapp.databinding.PopularShowListItemBinding
+import com.theupnextapp.domain.TraktPopularShows
 
-class TrendingShowsAdapter(val listener: TrendingShowsAdapterListener) :
-    RecyclerView.Adapter<TrendingShowsAdapter.ViewHolder>() {
+class PopularShowsAdapter(val listener: PopularShowsAdapterListener) :
+    RecyclerView.Adapter<PopularShowsAdapter.ViewHolder>() {
 
-    var trendingList: List<TraktTrendingShows> = emptyList()
+    var popularList: List<TraktPopularShows> = emptyList()
         set(value) {
             field = value
             notifyDataSetChanged()
         }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val withDataBinding: TrendingShowListItemBinding = DataBindingUtil.inflate(
+        val withDataBinding: PopularShowListItemBinding = DataBindingUtil.inflate(
             LayoutInflater.from(parent.context),
             ViewHolder.LAYOUT,
             parent,
@@ -29,25 +29,25 @@ class TrendingShowsAdapter(val listener: TrendingShowsAdapterListener) :
         return ViewHolder(withDataBinding)
     }
 
-    override fun getItemCount(): Int = trendingList.size
+    override fun getItemCount(): Int = popularList.size
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.viewDataBinding.also {
             it.listener = listener
 
-            it.show = trendingList[position]
+            it.show = popularList[position]
         }
     }
 
-    interface TrendingShowsAdapterListener {
-        fun onTrendingShowClick(view: View, traktTrending: TraktTrendingShows)
+    interface PopularShowsAdapterListener {
+        fun onPopularShowClick(view: View, popularShows: TraktPopularShows)
     }
 
-    class ViewHolder(val viewDataBinding: TrendingShowListItemBinding) :
+    class ViewHolder(val viewDataBinding: PopularShowListItemBinding) :
         RecyclerView.ViewHolder(viewDataBinding.root) {
         companion object {
             @LayoutRes
-            val LAYOUT = R.layout.trending_show_list_item
+            val LAYOUT = R.layout.popular_show_list_item
         }
     }
 }

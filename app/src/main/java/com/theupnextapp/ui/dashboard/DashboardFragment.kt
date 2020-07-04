@@ -233,7 +233,7 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
     }
 
     override fun onYesterdayShowClick(view: View, yesterdayShow: ScheduleShow) {
-        viewModel.displayShowDetails(
+        viewModel.onDashboardItemClick(
             ShowDetailArg(
                 source = "yesterday",
                 showId = yesterdayShow.id,
@@ -250,7 +250,7 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
     }
 
     override fun onRecommendedShowClick(view: View, recommendedShow: RecommendedShows) {
-        viewModel.displayShowDetails(
+        viewModel.onDashboardItemClick(
             ShowDetailArg(
                 source = "recommended",
                 showId = recommendedShow.id,
@@ -267,7 +267,7 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
     }
 
     override fun onNewShowClick(view: View, newShow: NewShows) {
-        viewModel.displayShowDetails(
+        viewModel.onDashboardItemClick(
             ShowDetailArg(
                 source = "new",
                 showId = newShow.id,
@@ -284,7 +284,7 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
     }
 
     override fun onTodayShowClick(view: View, scheduleShow: ScheduleShow) {
-        viewModel.displayShowDetails(
+        viewModel.onDashboardItemClick(
             ShowDetailArg(
                 source = "today",
                 showId = scheduleShow.id,
@@ -295,7 +295,7 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
     }
 
     override fun onTomorrowShowClick(view: View, scheduleShow: ScheduleShow) {
-        viewModel.displayShowDetails(
+        viewModel.onDashboardItemClick(
             ShowDetailArg(
                 source = "tomorrow",
                 showId = scheduleShow.id,

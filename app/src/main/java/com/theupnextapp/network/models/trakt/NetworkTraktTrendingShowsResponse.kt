@@ -1,6 +1,6 @@
 package com.theupnextapp.network.models.trakt
 
-import com.theupnextapp.domain.TraktTrending
+import com.theupnextapp.domain.TraktTrendingShows
 
 class NetworkTraktTrendingShowsResponse : ArrayList<NetworkTraktTrendingShowsResponseItem>()
 
@@ -26,8 +26,8 @@ data class NetworkTraktTrendingShowsResponseItemShowIds(
     var tvMazeID: Int?
 )
 
-fun NetworkTraktTrendingShowsResponseItem.asDomainModel(): TraktTrending {
-    return TraktTrending(
+fun NetworkTraktTrendingShowsResponseItem.asDomainModel(): TraktTrendingShows {
+    return TraktTrendingShows(
         title = show?.title,
         year = show?.year.toString(),
         mediumImageUrl = show?.mediumImageUrl,

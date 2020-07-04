@@ -84,7 +84,10 @@ interface TraktService {
     ): Deferred<NetworkTraktShowStatsResponse>
 
     @GET("shows/trending")
-    fun getTrendingShowAsync(): Deferred<NetworkTraktTrendingShowsResponse>
+    fun getTrendingShowsAsync(): Deferred<NetworkTraktTrendingShowsResponse>
+
+    @GET("shows/popular")
+    fun getPopularShowsAsync(): Deferred<NetworkTraktPopularShowsResponse>
 
     @GET("shows/{id}/progress/watched")
     fun getShowWatchedProgressAsync(

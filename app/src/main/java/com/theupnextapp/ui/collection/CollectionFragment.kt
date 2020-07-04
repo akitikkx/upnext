@@ -104,10 +104,7 @@ class CollectionFragment : BaseFragment(), CollectionAdapter.CollectionAdapterLi
 
         viewModel.traktCollection.observe(viewLifecycleOwner, Observer {
             if (!it.isNullOrEmpty()) {
-                viewModel.onCollectionEmpty(false)
                 adapter.traktCollection = it
-            } else {
-                viewModel.onCollectionEmpty(true)
             }
         })
 

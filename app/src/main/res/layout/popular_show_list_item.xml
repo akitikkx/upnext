@@ -6,11 +6,11 @@
 
         <variable
             name="show"
-            type="com.theupnextapp.domain.TraktTrendingShows" />
+            type="com.theupnextapp.domain.TraktPopularShows" />
 
         <variable
             name="listener"
-            type="com.theupnextapp.ui.explore.TrendingShowsAdapter.TrendingShowsAdapterListener" />
+            type="com.theupnextapp.ui.explore.PopularShowsAdapter.PopularShowsAdapterListener" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -41,7 +41,7 @@
                 android:clickable="true"
                 android:contentDescription="@{String.format(@string/show_poster, show.title)}"
                 android:focusable="true"
-                android:onClick="@{(view) -> listener.onTrendingShowClick(view, show)}"
+                android:onClick="@{(view) -> listener.onPopularShowClick(view, show)}"
                 android:scaleType="centerCrop"
                 app:imageUrl="@{show.originalImageUrl}" />
         </FrameLayout>
