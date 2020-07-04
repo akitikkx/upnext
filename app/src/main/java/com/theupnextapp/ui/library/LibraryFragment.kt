@@ -151,6 +151,22 @@ class LibraryFragment : BaseFragment(), LibraryAdapter.LibraryAdapterListener {
                 adapter.libraryList = it
             }
         })
+
+        viewModel.onDisconnectClick.observe(viewLifecycleOwner, Observer {
+            if (it == true) {
+                MaterialAlertDialogBuilder(requireActivity())
+                    .setTitle(resources.getString(R.string.library_disconnect_from_trakt_dialog_title))
+                    .setMessage(resources.getString(R.string.library_disconnect_from_trakt_dialog_message))
+                    .setNegativeButton(resources.getString(R.string.library_disconnect_from_trakt_dialog_negative)) { dialog, _ ->
+                        dialog.dismiss()
+                    }
+                    .setPositiveButton(resources.getString(R.string.library_disconnect_from_trakt_dialog_positive)) { dialog, _ ->
+                        viewModel.onDisconnectConfirm()
+                        dialog.dismiss()
+                    }
+                    .show()
+            }
+        })
     }
 
     override fun onDestroyView() {

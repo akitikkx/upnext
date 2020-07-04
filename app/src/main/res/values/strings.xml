@@ -108,6 +108,11 @@
     <string name="library_connect_to_trakt_dialog_positive">Proceed</string>
     <string name="library_trakt_connection_status_connected">Connection status: Connected</string>
     <string name="library_trakt_connection_status_not_connected">Connection status: Not connected</string>
+    <string name="library_disconnect_from_trakt_dialog_title">Disconnecting Trakt Account</string>
+    <string name="library_disconnect_from_trakt_dialog_message">All your cached Watchlist, Collection and History data will be removed.
+        You will need to reconnect your Trakt account for the data to be synchronized again</string>
+    <string name="library_disconnect_from_trakt_dialog_negative">Cancel</string>
+    <string name="library_disconnect_from_trakt_dialog_positive">Proceed</string>
 
     <!-- Explore -->
     <string name="explore_trending_shows_list_title">Trending shows</string>

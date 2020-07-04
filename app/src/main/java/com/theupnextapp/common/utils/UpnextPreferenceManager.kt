@@ -14,6 +14,11 @@ class UpnextPreferenceManager(val application: Application) {
             .apply()
     }
 
+    fun removeTraktAccessToken() {
+        val preferences = PreferenceManager.getDefaultSharedPreferences(application)
+        preferences.edit().remove(TraktViewModel.SHARED_PREF_TRAKT_ACCESS_TOKEN).apply()
+    }
+
     fun getTraktAccessToken(): String? {
         val preferences = PreferenceManager.getDefaultSharedPreferences(application)
         return preferences.getString(SHARED_PREF_TRAKT_ACCESS_TOKEN, null)

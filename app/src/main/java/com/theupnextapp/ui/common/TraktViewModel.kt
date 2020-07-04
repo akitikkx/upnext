@@ -28,6 +28,8 @@ open class TraktViewModel(application: Application) : AndroidViewModel(applicati
 
     private val _transactionInProgress = MutableLiveData<Boolean>()
 
+    private val _onDisconnectClick = MutableLiveData<Boolean>()
+
     protected val viewModelJob = SupervisorJob()
 
     protected val viewModelScope: CoroutineScope? = CoroutineScope(viewModelJob + Dispatchers.Main)
@@ -43,6 +45,8 @@ open class TraktViewModel(application: Application) : AndroidViewModel(applicati
     val isAuthorizedOnTrakt: LiveData<Boolean?> = _isAuthorizedOnTrakt
 
     val storingTraktAccessTokenInProgress: LiveData<Boolean> = _storingTraktAccessTokenInProgress
+
+    val onDisconnectClick: LiveData<Boolean> = _onDisconnectClick
 
     val traktAccessToken = traktRepository.traktAccessToken
 
@@ -97,7 +101,7 @@ open class TraktViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     fun onDisconnectClick() {
-
+        _onDisconnectClick.value = true
     }
 
     fun launchConnectWindowComplete() {
@@ -170,6 +174,10 @@ open class TraktViewModel(application: Application) : AndroidViewModel(applicati
         preferences.saveTraktAccessTokenScope(traktAccessTokenResponse.scope)
 
         preferences.saveTraktAccessTokenType(traktAccessTokenResponse.token_type)
+    }
+
+    fun removeTraktData() {
+
     }
 
     companion object {

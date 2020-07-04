@@ -48,6 +48,10 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
         _libraryList.value = list
     }
 
+    fun onDisconnectConfirm(){
+        removeTraktData()
+    }
+
     class Factory(
         val app: Application
     ) : ViewModelProvider.Factory {
