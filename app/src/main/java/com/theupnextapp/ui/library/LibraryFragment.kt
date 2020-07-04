@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.theupnextapp.BuildConfig
+import com.theupnextapp.MainActivity
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentLibraryBinding
 import com.theupnextapp.domain.LibraryList
@@ -156,6 +157,11 @@ class LibraryFragment : BaseFragment(), LibraryAdapter.LibraryAdapterListener {
         super.onDestroyView()
         _binding = null
         _adapter = null
+    }
+
+    override fun onResume() {
+        super.onResume()
+        (activity as MainActivity).showBottomNavigation()
     }
 
     override fun onLibraryItemClick(view: View, libraryList: LibraryList) {

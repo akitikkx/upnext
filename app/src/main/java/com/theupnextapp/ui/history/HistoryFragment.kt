@@ -1,5 +1,6 @@
 package com.theupnextapp.ui.history
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,12 +12,12 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
+import com.theupnextapp.MainActivity
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentHistoryBinding
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.TraktHistory
 import com.theupnextapp.ui.common.BaseFragment
-import com.theupnextapp.ui.common.TraktViewModel
 
 class HistoryFragment : BaseFragment(), HistoryAdapter.HistoryAdapterListener {
 
@@ -61,8 +62,8 @@ class HistoryFragment : BaseFragment(), HistoryAdapter.HistoryAdapterListener {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        viewModel.traktAuthenticationState.observe(viewLifecycleOwner, Observer { authenticationState ->
-            if (authenticationState == TraktViewModel.TraktAuthenticationState.NOT_AUTHORIZED) {
+        viewModel.isAuthorizedOnTrakt.observe(viewLifecycleOwner, Observer {
+            if (it == false) {
                 this.findNavController().navigate(
                     HistoryFragmentDirections.actionHistoryFragmentToLibraryFragment()
                 )
@@ -127,6 +128,16 @@ class HistoryFragment : BaseFragment(), HistoryAdapter.HistoryAdapterListener {
         super.onDestroyView()
         _binding = null
         historyAdapter = null
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        (activity as MainActivity).hideBottomNavigation()
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        (activity as MainActivity).showBottomNavigation()
     }
 
     override fun onHistoryShowClick(view: View, historyItem: TraktHistory) {

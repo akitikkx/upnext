@@ -104,7 +104,8 @@ class ShowDetailViewModel(
             }
             traktRepository.getTraktShowRating(showInfo.value?.imdbID)
             traktRepository.getTraktShowStats(showInfo.value?.imdbID)
-            if (ifValidAccessTokenExists()) {
+
+            if (isAuthorizedOnTrakt.value == true) {
                 traktRepository.getTraktWatchedProgress(
                     accessToken,
                     showInfo.value?.imdbID
@@ -149,7 +150,7 @@ class ShowDetailViewModel(
     }
 
     fun onWatchlistRecordReceived(traktHistory: TraktHistory?) {
-        if (_isAuthorizedOnTrakt.value == false) {
+        if (isAuthorizedOnTrakt.value == false) {
             _notOnWatchlist.value = false
             _onWatchList.value = false
         } else {
@@ -164,7 +165,7 @@ class ShowDetailViewModel(
     }
 
     fun onAddRemoveWatchlistClick() {
-        if (_isAuthorizedOnTrakt.value == true) {
+        if (isAuthorizedOnTrakt.value == true) {
             if (_onWatchList.value == true) {
                 onRemoveFromWatchlistClick()
             } else {
@@ -220,8 +221,7 @@ class ShowDetailViewModel(
     }
 
     private fun onWatchlistAction(action: String) {
-        if (ifValidAccessTokenExists()) {
-            _isAuthorizedOnTrakt.value = true
+        if (isAuthorizedOnTrakt.value == true) {
             val accessToken = UpnextPreferenceManager(getApplication()).getTraktAccessToken()
 
             when (action) {
@@ -246,8 +246,6 @@ class ShowDetailViewModel(
                     }
                 }
             }
-        } else {
-            _isAuthorizedOnTrakt.value = false
         }
     }
 
@@ -263,8 +261,7 @@ class ShowDetailViewModel(
 
 
     private fun onCollectionAction(action: String) {
-        if (ifValidAccessTokenExists()) {
-            _isAuthorizedOnTrakt.value = true
+        if (isAuthorizedOnTrakt.value == true) {
             val accessToken = UpnextPreferenceManager(getApplication()).getTraktAccessToken()
 
             when (action) {
@@ -275,8 +272,6 @@ class ShowDetailViewModel(
 
                 }
             }
-        } else {
-            _isAuthorizedOnTrakt.value = false
         }
     }
 
@@ -289,7 +284,7 @@ class ShowDetailViewModel(
     }
 
     private fun requestWatchlistRefresh() {
-        if (ifValidAccessTokenExists()) {
+        if (isAuthorizedOnTrakt.value == true) {
             loadTraktWatchlist()
         }
     }

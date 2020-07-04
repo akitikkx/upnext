@@ -7,15 +7,6 @@ import com.theupnextapp.R
 import com.theupnextapp.domain.TraktShowRating
 import org.jsoup.Jsoup
 
-@BindingAdapter("dynamicText")
-fun setDynamicText(textView: TextView, isAlreadyConnected: Boolean) {
-    if (isAlreadyConnected) {
-        textView.setText(R.string.trakt_button_text_is_connected)
-    } else {
-        textView.setText(R.string.trakt_button_text_not_connected)
-    }
-}
-
 @BindingAdapter("fromHtml")
 fun fromHtml(view: TextView, html: String?) {
     if (!html.isNullOrEmpty()) {

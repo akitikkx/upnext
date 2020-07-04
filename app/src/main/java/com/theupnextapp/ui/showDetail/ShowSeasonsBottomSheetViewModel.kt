@@ -16,14 +16,6 @@ class ShowSeasonsBottomSheetViewModel(
     val showDetail: ShowInfo?
 ) : TraktViewModel(application) {
 
-    fun onAddSeasonClick(showSeason: ShowSeason) {
-        onSeasonHistoryAction(HISTORY_ACTION_ADD, showSeason)
-    }
-
-    fun onRemoveSeasonClick(showSeason: ShowSeason) {
-        onSeasonHistoryAction(HISTORY_ACTION_REMOVE, showSeason)
-    }
-
     val isLoading = traktRepository.isLoading
 
     val addToHistoryResponse = traktRepository.addToHistoryResponse
@@ -32,9 +24,17 @@ class ShowSeasonsBottomSheetViewModel(
 
     val watchedProgress = traktRepository.traktWatchedProgress
 
+    fun onAddSeasonClick(showSeason: ShowSeason) {
+        onSeasonHistoryAction(HISTORY_ACTION_ADD, showSeason)
+    }
+
+    fun onRemoveSeasonClick(showSeason: ShowSeason) {
+        onSeasonHistoryAction(HISTORY_ACTION_REMOVE, showSeason)
+    }
+
     fun onAddToHistoryResponseReceived(addToHistory: TraktAddToHistory) {
         viewModelScope?.launch {
-            if (_isAuthorizedOnTrakt.value == true) {
+            if (isAuthorizedOnTrakt.value == true) {
                 traktRepository.getTraktWatchedProgress(
                     UpnextPreferenceManager(getApplication()).getTraktAccessToken(),
                     showDetail?.imdbID
@@ -45,7 +45,7 @@ class ShowSeasonsBottomSheetViewModel(
 
     fun onRemoveFromHistoryResponseReceived(removeFromHistory: TraktRemoveFromHistory) {
         viewModelScope?.launch {
-            if (_isAuthorizedOnTrakt.value == true) {
+            if (isAuthorizedOnTrakt.value == true) {
                 traktRepository.getTraktWatchedProgress(
                     UpnextPreferenceManager(getApplication()).getTraktAccessToken(),
                     showDetail?.imdbID
@@ -55,8 +55,7 @@ class ShowSeasonsBottomSheetViewModel(
     }
 
     private fun onSeasonHistoryAction(action: String, showSeason: ShowSeason) {
-        if (ifValidAccessTokenExists()) {
-            _isAuthorizedOnTrakt.value = true
+        if (isAuthorizedOnTrakt.value == true) {
             val accessToken = UpnextPreferenceManager(getApplication()).getTraktAccessToken()
 
             when (action) {
@@ -85,8 +84,6 @@ class ShowSeasonsBottomSheetViewModel(
                     }
                 }
             }
-        } else {
-            _isAuthorizedOnTrakt.value = false
         }
     }
 

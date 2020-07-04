@@ -16,7 +16,6 @@ import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentCollectionSeasonEpisodesBinding
 import com.theupnextapp.domain.TraktCollectionSeasonEpisode
 import com.theupnextapp.ui.common.BaseFragment
-import com.theupnextapp.ui.common.TraktViewModel
 
 class CollectionSeasonEpisodesFragment : BaseFragment(),
     CollectionSeasonEpisodesAdapter.CollectionSeasonEpisodesAdapterListener {
@@ -81,15 +80,13 @@ class CollectionSeasonEpisodesFragment : BaseFragment(),
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        viewModel.traktAuthenticationState.observe(
-            viewLifecycleOwner,
-            Observer { authenticationState ->
-                if (authenticationState == TraktViewModel.TraktAuthenticationState.NOT_AUTHORIZED) {
-                    this.findNavController().navigate(
-                        CollectionSeasonEpisodesFragmentDirections.actionCollectionSeasonEpisodesFragmentToLibraryFragment()
-                    )
-                }
-            })
+        viewModel.isAuthorizedOnTrakt.observe(viewLifecycleOwner, Observer {
+            if (it == false) {
+                this.findNavController().navigate(
+                    CollectionSeasonEpisodesFragmentDirections.actionCollectionSeasonEpisodesFragmentToLibraryFragment()
+                )
+            }
+        })
 
         viewModel.traktCollectionSeasonEpisodes?.observe(viewLifecycleOwner, Observer {
             if (!it.isNullOrEmpty()) {

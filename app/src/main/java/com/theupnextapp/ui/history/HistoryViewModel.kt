@@ -20,9 +20,8 @@ class HistoryViewModel(application: Application) : TraktViewModel(application) {
     val traktHistory = traktRepository.traktHistory
 
     init {
-        if (ifValidAccessTokenExists()) {
+        if (isAuthorizedOnTrakt.value == true) {
             loadTraktHistory()
-            _isAuthorizedOnTrakt.value = true
         }
 
         historyEmpty.addSource(traktHistory) {

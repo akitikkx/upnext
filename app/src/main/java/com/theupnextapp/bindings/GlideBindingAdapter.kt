@@ -12,7 +12,7 @@ import com.theupnextapp.R
 fun setImageUrl(imageView: ImageView, url: String?) {
     val requestOptions = RequestOptions()
         .placeholder(R.color.grey_light)
-        .diskCacheStrategy(DiskCacheStrategy.ALL)
+        .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
         .error(R.color.grey_light)
         .fallback(R.color.grey_light)
 

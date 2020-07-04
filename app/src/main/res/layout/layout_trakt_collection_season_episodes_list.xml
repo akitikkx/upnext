@@ -37,6 +37,7 @@
                 android:layout_marginTop="@dimen/margin_vertical"
                 android:layout_marginEnd="@dimen/margin_horizontal_half"
                 android:layout_marginBottom="@dimen/margin_vertical"
+                app:canClickItem="@{viewModel.isLoadingCollection}"
                 android:clipToPadding="false"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
