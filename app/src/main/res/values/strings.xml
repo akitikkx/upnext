@@ -106,11 +106,15 @@
     in order to make use of the Trakt functionality around the app. After you authorize, you will return to the Library screen</string>
     <string name="library_connect_to_trakt_dialog_negative">No thanks</string>
     <string name="library_connect_to_trakt_dialog_positive">Proceed</string>
+    <string name="library_trakt_connection_status_connected">Connection status: Connected</string>
+    <string name="library_trakt_connection_status_not_connected">Connection status: Not connected</string>
+
+    <!-- Explore -->
     <string name="explore_trending_shows_list_title">Trending shows</string>
     <string name="explore_popular_shows_list_title">Popular shows</string>
 
     <string name="trakt_button_text_not_connected">Connect Trakt account</string>
-    <string name="trakt_button_text_is_connected">Trakt account is connected</string>
+    <string name="trakt_button_text_is_connected">Disconnect Trakt account</string>
     <string name="fetch_access_token_progress_text">Validating access with Trakt, please wait…</string>
     <string name="storing_access_token_progress_text">Validation complete, setting up your account…</string>
 

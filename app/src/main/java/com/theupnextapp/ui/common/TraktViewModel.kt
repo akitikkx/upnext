@@ -18,15 +18,6 @@ import java.util.concurrent.TimeUnit
 
 open class TraktViewModel(application: Application) : AndroidViewModel(application) {
 
-    enum class TraktAuthenticationState {
-        AUTHORIZED,
-        NOT_AUTHORIZED
-    }
-
-    private val _traktAuthenticationState = MutableLiveData<TraktAuthenticationState>(
-        if (ifValidAccessTokenExists()) TraktAuthenticationState.AUTHORIZED else TraktAuthenticationState.NOT_AUTHORIZED
-    )
-
     protected val _isAuthorizedOnTrakt = MutableLiveData(ifValidAccessTokenExists())
 
     private val _launchTraktConnectWindow = MutableLiveData<Boolean>()
@@ -45,8 +36,6 @@ open class TraktViewModel(application: Application) : AndroidViewModel(applicati
 
     protected val traktRepository = TraktRepository(database)
 
-    val traktAuthenticationState: LiveData<TraktAuthenticationState> = _traktAuthenticationState
-
     val fetchAccessTokenInProgress: LiveData<Boolean> = _fetchingAccessTokenInProgress
 
     val launchTraktConnectWindow: LiveData<Boolean> = _launchTraktConnectWindow
@@ -60,6 +49,10 @@ open class TraktViewModel(application: Application) : AndroidViewModel(applicati
     val invalidToken = traktRepository.invalidToken
 
     val invalidGrant = traktRepository.invalidGrant
+
+    init {
+        _isAuthorizedOnTrakt.value = ifValidAccessTokenExists()
+    }
 
     protected fun ifValidAccessTokenExists(): Boolean {
         val preferences = UpnextPreferenceManager(getApplication())
@@ -101,6 +94,10 @@ open class TraktViewModel(application: Application) : AndroidViewModel(applicati
 
     fun onConnectClick() {
         _launchTraktConnectWindow.value = true
+    }
+
+    fun onDisconnectClick() {
+
     }
 
     fun launchConnectWindowComplete() {

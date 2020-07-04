@@ -23,9 +23,8 @@ class CollectionViewModel(
     val isLoadingCollection = traktRepository.isLoadingTraktCollection
 
     init {
-        if (ifValidAccessTokenExists()) {
+        if (isAuthorizedOnTrakt.value == true) {
             loadTraktCollection()
-            _isAuthorizedOnTrakt.value = true
         }
 
         collectionEmpty.addSource(traktCollection) {

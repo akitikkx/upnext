@@ -15,18 +15,6 @@
         android:layout_height="match_parent">
 
         <include
-            layout="@layout/layout_trakt_library_not_connected_state"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:showHideView="@{!viewModel.isAuthorizedOnTrakt}"
-            app:viewModel="@{viewModel}"
-            tools:visibility="gone" />
-
-        <include
             layout="@layout/layout_library_list"
             android:layout_width="0dp"
             android:layout_height="match_parent"

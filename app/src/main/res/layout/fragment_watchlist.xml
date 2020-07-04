@@ -85,7 +85,7 @@
             android:paddingTop="@dimen/padding_standard"
             android:paddingEnd="@dimen/padding_standard_double"
             android:paddingBottom="@dimen/padding_standard"
-            app:dynamicText="@{viewModel.isAuthorizedOnTrakt}"
+            app:traktDynamicText="@{viewModel.isAuthorizedOnTrakt}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/connection_description"

@@ -81,6 +81,14 @@ class CollectionSeasonsFragment : BaseFragment(),
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
+        viewModel.isAuthorizedOnTrakt.observe(viewLifecycleOwner, Observer {
+            if (it == false) {
+                this.findNavController().navigate(
+                    CollectionSeasonsFragmentDirections.actionCollectionSeasonsFragmentToLibraryFragment()
+                )
+            }
+        })
+
         viewModel.traktCollectionSeasons?.observe(viewLifecycleOwner, Observer {
             if (!it.isNullOrEmpty()) {
                 viewModel.onCollectionSeasonsEmpty(false)
@@ -112,11 +120,6 @@ class CollectionSeasonsFragment : BaseFragment(),
     override fun onAttach(context: Context) {
         super.onAttach(context)
         (activity as MainActivity).hideBottomNavigation()
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        (activity as MainActivity).showBottomNavigation()
     }
 
     override fun onCollectionSeasonClick(view: View, traktCollectionSeason: TraktCollectionSeason) {

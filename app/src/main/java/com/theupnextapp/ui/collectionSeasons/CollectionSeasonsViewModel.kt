@@ -37,9 +37,8 @@ class CollectionSeasonsViewModel(
 
     init {
         _collectionSeasonsEmpty.value = false
-        if (ifValidAccessTokenExists()) {
+        if (isAuthorizedOnTrakt.value == true) {
             loadTraktCollection()
-            _isAuthorizedOnTrakt.value = true
         }
     }
 

@@ -1,5 +1,6 @@
 package com.theupnextapp.ui.watchlist
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import com.theupnextapp.MainActivity
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentWatchlistBinding
 import com.theupnextapp.domain.ShowDetailArg
@@ -129,6 +131,16 @@ class WatchlistFragment : Fragment(), WatchlistAdapter.WatchlistAdapterListener 
         super.onDestroyView()
         _binding = null
         watchlistAdapter = null
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        (activity as MainActivity).hideBottomNavigation()
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        (activity as MainActivity).showBottomNavigation()
     }
 
     override fun onWatchlistShowClick(view: View, watchlistItem: TraktWatchlist) {

@@ -1,5 +1,6 @@
 package com.theupnextapp.ui.collection
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +15,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
+import com.theupnextapp.MainActivity
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentCollectionBinding
 import com.theupnextapp.domain.TraktCollection
@@ -69,6 +71,14 @@ class CollectionFragment : BaseFragment(), CollectionAdapter.CollectionAdapterLi
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+
+        viewModel.isAuthorizedOnTrakt.observe(viewLifecycleOwner, Observer {
+            if (it == false) {
+                this.findNavController().navigate(
+                    CollectionFragmentDirections.actionCollectionFragmentToLibraryFragment()
+                )
+            }
+        })
 
         viewModel.fetchAccessTokenInProgress.observe(viewLifecycleOwner, Observer {
             if (it) {
@@ -139,6 +149,10 @@ class CollectionFragment : BaseFragment(), CollectionAdapter.CollectionAdapterLi
         _adapter = null
     }
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        (activity as MainActivity).hideBottomNavigation()
+    }
 
     override fun onCollectionClick(view: View, traktCollection: TraktCollection) {
         viewModel.onCollectionClick(traktCollection)

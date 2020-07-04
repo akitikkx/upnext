@@ -22,6 +22,26 @@ fun connectToTraktButtonText(view: TextView, isConnected: Boolean) {
     }
 }
 
+@BindingAdapter("traktConnectionStatus")
+fun traktConnectionStatus(view: TextView, isConnected: Boolean) {
+    if (isConnected) {
+        view.text =
+            view.resources.getString(R.string.library_trakt_connection_status_connected)
+    } else {
+        view.text =
+            view.resources.getString(R.string.library_trakt_connection_status_not_connected)
+    }
+}
+
+@BindingAdapter("traktDynamicText")
+fun traktDynamicText(textView: TextView, isAlreadyConnected: Boolean) {
+    if (isAlreadyConnected) {
+        textView.setText(R.string.trakt_button_text_is_connected)
+    } else {
+        textView.setText(R.string.trakt_button_text_not_connected)
+    }
+}
+
 @BindingAdapter("addRemoveFromWatchlistButtonText")
 fun addRemoveFromWatchlistButtonText(view: TextView, isAdded: Boolean) {
     if (isAdded) {
