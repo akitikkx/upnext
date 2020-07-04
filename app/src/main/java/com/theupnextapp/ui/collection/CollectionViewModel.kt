@@ -1,10 +1,7 @@
 package com.theupnextapp.ui.collection
 
 import android.app.Application
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.*
 import androidx.preference.PreferenceManager
 import com.theupnextapp.domain.TraktCollection
 import com.theupnextapp.domain.TraktCollectionArg
@@ -15,11 +12,9 @@ class CollectionViewModel(
     application: Application
 ) : TraktViewModel(application) {
 
-    private val _collectionEmpty = MutableLiveData<Boolean>()
-
     private val _navigateToSelectedCollection = MutableLiveData<TraktCollectionArg>()
 
-    val collectionEmpty: LiveData<Boolean> = _collectionEmpty
+    val collectionEmpty = MediatorLiveData<Boolean>()
 
     val navigateToSelectedCollection: LiveData<TraktCollectionArg> = _navigateToSelectedCollection
 
@@ -28,15 +23,14 @@ class CollectionViewModel(
     val isLoadingCollection = traktRepository.isLoadingTraktCollection
 
     init {
-        _collectionEmpty.value = false
         if (ifValidAccessTokenExists()) {
             loadTraktCollection()
             _isAuthorizedOnTrakt.value = true
         }
-    }
 
-    fun onCollectionEmpty(empty: Boolean) {
-        _collectionEmpty.value = empty
+        collectionEmpty.addSource(traktCollection) {
+            collectionEmpty.value = it.isNullOrEmpty() == true
+        }
     }
 
     fun onCollectionClick(traktCollection: TraktCollection) {

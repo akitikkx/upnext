@@ -107,6 +107,7 @@
     <string name="library_connect_to_trakt_dialog_negative">No thanks</string>
     <string name="library_connect_to_trakt_dialog_positive">Proceed</string>
     <string name="explore_trending_shows_list_title">Trending shows</string>
+    <string name="explore_popular_shows_list_title">Popular shows</string>
 
     <string name="trakt_button_text_not_connected">Connect Trakt account</string>
     <string name="trakt_button_text_is_connected">Trakt account is connected</string>

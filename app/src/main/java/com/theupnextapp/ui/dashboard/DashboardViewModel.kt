@@ -92,7 +92,7 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
         requestShowsUpdate()
     }
 
-    fun displayShowDetails(showDetailArg: ShowDetailArg) {
+    fun onDashboardItemClick(showDetailArg: ShowDetailArg) {
         _navigateToSelectedShow.value = showDetailArg
     }
 

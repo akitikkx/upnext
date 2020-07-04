@@ -68,6 +68,8 @@ class TraktRepository(private val database: UpnextDatabase) {
 
     private val _isLoadingTraktTrending = MutableLiveData<Boolean>()
 
+    private val _isLoadingTraktPopular = MutableLiveData<Boolean>()
+
     private val _traktCollection = MutableLiveData<TraktCollection>()
 
     private val _traktHistory = MutableLiveData<TraktHistory>()
@@ -86,7 +88,9 @@ class TraktRepository(private val database: UpnextDatabase) {
 
     private val _traktWatchedProgress = MutableLiveData<TraktShowWatchedProgress>()
 
-    private val _trendingShows = MutableLiveData<List<TraktTrending>>()
+    private val _trendingShows = MutableLiveData<List<TraktTrendingShows>>()
+
+    private val _popularShows = MutableLiveData<List<TraktPopularShows>>()
 
     private val _invalidToken = MutableLiveData<Boolean>()
 
@@ -99,6 +103,8 @@ class TraktRepository(private val database: UpnextDatabase) {
     val isLoadingTraktHistory: LiveData<Boolean> = _isLoadingTraktHistory
 
     val isLoadingTraktTrending: LiveData<Boolean> = _isLoadingTraktTrending
+
+    val isLoadingTraktPopular: LiveData<Boolean> = _isLoadingTraktPopular
 
     val traktAccessToken: LiveData<TraktAccessToken> = _traktAccessToken
 
@@ -119,7 +125,9 @@ class TraktRepository(private val database: UpnextDatabase) {
 
     val traktWatchedProgress: LiveData<TraktShowWatchedProgress> = _traktWatchedProgress
 
-    val trendingShows: LiveData<List<TraktTrending>> = _trendingShows
+    val trendingShows: LiveData<List<TraktTrendingShows>> = _trendingShows
+
+    val popularShows: LiveData<List<TraktPopularShows>> = _popularShows
 
     val invalidToken: LiveData<Boolean> = _invalidToken
 
@@ -806,18 +814,9 @@ class TraktRepository(private val database: UpnextDatabase) {
         withContext(Dispatchers.IO) {
             try {
                 _isLoadingTraktTrending.postValue(true)
-                val trendingShowsList: MutableList<TraktTrending> = arrayListOf()
-                val updatedTrendingShowsList: MutableList<TraktTrending> = arrayListOf()
+                val updatedTrendingShowsList: MutableList<TraktTrendingShows> = arrayListOf()
 
-                val trendingShowsResponse = TraktNetwork.traktApi.getTrendingShowAsync().await()
-
-                if (!trendingShowsResponse.isEmpty()) {
-                    for (item in trendingShowsResponse) {
-                        val trendingItem: NetworkTraktTrendingShowsResponseItem = item
-                        updatedTrendingShowsList.add(trendingItem.asDomainModel())
-                    }
-                    _trendingShows.postValue(trendingShowsList)
-                }
+                val trendingShowsResponse = TraktNetwork.traktApi.getTrendingShowsAsync().await()
 
                 if (!trendingShowsResponse.isEmpty()) {
                     if (!updatedTrendingShowsList.isNullOrEmpty()) {
@@ -849,17 +848,63 @@ class TraktRepository(private val database: UpnextDatabase) {
                                 }
                             }
                         }
-
                         updatedTrendingShowsList.add(trendingItem.asDomainModel())
                     }
                     _trendingShows.postValue(updatedTrendingShowsList)
                 }
-
                 _isLoadingTraktTrending.postValue(false)
             } catch (e: HttpException) {
                 Timber.d(e)
                 FirebaseCrashlytics.getInstance().recordException(e)
                 _isLoadingTraktTrending.postValue(false)
+            }
+        }
+    }
+
+    suspend fun getPopularShows() {
+        withContext(Dispatchers.IO) {
+            try {
+                _isLoadingTraktPopular.postValue(true)
+                val updatedPopularShowsList: MutableList<TraktPopularShows> = arrayListOf()
+
+                val popularShowsResponse = TraktNetwork.traktApi.getPopularShowsAsync().await()
+
+                if (!popularShowsResponse.isEmpty()) {
+                    for (item in popularShowsResponse) {
+                        val popularItem: NetworkTraktPopularShowsResponseItem = item
+
+                        val imdbID = popularItem.ids?.imdb
+                        val traktTitle = popularItem.title
+
+                        // perform a TvMaze search for the Trakt item using the Trakt title
+                        val tvMazeSearch =
+                            traktTitle?.let {
+                                TvMazeNetwork.tvMazeApi.getSuggestionListAsync(it).await()
+                            }
+
+                        // loop through the search results from TvMaze and find a match for the IMDb ID
+                        // and update the watchlist item by adding the TvMaze ID
+                        if (!tvMazeSearch.isNullOrEmpty()) {
+                            for (searchItem in tvMazeSearch) {
+                                val showSearchItem: NetworkShowSearchResponse = searchItem
+                                if (showSearchItem.show.externals.imdb == imdbID) {
+                                    popularItem.originalImageUrl =
+                                        showSearchItem.show.image?.medium
+                                    popularItem.mediumImageUrl =
+                                        showSearchItem.show.image?.original
+                                    popularItem.ids?.tvMazeID = showSearchItem.show.id
+                                }
+                            }
+                        }
+                        updatedPopularShowsList.add(popularItem.asDomainModel())
+                    }
+                    _popularShows.postValue(updatedPopularShowsList)
+                }
+                _isLoadingTraktPopular.postValue(false)
+            } catch (e: HttpException) {
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
+                _isLoadingTraktPopular.postValue(false)
             }
         }
     }
