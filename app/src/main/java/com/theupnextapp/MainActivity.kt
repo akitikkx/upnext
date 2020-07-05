@@ -106,6 +106,7 @@ class MainActivity : AppCompatActivity() {
 
             val bundle = bundleOf(CollectionFragment.EXTRA_TRAKT_URI to connectionArg)
             navController.navigate(R.id.libraryFragment, bundle)
+            bundle.clear()
             clearIntent()
         }
     }

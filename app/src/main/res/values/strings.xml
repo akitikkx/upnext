@@ -113,6 +113,12 @@
         You will need to reconnect your Trakt account for the data to be synchronized again</string>
     <string name="library_disconnect_from_trakt_dialog_negative">Cancel</string>
     <string name="library_disconnect_from_trakt_dialog_positive">Proceed</string>
+    <string name="library_removing_watchlist_data">Clearing watchlist cache…</string>
+    <string name="library_removing_history_data">Clearing history cache…</string>
+    <string name="library_removing_collection_data">Clearing collection cache…</string>
+    <string name="library_loading_watchlist_data">Synchronizing Trakt watchlist…</string>
+    <string name="library_loading_history_data">Synchronizing Trakt history…</string>
+    <string name="library_loading_collection_data">Synchronizing Trakt collection…</string>
 
     <!-- Explore -->
     <string name="explore_trending_shows_list_title">Trending shows</string>

@@ -70,6 +70,12 @@ class TraktRepository(private val database: UpnextDatabase) {
 
     private val _isLoadingTraktPopular = MutableLiveData<Boolean>()
 
+    private val _isRemovingTraktWatchlist = MutableLiveData<Boolean>()
+
+    private val _isRemovingTraktHistory = MutableLiveData<Boolean>()
+
+    private val _isRemovingTraktCollection = MutableLiveData<Boolean>()
+
     private val _traktCollection = MutableLiveData<TraktCollection>()
 
     private val _traktHistory = MutableLiveData<TraktHistory>()
@@ -106,6 +112,12 @@ class TraktRepository(private val database: UpnextDatabase) {
 
     val isLoadingTraktPopular: LiveData<Boolean> = _isLoadingTraktPopular
 
+    val isRemovingTraktWatchlist: LiveData<Boolean> = _isRemovingTraktWatchlist
+
+    val isRemovingTraktHistory: LiveData<Boolean> = _isRemovingTraktHistory
+
+    val isRemovingTraktCollection: LiveData<Boolean> = _isRemovingTraktCollection
+
     val traktAccessToken: LiveData<TraktAccessToken> = _traktAccessToken
 
     val addToWatchlistResponse: LiveData<TraktAddToWatchlist> = _addToWatchlistResponse
@@ -133,6 +145,45 @@ class TraktRepository(private val database: UpnextDatabase) {
 
     val invalidGrant: LiveData<Boolean> = _invalidGrant
 
+    suspend fun clearAllTraktData() {
+        withContext(Dispatchers.IO) {
+            try {
+                removeAllWatchlistData()
+                removeAllCollectionData()
+                removeAllHistoryData()
+            } catch (e: Exception) {
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
+            }
+        }
+    }
+
+    private suspend fun removeAllWatchlistData() {
+        withContext(Dispatchers.IO) {
+            _isRemovingTraktWatchlist.postValue(true)
+            database.upnextDao.deleteAllTraktWatchlist()
+            _isRemovingTraktWatchlist.postValue(false)
+        }
+    }
+
+    private suspend fun removeAllCollectionData() {
+        withContext(Dispatchers.IO) {
+            _isRemovingTraktCollection.postValue(true)
+            database.upnextDao.deleteAllTraktCollectionSeasonEpisodes()
+            database.upnextDao.deleteAllTraktCollectionSeasons()
+            database.upnextDao.deleteAllTraktCollection()
+            _isRemovingTraktCollection.postValue(false)
+        }
+    }
+
+    private suspend fun removeAllHistoryData() {
+        withContext(Dispatchers.IO) {
+            _isRemovingTraktHistory.postValue(true)
+            database.upnextDao.deleteAllTraktHistory()
+            _isRemovingTraktHistory.postValue(false)
+        }
+    }
+
     suspend fun getTraktAccessToken(code: String?) {
         if (code.isNullOrEmpty()) {
             return
@@ -154,6 +205,7 @@ class TraktRepository(private val database: UpnextDatabase) {
                     TraktNetwork.traktApi.getAccessTokenAsync(traktAccessTokenRequest).await()
                 _traktAccessToken.postValue(accessTokenResponse.asDomainModel())
                 _isLoading.postValue(false)
+                _traktAccessToken.postValue(null)
             } catch (e: Exception) {
                 _isLoading.postValue(false)
                 Timber.d(e)
@@ -185,6 +237,7 @@ class TraktRepository(private val database: UpnextDatabase) {
                         .await()
                 _traktAccessToken.postValue(accessTokenResponse.asDomainModel())
                 _isLoading.postValue(false)
+                _traktAccessToken.postValue(null)
             } catch (e: HttpException) {
                 handleTraktError(e)
                 _isLoading.postValue(false)

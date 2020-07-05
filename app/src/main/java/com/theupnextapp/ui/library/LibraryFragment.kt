@@ -57,6 +57,7 @@ class LibraryFragment : BaseFragment(), LibraryAdapter.LibraryAdapterListener {
 
         if (arguments?.getParcelable<TraktConnectionArg>(WatchlistViewModel.EXTRA_TRAKT_URI) != null) {
             viewModel.onTraktConnectionBundleReceived(arguments)
+            arguments?.clear()
         }
 
         _adapter = LibraryAdapter(this)
@@ -165,6 +166,66 @@ class LibraryFragment : BaseFragment(), LibraryAdapter.LibraryAdapterListener {
                         dialog.dismiss()
                     }
                     .show()
+            }
+        })
+
+        viewModel.isRemovingWatchlistData.observe(viewLifecycleOwner, Observer {
+            if (it == true) {
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.library_removing_watchlist_data),
+                    Snackbar.LENGTH_SHORT
+                ).show()
+            }
+        })
+
+        viewModel.isRemovingCollectionData.observe(viewLifecycleOwner, Observer {
+            if (it == true) {
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.library_removing_collection_data),
+                    Snackbar.LENGTH_SHORT
+                ).show()
+            }
+        })
+
+        viewModel.isRemovingHistoryData.observe(viewLifecycleOwner, Observer {
+            if (it == true) {
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.library_removing_history_data),
+                    Snackbar.LENGTH_SHORT
+                ).show()
+            }
+        })
+
+        viewModel.isLoadingWatchlist.observe(viewLifecycleOwner, Observer {
+            if (it == true) {
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.library_loading_watchlist_data),
+                    Snackbar.LENGTH_SHORT
+                ).show()
+            }
+        })
+
+        viewModel.isLoadingHistory.observe(viewLifecycleOwner, Observer {
+            if (it == true) {
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.library_loading_history_data),
+                    Snackbar.LENGTH_SHORT
+                ).show()
+            }
+        })
+
+        viewModel.isLoadingCollection.observe(viewLifecycleOwner, Observer {
+            if (it == true) {
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.library_loading_collection_data),
+                    Snackbar.LENGTH_SHORT
+                ).show()
             }
         })
     }

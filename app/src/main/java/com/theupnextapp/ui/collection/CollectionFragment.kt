@@ -53,12 +53,6 @@ class CollectionFragment : BaseFragment(), CollectionAdapter.CollectionAdapterLi
 
         _adapter = CollectionAdapter(this)
 
-        val args = arguments
-
-        if (args?.getParcelable<TraktConnectionArg>(CollectionViewModel.EXTRA_TRAKT_URI) != null) {
-            viewModel.onTraktConnectionBundleReceived(arguments)
-        }
-
         binding.root.findViewById<RecyclerView>(R.id.collection_list).apply {
             layoutManager = LinearLayoutManager(requireContext()).apply {
                 orientation = LinearLayoutManager.VERTICAL

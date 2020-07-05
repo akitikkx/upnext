@@ -32,6 +32,11 @@ class UpnextPreferenceManager(val application: Application) {
             .apply()
     }
 
+    fun removeTraktAccessTokenRefresh() {
+        val preferences = PreferenceManager.getDefaultSharedPreferences(application)
+        preferences.edit().remove(TraktViewModel.SHARED_PREF_TRAKT_ACCESS_TOKEN_REFRESH_TOKEN).apply()
+    }
+
     fun getTraktAccessTokenRefresh(): String? {
         val preferences = PreferenceManager.getDefaultSharedPreferences(application)
         return preferences.getString(SHARED_PREF_TRAKT_ACCESS_TOKEN_REFRESH_TOKEN, null)
@@ -50,6 +55,11 @@ class UpnextPreferenceManager(val application: Application) {
         return preferences.getInt(SHARED_PREF_TRAKT_ACCESS_TOKEN_CREATED_AT, 0)
     }
 
+    fun removeTraktAccessTokenCreatedAt() {
+        val preferences = PreferenceManager.getDefaultSharedPreferences(application)
+        preferences.edit().remove(SHARED_PREF_TRAKT_ACCESS_TOKEN_CREATED_AT).apply()
+    }
+
     fun saveTraktAccessTokenExpiresIn(expiresIn: Int) {
         val preferences = PreferenceManager.getDefaultSharedPreferences(application)
 
@@ -63,6 +73,11 @@ class UpnextPreferenceManager(val application: Application) {
         return preferences.getInt(SHARED_PREF_TRAKT_ACCESS_TOKEN_EXPIRES_IN, 0)
     }
 
+    fun removeTraktAccessTokenExpiresIn() {
+        val preferences = PreferenceManager.getDefaultSharedPreferences(application)
+        preferences.edit().remove(SHARED_PREF_TRAKT_ACCESS_TOKEN_EXPIRES_IN).apply()
+    }
+
     fun saveTraktAccessTokenScope(token: String?) {
         val preferences = PreferenceManager.getDefaultSharedPreferences(application)
 
@@ -71,12 +86,22 @@ class UpnextPreferenceManager(val application: Application) {
             .apply()
     }
 
+    fun removeTraktAccessTokenScope() {
+        val preferences = PreferenceManager.getDefaultSharedPreferences(application)
+        preferences.edit().remove(SHARED_PREF_TRAKT_ACCESS_TOKEN_SCOPE).apply()
+    }
+
     fun saveTraktAccessTokenType(token: String?) {
         val preferences = PreferenceManager.getDefaultSharedPreferences(application)
 
         preferences.edit()
             .putString(TraktViewModel.SHARED_PREF_TRAKT_ACCESS_TOKEN_TYPE, token)
             .apply()
+    }
+
+    fun removeTraktAccessTokenType() {
+        val preferences = PreferenceManager.getDefaultSharedPreferences(application)
+        preferences.edit().remove(SHARED_PREF_TRAKT_ACCESS_TOKEN_TYPE).apply()
     }
 
 
