@@ -117,6 +117,12 @@ open class TraktViewModel(application: Application) : AndroidViewModel(applicati
         _transactionInProgress.value = false
         _isAuthorizedOnTrakt.value = true
         _storingTraktAccessTokenInProgress.value = false
+
+        viewModelScope?.launch {
+            traktRepository.refreshTraktCollection(traktAccessToken.access_token)
+            traktRepository.refreshTraktHistory(traktAccessToken.access_token)
+            traktRepository.refreshTraktWatchlist(traktAccessToken.access_token)
+        }
     }
 
     fun onInvalidTokenResponseReceived(invalid: Boolean) {
@@ -132,9 +138,14 @@ open class TraktViewModel(application: Application) : AndroidViewModel(applicati
     fun onTraktConnectionBundleReceived(bundle: Bundle?) {
         _transactionInProgress.value = true
         extractCode(bundle)
+        _transactionInProgress.value = false
     }
 
     private fun extractCode(bundle: Bundle?) {
+        if (isAuthorizedOnTrakt.value == true) {
+            return
+        }
+
         val traktConnectionArg =
             bundle?.getParcelable<TraktConnectionArg>(CollectionViewModel.EXTRA_TRAKT_URI)
 
@@ -143,6 +154,7 @@ open class TraktViewModel(application: Application) : AndroidViewModel(applicati
         viewModelScope?.launch {
             traktRepository.getTraktAccessToken(traktConnectionArg?.code)
         }
+        _fetchingAccessTokenInProgress.value = false
     }
 
     fun onInvalidGrantResponseReceived(invalid: Boolean) {
@@ -177,7 +189,19 @@ open class TraktViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     fun removeTraktData() {
+        val preferences = UpnextPreferenceManager(getApplication())
 
+        preferences.removeTraktAccessToken()
+        preferences.removeTraktAccessTokenCreatedAt()
+        preferences.removeTraktAccessTokenExpiresIn()
+        preferences.removeTraktAccessTokenRefresh()
+        preferences.removeTraktAccessTokenScope()
+        preferences.removeTraktAccessTokenType()
+
+        viewModelScope?.launch {
+            traktRepository.clearAllTraktData()
+            _isAuthorizedOnTrakt.value = false
+        }
     }
 
     companion object {

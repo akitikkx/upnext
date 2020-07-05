@@ -49,12 +49,6 @@ class WatchlistFragment : Fragment(), WatchlistAdapter.WatchlistAdapterListener 
 
         binding.lifecycleOwner = viewLifecycleOwner
 
-        val args = arguments
-
-        if (args?.getParcelable<TraktConnectionArg>(WatchlistViewModel.EXTRA_TRAKT_URI) != null) {
-            viewModel.onTraktConnectionBundleReceived(arguments)
-        }
-
         watchlistAdapter = WatchlistAdapter(this)
 
         binding.root.findViewById<RecyclerView>(R.id.watch_list).apply {

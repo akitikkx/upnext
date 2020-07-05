@@ -15,6 +15,18 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
 
     val libraryList: LiveData<List<LibraryList>> = _libraryList
 
+    val isRemovingWatchlistData = traktRepository.isRemovingTraktWatchlist
+
+    val isRemovingHistoryData = traktRepository.isRemovingTraktHistory
+
+    val isRemovingCollectionData = traktRepository.isRemovingTraktCollection
+
+    val isLoadingWatchlist = traktRepository.isLoadingTraktWatchlist
+
+    val isLoadingCollection = traktRepository.isLoadingTraktCollection
+
+    val isLoadingHistory = traktRepository.isLoadingTraktHistory
+
     init {
         val list = mutableListOf<LibraryList>()
 
