@@ -7,10 +7,10 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.theupnextapp.BuildConfig
 import com.theupnextapp.database.*
 import com.theupnextapp.domain.*
-import com.theupnextapp.network.models.tvmaze.NetworkShowSearchResponse
 import com.theupnextapp.network.TraktNetwork
 import com.theupnextapp.network.TvMazeNetwork
 import com.theupnextapp.network.models.trakt.*
+import com.theupnextapp.network.models.tvmaze.NetworkShowSearchResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
@@ -54,6 +54,11 @@ class TraktRepository(private val database: UpnextDatabase) {
             )
         ) {
             it.asDomainModel()
+        }
+
+    fun tableUpdate(tableName: String) : LiveData<TableUpdate?> =
+        Transformations.map(database.upnextDao.getTableLastUpdate(tableName)) {
+            it?.asDomainModel()
         }
 
     private val _isLoading = MutableLiveData<Boolean>()
@@ -309,6 +314,13 @@ class TraktRepository(private val database: UpnextDatabase) {
                     database.upnextDao.apply {
                         deleteAllTraktWatchlist()
                         insertAllTraktWatchlist(*list.toTypedArray())
+                        deleteRecentTableUpdate(DatabaseTables.TABLE_WATCHLIST.tableName)
+                        insertTableUpdateLog(
+                            DatabaseTableUpdate(
+                                table_name = DatabaseTables.TABLE_WATCHLIST.tableName,
+                                last_updated = System.currentTimeMillis()
+                            )
+                        )
                     }
 
                 } catch (e: Exception) {
@@ -390,6 +402,13 @@ class TraktRepository(private val database: UpnextDatabase) {
                     database.upnextDao.apply {
                         deleteAllTraktHistory()
                         insertAllTraktHistory(*list.toTypedArray())
+                        deleteRecentTableUpdate(DatabaseTables.TABLE_HISTORY.tableName)
+                        insertTableUpdateLog(
+                            DatabaseTableUpdate(
+                                table_name = DatabaseTables.TABLE_HISTORY.tableName,
+                                last_updated = System.currentTimeMillis()
+                            )
+                        )
                     }
 
                 } catch (e: Exception) {
@@ -514,6 +533,14 @@ class TraktRepository(private val database: UpnextDatabase) {
 
                 database.upnextDao.deleteAllTraktCollectionSeasonEpisodes()
                 database.upnextDao.insertAllTraktCollectionEpisodes(*traktCollectionSeasonEpisodes.toTypedArray())
+
+                database.upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_COLLECTION.tableName)
+                database.upnextDao.insertTableUpdateLog(
+                    DatabaseTableUpdate(
+                        table_name = DatabaseTables.TABLE_COLLECTION.tableName,
+                        last_updated = System.currentTimeMillis()
+                    )
+                )
             } catch (e: Exception) {
                 Timber.d(e)
                 FirebaseCrashlytics.getInstance().recordException(e)

@@ -119,6 +119,8 @@
     <string name="library_loading_watchlist_data">Synchronizing Trakt watchlist…</string>
     <string name="library_loading_history_data">Synchronizing Trakt history…</string>
     <string name="library_loading_collection_data">Synchronizing Trakt collection…</string>
+    <string name="library_table_last_update">Last sync: %1$d %2$s ago</string>
+    <string name="library_table_last_update_null">Last sync: -</string>
 
     <!-- Explore -->
     <string name="explore_trending_shows_list_title">Trending shows</string>
