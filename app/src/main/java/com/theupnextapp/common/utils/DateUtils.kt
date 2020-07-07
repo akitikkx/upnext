@@ -1,6 +1,6 @@
 package com.theupnextapp.common.utils
 
-import com.theupnextapp.domain.TimeDifferenceForDisplay
+import com.theupnextapp.common.utils.models.TimeDifferenceForDisplay
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -33,24 +33,40 @@ object DateUtils {
     fun getTimeDifferenceForDisplay(time: Long): TimeDifferenceForDisplay? {
         var timeDifferenceForDisplay: TimeDifferenceForDisplay? = null
 
-        val daysDiff = dateDifferenceDays(time, "days")
-        val hoursDiff = dateDifferenceDays(time, "hours")
-        val minutesDiff = dateDifferenceDays(time, "minutes")
-        val secondsDiff = dateDifferenceDays(time, "seconds")
+        val daysDiff = dateDifference(time, "days")
+        val hoursDiff = dateDifference(time, "hours")
+        val minutesDiff = dateDifference(time, "minutes")
+        val secondsDiff = dateDifference(time, "seconds")
 
         if (daysDiff == 0L && hoursDiff == 0L && minutesDiff != -0L) {
-            timeDifferenceForDisplay = TimeDifferenceForDisplay(minutesDiff, "minutes")
+            timeDifferenceForDisplay =
+                TimeDifferenceForDisplay(
+                    minutesDiff,
+                    "minutes"
+                )
         } else if (daysDiff == 0L && hoursDiff != 0L) {
-            timeDifferenceForDisplay = TimeDifferenceForDisplay(hoursDiff, "hours")
+            timeDifferenceForDisplay =
+                TimeDifferenceForDisplay(
+                    hoursDiff,
+                    "hours"
+                )
         } else if (daysDiff != 0L && hoursDiff == 0L) {
-            timeDifferenceForDisplay = TimeDifferenceForDisplay(daysDiff, "days")
+            timeDifferenceForDisplay =
+                TimeDifferenceForDisplay(
+                    daysDiff,
+                    "days"
+                )
         } else if (daysDiff == 0L && hoursDiff == 0L && minutesDiff == 0L && secondsDiff != 0L) {
-            timeDifferenceForDisplay = TimeDifferenceForDisplay(secondsDiff, "seconds")
+            timeDifferenceForDisplay =
+                TimeDifferenceForDisplay(
+                    secondsDiff,
+                    "seconds"
+                )
         }
         return timeDifferenceForDisplay
     }
 
-    fun dateDifferenceDays(time: Long, type: String): Long? {
+    fun dateDifference(time: Long, type: String): Long? {
         val diffCount = Calendar.getInstance().timeInMillis - time
         var diff: Long = -1L
 

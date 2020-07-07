@@ -74,36 +74,8 @@ class CollectionFragment : BaseFragment(), CollectionAdapter.CollectionAdapterLi
             }
         })
 
-        viewModel.fetchAccessTokenInProgress.observe(viewLifecycleOwner, Observer {
-            if (it) {
-                Snackbar.make(
-                    binding.root,
-                    getString(R.string.fetch_access_token_progress_text),
-                    Snackbar.LENGTH_LONG
-                ).show()
-            } else {
-                Snackbar.make(
-                    binding.root,
-                    getString(R.string.fetch_access_token_progress_text),
-                    Snackbar.LENGTH_LONG
-                ).dismiss()
-            }
-        })
-
-        viewModel.storingTraktAccessTokenInProgress.observe(viewLifecycleOwner, Observer {
-            if (it) {
-                Snackbar.make(
-                    binding.root,
-                    getString(R.string.storing_access_token_progress_text),
-                    Snackbar.LENGTH_LONG
-                ).show()
-            } else {
-                Snackbar.make(
-                    binding.root,
-                    getString(R.string.fetch_access_token_progress_text),
-                    Snackbar.LENGTH_LONG
-                ).dismiss()
-            }
+        viewModel.collectionTableUpdate.observe(viewLifecycleOwner, Observer {
+            viewModel.onCollectionTableUpdateReceived(it)
         })
 
         viewModel.traktCollection.observe(viewLifecycleOwner, Observer {

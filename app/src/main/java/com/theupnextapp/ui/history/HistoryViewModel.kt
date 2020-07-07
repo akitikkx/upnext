@@ -3,7 +3,11 @@ package com.theupnextapp.ui.history
 import android.app.Application
 import androidx.lifecycle.*
 import androidx.preference.PreferenceManager
+import com.theupnextapp.common.utils.DateUtils
+import com.theupnextapp.common.utils.models.DatabaseTables
+import com.theupnextapp.common.utils.models.TableUpdateInterval
 import com.theupnextapp.domain.ShowDetailArg
+import com.theupnextapp.domain.TableUpdate
 import com.theupnextapp.ui.common.TraktViewModel
 import kotlinx.coroutines.launch
 
@@ -19,11 +23,10 @@ class HistoryViewModel(application: Application) : TraktViewModel(application) {
 
     val traktHistory = traktRepository.traktHistory
 
-    init {
-        if (isAuthorizedOnTrakt.value == true) {
-            loadTraktHistory()
-        }
+    val historyTableUpdate =
+        traktRepository.tableUpdate(DatabaseTables.TABLE_HISTORY.tableName)
 
+    init {
         historyEmpty.addSource(traktHistory) {
             historyEmpty.value = it.isNullOrEmpty() == true
         }
@@ -44,6 +47,22 @@ class HistoryViewModel(application: Application) : TraktViewModel(application) {
 
     fun displayShowDetailsComplete() {
         _navigateToSelectedShow.value = null
+    }
+
+    fun onHistoryTableUpdateReceived(tableUpdate: TableUpdate?) {
+        if (isAuthorizedOnTrakt.value == false) {
+            return
+        }
+
+        val diffInMinutes =
+            tableUpdate?.lastUpdated?.let { it -> DateUtils.dateDifference(it, "minutes") }
+
+        // Only perform an update if there has been enough time before the previous update
+        if (diffInMinutes != null) {
+            if (diffInMinutes >= TableUpdateInterval.HISTORY_ITEMS.intervalMins) {
+                loadTraktHistory()
+            }
+        }
     }
 
     override fun onCleared() {

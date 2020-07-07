@@ -120,6 +120,7 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+
         viewModel.showFeaturesBottomSheet.observe(viewLifecycleOwner, Observer {
             if (it != null && it == true) {
                 val featuresBottomSheet = FeaturesBottomSheetFragment()
@@ -160,6 +161,18 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
                     yesterdayShowsAdapter?.yesterdayShows = yesterdayShows
                 }
             })
+
+        viewModel.yesterdayShowsTableUpdate.observe(viewLifecycleOwner, Observer {
+            viewModel.onYesterdayShowsTableUpdateReceived(it)
+        })
+
+        viewModel.todayShowsTableUpdate.observe(viewLifecycleOwner, Observer {
+            viewModel.onTodayShowsTableUpdateReceived(it)
+        })
+
+        viewModel.tomorrowShowsTableUpdate.observe(viewLifecycleOwner, Observer {
+            viewModel.onTomorrowShowsTableUpdateReceived(it)
+        })
 
         viewModel.todayShowsList.observe(
             viewLifecycleOwner,

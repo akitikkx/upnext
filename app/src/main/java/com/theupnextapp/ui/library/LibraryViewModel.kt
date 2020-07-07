@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.theupnextapp.R
 import com.theupnextapp.common.utils.DateUtils
-import com.theupnextapp.database.DatabaseTables
+import com.theupnextapp.common.utils.models.DatabaseTables
 import com.theupnextapp.domain.LibraryList
 import com.theupnextapp.domain.TableUpdate
 import com.theupnextapp.ui.common.TraktViewModel

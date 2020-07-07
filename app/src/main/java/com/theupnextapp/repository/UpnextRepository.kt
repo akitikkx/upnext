@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.theupnextapp.common.utils.models.DatabaseTables
 import com.theupnextapp.database.*
 import com.theupnextapp.domain.*
 import com.theupnextapp.network.*
@@ -42,6 +43,11 @@ class UpnextRepository(private val database: UpnextDatabase) {
     val tomorrowShows: LiveData<List<ScheduleShow>> =
         Transformations.map(database.upnextDao.getTomorrowShows()) {
             it.asDomainModel()
+        }
+
+    fun tableUpdate(tableName: String) : LiveData<TableUpdate?> =
+        Transformations.map(database.upnextDao.getTableLastUpdate(tableName)) {
+            it?.asDomainModel()
         }
 
     private val _showInfo = MutableLiveData<ShowInfo>()
@@ -203,6 +209,13 @@ class UpnextRepository(private val database: UpnextDatabase) {
                             if (!it.show.image?.original.isNullOrEmpty() && !it.show.externals?.imdb.isNullOrEmpty()) {
                                 shows.add(it.asDatabaseModel())
                                 insertAllTodayShows(*shows.toTypedArray())
+                                database.upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TODAY_SHOWS.tableName)
+                                database.upnextDao.insertTableUpdateLog(
+                                    DatabaseTableUpdate(
+                                        table_name = DatabaseTables.TABLE_TODAY_SHOWS.tableName,
+                                        last_updated = System.currentTimeMillis()
+                                    )
+                                )
                             }
                         }
                     }
@@ -246,6 +259,13 @@ class UpnextRepository(private val database: UpnextDatabase) {
                             if (!it.show.image?.original.isNullOrEmpty() && !it.show.externals?.imdb.isNullOrEmpty()) {
                                 shows.add(it.asDatabaseModel())
                                 insertAllTomorrowShows(*shows.toTypedArray())
+                                database.upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TOMORROW_SHOWS.tableName)
+                                database.upnextDao.insertTableUpdateLog(
+                                    DatabaseTableUpdate(
+                                        table_name = DatabaseTables.TABLE_TOMORROW_SHOWS.tableName,
+                                        last_updated = System.currentTimeMillis()
+                                    )
+                                )
                             }
                         }
                     }

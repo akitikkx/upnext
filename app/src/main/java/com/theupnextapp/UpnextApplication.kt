@@ -8,6 +8,7 @@ import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import com.theupnextapp.common.utils.models.TableUpdateInterval
 import com.theupnextapp.work.RefreshShowsWorker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -42,7 +43,10 @@ class UpnextApplication : Application() {
                 }
             }.build()
 
-        val refreshShowsRequest = PeriodicWorkRequestBuilder<RefreshShowsWorker>(4, TimeUnit.HOURS)
+        val refreshShowsRequest = PeriodicWorkRequestBuilder<RefreshShowsWorker>(
+            TableUpdateInterval.DASHBOARD_ITEMS.intervalHours,
+            TimeUnit.HOURS
+        )
             .setConstraints(constraints)
             .build()
 

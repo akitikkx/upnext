@@ -3,6 +3,10 @@ package com.theupnextapp.ui.collection
 import android.app.Application
 import androidx.lifecycle.*
 import androidx.preference.PreferenceManager
+import com.theupnextapp.common.utils.DateUtils
+import com.theupnextapp.common.utils.models.DatabaseTables
+import com.theupnextapp.common.utils.models.TableUpdateInterval
+import com.theupnextapp.domain.TableUpdate
 import com.theupnextapp.domain.TraktCollection
 import com.theupnextapp.domain.TraktCollectionArg
 import com.theupnextapp.ui.common.TraktViewModel
@@ -22,11 +26,10 @@ class CollectionViewModel(
 
     val isLoadingCollection = traktRepository.isLoadingTraktCollection
 
-    init {
-        if (isAuthorizedOnTrakt.value == true) {
-            loadTraktCollection()
-        }
+    val collectionTableUpdate =
+        traktRepository.tableUpdate(DatabaseTables.TABLE_COLLECTION.tableName)
 
+    init {
         collectionEmpty.addSource(traktCollection) {
             collectionEmpty.value = it.isNullOrEmpty() == true
         }
@@ -53,6 +56,22 @@ class CollectionViewModel(
 
         viewModelScope?.launch {
             traktRepository.refreshTraktCollection(accessToken)
+        }
+    }
+
+    fun onCollectionTableUpdateReceived(tableUpdate: TableUpdate?) {
+        if (isAuthorizedOnTrakt.value == false) {
+            return
+        }
+
+        val diffInMinutes =
+            tableUpdate?.lastUpdated?.let { it -> DateUtils.dateDifference(it, "minutes") }
+
+        // Only perform an update if there has been enough time before the previous update
+        if (diffInMinutes != null) {
+            if (diffInMinutes >= TableUpdateInterval.COLLECTION_ITEMS.intervalMins) {
+                loadTraktCollection()
+            }
         }
     }
 
