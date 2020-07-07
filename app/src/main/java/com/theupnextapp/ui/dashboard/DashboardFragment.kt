@@ -13,10 +13,7 @@ import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentDashboardBinding
-import com.theupnextapp.domain.NewShows
-import com.theupnextapp.domain.RecommendedShows
-import com.theupnextapp.domain.ScheduleShow
-import com.theupnextapp.domain.ShowDetailArg
+import com.theupnextapp.domain.*
 import com.theupnextapp.ui.common.BaseFragment
 import com.theupnextapp.ui.features.FeaturesBottomSheetFragment
 
@@ -32,7 +29,8 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
     private var _firebaseAnalytics: FirebaseAnalytics? = null
     private val firebaseAnalytics get() = _firebaseAnalytics!!
 
-    private var recommendedShowsAdapter: RecommendedShowsAdapter? = null
+    private var _recommendedShowsAdapter: RecommendedShowsAdapter? = null
+    private val recommendedShowsAdapter get() = _recommendedShowsAdapter!!
 
     private var newShowsAdapter: NewShowsAdapter? = null
 
@@ -70,7 +68,7 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
 
         _firebaseAnalytics = Firebase.analytics
 
-        recommendedShowsAdapter = RecommendedShowsAdapter(this)
+        _recommendedShowsAdapter = RecommendedShowsAdapter(this)
 
         newShowsAdapter = NewShowsAdapter(this)
 
@@ -131,14 +129,14 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
             }
         })
 
-        viewModel.recommendedShowsList.observe(
+        viewModel.traktRecommendationsList.observe(
             viewLifecycleOwner,
             Observer { recommendedShows ->
                 recommendedShows.apply {
                     if (recommendedShows.isNullOrEmpty()) {
                         viewModel.onRecommendedShowsListEmpty()
                     }
-                    recommendedShowsAdapter?.recommendedShows = recommendedShows
+                    recommendedShowsAdapter.recommendedShows = recommendedShows
                 }
             })
 
@@ -172,6 +170,10 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
 
         viewModel.tomorrowShowsTableUpdate.observe(viewLifecycleOwner, Observer {
             viewModel.onTomorrowShowsTableUpdateReceived(it)
+        })
+
+        viewModel.traktRecommendedShowsTableUpdate.observe(viewLifecycleOwner, Observer {
+            viewModel.onTraktRecommendationsShowsTableUpdateReceived(it)
         })
 
         viewModel.todayShowsList.observe(
@@ -221,7 +223,7 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        recommendedShowsAdapter = null
+        _recommendedShowsAdapter = null
         newShowsAdapter = null
         yesterdayShowsAdapter = null
         todayShowsAdapter = null
@@ -262,18 +264,18 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
         Firebase.analytics.logEvent("yesterday_shows_click", analyticsBundle)
     }
 
-    override fun onRecommendedShowClick(view: View, recommendedShow: RecommendedShows) {
+    override fun onRecommendedShowClick(view: View, traktRecommendations: TraktRecommendations) {
         viewModel.onDashboardItemClick(
             ShowDetailArg(
                 source = "recommended",
-                showId = recommendedShow.id,
-                showTitle = recommendedShow.name,
-                showImageUrl = recommendedShow.originalImageUrl
+                showId = traktRecommendations.tvMazeID,
+                showTitle = traktRecommendations.title,
+                showImageUrl = traktRecommendations.originalImageUrl
             )
         )
         val analyticsBundle = Bundle()
-        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, recommendedShow.id.toString())
-        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, recommendedShow.name)
+        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, traktRecommendations.tvMazeID.toString())
+        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, traktRecommendations.title)
         analyticsBundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "dashboard_show")
 
         Firebase.analytics.logEvent("recommended_shows_click", analyticsBundle)

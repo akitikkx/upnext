@@ -4,7 +4,7 @@
     <string name="show_backdrop_image">%1$s backdrop image</string>
 
     <string name="title_new_shows">New Shows</string>
-    <string name="title_recommended_shows">Recommended Shows</string>
+    <string name="title_recommended_shows">Trakt Recommended Shows for you</string>
     <string name="title_yesterday_shows">Aired Yesterday</string>
     <string name="title_today_shows">Airing Today</string>
     <string name="title_tomorrow_shows">Airing Tomorrow</string>

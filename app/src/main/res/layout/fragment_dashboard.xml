@@ -82,7 +82,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal"
-                android:layout_marginTop="@dimen/margin_vertical_half"
+                android:layout_marginTop="@dimen/margin_vertical"
                 android:text="@string/title_tomorrow_shows"
                 android:textAppearance="?attr/textAppearanceHeadline6"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -111,7 +111,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal"
-                android:layout_marginTop="@dimen/margin_vertical_half"
+                android:layout_marginTop="@dimen/margin_vertical"
                 android:text="@string/title_new_shows"
                 android:textAppearance="?attr/textAppearanceHeadline6"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -140,13 +140,13 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal"
-                android:layout_marginTop="@dimen/margin_vertical_half"
+                android:layout_marginTop="@dimen/margin_vertical"
                 android:text="@string/title_recommended_shows"
                 android:textAppearance="?attr/textAppearanceHeadline6"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/new_shows_list"
-                app:loadingVisibility="@{viewModel.isLoadingRecommendedShows}" />
+                app:loadingVisibility="@{viewModel.isLoadingTraktRecommendations}" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recommended_shows_list"
@@ -156,11 +156,11 @@
                 android:layout_marginTop="@dimen/margin_vertical"
                 android:layout_marginEnd="@dimen/margin_horizontal_half"
                 android:clipToPadding="false"
-                app:canClickItem="@{viewModel.isLoadingRecommendedShows}"
+                app:canClickItem="@{viewModel.isLoadingTraktRecommendations}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/recommended_shows_title"
-                app:loadingVisibility="@{viewModel.isLoadingRecommendedShows}"
+                app:loadingVisibility="@{viewModel.isLoadingTraktRecommendations}"
                 tools:listitem="@layout/recommended_show_list_item" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -107,6 +107,15 @@ class SplashScreenFragment : Fragment() {
             }
         })
 
+        viewModel.isLoadingTraktRecommendations.observe(viewLifecycleOwner, Observer {
+            if (it) {
+                viewModel.displayLoadingText(getString(R.string.splash_screen_loading_text_recommended_shows))
+            } else {
+                viewModel.displayLoadingTextComplete()
+                viewModel.showDashboard()
+            }
+        })
+
         viewModel.navigateToDashboard.observe(viewLifecycleOwner, Observer {
             if (null != it) {
                 this.findNavController().navigate(

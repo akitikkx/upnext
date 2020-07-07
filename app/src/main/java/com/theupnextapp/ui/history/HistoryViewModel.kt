@@ -58,10 +58,12 @@ class HistoryViewModel(application: Application) : TraktViewModel(application) {
             tableUpdate?.lastUpdated?.let { it -> DateUtils.dateDifference(it, "minutes") }
 
         // Only perform an update if there has been enough time before the previous update
-        if (diffInMinutes != null) {
+        if (diffInMinutes != null && historyEmpty.value != true) {
             if (diffInMinutes >= TableUpdateInterval.HISTORY_ITEMS.intervalMins) {
                 loadTraktHistory()
             }
+        } else if (historyEmpty.value == true) {
+            loadTraktHistory()
         }
     }
 

@@ -1,27 +1,20 @@
 package com.theupnextapp.ui.splashscreen
 
 import android.app.Application
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
 import com.theupnextapp.BuildConfig
 import com.theupnextapp.common.utils.DateUtils
-import com.theupnextapp.database.getDatabase
+import com.theupnextapp.common.utils.UpnextPreferenceManager
 import com.theupnextapp.repository.UpnextRepository
+import com.theupnextapp.ui.common.TraktViewModel
 import com.theupnextapp.ui.dashboard.DashboardViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.*
 
-class SplashScreenViewModel(application: Application) : AndroidViewModel(application) {
-
-    private val viewModelJob = SupervisorJob()
-
-    private val viewModelScope = CoroutineScope(viewModelJob + Dispatchers.Main)
-
-    private val database = getDatabase(application)
+class SplashScreenViewModel(application: Application) : TraktViewModel(application) {
 
     private val upnextRepository = UpnextRepository(database)
 
@@ -47,22 +40,24 @@ class SplashScreenViewModel(application: Application) : AndroidViewModel(applica
 
     val isLoadingTomorrowShows = upnextRepository.isLoadingTomorrowShows
 
+    val isLoadingTraktRecommendations = traktRepository.isLoadingTraktRecommendations
+
     val isFreshInstall: LiveData<Boolean>
         get() = _isFreshInstall
 
-    val isNormalInstall : LiveData<Boolean>
+    val isNormalInstall: LiveData<Boolean>
         get() = _isNormalInstall
 
-    val isUpgradeInstall : LiveData<Boolean>
+    val isUpgradeInstall: LiveData<Boolean>
         get() = _isUpgradedInstall
 
-    val showLoadingText : LiveData<Boolean>
+    val showLoadingText: LiveData<Boolean>
         get() = _showLoadingText
 
-    val navigateToDashboard : LiveData<Boolean>
+    val navigateToDashboard: LiveData<Boolean>
         get() = _navigateToDashboard
 
-    val loadingText : LiveData<String>
+    val loadingText: LiveData<String>
         get() = _loadingText
 
     init {
@@ -76,7 +71,7 @@ class SplashScreenViewModel(application: Application) : AndroidViewModel(applica
 
     fun updateShows() = requestShowsUpdate()
 
-    fun displayLoadingText(loadingText : String) {
+    fun displayLoadingText(loadingText: String) {
         _showLoadingText.value = true
         _loadingText.value = loadingText
     }
@@ -94,8 +89,7 @@ class SplashScreenViewModel(application: Application) : AndroidViewModel(applica
     }
 
     private fun requestShowsUpdate() {
-        viewModelScope.launch {
-            upnextRepository.refreshRecommendedShows()
+        viewModelScope?.launch {
             upnextRepository.refreshNewShows()
             upnextRepository.refreshYesterdayShows(
                 DashboardViewModel.DEFAULT_COUNTRY_CODE,
@@ -109,6 +103,9 @@ class SplashScreenViewModel(application: Application) : AndroidViewModel(applica
                 DashboardViewModel.DEFAULT_COUNTRY_CODE,
                 DateUtils.tomorrowDate()
             )
+            if (isAuthorizedOnTrakt.value == true) {
+                traktRepository.refreshTraktRecommendations(UpnextPreferenceManager(getApplication()).getTraktAccessToken())
+            }
         }
     }
 
