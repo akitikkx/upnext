@@ -4,7 +4,7 @@ import android.view.View
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import com.theupnextapp.R
-import com.theupnextapp.domain.TimeDifferenceForDisplay
+import com.theupnextapp.common.utils.models.TimeDifferenceForDisplay
 import com.theupnextapp.domain.TraktShowRating
 import org.jsoup.Jsoup
 

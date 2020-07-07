@@ -1,11 +1,12 @@
 package com.theupnextapp.ui.collectionSeasons
 
 import android.app.Application
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.*
 import androidx.preference.PreferenceManager
+import com.theupnextapp.common.utils.DateUtils
+import com.theupnextapp.common.utils.models.DatabaseTables
+import com.theupnextapp.common.utils.models.TableUpdateInterval
+import com.theupnextapp.domain.TableUpdate
 import com.theupnextapp.domain.TraktCollectionArg
 import com.theupnextapp.domain.TraktCollectionSeason
 import com.theupnextapp.domain.TraktCollectionSeasonEpisodeArg
@@ -17,7 +18,7 @@ class CollectionSeasonsViewModel(
     private val traktCollectionArg: TraktCollectionArg
 ) : TraktViewModel(application) {
 
-    private val _collectionSeasonsEmpty = MutableLiveData<Boolean>()
+    private val _collectionSeasonsEmpty = MutableLiveData<Boolean>(false)
 
     private val _collection = MutableLiveData<TraktCollectionArg>(traktCollectionArg)
 
@@ -35,12 +36,8 @@ class CollectionSeasonsViewModel(
 
     val isLoadingCollection = traktRepository.isLoadingTraktCollection
 
-    init {
-        _collectionSeasonsEmpty.value = false
-        if (isAuthorizedOnTrakt.value == true) {
-            loadTraktCollection()
-        }
-    }
+    val collectionTableUpdate =
+        traktRepository.tableUpdate(DatabaseTables.TABLE_COLLECTION.tableName)
 
     private fun loadTraktCollection() {
         val preferences = PreferenceManager.getDefaultSharedPreferences(getApplication())
@@ -64,6 +61,22 @@ class CollectionSeasonsViewModel(
 
     fun navigateToSelectedSeasonComplete() {
         _navigateToSelectedSeason.value = null
+    }
+
+    fun onCollectionTableUpdateReceived(tableUpdate: TableUpdate?) {
+        if (isAuthorizedOnTrakt.value == false) {
+            return
+        }
+
+        val diffInMinutes =
+            tableUpdate?.lastUpdated?.let { it -> DateUtils.dateDifference(it, "minutes") }
+
+        // Only perform an update if there has been enough time before the previous update
+        if (diffInMinutes != null) {
+            if (diffInMinutes >= TableUpdateInterval.COLLECTION_ITEMS.intervalMins) {
+                loadTraktCollection()
+            }
+        }
     }
 
     override fun onCleared() {

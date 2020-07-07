@@ -64,43 +64,12 @@ class WatchlistFragment : Fragment(), WatchlistAdapter.WatchlistAdapterListener 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        viewModel.fetchAccessTokenInProgress.observe(viewLifecycleOwner, Observer {
-            if (it) {
-                Snackbar.make(
-                    binding.root,
-                    getString(R.string.fetch_access_token_progress_text),
-                    Snackbar.LENGTH_LONG
-                ).show()
-            } else {
-                Snackbar.make(
-                    binding.root,
-                    getString(R.string.fetch_access_token_progress_text),
-                    Snackbar.LENGTH_LONG
-                ).dismiss()
-            }
-        })
-
-        viewModel.storingTraktAccessTokenInProgress.observe(viewLifecycleOwner, Observer {
-            if (it) {
-                Snackbar.make(
-                    binding.root,
-                    getString(R.string.storing_access_token_progress_text),
-                    Snackbar.LENGTH_LONG
-                ).show()
-            } else {
-                Snackbar.make(
-                    binding.root,
-                    getString(R.string.fetch_access_token_progress_text),
-                    Snackbar.LENGTH_LONG
-                ).dismiss()
-            }
+        viewModel.watchlistTableUpdate.observe(viewLifecycleOwner, Observer {
+            viewModel.onWatchlistTableUpdateReceived(it)
         })
 
         viewModel.traktWatchlist.observe(viewLifecycleOwner, Observer {
-            if (it.isNullOrEmpty()) {
-                viewModel.onWatchlistEmpty(true)
-            } else {
-                viewModel.onWatchlistEmpty(false)
+            if (!it.isNullOrEmpty()) {
                 watchlistAdapter?.watchlist = it
             }
         })

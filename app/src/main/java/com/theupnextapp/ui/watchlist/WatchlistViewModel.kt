@@ -1,46 +1,35 @@
 package com.theupnextapp.ui.watchlist
 
 import android.app.Application
-import android.os.Bundle
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.preference.PreferenceManager
+import androidx.lifecycle.*
+import com.theupnextapp.common.utils.DateUtils
 import com.theupnextapp.common.utils.UpnextPreferenceManager
-import com.theupnextapp.domain.*
+import com.theupnextapp.common.utils.models.DatabaseTables
+import com.theupnextapp.common.utils.models.TableUpdateInterval
+import com.theupnextapp.domain.ShowDetailArg
+import com.theupnextapp.domain.TableUpdate
+import com.theupnextapp.domain.TraktWatchlist
 import com.theupnextapp.ui.common.TraktViewModel
 import kotlinx.coroutines.launch
 
 class WatchlistViewModel(application: Application) : TraktViewModel(application) {
 
-    private val _fetchingAccessTokenInProgress = MutableLiveData<Boolean>()
-
-    private val _storingTraktAccessTokenInProgress = MutableLiveData<Boolean>()
-
-    private val _transactionInProgress = MutableLiveData<Boolean>()
-
     private val _navigateToSelectedShow = MutableLiveData<ShowDetailArg>()
-
-    private val _watchlistEmpty = MutableLiveData<Boolean>()
-
-    val transactionInProgress: LiveData<Boolean> = _transactionInProgress
 
     val navigateToSelectedShow: LiveData<ShowDetailArg> = _navigateToSelectedShow
 
-    val watchlistEmpty: LiveData<Boolean> = _watchlistEmpty
+    val watchlistEmpty = MediatorLiveData<Boolean>()
 
     val isLoadingWatchlist = traktRepository.isLoadingTraktWatchlist
 
-    fun onWatchlistEmpty(empty: Boolean) {
-        _watchlistEmpty.value = empty
-    }
+    val traktWatchlist = traktRepository.traktWatchlist
+
+    val watchlistTableUpdate =
+        traktRepository.tableUpdate(DatabaseTables.TABLE_WATCHLIST.tableName)
 
     init {
-        _watchlistEmpty.value = false
-        if (ifValidAccessTokenExists()) {
-            loadTraktWatchlist()
-            _isAuthorizedOnTrakt.value = true
+        watchlistEmpty.addSource(traktWatchlist) {
+            watchlistEmpty.value = it.isNullOrEmpty() == true
         }
     }
 
@@ -52,15 +41,19 @@ class WatchlistViewModel(application: Application) : TraktViewModel(application)
         }
     }
 
-    val traktWatchlist = traktRepository.traktWatchlist
+    fun onWatchlistTableUpdateReceived(tableUpdate: TableUpdate?) {
+        if (isAuthorizedOnTrakt.value == false) {
+            return
+        }
 
-    private fun extractCode(bundle: Bundle?) {
-        val traktConnectionArg = bundle?.getParcelable<TraktConnectionArg>(EXTRA_TRAKT_URI)
+        val diffInMinutes =
+            tableUpdate?.lastUpdated?.let { it -> DateUtils.dateDifference(it, "minutes") }
 
-        _fetchingAccessTokenInProgress.value = true
-
-        viewModelScope?.launch {
-            traktRepository.getTraktAccessToken(traktConnectionArg?.code)
+        // Only perform an update if there has been enough time before the previous update
+        if (diffInMinutes != null) {
+            if (diffInMinutes >= TableUpdateInterval.WATCHLIST_ITEMS.intervalMins) {
+                loadTraktWatchlist()
+            }
         }
     }
 

@@ -3,8 +3,11 @@ package com.theupnextapp.ui.dashboard
 import android.app.Application
 import androidx.lifecycle.*
 import com.theupnextapp.common.utils.DateUtils
+import com.theupnextapp.common.utils.models.DatabaseTables
+import com.theupnextapp.common.utils.models.TableUpdateInterval
 import com.theupnextapp.database.getDatabase
 import com.theupnextapp.domain.ShowDetailArg
+import com.theupnextapp.domain.TableUpdate
 import com.theupnextapp.repository.UpnextRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,7 +28,15 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
 
     private val _showFeaturesBottomSheet = MutableLiveData<Boolean>()
 
+    private val _yesterdayShowsEmpty = MutableLiveData<Boolean>()
+
+    private val _todayShowsEmpty = MutableLiveData<Boolean>()
+
+    private val _tomorrowShowsEmpty = MutableLiveData<Boolean>()
+
     val navigateToSelectedShow: LiveData<ShowDetailArg> = _navigateToSelectedShow
+
+    val showFeaturesBottomSheet: LiveData<Boolean> = _showFeaturesBottomSheet
 
     val recommendedShowsList = upnextRepository.recommendedShows
 
@@ -47,7 +58,14 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
 
     val isLoadingTomorrowShows = upnextRepository.isLoadingTomorrowShows
 
-    val showFeaturesBottomSheet: LiveData<Boolean> = _showFeaturesBottomSheet
+    val yesterdayShowsTableUpdate =
+        upnextRepository.tableUpdate(DatabaseTables.TABLE_YESTERDAY_SHOWS.tableName)
+
+    val todayShowsTableUpdate =
+        upnextRepository.tableUpdate(DatabaseTables.TABLE_TODAY_SHOWS.tableName)
+
+    val tomorrowShowsTableUpdate =
+        upnextRepository.tableUpdate(DatabaseTables.TABLE_TOMORROW_SHOWS.tableName)
 
     fun onRecommendedShowsListEmpty() {
         viewModelScope.launch {
@@ -62,29 +80,89 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun onYesterdayShowsListEmpty() {
+        _yesterdayShowsEmpty.value  = true
+
         viewModelScope.launch {
             upnextRepository.refreshYesterdayShows(
                 DEFAULT_COUNTRY_CODE,
                 DateUtils.yesterdayDate()
             )
+            _yesterdayShowsEmpty.value = false
+        }
+    }
+
+    fun onYesterdayShowsTableUpdateReceived(tableUpdate: TableUpdate?) {
+        val diffInMinutes =
+            tableUpdate?.lastUpdated?.let { it -> DateUtils.dateDifference(it, "minutes") }
+
+        // Only perform an update if there has been enough time before the previous update
+        if (diffInMinutes != null && _yesterdayShowsEmpty.value == false) {
+            if (diffInMinutes >= TableUpdateInterval.DASHBOARD_ITEMS.intervalMins) {
+                viewModelScope.launch {
+                    upnextRepository.refreshYesterdayShows(
+                        DEFAULT_COUNTRY_CODE,
+                        DateUtils.yesterdayDate()
+                    )
+                }
+            }
         }
     }
 
     fun onTodayShowsListEmpty() {
+        _todayShowsEmpty.value = true
+
         viewModelScope.launch {
             upnextRepository.refreshTodayShows(
                 DEFAULT_COUNTRY_CODE,
                 DateUtils.currentDate()
             )
+            _todayShowsEmpty.value = false
+        }
+    }
+
+    fun onTodayShowsTableUpdateReceived(tableUpdate: TableUpdate?) {
+        val diffInMinutes =
+            tableUpdate?.lastUpdated?.let { it -> DateUtils.dateDifference(it, "minutes") }
+
+        // Only perform an update if there has been enough time before the previous update
+        if (diffInMinutes != null && _todayShowsEmpty.value == false) {
+            if (diffInMinutes >= TableUpdateInterval.DASHBOARD_ITEMS.intervalMins) {
+                viewModelScope.launch {
+                    upnextRepository.refreshTodayShows(
+                        DEFAULT_COUNTRY_CODE,
+                        DateUtils.currentDate()
+                    )
+                }
+            }
         }
     }
 
     fun onTomorrowShowsListEmpty() {
+        _tomorrowShowsEmpty.value = true
+
         viewModelScope.launch {
             upnextRepository.refreshTomorrowShows(
                 DEFAULT_COUNTRY_CODE,
                 DateUtils.tomorrowDate()
             )
+            _tomorrowShowsEmpty.value = false
+        }
+    }
+
+    fun onTomorrowShowsTableUpdateReceived(tableUpdate: TableUpdate?) {
+        val diffInMinutes =
+            tableUpdate?.lastUpdated?.let { it -> DateUtils.dateDifference(it, "minutes") }
+
+        // Only perform an update if there has been enough time before the previous update
+        if (diffInMinutes != null && _tomorrowShowsEmpty.value == false) {
+            if (diffInMinutes >= TableUpdateInterval.DASHBOARD_ITEMS.intervalMins) {
+                viewModelScope.launch {
+                    upnextRepository.refreshTomorrowShows(
+                        DEFAULT_COUNTRY_CODE,
+                        DateUtils.tomorrowDate()
+                    )
+                }
+            }
         }
     }
 

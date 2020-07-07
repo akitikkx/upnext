@@ -89,6 +89,10 @@ class CollectionSeasonsFragment : BaseFragment(),
             }
         })
 
+        viewModel.collectionTableUpdate.observe(viewLifecycleOwner, Observer {
+            viewModel.onCollectionTableUpdateReceived(it)
+        })
+
         viewModel.traktCollectionSeasons?.observe(viewLifecycleOwner, Observer {
             if (!it.isNullOrEmpty()) {
                 viewModel.onCollectionSeasonsEmpty(false)

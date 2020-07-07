@@ -1,4 +1,4 @@
-package com.theupnextapp.domain
+package com.theupnextapp.common.utils.models
 
 data class TimeDifferenceForDisplay(
     val difference: Long?,
