@@ -6,14 +6,17 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.theupnextapp.R
+import com.theupnextapp.common.utils.DateUtils
+import com.theupnextapp.database.DatabaseTables
 import com.theupnextapp.domain.LibraryList
+import com.theupnextapp.domain.TableUpdate
 import com.theupnextapp.ui.common.TraktViewModel
 
 class LibraryViewModel(application: Application) : TraktViewModel(application) {
 
-    private val _libraryList = MutableLiveData<List<LibraryList>>()
+    private val _libraryList = MutableLiveData<MutableList<LibraryList>>(mutableListOf())
 
-    val libraryList: LiveData<List<LibraryList>> = _libraryList
+    val libraryList: LiveData<MutableList<LibraryList>> = _libraryList
 
     val isRemovingWatchlistData = traktRepository.isRemovingTraktWatchlist
 
@@ -27,40 +30,94 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
 
     val isLoadingHistory = traktRepository.isLoadingTraktHistory
 
-    init {
-        val list = mutableListOf<LibraryList>()
+    val historyTableUpdate =
+        traktRepository.tableUpdate(DatabaseTables.TABLE_HISTORY.tableName)
 
-        list.add(
+    val collectionTableUpdate =
+        traktRepository.tableUpdate(DatabaseTables.TABLE_COLLECTION.tableName)
+
+    val watchlistTableUpdate =
+        traktRepository.tableUpdate(DatabaseTables.TABLE_WATCHLIST.tableName)
+
+    fun onWatchlistTableUpdateReceived(tableUpdate: TableUpdate?) {
+        val diff =
+            tableUpdate?.lastUpdated?.let { it -> DateUtils.getTimeDifferenceForDisplay(it) }
+
+        if (!_libraryList.value.isNullOrEmpty()) {
+            val iterator = _libraryList.value!!.iterator()
+            while(iterator.hasNext()) {
+                val item = iterator.next()
+                if (item.title == "Trakt Watchlist") {
+                    iterator.remove()
+                }
+            }
+        }
+
+        _libraryList.value?.add(
             LibraryList(
                 leftIcon = R.drawable.ic_baseline_playlist_add_check_24,
                 title = "Trakt Watchlist",
                 rightIcon = R.drawable.ic_baseline_chevron_right_24,
-                link = LibraryFragmentDirections.actionLibraryFragmentToWatchlistFragment()
+                link = LibraryFragmentDirections.actionLibraryFragmentToWatchlistFragment(),
+                lastUpdated = diff
             )
         )
+        _libraryList.value = _libraryList.value
+    }
 
-        list.add(
+    fun onCollectionTableUpdateReceived(tableUpdate: TableUpdate?) {
+        val diff =
+            tableUpdate?.lastUpdated?.let { it -> DateUtils.getTimeDifferenceForDisplay(it) }
+
+        if (!_libraryList.value.isNullOrEmpty()) {
+            val iterator = _libraryList.value!!.iterator()
+            while (iterator.hasNext()) {
+                val item = iterator.next()
+                if (item.title == "Trakt Collection") {
+                    iterator.remove()
+                }
+            }
+        }
+
+        _libraryList.value?.add(
             LibraryList(
                 leftIcon = R.drawable.ic_baseline_library_add_check_24,
                 title = "Trakt Collection",
                 rightIcon = R.drawable.ic_baseline_chevron_right_24,
-                link = LibraryFragmentDirections.actionLibraryFragmentToCollectionFragment()
+                link = LibraryFragmentDirections.actionLibraryFragmentToCollectionFragment(),
+                lastUpdated = diff
             )
         )
+        _libraryList.value = _libraryList.value
+    }
 
-        list.add(
+    fun onHistoryTableUpdateReceived(tableUpdate: TableUpdate?) {
+        val diff =
+            tableUpdate?.lastUpdated?.let { it -> DateUtils.getTimeDifferenceForDisplay(it) }
+
+        if (!_libraryList.value.isNullOrEmpty()) {
+            val iterator = _libraryList.value!!.iterator()
+            while(iterator.hasNext()) {
+                val item = iterator.next()
+                if (item.title == "Trakt History") {
+                    iterator.remove()
+                }
+            }
+        }
+
+        _libraryList.value?.add(
             LibraryList(
                 leftIcon = R.drawable.ic_history_white_24dp,
                 title = "Trakt History",
                 rightIcon = R.drawable.ic_baseline_chevron_right_24,
-                link = LibraryFragmentDirections.actionLibraryFragmentToHistoryFragment()
+                link = LibraryFragmentDirections.actionLibraryFragmentToHistoryFragment(),
+                lastUpdated = diff
             )
         )
-
-        _libraryList.value = list
+        _libraryList.value = _libraryList.value
     }
 
-    fun onDisconnectConfirm(){
+    fun onDisconnectConfirm() {
         removeTraktData()
     }
 

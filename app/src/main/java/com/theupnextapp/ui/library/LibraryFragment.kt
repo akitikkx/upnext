@@ -17,6 +17,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.theupnextapp.BuildConfig
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
+import com.theupnextapp.common.utils.DateUtils
 import com.theupnextapp.databinding.FragmentLibraryBinding
 import com.theupnextapp.domain.LibraryList
 import com.theupnextapp.domain.TraktConnectionArg
@@ -151,6 +152,18 @@ class LibraryFragment : BaseFragment(), LibraryAdapter.LibraryAdapterListener {
             if (!it.isNullOrEmpty()) {
                 adapter.libraryList = it
             }
+        })
+
+        viewModel.watchlistTableUpdate.observe(viewLifecycleOwner, Observer {
+            viewModel.onWatchlistTableUpdateReceived(it)
+        })
+
+        viewModel.historyTableUpdate.observe(viewLifecycleOwner, Observer {
+            viewModel.onHistoryTableUpdateReceived(it)
+        })
+
+        viewModel.collectionTableUpdate.observe(viewLifecycleOwner, Observer {
+            viewModel.onCollectionTableUpdateReceived(it)
         })
 
         viewModel.onDisconnectClick.observe(viewLifecycleOwner, Observer {

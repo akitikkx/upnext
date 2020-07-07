@@ -7,6 +7,14 @@ import com.theupnextapp.domain.ShowInfo
 
 @Dao
 interface UpnextDao {
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertTableUpdateLog(vararg databaseTableUpdate: DatabaseTableUpdate)
+
+    @Query("select * from table_updates where table_name = :tableName")
+    fun getTableLastUpdate(tableName: String): LiveData<DatabaseTableUpdate?>
+
+    @Query("delete from table_updates where table_name = :tableName")
+    fun deleteRecentTableUpdate(tableName: String)
 
     // Recommended Shows
     @Query("select * from recommended_shows")
@@ -133,7 +141,10 @@ interface UpnextDao {
     fun getTraktCollectionSeasons(imdbID: String): LiveData<List<DatabaseTraktCollectionSeason>>
 
     @Query("select * from trakt_collection_episodes where imdbID = :imdbID and seasonNumber = :seasonNumber")
-    fun getTraktCollectionSeasonEpisodes(imdbID: String, seasonNumber: Int): LiveData<List<DatabaseTraktCollectionEpisode>>
+    fun getTraktCollectionSeasonEpisodes(
+        imdbID: String,
+        seasonNumber: Int
+    ): LiveData<List<DatabaseTraktCollectionEpisode>>
 }
 
 @Database(
@@ -148,9 +159,10 @@ interface UpnextDao {
         DatabaseTraktHistory::class,
         DatabaseTraktCollection::class,
         DatabaseTraktCollectionSeason::class,
-        DatabaseTraktCollectionEpisode::class
+        DatabaseTraktCollectionEpisode::class,
+        DatabaseTableUpdate::class
     ],
-    version = 10,
+    version = 11,
     exportSchema = true
 )
 abstract class UpnextDatabase : RoomDatabase() {

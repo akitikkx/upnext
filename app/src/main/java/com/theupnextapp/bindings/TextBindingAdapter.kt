@@ -4,6 +4,7 @@ import android.view.View
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import com.theupnextapp.R
+import com.theupnextapp.domain.TimeDifferenceForDisplay
 import com.theupnextapp.domain.TraktShowRating
 import org.jsoup.Jsoup
 
@@ -52,6 +53,21 @@ fun showRating(view: TextView, rating: Int?) {
         view.visibility = View.VISIBLE
     } else {
         view.visibility = View.GONE
+    }
+}
+
+@BindingAdapter("lastUpdate")
+fun lastUpdate(view: TextView, timeDifferenceForDisplay: TimeDifferenceForDisplay?) {
+    if (timeDifferenceForDisplay != null) {
+        view.text = view.resources.getString(
+            R.string.library_table_last_update,
+            timeDifferenceForDisplay.difference,
+            timeDifferenceForDisplay.type
+        )
+    } else {
+        view.text = view.resources.getString(
+            R.string.library_table_last_update_null
+        )
     }
 }
 
