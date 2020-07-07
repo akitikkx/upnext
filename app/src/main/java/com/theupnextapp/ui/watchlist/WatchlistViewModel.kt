@@ -50,10 +50,12 @@ class WatchlistViewModel(application: Application) : TraktViewModel(application)
             tableUpdate?.lastUpdated?.let { it -> DateUtils.dateDifference(it, "minutes") }
 
         // Only perform an update if there has been enough time before the previous update
-        if (diffInMinutes != null) {
+        if (diffInMinutes != null && watchlistEmpty.value != true) {
             if (diffInMinutes >= TableUpdateInterval.WATCHLIST_ITEMS.intervalMins) {
                 loadTraktWatchlist()
             }
+        } else if (watchlistEmpty.value == true) {
+            loadTraktWatchlist()
         }
     }
 

@@ -68,10 +68,12 @@ class CollectionViewModel(
             tableUpdate?.lastUpdated?.let { it -> DateUtils.dateDifference(it, "minutes") }
 
         // Only perform an update if there has been enough time before the previous update
-        if (diffInMinutes != null) {
+        if (diffInMinutes != null && collectionEmpty.value != true) {
             if (diffInMinutes >= TableUpdateInterval.COLLECTION_ITEMS.intervalMins) {
                 loadTraktCollection()
             }
+        } else if (collectionEmpty.value == true) {
+            loadTraktCollection()
         }
     }
 

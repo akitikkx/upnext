@@ -34,7 +34,6 @@ class RefreshShowsWorker(appContext: Context, workerParameters: WorkerParameters
     }
 
     private suspend fun refreshShows(repository: UpnextRepository) {
-        repository.refreshRecommendedShows()
         repository.refreshNewShows()
         repository.refreshYesterdayShows(
             DEFAULT_COUNTRY_CODE,

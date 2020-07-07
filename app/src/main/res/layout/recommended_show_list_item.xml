@@ -6,7 +6,7 @@
 
         <variable
             name="show"
-            type="com.theupnextapp.domain.RecommendedShows" />
+            type="com.theupnextapp.domain.TraktRecommendations" />
 
         <variable
             name="listener"
@@ -39,7 +39,7 @@
                 android:layout_height="@dimen/shows_list_poster_height"
                 android:layout_marginEnd="@dimen/margin_horizontal_half"
                 android:clickable="true"
-                android:contentDescription="@{String.format(@string/show_poster, show.name)}"
+                android:contentDescription="@{String.format(@string/show_poster, show.title)}"
                 android:focusable="true"
                 android:onClick="@{(view) -> listener.onRecommendedShowClick(view, show)}"
                 android:scaleType="centerCrop"

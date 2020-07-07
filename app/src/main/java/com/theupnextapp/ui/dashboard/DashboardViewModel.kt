@@ -1,26 +1,21 @@
 package com.theupnextapp.ui.dashboard
 
 import android.app.Application
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import com.theupnextapp.common.utils.DateUtils
+import com.theupnextapp.common.utils.UpnextPreferenceManager
 import com.theupnextapp.common.utils.models.DatabaseTables
 import com.theupnextapp.common.utils.models.TableUpdateInterval
-import com.theupnextapp.database.getDatabase
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.TableUpdate
 import com.theupnextapp.repository.UpnextRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
+import com.theupnextapp.ui.common.TraktViewModel
 import kotlinx.coroutines.launch
 
-class DashboardViewModel(application: Application) : AndroidViewModel(application) {
-
-    private val viewModelJob = SupervisorJob()
-
-    private val viewModelScope = CoroutineScope(viewModelJob + Dispatchers.Main)
-
-    private val database = getDatabase(application)
+class DashboardViewModel(application: Application) : TraktViewModel(application) {
 
     private val upnextRepository = UpnextRepository(database)
 
@@ -33,6 +28,8 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
     private val _todayShowsEmpty = MutableLiveData<Boolean>()
 
     private val _tomorrowShowsEmpty = MutableLiveData<Boolean>()
+
+    private val _traktRecommendationsShowsEmpty = MutableLiveData<Boolean>()
 
     val navigateToSelectedShow: LiveData<ShowDetailArg> = _navigateToSelectedShow
 
@@ -58,6 +55,10 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
 
     val isLoadingTomorrowShows = upnextRepository.isLoadingTomorrowShows
 
+    val traktRecommendationsList = traktRepository.traktRecommendations
+
+    val isLoadingTraktRecommendations = traktRepository.isLoadingTraktRecommendations
+
     val yesterdayShowsTableUpdate =
         upnextRepository.tableUpdate(DatabaseTables.TABLE_YESTERDAY_SHOWS.tableName)
 
@@ -67,22 +68,29 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
     val tomorrowShowsTableUpdate =
         upnextRepository.tableUpdate(DatabaseTables.TABLE_TOMORROW_SHOWS.tableName)
 
+    val traktRecommendedShowsTableUpdate =
+        upnextRepository.tableUpdate(DatabaseTables.TABLE_TOMORROW_SHOWS.tableName)
+
     fun onRecommendedShowsListEmpty() {
-        viewModelScope.launch {
-            upnextRepository.refreshRecommendedShows()
+        if (isAuthorizedOnTrakt.value == false) {
+            return
         }
+        viewModelScope?.launch {
+            traktRepository.refreshTraktRecommendations(UpnextPreferenceManager(getApplication()).getTraktAccessToken())
+        }
+
     }
 
     fun onNewShowsListEmpty() {
-        viewModelScope.launch {
+        viewModelScope?.launch {
             upnextRepository.refreshNewShows()
         }
     }
 
     fun onYesterdayShowsListEmpty() {
-        _yesterdayShowsEmpty.value  = true
+        _yesterdayShowsEmpty.value = true
 
-        viewModelScope.launch {
+        viewModelScope?.launch {
             upnextRepository.refreshYesterdayShows(
                 DEFAULT_COUNTRY_CODE,
                 DateUtils.yesterdayDate()
@@ -98,7 +106,7 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
         // Only perform an update if there has been enough time before the previous update
         if (diffInMinutes != null && _yesterdayShowsEmpty.value == false) {
             if (diffInMinutes >= TableUpdateInterval.DASHBOARD_ITEMS.intervalMins) {
-                viewModelScope.launch {
+                viewModelScope?.launch {
                     upnextRepository.refreshYesterdayShows(
                         DEFAULT_COUNTRY_CODE,
                         DateUtils.yesterdayDate()
@@ -111,7 +119,7 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
     fun onTodayShowsListEmpty() {
         _todayShowsEmpty.value = true
 
-        viewModelScope.launch {
+        viewModelScope?.launch {
             upnextRepository.refreshTodayShows(
                 DEFAULT_COUNTRY_CODE,
                 DateUtils.currentDate()
@@ -127,7 +135,7 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
         // Only perform an update if there has been enough time before the previous update
         if (diffInMinutes != null && _todayShowsEmpty.value == false) {
             if (diffInMinutes >= TableUpdateInterval.DASHBOARD_ITEMS.intervalMins) {
-                viewModelScope.launch {
+                viewModelScope?.launch {
                     upnextRepository.refreshTodayShows(
                         DEFAULT_COUNTRY_CODE,
                         DateUtils.currentDate()
@@ -140,7 +148,7 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
     fun onTomorrowShowsListEmpty() {
         _tomorrowShowsEmpty.value = true
 
-        viewModelScope.launch {
+        viewModelScope?.launch {
             upnextRepository.refreshTomorrowShows(
                 DEFAULT_COUNTRY_CODE,
                 DateUtils.tomorrowDate()
@@ -156,10 +164,32 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
         // Only perform an update if there has been enough time before the previous update
         if (diffInMinutes != null && _tomorrowShowsEmpty.value == false) {
             if (diffInMinutes >= TableUpdateInterval.DASHBOARD_ITEMS.intervalMins) {
-                viewModelScope.launch {
+                viewModelScope?.launch {
                     upnextRepository.refreshTomorrowShows(
                         DEFAULT_COUNTRY_CODE,
                         DateUtils.tomorrowDate()
+                    )
+                }
+            }
+        }
+    }
+
+    fun onTraktRecommendationsShowsTableUpdateReceived(tableUpdate: TableUpdate?) {
+        if (isAuthorizedOnTrakt.value == false) {
+            return
+        }
+
+        val diffInMinutes =
+            tableUpdate?.lastUpdated?.let { it -> DateUtils.dateDifference(it, "minutes") }
+
+        // Only perform an update if there has been enough time before the previous update
+        if (diffInMinutes != null) {
+            if (diffInMinutes >= TableUpdateInterval.RECOMMENDED_ITEMS.intervalMins) {
+                viewModelScope?.launch {
+                    traktRepository.refreshTraktRecommendations(
+                        UpnextPreferenceManager(
+                            getApplication()
+                        ).getTraktAccessToken()
                     )
                 }
             }
@@ -183,7 +213,7 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     private fun requestShowsUpdate() {
-        viewModelScope.launch {
+        viewModelScope?.launch {
             upnextRepository.refreshYesterdayShows(
                 DEFAULT_COUNTRY_CODE,
                 DateUtils.yesterdayDate()
@@ -197,7 +227,10 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
                 DateUtils.tomorrowDate()
             )
             upnextRepository.refreshNewShows()
-            upnextRepository.refreshRecommendedShows()
+
+            if (isAuthorizedOnTrakt.value == true) {
+                traktRepository.refreshTraktRecommendations(UpnextPreferenceManager(getApplication()).getTraktAccessToken())
+            }
         }
     }
 

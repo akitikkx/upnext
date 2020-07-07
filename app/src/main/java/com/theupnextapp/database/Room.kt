@@ -145,6 +145,15 @@ interface UpnextDao {
         imdbID: String,
         seasonNumber: Int
     ): LiveData<List<DatabaseTraktCollectionEpisode>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertAllTraktRecommendations(vararg traktRecommendations: DatabaseTraktRecommendations)
+
+    @Query("delete from trakt_recommendations")
+    fun deleteAllTraktRecommendations()
+
+    @Query("select * from trakt_recommendations")
+    fun getTraktRecommendations(): LiveData<List<DatabaseTraktRecommendations>>
 }
 
 @Database(
@@ -160,9 +169,10 @@ interface UpnextDao {
         DatabaseTraktCollection::class,
         DatabaseTraktCollectionSeason::class,
         DatabaseTraktCollectionEpisode::class,
-        DatabaseTableUpdate::class
+        DatabaseTableUpdate::class,
+        DatabaseTraktRecommendations::class
     ],
-    version = 11,
+    version = 12,
     exportSchema = true
 )
 abstract class UpnextDatabase : RoomDatabase() {

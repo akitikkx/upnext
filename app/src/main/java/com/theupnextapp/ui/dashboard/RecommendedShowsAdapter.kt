@@ -8,12 +8,12 @@ import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.theupnextapp.R
 import com.theupnextapp.databinding.RecommendedShowListItemBinding
-import com.theupnextapp.domain.RecommendedShows
+import com.theupnextapp.domain.TraktRecommendations
 
 class RecommendedShowsAdapter(val listener: RecommendedShowsAdapterListener) :
     RecyclerView.Adapter<RecommendedShowsAdapter.ViewHolder>() {
 
-    var recommendedShows: List<RecommendedShows> = emptyList()
+    var recommendedShows: List<TraktRecommendations> = emptyList()
         set(value) {
             field = value
             notifyDataSetChanged()
@@ -39,7 +39,7 @@ class RecommendedShowsAdapter(val listener: RecommendedShowsAdapterListener) :
     override fun getItemCount(): Int = recommendedShows.size
 
     interface RecommendedShowsAdapterListener {
-        fun onRecommendedShowClick(view : View, recommendedShow: RecommendedShows)
+        fun onRecommendedShowClick(view : View, traktRecommendations: TraktRecommendations)
     }
 
     class ViewHolder(val viewDataBinding: RecommendedShowListItemBinding) :

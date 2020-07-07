@@ -7,4 +7,5 @@ enum class DatabaseTables(val tableName: String) {
     TABLE_TOMORROW_SHOWS("schedule_tomorrow"),
     TABLE_TODAY_SHOWS("schedule_today"),
     TABLE_YESTERDAY_SHOWS("schedule_yesterday"),
+    TABLE_RECOMMENDATIONS("trakt_recommendations"),
 }

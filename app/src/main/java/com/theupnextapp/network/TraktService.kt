@@ -42,6 +42,12 @@ interface TraktService {
         @Header("Authorization") token: String
     ): Deferred<NetworkTraktHistoryResponse>
 
+    @GET("recommendations/shows")
+    fun getRecommendationsAsync(
+        @Header("Authorization") token: String,
+        @Query("ignore_collected") hidden: String = "true"
+    ): Deferred<NetworkTraktRecommendationsResponse>
+
     @GET("search/imdb/{id}")
     fun getIDLookupAsync(
         @Header("Authorization") token: String,
