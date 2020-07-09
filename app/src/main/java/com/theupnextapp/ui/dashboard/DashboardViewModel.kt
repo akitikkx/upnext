@@ -1,10 +1,7 @@
 package com.theupnextapp.ui.dashboard
 
 import android.app.Application
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.*
 import com.theupnextapp.common.utils.DateUtils
 import com.theupnextapp.common.utils.UpnextPreferenceManager
 import com.theupnextapp.common.utils.models.DatabaseTables
@@ -31,6 +28,8 @@ class DashboardViewModel(application: Application) : TraktViewModel(application)
 
     private val _traktRecommendationsShowsEmpty = MutableLiveData<Boolean>()
 
+    val isLoading = MediatorLiveData<Boolean>()
+
     val navigateToSelectedShow: LiveData<ShowDetailArg> = _navigateToSelectedShow
 
     val showFeaturesBottomSheet: LiveData<Boolean> = _showFeaturesBottomSheet
@@ -45,6 +44,8 @@ class DashboardViewModel(application: Application) : TraktViewModel(application)
 
     val tomorrowShowsList = upnextRepository.tomorrowShows
 
+    val traktRecommendationsList = traktRepository.traktRecommendations
+
     val isLoadingRecommendedShows = upnextRepository.isLoadingRecommendedShows
 
     val isLoadingNewShows = upnextRepository.isLoadingNewShows
@@ -54,8 +55,6 @@ class DashboardViewModel(application: Application) : TraktViewModel(application)
     val isLoadingTodayShows = upnextRepository.isLoadingTodayShows
 
     val isLoadingTomorrowShows = upnextRepository.isLoadingTomorrowShows
-
-    val traktRecommendationsList = traktRepository.traktRecommendations
 
     val isLoadingTraktRecommendations = traktRepository.isLoadingTraktRecommendations
 
@@ -71,12 +70,32 @@ class DashboardViewModel(application: Application) : TraktViewModel(application)
     val traktRecommendedShowsTableUpdate =
         upnextRepository.tableUpdate(DatabaseTables.TABLE_TOMORROW_SHOWS.tableName)
 
-    fun onRecommendedShowsListEmpty() {
-        if (isAuthorizedOnTrakt.value == false) {
-            return
+    init {
+        isLoading.addSource(isLoadingTraktRecommendations) {
+            isLoading.value = it
         }
-        viewModelScope?.launch {
-            traktRepository.refreshTraktRecommendations(UpnextPreferenceManager(getApplication()).getTraktAccessToken())
+        isLoading.addSource(isLoadingNewShows) {
+            isLoading.value = it
+        }
+//        isLoading.addSource(isLoadingYesterdayShows) {
+//            isLoading.value = it == true
+//        }
+//        isLoading.addSource(isLoadingTodayShows) {
+//            isLoading.value = it == true
+//        }
+//        isLoading.addSource(isLoadingTomorrowShows) {
+//            isLoading.value = it == true
+//        }
+    }
+
+    fun onRecommendedShowsListEmpty() {
+        _traktRecommendationsShowsEmpty.value = true
+
+        if (isAuthorizedOnTrakt.value == true) {
+            viewModelScope?.launch {
+                traktRepository.refreshTraktRecommendations(UpnextPreferenceManager(getApplication()).getTraktAccessToken())
+            }
+            _traktRecommendationsShowsEmpty.value = false
         }
 
     }
@@ -183,7 +202,7 @@ class DashboardViewModel(application: Application) : TraktViewModel(application)
             tableUpdate?.lastUpdated?.let { it -> DateUtils.dateDifference(it, "minutes") }
 
         // Only perform an update if there has been enough time before the previous update
-        if (diffInMinutes != null) {
+        if (diffInMinutes != null && _traktRecommendationsShowsEmpty.value == false) {
             if (diffInMinutes >= TableUpdateInterval.RECOMMENDED_ITEMS.intervalMins) {
                 viewModelScope?.launch {
                     traktRepository.refreshTraktRecommendations(

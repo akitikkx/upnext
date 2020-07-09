@@ -1022,11 +1022,13 @@ class TraktRepository(private val database: UpnextDatabase) {
     }
 
     suspend fun refreshTraktRecommendations(accessToken: String?) {
+
+        val updatedRecommendationsList: MutableList<DatabaseTraktRecommendations> =
+            arrayListOf()
+
         withContext(Dispatchers.IO) {
             try {
                 _isLoadingTraktRecommendations.postValue(true)
-                val updatedRecommendationsList: MutableList<DatabaseTraktRecommendations> =
-                    arrayListOf()
 
                 val recommendationsResponse = TraktNetwork.traktApi.getRecommendationsAsync(
                     token = "Bearer $accessToken"
@@ -1037,31 +1039,35 @@ class TraktRepository(private val database: UpnextDatabase) {
                     for (item in recommendationsResponse) {
                         val recommendationItem: NetworkTraktRecommendationsItem = item
 
-                        val imdbID = recommendationItem.ids?.imdb
-                        val traktTitle = recommendationItem.title
+                        if (item.ids?.trakt != null) {
+                            val imdbID = recommendationItem.ids?.imdb
+                            val traktTitle = recommendationItem.title
 
-                        // perform a TvMaze search for the Trakt item using the Trakt title
-                        val tvMazeSearch =
-                            traktTitle?.let {
-                                TvMazeNetwork.tvMazeApi.getSuggestionListAsync(it).await()
-                            }
+                            // perform a TvMaze search for the Trakt item using the Trakt title
+                            val tvMazeSearch =
+                                traktTitle?.let {
+                                    TvMazeNetwork.tvMazeApi.getSuggestionListAsync(it).await()
+                                }
 
-                        // loop through the search results from TvMaze and find a match for the IMDb ID
-                        // and update the watchlist item by adding the TvMaze ID
-                        if (!tvMazeSearch.isNullOrEmpty()) {
-                            for (searchItem in tvMazeSearch) {
-                                val showSearchItem: NetworkShowSearchResponse = searchItem
-                                if (showSearchItem.show.externals.imdb == imdbID) {
-                                    recommendationItem.originalImageUrl =
-                                        showSearchItem.show.image?.medium
-                                    recommendationItem.mediumImageUrl =
-                                        showSearchItem.show.image?.original
-                                    recommendationItem.ids?.tvMazeID = showSearchItem.show.id
+                            // loop through the search results from TvMaze and find a match for the IMDb ID
+                            // and update the watchlist item by adding the TvMaze ID
+                            if (!tvMazeSearch.isNullOrEmpty()) {
+                                for (searchItem in tvMazeSearch) {
+                                    val showSearchItem: NetworkShowSearchResponse = searchItem
+                                    if (showSearchItem.show.externals.imdb == imdbID) {
+                                        recommendationItem.originalImageUrl =
+                                            showSearchItem.show.image?.medium
+                                        recommendationItem.mediumImageUrl =
+                                            showSearchItem.show.image?.original
+                                        recommendationItem.ids?.tvMazeID = showSearchItem.show.id
+                                    }
                                 }
                             }
+                            updatedRecommendationsList.add(recommendationItem.asDatabaseModel())
                         }
-                        updatedRecommendationsList.add(recommendationItem.asDatabaseModel())
                     }
+                }
+                if (!updatedRecommendationsList.isNullOrEmpty()) {
                     saveTraktRecommendations(updatedRecommendationsList)
                 }
                 _isLoadingTraktRecommendations.postValue(false)
@@ -1078,18 +1084,15 @@ class TraktRepository(private val database: UpnextDatabase) {
         if (!list.isNullOrEmpty()) {
             withContext(Dispatchers.IO) {
                 try {
-                    database.upnextDao.apply {
-                        deleteAllTraktRecommendations()
-                        insertAllTraktRecommendations(*list.toTypedArray())
-                        deleteRecentTableUpdate(DatabaseTables.TABLE_RECOMMENDATIONS.tableName)
-                        insertTableUpdateLog(
-                            DatabaseTableUpdate(
-                                table_name = DatabaseTables.TABLE_RECOMMENDATIONS.tableName,
-                                last_updated = System.currentTimeMillis()
-                            )
+                    database.upnextDao.deleteAllTraktRecommendations()
+                    database.upnextDao.insertAllTraktRecommendations(*list.toTypedArray())
+                    database.upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_RECOMMENDATIONS.tableName)
+                    database.upnextDao.insertTableUpdateLog(
+                        DatabaseTableUpdate(
+                            table_name = DatabaseTables.TABLE_RECOMMENDATIONS.tableName,
+                            last_updated = System.currentTimeMillis()
                         )
-                    }
-
+                    )
                 } catch (e: Exception) {
                     Timber.d(e)
                     FirebaseCrashlytics.getInstance().recordException(e)

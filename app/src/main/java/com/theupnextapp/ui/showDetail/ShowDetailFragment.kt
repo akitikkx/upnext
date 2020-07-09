@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -94,6 +95,14 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
         viewModel.showInfo.observe(viewLifecycleOwner, Observer {
             if (it != null) {
                 showInfo = it
+            }
+        })
+
+        viewModel.isLoading.observe(viewLifecycleOwner, Observer {
+            if (it == true) {
+                binding.showDetailProgressBar.visibility = ProgressBar.VISIBLE
+            } else {
+                binding.showDetailProgressBar.visibility = ProgressBar.GONE
             }
         })
 

@@ -6,8 +6,8 @@ import com.theupnextapp.domain.TraktRecommendations
 
 @Entity(tableName = "trakt_recommendations")
 data class DatabaseTraktRecommendations(
-    @PrimaryKey(autoGenerate = true)
-    val id: Long = 0,
+    @PrimaryKey
+    val id: Int?,
     val title: String?,
     val year: Int?,
     val mediumImageUrl: String?,

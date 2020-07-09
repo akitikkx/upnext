@@ -172,7 +172,7 @@ interface UpnextDao {
         DatabaseTableUpdate::class,
         DatabaseTraktRecommendations::class
     ],
-    version = 12,
+    version = 13,
     exportSchema = true
 )
 abstract class UpnextDatabase : RoomDatabase() {

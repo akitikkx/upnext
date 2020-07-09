@@ -2,6 +2,7 @@ package com.theupnextapp.ui.dashboard
 
 import android.os.Bundle
 import android.view.*
+import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -13,7 +14,10 @@ import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentDashboardBinding
-import com.theupnextapp.domain.*
+import com.theupnextapp.domain.NewShows
+import com.theupnextapp.domain.ScheduleShow
+import com.theupnextapp.domain.ShowDetailArg
+import com.theupnextapp.domain.TraktRecommendations
 import com.theupnextapp.ui.common.BaseFragment
 import com.theupnextapp.ui.features.FeaturesBottomSheetFragment
 
@@ -118,6 +122,14 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+
+        viewModel.isLoading.observe(viewLifecycleOwner, Observer {
+            if (it == true) {
+                binding.dashboardProgressBar.visibility = ProgressBar.VISIBLE
+            } else {
+                binding.dashboardProgressBar.visibility = ProgressBar.GONE
+            }
+        })
 
         viewModel.showFeaturesBottomSheet.observe(viewLifecycleOwner, Observer {
             if (it != null && it == true) {

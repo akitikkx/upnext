@@ -23,6 +23,7 @@ data class NetworkTraktRecommendationsItemIds(
 
 fun NetworkTraktRecommendationsItem.asDatabaseModel() : DatabaseTraktRecommendations {
     return DatabaseTraktRecommendations(
+        id = ids?.trakt,
         title = title,
         year = year,
         imdbID = ids?.imdb,
