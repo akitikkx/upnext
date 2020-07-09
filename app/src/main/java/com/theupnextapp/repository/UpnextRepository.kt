@@ -182,13 +182,7 @@ class UpnextRepository(private val database: UpnextDatabase) {
                     }
                     database.upnextDao.apply {
                         deleteAllYesterdayShows()
-                        yesterdayShowsList.forEach {
-                            // only adding shows that have an image
-                            if (!it.show.image?.original.isNullOrEmpty() && !it.show.externals?.imdb.isNullOrEmpty()) {
-                                shows.add(it.asDatabaseModel())
-                                insertAllYesterdayShows(*shows.toTypedArray())
-                            }
-                        }
+                        insertAllYesterdayShows(*shows.toTypedArray())
                     }
                 }
                 _isLoadingYesterdayShows.postValue(false)

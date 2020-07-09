@@ -145,10 +145,9 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
             viewLifecycleOwner,
             Observer { recommendedShows ->
                 recommendedShows.apply {
-                    if (recommendedShows.isNullOrEmpty()) {
-                        viewModel.onRecommendedShowsListEmpty()
+                    if (!recommendedShows.isNullOrEmpty()) {
+                        recommendedShowsAdapter.recommendedShows = recommendedShows
                     }
-                    recommendedShowsAdapter.recommendedShows = recommendedShows
                 }
             })
 
