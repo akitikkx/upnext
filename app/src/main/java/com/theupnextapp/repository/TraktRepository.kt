@@ -262,11 +262,11 @@ class TraktRepository(private val database: UpnextDatabase) {
         if (accessToken.isNullOrEmpty()) {
             return
         }
+        val updatedWatchList: MutableList<DatabaseTraktWatchlist> = arrayListOf()
 
         withContext(Dispatchers.IO) {
             try {
                 _isLoadingTraktWatchlist.postValue(true)
-                val updatedWatchList: MutableList<DatabaseTraktWatchlist> = arrayListOf()
 
                 val watchlistResponse = TraktNetwork.traktApi.getWatchlistAsync(
                     token = "Bearer $accessToken"
@@ -274,6 +274,9 @@ class TraktRepository(private val database: UpnextDatabase) {
 
                 // loop through each watchlist item to get the title and IMDB link
                 if (!watchlistResponse.isNullOrEmpty()) {
+                    database.upnextDao.deleteAllTraktWatchlist()
+                    database.upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_WATCHLIST.tableName)
+
                     for (item in watchlistResponse) {
                         val watchListItem: NetworkTraktWatchlistResponseItem = item
                         val imdbID = watchListItem.show?.ids?.imdb
@@ -301,7 +304,15 @@ class TraktRepository(private val database: UpnextDatabase) {
                         }
                         updatedWatchList.add(watchListItem.asDatabaseModel())
                     }
-                    saveTraktWatchlist(updatedWatchList)
+                    database.upnextDao.apply {
+                        insertAllTraktWatchlist(*updatedWatchList.toTypedArray())
+                        insertTableUpdateLog(
+                            DatabaseTableUpdate(
+                                table_name = DatabaseTables.TABLE_WATCHLIST.tableName,
+                                last_updated = System.currentTimeMillis()
+                            )
+                        )
+                    }
                 }
                 _isLoadingTraktWatchlist.postValue(false)
             } catch (e: HttpException) {
@@ -317,17 +328,7 @@ class TraktRepository(private val database: UpnextDatabase) {
         if (!list.isNullOrEmpty()) {
             withContext(Dispatchers.IO) {
                 try {
-                    database.upnextDao.apply {
-                        deleteAllTraktWatchlist()
-                        insertAllTraktWatchlist(*list.toTypedArray())
-                        deleteRecentTableUpdate(DatabaseTables.TABLE_WATCHLIST.tableName)
-                        insertTableUpdateLog(
-                            DatabaseTableUpdate(
-                                table_name = DatabaseTables.TABLE_WATCHLIST.tableName,
-                                last_updated = System.currentTimeMillis()
-                            )
-                        )
-                    }
+
 
                 } catch (e: Exception) {
                     Timber.d(e)
@@ -1022,20 +1023,19 @@ class TraktRepository(private val database: UpnextDatabase) {
     }
 
     suspend fun refreshTraktRecommendations(accessToken: String?) {
-
-        val updatedRecommendationsList: MutableList<DatabaseTraktRecommendations> =
-            arrayListOf()
-
         withContext(Dispatchers.IO) {
             try {
                 _isLoadingTraktRecommendations.postValue(true)
-
-                val recommendationsResponse = TraktNetwork.traktApi.getRecommendationsAsync(
-                    token = "Bearer $accessToken"
-                ).await()
-
-                // loop through each watchlist item to get the title and IMDB link
+                val shows: MutableList<DatabaseTraktRecommendations> = mutableListOf()
+                val recommendationsResponse =
+                    TraktNetwork.traktApi.getRecommendationsAsync(token = "Bearer $accessToken")
+                        .await()
                 if (!recommendationsResponse.isNullOrEmpty()) {
+                    database.upnextDao.apply {
+                        deleteRecentTableUpdate(DatabaseTables.TABLE_RECOMMENDATIONS.tableName)
+                        deleteAllTraktRecommendations()
+                    }
+
                     for (item in recommendationsResponse) {
                         val recommendationItem: NetworkTraktRecommendationsItem = item
 
@@ -1045,8 +1045,8 @@ class TraktRepository(private val database: UpnextDatabase) {
 
                             // perform a TvMaze search for the Trakt item using the Trakt title
                             val tvMazeSearch =
-                                traktTitle?.let {
-                                    TvMazeNetwork.tvMazeApi.getSuggestionListAsync(it).await()
+                                traktTitle?.let { title ->
+                                    TvMazeNetwork.tvMazeApi.getSuggestionListAsync(title).await()
                                 }
 
                             // loop through the search results from TvMaze and find a match for the IMDb ID
@@ -1063,19 +1063,24 @@ class TraktRepository(private val database: UpnextDatabase) {
                                     }
                                 }
                             }
-                            updatedRecommendationsList.add(recommendationItem.asDatabaseModel())
+                            shows.add(recommendationItem.asDatabaseModel())
                         }
                     }
-                }
-                if (!updatedRecommendationsList.isNullOrEmpty()) {
-                    saveTraktRecommendations(updatedRecommendationsList)
+                    database.upnextDao.apply {
+                        insertAllTraktRecommendations(*shows.toTypedArray())
+                        insertTableUpdateLog(
+                            DatabaseTableUpdate(
+                                table_name = DatabaseTables.TABLE_RECOMMENDATIONS.tableName,
+                                last_updated = System.currentTimeMillis()
+                            )
+                        )
+                    }
                 }
                 _isLoadingTraktRecommendations.postValue(false)
-            } catch (e: HttpException) {
-                handleTraktError(e)
+            } catch (e: Exception) {
+                _isLoadingTraktRecommendations.postValue(false)
                 Timber.d(e)
                 FirebaseCrashlytics.getInstance().recordException(e)
-                _isLoadingTraktRecommendations.postValue(false)
             }
         }
     }

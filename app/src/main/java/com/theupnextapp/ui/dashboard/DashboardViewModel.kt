@@ -20,13 +20,13 @@ class DashboardViewModel(application: Application) : TraktViewModel(application)
 
     private val _showFeaturesBottomSheet = MutableLiveData<Boolean>()
 
-    private val _yesterdayShowsEmpty = MutableLiveData<Boolean>()
+    private val _yesterdayShowsEmpty = MutableLiveData<Boolean>(false)
 
-    private val _todayShowsEmpty = MutableLiveData<Boolean>()
+    private val _todayShowsEmpty = MutableLiveData<Boolean>(false)
 
-    private val _tomorrowShowsEmpty = MutableLiveData<Boolean>()
+    private val _tomorrowShowsEmpty = MutableLiveData<Boolean>(false)
 
-    private val _traktRecommendationsShowsEmpty = MutableLiveData<Boolean>()
+    private val traktRecommendationsShowsEmpty = MediatorLiveData<Boolean>()
 
     val isLoading = MediatorLiveData<Boolean>()
 
@@ -77,27 +77,19 @@ class DashboardViewModel(application: Application) : TraktViewModel(application)
         isLoading.addSource(isLoadingNewShows) {
             isLoading.value = it
         }
-//        isLoading.addSource(isLoadingYesterdayShows) {
-//            isLoading.value = it == true
-//        }
-//        isLoading.addSource(isLoadingTodayShows) {
-//            isLoading.value = it == true
-//        }
-//        isLoading.addSource(isLoadingTomorrowShows) {
-//            isLoading.value = it == true
-//        }
-    }
-
-    fun onRecommendedShowsListEmpty() {
-        _traktRecommendationsShowsEmpty.value = true
-
-        if (isAuthorizedOnTrakt.value == true) {
-            viewModelScope?.launch {
-                traktRepository.refreshTraktRecommendations(UpnextPreferenceManager(getApplication()).getTraktAccessToken())
-            }
-            _traktRecommendationsShowsEmpty.value = false
+        isLoading.addSource(isLoadingYesterdayShows) {
+            isLoading.value = it
+        }
+        isLoading.addSource(isLoadingTodayShows) {
+            isLoading.value = it
+        }
+        isLoading.addSource(isLoadingTomorrowShows) {
+            isLoading.value = it
         }
 
+        traktRecommendationsShowsEmpty.addSource(traktRecommendationsList) {
+            traktRecommendationsShowsEmpty.value = it.isNullOrEmpty() == true
+        }
     }
 
     fun onNewShowsListEmpty() {
@@ -202,7 +194,7 @@ class DashboardViewModel(application: Application) : TraktViewModel(application)
             tableUpdate?.lastUpdated?.let { it -> DateUtils.dateDifference(it, "minutes") }
 
         // Only perform an update if there has been enough time before the previous update
-        if (diffInMinutes != null && _traktRecommendationsShowsEmpty.value == false) {
+        if (diffInMinutes != null && traktRecommendationsShowsEmpty.value == false) {
             if (diffInMinutes >= TableUpdateInterval.RECOMMENDED_ITEMS.intervalMins) {
                 viewModelScope?.launch {
                     traktRepository.refreshTraktRecommendations(
@@ -211,6 +203,14 @@ class DashboardViewModel(application: Application) : TraktViewModel(application)
                         ).getTraktAccessToken()
                     )
                 }
+            }
+        } else if (traktRecommendationsShowsEmpty.value == true) {
+            viewModelScope?.launch {
+                traktRepository.refreshTraktRecommendations(
+                    UpnextPreferenceManager(
+                        getApplication()
+                    ).getTraktAccessToken()
+                )
             }
         }
     }
