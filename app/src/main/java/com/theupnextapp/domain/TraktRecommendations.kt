@@ -1,7 +1,7 @@
 package com.theupnextapp.domain
 
 data class TraktRecommendations(
-    val id: Long,
+    val id: Int?,
     val title: String?,
     val year: Int?,
     val mediumImageUrl: String?,
