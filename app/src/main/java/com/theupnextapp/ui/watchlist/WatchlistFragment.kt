@@ -64,10 +64,6 @@ class WatchlistFragment : Fragment(), WatchlistAdapter.WatchlistAdapterListener 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        viewModel.watchlistTableUpdate.observe(viewLifecycleOwner, Observer {
-            viewModel.onWatchlistTableUpdateReceived(it)
-        })
-
         viewModel.traktWatchlist.observe(viewLifecycleOwner, Observer {
             if (!it.isNullOrEmpty()) {
                 watchlistAdapter?.watchlist = it

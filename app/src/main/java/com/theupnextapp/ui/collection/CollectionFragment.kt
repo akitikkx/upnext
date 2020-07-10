@@ -74,10 +74,6 @@ class CollectionFragment : BaseFragment(), CollectionAdapter.CollectionAdapterLi
             }
         })
 
-        viewModel.collectionTableUpdate.observe(viewLifecycleOwner, Observer {
-            viewModel.onCollectionTableUpdateReceived(it)
-        })
-
         viewModel.traktCollection.observe(viewLifecycleOwner, Observer {
             if (!it.isNullOrEmpty()) {
                 adapter.traktCollection = it
