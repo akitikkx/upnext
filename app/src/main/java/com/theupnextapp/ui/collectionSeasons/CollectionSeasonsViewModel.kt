@@ -1,26 +1,23 @@
 package com.theupnextapp.ui.collectionSeasons
 
 import android.app.Application
-import androidx.lifecycle.*
-import androidx.preference.PreferenceManager
-import com.theupnextapp.common.utils.DateUtils
-import com.theupnextapp.common.utils.models.DatabaseTables
-import com.theupnextapp.common.utils.models.TableUpdateInterval
-import com.theupnextapp.domain.TableUpdate
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import com.theupnextapp.domain.TraktCollectionArg
 import com.theupnextapp.domain.TraktCollectionSeason
 import com.theupnextapp.domain.TraktCollectionSeasonEpisodeArg
 import com.theupnextapp.ui.common.TraktViewModel
-import kotlinx.coroutines.launch
 
 class CollectionSeasonsViewModel(
     application: Application,
     private val traktCollectionArg: TraktCollectionArg
 ) : TraktViewModel(application) {
 
-    private val _collectionSeasonsEmpty = MutableLiveData<Boolean>(false)
+    private val _collectionSeasonsEmpty = MutableLiveData(false)
 
-    private val _collection = MutableLiveData<TraktCollectionArg>(traktCollectionArg)
+    private val _collection = MutableLiveData(traktCollectionArg)
 
     private val _navigateToSelectedSeason = MutableLiveData<TraktCollectionSeasonEpisodeArg>()
 
@@ -36,18 +33,6 @@ class CollectionSeasonsViewModel(
 
     val isLoadingCollection = traktRepository.isLoadingTraktCollection
 
-    val collectionTableUpdate =
-        traktRepository.tableUpdate(DatabaseTables.TABLE_COLLECTION.tableName)
-
-    private fun loadTraktCollection() {
-        val preferences = PreferenceManager.getDefaultSharedPreferences(getApplication())
-        val accessToken = preferences.getString(SHARED_PREF_TRAKT_ACCESS_TOKEN, null)
-
-        viewModelScope?.launch {
-            traktRepository.refreshTraktCollection(accessToken)
-        }
-    }
-
     fun onCollectionSeasonsEmpty(empty: Boolean) {
         _collectionSeasonsEmpty.value = empty
     }
@@ -61,24 +46,6 @@ class CollectionSeasonsViewModel(
 
     fun navigateToSelectedSeasonComplete() {
         _navigateToSelectedSeason.value = null
-    }
-
-    fun onCollectionTableUpdateReceived(tableUpdate: TableUpdate?) {
-        if (isAuthorizedOnTrakt.value == false) {
-            return
-        }
-
-        val diffInMinutes =
-            tableUpdate?.lastUpdated?.let { it -> DateUtils.dateDifference(it, "minutes") }
-
-        // Only perform an update if there has been enough time before the previous update
-        if (diffInMinutes != null && collectionSeasonsEmpty.value != true) {
-            if (diffInMinutes >= TableUpdateInterval.COLLECTION_ITEMS.intervalMins) {
-                loadTraktCollection()
-            }
-        } else if (collectionSeasonsEmpty.value == true) {
-            loadTraktCollection()
-        }
     }
 
     override fun onCleared() {

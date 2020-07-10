@@ -2,12 +2,8 @@ package com.theupnextapp.ui.watchlist
 
 import android.app.Application
 import androidx.lifecycle.*
-import com.theupnextapp.common.utils.DateUtils
 import com.theupnextapp.common.utils.UpnextPreferenceManager
-import com.theupnextapp.common.utils.models.DatabaseTables
-import com.theupnextapp.common.utils.models.TableUpdateInterval
 import com.theupnextapp.domain.ShowDetailArg
-import com.theupnextapp.domain.TableUpdate
 import com.theupnextapp.domain.TraktWatchlist
 import com.theupnextapp.ui.common.TraktViewModel
 import kotlinx.coroutines.launch
@@ -18,51 +14,20 @@ class WatchlistViewModel(application: Application) : TraktViewModel(application)
 
     val navigateToSelectedShow: LiveData<ShowDetailArg> = _navigateToSelectedShow
 
-    val watchlistEmpty = MediatorLiveData<Boolean>()
-
     val isLoadingWatchlist = traktRepository.isLoadingTraktWatchlist
 
     val traktWatchlist = traktRepository.traktWatchlist
 
-    val watchlistTableUpdate =
-        traktRepository.tableUpdate(DatabaseTables.TABLE_WATCHLIST.tableName)
-
-    init {
-        watchlistEmpty.addSource(traktWatchlist) {
-            watchlistEmpty.value = it.isNullOrEmpty() == true
-        }
-    }
-
-    private fun loadTraktWatchlist() {
-        val preferences = UpnextPreferenceManager(getApplication())
-
-        viewModelScope?.launch {
-            traktRepository.refreshTraktWatchlist(preferences.getTraktAccessToken())
-        }
-    }
-
-    fun onWatchlistTableUpdateReceived(tableUpdate: TableUpdate?) {
-        if (isAuthorizedOnTrakt.value == false) {
-            return
-        }
-
-        val diffInMinutes =
-            tableUpdate?.lastUpdated?.let { it -> DateUtils.dateDifference(it, "minutes") }
-
-        // Only perform an update if there has been enough time before the previous update
-        if (diffInMinutes != null && watchlistEmpty.value != true) {
-            if (diffInMinutes >= TableUpdateInterval.WATCHLIST_ITEMS.intervalMins) {
-                loadTraktWatchlist()
-            }
-        } else if (watchlistEmpty.value == true) {
-            loadTraktWatchlist()
+    val watchlistEmpty = MediatorLiveData<Boolean>().apply {
+        addSource(traktWatchlist) {
+            value = it.isNullOrEmpty() == true
         }
     }
 
     fun onWatchlistItemDeleteClick(watchlistItem: TraktWatchlist) {
         viewModelScope?.launch {
             watchlistItem.imdbID?.let { imdbID ->
-                traktRepository.removeFromWatchlist(imdbID)
+                traktRepository.removeFromCachedWatchlist(imdbID)
                 traktRepository.traktRemoveFromWatchlist(
                     UpnextPreferenceManager(getApplication()).getTraktAccessToken(),
                     imdbID
