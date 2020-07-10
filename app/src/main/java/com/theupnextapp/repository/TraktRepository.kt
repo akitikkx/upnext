@@ -338,7 +338,7 @@ class TraktRepository(private val database: UpnextDatabase) {
         }
     }
 
-    suspend fun removeFromWatchlist(imdbID: String) {
+    suspend fun removeFromCachedWatchlist(imdbID: String) {
         withContext(Dispatchers.IO) {
             try {
                 database.upnextDao.deleteWatchlistItem(imdbID)
