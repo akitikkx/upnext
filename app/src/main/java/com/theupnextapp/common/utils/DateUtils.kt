@@ -62,6 +62,12 @@ object DateUtils {
                     secondsDiff,
                     "seconds"
                 )
+        } else if (daysDiff == 0L && hoursDiff == 0L && minutesDiff == 0L && secondsDiff == 0L) {
+            timeDifferenceForDisplay =
+                TimeDifferenceForDisplay(
+                    0L,
+                    "seconds"
+                )
         }
         return timeDifferenceForDisplay
     }
