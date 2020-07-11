@@ -27,7 +27,8 @@ class SearchFragment : BaseFragment(),
     private var _binding: FragmentSearchBinding? = null
     private val binding get() = _binding!!
 
-    private var searchAdapter: SearchAdapter? = null
+    private var _searchAdapter: SearchAdapter? = null
+    private val searchAdapter get() = _searchAdapter!!
 
     private val viewModel: SearchViewModel by lazy {
         val activity = requireNotNull(activity) {
@@ -62,7 +63,7 @@ class SearchFragment : BaseFragment(),
         binding.search.queryHint = "Start typing the show name here..."
         binding.search.setOnQueryTextListener(this)
 
-        searchAdapter = SearchAdapter(this)
+        _searchAdapter = SearchAdapter(this)
 
         binding.root.findViewById<RecyclerView>(R.id.search_list).apply {
             layoutManager = LinearLayoutManager(context).apply {
@@ -78,7 +79,7 @@ class SearchFragment : BaseFragment(),
         super.onActivityCreated(savedInstanceState)
 
         viewModel.searchResults.observe(viewLifecycleOwner, Observer {
-            searchAdapter?.searchResults = it
+            searchAdapter.searchResults = it
         })
 
         viewModel.navigateToSelectedShow.observe(viewLifecycleOwner, Observer {
@@ -115,7 +116,7 @@ class SearchFragment : BaseFragment(),
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        searchAdapter = null
+        _searchAdapter = null
         (activity as MainActivity).hideKeyboard()
     }
 
