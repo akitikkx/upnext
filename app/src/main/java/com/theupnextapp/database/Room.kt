@@ -16,16 +16,6 @@ interface UpnextDao {
     @Query("delete from table_updates where table_name = :tableName")
     fun deleteRecentTableUpdate(tableName: String)
 
-    // Recommended Shows
-    @Query("select * from recommended_shows")
-    fun getRecommendedShows(): LiveData<List<DatabaseRecommendedShows>>
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertAllRecommendedShows(vararg recommendedShows: DatabaseRecommendedShows)
-
-    @Query("delete from recommended_shows")
-    fun deleteAllRecommendedShows()
-
     // New shows
     @Query("select * from new_shows")
     fun getNewShows(): LiveData<List<DatabaseNewShows>>
@@ -158,7 +148,6 @@ interface UpnextDao {
 
 @Database(
     entities = [
-        DatabaseRecommendedShows::class,
         DatabaseNewShows::class,
         DatabaseYesterdaySchedule::class,
         DatabaseTodaySchedule::class,
@@ -172,7 +161,7 @@ interface UpnextDao {
         DatabaseTableUpdate::class,
         DatabaseTraktRecommendations::class
     ],
-    version = 13,
+    version = 14,
     exportSchema = true
 )
 abstract class UpnextDatabase : RoomDatabase() {

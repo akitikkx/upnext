@@ -9,9 +9,7 @@ import com.theupnextapp.database.*
 import com.theupnextapp.domain.*
 import com.theupnextapp.network.*
 import com.theupnextapp.network.models.tvmaze.*
-import com.theupnextapp.network.models.upnext.NetworkRecommendedShowsResponse
 import com.theupnextapp.network.models.upnext.NetworkShowInfoCombined
-import com.theupnextapp.network.models.upnext.asDatabaseModel
 import com.theupnextapp.network.models.upnext.asDomainModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -19,11 +17,6 @@ import retrofit2.HttpException
 import timber.log.Timber
 
 class UpnextRepository(private val database: UpnextDatabase) {
-
-    val recommendedShows: LiveData<List<RecommendedShows>> =
-        Transformations.map(database.upnextDao.getRecommendedShows()) {
-            it.asDomainModel()
-        }
 
     val newShows: LiveData<List<NewShows>> =
         Transformations.map(database.upnextDao.getNewShows()) {
@@ -56,8 +49,6 @@ class UpnextRepository(private val database: UpnextDatabase) {
 
     private val _isLoading = MutableLiveData<Boolean>()
 
-    private val _isLoadingRecommendedShows = MutableLiveData<Boolean>()
-
     private val _isLoadingNewShows = MutableLiveData<Boolean>()
 
     private val _isLoadingYesterdayShows = MutableLiveData<Boolean>()
@@ -71,8 +62,6 @@ class UpnextRepository(private val database: UpnextDatabase) {
     private val _showSeasons = MutableLiveData<List<ShowSeason>>()
 
     val isLoading: LiveData<Boolean> = _isLoading
-
-    val isLoadingRecommendedShows: LiveData<Boolean> = _isLoadingRecommendedShows
 
     val isLoadingNewShows: LiveData<Boolean> = _isLoadingNewShows
 
@@ -112,38 +101,6 @@ class UpnextRepository(private val database: UpnextDatabase) {
                     Timber.d(e)
                     FirebaseCrashlytics.getInstance().recordException(e)
                 }
-            }
-        }
-    }
-
-    suspend fun refreshRecommendedShows() {
-        withContext(Dispatchers.IO) {
-            try {
-                _isLoadingRecommendedShows.postValue(true)
-                val recommendedShowsList =
-                    UpnextNetwork.upnextApi.getRecommendedShowsAsync().await()
-
-                saveRecommendedShows(recommendedShowsList)
-
-                _isLoadingRecommendedShows.postValue(false)
-            } catch (e: Exception) {
-                _isLoadingRecommendedShows.postValue(false)
-                Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
-            }
-        }
-    }
-
-    private suspend fun saveRecommendedShows(recommendedShowsList: NetworkRecommendedShowsResponse) {
-        withContext(Dispatchers.IO) {
-            try {
-                database.upnextDao.apply {
-                    deleteAllRecommendedShows()
-                    insertAllRecommendedShows(*recommendedShowsList.asDatabaseModel())
-                }
-            } catch (e: Exception) {
-                Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
             }
         }
     }
@@ -271,66 +228,6 @@ class UpnextRepository(private val database: UpnextDatabase) {
                     }
                 }
             } catch (e: Exception) {
-                Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
-            }
-        }
-    }
-
-    private suspend fun addShowData(showId: Int) {
-        withContext(Dispatchers.IO) {
-            try {
-                val showInfo =
-                    TvMazeNetwork.tvMazeApi.getShowSummaryAsync(showId.toString()).await()
-
-                val previousEpisodeLink = showInfo._links?.previousepisode?.href?.substring(31)
-                val nextEpisodeLink = showInfo._links?.nextepisode?.href?.substring(31)
-
-                var showPreviousEpisode: NetworkShowPreviousEpisodeResponse? = null
-                var showNextEpisode: NetworkShowNextEpisodeResponse? = null
-                if (!previousEpisodeLink.isNullOrEmpty()) {
-                    showPreviousEpisode =
-                        TvMazeNetwork.tvMazeApi.getPreviousEpisodeAsync(
-                            showInfo._links.previousepisode.href.substring(
-                                31
-                            )
-                        ).await()
-                }
-                if (!nextEpisodeLink.isNullOrEmpty()) {
-                    showNextEpisode =
-                        TvMazeNetwork.tvMazeApi.getNextEpisodeAsync(
-                            showInfo._links.nextepisode.href.substring(
-                                31
-                            )
-                        ).await()
-                }
-                val showInfoCombined =
-                    NetworkShowInfoCombined(
-                        showInfoResponse = showInfo,
-                        previousEpisode = showPreviousEpisode,
-                        nextEpisode = showNextEpisode
-                    )
-                database.upnextDao.apply {
-                    deleteAllShowInfo(showId)
-                    insertAllShowInfo(showInfoCombined.asDatabaseModel())
-                }
-            } catch (e: Exception) {
-                Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
-            }
-        }
-    }
-
-    suspend fun getShowDataWithInsert(showId: Int) {
-        withContext(Dispatchers.IO) {
-            try {
-                _isLoading.postValue(true)
-                addShowData(showId)
-                val showInfo = database.upnextDao.getShowWithId(showId)
-                _showInfo.postValue(showInfo)
-                _isLoading.postValue(false)
-            } catch (e: Exception) {
-                _isLoading.postValue(false)
                 Timber.d(e)
                 FirebaseCrashlytics.getInstance().recordException(e)
             }
