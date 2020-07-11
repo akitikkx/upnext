@@ -63,6 +63,18 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
         }
     }
 
+    val isLoading = MediatorLiveData<Boolean>().apply {
+        addSource(isLoadingCollection) {
+            value = it
+        }
+        addSource(isLoadingHistory) {
+            value = it
+        }
+        addSource(isLoadingWatchlist) {
+            value = it
+        }
+    }
+
     fun onWatchlistTableUpdateReceived(tableUpdate: TableUpdate?) {
         val timeDifferenceToDisplay =
             tableUpdate?.lastUpdated?.let { it -> DateUtils.getTimeDifferenceForDisplay(it) }
