@@ -5,7 +5,6 @@ import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import com.theupnextapp.UpnextApplication
 import com.theupnextapp.network.models.upnext.NetworkNewShowsResponse
-import com.theupnextapp.network.models.upnext.NetworkRecommendedShowsResponse
 import kotlinx.coroutines.Deferred
 import okhttp3.Cache
 import okhttp3.ConnectionPool
@@ -18,8 +17,6 @@ import java.io.File
 import java.util.concurrent.TimeUnit
 
 interface UpnextService {
-    @GET("shows/recommended")
-    fun getRecommendedShowsAsync(): Deferred<NetworkRecommendedShowsResponse>
 
     @GET("shows/new")
     fun getNewShowsAsync(): Deferred<NetworkNewShowsResponse>
