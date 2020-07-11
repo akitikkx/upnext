@@ -20,21 +20,19 @@ class DashboardViewModel(application: Application) : TraktViewModel(application)
 
     private val _showFeaturesBottomSheet = MutableLiveData<Boolean>()
 
-    private val _yesterdayShowsEmpty = MutableLiveData<Boolean>(false)
+    val isLoadingNewShows = upnextRepository.isLoadingNewShows
 
-    private val _todayShowsEmpty = MutableLiveData<Boolean>(false)
+    val isLoadingYesterdayShows = upnextRepository.isLoadingYesterdayShows
 
-    private val _tomorrowShowsEmpty = MutableLiveData<Boolean>(false)
+    val isLoadingTodayShows = upnextRepository.isLoadingTodayShows
 
-    private val traktRecommendationsShowsEmpty = MediatorLiveData<Boolean>()
+    val isLoadingTomorrowShows = upnextRepository.isLoadingTomorrowShows
 
-    val isLoading = MediatorLiveData<Boolean>()
+    val isLoadingTraktRecommendations = traktRepository.isLoadingTraktRecommendations
 
     val navigateToSelectedShow: LiveData<ShowDetailArg> = _navigateToSelectedShow
 
     val showFeaturesBottomSheet: LiveData<Boolean> = _showFeaturesBottomSheet
-
-    val recommendedShowsList = upnextRepository.recommendedShows
 
     val newShowsList = upnextRepository.newShows
 
@@ -45,18 +43,6 @@ class DashboardViewModel(application: Application) : TraktViewModel(application)
     val tomorrowShowsList = upnextRepository.tomorrowShows
 
     val traktRecommendationsList = traktRepository.traktRecommendations
-
-    val isLoadingRecommendedShows = upnextRepository.isLoadingRecommendedShows
-
-    val isLoadingNewShows = upnextRepository.isLoadingNewShows
-
-    val isLoadingYesterdayShows = upnextRepository.isLoadingYesterdayShows
-
-    val isLoadingTodayShows = upnextRepository.isLoadingTodayShows
-
-    val isLoadingTomorrowShows = upnextRepository.isLoadingTomorrowShows
-
-    val isLoadingTraktRecommendations = traktRepository.isLoadingTraktRecommendations
 
     val yesterdayShowsTableUpdate =
         upnextRepository.tableUpdate(DatabaseTables.TABLE_YESTERDAY_SHOWS.tableName)
@@ -70,53 +56,61 @@ class DashboardViewModel(application: Application) : TraktViewModel(application)
     val traktRecommendedShowsTableUpdate =
         upnextRepository.tableUpdate(DatabaseTables.TABLE_TOMORROW_SHOWS.tableName)
 
-    init {
-        isLoading.addSource(isLoadingTraktRecommendations) {
-            isLoading.value = it
-        }
-        isLoading.addSource(isLoadingNewShows) {
-            isLoading.value = it
-        }
-        isLoading.addSource(isLoadingYesterdayShows) {
-            isLoading.value = it
-        }
-        isLoading.addSource(isLoadingTodayShows) {
-            isLoading.value = it
-        }
-        isLoading.addSource(isLoadingTomorrowShows) {
-            isLoading.value = it
-        }
-
-        traktRecommendationsShowsEmpty.addSource(traktRecommendationsList) {
-            traktRecommendationsShowsEmpty.value = it.isNullOrEmpty() == true
+    private val traktRecommendationsShowsEmpty = MediatorLiveData<Boolean>().apply {
+        addSource(traktRecommendationsList) {
+            value = it.isNullOrEmpty() == true
         }
     }
 
-    fun onNewShowsListEmpty() {
-        viewModelScope?.launch {
-            upnextRepository.refreshNewShows()
+    private val newShowsEmpty = MediatorLiveData<Boolean>().apply {
+        addSource(newShowsList) {
+            value = it.isNullOrEmpty() == true
         }
     }
 
-    fun onYesterdayShowsListEmpty() {
-        _yesterdayShowsEmpty.value = true
-
-        viewModelScope?.launch {
-            upnextRepository.refreshYesterdayShows(
-                DEFAULT_COUNTRY_CODE,
-                DateUtils.yesterdayDate()
-            )
-            _yesterdayShowsEmpty.value = false
+    private val yesterdayShowsEmpty = MediatorLiveData<Boolean>().apply {
+        addSource(yesterdayShowsList) {
+            value = it.isNullOrEmpty() == true
         }
     }
+
+    private val todayShowsEmpty = MediatorLiveData<Boolean>().apply {
+        addSource(todayShowsList) {
+            value = it.isNullOrEmpty() == true
+        }
+    }
+
+    private val tomorrowShowsEmpty = MediatorLiveData<Boolean>().apply {
+        addSource(tomorrowShowsList) {
+            value = it.isNullOrEmpty() == true
+        }
+    }
+
+    val isLoading = MediatorLiveData<Boolean>().apply {
+        addSource(isLoadingTraktRecommendations) {
+            value = it
+        }
+        addSource(isLoadingNewShows) {
+            value = it
+        }
+        addSource(isLoadingYesterdayShows) {
+            value = it
+        }
+        addSource(isLoadingTodayShows) {
+            value = it
+        }
+        addSource(isLoadingTomorrowShows) {
+            value = it
+        }
+    }
+
 
     fun onYesterdayShowsTableUpdateReceived(tableUpdate: TableUpdate?) {
         val diffInMinutes =
             tableUpdate?.lastUpdated?.let { it -> DateUtils.dateDifference(it, "minutes") }
 
-        // Only perform an update if there has been enough time before the previous update
-        if (diffInMinutes != null && _yesterdayShowsEmpty.value == false) {
-            if (diffInMinutes >= TableUpdateInterval.DASHBOARD_ITEMS.intervalMins) {
+        if (diffInMinutes != null && diffInMinutes != 0L) {
+            if (diffInMinutes > TableUpdateInterval.DASHBOARD_ITEMS.intervalMins && (isLoadingYesterdayShows.value == false || isLoadingYesterdayShows.value == null)) {
                 viewModelScope?.launch {
                     upnextRepository.refreshYesterdayShows(
                         DEFAULT_COUNTRY_CODE,
@@ -124,18 +118,13 @@ class DashboardViewModel(application: Application) : TraktViewModel(application)
                     )
                 }
             }
-        }
-    }
-
-    fun onTodayShowsListEmpty() {
-        _todayShowsEmpty.value = true
-
-        viewModelScope?.launch {
-            upnextRepository.refreshTodayShows(
-                DEFAULT_COUNTRY_CODE,
-                DateUtils.currentDate()
-            )
-            _todayShowsEmpty.value = false
+        } else if (yesterdayShowsEmpty.value == true) {
+            viewModelScope?.launch {
+                upnextRepository.refreshYesterdayShows(
+                    DEFAULT_COUNTRY_CODE,
+                    DateUtils.yesterdayDate()
+                )
+            }
         }
     }
 
@@ -143,9 +132,8 @@ class DashboardViewModel(application: Application) : TraktViewModel(application)
         val diffInMinutes =
             tableUpdate?.lastUpdated?.let { it -> DateUtils.dateDifference(it, "minutes") }
 
-        // Only perform an update if there has been enough time before the previous update
-        if (diffInMinutes != null && _todayShowsEmpty.value == false) {
-            if (diffInMinutes >= TableUpdateInterval.DASHBOARD_ITEMS.intervalMins) {
+        if (diffInMinutes != null && diffInMinutes != 0L) {
+            if (diffInMinutes > TableUpdateInterval.DASHBOARD_ITEMS.intervalMins && (isLoadingTodayShows.value == false || isLoadingTodayShows.value == null)) {
                 viewModelScope?.launch {
                     upnextRepository.refreshTodayShows(
                         DEFAULT_COUNTRY_CODE,
@@ -153,18 +141,13 @@ class DashboardViewModel(application: Application) : TraktViewModel(application)
                     )
                 }
             }
-        }
-    }
-
-    fun onTomorrowShowsListEmpty() {
-        _tomorrowShowsEmpty.value = true
-
-        viewModelScope?.launch {
-            upnextRepository.refreshTomorrowShows(
-                DEFAULT_COUNTRY_CODE,
-                DateUtils.tomorrowDate()
-            )
-            _tomorrowShowsEmpty.value = false
+        } else if (todayShowsEmpty.value == true) {
+            viewModelScope?.launch {
+                upnextRepository.refreshTodayShows(
+                    DEFAULT_COUNTRY_CODE,
+                    DateUtils.currentDate()
+                )
+            }
         }
     }
 
@@ -172,15 +155,21 @@ class DashboardViewModel(application: Application) : TraktViewModel(application)
         val diffInMinutes =
             tableUpdate?.lastUpdated?.let { it -> DateUtils.dateDifference(it, "minutes") }
 
-        // Only perform an update if there has been enough time before the previous update
-        if (diffInMinutes != null && _tomorrowShowsEmpty.value == false) {
-            if (diffInMinutes >= TableUpdateInterval.DASHBOARD_ITEMS.intervalMins) {
+        if (diffInMinutes != null && diffInMinutes != 0L) {
+            if (diffInMinutes > TableUpdateInterval.DASHBOARD_ITEMS.intervalMins && (isLoadingTomorrowShows.value == false || isLoadingTomorrowShows.value == null)) {
                 viewModelScope?.launch {
                     upnextRepository.refreshTomorrowShows(
                         DEFAULT_COUNTRY_CODE,
                         DateUtils.tomorrowDate()
                     )
                 }
+            }
+        } else if (tomorrowShowsEmpty.value == true) {
+            viewModelScope?.launch {
+                upnextRepository.refreshTomorrowShows(
+                    DEFAULT_COUNTRY_CODE,
+                    DateUtils.tomorrowDate()
+                )
             }
         }
     }
@@ -193,9 +182,8 @@ class DashboardViewModel(application: Application) : TraktViewModel(application)
         val diffInMinutes =
             tableUpdate?.lastUpdated?.let { it -> DateUtils.dateDifference(it, "minutes") }
 
-        // Only perform an update if there has been enough time before the previous update
-        if (diffInMinutes != null && traktRecommendationsShowsEmpty.value == false) {
-            if (diffInMinutes >= TableUpdateInterval.RECOMMENDED_ITEMS.intervalMins) {
+        if (diffInMinutes != null && diffInMinutes != 0L) {
+            if (diffInMinutes > TableUpdateInterval.RECOMMENDED_ITEMS.intervalMins && (isLoadingTraktRecommendations.value == false || isLoadingTraktRecommendations.value == null)) {
                 viewModelScope?.launch {
                     traktRepository.refreshTraktRecommendations(
                         UpnextPreferenceManager(
@@ -206,11 +194,7 @@ class DashboardViewModel(application: Application) : TraktViewModel(application)
             }
         } else if (traktRecommendationsShowsEmpty.value == true) {
             viewModelScope?.launch {
-                traktRepository.refreshTraktRecommendations(
-                    UpnextPreferenceManager(
-                        getApplication()
-                    ).getTraktAccessToken()
-                )
+                traktRepository.refreshTraktRecommendations(UpnextPreferenceManager(getApplication()).getTraktAccessToken())
             }
         }
     }

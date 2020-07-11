@@ -2,7 +2,6 @@ package com.theupnextapp.ui.dashboard
 
 import android.os.Bundle
 import android.view.*
-import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -123,14 +122,6 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        viewModel.isLoading.observe(viewLifecycleOwner, Observer {
-            if (it == true) {
-                binding.dashboardProgressBar.visibility = ProgressBar.VISIBLE
-            } else {
-                binding.dashboardProgressBar.visibility = ProgressBar.GONE
-            }
-        })
-
         viewModel.showFeaturesBottomSheet.observe(viewLifecycleOwner, Observer {
             if (it != null && it == true) {
                 val featuresBottomSheet = FeaturesBottomSheetFragment()
@@ -153,10 +144,9 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
 
         viewModel.newShowsList.observe(viewLifecycleOwner, Observer { newShows ->
             newShows.apply {
-                if (newShows.isNullOrEmpty()) {
-                    viewModel.onNewShowsListEmpty()
+                if (!newShows.isNullOrEmpty()) {
+                    newShowsAdapter?.newShows = newShows
                 }
-                newShowsAdapter?.newShows = newShows
             }
         })
 
@@ -164,10 +154,29 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
             viewLifecycleOwner,
             Observer { yesterdayShows ->
                 yesterdayShows.apply {
-                    if (yesterdayShows.isNullOrEmpty()) {
-                        viewModel.onYesterdayShowsListEmpty()
+                    if (!yesterdayShows.isNullOrEmpty()) {
+                        yesterdayShowsAdapter?.yesterdayShows = yesterdayShows
                     }
-                    yesterdayShowsAdapter?.yesterdayShows = yesterdayShows
+                }
+            })
+
+        viewModel.todayShowsList.observe(
+            viewLifecycleOwner,
+            Observer { todayShows ->
+                todayShows.apply {
+                    if (!todayShows.isNullOrEmpty()) {
+                        todayShowsAdapter?.todayShows = todayShows
+                    }
+                }
+            })
+
+        viewModel.tomorrowShowsList.observe(
+            viewLifecycleOwner,
+            Observer { tomorrowShows ->
+                tomorrowShows.apply {
+                    if (!tomorrowShows.isNullOrEmpty()) {
+                        tomorrowShowsAdapter?.tomorrowShows = tomorrowShows
+                    }
                 }
             })
 
@@ -186,28 +195,6 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
         viewModel.traktRecommendedShowsTableUpdate.observe(viewLifecycleOwner, Observer {
             viewModel.onTraktRecommendationsShowsTableUpdateReceived(it)
         })
-
-        viewModel.todayShowsList.observe(
-            viewLifecycleOwner,
-            Observer { todayShows ->
-                todayShows.apply {
-                    if (todayShows.isNullOrEmpty()) {
-                        viewModel.onTodayShowsListEmpty()
-                    }
-                    todayShowsAdapter?.todayShows = todayShows
-                }
-            })
-
-        viewModel.tomorrowShowsList.observe(
-            viewLifecycleOwner,
-            Observer { tomorrowShows ->
-                tomorrowShows.apply {
-                    if (tomorrowShows.isNullOrEmpty()) {
-                        viewModel.onTomorrowShowsListEmpty()
-                    }
-                    tomorrowShowsAdapter?.tomorrowShows = tomorrowShows
-                }
-            })
 
         viewModel.navigateToSelectedShow.observe(viewLifecycleOwner, Observer {
             if (null != it) {
