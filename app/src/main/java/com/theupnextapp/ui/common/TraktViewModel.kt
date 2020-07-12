@@ -142,10 +142,6 @@ open class TraktViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     private fun extractCode(bundle: Bundle?) {
-        if (isAuthorizedOnTrakt.value == true) {
-            return
-        }
-
         val traktConnectionArg =
             bundle?.getParcelable<TraktConnectionArg>(CollectionViewModel.EXTRA_TRAKT_URI)
 
@@ -186,6 +182,8 @@ open class TraktViewModel(application: Application) : AndroidViewModel(applicati
         preferences.saveTraktAccessTokenScope(traktAccessTokenResponse.scope)
 
         preferences.saveTraktAccessTokenType(traktAccessTokenResponse.token_type)
+
+        _isAuthorizedOnTrakt.value == true
     }
 
     fun removeTraktData() {

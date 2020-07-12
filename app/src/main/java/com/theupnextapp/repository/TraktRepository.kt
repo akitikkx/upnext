@@ -89,6 +89,8 @@ class TraktRepository(private val database: UpnextDatabase) {
 
     private val _isRemovingTraktCollection = MutableLiveData<Boolean>()
 
+    private val _isRemovingTraktRecommendations = MutableLiveData<Boolean>()
+
     private val _addToWatchlistResponse = MutableLiveData<TraktAddToWatchlist>()
 
     private val _removeFromWatchlistResponse = MutableLiveData<TraktRemoveFromWatchlist>()
@@ -127,6 +129,8 @@ class TraktRepository(private val database: UpnextDatabase) {
 
     val isRemovingTraktCollection: LiveData<Boolean> = _isRemovingTraktCollection
 
+    val isRemovingTraktRecommendations: LiveData<Boolean> = _isRemovingTraktRecommendations
+
     val isLoadingTraktRecommendations: LiveData<Boolean> = _isLoadingTraktRecommendations
 
     val traktAccessToken: LiveData<TraktAccessToken> = _traktAccessToken
@@ -159,10 +163,14 @@ class TraktRepository(private val database: UpnextDatabase) {
     suspend fun clearAllTraktData() {
         withContext(Dispatchers.IO) {
             try {
+                _isLoading.postValue(true)
                 removeAllWatchlistData()
                 removeAllCollectionData()
                 removeAllHistoryData()
+                removeAllRecommendationsData()
+                _isLoading.postValue(false)
             } catch (e: Exception) {
+                _isLoading.postValue(false)
                 Timber.d(e)
                 FirebaseCrashlytics.getInstance().recordException(e)
             }
@@ -172,6 +180,7 @@ class TraktRepository(private val database: UpnextDatabase) {
     private suspend fun removeAllWatchlistData() {
         withContext(Dispatchers.IO) {
             _isRemovingTraktWatchlist.postValue(true)
+            database.upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_WATCHLIST.tableName)
             database.upnextDao.deleteAllTraktWatchlist()
             _isRemovingTraktWatchlist.postValue(false)
         }
@@ -180,6 +189,7 @@ class TraktRepository(private val database: UpnextDatabase) {
     private suspend fun removeAllCollectionData() {
         withContext(Dispatchers.IO) {
             _isRemovingTraktCollection.postValue(true)
+            database.upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_COLLECTION.tableName)
             database.upnextDao.deleteAllTraktCollectionSeasonEpisodes()
             database.upnextDao.deleteAllTraktCollectionSeasons()
             database.upnextDao.deleteAllTraktCollection()
@@ -190,8 +200,18 @@ class TraktRepository(private val database: UpnextDatabase) {
     private suspend fun removeAllHistoryData() {
         withContext(Dispatchers.IO) {
             _isRemovingTraktHistory.postValue(true)
+            database.upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_HISTORY.tableName)
             database.upnextDao.deleteAllTraktHistory()
             _isRemovingTraktHistory.postValue(false)
+        }
+    }
+
+    private suspend fun removeAllRecommendationsData() {
+        withContext(Dispatchers.IO) {
+            _isRemovingTraktRecommendations.postValue(true)
+            database.upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_RECOMMENDATIONS.tableName)
+            database.upnextDao.deleteAllTraktRecommendations()
+            _isRemovingTraktRecommendations.postValue(false)
         }
     }
 
