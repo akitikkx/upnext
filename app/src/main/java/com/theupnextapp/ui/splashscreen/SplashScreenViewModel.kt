@@ -30,8 +30,6 @@ class SplashScreenViewModel(application: Application) : TraktViewModel(applicati
 
     private val _loadingText = MutableLiveData<String>()
 
-    val isLoadingRecommendedShows = upnextRepository.isLoadingRecommendedShows
-
     val isLoadingNewShows = upnextRepository.isLoadingNewShows
 
     val isLoadingYesterdayShows = upnextRepository.isLoadingYesterdayShows
@@ -42,20 +40,15 @@ class SplashScreenViewModel(application: Application) : TraktViewModel(applicati
 
     val isLoadingTraktRecommendations = traktRepository.isLoadingTraktRecommendations
 
-    val isFreshInstall: LiveData<Boolean>
-        get() = _isFreshInstall
+    val isFreshInstall: LiveData<Boolean> = _isFreshInstall
 
-    val isNormalInstall: LiveData<Boolean>
-        get() = _isNormalInstall
+    val isNormalInstall: LiveData<Boolean> = _isNormalInstall
 
-    val isUpgradeInstall: LiveData<Boolean>
-        get() = _isUpgradedInstall
+    val isUpgradeInstall: LiveData<Boolean> = _isUpgradedInstall
 
-    val showLoadingText: LiveData<Boolean>
-        get() = _showLoadingText
+    val showLoadingText: LiveData<Boolean> = _showLoadingText
 
-    val navigateToDashboard: LiveData<Boolean>
-        get() = _navigateToDashboard
+    val navigateToDashboard: LiveData<Boolean> = _navigateToDashboard
 
     val loadingText: LiveData<String>
         get() = _loadingText

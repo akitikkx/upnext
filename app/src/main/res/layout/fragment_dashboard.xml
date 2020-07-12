@@ -150,7 +150,8 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/new_shows_list"
-                    app:loadingVisibility="@{viewModel.isLoadingTraktRecommendations}" />
+                    app:loadingVisibility="@{viewModel.isLoadingTraktRecommendations}"
+                    app:showHideView="@{viewModel.isAuthorizedOnTrakt &amp;&amp; !viewModel.traktRecommendationsShowsEmpty}" />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/recommended_shows_list"
@@ -165,6 +166,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/recommended_shows_title"
                     app:loadingVisibility="@{viewModel.isLoadingTraktRecommendations}"
+                    app:showHideView="@{viewModel.isAuthorizedOnTrakt &amp;&amp; !viewModel.traktRecommendationsShowsEmpty}"
                     tools:listitem="@layout/recommended_show_list_item" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 

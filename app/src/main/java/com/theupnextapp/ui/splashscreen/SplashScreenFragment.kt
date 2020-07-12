@@ -66,14 +66,6 @@ class SplashScreenFragment : Fragment() {
             }
         })
 
-        viewModel.isLoadingRecommendedShows.observe(viewLifecycleOwner, Observer {
-            if (it) {
-                viewModel.displayLoadingText(getString(R.string.splash_screen_loading_text_recommended_shows))
-            } else {
-                viewModel.displayLoadingTextComplete()
-            }
-        })
-
         viewModel.isLoadingNewShows.observe(viewLifecycleOwner, Observer {
             if (it) {
                 viewModel.displayLoadingText(getString(R.string.splash_screen_loading_text_new_shows))

@@ -76,6 +76,10 @@ class LibraryFragment : BaseFragment(), LibraryAdapter.LibraryAdapterListener {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
+        viewModel.isAuthorizedOnTrakt.observe(viewLifecycleOwner, Observer {
+
+        })
+
         viewModel.launchTraktConnectWindow.observe(viewLifecycleOwner, Observer {
             if (it) {
                 MaterialAlertDialogBuilder(requireActivity())

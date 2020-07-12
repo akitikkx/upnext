@@ -193,7 +193,7 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
         })
 
         viewModel.traktRecommendedShowsTableUpdate.observe(viewLifecycleOwner, Observer {
-            viewModel.onTraktRecommendationsShowsTableUpdateReceived(it)
+//            viewModel.onTraktRecommendationsShowsTableUpdateReceived(it)
         })
 
         viewModel.navigateToSelectedShow.observe(viewLifecycleOwner, Observer {

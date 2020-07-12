@@ -24,6 +24,8 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
 
     private val traktHistory = traktRepository.traktHistory
 
+    private val isRepoLoading = traktRepository.isLoading
+
     val isRemovingWatchlistData = traktRepository.isRemovingTraktWatchlist
 
     val isRemovingHistoryData = traktRepository.isRemovingTraktHistory
@@ -73,9 +75,22 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
         addSource(isLoadingWatchlist) {
             value = it
         }
+        addSource(fetchAccessTokenInProgress) {
+            value = it
+        }
+        addSource(storingTraktAccessTokenInProgress) {
+            value = it
+        }
+        addSource(isRepoLoading) {
+            value = it
+        }
     }
 
     fun onWatchlistTableUpdateReceived(tableUpdate: TableUpdate?) {
+        if (isAuthorizedOnTrakt.value == false) {
+            return
+        }
+
         val timeDifferenceToDisplay =
             tableUpdate?.lastUpdated?.let { it -> DateUtils.getTimeDifferenceForDisplay(it) }
 
@@ -115,7 +130,8 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
                     traktRepository.refreshTraktWatchlist(UpnextPreferenceManager(getApplication()).getTraktAccessToken())
                 }
             }
-        } else if (watchlistEmpty.value == true) {
+            // no updates have been done yet for this table
+        } else if (watchlistEmpty.value == true && tableUpdate == null && diffInMinutes == null) {
             viewModelScope?.launch {
                 traktRepository.refreshTraktWatchlist(UpnextPreferenceManager(getApplication()).getTraktAccessToken())
             }
@@ -123,6 +139,10 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
     }
 
     fun onCollectionTableUpdateReceived(tableUpdate: TableUpdate?) {
+        if (isAuthorizedOnTrakt.value == false) {
+            return
+        }
+
         val diff =
             tableUpdate?.lastUpdated?.let { it -> DateUtils.getTimeDifferenceForDisplay(it) }
 
@@ -161,7 +181,8 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
                     traktRepository.refreshTraktCollection(UpnextPreferenceManager(getApplication()).getTraktAccessToken())
                 }
             }
-        } else if (collectionEmpty.value == true) {
+            // no updates have been done yet for this table
+        } else if (collectionEmpty.value == true && tableUpdate == null && diffInMinutes == null) {
             viewModelScope?.launch {
                 traktRepository.refreshTraktCollection(UpnextPreferenceManager(getApplication()).getTraktAccessToken())
             }
@@ -169,6 +190,10 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
     }
 
     fun onHistoryTableUpdateReceived(tableUpdate: TableUpdate?) {
+        if (isAuthorizedOnTrakt.value == false) {
+            return
+        }
+
         val diff =
             tableUpdate?.lastUpdated?.let { it -> DateUtils.getTimeDifferenceForDisplay(it) }
 
@@ -207,7 +232,8 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
                     traktRepository.refreshTraktHistory(UpnextPreferenceManager(getApplication()).getTraktAccessToken())
                 }
             }
-        } else if (historyEmpty.value == true) {
+            // no updates have been done yet for this table
+        } else if (historyEmpty.value == true && tableUpdate == null && diffInMinutes == null) {
             viewModelScope?.launch {
                 traktRepository.refreshTraktHistory(UpnextPreferenceManager(getApplication()).getTraktAccessToken())
             }

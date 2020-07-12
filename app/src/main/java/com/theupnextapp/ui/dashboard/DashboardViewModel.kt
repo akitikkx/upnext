@@ -56,7 +56,7 @@ class DashboardViewModel(application: Application) : TraktViewModel(application)
     val traktRecommendedShowsTableUpdate =
         upnextRepository.tableUpdate(DatabaseTables.TABLE_TOMORROW_SHOWS.tableName)
 
-    private val traktRecommendationsShowsEmpty = MediatorLiveData<Boolean>().apply {
+    val traktRecommendationsShowsEmpty = MediatorLiveData<Boolean>().apply {
         addSource(traktRecommendationsList) {
             value = it.isNullOrEmpty() == true
         }
@@ -118,7 +118,8 @@ class DashboardViewModel(application: Application) : TraktViewModel(application)
                     )
                 }
             }
-        } else if (yesterdayShowsEmpty.value == true) {
+            // no updates have been done yet for this table
+        } else if ((yesterdayShowsEmpty.value == true && isLoadingYesterdayShows.value == false) || tableUpdate == null && diffInMinutes == null) {
             viewModelScope?.launch {
                 upnextRepository.refreshYesterdayShows(
                     DEFAULT_COUNTRY_CODE,
@@ -141,7 +142,8 @@ class DashboardViewModel(application: Application) : TraktViewModel(application)
                     )
                 }
             }
-        } else if (todayShowsEmpty.value == true) {
+            // no updates have been done yet for this table
+        } else if ((todayShowsEmpty.value == true && isLoadingTodayShows.value == true) || (tableUpdate == null && diffInMinutes == null)) {
             viewModelScope?.launch {
                 upnextRepository.refreshTodayShows(
                     DEFAULT_COUNTRY_CODE,
@@ -164,7 +166,8 @@ class DashboardViewModel(application: Application) : TraktViewModel(application)
                     )
                 }
             }
-        } else if (tomorrowShowsEmpty.value == true) {
+            // no updates have been done yet for this table
+        } else if ((tomorrowShowsEmpty.value == true && isLoadingTomorrowShows.value == false) || tableUpdate == null && diffInMinutes == null) {
             viewModelScope?.launch {
                 upnextRepository.refreshTomorrowShows(
                     DEFAULT_COUNTRY_CODE,
@@ -192,7 +195,8 @@ class DashboardViewModel(application: Application) : TraktViewModel(application)
                     )
                 }
             }
-        } else if (traktRecommendationsShowsEmpty.value == true) {
+            // no updates have been done yet for this table
+        } else if ((traktRecommendationsShowsEmpty.value == true && isLoadingTraktRecommendations.value == false) || (tableUpdate == null && diffInMinutes == null)) {
             viewModelScope?.launch {
                 traktRepository.refreshTraktRecommendations(UpnextPreferenceManager(getApplication()).getTraktAccessToken())
             }
@@ -231,9 +235,9 @@ class DashboardViewModel(application: Application) : TraktViewModel(application)
             )
             upnextRepository.refreshNewShows()
 
-            if (isAuthorizedOnTrakt.value == true) {
-                traktRepository.refreshTraktRecommendations(UpnextPreferenceManager(getApplication()).getTraktAccessToken())
-            }
+//            if (isAuthorizedOnTrakt.value == true) {
+//                traktRepository.refreshTraktRecommendations(UpnextPreferenceManager(getApplication()).getTraktAccessToken())
+//            }
         }
     }
 
