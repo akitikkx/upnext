@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:tools="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
@@ -15,24 +15,20 @@
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/trakt_logo"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:showHideView="@{!viewModel.isAuthorizedOnTrakt}"
-            app:srcCompat="@drawable/ic_trakt_wide_red_white"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_horizontal"
             android:layout_marginTop="@dimen/margin_vertical"
             android:layout_marginEnd="@dimen/margin_horizontal"
-            android:contentDescription="@string/trakt_logo_description" />
+            android:contentDescription="@string/trakt_logo_description"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:showHideView="@{!viewModel.isAuthorizedOnTrakt}"
+            app:srcCompat="@drawable/ic_trakt_wide_red_white" />
 
         <TextView
             android:id="@+id/connection_description"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/trakt_logo"
-            app:showHideView="@{!viewModel.isAuthorizedOnTrakt}"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_horizontal"
@@ -40,21 +36,19 @@
             android:gravity="center_horizontal"
             android:padding="@dimen/padding_standard"
             android:text="@string/trakt_connect_description"
-            android:textAppearance="?attr/textAppearanceBody2" />
-
-        <Button
-            app:traktDynamicText="@{viewModel.isAuthorizedOnTrakt}"
+            android:textAppearance="?attr/textAppearanceBody2"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/connection_description"
-            app:showHideView="@{!viewModel.isAuthorizedOnTrakt}"
-            tools:text="@string/trakt_button_text_not_connected"
+            app:layout_constraintTop_toBottomOf="@id/trakt_logo"
+            app:showHideView="@{!viewModel.isAuthorizedOnTrakt}" />
+
+        <Button
+            style="?materialButtonOutlinedStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_horizontal"
             android:layout_marginTop="@dimen/margin_vertical"
             android:layout_marginEnd="@dimen/margin_horizontal"
-            android:backgroundTint="@android:color/holo_red_dark"
             android:clickable="true"
             android:enabled="@{!viewModel.isAuthorizedOnTrakt}"
             android:focusable="true"
@@ -63,7 +57,13 @@
             android:paddingStart="@dimen/padding_standard_double"
             android:paddingTop="@dimen/padding_standard"
             android:paddingEnd="@dimen/padding_standard_double"
-            android:paddingBottom="@dimen/padding_standard" />
+            android:paddingBottom="@dimen/padding_standard"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/connection_description"
+            app:showHideView="@{!viewModel.isAuthorizedOnTrakt}"
+            app:traktDynamicText="@{viewModel.isAuthorizedOnTrakt}"
+            tools:text="@string/trakt_button_text_not_connected" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

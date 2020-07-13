@@ -1,12 +1,16 @@
 <resources>
-    <!-- Reply Preference -->
-    <string-array name="reply_entries">
-        <item>Reply</item>
-        <item>Reply to all</item>
+    <!-- Dark Mode Preference -->
+    <string-array name="dark_mode_entries">
+        <item>System Defined</item>
+        <item>Off</item>
+        <item>On</item>
+        <item>Only With Battery Saver</item>
     </string-array>
 
-    <string-array name="reply_values">
-        <item>reply</item>
-        <item>reply_all</item>
+    <string-array name="dark_mode_values">
+        <item>@string/dark_mode_follow_system</item>
+        <item>@string/dark_mode_no</item>
+        <item>@string/dark_mode_yes</item>
+        <item>@string/dark_mode_auto_battery</item>
     </string-array>
 </resources>
