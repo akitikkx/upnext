@@ -236,7 +236,6 @@ class TraktRepository(private val database: UpnextDatabase) {
                     TraktNetwork.traktApi.getAccessTokenAsync(traktAccessTokenRequest).await()
                 _traktAccessToken.postValue(accessTokenResponse.asDomainModel())
                 _isLoading.postValue(false)
-                _traktAccessToken.postValue(null)
             } catch (e: Exception) {
                 _isLoading.postValue(false)
                 Timber.d(e)

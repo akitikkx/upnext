@@ -65,6 +65,8 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_horizontal"
+                android:layout_marginEnd="@dimen/margin_horizontal"
                 android:gravity="center_vertical"
                 android:text="@{show.showTitle}"
                 android:textAppearance="?attr/textAppearanceSubtitle1"
@@ -73,7 +75,9 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_horizontal"
                 android:layout_marginTop="@dimen/margin_vertical_quarter"
+                android:layout_marginEnd="@dimen/margin_horizontal"
                 android:gravity="center_vertical"
                 android:text="@{show.episodeTitle}"
                 android:textAppearance="?attr/textAppearanceCaption"
@@ -82,7 +86,9 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_horizontal"
                 android:layout_marginTop="@dimen/margin_vertical_quarter"
+                android:layout_marginEnd="@dimen/margin_horizontal"
                 android:gravity="center_vertical"
                 android:textAppearance="?attr/textAppearanceCaption"
                 app:historyEpisodeDetails="@{show}"
