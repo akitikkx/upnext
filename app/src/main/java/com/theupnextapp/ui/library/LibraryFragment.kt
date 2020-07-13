@@ -17,7 +17,6 @@ import com.google.android.material.snackbar.Snackbar
 import com.theupnextapp.BuildConfig
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
-import com.theupnextapp.common.utils.DateUtils
 import com.theupnextapp.databinding.FragmentLibraryBinding
 import com.theupnextapp.domain.LibraryList
 import com.theupnextapp.domain.TraktConnectionArg
@@ -58,7 +57,6 @@ class LibraryFragment : BaseFragment(), LibraryAdapter.LibraryAdapterListener {
 
         if (arguments?.getParcelable<TraktConnectionArg>(WatchlistViewModel.EXTRA_TRAKT_URI) != null) {
             viewModel.onTraktConnectionBundleReceived(arguments)
-            arguments?.clear()
         }
 
         _adapter = LibraryAdapter(this)
@@ -75,10 +73,6 @@ class LibraryFragment : BaseFragment(), LibraryAdapter.LibraryAdapterListener {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-
-        viewModel.isAuthorizedOnTrakt.observe(viewLifecycleOwner, Observer {
-
-        })
 
         viewModel.launchTraktConnectWindow.observe(viewLifecycleOwner, Observer {
             if (it) {
