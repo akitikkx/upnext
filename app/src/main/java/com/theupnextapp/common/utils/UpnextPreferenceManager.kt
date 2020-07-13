@@ -2,6 +2,7 @@ package com.theupnextapp.common.utils
 
 import android.app.Application
 import androidx.preference.PreferenceManager
+import com.theupnextapp.R
 import com.theupnextapp.ui.common.TraktViewModel
 
 class UpnextPreferenceManager(val application: Application) {
@@ -34,7 +35,8 @@ class UpnextPreferenceManager(val application: Application) {
 
     fun removeTraktAccessTokenRefresh() {
         val preferences = PreferenceManager.getDefaultSharedPreferences(application)
-        preferences.edit().remove(TraktViewModel.SHARED_PREF_TRAKT_ACCESS_TOKEN_REFRESH_TOKEN).apply()
+        preferences.edit().remove(TraktViewModel.SHARED_PREF_TRAKT_ACCESS_TOKEN_REFRESH_TOKEN)
+            .apply()
     }
 
     fun getTraktAccessTokenRefresh(): String? {
@@ -102,6 +104,15 @@ class UpnextPreferenceManager(val application: Application) {
     fun removeTraktAccessTokenType() {
         val preferences = PreferenceManager.getDefaultSharedPreferences(application)
         preferences.edit().remove(SHARED_PREF_TRAKT_ACCESS_TOKEN_TYPE).apply()
+    }
+
+    fun getSelectedTheme(): String? {
+        val preferences = PreferenceManager.getDefaultSharedPreferences(application)
+
+        return preferences.getString(
+            application.getString(R.string.dark_mode),
+            application.getString(R.string.dark_mode_yes)
+        )
     }
 
 

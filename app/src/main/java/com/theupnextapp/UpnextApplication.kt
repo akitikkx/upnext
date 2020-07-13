@@ -8,6 +8,7 @@ import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import com.theupnextapp.common.utils.UpnextPreferenceManager
 import com.theupnextapp.common.utils.models.TableUpdateInterval
 import com.theupnextapp.work.RefreshShowsWorker
 import kotlinx.coroutines.CoroutineScope
@@ -27,11 +28,31 @@ class UpnextApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         delayedInit()
+        setupTheme()
     }
 
     private fun delayedInit() {
         applicationScope.launch {
             launchBackgroundTasks()
+        }
+    }
+
+    private fun setupTheme() {
+        when (UpnextPreferenceManager(this).getSelectedTheme()) {
+            resources.getString(R.string.dark_mode_follow_system) -> AppCompatDelegate.setDefaultNightMode(
+                AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+            )
+            resources.getString(R.string.dark_mode_no) -> AppCompatDelegate.setDefaultNightMode(
+                AppCompatDelegate.MODE_NIGHT_NO
+            )
+            resources.getString(R.string.dark_mode_yes) -> AppCompatDelegate.setDefaultNightMode(
+                AppCompatDelegate.MODE_NIGHT_YES
+            )
+            resources.getString(R.string.dark_mode_auto_battery) -> AppCompatDelegate.setDefaultNightMode(
+                AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY
+            )
+            else -> AppCompatDelegate.setDefaultNightMode(
+                AppCompatDelegate.MODE_NIGHT_YES)
         }
     }
 
