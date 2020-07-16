@@ -19,8 +19,10 @@ import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.TraktRecommendations
 import com.theupnextapp.ui.common.BaseFragment
 import com.theupnextapp.ui.features.FeaturesBottomSheetFragment
+import com.theupnextapp.ui.traktRecommendations.TraktRecommendationsAdapter
 
-class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedShowsAdapterListener,
+class DashboardFragment : BaseFragment(),
+    TraktRecommendationsAdapter.TraktRecommendationsAdapterListener,
     NewShowsAdapter.NewShowsAdapterListener,
     TodayShowsAdapter.TodayShowsAdapterListener,
     YesterdayShowsAdapter.YesterdayShowsAdapterListener,
@@ -31,9 +33,6 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
 
     private var _firebaseAnalytics: FirebaseAnalytics? = null
     private val firebaseAnalytics get() = _firebaseAnalytics!!
-
-    private var _recommendedShowsAdapter: RecommendedShowsAdapter? = null
-    private val recommendedShowsAdapter get() = _recommendedShowsAdapter!!
 
     private var newShowsAdapter: NewShowsAdapter? = null
 
@@ -71,8 +70,6 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
 
         _firebaseAnalytics = Firebase.analytics
 
-        _recommendedShowsAdapter = RecommendedShowsAdapter(this)
-
         newShowsAdapter = NewShowsAdapter(this)
 
         yesterdayShowsAdapter = YesterdayShowsAdapter(this)
@@ -80,13 +77,6 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
         todayShowsAdapter = TodayShowsAdapter(this)
 
         tomorrowShowsAdapter = TomorrowShowsAdapter(this)
-
-        binding.root.findViewById<RecyclerView>(R.id.recommended_shows_list).apply {
-            layoutManager = LinearLayoutManager(requireContext()).apply {
-                orientation = LinearLayoutManager.HORIZONTAL
-            }
-            adapter = recommendedShowsAdapter
-        }
 
         binding.root.findViewById<RecyclerView>(R.id.new_shows_list).apply {
             layoutManager = LinearLayoutManager(requireContext()).apply {
@@ -131,16 +121,6 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
                 }
             }
         })
-
-        viewModel.traktRecommendationsList.observe(
-            viewLifecycleOwner,
-            Observer { recommendedShows ->
-                recommendedShows.apply {
-                    if (!recommendedShows.isNullOrEmpty()) {
-                        recommendedShowsAdapter.recommendedShows = recommendedShows
-                    }
-                }
-            })
 
         viewModel.newShowsList.observe(viewLifecycleOwner, Observer { newShows ->
             newShows.apply {
@@ -192,10 +172,6 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
             viewModel.onTomorrowShowsTableUpdateReceived(it)
         })
 
-        viewModel.traktRecommendedShowsTableUpdate.observe(viewLifecycleOwner, Observer {
-//            viewModel.onTraktRecommendationsShowsTableUpdateReceived(it)
-        })
-
         viewModel.navigateToSelectedShow.observe(viewLifecycleOwner, Observer {
             if (null != it) {
                 this.findNavController().navigate(
@@ -221,7 +197,6 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        _recommendedShowsAdapter = null
         newShowsAdapter = null
         yesterdayShowsAdapter = null
         todayShowsAdapter = null
@@ -272,7 +247,10 @@ class DashboardFragment : BaseFragment(), RecommendedShowsAdapter.RecommendedSho
             )
         )
         val analyticsBundle = Bundle()
-        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, traktRecommendations.tvMazeID.toString())
+        analyticsBundle.putString(
+            FirebaseAnalytics.Param.ITEM_ID,
+            traktRecommendations.tvMazeID.toString()
+        )
         analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, traktRecommendations.title)
         analyticsBundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "dashboard_show")
 

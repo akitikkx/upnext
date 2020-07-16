@@ -77,6 +77,13 @@
                 android:textAppearance="?attr/textAppearanceCaption"
                 app:showLastCollectedAt="@{show}"
                 tools:text="Last collected at: Tue Jun 16 18:35" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_vertical_quarter"
+                android:text="@string/tv_maze_creative_commons_attribution_text_single"
+                android:textAppearance="?attr/textAppearanceCaption" />
         </LinearLayout>
 
         <androidx.appcompat.widget.AppCompatImageView

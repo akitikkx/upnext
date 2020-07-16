@@ -24,11 +24,15 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
 
     private val traktHistory = traktRepository.traktHistory
 
+    private val traktRecommendations = traktRepository.traktRecommendations
+
     private val isRepoLoading = traktRepository.isLoading
 
     val isRemovingWatchlistData = traktRepository.isRemovingTraktWatchlist
 
     val isRemovingHistoryData = traktRepository.isRemovingTraktHistory
+
+    val isRemovingRecommendationsData = traktRepository.isRemovingTraktRecommendations
 
     val isRemovingCollectionData = traktRepository.isRemovingTraktCollection
 
@@ -38,6 +42,8 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
 
     val isLoadingHistory = traktRepository.isLoadingTraktHistory
 
+    val isLoadingRecommendations = traktRepository.isLoadingTraktRecommendations
+
     val historyTableUpdate =
         traktRepository.tableUpdate(DatabaseTables.TABLE_HISTORY.tableName)
 
@@ -46,6 +52,9 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
 
     val watchlistTableUpdate =
         traktRepository.tableUpdate(DatabaseTables.TABLE_WATCHLIST.tableName)
+
+    val recommendationsTableUpdate =
+        traktRepository.tableUpdate(DatabaseTables.TABLE_RECOMMENDATIONS.tableName)
 
     private val watchlistEmpty = MediatorLiveData<Boolean>().apply {
         addSource(traktWatchlist) {
@@ -65,6 +74,12 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
         }
     }
 
+    private val recommendationsEmpty = MediatorLiveData<Boolean>().apply {
+        addSource(traktRecommendations) {
+            value = it.isNullOrEmpty() == true
+        }
+    }
+
     val isLoading = MediatorLiveData<Boolean>().apply {
         addSource(isLoadingCollection) {
             value = it
@@ -73,6 +88,9 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
             value = it
         }
         addSource(isLoadingWatchlist) {
+            value = it
+        }
+        addSource(isLoadingRecommendations) {
             value = it
         }
         addSource(fetchAccessTokenInProgress) {
@@ -131,7 +149,7 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
                 }
             }
             // no updates have been done yet for this table
-        } else if (watchlistEmpty.value == true && tableUpdate == null && diffInMinutes == null) {
+        } else if ((watchlistEmpty.value == null || watchlistEmpty.value == true) && tableUpdate == null && diffInMinutes == null) {
             viewModelScope?.launch {
                 traktRepository.refreshTraktWatchlist(UpnextPreferenceManager(getApplication()).getTraktAccessToken())
             }
@@ -182,7 +200,7 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
                 }
             }
             // no updates have been done yet for this table
-        } else if (collectionEmpty.value == true && tableUpdate == null && diffInMinutes == null) {
+        } else if ((collectionEmpty.value == null || collectionEmpty.value == true) && tableUpdate == null && diffInMinutes == null) {
             viewModelScope?.launch {
                 traktRepository.refreshTraktCollection(UpnextPreferenceManager(getApplication()).getTraktAccessToken())
             }
@@ -233,9 +251,64 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
                 }
             }
             // no updates have been done yet for this table
-        } else if (historyEmpty.value == true && tableUpdate == null && diffInMinutes == null) {
+        } else if ((historyEmpty.value == null || historyEmpty.value == true) && tableUpdate == null && diffInMinutes == null) {
             viewModelScope?.launch {
                 traktRepository.refreshTraktHistory(UpnextPreferenceManager(getApplication()).getTraktAccessToken())
+            }
+        }
+    }
+
+    fun onRecommendationsTableUpdateReceived(tableUpdate: TableUpdate?) {
+        if (isAuthorizedOnTrakt.value == false) {
+            return
+        }
+
+        val diff =
+            tableUpdate?.lastUpdated?.let { it -> DateUtils.getTimeDifferenceForDisplay(it) }
+
+        shouldUpdateRecommendations(tableUpdate)
+
+        if (!_libraryList.value.isNullOrEmpty()) {
+            val iterator = _libraryList.value!!.iterator()
+            while (iterator.hasNext()) {
+                val item = iterator.next()
+                if (item.title == "Your Trakt Recommendations") {
+                    iterator.remove()
+                }
+            }
+        }
+
+        _libraryList.value?.add(
+            LibraryList(
+                leftIcon = R.drawable.ic_baseline_queue_play_next_24,
+                title = "Your Trakt Recommendations",
+                rightIcon = R.drawable.ic_baseline_chevron_right_24,
+                link = LibraryFragmentDirections.actionLibraryFragmentToTraktRecommendationsFragment(),
+                lastUpdated = diff
+            )
+        )
+        _libraryList.value?.sortBy { it.title }
+        _libraryList.value = _libraryList.value
+    }
+
+    private fun shouldUpdateRecommendations(tableUpdate: TableUpdate?) {
+        val diffInMinutes =
+            tableUpdate?.lastUpdated?.let { it -> DateUtils.dateDifference(it, "minutes") }
+
+        if (diffInMinutes != null && diffInMinutes != 0L) {
+            if (diffInMinutes > TableUpdateInterval.RECOMMENDED_ITEMS.intervalMins && (isLoadingRecommendations.value == false || isLoadingRecommendations.value == null)) {
+                viewModelScope?.launch {
+                    traktRepository.refreshTraktRecommendations(
+                        UpnextPreferenceManager(
+                            getApplication()
+                        ).getTraktAccessToken()
+                    )
+                }
+            }
+            // no updates have been done yet for this table
+        } else if ((recommendationsEmpty.value == null || recommendationsEmpty.value == true) && tableUpdate == null && diffInMinutes == null) {
+            viewModelScope?.launch {
+                traktRepository.refreshTraktRecommendations(UpnextPreferenceManager(getApplication()).getTraktAccessToken())
             }
         }
     }

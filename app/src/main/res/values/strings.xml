@@ -4,7 +4,6 @@
     <string name="show_backdrop_image">%1$s backdrop image</string>
 
     <string name="title_new_shows">New Shows</string>
-    <string name="title_recommended_shows">Trakt Recommended Shows for you</string>
     <string name="title_yesterday_shows">Aired Yesterday</string>
     <string name="title_today_shows">Airing Today</string>
     <string name="title_tomorrow_shows">Airing Tomorrow</string>
@@ -16,6 +15,7 @@
     <string name="title_trakt_watchlist">Trakt Watchlist</string>
     <string name="title_trakt_history">Trakt History</string>
     <string name="title_settings">Settings</string>
+    <string name="title_recommendations">Recommendations</string>
 
     <!-- Bottom navigation -->
     <string name="bottom_nav_title_search">Search</string>
@@ -86,7 +86,7 @@
 
     <string name="pref_first_time_launch">first_time_launch</string>
 
-    <string name="tv_maze_creative_commons_attribution_text_single">Image licensed under CC \nBY-SA 4.0</string>
+    <string name="tv_maze_creative_commons_attribution_text_single">Image licensed under CC BY-SA 4.0</string>
     <string name="tv_maze_creative_commons_attribution_text_multiple">All images licensed under CC BY-SA 4.0</string>
 
     <string name="trakt_logo_description">Trakt logo</string>
@@ -118,6 +118,7 @@
     <string name="library_removing_collection_data">Clearing collection cache…</string>
     <string name="library_loading_watchlist_data">Synchronizing Trakt watchlist…</string>
     <string name="library_loading_history_data">Synchronizing Trakt history…</string>
+    <string name="library_loading_recommendations_data">Synchronizing Trakt recommendations…</string>
     <string name="library_loading_collection_data">Synchronizing Trakt collection…</string>
     <string name="library_table_last_update">Last sync: %1$d %2$s ago</string>
     <string name="library_table_last_update_null">Last sync: -</string>
@@ -162,6 +163,12 @@
     <string name="trakt_history_episode_details">Season %1$d Episode %2$d</string>
     <string name="history_empty_state_text">Your Trakt history is empty. When you mark episodes as watched in Trakt, they will appear here</string>
     <string name="history_screen_subtitle">Your most recently watched episodes of your shows will be shown here</string>
+
+    <!-- Trakt Recommendations -->
+    <string name="recommendations_title_with_year">%1$s (%2$d)</string>
+    <string name="recommendations_title_without_year">%1$s</string>
+    <string name="recommendations_screen_subtitle">Here are the shows Trakt has recommended for you</string>
+    <string name="recommendations_empty_state_text">No shows have been recommended as yet</string>
 
     <!-- Transitions -->
     <string name="transition_poster_name">transition poster</string>

@@ -205,3 +205,19 @@ fun watchedSeasonProgress(view: TextView, season: TraktWatchedShowProgressSeason
         )
     }
 }
+
+@BindingAdapter("recommendationNameAndReleaseYear")
+fun recommendationNameAndReleaseYear(view: TextView, traktRecommendations: TraktRecommendations) {
+    if (traktRecommendations.year != 0) {
+        view.text = view.resources.getString(
+            R.string.recommendations_title_with_year,
+            traktRecommendations.title,
+            traktRecommendations.year
+        )
+    } else {
+        view.text = view.resources.getString(
+            R.string.recommendations_title_without_year,
+            traktRecommendations.title
+        )
+    }
+}

@@ -33,7 +33,7 @@
                 android:layout_gravity="center_vertical"
                 app:showHideStringContent="@{show.originalImageUrl}" />
 
-            <ImageView
+            <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/yesterday_show_poster"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/shows_list_poster_height"
@@ -46,7 +46,7 @@
                 app:imageUrl="@{show.originalImageUrl}" />
         </FrameLayout>
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"

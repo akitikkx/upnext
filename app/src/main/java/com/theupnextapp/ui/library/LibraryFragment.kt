@@ -164,6 +164,10 @@ class LibraryFragment : BaseFragment(), LibraryAdapter.LibraryAdapterListener {
             viewModel.onCollectionTableUpdateReceived(it)
         })
 
+        viewModel.recommendationsTableUpdate.observe(viewLifecycleOwner, Observer {
+            viewModel.onRecommendationsTableUpdateReceived(it)
+        })
+
         viewModel.onDisconnectClick.observe(viewLifecycleOwner, Observer {
             if (it == true) {
                 MaterialAlertDialogBuilder(requireActivity())
@@ -225,6 +229,16 @@ class LibraryFragment : BaseFragment(), LibraryAdapter.LibraryAdapterListener {
                 Snackbar.make(
                     binding.root,
                     getString(R.string.library_loading_history_data),
+                    Snackbar.LENGTH_SHORT
+                ).show()
+            }
+        })
+
+        viewModel.isLoadingRecommendations.observe(viewLifecycleOwner, Observer {
+            if (it == true) {
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.library_loading_recommendations_data),
                     Snackbar.LENGTH_SHORT
                 ).show()
             }

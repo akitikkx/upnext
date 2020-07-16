@@ -18,7 +18,7 @@
             android:layout_height="match_parent"
             android:paddingBottom="@dimen/margin_vertical">
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/features_bottom_sheet_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -43,7 +43,7 @@
                 app:layout_constraintTop_toBottomOf="@id/features_bottom_sheet_title"
                 app:srcCompat="@drawable/ic_home_black_24dp" />
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/features_bottom_sheet_dashboard"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -67,7 +67,7 @@
                 app:layout_constraintTop_toBottomOf="@id/features_bottom_sheet_dashboard"
                 app:srcCompat="@drawable/ic_search_black_24dp" />
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/features_bottom_sheet_search"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -80,7 +80,7 @@
                 app:layout_constraintStart_toStartOf="@+id/guideline"
                 app:layout_constraintTop_toBottomOf="@id/features_bottom_sheet_dashboard" />
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/features_bottom_sheet_trakt_logo_alt"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -105,7 +105,7 @@
                 app:layout_constraintTop_toBottomOf="@id/features_bottom_sheet_trakt_logo_alt"
                 app:srcCompat="@drawable/ic_trakt_wide_red_white" />
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/features_bottom_sheet_trakt_logo_alt_support"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -129,7 +129,7 @@
                 app:layout_constraintTop_toBottomOf="@id/features_bottom_sheet_trakt_logo_alt_support"
                 app:srcCompat="@drawable/ic_check_circle_white_24dp" />
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/features_bottom_sheet_watchlist"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -154,7 +154,7 @@
                 app:layout_constraintTop_toBottomOf="@id/features_bottom_sheet_watchlist"
                 app:srcCompat="@drawable/ic_history_white_24dp" />
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/features_bottom_sheet_history"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"

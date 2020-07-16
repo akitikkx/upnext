@@ -210,6 +210,13 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_libraryFragment_to_traktRecommendationsFragment"
+            app:destination="@id/traktRecommendationsFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
 
     <fragment
@@ -223,6 +230,23 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/traktRecommendationsFragment"
+        android:name="com.theupnextapp.ui.traktRecommendations.TraktRecommendationsFragment"
+        android:label="@string/title_recommendations"
+        tools:layout="@layout/fragment_trakt_recommendations">
+        <action
+            android:id="@+id/action_traktRecommendationsFragment_to_libraryFragment"
+            app:destination="@id/libraryFragment"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_out_left" />
+        <action
+            android:id="@+id/action_traktRecommendationsFragment_to_showDetailFragment"
+            app:destination="@id/showDetailFragment" />
     </fragment>
 
 </navigation>

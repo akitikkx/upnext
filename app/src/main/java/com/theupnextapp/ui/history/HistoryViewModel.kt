@@ -8,6 +8,7 @@ import com.theupnextapp.common.utils.models.DatabaseTables
 import com.theupnextapp.common.utils.models.TableUpdateInterval
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.TableUpdate
+import com.theupnextapp.domain.TraktHistory
 import com.theupnextapp.ui.common.TraktViewModel
 import kotlinx.coroutines.launch
 
@@ -65,6 +66,10 @@ class HistoryViewModel(application: Application) : TraktViewModel(application) {
         } else if (historyEmpty.value == true) {
             loadTraktHistory()
         }
+    }
+
+    fun onRemoveClick(historyItem: TraktHistory) {
+
     }
 
     override fun onCleared() {

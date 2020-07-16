@@ -18,6 +18,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
+            android:alpha="0.5"
             android:contentDescription="@string/empty_state_icon"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -25,7 +26,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/empty_state_box_icon" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/collection_season_episodes_list_empty_state_description"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
