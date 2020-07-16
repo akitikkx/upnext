@@ -28,8 +28,6 @@ class DashboardViewModel(application: Application) : TraktViewModel(application)
 
     val isLoadingTomorrowShows = upnextRepository.isLoadingTomorrowShows
 
-    val isLoadingTraktRecommendations = traktRepository.isLoadingTraktRecommendations
-
     val navigateToSelectedShow: LiveData<ShowDetailArg> = _navigateToSelectedShow
 
     val showFeaturesBottomSheet: LiveData<Boolean> = _showFeaturesBottomSheet
@@ -42,8 +40,6 @@ class DashboardViewModel(application: Application) : TraktViewModel(application)
 
     val tomorrowShowsList = upnextRepository.tomorrowShows
 
-    val traktRecommendationsList = traktRepository.traktRecommendations
-
     val yesterdayShowsTableUpdate =
         upnextRepository.tableUpdate(DatabaseTables.TABLE_YESTERDAY_SHOWS.tableName)
 
@@ -52,15 +48,6 @@ class DashboardViewModel(application: Application) : TraktViewModel(application)
 
     val tomorrowShowsTableUpdate =
         upnextRepository.tableUpdate(DatabaseTables.TABLE_TOMORROW_SHOWS.tableName)
-
-    val traktRecommendedShowsTableUpdate =
-        upnextRepository.tableUpdate(DatabaseTables.TABLE_TOMORROW_SHOWS.tableName)
-
-    val traktRecommendationsShowsEmpty = MediatorLiveData<Boolean>().apply {
-        addSource(traktRecommendationsList) {
-            value = it.isNullOrEmpty() == true
-        }
-    }
 
     private val newShowsEmpty = MediatorLiveData<Boolean>().apply {
         addSource(newShowsList) {
@@ -87,9 +74,6 @@ class DashboardViewModel(application: Application) : TraktViewModel(application)
     }
 
     val isLoading = MediatorLiveData<Boolean>().apply {
-        addSource(isLoadingTraktRecommendations) {
-            value = it
-        }
         addSource(isLoadingNewShows) {
             value = it
         }
@@ -177,32 +161,6 @@ class DashboardViewModel(application: Application) : TraktViewModel(application)
         }
     }
 
-    fun onTraktRecommendationsShowsTableUpdateReceived(tableUpdate: TableUpdate?) {
-        if (isAuthorizedOnTrakt.value == false) {
-            return
-        }
-
-        val diffInMinutes =
-            tableUpdate?.lastUpdated?.let { it -> DateUtils.dateDifference(it, "minutes") }
-
-        if (diffInMinutes != null && diffInMinutes != 0L) {
-            if (diffInMinutes > TableUpdateInterval.RECOMMENDED_ITEMS.intervalMins && (isLoadingTraktRecommendations.value == false || isLoadingTraktRecommendations.value == null)) {
-                viewModelScope?.launch {
-                    traktRepository.refreshTraktRecommendations(
-                        UpnextPreferenceManager(
-                            getApplication()
-                        ).getTraktAccessToken()
-                    )
-                }
-            }
-            // no updates have been done yet for this table
-        } else if ((traktRecommendationsShowsEmpty.value == true && isLoadingTraktRecommendations.value == false) || (tableUpdate == null && diffInMinutes == null)) {
-            viewModelScope?.launch {
-                traktRepository.refreshTraktRecommendations(UpnextPreferenceManager(getApplication()).getTraktAccessToken())
-            }
-        }
-    }
-
     fun onRefreshShowsClick() {
         requestShowsUpdate()
     }
@@ -234,10 +192,6 @@ class DashboardViewModel(application: Application) : TraktViewModel(application)
                 DateUtils.tomorrowDate()
             )
             upnextRepository.refreshNewShows()
-
-//            if (isAuthorizedOnTrakt.value == true) {
-//                traktRepository.refreshTraktRecommendations(UpnextPreferenceManager(getApplication()).getTraktAccessToken())
-//            }
         }
     }
 

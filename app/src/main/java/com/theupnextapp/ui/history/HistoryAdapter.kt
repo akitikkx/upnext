@@ -40,6 +40,8 @@ class HistoryAdapter(val listener: HistoryAdapterListener) :
 
     interface HistoryAdapterListener {
         fun onHistoryShowClick(view : View, historyItem: TraktHistory)
+
+        fun onHistoryRemoveClick(view: View, historyItem: TraktHistory)
     }
 
     class ViewHolder(val viewDataBinding: TraktHistoryItemBinding) :

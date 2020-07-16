@@ -40,7 +40,7 @@
                 android:layout_gravity="center_vertical"
                 app:showHideView="@{show.originalImageUrl != null}" />
 
-            <ImageView
+            <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/trakt_history_poster"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/search_poster_height"
@@ -62,7 +62,7 @@
             app:layout_constraintStart_toEndOf="@id/history_poster"
             app:layout_constraintTop_toTopOf="parent">
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal"
@@ -72,7 +72,7 @@
                 android:textAppearance="?attr/textAppearanceSubtitle1"
                 tools:text="Show Name" />
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal"
@@ -83,7 +83,7 @@
                 android:textAppearance="?attr/textAppearanceCaption"
                 tools:text="Episode Title" />
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_horizontal"
@@ -93,7 +93,29 @@
                 android:textAppearance="?attr/textAppearanceCaption"
                 app:historyEpisodeDetails="@{show}"
                 tools:text="Season 1 Episode 4" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_horizontal"
+                android:layout_marginTop="@dimen/margin_vertical_half"
+                android:text="@string/tv_maze_creative_commons_attribution_text_single"
+                android:textAppearance="?attr/textAppearanceCaption" />
         </LinearLayout>
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/history_delete_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margin_horizontal"
+            android:clickable="true"
+            android:contentDescription="@string/show_detail_remove_from_watchlist_button_description"
+            android:focusable="true"
+            android:onClick="@{(view) -> listener.onHistoryRemoveClick(view, show)}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_baseline_delete_24" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

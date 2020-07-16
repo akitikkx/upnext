@@ -27,7 +27,7 @@
             app:shapeAppearanceOverlay="?attr/shapeAppearanceShowCast"
             app:showHideStringContent="@{viewModel.showCast.originalImageUrl}" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/show_cast_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -43,7 +43,7 @@
             app:showHideStringContent="@{viewModel.showCast.name}"
             tools:text="Cast Name" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/show_cast_character_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -59,7 +59,7 @@
             app:showHideStringContent="@{viewModel.showCast.characterName}"
             tools:text="Cast Character Name" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/show_cast_country_heading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -73,7 +73,7 @@
             app:layout_constraintTop_toBottomOf="@id/show_cast_character_name"
             app:showHideStringContent="@{viewModel.showCast.country}" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/show_cast_country"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -88,7 +88,7 @@
             app:showHideStringContent="@{viewModel.showCast.country}"
             tools:text="USA" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/show_cast_birthday_heading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -102,7 +102,7 @@
             app:layout_constraintTop_toBottomOf="@id/show_cast_country"
             app:showHideStringContent="@{viewModel.showCast.birthday}" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/show_cast_birthday"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -117,7 +117,7 @@
             app:showHideStringContent="@{viewModel.showCast.birthday}"
             tools:text="2020-01-01" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/show_cast_deathday_heading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -131,7 +131,7 @@
             app:layout_constraintTop_toBottomOf="@id/show_cast_birthday"
             app:showHideStringContent="@{viewModel.showCast.deathday}" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/show_cast_deathday"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -146,7 +146,7 @@
             app:showHideStringContent="@{viewModel.showCast.deathday}"
             tools:text="2020-01-01" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/show_cast_gender_heading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -160,7 +160,7 @@
             app:layout_constraintTop_toBottomOf="@id/show_cast_deathday"
             app:showHideStringContent="@{viewModel.showCast.gender}" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/show_cast_gender"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

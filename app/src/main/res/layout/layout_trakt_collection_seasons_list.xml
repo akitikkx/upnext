@@ -65,6 +65,18 @@
             </FrameLayout>
 
             <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/collection_seasons_images_attribution"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_vertical_half"
+                android:gravity="center_horizontal"
+                android:text="@string/tv_maze_creative_commons_attribution_text_multiple"
+                android:textAppearance="?attr/textAppearanceCaption"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/collection_backdrop" />
+
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/collection_season_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -75,7 +87,7 @@
                 android:textAppearance="?attr/textAppearanceHeadline4"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/collection_backdrop"
+                app:layout_constraintTop_toBottomOf="@id/collection_seasons_images_attribution"
                 app:loadingVisibility="@{viewModel.isLoadingCollection}"
                 tools:text="Show Title" />
 

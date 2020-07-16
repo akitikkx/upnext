@@ -94,6 +94,14 @@
                 android:textAppearance="?attr/textAppearanceCaption"
                 app:seasonEndDate="@{showSeason.endDate}"
                 tools:text="Ended: 31 January 2020" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/season_item_images_attribution"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_vertical_quarter"
+                android:text="@string/tv_maze_creative_commons_attribution_text_single"
+                android:textAppearance="?attr/textAppearanceCaption" />
         </LinearLayout>
 
         <LinearLayout
@@ -128,7 +136,6 @@
                 android:visibility="invisible"
                 app:srcCompat="@drawable/ic_baseline_hourglass_full_24"
                 tools:visibility="visible" />
-
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

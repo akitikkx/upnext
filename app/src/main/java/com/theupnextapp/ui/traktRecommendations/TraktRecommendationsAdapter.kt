@@ -1,4 +1,4 @@
-package com.theupnextapp.ui.dashboard
+package com.theupnextapp.ui.traktRecommendations
 
 import android.view.LayoutInflater
 import android.view.View
@@ -7,11 +7,11 @@ import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.theupnextapp.R
-import com.theupnextapp.databinding.RecommendedShowListItemBinding
+import com.theupnextapp.databinding.TraktRecommendationsListItemBinding
 import com.theupnextapp.domain.TraktRecommendations
 
-class RecommendedShowsAdapter(val listener: RecommendedShowsAdapterListener) :
-    RecyclerView.Adapter<RecommendedShowsAdapter.ViewHolder>() {
+class TraktRecommendationsAdapter(val listener: TraktRecommendationsAdapterListener) :
+    RecyclerView.Adapter<TraktRecommendationsAdapter.ViewHolder>() {
 
     var recommendedShows: List<TraktRecommendations> = emptyList()
         set(value) {
@@ -20,13 +20,15 @@ class RecommendedShowsAdapter(val listener: RecommendedShowsAdapterListener) :
         }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val withDataBinding: RecommendedShowListItemBinding = DataBindingUtil.inflate(
+        val withDataBinding: TraktRecommendationsListItemBinding = DataBindingUtil.inflate(
             LayoutInflater.from(parent.context),
             ViewHolder.LAYOUT,
             parent,
             false
         )
-        return ViewHolder(withDataBinding)
+        return ViewHolder(
+            withDataBinding
+        )
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -38,15 +40,15 @@ class RecommendedShowsAdapter(val listener: RecommendedShowsAdapterListener) :
 
     override fun getItemCount(): Int = recommendedShows.size
 
-    interface RecommendedShowsAdapterListener {
+    interface TraktRecommendationsAdapterListener {
         fun onRecommendedShowClick(view : View, traktRecommendations: TraktRecommendations)
     }
 
-    class ViewHolder(val viewDataBinding: RecommendedShowListItemBinding) :
+    class ViewHolder(val viewDataBinding: TraktRecommendationsListItemBinding) :
         RecyclerView.ViewHolder(viewDataBinding.root) {
         companion object {
             @LayoutRes
-            val LAYOUT = R.layout.recommended_show_list_item
+            val LAYOUT = R.layout.trakt_recommendations_list_item
         }
     }
 }

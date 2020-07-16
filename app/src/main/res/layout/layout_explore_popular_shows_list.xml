@@ -13,7 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/popular_shows_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

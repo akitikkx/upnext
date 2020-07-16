@@ -27,7 +27,7 @@
     <dimen name="search_poster_height">110dp</dimen>
 
     <!-- Splash screen -->
-    <dimen name="splash_screen_logo_height">200dp</dimen>
+    <dimen name="splash_screen_logo_height">100dp</dimen>
 
     <!-- Trakt Watchlist -->
     <dimen name="trakt_watchlist_header_height">30dp</dimen>

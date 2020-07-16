@@ -58,7 +58,7 @@
                         android:background="@drawable/gradient_backdrop_bottom" />
                 </FrameLayout>
 
-                <TextView
+                <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/text_view_show_detail_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -73,7 +73,7 @@
                     app:layout_constraintTop_toBottomOf="@id/show_detail_backdrop"
                     tools:text="Show Title" />
 
-                <TextView
+                <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/text_view_show_detail_status"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -154,7 +154,7 @@
                     app:loadingVisibility="@{!viewModel.isLoading}"
                     app:viewModel="@{viewModel}" />
 
-                <TextView
+                <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/show_detail_synopsis"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -220,7 +220,7 @@
                     app:showHideView="@{viewModel.isAuthorizedOnTrakt}"
                     tools:visibility="visible" />
 
-                <TextView
+                <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/cast_title"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -252,7 +252,7 @@
                     app:showHideView="@{!viewModel.showCastEmpty}"
                     tools:listitem="@layout/show_cast_item" />
 
-                <TextView
+                <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/show_detail_next_episode_heading"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -266,7 +266,7 @@
                     app:layout_constraintTop_toBottomOf="@id/cast_list"
                     app:showHideStringContent="@{viewModel.showInfo.nextEpisodeSummary}" />
 
-                <TextView
+                <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/show_detail_next_episode_season_info"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -281,7 +281,7 @@
                     app:showHideStringContent="@{viewModel.showInfo.nextEpisodeSummary}"
                     tools:text="Next Episode Season Info" />
 
-                <TextView
+                <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/show_detail_next_episode_summary"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -296,7 +296,7 @@
                     app:showHideStringContent="@{viewModel.showInfo.nextEpisodeSummary}"
                     tools:text="Next Episode Summary" />
 
-                <TextView
+                <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/show_detail_previous_episode_heading"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -310,7 +310,7 @@
                     app:layout_constraintTop_toBottomOf="@id/show_detail_next_episode_summary"
                     app:showHideStringContent="@{viewModel.showInfo.previousEpisodeSummary}" />
 
-                <TextView
+                <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/show_detail_previous_episode_season_info"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -325,7 +325,7 @@
                     app:showHideStringContent="@{viewModel.showInfo.previousEpisodeSummary}"
                     tools:text="Previous Episode Season Info" />
 
-                <TextView
+                <com.google.android.material.textview.MaterialTextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/margin_horizontal_double"

@@ -35,7 +35,7 @@
                 android:layout_gravity="center_vertical"
                 app:showHideStringContent="@{cast.originalImageUrl}" />
 
-            <ImageView
+            <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/today_show_poster"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/shows_list_poster_height"
@@ -48,7 +48,7 @@
                 app:imageUrl="@{cast.originalImageUrl}" />
         </FrameLayout>
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/cast_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -60,7 +60,7 @@
             app:layout_constraintTop_toBottomOf="@id/dashboard_poster"
             tools:text="Cast Name" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/cast_character_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -72,7 +72,7 @@
             app:layout_constraintTop_toBottomOf="@id/cast_name"
             tools:text="Cast Character name" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
@@ -21,8 +22,10 @@
             android:src="@drawable/upnext_logo_512x512"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.416" />
 
         <ProgressBar
             android:id="@+id/splash_screen_loading_progres_bar"
@@ -35,9 +38,10 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/image_view_splash_logo"
-            app:showHideView="@{viewModel.showLoadingText}" />
+            app:showHideView="@{viewModel.showLoadingText}"
+            tools:visibility="visible" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_horizontal"
@@ -49,7 +53,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/splash_screen_loading_progres_bar"
-            app:loadingVisibility="@{viewModel.showLoadingText}" />
+            app:loadingVisibility="@{viewModel.showLoadingText}"
+            tools:text="Loading yesterday\'s schedule" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

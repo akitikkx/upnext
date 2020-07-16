@@ -11,7 +11,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentHistoryBinding
@@ -121,5 +121,18 @@ class HistoryFragment : BaseFragment(), HistoryAdapter.HistoryAdapterListener {
                 showImageUrl = historyItem.originalImageUrl
             )
         )
+    }
+
+    override fun onHistoryRemoveClick(view: View, historyItem: TraktHistory) {
+        MaterialAlertDialogBuilder(requireActivity())
+            .setMessage("Remove ${historyItem.showTitle} from your history?")
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .setPositiveButton("Yes") { dialog, _ ->
+                viewModel.onRemoveClick(historyItem)
+                dialog.dismiss()
+            }
+            .show()
     }
 }

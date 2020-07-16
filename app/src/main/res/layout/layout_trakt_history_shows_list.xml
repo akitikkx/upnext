@@ -41,7 +41,7 @@
                 app:layout_constraintTop_toBottomOf="@id/history_subtitle"
                 app:layout_constraintTop_toTopOf="parent"
                 app:loadingVisibility="@{viewModel.isLoadingHistory}"
-                app:showHideView="@{viewModel.isAuthorizedOnTrakt &amp;&amp; !viewModel.historyEmpty}"
+                app:showHideView="@{!viewModel.historyEmpty}"
                 app:srcCompat="@drawable/ic_trakt_wide_red_white"
                 tools:visibility="visible" />
 
@@ -59,7 +59,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/history_header"
                 app:loadingVisibility="@{viewModel.isLoadingHistory}"
-                app:showHideView="@{viewModel.isAuthorizedOnTrakt &amp;&amp; !viewModel.historyEmpty}" />
+                app:showHideView="@{!viewModel.historyEmpty}" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/history_list"
@@ -74,7 +74,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/history_subtitle"
                 app:loadingVisibility="@{viewModel.isLoadingHistory}"
-                app:showHideView="@{viewModel.isAuthorizedOnTrakt() &amp;&amp; !viewModel.historyEmpty}"
+                app:showHideView="@{!viewModel.historyEmpty}"
                 tools:listitem="@layout/trakt_history_item"
                 tools:visibility="visible" />
 
