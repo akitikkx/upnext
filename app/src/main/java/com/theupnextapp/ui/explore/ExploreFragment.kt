@@ -82,6 +82,10 @@ class ExploreFragment : Fragment(),
             viewModel.onPopularShowsTableUpdateReceived(it)
         })
 
+        viewModel.trendingShowsTableUpdate.observe(viewLifecycleOwner, Observer {
+            viewModel.onTrendingShowsTableUpdateReceived(it)
+        })
+
         viewModel.trendingShows.observe(viewLifecycleOwner, Observer {
             if (!it.isNullOrEmpty()) {
                 trendingShowsAdapter.trendingList = it

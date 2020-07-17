@@ -25,7 +25,7 @@ class HistoryViewModel(application: Application) : TraktViewModel(application) {
     val traktHistory = traktRepository.traktHistory
 
     val historyTableUpdate =
-        traktRepository.tableUpdate(DatabaseTables.TABLE_HISTORY.tableName)
+        traktRepository.tableUpdate(DatabaseTables.TABLE_TRAKT_HISTORY.tableName)
 
     init {
         historyEmpty.addSource(traktHistory) {

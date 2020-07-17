@@ -16,7 +16,7 @@ class ExploreViewModel(application: Application) : TraktViewModel(application) {
 
     val navigateToSelectedShow: LiveData<ShowDetailArg> = _navigateToSelectedShow
 
-    val trendingShows = traktRepository.trendingShows
+    val trendingShows = traktRepository.traktTrendingShows
 
     val popularShows = traktRepository.traktPopularShows
 
@@ -25,10 +25,19 @@ class ExploreViewModel(application: Application) : TraktViewModel(application) {
     val isLoadingTraktPopular = traktRepository.isLoadingTraktPopular
 
     val popularShowsTableUpdate =
-        traktRepository.tableUpdate(DatabaseTables.TABLE_POPULAR.tableName)
+        traktRepository.tableUpdate(DatabaseTables.TABLE_TRAKT_POPULAR.tableName)
+
+    val trendingShowsTableUpdate =
+        traktRepository.tableUpdate(DatabaseTables.TABLE_TRAKT_TRENDING.tableName)
 
     val trendingShowsEmpty = MediatorLiveData<Boolean>().apply {
         addSource(trendingShows) {
+            value = it.isNullOrEmpty() == true
+        }
+    }
+
+    val popularShowsEmpty = MediatorLiveData<Boolean>().apply {
+        addSource(popularShows) {
             value = it.isNullOrEmpty() == true
         }
     }
@@ -39,12 +48,6 @@ class ExploreViewModel(application: Application) : TraktViewModel(application) {
         }
         addSource(isLoadingTraktTrending) {
             value = it
-        }
-    }
-
-    val popularShowsEmpty = MediatorLiveData<Boolean>().apply {
-        addSource(popularShows) {
-            value = it.isNullOrEmpty() == true
         }
     }
 
@@ -70,9 +73,25 @@ class ExploreViewModel(application: Application) : TraktViewModel(application) {
         }
     }
 
-    init {
-        viewModelScope?.launch {
-            traktRepository.getTrendingShows()
+    fun onTrendingShowsTableUpdateReceived(tableUpdate: TableUpdate?) {
+        if (isAuthorizedOnTrakt.value == false) {
+            return
+        }
+
+        val diffInMinutes =
+            tableUpdate?.lastUpdated?.let { it -> DateUtils.dateDifference(it, "minutes") }
+
+        if (diffInMinutes != null && diffInMinutes != 0L) {
+            if (diffInMinutes > TableUpdateInterval.TRENDING_ITEMS.intervalMins && (isLoadingTraktTrending.value == false || isLoadingTraktTrending.value == null)) {
+                viewModelScope?.launch {
+                    traktRepository.refreshTraktTrendingShows()
+                }
+            }
+            // no updates have been done yet for this table
+        } else if ((trendingShowsEmpty.value == null || trendingShowsEmpty.value == true) && tableUpdate == null && diffInMinutes == null) {
+            viewModelScope?.launch {
+                traktRepository.refreshTraktTrendingShows()
+            }
         }
     }
 
