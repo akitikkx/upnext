@@ -154,6 +154,16 @@ interface UpnextDao {
 
     @Query("select * from trakt_popular")
     fun getTraktPopular(): LiveData<List<DatabaseTraktPopularShows>>
+
+    // TRAKT TRENDING SHOWS
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertAllTraktTrending(vararg traktTrendingShows: DatabaseTraktTrendingShows)
+
+    @Query("delete from trakt_trending")
+    fun deleteAllTraktTrending()
+
+    @Query("select * from trakt_trending")
+    fun getTraktTrending(): LiveData<List<DatabaseTraktTrendingShows>>
 }
 
 @Database(
@@ -170,9 +180,10 @@ interface UpnextDao {
         DatabaseTraktCollectionEpisode::class,
         DatabaseTableUpdate::class,
         DatabaseTraktRecommendations::class,
-        DatabaseTraktPopularShows::class
+        DatabaseTraktPopularShows::class,
+        DatabaseTraktTrendingShows::class
     ],
-    version = 15,
+    version = 16,
     exportSchema = true
 )
 abstract class UpnextDatabase : RoomDatabase() {
@@ -189,7 +200,7 @@ fun getDatabase(context: Context): UpnextDatabase {
                 UpnextDatabase::class.java,
                 "upnext"
             )
-                .addMigrations(MIGRATION_14_15)
+                .addMigrations(MIGRATION_14_15, MIGRATION_15_16)
                 .build()
         }
     }

@@ -45,16 +45,16 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
     val isLoadingRecommendations = traktRepository.isLoadingTraktRecommendations
 
     val historyTableUpdate =
-        traktRepository.tableUpdate(DatabaseTables.TABLE_HISTORY.tableName)
+        traktRepository.tableUpdate(DatabaseTables.TABLE_TRAKT_HISTORY.tableName)
 
     val collectionTableUpdate =
-        traktRepository.tableUpdate(DatabaseTables.TABLE_COLLECTION.tableName)
+        traktRepository.tableUpdate(DatabaseTables.TABLE_TRAKT_COLLECTION.tableName)
 
     val watchlistTableUpdate =
-        traktRepository.tableUpdate(DatabaseTables.TABLE_WATCHLIST.tableName)
+        traktRepository.tableUpdate(DatabaseTables.TABLE_TRAKT_WATCHLIST.tableName)
 
     val recommendationsTableUpdate =
-        traktRepository.tableUpdate(DatabaseTables.TABLE_RECOMMENDATIONS.tableName)
+        traktRepository.tableUpdate(DatabaseTables.TABLE_TRAKT_RECOMMENDATIONS.tableName)
 
     private val watchlistEmpty = MediatorLiveData<Boolean>().apply {
         addSource(traktWatchlist) {

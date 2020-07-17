@@ -6,5 +6,6 @@ enum class TableUpdateInterval(val intervalMins: Long, val intervalHours: Long) 
     HISTORY_ITEMS(30, 0),
     COLLECTION_ITEMS(30, 0),
     RECOMMENDED_ITEMS(240, 4),
-    POPULAR_ITEMS(480, 8)
+    POPULAR_ITEMS(240, 4),
+    TRENDING_ITEMS(240, 4)
 }
