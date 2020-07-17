@@ -67,6 +67,11 @@ class TraktRepository(private val database: UpnextDatabase) {
             it.asDomainModel()
         }
 
+    val traktPopularShows: LiveData<List<TraktPopularShows>> =
+        Transformations.map(database.upnextDao.getTraktPopular()) {
+            it.asDomainModel()
+        }
+
     private val _isLoading = MutableLiveData<Boolean>()
 
     private val _traktAccessToken = MutableLiveData<TraktAccessToken>()
@@ -106,8 +111,6 @@ class TraktRepository(private val database: UpnextDatabase) {
     private val _traktWatchedProgress = MutableLiveData<TraktShowWatchedProgress>()
 
     private val _trendingShows = MutableLiveData<List<TraktTrendingShows>>()
-
-    private val _popularShows = MutableLiveData<List<TraktPopularShows>>()
 
     private val _invalidToken = MutableLiveData<Boolean>()
 
@@ -153,8 +156,6 @@ class TraktRepository(private val database: UpnextDatabase) {
     val traktWatchedProgress: LiveData<TraktShowWatchedProgress> = _traktWatchedProgress
 
     val trendingShows: LiveData<List<TraktTrendingShows>> = _trendingShows
-
-    val popularShows: LiveData<List<TraktPopularShows>> = _popularShows
 
     val invalidToken: LiveData<Boolean> = _invalidToken
 
@@ -967,11 +968,11 @@ class TraktRepository(private val database: UpnextDatabase) {
         }
     }
 
-    suspend fun getPopularShows() {
+    suspend fun refreshTraktPopularShows() {
         withContext(Dispatchers.IO) {
             try {
                 _isLoadingTraktPopular.postValue(true)
-                val updatedPopularShowsList: MutableList<TraktPopularShows> = arrayListOf()
+                val shows: MutableList<DatabaseTraktPopularShows> = mutableListOf()
 
                 val popularShowsResponse = TraktNetwork.traktApi.getPopularShowsAsync().await()
 
@@ -1002,9 +1003,18 @@ class TraktRepository(private val database: UpnextDatabase) {
                                 }
                             }
                         }
-                        updatedPopularShowsList.add(popularItem.asDomainModel())
+                        shows.add(popularItem.asDatabaseModel())
                     }
-                    _popularShows.postValue(updatedPopularShowsList)
+
+                    database.upnextDao.apply {
+                        insertAllTraktPopular(*shows.toTypedArray())
+                        insertTableUpdateLog(
+                            DatabaseTableUpdate(
+                                table_name = DatabaseTables.TABLE_POPULAR.tableName,
+                                last_updated = System.currentTimeMillis()
+                            )
+                        )
+                    }
                 }
                 _isLoadingTraktPopular.postValue(false)
             } catch (e: HttpException) {

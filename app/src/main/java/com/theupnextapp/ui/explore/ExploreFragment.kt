@@ -78,6 +78,10 @@ class ExploreFragment : Fragment(),
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
+        viewModel.popularShowsTableUpdate.observe(viewLifecycleOwner, Observer {
+            viewModel.onPopularShowsTableUpdateReceived(it)
+        })
+
         viewModel.trendingShows.observe(viewLifecycleOwner, Observer {
             if (!it.isNullOrEmpty()) {
                 trendingShowsAdapter.trendingList = it

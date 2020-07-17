@@ -1,5 +1,6 @@
 package com.theupnextapp.network.models.trakt
 
+import com.theupnextapp.database.DatabaseTraktPopularShows
 import com.theupnextapp.domain.TraktPopularShows
 
 class NetworkTraktPopularShowsResponse : ArrayList<NetworkTraktPopularShowsResponseItem>()
@@ -21,7 +22,7 @@ data class NetworkTraktPopularShowsResponseItemIds(
     var tvMazeID: Int?
 )
 
-fun NetworkTraktPopularShowsResponseItem.asDomainModel() : TraktPopularShows {
+fun NetworkTraktPopularShowsResponseItem.asDomainModel(): TraktPopularShows {
     return TraktPopularShows(
         title = title,
         year = year.toString(),
@@ -33,5 +34,20 @@ fun NetworkTraktPopularShowsResponseItem.asDomainModel() : TraktPopularShows {
         traktID = ids?.trakt,
         tvMazeID = ids?.tvMazeID,
         tvdbID = ids?.tvdb
+    )
+}
+
+fun NetworkTraktPopularShowsResponseItem.asDatabaseModel(): DatabaseTraktPopularShows {
+    return DatabaseTraktPopularShows(
+        title = title,
+        year = year.toString(),
+        medium_image_url = mediumImageUrl,
+        original_image_url = originalImageUrl,
+        imdbID = ids?.imdb,
+        slug = ids?.slug,
+        tmdbID = ids?.tmdb,
+        traktID = ids?.trakt,
+        tvdbID = ids?.tvdb,
+        tvMazeID = ids?.tvMazeID
     )
 }
