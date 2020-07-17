@@ -55,8 +55,7 @@ class SplashScreenFragment : Fragment() {
 
         viewModel.isUpgradeInstall.observe(viewLifecycleOwner, Observer {
             if (it) {
-                // TODO Add functionality to rather update the shows if the last update was the previous day
-                viewModel.updateShows()
+                viewModel.showDashboard()
             }
         })
 

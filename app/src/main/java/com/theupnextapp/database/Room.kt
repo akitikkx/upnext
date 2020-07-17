@@ -144,6 +144,16 @@ interface UpnextDao {
 
     @Query("select * from trakt_recommendations")
     fun getTraktRecommendations(): LiveData<List<DatabaseTraktRecommendations>>
+
+    // TRAKT POPULAR SHOWS
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertAllTraktPopular(vararg traktPopularShows: DatabaseTraktPopularShows)
+
+    @Query("delete from trakt_popular")
+    fun deleteAllTraktPopular()
+
+    @Query("select * from trakt_popular")
+    fun getTraktPopular(): LiveData<List<DatabaseTraktPopularShows>>
 }
 
 @Database(
@@ -159,9 +169,10 @@ interface UpnextDao {
         DatabaseTraktCollectionSeason::class,
         DatabaseTraktCollectionEpisode::class,
         DatabaseTableUpdate::class,
-        DatabaseTraktRecommendations::class
+        DatabaseTraktRecommendations::class,
+        DatabaseTraktPopularShows::class
     ],
-    version = 14,
+    version = 15,
     exportSchema = true
 )
 abstract class UpnextDatabase : RoomDatabase() {
@@ -178,7 +189,7 @@ fun getDatabase(context: Context): UpnextDatabase {
                 UpnextDatabase::class.java,
                 "upnext"
             )
-                .fallbackToDestructiveMigration()
+                .addMigrations(MIGRATION_14_15)
                 .build()
         }
     }

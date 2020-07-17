@@ -19,7 +19,7 @@ buildscript {
         navigation_version = "2.3.0"
         okhttp_version = "4.7.2"
         okhttp_logging_interceptor_version = "4.7.2"
-        retrofit_version = "2.5.0"
+        retrofit_version = "2.9.0"
         retrofit_coroutines_adapter_version = "0.9.2"
         room_version = "2.2.5"
         work_version = "2.3.4"
