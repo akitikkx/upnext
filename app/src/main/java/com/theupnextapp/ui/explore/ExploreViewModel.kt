@@ -52,10 +52,6 @@ class ExploreViewModel(application: Application) : TraktViewModel(application) {
     }
 
     fun onPopularShowsTableUpdateReceived(tableUpdate: TableUpdate?) {
-        if (isAuthorizedOnTrakt.value == false) {
-            return
-        }
-
         val diffInMinutes =
             tableUpdate?.lastUpdated?.let { it -> DateUtils.dateDifference(it, "minutes") }
 
@@ -74,10 +70,6 @@ class ExploreViewModel(application: Application) : TraktViewModel(application) {
     }
 
     fun onTrendingShowsTableUpdateReceived(tableUpdate: TableUpdate?) {
-        if (isAuthorizedOnTrakt.value == false) {
-            return
-        }
-
         val diffInMinutes =
             tableUpdate?.lastUpdated?.let { it -> DateUtils.dateDifference(it, "minutes") }
 

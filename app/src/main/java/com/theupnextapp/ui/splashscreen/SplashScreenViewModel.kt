@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
 import com.theupnextapp.BuildConfig
 import com.theupnextapp.common.utils.DateUtils
-import com.theupnextapp.common.utils.UpnextPreferenceManager
 import com.theupnextapp.repository.UpnextRepository
 import com.theupnextapp.ui.common.TraktViewModel
 import com.theupnextapp.ui.dashboard.DashboardViewModel
@@ -96,9 +95,6 @@ class SplashScreenViewModel(application: Application) : TraktViewModel(applicati
                 DashboardViewModel.DEFAULT_COUNTRY_CODE,
                 DateUtils.tomorrowDate()
             )
-            if (isAuthorizedOnTrakt.value == true) {
-                traktRepository.refreshTraktRecommendations(UpnextPreferenceManager(getApplication()).getTraktAccessToken())
-            }
         }
     }
 
