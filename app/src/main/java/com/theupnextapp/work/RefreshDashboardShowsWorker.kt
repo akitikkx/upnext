@@ -13,7 +13,7 @@ import kotlinx.coroutines.coroutineScope
 import java.text.SimpleDateFormat
 import java.util.*
 
-class RefreshShowsWorker(appContext: Context, workerParameters: WorkerParameters) :
+class RefreshDashboardShowsWorker(appContext: Context, workerParameters: WorkerParameters) :
     CoroutineWorker(appContext, workerParameters) {
 
     override suspend fun doWork(): Result = coroutineScope {
@@ -25,7 +25,8 @@ class RefreshShowsWorker(appContext: Context, workerParameters: WorkerParameters
                 refreshShows(repository)
                 val bundle = Bundle()
                 bundle.putBoolean("Refresh shows job run", true)
-                FirebaseAnalytics.getInstance(this@RefreshShowsWorker.applicationContext).logEvent("RefreshShowsWorker", bundle)
+                FirebaseAnalytics.getInstance(this@RefreshDashboardShowsWorker.applicationContext)
+                    .logEvent("RefreshShowsWorker", bundle)
             }
         }
 
@@ -51,7 +52,7 @@ class RefreshShowsWorker(appContext: Context, workerParameters: WorkerParameters
 
     private fun currentDate(): String? {
         val calendar = Calendar.getInstance()
-        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd")
+        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         return simpleDateFormat.format(calendar.time)
     }
 
@@ -59,7 +60,7 @@ class RefreshShowsWorker(appContext: Context, workerParameters: WorkerParameters
         val calendar = Calendar.getInstance()
         calendar.add(Calendar.DAY_OF_YEAR, 1)
         val tomorrow = calendar.time
-        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd")
+        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         return simpleDateFormat.format(tomorrow)
     }
 
@@ -67,13 +68,12 @@ class RefreshShowsWorker(appContext: Context, workerParameters: WorkerParameters
         val calendar = Calendar.getInstance()
         calendar.add(Calendar.DAY_OF_YEAR, -1)
         val yesterday = calendar.time
-        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd")
+        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         return simpleDateFormat.format(yesterday)
     }
 
     companion object {
-        const val UPNEXT_WORK_NAME = "RefreshUpnextShowsWorker"
-        const val TRAKT_WORK_NAME = "RefreshTraktShowsWorker"
+        const val WORK_NAME = "RefreshUpnextShowsWorker"
         const val DEFAULT_COUNTRY_CODE = "US"
     }
 }

@@ -10,7 +10,8 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.theupnextapp.common.utils.UpnextPreferenceManager
 import com.theupnextapp.common.utils.models.TableUpdateInterval
-import com.theupnextapp.work.RefreshShowsWorker
+import com.theupnextapp.work.RefreshDashboardShowsWorker
+import com.theupnextapp.work.RefreshTraktExploreWorker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -64,19 +65,32 @@ class UpnextApplication : Application() {
                 }
             }.build()
 
-        val refreshShowsRequest = PeriodicWorkRequestBuilder<RefreshShowsWorker>(
+        val workManager = WorkManager.getInstance(this)
+
+        val refreshDashboardShowsRequest = PeriodicWorkRequestBuilder<RefreshDashboardShowsWorker>(
             TableUpdateInterval.DASHBOARD_ITEMS.intervalHours,
             TimeUnit.HOURS
         )
             .setConstraints(constraints)
             .build()
 
-        val workManager = WorkManager.getInstance(this)
+        workManager.enqueueUniquePeriodicWork(
+            RefreshDashboardShowsWorker.WORK_NAME,
+            ExistingPeriodicWorkPolicy.REPLACE,
+            refreshDashboardShowsRequest
+        )
+
+        val refreshExploreShowsRequest = PeriodicWorkRequestBuilder<RefreshTraktExploreWorker>(
+            TableUpdateInterval.TRENDING_ITEMS.intervalHours,
+            TimeUnit.HOURS
+        )
+            .setConstraints(constraints)
+            .build()
 
         workManager.enqueueUniquePeriodicWork(
-            RefreshShowsWorker.UPNEXT_WORK_NAME,
+            RefreshTraktExploreWorker.WORK_NAME,
             ExistingPeriodicWorkPolicy.REPLACE,
-            refreshShowsRequest
+            refreshExploreShowsRequest
         )
     }
 

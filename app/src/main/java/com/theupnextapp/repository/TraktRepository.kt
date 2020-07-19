@@ -16,6 +16,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 import timber.log.Timber
+import java.io.IOException
+import javax.net.ssl.SSLHandshakeException
 
 class TraktRepository(private val database: UpnextDatabase) {
 
@@ -175,6 +177,14 @@ class TraktRepository(private val database: UpnextDatabase) {
                 _isLoading.postValue(false)
                 Timber.d(e)
                 FirebaseCrashlytics.getInstance().recordException(e)
+            } catch (e: SSLHandshakeException) {
+                _isLoading.postValue(false)
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
+            } catch (e: IOException) {
+                _isLoading.postValue(false)
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
             }
         }
     }
@@ -242,6 +252,14 @@ class TraktRepository(private val database: UpnextDatabase) {
                 _isLoading.postValue(false)
                 Timber.d(e)
                 FirebaseCrashlytics.getInstance().recordException(e)
+            } catch (e: SSLHandshakeException) {
+                _isLoading.postValue(false)
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
+            } catch (e: IOException) {
+                _isLoading.postValue(false)
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
             }
         }
     }
@@ -270,8 +288,15 @@ class TraktRepository(private val database: UpnextDatabase) {
                 _traktAccessToken.postValue(accessTokenResponse.asDomainModel())
                 _isLoading.postValue(false)
                 _traktAccessToken.postValue(null)
-            } catch (e: HttpException) {
-                handleTraktError(e)
+            } catch (e: Exception) {
+                _isLoading.postValue(false)
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
+            } catch (e: SSLHandshakeException) {
+                _isLoading.postValue(false)
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
+            } catch (e: IOException) {
                 _isLoading.postValue(false)
                 Timber.d(e)
                 FirebaseCrashlytics.getInstance().recordException(e)
@@ -336,11 +361,18 @@ class TraktRepository(private val database: UpnextDatabase) {
                     }
                 }
                 _isLoadingTraktWatchlist.postValue(false)
-            } catch (e: HttpException) {
-                handleTraktError(e)
+            } catch (e: Exception) {
+                _isLoading.postValue(false)
                 Timber.d(e)
                 FirebaseCrashlytics.getInstance().recordException(e)
-                _isLoadingTraktWatchlist.postValue(false)
+            } catch (e: SSLHandshakeException) {
+                _isLoading.postValue(false)
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
+            } catch (e: IOException) {
+                _isLoading.postValue(false)
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
             }
         }
     }
@@ -414,11 +446,18 @@ class TraktRepository(private val database: UpnextDatabase) {
                     saveTraktHistory(updatedHistoryList)
                 }
                 _isLoadingTraktHistory.postValue(false)
-            } catch (e: HttpException) {
-                handleTraktError(e)
+            } catch (e: Exception) {
+                _isLoading.postValue(false)
                 Timber.d(e)
                 FirebaseCrashlytics.getInstance().recordException(e)
-                _isLoadingTraktHistory.postValue(false)
+            } catch (e: SSLHandshakeException) {
+                _isLoading.postValue(false)
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
+            } catch (e: IOException) {
+                _isLoading.postValue(false)
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
             }
         }
     }
@@ -440,6 +479,15 @@ class TraktRepository(private val database: UpnextDatabase) {
                     }
 
                 } catch (e: Exception) {
+                    _isLoading.postValue(false)
+                    Timber.d(e)
+                    FirebaseCrashlytics.getInstance().recordException(e)
+                } catch (e: SSLHandshakeException) {
+                    _isLoading.postValue(false)
+                    Timber.d(e)
+                    FirebaseCrashlytics.getInstance().recordException(e)
+                } catch (e: IOException) {
+                    _isLoading.postValue(false)
                     Timber.d(e)
                     FirebaseCrashlytics.getInstance().recordException(e)
                 }
@@ -455,6 +503,12 @@ class TraktRepository(private val database: UpnextDatabase) {
                 ).await()
                 Timber.d(watchlistResponse.toString())
             } catch (e: Exception) {
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
+            } catch (e: SSLHandshakeException) {
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
+            } catch (e: IOException) {
                 Timber.d(e)
                 FirebaseCrashlytics.getInstance().recordException(e)
             }
@@ -542,6 +596,14 @@ class TraktRepository(private val database: UpnextDatabase) {
                 _isLoadingTraktCollection.postValue(false)
                 Timber.d(e)
                 FirebaseCrashlytics.getInstance().recordException(e)
+            } catch (e: SSLHandshakeException) {
+                _isLoadingTraktCollection.postValue(false)
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
+            } catch (e: IOException) {
+                _isLoadingTraktCollection.postValue(false)
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
             }
         }
     }
@@ -572,6 +634,9 @@ class TraktRepository(private val database: UpnextDatabase) {
             } catch (e: Exception) {
                 Timber.d(e)
                 FirebaseCrashlytics.getInstance().recordException(e)
+            } catch (e: IOException) {
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
             }
         }
     }
@@ -591,6 +656,9 @@ class TraktRepository(private val database: UpnextDatabase) {
             } catch (e: Exception) {
                 Timber.d(e)
                 FirebaseCrashlytics.getInstance().recordException(e)
+            } catch (e: IOException) {
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
             }
         }
     }
@@ -604,6 +672,9 @@ class TraktRepository(private val database: UpnextDatabase) {
             } catch (e: Exception) {
                 Timber.d(e)
                 FirebaseCrashlytics.getInstance().recordException(e)
+            } catch (e: IOException) {
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
             }
         }
     }
@@ -614,6 +685,9 @@ class TraktRepository(private val database: UpnextDatabase) {
                 database.upnextDao.deleteAllTraktCollectionEpisodesByImdbId(imdbID)
                 database.upnextDao.deleteAllTraktCollectionSeasonsByImdbId(imdbID)
             } catch (e: Exception) {
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
+            } catch (e: IOException) {
                 Timber.d(e)
                 FirebaseCrashlytics.getInstance().recordException(e)
             }
@@ -667,9 +741,21 @@ class TraktRepository(private val database: UpnextDatabase) {
                 }
                 _isLoading.postValue(false)
             } catch (e: Exception) {
+                _isLoading.postValue(false)
                 Timber.d(e)
                 FirebaseCrashlytics.getInstance().recordException(e)
+            } catch (e: HttpException) {
                 _isLoading.postValue(false)
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
+            } catch (e: SSLHandshakeException) {
+                _isLoading.postValue(false)
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
+            } catch (e: IOException) {
+                _isLoading.postValue(false)
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
             }
         }
     }
@@ -803,12 +889,23 @@ class TraktRepository(private val database: UpnextDatabase) {
                         }
                     }
                 }
-
                 _isLoading.postValue(false)
-            } catch (e: HttpException) {
+            } catch (e: Exception) {
+                _isLoading.postValue(false)
                 Timber.d(e)
                 FirebaseCrashlytics.getInstance().recordException(e)
+            } catch (e: HttpException) {
                 _isLoading.postValue(false)
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
+            } catch (e: SSLHandshakeException) {
+                _isLoading.postValue(false)
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
+            } catch (e: IOException) {
+                _isLoading.postValue(false)
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
             }
         }
     }
@@ -890,9 +987,21 @@ class TraktRepository(private val database: UpnextDatabase) {
                 _traktShowRating.postValue(showRatingResponse.asDomainModel())
                 _isLoading.postValue(false)
             } catch (e: Exception) {
+                _isLoading.postValue(false)
                 Timber.d(e)
                 FirebaseCrashlytics.getInstance().recordException(e)
+            } catch (e: HttpException) {
                 _isLoading.postValue(false)
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
+            } catch (e: SSLHandshakeException) {
+                _isLoading.postValue(false)
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
+            } catch (e: IOException) {
+                _isLoading.postValue(false)
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
             }
         }
     }
@@ -911,9 +1020,21 @@ class TraktRepository(private val database: UpnextDatabase) {
                 _traktShowStats.postValue(showStatsResponse.asDomainModel())
                 _isLoading.postValue(false)
             } catch (e: Exception) {
+                _isLoading.postValue(false)
                 Timber.d(e)
                 FirebaseCrashlytics.getInstance().recordException(e)
+            } catch (e: HttpException) {
                 _isLoading.postValue(false)
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
+            } catch (e: SSLHandshakeException) {
+                _isLoading.postValue(false)
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
+            } catch (e: IOException) {
+                _isLoading.postValue(false)
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
             }
         }
     }
@@ -927,6 +1048,11 @@ class TraktRepository(private val database: UpnextDatabase) {
                 val trendingShowsResponse = TraktNetwork.traktApi.getTrendingShowsAsync().await()
 
                 if (!trendingShowsResponse.isEmpty()) {
+                    database.upnextDao.apply {
+                        deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_TRENDING.tableName)
+                        deleteAllTraktTrending()
+                    }
+
                     for (item in trendingShowsResponse) {
                         val trendingItem: NetworkTraktTrendingShowsResponseItem = item
 
@@ -966,66 +1092,22 @@ class TraktRepository(private val database: UpnextDatabase) {
                     }
                 }
                 _isLoadingTraktTrending.postValue(false)
-            } catch (e: HttpException) {
-                Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+            } catch (e: Exception) {
                 _isLoadingTraktTrending.postValue(false)
-            }
-        }
-    }
-
-    suspend fun refreshTraktPopularShows() {
-        withContext(Dispatchers.IO) {
-            try {
-                _isLoadingTraktPopular.postValue(true)
-                val shows: MutableList<DatabaseTraktPopularShows> = mutableListOf()
-
-                val popularShowsResponse = TraktNetwork.traktApi.getPopularShowsAsync().await()
-
-                if (!popularShowsResponse.isEmpty()) {
-                    for (item in popularShowsResponse) {
-                        val popularItem: NetworkTraktPopularShowsResponseItem = item
-
-                        val imdbID = popularItem.ids?.imdb
-                        val traktTitle = popularItem.title
-
-                        // perform a TvMaze search for the Trakt item using the Trakt title
-                        val tvMazeSearch =
-                            traktTitle?.let {
-                                TvMazeNetwork.tvMazeApi.getSuggestionListAsync(it).await()
-                            }
-
-                        // loop through the search results from TvMaze and find a match for the IMDb ID
-                        // and update the watchlist item by adding the TvMaze ID
-                        if (!tvMazeSearch.isNullOrEmpty()) {
-                            for (searchItem in tvMazeSearch) {
-                                val showSearchItem: NetworkShowSearchResponse = searchItem
-                                if (showSearchItem.show.externals.imdb == imdbID) {
-                                    popularItem.originalImageUrl =
-                                        showSearchItem.show.image?.medium
-                                    popularItem.mediumImageUrl =
-                                        showSearchItem.show.image?.original
-                                    popularItem.ids?.tvMazeID = showSearchItem.show.id
-                                }
-                            }
-                        }
-                        shows.add(popularItem.asDatabaseModel())
-                    }
-                    database.upnextDao.apply {
-                        insertAllTraktPopular(*shows.toTypedArray())
-                        insertTableUpdateLog(
-                            DatabaseTableUpdate(
-                                table_name = DatabaseTables.TABLE_TRAKT_POPULAR.tableName,
-                                last_updated = System.currentTimeMillis()
-                            )
-                        )
-                    }
-                }
-                _isLoadingTraktPopular.postValue(false)
-            } catch (e: HttpException) {
                 Timber.d(e)
                 FirebaseCrashlytics.getInstance().recordException(e)
-                _isLoadingTraktPopular.postValue(false)
+            } catch (e: HttpException) {
+                _isLoadingTraktTrending.postValue(false)
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
+            } catch (e: SSLHandshakeException) {
+                _isLoadingTraktTrending.postValue(false)
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
+            } catch (e: IOException) {
+                _isLoadingTraktTrending.postValue(false)
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
             }
         }
     }
@@ -1049,9 +1131,21 @@ class TraktRepository(private val database: UpnextDatabase) {
                 _isLoading.postValue(false)
             } catch (e: HttpException) {
                 handleTraktError(e)
+                _isLoading.postValue(false)
                 Timber.d(e)
                 FirebaseCrashlytics.getInstance().recordException(e)
+            } catch (e: Exception) {
                 _isLoading.postValue(false)
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
+            } catch (e: SSLHandshakeException) {
+                _isLoading.postValue(false)
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
+            } catch (e: IOException) {
+                _isLoading.postValue(false)
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
             }
         }
     }
@@ -1115,27 +1209,87 @@ class TraktRepository(private val database: UpnextDatabase) {
                 _isLoadingTraktRecommendations.postValue(false)
                 Timber.d(e)
                 FirebaseCrashlytics.getInstance().recordException(e)
+            } catch (e: SSLHandshakeException) {
+                _isLoadingTraktRecommendations.postValue(false)
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
+            } catch (e: IOException) {
+                _isLoadingTraktRecommendations.postValue(false)
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
             }
         }
     }
 
-    private suspend fun saveTraktRecommendations(list: List<DatabaseTraktRecommendations>) {
-        if (!list.isNullOrEmpty()) {
-            withContext(Dispatchers.IO) {
-                try {
-                    database.upnextDao.deleteAllTraktRecommendations()
-                    database.upnextDao.insertAllTraktRecommendations(*list.toTypedArray())
-                    database.upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_RECOMMENDATIONS.tableName)
-                    database.upnextDao.insertTableUpdateLog(
-                        DatabaseTableUpdate(
-                            table_name = DatabaseTables.TABLE_TRAKT_RECOMMENDATIONS.tableName,
-                            last_updated = System.currentTimeMillis()
+    suspend fun refreshTraktPopularShows() {
+        withContext(Dispatchers.IO) {
+            try {
+                _isLoadingTraktPopular.postValue(true)
+                val shows: MutableList<DatabaseTraktPopularShows> = mutableListOf()
+
+                val popularShowsResponse = TraktNetwork.traktApi.getPopularShowsAsync().await()
+
+                if (!popularShowsResponse.isEmpty()) {
+                    database.upnextDao.apply {
+                        deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_POPULAR.tableName)
+                        deleteAllTraktPopular()
+                    }
+
+                    for (item in popularShowsResponse) {
+                        val popularItem: NetworkTraktPopularShowsResponseItem = item
+
+                        val imdbID = popularItem.ids?.imdb
+                        val traktTitle = popularItem.title
+
+                        // perform a TvMaze search for the Trakt item using the Trakt title
+                        val tvMazeSearch =
+                            traktTitle?.let {
+                                TvMazeNetwork.tvMazeApi.getSuggestionListAsync(it).await()
+                            }
+
+                        // loop through the search results from TvMaze and find a match for the IMDb ID
+                        // and update the watchlist item by adding the TvMaze ID
+                        if (!tvMazeSearch.isNullOrEmpty()) {
+                            for (searchItem in tvMazeSearch) {
+                                val showSearchItem: NetworkShowSearchResponse = searchItem
+                                if (showSearchItem.show.externals.imdb == imdbID) {
+                                    popularItem.originalImageUrl =
+                                        showSearchItem.show.image?.medium
+                                    popularItem.mediumImageUrl =
+                                        showSearchItem.show.image?.original
+                                    popularItem.ids?.tvMazeID = showSearchItem.show.id
+                                }
+                            }
+                        }
+                        shows.add(popularItem.asDatabaseModel())
+                    }
+                    database.upnextDao.apply {
+                        insertAllTraktPopular(*shows.toTypedArray())
+                        insertTableUpdateLog(
+                            DatabaseTableUpdate(
+                                table_name = DatabaseTables.TABLE_TRAKT_POPULAR.tableName,
+                                last_updated = System.currentTimeMillis()
+                            )
                         )
-                    )
-                } catch (e: Exception) {
-                    Timber.d(e)
-                    FirebaseCrashlytics.getInstance().recordException(e)
+                    }
                 }
+                _isLoadingTraktPopular.postValue(false)
+            } catch (e: Exception) {
+                _isLoadingTraktPopular.postValue(false)
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
+            } catch (e: HttpException) {
+                _isLoadingTraktPopular.postValue(false)
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
+            } catch (e: SSLHandshakeException) {
+                _isLoadingTraktPopular.postValue(false)
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
+            } catch (e: IOException) {
+                _isLoadingTraktPopular.postValue(false)
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
             }
         }
     }
