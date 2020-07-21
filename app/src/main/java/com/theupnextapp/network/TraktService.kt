@@ -95,6 +95,9 @@ interface TraktService {
     @GET("shows/popular")
     fun getPopularShowsAsync(): Deferred<NetworkTraktPopularShowsResponse>
 
+    @GET("shows/anticipated")
+    fun getMostAnticipatedShowsAsync(): Deferred<NetworkTraktMostAnticipatedResponse>
+
     @GET("shows/{id}/progress/watched")
     fun getShowWatchedProgressAsync(
         @Header("Authorization") token: String,

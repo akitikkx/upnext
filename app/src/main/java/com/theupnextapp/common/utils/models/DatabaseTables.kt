@@ -10,4 +10,5 @@ enum class DatabaseTables(val tableName: String) {
     TABLE_TRAKT_RECOMMENDATIONS("trakt_recommendations"),
     TABLE_TRAKT_POPULAR("trakt_popular"),
     TABLE_TRAKT_TRENDING("trakt_trending"),
+    TABLE_TRAKT_MOST_ANTICIPATED("trakt_most_anticipated"),
 }

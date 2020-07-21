@@ -34,6 +34,7 @@ class RefreshTraktExploreWorker(appContext: Context, workerParameters: WorkerPar
     private suspend fun refreshShows(repository: TraktRepository) {
         repository.refreshTraktPopularShows()
         repository.refreshTraktTrendingShows()
+        repository.refreshTraktMostAnticipatedShows()
     }
 
     companion object {

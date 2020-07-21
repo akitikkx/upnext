@@ -2,10 +2,11 @@ package com.theupnextapp.common.utils.models
 
 enum class TableUpdateInterval(val intervalMins: Long, val intervalHours: Long) {
     DASHBOARD_ITEMS(240, 4),
-    WATCHLIST_ITEMS(30, 0),
-    HISTORY_ITEMS(30, 0),
-    COLLECTION_ITEMS(30, 0),
-    RECOMMENDED_ITEMS(240, 4),
-    POPULAR_ITEMS(240, 4),
-    TRENDING_ITEMS(240, 4)
+    TRAKT_WATCHLIST_ITEMS(30, 0),
+    TRAKT_HISTORY_ITEMS(30, 0),
+    TRAKT_COLLECTION_ITEMS(30, 0),
+    TRAKT_RECOMMENDED_ITEMS(240, 4),
+    TRAKT_POPULAR_ITEMS(240, 4),
+    TRAKT_TRENDING_ITEMS(240, 4),
+    TRAKT_MOST_ANTICIPATED_ITEMS(240, 4)
 }
