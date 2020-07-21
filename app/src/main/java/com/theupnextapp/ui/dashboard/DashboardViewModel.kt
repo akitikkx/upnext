@@ -103,7 +103,7 @@ class DashboardViewModel(application: Application) : TraktViewModel(application)
                 }
             }
             // no updates have been done yet for this table
-        } else if ((yesterdayShowsEmpty.value == true && isLoadingYesterdayShows.value == false) || tableUpdate == null && diffInMinutes == null) {
+        } else if ((yesterdayShowsEmpty.value == true && isLoadingYesterdayShows.value == false) && tableUpdate == null && diffInMinutes == null) {
             viewModelScope?.launch {
                 upnextRepository.refreshYesterdayShows(
                     DEFAULT_COUNTRY_CODE,
@@ -127,7 +127,7 @@ class DashboardViewModel(application: Application) : TraktViewModel(application)
                 }
             }
             // no updates have been done yet for this table
-        } else if ((todayShowsEmpty.value == true && isLoadingTodayShows.value == true) || (tableUpdate == null && diffInMinutes == null)) {
+        } else if ((todayShowsEmpty.value == true && isLoadingTodayShows.value == true) && tableUpdate == null && diffInMinutes == null) {
             viewModelScope?.launch {
                 upnextRepository.refreshTodayShows(
                     DEFAULT_COUNTRY_CODE,
@@ -151,7 +151,7 @@ class DashboardViewModel(application: Application) : TraktViewModel(application)
                 }
             }
             // no updates have been done yet for this table
-        } else if ((tomorrowShowsEmpty.value == true && isLoadingTomorrowShows.value == false) || tableUpdate == null && diffInMinutes == null) {
+        } else if ((tomorrowShowsEmpty.value == true && isLoadingTomorrowShows.value == false) && tableUpdate == null && diffInMinutes == null) {
             viewModelScope?.launch {
                 upnextRepository.refreshTomorrowShows(
                     DEFAULT_COUNTRY_CODE,
