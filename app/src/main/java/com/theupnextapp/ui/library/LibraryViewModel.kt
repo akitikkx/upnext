@@ -143,7 +143,7 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
             tableUpdate?.lastUpdated?.let { it -> DateUtils.dateDifference(it, "minutes") }
 
         if (diffInMinutes != null && diffInMinutes != 0L) {
-            if (diffInMinutes > TableUpdateInterval.WATCHLIST_ITEMS.intervalMins && (isLoadingWatchlist.value == false || isLoadingWatchlist.value == null)) {
+            if (diffInMinutes > TableUpdateInterval.TRAKT_WATCHLIST_ITEMS.intervalMins && (isLoadingWatchlist.value == false || isLoadingWatchlist.value == null)) {
                 viewModelScope?.launch {
                     traktRepository.refreshTraktWatchlist(UpnextPreferenceManager(getApplication()).getTraktAccessToken())
                 }
@@ -194,7 +194,7 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
             tableUpdate?.lastUpdated?.let { it -> DateUtils.dateDifference(it, "minutes") }
 
         if (diffInMinutes != null && diffInMinutes != 0L) {
-            if (diffInMinutes > TableUpdateInterval.COLLECTION_ITEMS.intervalMins && (isLoadingCollection.value == false || isLoadingCollection.value == null)) {
+            if (diffInMinutes > TableUpdateInterval.TRAKT_COLLECTION_ITEMS.intervalMins && (isLoadingCollection.value == false || isLoadingCollection.value == null)) {
                 viewModelScope?.launch {
                     traktRepository.refreshTraktCollection(UpnextPreferenceManager(getApplication()).getTraktAccessToken())
                 }
@@ -245,7 +245,7 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
             tableUpdate?.lastUpdated?.let { it -> DateUtils.dateDifference(it, "minutes") }
 
         if (diffInMinutes != null && diffInMinutes != 0L) {
-            if (diffInMinutes > TableUpdateInterval.HISTORY_ITEMS.intervalMins && (isLoadingHistory.value == false || isLoadingHistory.value == null)) {
+            if (diffInMinutes > TableUpdateInterval.TRAKT_HISTORY_ITEMS.intervalMins && (isLoadingHistory.value == false || isLoadingHistory.value == null)) {
                 viewModelScope?.launch {
                     traktRepository.refreshTraktHistory(UpnextPreferenceManager(getApplication()).getTraktAccessToken())
                 }
@@ -296,7 +296,7 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
             tableUpdate?.lastUpdated?.let { it -> DateUtils.dateDifference(it, "minutes") }
 
         if (diffInMinutes != null && diffInMinutes != 0L) {
-            if (diffInMinutes > TableUpdateInterval.RECOMMENDED_ITEMS.intervalMins && (isLoadingRecommendations.value == false || isLoadingRecommendations.value == null)) {
+            if (diffInMinutes > TableUpdateInterval.TRAKT_RECOMMENDED_ITEMS.intervalMins && (isLoadingRecommendations.value == false || isLoadingRecommendations.value == null)) {
                 viewModelScope?.launch {
                     traktRepository.refreshTraktRecommendations(
                         UpnextPreferenceManager(

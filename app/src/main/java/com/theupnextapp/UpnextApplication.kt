@@ -81,7 +81,7 @@ class UpnextApplication : Application() {
         )
 
         val refreshExploreShowsRequest = PeriodicWorkRequestBuilder<RefreshTraktExploreWorker>(
-            TableUpdateInterval.TRENDING_ITEMS.intervalHours,
+            TableUpdateInterval.TRAKT_TRENDING_ITEMS.intervalHours,
             TimeUnit.HOURS
         )
             .setConstraints(constraints)

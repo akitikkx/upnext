@@ -126,6 +126,7 @@
     <!-- Explore -->
     <string name="explore_trending_shows_list_title">Trending shows</string>
     <string name="explore_popular_shows_list_title">Popular shows</string>
+    <string name="explore_most_anticipated_shows_list_title">Most Anticipated shows</string>
 
     <string name="trakt_button_text_not_connected">Connect Trakt account</string>
     <string name="trakt_button_text_is_connected">Disconnect Trakt account</string>

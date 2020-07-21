@@ -79,6 +79,11 @@ class TraktRepository(private val database: UpnextDatabase) {
             it.asDomainModel()
         }
 
+    val traktMostAnticipatedShows: LiveData<List<TraktMostAnticipated>> =
+        Transformations.map(database.upnextDao.getTraktMostAnticipated()) {
+            it.asDomainModel()
+        }
+
     private val _isLoading = MutableLiveData<Boolean>()
 
     private val _traktAccessToken = MutableLiveData<TraktAccessToken>()
@@ -94,6 +99,8 @@ class TraktRepository(private val database: UpnextDatabase) {
     private val _isLoadingTraktTrending = MutableLiveData<Boolean>()
 
     private val _isLoadingTraktPopular = MutableLiveData<Boolean>()
+
+    private val _isLoadingTraktMostAnticipated = MutableLiveData<Boolean>()
 
     private val _isRemovingTraktWatchlist = MutableLiveData<Boolean>()
 
@@ -130,6 +137,8 @@ class TraktRepository(private val database: UpnextDatabase) {
     val isLoadingTraktTrending: LiveData<Boolean> = _isLoadingTraktTrending
 
     val isLoadingTraktPopular: LiveData<Boolean> = _isLoadingTraktPopular
+
+    val isLoadingTraktMostAnticipated: LiveData<Boolean> = _isLoadingTraktMostAnticipated
 
     val isRemovingTraktWatchlist: LiveData<Boolean> = _isRemovingTraktWatchlist
 
@@ -1288,6 +1297,79 @@ class TraktRepository(private val database: UpnextDatabase) {
                 FirebaseCrashlytics.getInstance().recordException(e)
             } catch (e: IOException) {
                 _isLoadingTraktPopular.postValue(false)
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
+            }
+        }
+    }
+
+    suspend fun refreshTraktMostAnticipatedShows() {
+        withContext(Dispatchers.IO) {
+            try {
+                _isLoadingTraktMostAnticipated.postValue(true)
+                val shows: MutableList<DatabaseTraktMostAnticipated> = mutableListOf()
+
+                val mostAnticipatedShowsResponse = TraktNetwork.traktApi.getMostAnticipatedShowsAsync().await()
+
+                if (!mostAnticipatedShowsResponse.isEmpty()) {
+                    database.upnextDao.apply {
+                        deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_MOST_ANTICIPATED.tableName)
+                        deleteAllTraktMostAnticipated()
+                    }
+
+                    for (item in mostAnticipatedShowsResponse) {
+                        val mostAnticipatedItem: NetworkTraktMostAnticipatedResponseItem = item
+
+                        val imdbID = mostAnticipatedItem.show?.ids?.imdb
+                        val traktTitle = mostAnticipatedItem.show?.title
+
+                        // perform a TvMaze search for the Trakt item using the Trakt title
+                        val tvMazeSearch =
+                            traktTitle?.let {
+                                TvMazeNetwork.tvMazeApi.getSuggestionListAsync(it).await()
+                            }
+
+                        // loop through the search results from TvMaze and find a match for the IMDb ID
+                        // and update the watchlist item by adding the TvMaze ID
+                        if (!tvMazeSearch.isNullOrEmpty()) {
+                            for (searchItem in tvMazeSearch) {
+                                val showSearchItem: NetworkShowSearchResponse = searchItem
+                                if (showSearchItem.show.externals.imdb == imdbID) {
+                                    mostAnticipatedItem.show.originalImageUrl =
+                                        showSearchItem.show.image?.medium
+                                    mostAnticipatedItem.show.mediumImageUrl =
+                                        showSearchItem.show.image?.original
+                                    mostAnticipatedItem.show.ids?.tvMazeID = showSearchItem.show.id
+                                }
+                            }
+                        }
+                        shows.add(mostAnticipatedItem.asDatabaseModel())
+                    }
+                    database.upnextDao.apply {
+                        insertAllTraktMostAnticipated(*shows.toTypedArray())
+                        insertTableUpdateLog(
+                            DatabaseTableUpdate(
+                                table_name = DatabaseTables.TABLE_TRAKT_MOST_ANTICIPATED.tableName,
+                                last_updated = System.currentTimeMillis()
+                            )
+                        )
+                    }
+                }
+                _isLoadingTraktMostAnticipated.postValue(false)
+            } catch (e: Exception) {
+                _isLoadingTraktMostAnticipated.postValue(false)
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
+            } catch (e: HttpException) {
+                _isLoadingTraktMostAnticipated.postValue(false)
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
+            } catch (e: SSLHandshakeException) {
+                _isLoadingTraktMostAnticipated.postValue(false)
+                Timber.d(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
+            } catch (e: IOException) {
+                _isLoadingTraktMostAnticipated.postValue(false)
                 Timber.d(e)
                 FirebaseCrashlytics.getInstance().recordException(e)
             }

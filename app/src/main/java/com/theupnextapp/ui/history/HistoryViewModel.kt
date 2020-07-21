@@ -60,7 +60,7 @@ class HistoryViewModel(application: Application) : TraktViewModel(application) {
 
         // Only perform an update if there has been enough time before the previous update
         if (diffInMinutes != null && historyEmpty.value != true) {
-            if (diffInMinutes >= TableUpdateInterval.HISTORY_ITEMS.intervalMins) {
+            if (diffInMinutes >= TableUpdateInterval.TRAKT_HISTORY_ITEMS.intervalMins) {
                 loadTraktHistory()
             }
         } else if (historyEmpty.value == true) {

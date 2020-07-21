@@ -16,12 +16,14 @@ import com.google.firebase.ktx.Firebase
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentExploreBinding
 import com.theupnextapp.domain.ShowDetailArg
+import com.theupnextapp.domain.TraktMostAnticipated
 import com.theupnextapp.domain.TraktPopularShows
 import com.theupnextapp.domain.TraktTrendingShows
 
 class ExploreFragment : Fragment(),
     TrendingShowsAdapter.TrendingShowsAdapterListener,
-    PopularShowsAdapter.PopularShowsAdapterListener {
+    PopularShowsAdapter.PopularShowsAdapterListener,
+    MostAnticipatedShowsAdapter.MostAnticipatedShowsAdapterListener {
 
     private var _binding: FragmentExploreBinding? = null
     private val binding get() = _binding!!
@@ -31,6 +33,9 @@ class ExploreFragment : Fragment(),
 
     private var _popularShowsAdapter: PopularShowsAdapter? = null
     private val popularShowsAdapter get() = _popularShowsAdapter!!
+
+    private var _mostAnticipatedShowsAdapter: MostAnticipatedShowsAdapter? = null
+    private val mostAnticipatedShowsAdapter get() = _mostAnticipatedShowsAdapter!!
 
     private val viewModel: ExploreViewModel by lazy {
         val activity = requireNotNull(activity) {
@@ -58,6 +63,8 @@ class ExploreFragment : Fragment(),
 
         _popularShowsAdapter = PopularShowsAdapter(this)
 
+        _mostAnticipatedShowsAdapter = MostAnticipatedShowsAdapter(this)
+
         binding.root.findViewById<RecyclerView>(R.id.trending_shows_list).apply {
             layoutManager = LinearLayoutManager(requireContext()).apply {
                 orientation = LinearLayoutManager.HORIZONTAL
@@ -70,6 +77,13 @@ class ExploreFragment : Fragment(),
                 orientation = LinearLayoutManager.HORIZONTAL
             }
             adapter = popularShowsAdapter
+        }
+
+        binding.root.findViewById<RecyclerView>(R.id.most_anticipated_shows_list).apply {
+            layoutManager = LinearLayoutManager(requireContext()).apply {
+                orientation = LinearLayoutManager.HORIZONTAL
+            }
+            adapter = mostAnticipatedShowsAdapter
         }
 
         return binding.root
@@ -86,6 +100,10 @@ class ExploreFragment : Fragment(),
             viewModel.onTrendingShowsTableUpdateReceived(it)
         })
 
+        viewModel.mostAnticipatedShowsTableUpdate.observe(viewLifecycleOwner, Observer {
+            viewModel.onMostAnticipatedShowsTableUpdateReceived(it)
+        })
+
         viewModel.trendingShows.observe(viewLifecycleOwner, Observer {
             if (!it.isNullOrEmpty()) {
                 trendingShowsAdapter.trendingList = it
@@ -95,6 +113,12 @@ class ExploreFragment : Fragment(),
         viewModel.popularShows.observe(viewLifecycleOwner, Observer {
             if (!it.isNullOrEmpty()) {
                 popularShowsAdapter.popularList = it
+            }
+        })
+
+        viewModel.mostAnticipatedShows.observe(viewLifecycleOwner, Observer {
+            if (!it.isNullOrEmpty()) {
+                mostAnticipatedShowsAdapter.mostAnticipatedShowsList = it
             }
         })
 
@@ -113,12 +137,13 @@ class ExploreFragment : Fragment(),
         _binding = null
         _trendingShowsAdapter = null
         _popularShowsAdapter = null
+        _mostAnticipatedShowsAdapter = null
     }
 
     override fun onTrendingShowClick(view: View, traktTrending: TraktTrendingShows) {
         viewModel.onExploreItemClick(
             ShowDetailArg(
-                source = "popular",
+                source = "trending",
                 showId = traktTrending.tvMazeID,
                 showTitle = traktTrending.title,
                 showImageUrl = traktTrending.originalImageUrl
@@ -150,5 +175,22 @@ class ExploreFragment : Fragment(),
         analyticsBundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "explore_show")
 
         Firebase.analytics.logEvent("popular_shows_click", analyticsBundle)
+    }
+
+    override fun onMostAnticipatedShowClick(view: View, mostAnticipated: TraktMostAnticipated) {
+        viewModel.onExploreItemClick(
+            ShowDetailArg(
+                source = "most_anticipated",
+                showId = mostAnticipated.tvMazeID,
+                showTitle = mostAnticipated.title,
+                showImageUrl = mostAnticipated.originalImageUrl
+            )
+        )
+        val analyticsBundle = Bundle()
+        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, mostAnticipated.tvMazeID.toString())
+        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, mostAnticipated.title)
+        analyticsBundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "explore_show")
+
+        Firebase.analytics.logEvent("most_anticipated_shows_click", analyticsBundle)
     }
 }
