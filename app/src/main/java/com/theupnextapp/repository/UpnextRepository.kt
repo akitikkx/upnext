@@ -131,6 +131,14 @@ class UpnextRepository(private val database: UpnextDatabase) {
                 val yesterdayShowsList =
                     TvMazeNetwork.tvMazeApi.getYesterdayScheduleAsync(countryCode, date).await()
                 if (!yesterdayShowsList.isNullOrEmpty()) {
+                    database.upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_YESTERDAY_SHOWS.tableName)
+                    database.upnextDao.insertTableUpdateLog(
+                        DatabaseTableUpdate(
+                            table_name = DatabaseTables.TABLE_YESTERDAY_SHOWS.tableName,
+                            last_updated = System.currentTimeMillis()
+                        )
+                    )
+
                     yesterdayShowsList.forEach {
                         // only adding shows that have an image
                         if (!it.show.image?.original.isNullOrEmpty() && !it.show.externals?.imdb.isNullOrEmpty()) {
@@ -159,6 +167,14 @@ class UpnextRepository(private val database: UpnextDatabase) {
                 val todayShowsList =
                     TvMazeNetwork.tvMazeApi.getTodayScheduleAsync(countryCode, date).await()
                 if (!todayShowsList.isNullOrEmpty()) {
+                    database.upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TODAY_SHOWS.tableName)
+                    database.upnextDao.insertTableUpdateLog(
+                        DatabaseTableUpdate(
+                            table_name = DatabaseTables.TABLE_TODAY_SHOWS.tableName,
+                            last_updated = System.currentTimeMillis()
+                        )
+                    )
+
                     todayShowsList.forEach {
                         // only adding shows that have an image
                         if (!it.show.image?.original.isNullOrEmpty() && !it.show.externals?.imdb.isNullOrEmpty()) {
@@ -168,13 +184,6 @@ class UpnextRepository(private val database: UpnextDatabase) {
                     database.upnextDao.apply {
                         deleteAllTodayShows()
                         insertAllTodayShows(*shows.toTypedArray())
-                        database.upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TODAY_SHOWS.tableName)
-                        database.upnextDao.insertTableUpdateLog(
-                            DatabaseTableUpdate(
-                                table_name = DatabaseTables.TABLE_TODAY_SHOWS.tableName,
-                                last_updated = System.currentTimeMillis()
-                            )
-                        )
                     }
                 }
                 _isLoadingTodayShows.postValue(false)
@@ -210,6 +219,14 @@ class UpnextRepository(private val database: UpnextDatabase) {
                 val shows: MutableList<DatabaseTomorrowSchedule> = arrayListOf()
                 if (!tomorrowShowsList.isNullOrEmpty()) {
                     tomorrowShowsList.forEach {
+                        database.upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TOMORROW_SHOWS.tableName)
+                        database.upnextDao.insertTableUpdateLog(
+                            DatabaseTableUpdate(
+                                table_name = DatabaseTables.TABLE_TOMORROW_SHOWS.tableName,
+                                last_updated = System.currentTimeMillis()
+                            )
+                        )
+
                         // only adding shows that have an image
                         if (!it.show.image?.original.isNullOrEmpty() && !it.show.externals?.imdb.isNullOrEmpty()) {
                             shows.add(it.asDatabaseModel())
@@ -218,13 +235,6 @@ class UpnextRepository(private val database: UpnextDatabase) {
                     database.upnextDao.apply {
                         deleteAllTomorrowShows()
                         insertAllTomorrowShows(*shows.toTypedArray())
-                        database.upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TOMORROW_SHOWS.tableName)
-                        database.upnextDao.insertTableUpdateLog(
-                            DatabaseTableUpdate(
-                                table_name = DatabaseTables.TABLE_TOMORROW_SHOWS.tableName,
-                                last_updated = System.currentTimeMillis()
-                            )
-                        )
                     }
                 }
             } catch (e: Exception) {
