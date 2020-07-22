@@ -202,6 +202,8 @@
 
     <!-- Contextual menu-->
     <string name="menu_refresh">Refresh shows</string>
+    <string name="menu_trakt_add_to_history">Mark as watched</string>
+    <string name="menu_trakt_remove_from_history">Remove from watched</string>
 
     <!-- Connect Trakt Account bottom sheet-->
     <string name="why_do_need_trakt_account_title">Why do I need a Trakt account?</string>

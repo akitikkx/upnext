@@ -10,6 +10,10 @@
             type="com.theupnextapp.domain.ShowSeason" />
 
         <variable
+            name="watchedSeason"
+            type="com.theupnextapp.domain.TraktWatchedShowProgressSeason" />
+
+        <variable
             name="listener"
             type="com.theupnextapp.ui.showDetail.ShowSeasonsAdapter.ShowSeasonsAdapterListener" />
     </data>
@@ -108,34 +112,20 @@
             android:id="@+id/season_add_remove_toggle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_vertical"
             android:orientation="vertical"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
             <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/season_add_toggle"
+                android:id="@+id/season_options_menu"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/margin_horizontal"
                 android:clickable="true"
                 android:focusable="true"
-                android:onClick="@{(view) -> listener.onShowSeasonAddClick(view, showSeason)}"
-                android:visibility="invisible"
-                app:srcCompat="@drawable/ic_baseline_hourglass_empty_24"
-                tools:visibility="visible" />
-
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/season_remove_toggle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/margin_horizontal"
-                android:clickable="true"
-                android:focusable="true"
-                android:onClick="@{(view) -> listener.onShowSeasonRemoveClick(view, showSeason)}"
-                android:visibility="invisible"
-                app:srcCompat="@drawable/ic_baseline_hourglass_full_24"
-                tools:visibility="visible" />
+                android:onClick="@{(view) -> listener.onShowSeasonOptionsMenuClick(view, showSeason,  watchedSeason)}"
+                app:srcCompat="@drawable/ic_baseline_more_vert_24" />
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

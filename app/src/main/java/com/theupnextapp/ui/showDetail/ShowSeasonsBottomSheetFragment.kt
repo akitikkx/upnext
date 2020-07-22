@@ -84,7 +84,13 @@ class ShowSeasonsBottomSheetFragment : BottomSheetDialogFragment(),
 
         viewModel.watchedProgress.observe(viewLifecycleOwner, Observer {
             if (it != null) {
-                _adapter?.watchedProgress = it.seasons
+                adapter.watchedProgress = it.seasons
+            }
+        })
+
+        viewModel.isAuthorizedOnTrakt.observe(viewLifecycleOwner, Observer {
+            if (it != null) {
+                adapter.isAuthorizedOnTrakt = it
             }
         })
     }
