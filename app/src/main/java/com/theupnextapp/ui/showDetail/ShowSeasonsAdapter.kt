@@ -47,11 +47,11 @@ class ShowSeasonsAdapter(val listener: ShowSeasonsAdapterListener) :
         holder.viewDataBinding.also {
             val showSeason = showSeasons[position]
 
+            var watchedSeason: TraktWatchedShowProgressSeason? = null
+
             it.listener = listener
 
             it.showSeason = showSeason
-
-            var watchedSeason: TraktWatchedShowProgressSeason? = null
 
             if (isAuthorizedOnTrakt) {
                 it.seasonOptionsMenu.visibility = View.VISIBLE
@@ -67,9 +67,7 @@ class ShowSeasonsAdapter(val listener: ShowSeasonsAdapterListener) :
                 }
             }
 
-            if (watchedSeason != null) {
-                it.watchedSeason = watchedSeason
-            }
+            it.watchedSeason = watchedSeason
         }
     }
 
