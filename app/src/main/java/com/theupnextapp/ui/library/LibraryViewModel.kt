@@ -110,7 +110,7 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
         }
 
         val timeDifferenceToDisplay =
-            tableUpdate?.lastUpdated?.let { it -> DateUtils.getTimeDifferenceForDisplay(it) }
+            tableUpdate?.lastUpdated?.let { it -> DateUtils.getTimeDifferenceForDisplay(endTime = it) }
 
         // Only perform an update if there has been enough time before the previous update
         shouldUpdateWatchlist(tableUpdate)
@@ -140,7 +140,12 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
 
     private fun shouldUpdateWatchlist(tableUpdate: TableUpdate?) {
         val diffInMinutes =
-            tableUpdate?.lastUpdated?.let { it -> DateUtils.dateDifference(it, "minutes") }
+            tableUpdate?.lastUpdated?.let { it ->
+                DateUtils.dateDifference(
+                    endTime = it,
+                    type = "minutes"
+                )
+            }
 
         if (diffInMinutes != null && diffInMinutes != 0L) {
             if (diffInMinutes > TableUpdateInterval.TRAKT_WATCHLIST_ITEMS.intervalMins && (isLoadingWatchlist.value == false || isLoadingWatchlist.value == null)) {
@@ -162,7 +167,7 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
         }
 
         val diff =
-            tableUpdate?.lastUpdated?.let { it -> DateUtils.getTimeDifferenceForDisplay(it) }
+            tableUpdate?.lastUpdated?.let { it -> DateUtils.getTimeDifferenceForDisplay(endTime = it) }
 
         shouldUpdateCollection(tableUpdate)
 
@@ -191,7 +196,12 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
 
     private fun shouldUpdateCollection(tableUpdate: TableUpdate?) {
         val diffInMinutes =
-            tableUpdate?.lastUpdated?.let { it -> DateUtils.dateDifference(it, "minutes") }
+            tableUpdate?.lastUpdated?.let { it ->
+                DateUtils.dateDifference(
+                    endTime = it,
+                    type = "minutes"
+                )
+            }
 
         if (diffInMinutes != null && diffInMinutes != 0L) {
             if (diffInMinutes > TableUpdateInterval.TRAKT_COLLECTION_ITEMS.intervalMins && (isLoadingCollection.value == false || isLoadingCollection.value == null)) {
@@ -213,7 +223,7 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
         }
 
         val diff =
-            tableUpdate?.lastUpdated?.let { it -> DateUtils.getTimeDifferenceForDisplay(it) }
+            tableUpdate?.lastUpdated?.let { it -> DateUtils.getTimeDifferenceForDisplay(endTime = it) }
 
         shouldUpdateHistory(tableUpdate)
 
@@ -242,7 +252,12 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
 
     private fun shouldUpdateHistory(tableUpdate: TableUpdate?) {
         val diffInMinutes =
-            tableUpdate?.lastUpdated?.let { it -> DateUtils.dateDifference(it, "minutes") }
+            tableUpdate?.lastUpdated?.let { it ->
+                DateUtils.dateDifference(
+                    endTime = it,
+                    type = "minutes"
+                )
+            }
 
         if (diffInMinutes != null && diffInMinutes != 0L) {
             if (diffInMinutes > TableUpdateInterval.TRAKT_HISTORY_ITEMS.intervalMins && (isLoadingHistory.value == false || isLoadingHistory.value == null)) {
@@ -264,7 +279,7 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
         }
 
         val diff =
-            tableUpdate?.lastUpdated?.let { it -> DateUtils.getTimeDifferenceForDisplay(it) }
+            tableUpdate?.lastUpdated?.let { it -> DateUtils.getTimeDifferenceForDisplay(endTime = it) }
 
         shouldUpdateRecommendations(tableUpdate)
 
@@ -293,7 +308,12 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
 
     private fun shouldUpdateRecommendations(tableUpdate: TableUpdate?) {
         val diffInMinutes =
-            tableUpdate?.lastUpdated?.let { it -> DateUtils.dateDifference(it, "minutes") }
+            tableUpdate?.lastUpdated?.let { it ->
+                DateUtils.dateDifference(
+                    endTime = it,
+                    type = "minutes"
+                )
+            }
 
         if (diffInMinutes != null && diffInMinutes != 0L) {
             if (diffInMinutes > TableUpdateInterval.TRAKT_RECOMMENDED_ITEMS.intervalMins && (isLoadingRecommendations.value == false || isLoadingRecommendations.value == null)) {

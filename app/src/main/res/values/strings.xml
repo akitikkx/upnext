@@ -48,6 +48,8 @@
     <string name="show_detail_rating">%1$d/10</string>
     <string name="show_detail_rating_and_votes">%1$d/10 (%2$d votes)</string>
     <string name="show_detail_rating_votes">%1$d votes</string>
+    <string name="show_detail_next_episode_airdate">Airing in %1$d %2$s</string>
+    <string name="show_detail_previous_episode_airdate">Aired %1$d %2$s ago</string>
 
     <!-- Watched progress bottom sheet -->
     <string name="trakt_watched_overall_progress_percentage">%1$d%% watched</string>
