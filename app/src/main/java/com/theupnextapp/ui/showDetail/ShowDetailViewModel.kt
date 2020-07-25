@@ -16,59 +16,46 @@ class ShowDetailViewModel(
     private val upnextRepository = UpnextRepository(database)
 
     private val _onWatchList = MutableLiveData<Boolean>()
-
-    private val _inCollection = MutableLiveData<Boolean>(false)
-
-    private val _notOnWatchlist = MutableLiveData<Boolean>()
-
-    private val _notInCollection = MutableLiveData<Boolean>(false)
-
-    private val _show = MutableLiveData(show)
-
-    private val _showCastEmpty = MutableLiveData<Boolean>()
-
-    private val _showCastBottomSheet = MutableLiveData<ShowCast>()
-
-    private val _showWatchedProgressBottomSheet = MutableLiveData<TraktShowWatchedProgress>()
-
-    private val _showSeasonsBottomSheet = MutableLiveData<List<ShowSeason>>()
-
-    private val _showWatchlistInfoBottomSheet = MutableLiveData<Boolean>()
-
-    private val _showConnectToTraktInfoBottomSheet = MutableLiveData<Boolean>()
-
-    private val _showCollectionInfoBottomSheet = MutableLiveData<Boolean>()
-
-    private val _showConnectionToTraktRequiredError = MutableLiveData<Boolean>()
-
     val onWatchlist: LiveData<Boolean> = _onWatchList
 
+    private val _inCollection = MutableLiveData<Boolean>(false)
     val inCollection: LiveData<Boolean> = _inCollection
 
+    private val _notOnWatchlist = MutableLiveData<Boolean>()
     val notOnWatchlist: LiveData<Boolean> = _notOnWatchlist
 
+    private val _notInCollection = MutableLiveData<Boolean>(false)
     val notInCollection: LiveData<Boolean> = _notInCollection
 
-    val isLoading = MediatorLiveData<Boolean>()
-
+    private val _show = MutableLiveData(show)
     val showDetailArg: LiveData<ShowDetailArg> = _show
 
+    private val _showCastEmpty = MutableLiveData<Boolean>()
+    val showCastEmpty: LiveData<Boolean> = _showCastEmpty
+
+    private val _showCastBottomSheet = MutableLiveData<ShowCast>()
     val showCastBottomSheet: LiveData<ShowCast> = _showCastBottomSheet
 
-    val showSeasonsBottomSheet: LiveData<List<ShowSeason>> = _showSeasonsBottomSheet
-
+    private val _showWatchedProgressBottomSheet = MutableLiveData<TraktShowWatchedProgress>()
     val showWatchedProgressBottomSheet: LiveData<TraktShowWatchedProgress> =
         _showWatchedProgressBottomSheet
 
-    val showCastEmpty: LiveData<Boolean> = _showCastEmpty
+    private val _showSeasonsBottomSheet = MutableLiveData<List<ShowSeason>>()
+    val showSeasonsBottomSheet: LiveData<List<ShowSeason>> = _showSeasonsBottomSheet
 
+    private val _showWatchlistInfoBottomSheet = MutableLiveData<Boolean>()
     val showWatchlistInfoBottomSheet: LiveData<Boolean> = _showWatchlistInfoBottomSheet
 
-    val showCollectionInfoBottomSheet: LiveData<Boolean> = _showCollectionInfoBottomSheet
-
+    private val _showConnectToTraktInfoBottomSheet = MutableLiveData<Boolean>()
     val showConnectToTraktInfoBottomSheet: LiveData<Boolean> = _showConnectToTraktInfoBottomSheet
 
+    private val _showCollectionInfoBottomSheet = MutableLiveData<Boolean>()
+    val showCollectionInfoBottomSheet: LiveData<Boolean> = _showCollectionInfoBottomSheet
+
+    private val _showConnectionToTraktRequiredError = MutableLiveData<Boolean>()
     val showConnectionToTraktRequiredError: LiveData<Boolean> = _showConnectionToTraktRequiredError
+
+    val isLoading = MediatorLiveData<Boolean>()
 
     private val isUpnextRepositoryLoading = upnextRepository.isLoading
 

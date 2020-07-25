@@ -69,7 +69,12 @@ class ExploreViewModel(application: Application) : TraktViewModel(application) {
 
     fun onPopularShowsTableUpdateReceived(tableUpdate: TableUpdate?) {
         val diffInMinutes =
-            tableUpdate?.lastUpdated?.let { it -> DateUtils.dateDifference(it, "minutes") }
+            tableUpdate?.lastUpdated?.let { it ->
+                DateUtils.dateDifference(
+                    endTime = it,
+                    type = "minutes"
+                )
+            }
 
         if (diffInMinutes != null && diffInMinutes != 0L) {
             if (diffInMinutes > TableUpdateInterval.TRAKT_POPULAR_ITEMS.intervalMins && (isLoadingTraktPopular.value == false || isLoadingTraktPopular.value == null)) {
@@ -87,7 +92,12 @@ class ExploreViewModel(application: Application) : TraktViewModel(application) {
 
     fun onTrendingShowsTableUpdateReceived(tableUpdate: TableUpdate?) {
         val diffInMinutes =
-            tableUpdate?.lastUpdated?.let { it -> DateUtils.dateDifference(it, "minutes") }
+            tableUpdate?.lastUpdated?.let { it ->
+                DateUtils.dateDifference(
+                    endTime = it,
+                    type = "minutes"
+                )
+            }
 
         if (diffInMinutes != null && diffInMinutes != 0L) {
             if (diffInMinutes > TableUpdateInterval.TRAKT_TRENDING_ITEMS.intervalMins && (isLoadingTraktTrending.value == false || isLoadingTraktTrending.value == null)) {
@@ -105,7 +115,12 @@ class ExploreViewModel(application: Application) : TraktViewModel(application) {
 
     fun onMostAnticipatedShowsTableUpdateReceived(tableUpdate: TableUpdate?) {
         val diffInMinutes =
-            tableUpdate?.lastUpdated?.let { it -> DateUtils.dateDifference(it, "minutes") }
+            tableUpdate?.lastUpdated?.let { it ->
+                DateUtils.dateDifference(
+                    endTime = it,
+                    type = "minutes"
+                )
+            }
 
         if (diffInMinutes != null && diffInMinutes != 0L) {
             if (diffInMinutes > TableUpdateInterval.TRAKT_MOST_ANTICIPATED_ITEMS.intervalMins && (isLoadingTraktMostAnticipated.value == false || isLoadingTraktMostAnticipated.value == null)) {

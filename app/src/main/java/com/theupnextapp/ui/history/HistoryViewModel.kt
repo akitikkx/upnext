@@ -56,7 +56,12 @@ class HistoryViewModel(application: Application) : TraktViewModel(application) {
         }
 
         val diffInMinutes =
-            tableUpdate?.lastUpdated?.let { it -> DateUtils.dateDifference(it, "minutes") }
+            tableUpdate?.lastUpdated?.let { it ->
+                DateUtils.dateDifference(
+                    endTime = it,
+                    type = "minutes"
+                )
+            }
 
         // Only perform an update if there has been enough time before the previous update
         if (diffInMinutes != null && historyEmpty.value != true) {

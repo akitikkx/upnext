@@ -91,7 +91,12 @@ class DashboardViewModel(application: Application) : TraktViewModel(application)
 
     fun onYesterdayShowsTableUpdateReceived(tableUpdate: TableUpdate?) {
         val diffInMinutes =
-            tableUpdate?.lastUpdated?.let { it -> DateUtils.dateDifference(it, "minutes") }
+            tableUpdate?.lastUpdated?.let { it ->
+                DateUtils.dateDifference(
+                    endTime = it,
+                    type = "minutes"
+                )
+            }
 
         if (diffInMinutes != null && diffInMinutes != 0L) {
             if (diffInMinutes > TableUpdateInterval.DASHBOARD_ITEMS.intervalMins && (isLoadingYesterdayShows.value == false || isLoadingYesterdayShows.value == null)) {
@@ -115,7 +120,12 @@ class DashboardViewModel(application: Application) : TraktViewModel(application)
 
     fun onTodayShowsTableUpdateReceived(tableUpdate: TableUpdate?) {
         val diffInMinutes =
-            tableUpdate?.lastUpdated?.let { it -> DateUtils.dateDifference(it, "minutes") }
+            tableUpdate?.lastUpdated?.let { it ->
+                DateUtils.dateDifference(
+                    endTime = it,
+                    type = "minutes"
+                )
+            }
 
         if (diffInMinutes != null && diffInMinutes != 0L) {
             if (diffInMinutes > TableUpdateInterval.DASHBOARD_ITEMS.intervalMins && (isLoadingTodayShows.value == false || isLoadingTodayShows.value == null)) {
@@ -139,7 +149,12 @@ class DashboardViewModel(application: Application) : TraktViewModel(application)
 
     fun onTomorrowShowsTableUpdateReceived(tableUpdate: TableUpdate?) {
         val diffInMinutes =
-            tableUpdate?.lastUpdated?.let { it -> DateUtils.dateDifference(it, "minutes") }
+            tableUpdate?.lastUpdated?.let { it ->
+                DateUtils.dateDifference(
+                    endTime = it,
+                    type = "minutes"
+                )
+            }
 
         if (diffInMinutes != null && diffInMinutes != 0L) {
             if (diffInMinutes > TableUpdateInterval.DASHBOARD_ITEMS.intervalMins && (isLoadingTomorrowShows.value == false || isLoadingTomorrowShows.value == null)) {

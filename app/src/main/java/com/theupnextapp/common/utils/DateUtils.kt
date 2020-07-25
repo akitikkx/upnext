@@ -30,13 +30,13 @@ object DateUtils {
         return simpleDateFormat.format(yesterday)
     }
 
-    fun getTimeDifferenceForDisplay(time: Long): TimeDifferenceForDisplay? {
+    fun getTimeDifferenceForDisplay(startTime: Long? = null, endTime: Long): TimeDifferenceForDisplay? {
         var timeDifferenceForDisplay: TimeDifferenceForDisplay? = null
 
-        val daysDiff = dateDifference(time, "days")
-        val hoursDiff = dateDifference(time, "hours")
-        val minutesDiff = dateDifference(time, "minutes")
-        val secondsDiff = dateDifference(time, "seconds")
+        val daysDiff = dateDifference(startTime = startTime, endTime = endTime, type = "days")
+        val hoursDiff = dateDifference(startTime = startTime, endTime = endTime, type = "hours")
+        val minutesDiff = dateDifference(startTime = startTime, endTime = endTime, type = "minutes")
+        val secondsDiff = dateDifference(startTime = startTime, endTime = endTime, type = "seconds")
 
         if (daysDiff == 0L && hoursDiff == 0L && minutesDiff != -0L) {
             timeDifferenceForDisplay =
@@ -50,7 +50,7 @@ object DateUtils {
                     hoursDiff,
                     "hours"
                 )
-        } else if (daysDiff != 0L && hoursDiff == 0L) {
+        } else if (daysDiff != 0L && hoursDiff != 0L) {
             timeDifferenceForDisplay =
                 TimeDifferenceForDisplay(
                     daysDiff,
@@ -72,15 +72,15 @@ object DateUtils {
         return timeDifferenceForDisplay
     }
 
-    fun dateDifference(time: Long, type: String): Long? {
-        val diffCount = Calendar.getInstance().timeInMillis - time
+    fun dateDifference(startTime: Long? = null, endTime: Long, type: String): Long? {
+        val diffCount = startTime ?: Calendar.getInstance().timeInMillis - endTime
         var diff: Long = -1L
 
         when (type) {
-            "days" -> diff = time.let { TimeUnit.MILLISECONDS.toDays(diffCount) }
-            "hours" -> diff = time.let { TimeUnit.MILLISECONDS.toHours(diffCount) }
-            "minutes" -> diff = time.let { TimeUnit.MILLISECONDS.toMinutes(diffCount) }
-            "seconds" -> diff = time.let { TimeUnit.MILLISECONDS.toSeconds(diffCount) }
+            "days" -> diff = endTime.let { TimeUnit.MILLISECONDS.toDays(diffCount) }
+            "hours" -> diff = endTime.let { TimeUnit.MILLISECONDS.toHours(diffCount) }
+            "minutes" -> diff = endTime.let { TimeUnit.MILLISECONDS.toMinutes(diffCount) }
+            "seconds" -> diff = endTime.let { TimeUnit.MILLISECONDS.toSeconds(diffCount) }
         }
         return diff
     }

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.theupnextapp.ui.showDetail.ShowDetailViewModel" />
+    </data>
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/show_detail_next_episode_heading"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_horizontal_double"
+            android:layout_marginTop="@dimen/margin_vertical"
+            android:layout_marginEnd="@dimen/margin_horizontal_double"
+            android:text="@string/show_detail_next_episode_heading"
+            android:textAppearance="?attr/textAppearanceHeadline6"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:showHideNextEpisodeInfo="@{viewModel.showInfo}" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/show_detail_next_episode_season_info"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_horizontal_double"
+            android:layout_marginTop="@dimen/margin_vertical_half"
+            android:layout_marginEnd="@dimen/margin_horizontal_double"
+            android:textAppearance="?attr/textAppearanceCaption"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/show_detail_next_episode_heading"
+            app:nextEpisodeInfo="@{viewModel.showInfo}"
+            tools:text="Next Episode Season Info" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/show_detail_next_episode_air_date"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_horizontal_double"
+            android:layout_marginTop="@dimen/margin_vertical_half"
+            android:layout_marginEnd="@dimen/margin_horizontal_double"
+            android:textAppearance="?attr/textAppearanceCaption"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/show_detail_next_episode_season_info"
+            app:nextAirDate="@{viewModel.showInfo}"
+            tools:text="Next Episode Air Date" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/show_detail_next_episode_summary"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_horizontal_double"
+            android:layout_marginTop="@dimen/margin_vertical_half"
+            android:layout_marginEnd="@dimen/margin_horizontal_double"
+            android:textAppearance="?attr/textAppearanceBody2"
+            app:fromHtml="@{viewModel.showInfo.nextEpisodeSummary}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/show_detail_next_episode_air_date"
+            app:showHideStringContent="@{viewModel.showInfo.nextEpisodeSummary}"
+            tools:text="Next Episode Summary" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/show_detail_previous_episode_heading"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_horizontal_double"
+            android:layout_marginTop="@dimen/margin_vertical"
+            android:layout_marginEnd="@dimen/margin_horizontal_double"
+            android:text="@string/show_detail_previous_episode_heading"
+            android:textAppearance="?attr/textAppearanceHeadline6"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/show_detail_next_episode_summary"
+            app:showHidePreviousEpisodeInfo="@{viewModel.showInfo}" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/show_detail_previous_episode_season_info"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_horizontal_double"
+            android:layout_marginTop="@dimen/margin_vertical_half"
+            android:layout_marginEnd="@dimen/margin_horizontal_double"
+            android:textAppearance="?attr/textAppearanceCaption"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/show_detail_previous_episode_heading"
+            app:previousEpisodeInfo="@{viewModel.showInfo}"
+            tools:text="Previous Episode Season Info" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/show_detail_previous_episode_air_date"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_horizontal_double"
+            android:layout_marginTop="@dimen/margin_vertical_half"
+            android:layout_marginEnd="@dimen/margin_horizontal_double"
+            android:textAppearance="?attr/textAppearanceCaption"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/show_detail_previous_episode_season_info"
+            app:previousAirDate="@{viewModel.showInfo}"
+            tools:text="Previous Episode Air date" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_horizontal_double"
+            android:layout_marginTop="@dimen/margin_vertical_half"
+            android:layout_marginEnd="@dimen/margin_horizontal_double"
+            android:textAppearance="?attr/textAppearanceBody2"
+            app:fromHtml="@{viewModel.showInfo.previousEpisodeSummary}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/show_detail_previous_episode_air_date"
+            app:showHideStringContent="@{viewModel.showInfo.previousEpisodeSummary}"
+            tools:text="Previous Episode Summary" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
