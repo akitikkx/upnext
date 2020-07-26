@@ -3,6 +3,7 @@
     <dimen name="appbar_elevation">4dp</dimen>
 
     <dimen name="padding_standard">8dp</dimen>
+    <dimen name="padding_standard_half">4dp</dimen>
     <dimen name="padding_standard_double">16dp</dimen>
 
     <dimen name="margin_vertical">16dp</dimen>

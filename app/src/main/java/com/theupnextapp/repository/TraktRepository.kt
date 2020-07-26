@@ -85,92 +85,70 @@ class TraktRepository(private val database: UpnextDatabase) {
         }
 
     private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> = _isLoading
 
     private val _traktAccessToken = MutableLiveData<TraktAccessToken>()
-
-    private val _isLoadingTraktWatchlist = MutableLiveData<Boolean>()
-
-    private val _isLoadingTraktCollection = MutableLiveData<Boolean>()
-
-    private val _isLoadingTraktHistory = MutableLiveData<Boolean>()
-
-    private val _isLoadingTraktRecommendations = MutableLiveData<Boolean>()
-
-    private val _isLoadingTraktTrending = MutableLiveData<Boolean>()
-
-    private val _isLoadingTraktPopular = MutableLiveData<Boolean>()
-
-    private val _isLoadingTraktMostAnticipated = MutableLiveData<Boolean>()
-
-    private val _isRemovingTraktWatchlist = MutableLiveData<Boolean>()
-
-    private val _isRemovingTraktHistory = MutableLiveData<Boolean>()
-
-    private val _isRemovingTraktCollection = MutableLiveData<Boolean>()
-
-    private val _isRemovingTraktRecommendations = MutableLiveData<Boolean>()
-
-    private val _addToWatchlistResponse = MutableLiveData<TraktAddToWatchlist>()
-
-    private val _removeFromWatchlistResponse = MutableLiveData<TraktRemoveFromWatchlist>()
-
-    private val _addToHistoryResponse = MutableLiveData<TraktAddToHistory>()
-
-    private val _removeFromHistoryResponse = MutableLiveData<TraktRemoveFromHistory>()
-
-    private val _traktShowRating = MutableLiveData<TraktShowRating>()
-
-    private val _traktShowStats = MutableLiveData<TraktShowStats>()
-
-    private val _traktWatchedProgress = MutableLiveData<TraktShowWatchedProgress>()
-
-    private val _invalidToken = MutableLiveData<Boolean>()
-
-    private val _invalidGrant = MutableLiveData<Boolean>()
-
-    val isLoadingTraktWatchlist: LiveData<Boolean> = _isLoadingTraktWatchlist
-
-    val isLoadingTraktCollection: LiveData<Boolean> = _isLoadingTraktCollection
-
-    val isLoadingTraktHistory: LiveData<Boolean> = _isLoadingTraktHistory
-
-    val isLoadingTraktTrending: LiveData<Boolean> = _isLoadingTraktTrending
-
-    val isLoadingTraktPopular: LiveData<Boolean> = _isLoadingTraktPopular
-
-    val isLoadingTraktMostAnticipated: LiveData<Boolean> = _isLoadingTraktMostAnticipated
-
-    val isRemovingTraktWatchlist: LiveData<Boolean> = _isRemovingTraktWatchlist
-
-    val isRemovingTraktHistory: LiveData<Boolean> = _isRemovingTraktHistory
-
-    val isRemovingTraktCollection: LiveData<Boolean> = _isRemovingTraktCollection
-
-    val isRemovingTraktRecommendations: LiveData<Boolean> = _isRemovingTraktRecommendations
-
-    val isLoadingTraktRecommendations: LiveData<Boolean> = _isLoadingTraktRecommendations
-
     val traktAccessToken: LiveData<TraktAccessToken> = _traktAccessToken
 
+    private val _isLoadingTraktWatchlist = MutableLiveData<Boolean>()
+    val isLoadingTraktWatchlist: LiveData<Boolean> = _isLoadingTraktWatchlist
+
+    private val _isLoadingTraktCollection = MutableLiveData<Boolean>()
+    val isLoadingTraktCollection: LiveData<Boolean> = _isLoadingTraktCollection
+
+    private val _isLoadingTraktHistory = MutableLiveData<Boolean>()
+    val isLoadingTraktHistory: LiveData<Boolean> = _isLoadingTraktHistory
+
+    private val _isLoadingTraktRecommendations = MutableLiveData<Boolean>()
+    val isLoadingTraktRecommendations: LiveData<Boolean> = _isLoadingTraktRecommendations
+
+    private val _isLoadingTraktTrending = MutableLiveData<Boolean>()
+    val isLoadingTraktTrending: LiveData<Boolean> = _isLoadingTraktTrending
+
+    private val _isLoadingTraktPopular = MutableLiveData<Boolean>()
+    val isLoadingTraktPopular: LiveData<Boolean> = _isLoadingTraktPopular
+
+    private val _isLoadingTraktMostAnticipated = MutableLiveData<Boolean>()
+    val isLoadingTraktMostAnticipated: LiveData<Boolean> = _isLoadingTraktMostAnticipated
+
+    private val _isRemovingTraktWatchlist = MutableLiveData<Boolean>()
+    val isRemovingTraktWatchlist: LiveData<Boolean> = _isRemovingTraktWatchlist
+
+    private val _isRemovingTraktHistory = MutableLiveData<Boolean>()
+    val isRemovingTraktHistory: LiveData<Boolean> = _isRemovingTraktHistory
+
+    private val _isRemovingTraktCollection = MutableLiveData<Boolean>()
+    val isRemovingTraktCollection: LiveData<Boolean> = _isRemovingTraktCollection
+
+    private val _isRemovingTraktRecommendations = MutableLiveData<Boolean>()
+    val isRemovingTraktRecommendations: LiveData<Boolean> = _isRemovingTraktRecommendations
+
+    private val _addToWatchlistResponse = MutableLiveData<TraktAddToWatchlist>()
     val addToWatchlistResponse: LiveData<TraktAddToWatchlist> = _addToWatchlistResponse
 
+    private val _removeFromWatchlistResponse = MutableLiveData<TraktRemoveFromWatchlist>()
     val removeFromWatchlistResponse: LiveData<TraktRemoveFromWatchlist> =
         _removeFromWatchlistResponse
 
+    private val _addToHistoryResponse = MutableLiveData<TraktAddToHistory>()
     val addToHistoryResponse: LiveData<TraktAddToHistory> = _addToHistoryResponse
 
+    private val _removeFromHistoryResponse = MutableLiveData<TraktRemoveFromHistory>()
     val removeFromHistoryResponse: LiveData<TraktRemoveFromHistory> = _removeFromHistoryResponse
 
-    val isLoading: LiveData<Boolean> = _isLoading
-
+    private val _traktShowRating = MutableLiveData<TraktShowRating>()
     val traktShowRating: LiveData<TraktShowRating> = _traktShowRating
 
+    private val _traktShowStats = MutableLiveData<TraktShowStats>()
     val traktShowStats: LiveData<TraktShowStats> = _traktShowStats
 
+    private val _traktWatchedProgress = MutableLiveData<TraktShowWatchedProgress>()
     val traktWatchedProgress: LiveData<TraktShowWatchedProgress> = _traktWatchedProgress
 
+    private val _invalidToken = MutableLiveData<Boolean>()
     val invalidToken: LiveData<Boolean> = _invalidToken
 
+    private val _invalidGrant = MutableLiveData<Boolean>()
     val invalidGrant: LiveData<Boolean> = _invalidGrant
 
     suspend fun clearAllTraktData() {

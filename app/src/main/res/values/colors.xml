@@ -5,8 +5,8 @@
     <color name="teal_600">#00897b</color> <!--Color primary variant (dark)-->
     <color name="teal_700">#00796b</color> <!--Color primary variant (light)-->
 
-    <color name="orange_200">#bb86fc</color> <!--Color secondary-->
-    <color name="orange_500">#6200ee</color> <!--Color secondary variant-->
+    <color name="purple_200">#bb86fc</color> <!--Color secondary-->
+    <color name="purple_500">#6200ee</color> <!--Color secondary variant-->
 
     <!--Color surface (light), color on error (light), -->
     <!--color on surface (dark), color on surface (dark)-->

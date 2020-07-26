@@ -31,7 +31,7 @@ class ShowSeasonsAdapter(val listener: ShowSeasonsAdapterListener) :
     var isAuthorizedOnTrakt: Boolean = false
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val withDataBinding: com.theupnextapp.databinding.ShowSeasonItemBinding =
+        val withDataBinding: ShowSeasonItemBinding =
             DataBindingUtil.inflate(
                 LayoutInflater.from(parent.context),
                 ViewHolder.LAYOUT,
@@ -53,12 +53,6 @@ class ShowSeasonsAdapter(val listener: ShowSeasonsAdapterListener) :
 
             it.showSeason = showSeason
 
-            if (isAuthorizedOnTrakt) {
-                it.seasonOptionsMenu.visibility = View.VISIBLE
-            } else {
-                it.seasonOptionsMenu.visibility = View.GONE
-            }
-
             if (!watchedProgress.isNullOrEmpty()) {
                 watchedProgress?.forEach { season ->
                     if (season.number == showSeason.seasonNumber && season.aired == season.completed) {
@@ -68,6 +62,18 @@ class ShowSeasonsAdapter(val listener: ShowSeasonsAdapterListener) :
             }
 
             it.watchedSeason = watchedSeason
+
+            if (isAuthorizedOnTrakt) {
+                it.seasonOptionsMenu.visibility = View.VISIBLE
+
+                if (watchedSeason != null) {
+                    it.showSeasonTraktWatchedTag.visibility = View.VISIBLE
+                } else {
+                    it.showSeasonTraktWatchedTag.visibility = View.GONE
+                }
+            } else {
+                it.seasonOptionsMenu.visibility = View.GONE
+            }
         }
     }
 
