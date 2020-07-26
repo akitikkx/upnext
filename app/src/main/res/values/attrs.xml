@@ -4,5 +4,6 @@
     <attr name="bottomNavigationActive" format="reference" />
     <attr name="bottomNavigationInactive" format="reference" />
     <attr name="shapeAppearanceShowCast" format="reference" />
-    <attr name="showBackdropImageBackgroundColor" format="color" />
+    <attr name="showSeasonTraktWatchedTagStrokeColor" format="color" />
+    <attr name="showSeasonTraktCollectedTagStrokeColor" format="color" />
 </resources>

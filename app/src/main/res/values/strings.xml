@@ -73,6 +73,8 @@
     <string name="show_detail_show_seasons_bottom_sheet_dialog_positive">Yes</string>
     <string name="show_detail_connect_to_trakt_button_text_connected">Trakt account connected</string>
     <string name="show_detail_connect_to_trakt_button_text_not_connected">Connect Trakt account</string>
+    <string name="show_detail_trakt_watched_season_tag">Watched</string>
+    <string name="show_detail_trakt_collected_season_tag">Collected</string>
 
     <!-- Splash screen -->
     <string name="splash_screen_loading_text_tomorrow_schedule">Fetching tomorrow\'s schedule…</string>

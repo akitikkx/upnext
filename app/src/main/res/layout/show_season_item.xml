@@ -63,13 +63,49 @@
             app:layout_constraintStart_toEndOf="@id/season_poster"
             app:layout_constraintTop_toTopOf="parent">
 
-            <com.google.android.material.textview.MaterialTextView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:textAppearance="?attr/textAppearanceSubtitle1"
-                app:seasonAndNumber="@{showSeason.seasonNumber}"
-                tools:text="Season 1" />
+                android:orientation="horizontal"
+                android:weightSum="3">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:textAppearance="?attr/textAppearanceSubtitle1"
+                    app:seasonAndNumber="@{showSeason.seasonNumber}"
+                    tools:text="Season 1" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/show_season_trakt_watched_tag"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/margin_horizontal"
+                    android:background="@drawable/show_season_trakt_watched_tag_border"
+                    android:gravity="center_vertical"
+                    android:padding="@dimen/padding_standard_half"
+                    android:text="@string/show_detail_trakt_watched_season_tag"
+                    android:textAllCaps="true"
+                    android:textAppearance="?attr/textAppearanceCaption"
+                    android:visibility="gone"
+                    tools:text="Watched" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/show_season_trakt_collected_tag"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/margin_horizontal"
+                    android:background="@drawable/show_season_trakt_collected_tag_border"
+                    android:gravity="center_vertical"
+                    android:padding="@dimen/padding_standard_half"
+                    android:text="@string/show_detail_trakt_collected_season_tag"
+                    android:textAllCaps="true"
+                    android:textAppearance="?attr/textAppearanceCaption"
+                    android:visibility="gone"
+                    tools:text="Collected" />
+
+            </LinearLayout>
 
             <com.google.android.material.textview.MaterialTextView
                 android:layout_width="match_parent"
@@ -105,7 +141,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_vertical_quarter"
                 android:text="@string/tv_maze_creative_commons_attribution_text_single"
-                android:textAppearance="?attr/textAppearanceCaption" />
+                android:textAppearance="?attr/textAppearanceCaption"
+                app:showHideView="@{showSeason.originalImageUrl != null}" />
         </LinearLayout>
 
         <LinearLayout
