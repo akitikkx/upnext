@@ -79,6 +79,18 @@ interface TraktService {
         @Body request: NetworkTraktRemoveSeasonFromHistoryRequest
     ): Deferred<NetworkTraktRemoveFromHistoryResponse>
 
+    @POST("sync/collection")
+    fun addToCollectionAsync(
+        @Header("Authorization") token: String,
+        @Body request: NetworkTraktAddToCollectionRequest
+    ): Deferred<NetworkTraktAddToCollectionResponse>
+
+    @POST("sync/collection/remove")
+    fun removeFromCollectionAsync(
+        @Header("Authorization") token: String,
+        @Body request: NetworkTraktRemoveFromCollectionRequest
+    ): Deferred<NetworkTraktRemoveFromCollectionResponse>
+
     @GET("shows/{id}/ratings")
     fun getShowRatingsAsync(
         @Path("id") id: String

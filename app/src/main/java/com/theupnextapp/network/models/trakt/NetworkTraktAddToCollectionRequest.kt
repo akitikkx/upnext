@@ -23,8 +23,8 @@ data class NetworkTraktAddToCollectionRequestSeason(
 )
 
 data class NetworkTraktAddToCollectionRequestShow(
-    val ids: NetworkTraktAddToCollectionRequestIdsXXX,
-    val seasons: List<NetworkTraktAddToCollectionRequestSeasonX>,
+    val ids: Any,
+    val seasons: List<NetworkTraktAddToCollectionRequestSeasonX?>,
     val title: String,
     val year: Int
 )
@@ -59,7 +59,7 @@ data class NetworkTraktAddToCollectionRequestIdsXXX(
 
 data class NetworkTraktAddToCollectionRequestSeasonX(
     val episodes: List<NetworkTraktAddToCollectionRequestEpisodeX>,
-    val number: Int
+    val number: Int?
 )
 
 data class NetworkTraktAddToCollectionRequestEpisodeX(

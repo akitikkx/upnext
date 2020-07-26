@@ -1,13 +1,15 @@
 package com.theupnextapp.network.models.trakt
 
+import com.theupnextapp.domain.TraktRemoveFromCollection
+
 data class NetworkTraktRemoveFromCollectionResponse(
-    val deleted: NetworkTraktRemoveFromCollectionResponseDeleted,
-    val not_found: NetworkTraktRemoveFromCollectionResponseNotFound
+    val deleted: NetworkTraktRemoveFromCollectionResponseDeleted?,
+    val not_found: NetworkTraktRemoveFromCollectionResponseNotFound?
 )
 
 data class NetworkTraktRemoveFromCollectionResponseDeleted(
-    val episodes: Int,
-    val movies: Int
+    val episodes: Int?,
+    val movies: Int?
 )
 
 data class NetworkTraktRemoveFromCollectionResponseNotFound(
@@ -18,9 +20,18 @@ data class NetworkTraktRemoveFromCollectionResponseNotFound(
 )
 
 data class NetworkTraktRemoveFromCollectionResponseMovy(
-    val ids: NetworkTraktRemoveFromCollectionResponseIds
+    val ids: NetworkTraktRemoveFromCollectionResponseIds?
 )
 
 data class NetworkTraktRemoveFromCollectionResponseIds(
-    val imdb: String
+    val imdb: String?
 )
+
+fun NetworkTraktRemoveFromCollectionResponse.asDomainModel(): TraktRemoveFromCollection {
+    return TraktRemoveFromCollection(
+        deletedEpisodes = deleted?.episodes,
+        notFoundSeasons = not_found?.seasons?.size,
+        notFoundEpisodes = not_found?.episodes?.size,
+        notFoundShows = not_found?.shows?.size
+    )
+}
