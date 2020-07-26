@@ -22,8 +22,8 @@ data class NetworkTraktRemoveFromCollectionRequestSeason(
 )
 
 data class NetworkTraktRemoveFromCollectionRequestShow(
-    val ids: NetworkTraktRemoveFromCollectionRequestIdsXXX,
-    val seasons: List<NetworkTraktRemoveFromCollectionRequestSeasonX>,
+    val ids: Any,
+    val seasons: List<NetworkTraktRemoveFromCollectionRequestSeasonX?>,
     val title: String,
     val year: Int
 )
@@ -58,7 +58,7 @@ data class NetworkTraktRemoveFromCollectionRequestIdsXXX(
 
 data class NetworkTraktRemoveFromCollectionRequestSeasonX(
     val episodes: List<NetworkTraktRemoveFromCollectionRequestEpisodeX>,
-    val number: Int
+    val number: Int?
 )
 
 data class NetworkTraktRemoveFromCollectionRequestEpisodeX(

@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.theupnextapp.R
 import com.theupnextapp.databinding.ShowSeasonItemBinding
 import com.theupnextapp.domain.ShowSeason
+import com.theupnextapp.domain.TraktCollectionSeason
 import com.theupnextapp.domain.TraktWatchedShowProgressSeason
 
 class ShowSeasonsAdapter(val listener: ShowSeasonsAdapterListener) :
@@ -22,7 +23,13 @@ class ShowSeasonsAdapter(val listener: ShowSeasonsAdapterListener) :
             notifyDataSetChanged()
         }
 
-    var watchedProgress: List<TraktWatchedShowProgressSeason>? = emptyList()
+    var traktWatchedProgress: List<TraktWatchedShowProgressSeason>? = emptyList()
+        set(value) {
+            field = value
+            notifyDataSetChanged()
+        }
+
+    var traktCollectionSeasons: List<TraktCollectionSeason>? = emptyList()
         set(value) {
             field = value
             notifyDataSetChanged()
@@ -49,19 +56,31 @@ class ShowSeasonsAdapter(val listener: ShowSeasonsAdapterListener) :
 
             var watchedSeason: TraktWatchedShowProgressSeason? = null
 
+            var collectedSeason: TraktCollectionSeason? = null
+
             it.listener = listener
 
             it.showSeason = showSeason
 
-            if (!watchedProgress.isNullOrEmpty()) {
-                watchedProgress?.forEach { season ->
+            if (!traktWatchedProgress.isNullOrEmpty()) {
+                traktWatchedProgress?.forEach { season ->
                     if (season.number == showSeason.seasonNumber && season.aired == season.completed) {
                         watchedSeason = season
                     }
                 }
             }
 
+            if (!traktCollectionSeasons.isNullOrEmpty()) {
+                traktCollectionSeasons?.forEach {season ->
+                    if (season.seasonNumber == showSeason.seasonNumber) {
+                        collectedSeason = season
+                    }
+                }
+            }
+
             it.watchedSeason = watchedSeason
+
+            it.collectedSeason = collectedSeason
 
             if (isAuthorizedOnTrakt) {
                 it.seasonOptionsMenu.visibility = View.VISIBLE
@@ -71,6 +90,12 @@ class ShowSeasonsAdapter(val listener: ShowSeasonsAdapterListener) :
                 } else {
                     it.showSeasonTraktWatchedTag.visibility = View.GONE
                 }
+
+                if (collectedSeason != null) {
+                    it.showSeasonTraktCollectedTag.visibility = View.VISIBLE
+                } else {
+                    it.showSeasonTraktCollectedTag.visibility = View.GONE
+                }
             } else {
                 it.seasonOptionsMenu.visibility = View.GONE
             }
@@ -79,14 +104,15 @@ class ShowSeasonsAdapter(val listener: ShowSeasonsAdapterListener) :
 
     interface ShowSeasonsAdapterListener {
 
-        fun onShowSeasonAddClick(view: View, showSeason: ShowSeason)
+        fun onShowSeasonAddToTraktHistoryClick(view: View, showSeason: ShowSeason)
 
-        fun onShowSeasonRemoveClick(view: View, showSeason: ShowSeason)
+        fun onShowSeasonRemoveFromTraktHistoryClick(view: View, showSeason: ShowSeason)
 
-        fun onShowSeasonOptionsMenuClick(
+        fun onShowSeasonTraktOptionsMenuClick(
             view: View,
             showSeason: ShowSeason,
-            watchedSeason: TraktWatchedShowProgressSeason?
+            watchedSeason: TraktWatchedShowProgressSeason?,
+            collectedSeason: TraktCollectionSeason?
         ) {
             val seasonWatched = watchedSeason != null
 
@@ -97,9 +123,10 @@ class ShowSeasonsAdapter(val listener: ShowSeasonsAdapterListener) :
                     override fun onMenuItemClick(menuItem: MenuItem?): Boolean {
                         when (menuItem?.itemId) {
                             R.id.menu_remove_from_history -> {
-                                onShowSeasonRemoveClick(view, showSeason)
+                                onShowSeasonRemoveFromTraktHistoryClick(view, showSeason)
                                 return true
-                            } else -> return false
+                            }
+                            else -> return false
                         }
                     }
                 })
@@ -109,15 +136,20 @@ class ShowSeasonsAdapter(val listener: ShowSeasonsAdapterListener) :
                     override fun onMenuItemClick(menuItem: MenuItem?): Boolean {
                         when (menuItem?.itemId) {
                             R.id.menu_add_to_history -> {
-                                onShowSeasonAddClick(view, showSeason)
+                                onShowSeasonAddToTraktHistoryClick(view, showSeason)
                                 return true
-                            } else -> return false
+                            }
+                            else -> return false
                         }
                     }
                 })
             }
             popupMenu.show()
         }
+
+        fun onShowSeasonAddToTraktCollectionClick(view: View, showSeason: ShowSeason)
+
+        fun onShowSeasonRemoveFromTraktCollectionClick(view: View, showSeason: ShowSeason)
     }
 
     class ViewHolder(val viewDataBinding: ShowSeasonItemBinding) :

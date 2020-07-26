@@ -55,7 +55,7 @@ class ShowSeasonsBottomSheetFragment : BottomSheetDialogFragment(),
             arguments?.getParcelable(ShowDetailFragment.ARG_WATCHED_PROGRESS)
 
         _adapter?.showSeasons = showSeasons
-        _adapter?.watchedProgress = watchedProgress?.seasons
+        _adapter?.traktWatchedProgress = watchedProgress?.seasons
 
         binding.root.findViewById<RecyclerView>(R.id.season_list).apply {
             layoutManager = LinearLayoutManager(context).apply {
@@ -82,9 +82,27 @@ class ShowSeasonsBottomSheetFragment : BottomSheetDialogFragment(),
             }
         })
 
+        viewModel.addToCollectionResponse.observe(viewLifecycleOwner, Observer {
+            if (it != null) {
+                viewModel.onAddToCollectionResponseReceived(it)
+            }
+        })
+
+        viewModel.removeFromCollectionResponse.observe(viewLifecycleOwner, Observer {
+            if (it != null) {
+                viewModel.onRemoveFromCollectionResponseReceived(it)
+            }
+        })
+
         viewModel.watchedProgress.observe(viewLifecycleOwner, Observer {
             if (it != null) {
-                adapter.watchedProgress = it.seasons
+                adapter.traktWatchedProgress = it.seasons
+            }
+        })
+
+        viewModel.traktCollectionSeasons?.observe(viewLifecycleOwner, Observer {
+            if (it != null) {
+                adapter.traktCollectionSeasons = it
             }
         })
 
@@ -101,33 +119,41 @@ class ShowSeasonsBottomSheetFragment : BottomSheetDialogFragment(),
         _adapter = null
     }
 
-    companion object {
-        const val TAG = "ShowSeasonsBottomSheet"
-    }
-
-    override fun onShowSeasonAddClick(view: View, showSeason: ShowSeason) {
+    override fun onShowSeasonAddToTraktHistoryClick(view: View, showSeason: ShowSeason) {
         MaterialAlertDialogBuilder(requireActivity())
             .setTitle(resources.getString(R.string.show_detail_show_seasons_bottom_sheet_dialog_add_title))
             .setNegativeButton(resources.getString(R.string.show_detail_show_seasons_bottom_sheet_dialog_negative)) { dialog, _ ->
                 dialog.dismiss()
             }
             .setPositiveButton(resources.getString(R.string.show_detail_show_seasons_bottom_sheet_dialog_positive)) { dialog, _ ->
-                viewModel.onAddSeasonClick(showSeason)
+                viewModel.onAddSeasonToHistoryClick(showSeason)
                 dialog.dismiss()
             }
             .show()
     }
 
-    override fun onShowSeasonRemoveClick(view: View, showSeason: ShowSeason) {
+    override fun onShowSeasonRemoveFromTraktHistoryClick(view: View, showSeason: ShowSeason) {
         MaterialAlertDialogBuilder(requireActivity())
             .setTitle(resources.getString(R.string.show_detail_show_seasons_bottom_sheet_dialog_remove_title))
             .setNegativeButton(resources.getString(R.string.show_detail_show_seasons_bottom_sheet_dialog_negative)) { dialog, _ ->
                 dialog.dismiss()
             }
             .setPositiveButton(resources.getString(R.string.show_detail_show_seasons_bottom_sheet_dialog_positive)) { dialog, _ ->
-                viewModel.onRemoveSeasonClick(showSeason)
+                viewModel.onRemoveSeasonFromHistoryClick(showSeason)
                 dialog.dismiss()
             }
             .show()
+    }
+
+    override fun onShowSeasonAddToTraktCollectionClick(view: View, showSeason: ShowSeason) {
+        viewModel.onAddSeasonToCollectionClick(showSeason)
+    }
+
+    override fun onShowSeasonRemoveFromTraktCollectionClick(view: View, showSeason: ShowSeason) {
+        viewModel.onRemoveSeasonFromCollectionClick(showSeason)
+    }
+
+    companion object {
+        const val TAG = "ShowSeasonsBottomSheet"
     }
 }

@@ -4,10 +4,7 @@ import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.theupnextapp.common.utils.UpnextPreferenceManager
-import com.theupnextapp.domain.ShowInfo
-import com.theupnextapp.domain.ShowSeason
-import com.theupnextapp.domain.TraktAddToHistory
-import com.theupnextapp.domain.TraktRemoveFromHistory
+import com.theupnextapp.domain.*
 import com.theupnextapp.ui.common.TraktViewModel
 import kotlinx.coroutines.launch
 
@@ -22,14 +19,29 @@ class ShowSeasonsBottomSheetViewModel(
 
     val removeFromHistoryResponse = traktRepository.removeFromHistoryResponse
 
+    val addToCollectionResponse = traktRepository.addToCollectionResponse
+
+    val removeFromCollectionResponse = traktRepository.removeFromCollectionResponse
+
     val watchedProgress = traktRepository.traktWatchedProgress
 
-    fun onAddSeasonClick(showSeason: ShowSeason) {
+    val traktCollectionSeasons =
+        showDetail?.imdbID?.let { traktRepository.traktCollectionSeasons(it) }
+
+    fun onAddSeasonToHistoryClick(showSeason: ShowSeason) {
         onSeasonHistoryAction(HISTORY_ACTION_ADD, showSeason)
     }
 
-    fun onRemoveSeasonClick(showSeason: ShowSeason) {
+    fun onRemoveSeasonFromHistoryClick(showSeason: ShowSeason) {
         onSeasonHistoryAction(HISTORY_ACTION_REMOVE, showSeason)
+    }
+
+    fun onAddSeasonToCollectionClick(showSeason: ShowSeason) {
+        onSeasonCollectionAction(COLLECTION_ACTION_ADD, showSeason)
+    }
+
+    fun onRemoveSeasonFromCollectionClick(showSeason: ShowSeason) {
+        onSeasonCollectionAction(COLLECTION_ACTION_REMOVE, showSeason)
     }
 
     fun onAddToHistoryResponseReceived(addToHistory: TraktAddToHistory) {
@@ -87,9 +99,64 @@ class ShowSeasonsBottomSheetViewModel(
         }
     }
 
+    fun onAddToCollectionResponseReceived(addToCollection: TraktAddToCollection) {
+        viewModelScope?.launch {
+            if (isAuthorizedOnTrakt.value == true) {
+                traktRepository.refreshTraktCollection(
+                    UpnextPreferenceManager(getApplication()).getTraktAccessToken()
+                )
+            }
+        }
+    }
+
+    fun onRemoveFromCollectionResponseReceived(removeFromCollection: TraktRemoveFromCollection) {
+        viewModelScope?.launch {
+            if (isAuthorizedOnTrakt.value == true) {
+                traktRepository.refreshTraktCollection(
+                    UpnextPreferenceManager(getApplication()).getTraktAccessToken()
+                )
+            }
+        }
+    }
+
+    private fun onSeasonCollectionAction(action: String, showSeason: ShowSeason) {
+        if (isAuthorizedOnTrakt.value == true) {
+            val accessToken = UpnextPreferenceManager(getApplication()).getTraktAccessToken()
+
+            when (action) {
+                COLLECTION_ACTION_ADD -> {
+                    viewModelScope?.launch {
+                        showDetail?.imdbID?.let { imdbID ->
+                            traktRepository.traktAddSeasonToCollection(
+                                accessToken = accessToken,
+                                imdbID = imdbID,
+                                showSeason = showSeason
+                            )
+                        }
+                    }
+                }
+                COLLECTION_ACTION_REMOVE -> {
+                    viewModelScope?.launch {
+                        showDetail?.imdbID.let { imdbID ->
+                            if (imdbID != null) {
+                                traktRepository.traktRemoveSeasonFromCollection(
+                                    accessToken = accessToken,
+                                    imdbID = imdbID,
+                                    showSeason = showSeason
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     companion object {
         const val HISTORY_ACTION_ADD = "add_to_history"
         const val HISTORY_ACTION_REMOVE = "remove_from_history"
+        const val COLLECTION_ACTION_ADD = "add_to_collection"
+        const val COLLECTION_ACTION_REMOVE = "remove_from_collection"
     }
 
 

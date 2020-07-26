@@ -14,6 +14,10 @@
             type="com.theupnextapp.domain.TraktWatchedShowProgressSeason" />
 
         <variable
+            name="collectedSeason"
+            type="com.theupnextapp.domain.TraktCollectionSeason" />
+
+        <variable
             name="listener"
             type="com.theupnextapp.ui.showDetail.ShowSeasonsAdapter.ShowSeasonsAdapterListener" />
     </data>
@@ -161,7 +165,7 @@
                 android:layout_marginEnd="@dimen/margin_horizontal"
                 android:clickable="true"
                 android:focusable="true"
-                android:onClick="@{(view) -> listener.onShowSeasonOptionsMenuClick(view, showSeason,  watchedSeason)}"
+                android:onClick="@{(view) -> listener.onShowSeasonTraktOptionsMenuClick(view, showSeason,  watchedSeason, collectedSeason)}"
                 app:srcCompat="@drawable/ic_baseline_more_vert_24" />
         </LinearLayout>
 
