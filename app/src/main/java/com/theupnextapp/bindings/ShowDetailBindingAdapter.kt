@@ -8,6 +8,7 @@ import com.theupnextapp.common.utils.DateUtils
 import com.theupnextapp.domain.ShowInfo
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.math.abs
 
 @BindingAdapter("showHideNextEpisodeInfo")
 fun showHideNextEpisodeInfo(view: TextView, showInfo: ShowInfo?) {
@@ -63,7 +64,7 @@ fun getNextAirDate(view: TextView, showInfo: ShowInfo?) {
                 DateUtils.getTimeDifferenceForDisplay(endTime = date.time)
             view.text = view.resources.getString(
                 R.string.show_detail_next_episode_airdate,
-                difference?.difference,
+                difference?.difference?.unaryMinus(),
                 difference?.type
             )
             view.visibility = View.VISIBLE
