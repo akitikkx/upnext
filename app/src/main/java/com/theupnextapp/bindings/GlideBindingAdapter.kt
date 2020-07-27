@@ -11,14 +11,32 @@ import com.theupnextapp.R
 @BindingAdapter("imageUrl")
 fun setImageUrl(imageView: ImageView, url: String?) {
     val requestOptions = RequestOptions()
-        .placeholder(R.color.grey_light)
         .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-        .error(R.color.grey_light)
-        .fallback(R.color.grey_light)
 
     try {
         Glide.with(imageView.context)
             .load(url)
+            .placeholder(R.drawable.poster_placeholder)
+            .error(R.drawable.poster_placeholder)
+            .fallback(R.drawable.poster_placeholder)
+            .apply(requestOptions)
+            .into(imageView)
+    } catch (e: Exception) {
+        FirebaseCrashlytics.getInstance().recordException(e)
+    }
+}
+
+@BindingAdapter("wideImageUrl")
+fun setWideImageUrl(imageView: ImageView, url: String?) {
+    val requestOptions = RequestOptions()
+        .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+
+    try {
+        Glide.with(imageView.context)
+            .load(url)
+            .placeholder(R.drawable.backdrop_background)
+            .error(R.drawable.backdrop_background)
+            .fallback(R.drawable.backdrop_background)
             .apply(requestOptions)
             .into(imageView)
     } catch (e: Exception) {

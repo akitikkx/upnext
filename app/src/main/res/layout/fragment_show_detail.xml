@@ -46,7 +46,7 @@
                         android:contentDescription="@{String.format(@string/show_backdrop_image, viewModel.showInfo.name)}"
                         android:scaleType="matrix"
                         android:src="@color/grey_light"
-                        app:imageUrl="@{viewModel.showDetailArg.showImageUrl}"
+                        app:wideImageUrl="@{viewModel.showDetailArg.showImageUrl}"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
