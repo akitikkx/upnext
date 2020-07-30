@@ -76,22 +76,7 @@ class LibraryFragment : BaseFragment(), LibraryAdapter.LibraryAdapterListener {
 
         viewModel.launchTraktConnectWindow.observe(viewLifecycleOwner, Observer {
             if (it) {
-                MaterialAlertDialogBuilder(requireActivity())
-                    .setTitle(resources.getString(R.string.library_connect_to_trakt_dialog_title))
-                    .setMessage(resources.getString(R.string.library_connect_to_trakt_dialog_message))
-                    .setNegativeButton(resources.getString(R.string.library_connect_to_trakt_dialog_negative)) { dialog, _ ->
-                        dialog.dismiss()
-                    }
-                    .setPositiveButton(resources.getString(R.string.library_connect_to_trakt_dialog_positive)) { dialog, _ ->
-                        val intent = Intent(
-                            Intent.ACTION_VIEW,
-                            Uri.parse("${CollectionFragment.TRAKT_API_URL}${CollectionFragment.TRAKT_OAUTH_ENDPOINT}?response_type=code&client_id=${BuildConfig.TRAKT_CLIENT_ID}&redirect_uri=${BuildConfig.TRAKT_REDIRECT_URI}")
-                        )
-                        intent.putExtra(Browser.EXTRA_APPLICATION_ID, activity?.packageName)
-                        startActivity(intent)
-                        dialog.dismiss()
-                    }
-                    .show()
+                launchTraktWindow()
                 viewModel.launchConnectWindowComplete()
             }
         })

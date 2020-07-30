@@ -228,6 +228,13 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
             }
         })
 
+        viewModel.launchTraktConnectWindow.observe(viewLifecycleOwner, Observer {
+            if (it) {
+                launchTraktWindow()
+                viewModel.launchConnectWindowComplete()
+            }
+        })
+
         viewModel.showConnectToTraktInfoBottomSheet.observe(viewLifecycleOwner, Observer {
             if (it == true) {
                 HelpContentComponent.showContent(

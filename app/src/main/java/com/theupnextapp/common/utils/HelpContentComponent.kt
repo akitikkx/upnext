@@ -16,7 +16,6 @@ object HelpContentComponent {
         fragmentManager?.let { fragment.show(it, fragmentType.getFragmentTag()) }
     }
 
-
 }
 
 enum class HelpContentType {

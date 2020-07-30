@@ -154,7 +154,7 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
                 }
             }
             // no updates have been done yet for this table
-        } else if ((watchlistEmpty.value == null || watchlistEmpty.value == true) && tableUpdate == null && diffInMinutes == null) {
+        } else if (((watchlistEmpty.value == null || watchlistEmpty.value == true) && (isLoadingWatchlist.value == null || isLoadingWatchlist.value == false)) && tableUpdate == null && diffInMinutes == null) {
             viewModelScope?.launch {
                 traktRepository.refreshTraktWatchlist(UpnextPreferenceManager(getApplication()).getTraktAccessToken())
             }
@@ -210,7 +210,7 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
                 }
             }
             // no updates have been done yet for this table
-        } else if ((collectionEmpty.value == null || collectionEmpty.value == true) && tableUpdate == null && diffInMinutes == null) {
+        } else if (((collectionEmpty.value == null || collectionEmpty.value == true) && (isLoadingCollection.value == null || isLoadingCollection.value == false)) && tableUpdate == null && diffInMinutes == null) {
             viewModelScope?.launch {
                 traktRepository.refreshTraktCollection(UpnextPreferenceManager(getApplication()).getTraktAccessToken())
             }
@@ -266,7 +266,7 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
                 }
             }
             // no updates have been done yet for this table
-        } else if ((historyEmpty.value == null || historyEmpty.value == true) && tableUpdate == null && diffInMinutes == null) {
+        } else if (((historyEmpty.value == null || historyEmpty.value == true) && (isLoadingHistory.value == null || isLoadingHistory.value == false)) && tableUpdate == null && diffInMinutes == null) {
             viewModelScope?.launch {
                 traktRepository.refreshTraktHistory(UpnextPreferenceManager(getApplication()).getTraktAccessToken())
             }
@@ -326,7 +326,7 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
                 }
             }
             // no updates have been done yet for this table
-        } else if ((recommendationsEmpty.value == null || recommendationsEmpty.value == true) && tableUpdate == null && diffInMinutes == null) {
+        } else if (((recommendationsEmpty.value == null || recommendationsEmpty.value == true) && (isLoadingRecommendations.value == null || isLoadingRecommendations.value == false)) && tableUpdate == null && diffInMinutes == null) {
             viewModelScope?.launch {
                 traktRepository.refreshTraktRecommendations(UpnextPreferenceManager(getApplication()).getTraktAccessToken())
             }

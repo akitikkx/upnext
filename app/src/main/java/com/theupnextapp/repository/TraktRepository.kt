@@ -140,7 +140,8 @@ class TraktRepository(private val database: UpnextDatabase) {
     val addToCollectionResponse: LiveData<TraktAddToCollection> = _addToCollectionResponse
 
     private val _removeFromCollectionResponse = MutableLiveData<TraktRemoveFromCollection>()
-    val removeFromCollectionResponse: LiveData<TraktRemoveFromCollection> = _removeFromCollectionResponse
+    val removeFromCollectionResponse: LiveData<TraktRemoveFromCollection> =
+        _removeFromCollectionResponse
 
     private val _traktShowRating = MutableLiveData<TraktShowRating>()
     val traktShowRating: LiveData<TraktShowRating> = _traktShowRating
@@ -343,15 +344,13 @@ class TraktRepository(private val database: UpnextDatabase) {
                         }
                         updatedWatchList.add(watchListItem.asDatabaseModel())
                     }
-                    database.upnextDao.apply {
-                        insertAllTraktWatchlist(*updatedWatchList.toTypedArray())
-                        insertTableUpdateLog(
-                            DatabaseTableUpdate(
-                                table_name = DatabaseTables.TABLE_TRAKT_WATCHLIST.tableName,
-                                last_updated = System.currentTimeMillis()
-                            )
+                    database.upnextDao.insertAllTraktWatchlist(*updatedWatchList.toTypedArray())
+                    database.upnextDao.insertTableUpdateLog(
+                        DatabaseTableUpdate(
+                            table_name = DatabaseTables.TABLE_TRAKT_WATCHLIST.tableName,
+                            last_updated = System.currentTimeMillis()
                         )
-                    }
+                    )
                 }
                 _isLoadingTraktWatchlist.postValue(false)
             } catch (e: Exception) {
@@ -608,16 +607,16 @@ class TraktRepository(private val database: UpnextDatabase) {
     ) {
         withContext(Dispatchers.IO) {
             try {
+                database.upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_COLLECTION.tableName)
+
                 database.upnextDao.deleteAllTraktCollection()
-                database.upnextDao.insertAllTraktCollection(*traktCollection.toTypedArray())
-
                 database.upnextDao.deleteAllTraktCollectionSeasons()
-                database.upnextDao.insertAllTraktCollectionSeasons(*traktCollectionSeasons.toTypedArray())
-
                 database.upnextDao.deleteAllTraktCollectionSeasonEpisodes()
+
+                database.upnextDao.insertAllTraktCollection(*traktCollection.toTypedArray())
+                database.upnextDao.insertAllTraktCollectionSeasons(*traktCollectionSeasons.toTypedArray())
                 database.upnextDao.insertAllTraktCollectionEpisodes(*traktCollectionSeasonEpisodes.toTypedArray())
 
-                database.upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_COLLECTION.tableName)
                 database.upnextDao.insertTableUpdateLog(
                     DatabaseTableUpdate(
                         table_name = DatabaseTables.TABLE_TRAKT_COLLECTION.tableName,
@@ -1448,7 +1447,8 @@ class TraktRepository(private val database: UpnextDatabase) {
                 _isLoadingTraktMostAnticipated.postValue(true)
                 val shows: MutableList<DatabaseTraktMostAnticipated> = mutableListOf()
 
-                val mostAnticipatedShowsResponse = TraktNetwork.traktApi.getMostAnticipatedShowsAsync().await()
+                val mostAnticipatedShowsResponse =
+                    TraktNetwork.traktApi.getMostAnticipatedShowsAsync().await()
 
                 if (!mostAnticipatedShowsResponse.isEmpty()) {
                     database.upnextDao.apply {

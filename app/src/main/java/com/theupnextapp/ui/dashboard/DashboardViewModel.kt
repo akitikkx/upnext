@@ -137,7 +137,7 @@ class DashboardViewModel(application: Application) : TraktViewModel(application)
                 }
             }
             // no updates have been done yet for this table
-        } else if ((todayShowsEmpty.value == true && isLoadingTodayShows.value == true) && tableUpdate == null && diffInMinutes == null) {
+        } else if ((todayShowsEmpty.value == true && isLoadingTodayShows.value == false) && tableUpdate == null && diffInMinutes == null) {
             viewModelScope?.launch {
                 upnextRepository.refreshTodayShows(
                     DEFAULT_COUNTRY_CODE,

@@ -21,6 +21,7 @@ open class TraktViewModel(application: Application) : AndroidViewModel(applicati
     protected val _isAuthorizedOnTrakt = MutableLiveData(ifValidAccessTokenExists())
 
     private val _launchTraktConnectWindow = MutableLiveData<Boolean>()
+    val launchTraktConnectWindow: LiveData<Boolean> = _launchTraktConnectWindow
 
     private val _fetchingAccessTokenInProgress = MutableLiveData<Boolean>()
 
@@ -39,8 +40,6 @@ open class TraktViewModel(application: Application) : AndroidViewModel(applicati
     protected val traktRepository = TraktRepository(database)
 
     val fetchAccessTokenInProgress: LiveData<Boolean> = _fetchingAccessTokenInProgress
-
-    val launchTraktConnectWindow: LiveData<Boolean> = _launchTraktConnectWindow
 
     val isAuthorizedOnTrakt: LiveData<Boolean?> = _isAuthorizedOnTrakt
 

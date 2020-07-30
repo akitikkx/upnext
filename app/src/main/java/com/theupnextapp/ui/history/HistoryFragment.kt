@@ -70,10 +70,6 @@ class HistoryFragment : BaseFragment(), HistoryAdapter.HistoryAdapterListener {
             }
         })
 
-        viewModel.historyTableUpdate.observe(viewLifecycleOwner, Observer {
-            viewModel.onHistoryTableUpdateReceived(it)
-        })
-
         viewModel.traktHistory.observe(viewLifecycleOwner, Observer {
             if (!it.isNullOrEmpty()) {
                 historyAdapter?.history = it
