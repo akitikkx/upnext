@@ -83,7 +83,7 @@ class ExploreViewModel(application: Application) : TraktViewModel(application) {
                 }
             }
             // no updates have been done yet for this table
-        } else if ((popularShowsEmpty.value == null || popularShowsEmpty.value == true) && tableUpdate == null && diffInMinutes == null) {
+        } else if ((popularShowsEmpty.value == true && (isLoadingTraktPopular.value == null || isLoadingTraktPopular.value == false)) && tableUpdate == null && diffInMinutes == null) {
             viewModelScope?.launch {
                 traktRepository.refreshTraktPopularShows()
             }
@@ -106,7 +106,7 @@ class ExploreViewModel(application: Application) : TraktViewModel(application) {
                 }
             }
             // no updates have been done yet for this table
-        } else if ((trendingShowsEmpty.value == null || trendingShowsEmpty.value == true) && tableUpdate == null && diffInMinutes == null) {
+        } else if ((trendingShowsEmpty.value == true && (isLoadingTraktTrending.value == null || isLoadingTraktTrending.value == false)) && tableUpdate == null && diffInMinutes == null) {
             viewModelScope?.launch {
                 traktRepository.refreshTraktTrendingShows()
             }
@@ -129,7 +129,7 @@ class ExploreViewModel(application: Application) : TraktViewModel(application) {
                 }
             }
             // no updates have been done yet for this table
-        } else if ((mostAnticipatedShowsEmpty.value == null || mostAnticipatedShowsEmpty.value == true) && tableUpdate == null && diffInMinutes == null) {
+        } else if ((mostAnticipatedShowsEmpty.value == true && (isLoadingTraktMostAnticipated.value == false || isLoadingTraktMostAnticipated.value == null)) && tableUpdate == null && diffInMinutes == null) {
             viewModelScope?.launch {
                 traktRepository.refreshTraktMostAnticipatedShows()
             }

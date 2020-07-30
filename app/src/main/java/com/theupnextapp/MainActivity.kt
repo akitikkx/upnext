@@ -26,6 +26,7 @@ import com.theupnextapp.common.utils.FeedBackStatus
 import com.theupnextapp.common.utils.Feedback
 import com.theupnextapp.domain.TraktConnectionArg
 import com.theupnextapp.ui.collection.CollectionFragment
+import com.theupnextapp.ui.common.BaseFragment
 
 class MainActivity : AppCompatActivity() {
 
@@ -104,7 +105,7 @@ class MainActivity : AppCompatActivity() {
 
             val connectionArg = TraktConnectionArg(code)
 
-            val bundle = bundleOf(CollectionFragment.EXTRA_TRAKT_URI to connectionArg)
+            val bundle = bundleOf(BaseFragment.EXTRA_TRAKT_URI to connectionArg)
             navController.navigate(R.id.libraryFragment, bundle)
             bundle.clear()
             clearIntent()
