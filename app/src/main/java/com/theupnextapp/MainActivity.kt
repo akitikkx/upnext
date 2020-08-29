@@ -25,7 +25,6 @@ import com.google.android.material.snackbar.Snackbar
 import com.theupnextapp.common.utils.FeedBackStatus
 import com.theupnextapp.common.utils.Feedback
 import com.theupnextapp.domain.TraktConnectionArg
-import com.theupnextapp.ui.collection.CollectionFragment
 import com.theupnextapp.ui.common.BaseFragment
 
 class MainActivity : AppCompatActivity() {
@@ -34,7 +33,7 @@ class MainActivity : AppCompatActivity() {
         get() = findNavController(R.id.nav_host_fragment)
 
     private var _bottomNavigationView: BottomNavigationView? = null
-    private val bottomNavigationView get() = _bottomNavigationView
+    private val bottomNavigationView get() = _bottomNavigationView!!
 
     private var _toolbar: Toolbar? = null
     private val toolbar get() = _toolbar
@@ -48,7 +47,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        _toolbar = findViewById<Toolbar>(R.id.toolbar)
+        _toolbar = findViewById(R.id.toolbar)
         _bottomNavigationView = findViewById(R.id.bottom_navigation)
         _container = findViewById(R.id.container)
 

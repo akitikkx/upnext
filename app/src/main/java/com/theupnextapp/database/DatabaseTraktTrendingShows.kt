@@ -6,8 +6,8 @@ import com.theupnextapp.domain.TraktTrendingShows
 
 @Entity(tableName = "trakt_trending")
 data class DatabaseTraktTrendingShows(
-    @PrimaryKey(autoGenerate = true)
-    val id: Long = 0,
+    @PrimaryKey
+    val id: Int,
     val title: String?,
     val year: String?,
     val medium_image_url: String?,
@@ -23,6 +23,7 @@ data class DatabaseTraktTrendingShows(
 fun List<DatabaseTraktTrendingShows>.asDomainModel() : List<TraktTrendingShows> {
     return map {
         TraktTrendingShows(
+            id = it.traktID,
             title = it.title,
             year = it.year,
             mediumImageUrl = it.medium_image_url,

@@ -181,6 +181,39 @@ data class TraktWatchedShowProgressSeason(
         }
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (javaClass != other?.javaClass) {
+            return false
+        }
+
+        other as TraktWatchedShowProgressSeason
+
+        if (aired != other.aired) {
+            return false
+        }
+
+        if (completed != other.completed) {
+            return false
+        }
+
+        if (episodes != other.episodes) {
+            return false
+        }
+
+        if (number != other.number) {
+            return false
+        }
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = aired
+        result = 31 * result + completed
+        result = 31 * result + (episodes?.hashCode() ?: 0)
+        result = 31 * result + (number ?: 0)
+        return result
+    }
 }
 
 data class TraktWatchedShowProgressSeasonEpisode(

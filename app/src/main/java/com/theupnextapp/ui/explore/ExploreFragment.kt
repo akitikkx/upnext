@@ -106,19 +106,19 @@ class ExploreFragment : Fragment(),
 
         viewModel.trendingShows.observe(viewLifecycleOwner, Observer {
             if (!it.isNullOrEmpty()) {
-                trendingShowsAdapter.trendingList = it
+                trendingShowsAdapter.submitList(it)
             }
         })
 
         viewModel.popularShows.observe(viewLifecycleOwner, Observer {
             if (!it.isNullOrEmpty()) {
-                popularShowsAdapter.popularList = it
+                popularShowsAdapter.submitList(it)
             }
         })
 
         viewModel.mostAnticipatedShows.observe(viewLifecycleOwner, Observer {
             if (!it.isNullOrEmpty()) {
-                mostAnticipatedShowsAdapter.mostAnticipatedShowsList = it
+                mostAnticipatedShowsAdapter.submitList(it)
             }
         })
 

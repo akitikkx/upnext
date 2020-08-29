@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.theupnextapp.R
 import com.theupnextapp.databinding.ShowCastItemBinding
@@ -13,11 +14,7 @@ import com.theupnextapp.domain.ShowCast
 class ShowCastAdapter(val listener: ShowCastAdapterListener) :
     RecyclerView.Adapter<ShowCastAdapter.ViewHolder>() {
 
-    var cast: List<ShowCast> = emptyList()
-        set(value) {
-            field = value
-            notifyDataSetChanged()
-        }
+    private var cast: List<ShowCast> = ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val withDataBinding: ShowCastItemBinding = DataBindingUtil.inflate(
@@ -40,6 +37,36 @@ class ShowCastAdapter(val listener: ShowCastAdapterListener) :
 
     interface ShowCastAdapterListener {
         fun onShowCastClick(view: View, castItem: ShowCast)
+    }
+
+    fun submitList(showCastList: List<ShowCast>) {
+        val oldShowCastList = cast
+        val diffResult: DiffUtil.DiffResult = DiffUtil.calculateDiff(
+            ShowCastItemDiffCallback(
+                oldShowCastList,
+                showCastList
+            )
+        )
+        cast = showCastList
+        diffResult.dispatchUpdatesTo(this)
+    }
+
+    class ShowCastItemDiffCallback(
+        private val oldShowCastList: List<ShowCast>,
+        private val newShowCastList: List<ShowCast>
+    ) : DiffUtil.Callback() {
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldShowCastList[oldItemPosition].id == newShowCastList[newItemPosition].id
+        }
+
+        override fun getOldListSize(): Int = oldShowCastList.size
+
+        override fun getNewListSize(): Int = newShowCastList.size
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldShowCastList[oldItemPosition].equals(newShowCastList[newItemPosition])
+        }
+
     }
 
     class ViewHolder(val viewDataBinding: ShowCastItemBinding) :

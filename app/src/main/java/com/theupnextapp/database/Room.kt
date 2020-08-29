@@ -194,7 +194,7 @@ interface UpnextDao {
         DatabaseTraktTrendingShows::class,
         DatabaseTraktMostAnticipated::class
     ],
-    version = 17,
+    version = 18,
     exportSchema = true
 )
 abstract class UpnextDatabase : RoomDatabase() {
@@ -214,7 +214,8 @@ fun getDatabase(context: Context): UpnextDatabase {
                 .addMigrations(
                     MIGRATION_14_15,
                     MIGRATION_15_16,
-                    MIGRATION_16_17
+                    MIGRATION_16_17,
+                    MIGRATION_17_18
                 )
                 .build()
         }

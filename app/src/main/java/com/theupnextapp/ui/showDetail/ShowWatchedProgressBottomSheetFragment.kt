@@ -48,7 +48,7 @@ class ShowWatchedProgressBottomSheetFragment : BottomSheetDialogFragment() {
         _adapter = ShowWatchedProgressSeasonsAdapter()
         val watchedProgress: TraktShowWatchedProgress? =
             arguments?.getParcelable(ShowDetailFragment.ARG_WATCHED_PROGRESS)
-        _adapter?.seasons = watchedProgress?.seasons
+        watchedProgress?.seasons?.let { _adapter?.submitWatchedProgressSeasonsList(it) }
 
         binding.root.findViewById<RecyclerView>(R.id.watched_progress_season_list).apply {
             layoutManager = LinearLayoutManager(context).apply {

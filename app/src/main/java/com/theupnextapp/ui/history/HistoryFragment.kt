@@ -72,7 +72,7 @@ class HistoryFragment : BaseFragment(), HistoryAdapter.HistoryAdapterListener {
 
         viewModel.traktHistory.observe(viewLifecycleOwner, Observer {
             if (!it.isNullOrEmpty()) {
-                historyAdapter?.history = it
+                historyAdapter?.submitList(it)
             }
         })
 

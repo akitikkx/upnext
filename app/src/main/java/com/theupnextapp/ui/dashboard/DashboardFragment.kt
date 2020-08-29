@@ -135,7 +135,7 @@ class DashboardFragment : BaseFragment(),
             Observer { yesterdayShows ->
                 yesterdayShows.apply {
                     if (!yesterdayShows.isNullOrEmpty()) {
-                        yesterdayShowsAdapter?.yesterdayShows = yesterdayShows
+                        yesterdayShowsAdapter?.submitList(yesterdayShows)
                     }
                 }
             })
@@ -145,7 +145,7 @@ class DashboardFragment : BaseFragment(),
             Observer { todayShows ->
                 todayShows.apply {
                     if (!todayShows.isNullOrEmpty()) {
-                        todayShowsAdapter?.todayShows = todayShows
+                        todayShowsAdapter?.submitList(todayShows)
                     }
                 }
             })
@@ -155,7 +155,7 @@ class DashboardFragment : BaseFragment(),
             Observer { tomorrowShows ->
                 tomorrowShows.apply {
                     if (!tomorrowShows.isNullOrEmpty()) {
-                        tomorrowShowsAdapter?.tomorrowShows = tomorrowShows
+                        tomorrowShowsAdapter?.submitList(tomorrowShows)
                     }
                 }
             })
