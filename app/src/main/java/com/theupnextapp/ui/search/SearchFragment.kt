@@ -79,7 +79,7 @@ class SearchFragment : BaseFragment(),
         super.onActivityCreated(savedInstanceState)
 
         viewModel.searchResults.observe(viewLifecycleOwner, Observer {
-            searchAdapter.searchResults = it
+            searchAdapter.submitList(it)
         })
 
         viewModel.navigateToSelectedShow.observe(viewLifecycleOwner, Observer {

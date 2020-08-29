@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.theupnextapp.R
 import com.theupnextapp.databinding.TodayShowListItemBinding
@@ -13,11 +14,7 @@ import com.theupnextapp.domain.ScheduleShow
 class TodayShowsAdapter(val listener: TodayShowsAdapterListener) :
     RecyclerView.Adapter<TodayShowsAdapter.ViewHolder>() {
 
-    var todayShows: List<ScheduleShow> = emptyList()
-        set(value) {
-            field = value
-            notifyDataSetChanged()
-        }
+    var todayShows: List<ScheduleShow> = ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val withDataBinding: TodayShowListItemBinding = DataBindingUtil.inflate(
@@ -39,7 +36,37 @@ class TodayShowsAdapter(val listener: TodayShowsAdapterListener) :
     override fun getItemCount(): Int = todayShows.size
 
     interface TodayShowsAdapterListener {
-        fun onTodayShowClick(view : View, scheduleShow: ScheduleShow)
+        fun onTodayShowClick(view: View, scheduleShow: ScheduleShow)
+    }
+
+    fun submitList(todayShowsList: List<ScheduleShow>) {
+        val oldItems = todayShows
+        val diffResult: DiffUtil.DiffResult = DiffUtil.calculateDiff(
+            TodayShowItemDiffCallback(
+                oldItems,
+                todayShowsList
+            )
+        )
+        todayShows = todayShowsList
+        diffResult.dispatchUpdatesTo(this)
+    }
+
+    class TodayShowItemDiffCallback(
+        private val oldTodayShowsList: List<ScheduleShow>,
+        private val newTodayShowsList: List<ScheduleShow>
+    ) : DiffUtil.Callback() {
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldTodayShowsList[oldItemPosition].id == newTodayShowsList[newItemPosition].id
+        }
+
+        override fun getOldListSize(): Int = oldTodayShowsList.size
+
+        override fun getNewListSize(): Int = newTodayShowsList.size
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldTodayShowsList[oldItemPosition].equals(newTodayShowsList[newItemPosition])
+        }
+
     }
 
     class ViewHolder(val viewDataBinding: TodayShowListItemBinding) :

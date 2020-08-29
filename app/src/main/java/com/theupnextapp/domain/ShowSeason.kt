@@ -49,4 +49,58 @@ data class ShowSeason(
             return arrayOfNulls(size)
         }
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (javaClass != other?.javaClass) {
+            return false
+        }
+
+        other as ShowSeason
+
+        if (id != other.id) {
+            return false
+        }
+
+        if (name != other.name) {
+            return false
+        }
+
+        if (seasonNumber != other.seasonNumber) {
+            return false
+        }
+
+        if (episodeCount != other.episodeCount) {
+            return false
+        }
+
+        if (premiereDate != other.premiereDate) {
+            return false
+        }
+
+        if (endDate != other.endDate) {
+            return false
+        }
+
+        if (mediumImageUrl != other.mediumImageUrl) {
+            return false
+        }
+
+        if (originalImageUrl != other.originalImageUrl) {
+            return false
+        }
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = id ?: 0
+        result = 31 * result + (name?.hashCode() ?: 0)
+        result = 31 * result + (seasonNumber ?: 0)
+        result = 31 * result + (episodeCount ?: 0)
+        result = 31 * result + (premiereDate?.hashCode() ?: 0)
+        result = 31 * result + (endDate?.hashCode() ?: 0)
+        result = 31 * result + (mediumImageUrl?.hashCode() ?: 0)
+        result = 31 * result + (originalImageUrl?.hashCode() ?: 0)
+        return result
+    }
 }

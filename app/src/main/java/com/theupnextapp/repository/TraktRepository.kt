@@ -1197,7 +1197,6 @@ class TraktRepository(private val database: UpnextDatabase) {
                 if (!trendingShowsResponse.isEmpty()) {
                     database.upnextDao.apply {
                         deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_TRENDING.tableName)
-                        deleteAllTraktTrending()
                     }
 
                     for (item in trendingShowsResponse) {
@@ -1379,7 +1378,6 @@ class TraktRepository(private val database: UpnextDatabase) {
                 if (!popularShowsResponse.isEmpty()) {
                     database.upnextDao.apply {
                         deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_POPULAR.tableName)
-                        deleteAllTraktPopular()
                     }
 
                     for (item in popularShowsResponse) {
@@ -1453,7 +1451,6 @@ class TraktRepository(private val database: UpnextDatabase) {
                 if (!mostAnticipatedShowsResponse.isEmpty()) {
                     database.upnextDao.apply {
                         deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_MOST_ANTICIPATED.tableName)
-                        deleteAllTraktMostAnticipated()
                     }
 
                     for (item in mostAnticipatedShowsResponse) {

@@ -69,4 +69,93 @@ data class ShowCast(
             return arrayOfNulls(size)
         }
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (javaClass != other?.javaClass) {
+            return false
+        }
+
+        other as ShowCast
+
+        if (id != other.id) {
+            return false
+        }
+
+        if (name != other.name) {
+            return false
+        }
+
+        if (country != other.country) {
+            return false
+        }
+
+        if (birthday != other.birthday) {
+            return false
+        }
+
+        if (deathday != other.deathday) {
+            return false
+        }
+
+        if (gender != other.gender) {
+            return false
+        }
+
+        if (originalImageUrl != other.originalImageUrl) {
+            return false
+        }
+
+        if (mediumImageUrl != other.mediumImageUrl) {
+            return false
+        }
+
+        if (characterId != other.characterId) {
+            return false
+        }
+
+        if (characterUrl != other.characterUrl) {
+            return false
+        }
+
+        if (characterName != other.characterName) {
+            return false
+        }
+
+        if (characterMediumImageUrl != other.characterMediumImageUrl) {
+            return false
+        }
+
+        if (characterOriginalImageUrl != other.characterOriginalImageUrl) {
+            return false
+        }
+
+        if (self != other.self) {
+            return false
+        }
+
+        if (voice != other.voice) {
+            return false
+        }
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = id ?: 0
+        result = 31 * result + (name?.hashCode() ?: 0)
+        result = 31 * result + (country?.hashCode() ?: 0)
+        result = 31 * result + (birthday?.hashCode() ?: 0)
+        result = 31 * result + (deathday?.hashCode() ?: 0)
+        result = 31 * result + (gender?.hashCode() ?: 0)
+        result = 31 * result + (originalImageUrl?.hashCode() ?: 0)
+        result = 31 * result + (mediumImageUrl?.hashCode() ?: 0)
+        result = 31 * result + (characterId ?: 0)
+        result = 31 * result + (characterUrl?.hashCode() ?: 0)
+        result = 31 * result + (characterName?.hashCode() ?: 0)
+        result = 31 * result + (characterMediumImageUrl?.hashCode() ?: 0)
+        result = 31 * result + (characterOriginalImageUrl?.hashCode() ?: 0)
+        result = 31 * result + (self?.hashCode() ?: 0)
+        result = 31 * result + (voice?.hashCode() ?: 0)
+        return result
+    }
 }

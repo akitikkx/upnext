@@ -13,4 +13,74 @@ data class ShowSearch(
     val summary: String?,
     val type: String?,
     val updated: String?
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (javaClass != other?.javaClass) {
+            return false
+        }
+
+        other as ShowSearch
+
+        if (id != other.id) {
+            return false
+        }
+
+        if (genres != other.genres) {
+            return false
+        }
+
+        if (mediumImageUrl != other.mediumImageUrl) {
+            return false
+        }
+
+        if (originalImageUrl != other.originalImageUrl) {
+            return false
+        }
+
+        if (language != other.language) {
+            return false
+        }
+
+        if (premiered != other.premiered) {
+            return false
+        }
+
+        if (runtime != other.runtime) {
+            return false
+        }
+
+        if (status != other.status) {
+            return false
+        }
+
+        if (summary != other.summary) {
+            return false
+        }
+
+        if (type != other.type) {
+            return false
+        }
+
+        if (updated != other.updated) {
+            return false
+        }
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = genres?.hashCode() ?: 0
+        result = 31 * result + id
+        result = 31 * result + (mediumImageUrl?.hashCode() ?: 0)
+        result = 31 * result + (name?.hashCode() ?: 0)
+        result = 31 * result + (originalImageUrl?.hashCode() ?: 0)
+        result = 31 * result + (language?.hashCode() ?: 0)
+        result = 31 * result + (premiered?.hashCode() ?: 0)
+        result = 31 * result + (runtime?.hashCode() ?: 0)
+        result = 31 * result + (status?.hashCode() ?: 0)
+        result = 31 * result + (summary?.hashCode() ?: 0)
+        result = 31 * result + (type?.hashCode() ?: 0)
+        result = 31 * result + (updated?.hashCode() ?: 0)
+        return result
+    }
+}

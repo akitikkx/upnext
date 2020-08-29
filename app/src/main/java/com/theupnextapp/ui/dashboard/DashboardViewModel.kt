@@ -3,7 +3,6 @@ package com.theupnextapp.ui.dashboard
 import android.app.Application
 import androidx.lifecycle.*
 import com.theupnextapp.common.utils.DateUtils
-import com.theupnextapp.common.utils.UpnextPreferenceManager
 import com.theupnextapp.common.utils.models.DatabaseTables
 import com.theupnextapp.common.utils.models.TableUpdateInterval
 import com.theupnextapp.domain.ShowDetailArg

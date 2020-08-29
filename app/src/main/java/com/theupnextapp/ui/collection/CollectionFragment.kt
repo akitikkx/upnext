@@ -76,7 +76,7 @@ class CollectionFragment : BaseFragment(), CollectionAdapter.CollectionAdapterLi
 
         viewModel.traktCollection.observe(viewLifecycleOwner, Observer {
             if (!it.isNullOrEmpty()) {
-                adapter.traktCollection = it
+                adapter.submitList(it)
             }
         })
 

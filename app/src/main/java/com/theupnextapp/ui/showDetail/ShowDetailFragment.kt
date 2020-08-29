@@ -113,7 +113,7 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
         viewModel.showCast.observe(viewLifecycleOwner, Observer {
             viewModel.onShowCastInfoReceived(it)
             if (it != null) {
-                showCastAdapter.cast = it
+                showCastAdapter.submitList(it)
             }
         })
 

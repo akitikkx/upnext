@@ -34,4 +34,33 @@ data class TraktCollectionSeason(
             return arrayOfNulls(size)
         }
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (javaClass != other?.javaClass) {
+            return false
+        }
+
+        other as TraktCollectionSeason
+
+        if (id != other.id) {
+            return false
+        }
+
+        if (imdbID != other.imdbID) {
+            return false
+        }
+
+        if (seasonNumber != other.seasonNumber) {
+            return false
+        }
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + (imdbID?.hashCode() ?: 0)
+        result = 31 * result + (seasonNumber ?: 0)
+        return result
+    }
 }
