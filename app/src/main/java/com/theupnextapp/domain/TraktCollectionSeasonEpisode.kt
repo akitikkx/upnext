@@ -40,4 +40,43 @@ data class TraktCollectionSeasonEpisode(
             return arrayOfNulls(size)
         }
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (javaClass != other?.javaClass) {
+            return false
+        }
+
+        other as TraktCollectionSeasonEpisode
+
+        if (id != other.id) {
+            return false
+        }
+
+        if (imdbID != other.imdbID) {
+            return false
+        }
+
+        if (seasonNumber != other.seasonNumber) {
+            return false
+        }
+
+        if (episodeNumber != other.episodeNumber) {
+            return false
+        }
+
+        if (collectedAt != other.collectedAt) {
+            return false
+        }
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + (imdbID?.hashCode() ?: 0)
+        result = 31 * result + (seasonNumber ?: 0)
+        result = 31 * result + (episodeNumber ?: 0)
+        result = 31 * result + (collectedAt?.hashCode() ?: 0)
+        return result
+    }
 }

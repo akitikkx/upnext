@@ -125,7 +125,7 @@ class DashboardFragment : BaseFragment(),
         viewModel.newShowsList.observe(viewLifecycleOwner, Observer { newShows ->
             newShows.apply {
                 if (!newShows.isNullOrEmpty()) {
-                    newShowsAdapter?.newShows = newShows
+                    newShowsAdapter?.submitList(newShows)
                 }
             }
         })

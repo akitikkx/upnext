@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.theupnextapp.R
 import com.theupnextapp.databinding.TraktCollectionSeasonEpisodeItemBinding
@@ -15,11 +16,7 @@ import com.theupnextapp.domain.TraktCollectionSeasonEpisode
 class CollectionSeasonEpisodesAdapter(val listener: CollectionSeasonEpisodesAdapterListener) :
     RecyclerView.Adapter<CollectionSeasonEpisodesAdapter.ViewHolder>() {
 
-    var episodesList: List<TraktCollectionSeasonEpisode> = emptyList()
-        set(value) {
-            field = value
-            notifyDataSetChanged()
-        }
+    private var episodesList: List<TraktCollectionSeasonEpisode> = ArrayList()
 
     var traktCollection: TraktCollectionArg? = null
 
@@ -49,7 +46,42 @@ class CollectionSeasonEpisodesAdapter(val listener: CollectionSeasonEpisodesAdap
 
     interface CollectionSeasonEpisodesAdapterListener {
 
-        fun onCollectionSeasonEpisodeRemoveClick(view: View, traktCollectionSeasonEpisode: TraktCollectionSeasonEpisode)
+        fun onCollectionSeasonEpisodeRemoveClick(
+            view: View,
+            traktCollectionSeasonEpisode: TraktCollectionSeasonEpisode
+        )
+    }
+
+    fun submitList(collectionSeasonEpisodesList: List<TraktCollectionSeasonEpisode>) {
+        val oldCollectionSeasonEpisodesList = episodesList
+        val diffResult: DiffUtil.DiffResult = DiffUtil.calculateDiff(
+            CollectionSeasonEpisodeItemCallback(
+                oldCollectionSeasonEpisodesList,
+                collectionSeasonEpisodesList
+            )
+        )
+        episodesList = collectionSeasonEpisodesList
+        diffResult.dispatchUpdatesTo(this)
+    }
+
+    class CollectionSeasonEpisodeItemCallback(
+        private val oldCollectionSeasonEpisodesList: List<TraktCollectionSeasonEpisode>,
+        private val newCollectionSeasonEpisodesList: List<TraktCollectionSeasonEpisode>
+    ) : DiffUtil.Callback() {
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldCollectionSeasonEpisodesList[oldItemPosition].id == newCollectionSeasonEpisodesList[newItemPosition].id
+        }
+
+        override fun getOldListSize(): Int = oldCollectionSeasonEpisodesList.size
+
+        override fun getNewListSize(): Int = newCollectionSeasonEpisodesList.size
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldCollectionSeasonEpisodesList[oldItemPosition].equals(
+                newCollectionSeasonEpisodesList[newItemPosition]
+            )
+        }
+
     }
 
     class ViewHolder(val viewDataBinding: TraktCollectionSeasonEpisodeItemBinding) :

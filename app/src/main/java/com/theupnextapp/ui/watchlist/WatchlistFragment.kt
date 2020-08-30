@@ -66,7 +66,7 @@ class WatchlistFragment : Fragment(), WatchlistAdapter.WatchlistAdapterListener 
 
         viewModel.traktWatchlist.observe(viewLifecycleOwner, Observer {
             if (!it.isNullOrEmpty()) {
-                watchlistAdapter?.watchlist = it
+                watchlistAdapter?.submitList(it)
             }
         })
 
