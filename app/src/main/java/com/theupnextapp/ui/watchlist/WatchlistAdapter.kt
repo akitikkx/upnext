@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.theupnextapp.R
 import com.theupnextapp.databinding.TraktWatchlistItemBinding
@@ -13,11 +14,7 @@ import com.theupnextapp.domain.TraktWatchlist
 class WatchlistAdapter(val listener: WatchlistAdapterListener) :
     RecyclerView.Adapter<WatchlistAdapter.ViewHolder>() {
 
-    var watchlist: List<TraktWatchlist> = emptyList()
-        set(value) {
-            field = value
-            notifyDataSetChanged()
-        }
+    private var watchlist: List<TraktWatchlist> = ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val withDataBinding: TraktWatchlistItemBinding = DataBindingUtil.inflate(
@@ -42,6 +39,36 @@ class WatchlistAdapter(val listener: WatchlistAdapterListener) :
         fun onWatchlistShowClick(view: View, watchlistItem: TraktWatchlist)
 
         fun onWatchlistItemDeleteClick(view: View, watchlistItem: TraktWatchlist)
+    }
+
+    fun submitList(watchlistList: List<TraktWatchlist>) {
+        val oldWatchlistList = watchlist
+        val diffResult: DiffUtil.DiffResult = DiffUtil.calculateDiff(
+            WatchlistItemCallback(
+                oldWatchlistList,
+                watchlistList
+            )
+        )
+        watchlist = watchlistList
+        diffResult.dispatchUpdatesTo(this)
+    }
+
+    class WatchlistItemCallback(
+        private val oldWatchlistList: List<TraktWatchlist>,
+        private val newWatchlistList: List<TraktWatchlist>
+    ) : DiffUtil.Callback() {
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldWatchlistList[oldItemPosition].id == newWatchlistList[newItemPosition].id
+        }
+
+        override fun getOldListSize(): Int = oldWatchlistList.size
+
+        override fun getNewListSize(): Int = newWatchlistList.size
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldWatchlistList[oldItemPosition].equals(newWatchlistList[newItemPosition])
+        }
+
     }
 
     class ViewHolder(val viewDataBinding: TraktWatchlistItemBinding) :

@@ -90,7 +90,7 @@ class CollectionSeasonEpisodesFragment : BaseFragment(),
 
         viewModel.traktCollectionSeasonEpisodes?.observe(viewLifecycleOwner, Observer {
             if (!it.isNullOrEmpty()) {
-                adapter.episodesList = it
+                adapter.submitList(it)
             } else {
                 viewModel.onCollectionSeasonEpisodesEmpty(true)
             }

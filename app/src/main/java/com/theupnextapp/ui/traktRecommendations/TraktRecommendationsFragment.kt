@@ -81,7 +81,7 @@ class TraktRecommendationsFragment : Fragment(),
             Observer { recommendedShows ->
                 recommendedShows.apply {
                     if (!recommendedShows.isNullOrEmpty()) {
-                        recommendedShowsAdapter.recommendedShows = recommendedShows
+                        recommendedShowsAdapter.submitList(recommendedShows)
                     }
                 }
             })

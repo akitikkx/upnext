@@ -1197,13 +1197,14 @@ class TraktRepository(private val database: UpnextDatabase) {
                 if (!trendingShowsResponse.isEmpty()) {
                     database.upnextDao.apply {
                         deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_TRENDING.tableName)
+                        deleteAllTraktTrending()
                     }
 
                     for (item in trendingShowsResponse) {
                         val trendingItem: NetworkTraktTrendingShowsResponseItem = item
 
-                        val imdbID = trendingItem.show?.ids?.imdb
-                        val traktTitle = trendingItem.show?.title
+                        val imdbID = trendingItem.show.ids.imdb
+                        val traktTitle = trendingItem.show.title
 
                         // perform a TvMaze search for the Trakt item using the Trakt title
                         val tvMazeSearch =
@@ -1378,6 +1379,7 @@ class TraktRepository(private val database: UpnextDatabase) {
                 if (!popularShowsResponse.isEmpty()) {
                     database.upnextDao.apply {
                         deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_POPULAR.tableName)
+                        deleteAllTraktPopular()
                     }
 
                     for (item in popularShowsResponse) {
@@ -1451,13 +1453,14 @@ class TraktRepository(private val database: UpnextDatabase) {
                 if (!mostAnticipatedShowsResponse.isEmpty()) {
                     database.upnextDao.apply {
                         deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_MOST_ANTICIPATED.tableName)
+                        deleteAllTraktMostAnticipated()
                     }
 
                     for (item in mostAnticipatedShowsResponse) {
                         val mostAnticipatedItem: NetworkTraktMostAnticipatedResponseItem = item
 
-                        val imdbID = mostAnticipatedItem.show?.ids?.imdb
-                        val traktTitle = mostAnticipatedItem.show?.title
+                        val imdbID = mostAnticipatedItem.show.ids.imdb
+                        val traktTitle = mostAnticipatedItem.show.title
 
                         // perform a TvMaze search for the Trakt item using the Trakt title
                         val tvMazeSearch =
