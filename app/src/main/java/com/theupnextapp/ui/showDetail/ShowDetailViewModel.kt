@@ -2,7 +2,6 @@ package com.theupnextapp.ui.showDetail
 
 import android.app.Application
 import androidx.lifecycle.*
-import com.theupnextapp.common.utils.UpnextPreferenceManager
 import com.theupnextapp.domain.*
 import com.theupnextapp.repository.UpnextRepository
 import com.theupnextapp.ui.common.TraktViewModel
@@ -82,7 +81,6 @@ class ShowDetailViewModel(
     val watchedProgress = traktRepository.traktWatchedProgress
 
     init {
-        val accessToken = UpnextPreferenceManager(getApplication()).getTraktAccessToken()
         viewModelScope?.launch {
             show.showId?.let {
                 upnextRepository.getShowData(it)
@@ -92,12 +90,10 @@ class ShowDetailViewModel(
             traktRepository.getTraktShowRating(showInfo.value?.imdbID)
             traktRepository.getTraktShowStats(showInfo.value?.imdbID)
 
-            if (isAuthorizedOnTrakt.value == true) {
-                traktRepository.getTraktWatchedProgress(
-                    accessToken,
-                    showInfo.value?.imdbID
-                )
-            }
+            traktRepository.getTraktWatchedProgress(
+                accessToken.value,
+                showInfo.value?.imdbID
+            )
         }
 
         isLoading.addSource(isUpnextRepositoryLoading) { result ->
@@ -209,14 +205,13 @@ class ShowDetailViewModel(
 
     private fun onWatchlistAction(action: String) {
         if (isAuthorizedOnTrakt.value == true) {
-            val accessToken = UpnextPreferenceManager(getApplication()).getTraktAccessToken()
 
             when (action) {
                 WATCHLIST_ACTION_ADD -> {
                     viewModelScope?.launch {
                         showInfo.value?.imdbID?.let { imdbID ->
                             traktRepository.traktAddToWatchlist(
-                                accessToken,
+                                accessToken.value,
                                 imdbID
                             )
                         }
@@ -226,7 +221,7 @@ class ShowDetailViewModel(
                     viewModelScope?.launch {
                         showInfo.value?.imdbID?.let { imdbID ->
                             traktRepository.traktRemoveFromWatchlist(
-                                accessToken,
+                                accessToken.value,
                                 imdbID
                             )
                         }
@@ -249,8 +244,6 @@ class ShowDetailViewModel(
 
     private fun onCollectionAction(action: String) {
         if (isAuthorizedOnTrakt.value == true) {
-            val accessToken = UpnextPreferenceManager(getApplication()).getTraktAccessToken()
-
             when (action) {
                 COLLECTION_ACTION_ADD -> {
 
@@ -277,24 +270,18 @@ class ShowDetailViewModel(
     }
 
     private fun loadTraktWatchlist() {
-        val preferences = UpnextPreferenceManager(getApplication())
-
         viewModelScope?.launch {
-            traktRepository.refreshTraktWatchlist(preferences.getTraktAccessToken())
+            traktRepository.refreshTraktWatchlist(accessToken.value)
         }
     }
 
     private fun requestCollectionRefresh() {
-        if (ifValidAccessTokenExists()) {
-            loadTraktCollection()
-        }
+        loadTraktCollection()
     }
 
     private fun loadTraktCollection() {
-        val preferences = UpnextPreferenceManager(getApplication())
-
         viewModelScope?.launch {
-            traktRepository.refreshTraktCollection(preferences.getTraktAccessToken())
+            traktRepository.refreshTraktCollection(accessToken.value)
         }
     }
 

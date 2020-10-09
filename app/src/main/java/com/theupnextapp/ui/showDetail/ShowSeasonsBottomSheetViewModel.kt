@@ -3,7 +3,6 @@ package com.theupnextapp.ui.showDetail
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.theupnextapp.common.utils.UpnextPreferenceManager
 import com.theupnextapp.domain.*
 import com.theupnextapp.ui.common.TraktViewModel
 import kotlinx.coroutines.launch
@@ -48,7 +47,7 @@ class ShowSeasonsBottomSheetViewModel(
         viewModelScope?.launch {
             if (isAuthorizedOnTrakt.value == true) {
                 traktRepository.getTraktWatchedProgress(
-                    UpnextPreferenceManager(getApplication()).getTraktAccessToken(),
+                    accessToken.value,
                     showDetail?.imdbID
                 )
             }
@@ -59,7 +58,7 @@ class ShowSeasonsBottomSheetViewModel(
         viewModelScope?.launch {
             if (isAuthorizedOnTrakt.value == true) {
                 traktRepository.getTraktWatchedProgress(
-                    UpnextPreferenceManager(getApplication()).getTraktAccessToken(),
+                    accessToken.value,
                     showDetail?.imdbID
                 )
             }
@@ -68,14 +67,13 @@ class ShowSeasonsBottomSheetViewModel(
 
     private fun onSeasonHistoryAction(action: String, showSeason: ShowSeason) {
         if (isAuthorizedOnTrakt.value == true) {
-            val accessToken = UpnextPreferenceManager(getApplication()).getTraktAccessToken()
 
             when (action) {
                 HISTORY_ACTION_ADD -> {
                     viewModelScope?.launch {
                         showDetail?.imdbID?.let { imdbID ->
                             traktRepository.traktAddSeasonToHistory(
-                                accessToken = accessToken,
+                                accessToken = accessToken.value,
                                 imdbID = imdbID,
                                 showSeason = showSeason
                             )
@@ -87,7 +85,7 @@ class ShowSeasonsBottomSheetViewModel(
                         showDetail?.imdbID.let { imdbID ->
                             if (imdbID != null) {
                                 traktRepository.traktRemoveSeasonFromHistory(
-                                    accessToken = accessToken,
+                                    accessToken = accessToken.value,
                                     imdbID = imdbID,
                                     showSeason = showSeason
                                 )
@@ -103,7 +101,7 @@ class ShowSeasonsBottomSheetViewModel(
         viewModelScope?.launch {
             if (isAuthorizedOnTrakt.value == true) {
                 traktRepository.refreshTraktCollection(
-                    UpnextPreferenceManager(getApplication()).getTraktAccessToken()
+                    accessToken.value
                 )
             }
         }
@@ -113,7 +111,7 @@ class ShowSeasonsBottomSheetViewModel(
         viewModelScope?.launch {
             if (isAuthorizedOnTrakt.value == true) {
                 traktRepository.refreshTraktCollection(
-                    UpnextPreferenceManager(getApplication()).getTraktAccessToken()
+                    accessToken.value
                 )
             }
         }
@@ -121,14 +119,13 @@ class ShowSeasonsBottomSheetViewModel(
 
     private fun onSeasonCollectionAction(action: String, showSeason: ShowSeason) {
         if (isAuthorizedOnTrakt.value == true) {
-            val accessToken = UpnextPreferenceManager(getApplication()).getTraktAccessToken()
 
             when (action) {
                 COLLECTION_ACTION_ADD -> {
                     viewModelScope?.launch {
                         showDetail?.imdbID?.let { imdbID ->
                             traktRepository.traktAddSeasonToCollection(
-                                accessToken = accessToken,
+                                accessToken = accessToken.value,
                                 imdbID = imdbID,
                                 showSeason = showSeason
                             )
@@ -140,7 +137,7 @@ class ShowSeasonsBottomSheetViewModel(
                         showDetail?.imdbID.let { imdbID ->
                             if (imdbID != null) {
                                 traktRepository.traktRemoveSeasonFromCollection(
-                                    accessToken = accessToken,
+                                    accessToken = accessToken.value,
                                     imdbID = imdbID,
                                     showSeason = showSeason
                                 )

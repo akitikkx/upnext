@@ -16,7 +16,7 @@ apply plugin: 'com.google.firebase.firebase-perf'
 
 android {
     compileSdkVersion 30
-    buildToolsVersion "30.0.1"
+    buildToolsVersion "30.0.2"
     defaultConfig {
         applicationId "com.theupnextapp"
         minSdkVersion 21
@@ -92,7 +92,10 @@ dependencies {
     kapt "com.github.bumptech.glide:compiler:$glide_version"
 
     // ViewModel and LiveData (arch components)
-    implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_extensions_version"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
 
     // Room database
     implementation "androidx.room:room-runtime:$room_version"
@@ -133,6 +136,9 @@ dependencies {
 
     // PreferenceManager
     implementation "androidx.preference:preference:$androidx_preference_version"
+
+    // Preferences DataStore
+    implementation "androidx.datastore:datastore-preferences:1.0.0-alpha01"
 
     // Leak canary
     debugImplementation "com.squareup.leakcanary:leakcanary-android:$leakcanary_version"

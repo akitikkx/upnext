@@ -2,7 +2,6 @@ package com.theupnextapp.ui.watchlist
 
 import android.app.Application
 import androidx.lifecycle.*
-import com.theupnextapp.common.utils.UpnextPreferenceManager
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.TraktWatchlist
 import com.theupnextapp.ui.common.TraktViewModel
@@ -29,7 +28,7 @@ class WatchlistViewModel(application: Application) : TraktViewModel(application)
             watchlistItem.imdbID?.let { imdbID ->
                 traktRepository.removeFromCachedWatchlist(imdbID)
                 traktRepository.traktRemoveFromWatchlist(
-                    UpnextPreferenceManager(getApplication()).getTraktAccessToken(),
+                    accessToken.value,
                     imdbID
                 )
             }

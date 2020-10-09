@@ -4,32 +4,39 @@ import android.app.Application
 import android.os.Bundle
 import androidx.lifecycle.*
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.theupnextapp.common.utils.UpnextPreferenceManager
 import com.theupnextapp.database.getDatabase
 import com.theupnextapp.domain.TraktAccessToken
 import com.theupnextapp.domain.TraktConnectionArg
 import com.theupnextapp.repository.TraktRepository
+import com.theupnextapp.repository.datastore.TraktUserManager
 import com.theupnextapp.ui.collection.CollectionViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
 open class TraktViewModel(application: Application) : AndroidViewModel(application) {
 
-    protected val _isAuthorizedOnTrakt = MutableLiveData(ifValidAccessTokenExists())
+    private val preferences = TraktUserManager(application)
 
     private val _launchTraktConnectWindow = MutableLiveData<Boolean>()
     val launchTraktConnectWindow: LiveData<Boolean> = _launchTraktConnectWindow
 
     private val _fetchingAccessTokenInProgress = MutableLiveData<Boolean>()
+    val fetchAccessTokenInProgress: LiveData<Boolean> = _fetchingAccessTokenInProgress
 
     private val _storingTraktAccessTokenInProgress = MutableLiveData<Boolean>()
+    val storingTraktAccessTokenInProgress: LiveData<Boolean> = _storingTraktAccessTokenInProgress
 
     private val _transactionInProgress = MutableLiveData<Boolean>()
 
     private val _onDisconnectClick = MutableLiveData<Boolean>()
+    val onDisconnectClick: LiveData<Boolean> = _onDisconnectClick
+
+    private val _accessToken = MutableLiveData<String?>()
+    val accessToken: LiveData<String?> = _accessToken
 
     protected val viewModelJob = SupervisorJob()
 
@@ -39,54 +46,61 @@ open class TraktViewModel(application: Application) : AndroidViewModel(applicati
 
     protected val traktRepository = TraktRepository(database)
 
-    val fetchAccessTokenInProgress: LiveData<Boolean> = _fetchingAccessTokenInProgress
+    private val prefTraktAccessToken = preferences.traktAccessToken
 
-    val isAuthorizedOnTrakt: LiveData<Boolean?> = _isAuthorizedOnTrakt
+    private val prefTraktAccessTokenExpiresIn = preferences.traktAccessTokenExpiresIn
 
-    val storingTraktAccessTokenInProgress: LiveData<Boolean> = _storingTraktAccessTokenInProgress
+    private val prefTraktAccessTokenCreatedAt = preferences.traktAccessTokenCreatedAt
 
-    val onDisconnectClick: LiveData<Boolean> = _onDisconnectClick
+    private val prefTraktRefreshToken = preferences.traktAccessTokenRefresh
 
     val traktAccessToken = traktRepository.traktAccessToken
 
-    val invalidToken = traktRepository.invalidToken
+    private val _isAuthorizedOnTrakt = MediatorLiveData<Boolean>().apply {
+        var createdDateEpoch: Int? = null
+        var refreshToken: String? = null
+        var tokenExpiresIn: Int? = null
+        var hasExpired = false
+        var accessTokenExists = false
 
-    val invalidGrant = traktRepository.invalidGrant
-
-    init {
-        _isAuthorizedOnTrakt.value = ifValidAccessTokenExists()
-    }
-
-    protected fun ifValidAccessTokenExists(): Boolean {
-        val preferences = UpnextPreferenceManager(getApplication())
-
-        if (checkIfTokenHasExpired()) {
-            return false
+        addSource(prefTraktAccessToken.asLiveData()) {
+            accessTokenExists = it.isNullOrEmpty()
+            _accessToken.value = it
+            value = !it.isNullOrEmpty()
         }
 
-        val accessToken = preferences.getTraktAccessToken()
-        return accessToken != null
+        addSource(prefTraktAccessTokenCreatedAt.asLiveData()) {
+            createdDateEpoch = it
+        }
+
+        addSource(prefTraktAccessTokenExpiresIn.asLiveData()) {
+            tokenExpiresIn = it
+        }
+
+        addSource(prefTraktRefreshToken.asLiveData()) {
+            refreshToken = it
+            value = !it.isNullOrEmpty()
+        }
+
+        val expiryDateEpoch = tokenExpiresIn?.let { createdDateEpoch?.plus(it) }
+        val currentDateEpoch = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())
+
+        if (expiryDateEpoch != null) {
+            if (!refreshToken.isNullOrEmpty() && currentDateEpoch >= expiryDateEpoch) {
+                refreshAccessToken(refreshToken)
+                hasExpired = true
+            }
+        }
+
+        value = !(accessTokenExists && hasExpired)
+
+        Timber.d("Current state of auth: $value")
     }
+
+    val isAuthorizedOnTrakt: LiveData<Boolean?> = _isAuthorizedOnTrakt
 
     private fun checkIfTokenHasBeenRevoked() {
 
-    }
-
-    private fun checkIfTokenHasExpired(): Boolean {
-        val preferences = UpnextPreferenceManager(getApplication())
-
-        val refreshToken = preferences.getTraktAccessTokenRefresh()
-        val createdDateEpoch = preferences.getTraktAccessTokenCreatedAt()
-        val expiresInEpoch = preferences.getTraktAccessTokenExpiresIn()
-        val expiryDateEpoch = createdDateEpoch + expiresInEpoch
-        val currentDateEpoch = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())
-
-        if (!refreshToken.isNullOrEmpty() && currentDateEpoch >= expiryDateEpoch) {
-            refreshAccessToken(refreshToken)
-            return true
-        }
-
-        return false
     }
 
     private fun refreshAccessToken(refreshToken: String?) {
@@ -124,16 +138,6 @@ open class TraktViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-    fun onInvalidTokenResponseReceived(invalid: Boolean) {
-        val preferences = UpnextPreferenceManager(getApplication())
-
-        val refreshToken = preferences.getTraktAccessTokenRefresh()
-
-        if (invalid) {
-            refreshAccessToken(refreshToken)
-        }
-    }
-
     fun onTraktConnectionBundleReceived(bundle: Bundle?) {
         _transactionInProgress.value = true
         extractCode(bundle)
@@ -152,62 +156,43 @@ open class TraktViewModel(application: Application) : AndroidViewModel(applicati
         _fetchingAccessTokenInProgress.value = false
     }
 
-    fun onInvalidGrantResponseReceived(invalid: Boolean) {
-        if (invalid) {
-            _launchTraktConnectWindow.postValue(true)
-        }
-    }
-
     private fun storeTraktAccessToken(traktAccessTokenResponse: TraktAccessToken) {
-        val preferences = UpnextPreferenceManager(getApplication())
-
-        preferences.saveTraktAccessToken(traktAccessTokenResponse.access_token)
-
-        traktAccessTokenResponse.created_at?.let { createdAt ->
-            preferences.saveTraktAccessTokenCreatedAt(createdAt)
-        }
-
-        traktAccessTokenResponse.expires_in?.let { expiresIn ->
-            preferences.saveTraktAccessTokenExpiresIn(expiresIn)
-        }
-
         if (traktAccessTokenResponse.refresh_token.isNullOrEmpty()) {
             FirebaseCrashlytics.getInstance()
                 .recordException(Exception("Refresh token not received"))
+            return
         }
 
-        preferences.saveTraktAccessTokenRefresh(traktAccessTokenResponse.refresh_token)
-
-        preferences.saveTraktAccessTokenScope(traktAccessTokenResponse.scope)
-
-        preferences.saveTraktAccessTokenType(traktAccessTokenResponse.token_type)
+        viewModelScope?.launch {
+            val preferences = TraktUserManager(getApplication())
+            traktAccessTokenResponse.access_token?.let { preferences.saveTraktAccessToken(it) }
+            traktAccessTokenResponse.created_at?.let { preferences.saveTraktAccessTokenCreatedAt(it) }
+            traktAccessTokenResponse.expires_in?.let { preferences.saveTraktAccessTokenExpiresIn(it) }
+            preferences.saveTraktAccessTokenRefresh(traktAccessTokenResponse.refresh_token)
+            traktAccessTokenResponse.scope?.let { preferences.saveTraktAccessTokenScope(it) }
+            traktAccessTokenResponse.token_type?.let { preferences.saveTraktAccessTokenType(it) }
+        }
 
         _isAuthorizedOnTrakt.value == true
     }
 
-    fun removeTraktData() {
-        val preferences = UpnextPreferenceManager(getApplication())
+    fun onDisconnectConfirm() {
+        removeTraktData()
+    }
 
-        preferences.removeTraktAccessToken()
-        preferences.removeTraktAccessTokenCreatedAt()
-        preferences.removeTraktAccessTokenExpiresIn()
-        preferences.removeTraktAccessTokenRefresh()
-        preferences.removeTraktAccessTokenScope()
-        preferences.removeTraktAccessTokenType()
-
+    private fun removeTraktData() {
         viewModelScope?.launch {
+            val preferences = TraktUserManager(getApplication())
+            preferences.removeTraktAccessToken()
+            preferences.removeTraktAccessTokenCreatedAt()
+            preferences.removeTraktAccessTokenExpiresIn()
+            preferences.removeTraktAccessTokenRefresh()
+            preferences.removeTraktAccessTokenScope()
+            preferences.removeTraktAccessTokenType()
+
             traktRepository.clearAllTraktData()
             _isAuthorizedOnTrakt.value = false
         }
-    }
-
-    companion object {
-        const val SHARED_PREF_TRAKT_ACCESS_TOKEN = "trakt_access_token"
-        const val SHARED_PREF_TRAKT_ACCESS_TOKEN_CREATED_AT = "trakt_access_token_created_at"
-        const val SHARED_PREF_TRAKT_ACCESS_TOKEN_EXPIRES_IN = "trakt_access_token_expires_in"
-        const val SHARED_PREF_TRAKT_ACCESS_TOKEN_REFRESH_TOKEN = "trakt_access_token_refresh_token"
-        const val SHARED_PREF_TRAKT_ACCESS_TOKEN_SCOPE = "trakt_access_token_scope"
-        const val SHARED_PREF_TRAKT_ACCESS_TOKEN_TYPE = "trakt_access_token_token_type"
     }
 
     class Factory(val app: Application) :
