@@ -72,16 +72,6 @@
             app:layout_constraintTop_toBottomOf="@id/cast_name"
             tools:text="Cast Character name" />
 
-        <com.google.android.material.textview.MaterialTextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:text="@string/tv_maze_creative_commons_attribution_text_single"
-            android:textAppearance="?attr/textAppearanceCaption"
-            app:layout_constraintEnd_toEndOf="@id/cast_character_name"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/cast_character_name" />
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>
