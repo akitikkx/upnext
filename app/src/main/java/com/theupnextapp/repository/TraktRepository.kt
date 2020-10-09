@@ -223,6 +223,7 @@ class TraktRepository(private val database: UpnextDatabase) {
 
     suspend fun getTraktAccessToken(code: String?) {
         if (code.isNullOrEmpty()) {
+            logTraktException("Could not get the access token due to a null code")
             return
         }
 
@@ -260,6 +261,7 @@ class TraktRepository(private val database: UpnextDatabase) {
 
     suspend fun getTraktAccessRefreshToken(refreshToken: String?) {
         if (refreshToken.isNullOrEmpty()) {
+            logTraktException("Could not get the access refresh token due to a null refresh token")
             return
         }
 
@@ -300,6 +302,7 @@ class TraktRepository(private val database: UpnextDatabase) {
 
     suspend fun refreshTraktWatchlist(accessToken: String?) {
         if (accessToken.isNullOrEmpty()) {
+            logTraktException("Could not get the watchlist due to a null access token")
             return
         }
         val updatedWatchList: MutableList<DatabaseTraktWatchlist> = arrayListOf()
@@ -687,6 +690,9 @@ class TraktRepository(private val database: UpnextDatabase) {
     }
 
     suspend fun traktAddToWatchlist(accessToken: String?, imdbID: String) {
+        if (accessToken.isNullOrEmpty()) {
+            logTraktException("Could not get the watched progress due to a null access token")
+        }
         traktPerformWatchlistAction(accessToken, imdbID, WATCHLIST_ACTION_ADD)
     }
 
@@ -1122,6 +1128,7 @@ class TraktRepository(private val database: UpnextDatabase) {
 
     suspend fun getTraktShowRating(imdbID: String?) {
         if (imdbID.isNullOrEmpty()) {
+            logTraktException("Could not get the show rating due to a null imdb ID")
             return
         }
 
@@ -1155,6 +1162,7 @@ class TraktRepository(private val database: UpnextDatabase) {
 
     suspend fun getTraktShowStats(imdbID: String?) {
         if (imdbID.isNullOrEmpty()) {
+            logTraktException("Could not get the show stats due to a null imdb ID")
             return
         }
 
@@ -1222,7 +1230,7 @@ class TraktRepository(private val database: UpnextDatabase) {
                                         showSearchItem.show.image?.medium
                                     trendingItem.show.mediumImageUrl =
                                         showSearchItem.show.image?.original
-                                    trendingItem.show.ids?.tvMazeID = showSearchItem.show.id
+                                    trendingItem.show.ids.tvMazeID = showSearchItem.show.id
                                 }
                             }
                         }
@@ -1264,6 +1272,12 @@ class TraktRepository(private val database: UpnextDatabase) {
         imdbID: String?
     ) {
         if (imdbID.isNullOrEmpty()) {
+            logTraktException("Could not get the watched progress due to a null imdb ID")
+            return
+        }
+
+        if (accessToken.isNullOrEmpty()) {
+            logTraktException("Could not get the watched progress due to a null access token")
             return
         }
 
@@ -1385,7 +1399,7 @@ class TraktRepository(private val database: UpnextDatabase) {
                     for (item in popularShowsResponse) {
                         val popularItem: NetworkTraktPopularShowsResponseItem = item
 
-                        val imdbID = popularItem.ids?.imdb
+                        val imdbID = popularItem.ids.imdb
                         val traktTitle = popularItem.title
 
                         // perform a TvMaze search for the Trakt item using the Trakt title
@@ -1404,7 +1418,7 @@ class TraktRepository(private val database: UpnextDatabase) {
                                         showSearchItem.show.image?.medium
                                     popularItem.mediumImageUrl =
                                         showSearchItem.show.image?.original
-                                    popularItem.ids?.tvMazeID = showSearchItem.show.id
+                                    popularItem.ids.tvMazeID = showSearchItem.show.id
                                 }
                             }
                         }
@@ -1478,7 +1492,7 @@ class TraktRepository(private val database: UpnextDatabase) {
                                         showSearchItem.show.image?.medium
                                     mostAnticipatedItem.show.mediumImageUrl =
                                         showSearchItem.show.image?.original
-                                    mostAnticipatedItem.show.ids?.tvMazeID = showSearchItem.show.id
+                                    mostAnticipatedItem.show.ids.tvMazeID = showSearchItem.show.id
                                 }
                             }
                         }
@@ -1531,6 +1545,12 @@ class TraktRepository(private val database: UpnextDatabase) {
                 }
             }
         }
+    }
+
+    private fun logTraktException(message: String) {
+        Timber.d(Throwable(message = message))
+        FirebaseCrashlytics.getInstance()
+            .recordException(Throwable(message = "TraktRepository: $message"))
     }
 
     companion object {

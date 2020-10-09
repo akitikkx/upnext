@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.lifecycle.*
 import com.theupnextapp.R
 import com.theupnextapp.common.utils.DateUtils
-import com.theupnextapp.common.utils.UpnextPreferenceManager
 import com.theupnextapp.common.utils.models.DatabaseTables
 import com.theupnextapp.common.utils.models.TableUpdateInterval
 import com.theupnextapp.domain.LibraryList
@@ -150,13 +149,13 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
         if (diffInMinutes != null && diffInMinutes != 0L) {
             if (diffInMinutes > TableUpdateInterval.TRAKT_WATCHLIST_ITEMS.intervalMins && (isLoadingWatchlist.value == false || isLoadingWatchlist.value == null)) {
                 viewModelScope?.launch {
-                    traktRepository.refreshTraktWatchlist(UpnextPreferenceManager(getApplication()).getTraktAccessToken())
+                    traktRepository.refreshTraktWatchlist(accessToken.value)
                 }
             }
             // no updates have been done yet for this table
         } else if (((watchlistEmpty.value == null || watchlistEmpty.value == true) && (isLoadingWatchlist.value == null || isLoadingWatchlist.value == false)) && tableUpdate == null && diffInMinutes == null) {
             viewModelScope?.launch {
-                traktRepository.refreshTraktWatchlist(UpnextPreferenceManager(getApplication()).getTraktAccessToken())
+                traktRepository.refreshTraktWatchlist(accessToken.value)
             }
         }
     }
@@ -206,13 +205,13 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
         if (diffInMinutes != null && diffInMinutes != 0L) {
             if (diffInMinutes > TableUpdateInterval.TRAKT_COLLECTION_ITEMS.intervalMins && (isLoadingCollection.value == false || isLoadingCollection.value == null)) {
                 viewModelScope?.launch {
-                    traktRepository.refreshTraktCollection(UpnextPreferenceManager(getApplication()).getTraktAccessToken())
+                    traktRepository.refreshTraktCollection(accessToken.value)
                 }
             }
             // no updates have been done yet for this table
         } else if (((collectionEmpty.value == null || collectionEmpty.value == true) && (isLoadingCollection.value == null || isLoadingCollection.value == false)) && tableUpdate == null && diffInMinutes == null) {
             viewModelScope?.launch {
-                traktRepository.refreshTraktCollection(UpnextPreferenceManager(getApplication()).getTraktAccessToken())
+                traktRepository.refreshTraktCollection(accessToken.value)
             }
         }
     }
@@ -262,13 +261,13 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
         if (diffInMinutes != null && diffInMinutes != 0L) {
             if (diffInMinutes > TableUpdateInterval.TRAKT_HISTORY_ITEMS.intervalMins && (isLoadingHistory.value == false || isLoadingHistory.value == null)) {
                 viewModelScope?.launch {
-                    traktRepository.refreshTraktHistory(UpnextPreferenceManager(getApplication()).getTraktAccessToken())
+                    traktRepository.refreshTraktHistory(accessToken.value)
                 }
             }
             // no updates have been done yet for this table
         } else if (((historyEmpty.value == null || historyEmpty.value == true) && (isLoadingHistory.value == null || isLoadingHistory.value == false)) && tableUpdate == null && diffInMinutes == null) {
             viewModelScope?.launch {
-                traktRepository.refreshTraktHistory(UpnextPreferenceManager(getApplication()).getTraktAccessToken())
+                traktRepository.refreshTraktHistory(accessToken.value)
             }
         }
     }
@@ -318,23 +317,15 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
         if (diffInMinutes != null && diffInMinutes != 0L) {
             if (diffInMinutes > TableUpdateInterval.TRAKT_RECOMMENDED_ITEMS.intervalMins && (isLoadingRecommendations.value == false || isLoadingRecommendations.value == null)) {
                 viewModelScope?.launch {
-                    traktRepository.refreshTraktRecommendations(
-                        UpnextPreferenceManager(
-                            getApplication()
-                        ).getTraktAccessToken()
-                    )
+                    traktRepository.refreshTraktRecommendations(accessToken.value)
                 }
             }
             // no updates have been done yet for this table
         } else if (((recommendationsEmpty.value == null || recommendationsEmpty.value == true) && (isLoadingRecommendations.value == null || isLoadingRecommendations.value == false)) && tableUpdate == null && diffInMinutes == null) {
             viewModelScope?.launch {
-                traktRepository.refreshTraktRecommendations(UpnextPreferenceManager(getApplication()).getTraktAccessToken())
+                traktRepository.refreshTraktRecommendations(accessToken.value)
             }
         }
-    }
-
-    fun onDisconnectConfirm() {
-        removeTraktData()
     }
 
     class Factory(

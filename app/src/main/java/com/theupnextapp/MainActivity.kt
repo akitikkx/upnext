@@ -33,13 +33,13 @@ class MainActivity : AppCompatActivity() {
         get() = findNavController(R.id.nav_host_fragment)
 
     private var _bottomNavigationView: BottomNavigationView? = null
-    private val bottomNavigationView get() = _bottomNavigationView!!
+    private val bottomNavigationView get() = _bottomNavigationView
 
     private var _toolbar: Toolbar? = null
     private val toolbar get() = _toolbar
 
     private var _container: ConstraintLayout? = null
-    private val container get() = _container!!
+    private val container get() = _container
 
     private lateinit var snackbar: Snackbar
 
@@ -99,7 +99,7 @@ class MainActivity : AppCompatActivity() {
     private fun handleDeepLinks() {
         val uri: Uri? = intent?.data
 
-        if (uri != null && uri.toString().startsWith(BuildConfig.TRAKT_REDIRECT_URI)) {
+        if (uri != null) {
             val code = uri.getQueryParameter("code")
 
             val connectionArg = TraktConnectionArg(code)
@@ -149,18 +149,22 @@ class MainActivity : AppCompatActivity() {
     fun displayConnectionErrorMessage() {
         // Network settings dialog only available from Q and above
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            Feedback(this).showSnackBar(
-                view = container,
-                type = FeedBackStatus.NO_CONNECTION,
-                duration = Snackbar.LENGTH_INDEFINITE,
-                listener = View.OnClickListener { showNetworkSettings() })
+            container?.let {
+                Feedback(this).showSnackBar(
+                    view = it,
+                    type = FeedBackStatus.NO_CONNECTION,
+                    duration = Snackbar.LENGTH_INDEFINITE,
+                    listener = { showNetworkSettings() })
+            }
         } else {
-            Feedback(this).showSnackBar(
-                view = container,
-                type = FeedBackStatus.NO_CONNECTION,
-                duration = Snackbar.LENGTH_INDEFINITE,
-                listener = null
-            )
+            container?.let {
+                Feedback(this).showSnackBar(
+                    view = it,
+                    type = FeedBackStatus.NO_CONNECTION,
+                    duration = Snackbar.LENGTH_INDEFINITE,
+                    listener = null
+                )
+            }
         }
     }
 
