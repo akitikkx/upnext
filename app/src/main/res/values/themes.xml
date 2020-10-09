@@ -30,7 +30,7 @@
 
         <!-- Material Components -->
         <item name="bottomSheetDialogTheme">@style/ThemeOverlay.Upnext.BottomSheetDialog</item>
-        <item name="toolbarStyle">@style/Widget.MaterialComponents.Toolbar.Surface</item>
+        <item name="toolbarStyle">@style/Widget.Upnext.Toolbar.Surface</item>
         <item name="searchToolbarPopupStyle">@style/ThemeOverlay.Upnext.Toolbar.PopupOverlay</item>
 
         <!--Material type attributes-->
