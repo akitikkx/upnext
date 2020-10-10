@@ -38,6 +38,41 @@
       "api_key": [
         {
           "current_key": "AIzaSyA-c5u7umm0GuZnMm_tJXK2TJZWhUhNrjM"
+        },
+        {
+          "current_key": "AIzaSyAuKu6AvM_-evnXe8DLYxY0O7AfkeTQX_M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "941850274227-6sqe0sfg1f0sm5ldilorqauebqmqh1ua.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:941850274227:android:90321073e4eafa43bf03c6",
+        "android_client_info": {
+          "package_name": "com.theupnextapp.debug"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "941850274227-6sqe0sfg1f0sm5ldilorqauebqmqh1ua.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA-c5u7umm0GuZnMm_tJXK2TJZWhUhNrjM"
+        },
+        {
+          "current_key": "AIzaSyAuKu6AvM_-evnXe8DLYxY0O7AfkeTQX_M"
         }
       ],
       "services": {
