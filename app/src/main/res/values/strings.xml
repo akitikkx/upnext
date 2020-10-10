@@ -249,6 +249,13 @@
     <string name="how_trakt_manages_your_collection_body">Your collected TV shows will be added to your personal collection page on Trakt [https://trakt.tv/users/me/collection] and can be
         accessible on the UpNext TV Series Manager by clicking on the Collection tab</string>
 
+    <!-- Transition names -->
+    <string name="dashboard_yesterday_transition_name">dashboard_yesterday_%1$s</string>
+    <string name="dashboard_today_transition_name">dashboard_today_%1$s</string>
+    <string name="dashboard_tomorrow_transition_name">dashboard_tomorrow_%1$s</string>
+    <string name="dashboard_new_shows_transition_name">dashboard_new_shows_%1$s</string>
+    <string name="show_detail_transition_name">show_detail</string>
+
     <!-- Error -->
     <string name="error_connect_to_internet">Settings</string>
     <string name="error_show_detail_watched_progress_empty">You currently have no progress data available for this show</string>

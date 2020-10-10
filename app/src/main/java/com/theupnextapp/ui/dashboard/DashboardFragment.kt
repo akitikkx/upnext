@@ -3,11 +3,15 @@ package com.theupnextapp.ui.dashboard
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.doOnPreDraw
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.transition.MaterialElevationScale
+import com.google.android.material.transition.MaterialFadeThrough
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
@@ -55,6 +59,9 @@ class DashboardFragment : BaseFragment(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+        enterTransition = MaterialFadeThrough().apply {
+            duration = resources.getInteger(R.integer.show_motion_duration_large).toLong()
+        }
     }
 
     override fun onCreateView(
@@ -107,6 +114,12 @@ class DashboardFragment : BaseFragment(),
         }
 
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        postponeEnterTransition()
+        view.doOnPreDraw { startPostponedEnterTransition() }
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -221,7 +234,15 @@ class DashboardFragment : BaseFragment(),
     }
 
     override fun onYesterdayShowClick(view: View, yesterdayShow: ScheduleShow) {
-        viewModel.onDashboardItemClick(
+        exitTransition = MaterialElevationScale(false).apply {
+            duration = resources.getInteger(R.integer.show_motion_duration_large).toLong()
+        }
+        reenterTransition = MaterialElevationScale(true).apply {
+            duration = resources.getInteger(R.integer.show_motion_duration_large).toLong()
+        }
+        val showDetailTransitionName = getString(R.string.show_detail_transition_name)
+        val extras = FragmentNavigatorExtras(view to showDetailTransitionName)
+        val directions = DashboardFragmentDirections.actionDashboardFragmentToShowDetailFragment(
             ShowDetailArg(
                 source = "yesterday",
                 showId = yesterdayShow.id,
@@ -229,12 +250,13 @@ class DashboardFragment : BaseFragment(),
                 showImageUrl = yesterdayShow.image
             )
         )
+        findNavController().navigate(directions, extras)
+
         val analyticsBundle = Bundle()
         analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, yesterdayShow.id.toString())
         analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, yesterdayShow.name)
         analyticsBundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "dashboard_show")
-
-        Firebase.analytics.logEvent("yesterday_shows_click", analyticsBundle)
+        firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM, analyticsBundle)
     }
 
     override fun onRecommendedShowClick(view: View, traktRecommendations: TraktRecommendations) {
