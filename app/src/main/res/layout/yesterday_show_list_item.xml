@@ -19,7 +19,7 @@
         android:clickable="true"
         android:focusable="true"
         android:onClick="@{(view) -> listener.onYesterdayShowClick(view, show)}"
-        android:transitionName="@{@string/dashboard_today_transition_name(show.id)}"
+        android:transitionName="@{@string/dashboard_yesterday_transition_name(show.id)}"
         app:cardPreventCornerOverlap="false">
 
         <androidx.constraintlayout.widget.ConstraintLayout
