@@ -45,6 +45,7 @@
                     android:layout_marginEnd="@dimen/margin_horizontal_half"
                     android:layout_marginBottom="@dimen/margin_vertical"
                     android:clipToPadding="false"
+                    android:transitionGroup="true"
                     app:canClickItem="@{viewModel.isLoadingYesterdayShows}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
