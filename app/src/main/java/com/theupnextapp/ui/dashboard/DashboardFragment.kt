@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.doOnPreDraw
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.FragmentNavigator
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -145,7 +146,7 @@ class DashboardFragment : BaseFragment(),
 
         viewModel.yesterdayShowsList.observe(
             viewLifecycleOwner,
-            Observer { yesterdayShows ->
+            { yesterdayShows ->
                 yesterdayShows.apply {
                     if (!yesterdayShows.isNullOrEmpty()) {
                         yesterdayShowsAdapter?.submitList(yesterdayShows)
@@ -155,7 +156,7 @@ class DashboardFragment : BaseFragment(),
 
         viewModel.todayShowsList.observe(
             viewLifecycleOwner,
-            Observer { todayShows ->
+            { todayShows ->
                 todayShows.apply {
                     if (!todayShows.isNullOrEmpty()) {
                         todayShowsAdapter?.submitList(todayShows)
@@ -165,7 +166,7 @@ class DashboardFragment : BaseFragment(),
 
         viewModel.tomorrowShowsList.observe(
             viewLifecycleOwner,
-            Observer { tomorrowShows ->
+            { tomorrowShows ->
                 tomorrowShows.apply {
                     if (!tomorrowShows.isNullOrEmpty()) {
                         tomorrowShowsAdapter?.submitList(tomorrowShows)
@@ -173,19 +174,19 @@ class DashboardFragment : BaseFragment(),
                 }
             })
 
-        viewModel.yesterdayShowsTableUpdate.observe(viewLifecycleOwner, Observer {
+        viewModel.yesterdayShowsTableUpdate.observe(viewLifecycleOwner, {
             viewModel.onYesterdayShowsTableUpdateReceived(it)
         })
 
-        viewModel.todayShowsTableUpdate.observe(viewLifecycleOwner, Observer {
+        viewModel.todayShowsTableUpdate.observe(viewLifecycleOwner, {
             viewModel.onTodayShowsTableUpdateReceived(it)
         })
 
-        viewModel.tomorrowShowsTableUpdate.observe(viewLifecycleOwner, Observer {
+        viewModel.tomorrowShowsTableUpdate.observe(viewLifecycleOwner, {
             viewModel.onTomorrowShowsTableUpdateReceived(it)
         })
 
-        viewModel.navigateToSelectedShow.observe(viewLifecycleOwner, Observer {
+        viewModel.navigateToSelectedShow.observe(viewLifecycleOwner, {
             if (null != it) {
                 this.findNavController().navigate(
                     DashboardFragmentDirections.actionDashboardFragmentToShowDetailFragment(it)
@@ -234,14 +235,6 @@ class DashboardFragment : BaseFragment(),
     }
 
     override fun onYesterdayShowClick(view: View, yesterdayShow: ScheduleShow) {
-        exitTransition = MaterialElevationScale(false).apply {
-            duration = resources.getInteger(R.integer.show_motion_duration_large).toLong()
-        }
-        reenterTransition = MaterialElevationScale(true).apply {
-            duration = resources.getInteger(R.integer.show_motion_duration_large).toLong()
-        }
-        val showDetailTransitionName = getString(R.string.show_detail_transition_name)
-        val extras = FragmentNavigatorExtras(view to showDetailTransitionName)
         val directions = DashboardFragmentDirections.actionDashboardFragmentToShowDetailFragment(
             ShowDetailArg(
                 source = "yesterday",
@@ -250,7 +243,7 @@ class DashboardFragment : BaseFragment(),
                 showImageUrl = yesterdayShow.image
             )
         )
-        findNavController().navigate(directions, extras)
+        findNavController().navigate(directions, getDashboardNavigatorExtras(view))
 
         val analyticsBundle = Bundle()
         analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, yesterdayShow.id.toString())
@@ -260,7 +253,7 @@ class DashboardFragment : BaseFragment(),
     }
 
     override fun onRecommendedShowClick(view: View, traktRecommendations: TraktRecommendations) {
-        viewModel.onDashboardItemClick(
+        val directions = DashboardFragmentDirections.actionDashboardFragmentToShowDetailFragment(
             ShowDetailArg(
                 source = "recommended",
                 showId = traktRecommendations.tvMazeID,
@@ -268,19 +261,20 @@ class DashboardFragment : BaseFragment(),
                 showImageUrl = traktRecommendations.originalImageUrl
             )
         )
+        findNavController().navigate(directions, getDashboardNavigatorExtras(view))
+
         val analyticsBundle = Bundle()
         analyticsBundle.putString(
             FirebaseAnalytics.Param.ITEM_ID,
-            traktRecommendations.tvMazeID.toString()
+            traktRecommendations.id.toString()
         )
         analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, traktRecommendations.title)
         analyticsBundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "dashboard_show")
-
-        Firebase.analytics.logEvent("recommended_shows_click", analyticsBundle)
+        firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM, analyticsBundle)
     }
 
     override fun onNewShowClick(view: View, newShow: NewShows) {
-        viewModel.onDashboardItemClick(
+        val directions = DashboardFragmentDirections.actionDashboardFragmentToShowDetailFragment(
             ShowDetailArg(
                 source = "new",
                 showId = newShow.id,
@@ -288,16 +282,17 @@ class DashboardFragment : BaseFragment(),
                 showImageUrl = newShow.originalImageUrl
             )
         )
+        findNavController().navigate(directions, getDashboardNavigatorExtras(view))
+
         val analyticsBundle = Bundle()
         analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, newShow.id.toString())
         analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, newShow.name)
         analyticsBundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "dashboard_show")
-
-        Firebase.analytics.logEvent("new_shows_click", analyticsBundle)
+        firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM, analyticsBundle)
     }
 
     override fun onTodayShowClick(view: View, scheduleShow: ScheduleShow) {
-        viewModel.onDashboardItemClick(
+        val directions = DashboardFragmentDirections.actionDashboardFragmentToShowDetailFragment(
             ShowDetailArg(
                 source = "today",
                 showId = scheduleShow.id,
@@ -305,10 +300,17 @@ class DashboardFragment : BaseFragment(),
                 showImageUrl = scheduleShow.image
             )
         )
+        findNavController().navigate(directions, getDashboardNavigatorExtras(view))
+
+        val analyticsBundle = Bundle()
+        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, scheduleShow.id.toString())
+        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, scheduleShow.name)
+        analyticsBundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "dashboard_show")
+        firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM, analyticsBundle)
     }
 
     override fun onTomorrowShowClick(view: View, scheduleShow: ScheduleShow) {
-        viewModel.onDashboardItemClick(
+        val directions = DashboardFragmentDirections.actionDashboardFragmentToShowDetailFragment(
             ShowDetailArg(
                 source = "tomorrow",
                 showId = scheduleShow.id,
@@ -316,11 +318,23 @@ class DashboardFragment : BaseFragment(),
                 showImageUrl = scheduleShow.image
             )
         )
+        findNavController().navigate(directions, getDashboardNavigatorExtras(view))
+
         val analyticsBundle = Bundle()
         analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, scheduleShow.id.toString())
         analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, scheduleShow.name)
         analyticsBundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "dashboard_show")
+        firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM, analyticsBundle)
+    }
 
-        Firebase.analytics.logEvent("new_shows_click", analyticsBundle)
+    private fun getDashboardNavigatorExtras(view: View): FragmentNavigator.Extras {
+        exitTransition = MaterialElevationScale(false).apply {
+            duration = resources.getInteger(R.integer.show_motion_duration_large).toLong()
+        }
+        reenterTransition = MaterialElevationScale(true).apply {
+            duration = resources.getInteger(R.integer.show_motion_duration_large).toLong()
+        }
+        val showDetailTransitionName = getString(R.string.show_detail_transition_name)
+        return FragmentNavigatorExtras(view to showDetailTransitionName)
     }
 }
