@@ -52,6 +52,10 @@
         <item name="bottomNavigationInactive">
             @style/TextAppearance.Upnext.BottomNavigation.TextInactive
         </item>
+
+        <!--System/Platform attributes-->
+        <item name="android:windowBackground">?android:colorBackground</item>
+        <item name="android:windowLightStatusBar" tools:ignore="NewApi">true</item>
     </style>
 
     <style name="Base.Theme.MaterialTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
