@@ -4,9 +4,12 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Browser
+import android.view.View
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
+import androidx.navigation.fragment.FragmentNavigator
+import androidx.navigation.fragment.FragmentNavigatorExtras
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.transition.MaterialElevationScale
 import com.theupnextapp.BuildConfig
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
@@ -17,7 +20,7 @@ open class BaseFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         activity?.application?.let { application ->
-            NetworkConnectivityUtil(application).observe(viewLifecycleOwner, Observer {
+            NetworkConnectivityUtil(application).observe(viewLifecycleOwner, {
                 if (it == false) {
                     (activity as MainActivity).displayConnectionErrorMessage()
                 } else {
@@ -44,6 +47,17 @@ open class BaseFragment : Fragment() {
                 dialog.dismiss()
             }
             .show()
+    }
+
+    protected fun getShowDetailNavigatorExtras(view: View): FragmentNavigator.Extras {
+        exitTransition = MaterialElevationScale(false).apply {
+            duration = resources.getInteger(R.integer.show_motion_duration_large).toLong()
+        }
+        reenterTransition = MaterialElevationScale(true).apply {
+            duration = resources.getInteger(R.integer.show_motion_duration_large).toLong()
+        }
+        val showDetailTransitionName = getString(R.string.show_detail_transition_name)
+        return FragmentNavigatorExtras(view to showDetailTransitionName)
     }
 
     companion object {

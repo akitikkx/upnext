@@ -185,22 +185,6 @@ class DashboardFragment : BaseFragment(),
         viewModel.tomorrowShowsTableUpdate.observe(viewLifecycleOwner, {
             viewModel.onTomorrowShowsTableUpdateReceived(it)
         })
-
-        viewModel.navigateToSelectedShow.observe(viewLifecycleOwner, {
-            if (null != it) {
-                this.findNavController().navigate(
-                    DashboardFragmentDirections.actionDashboardFragmentToShowDetailFragment(it)
-                )
-                val analyticsBundle = Bundle()
-                analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, it.showId.toString())
-                analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, it.showTitle)
-                analyticsBundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "dashboard_show")
-
-                firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM, analyticsBundle)
-
-                viewModel.displayShowDetailsComplete()
-            }
-        })
     }
 
     override fun onResume() {
@@ -243,7 +227,7 @@ class DashboardFragment : BaseFragment(),
                 showImageUrl = yesterdayShow.image
             )
         )
-        findNavController().navigate(directions, getDashboardNavigatorExtras(view))
+        findNavController().navigate(directions, getShowDetailNavigatorExtras(view))
 
         val analyticsBundle = Bundle()
         analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, yesterdayShow.id.toString())
@@ -261,7 +245,7 @@ class DashboardFragment : BaseFragment(),
                 showImageUrl = traktRecommendations.originalImageUrl
             )
         )
-        findNavController().navigate(directions, getDashboardNavigatorExtras(view))
+        findNavController().navigate(directions, getShowDetailNavigatorExtras(view))
 
         val analyticsBundle = Bundle()
         analyticsBundle.putString(
@@ -282,7 +266,7 @@ class DashboardFragment : BaseFragment(),
                 showImageUrl = newShow.originalImageUrl
             )
         )
-        findNavController().navigate(directions, getDashboardNavigatorExtras(view))
+        findNavController().navigate(directions, getShowDetailNavigatorExtras(view))
 
         val analyticsBundle = Bundle()
         analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, newShow.id.toString())
@@ -300,7 +284,7 @@ class DashboardFragment : BaseFragment(),
                 showImageUrl = scheduleShow.image
             )
         )
-        findNavController().navigate(directions, getDashboardNavigatorExtras(view))
+        findNavController().navigate(directions, getShowDetailNavigatorExtras(view))
 
         val analyticsBundle = Bundle()
         analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, scheduleShow.id.toString())
@@ -318,23 +302,12 @@ class DashboardFragment : BaseFragment(),
                 showImageUrl = scheduleShow.image
             )
         )
-        findNavController().navigate(directions, getDashboardNavigatorExtras(view))
+        findNavController().navigate(directions, getShowDetailNavigatorExtras(view))
 
         val analyticsBundle = Bundle()
         analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, scheduleShow.id.toString())
         analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, scheduleShow.name)
         analyticsBundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "dashboard_show")
         firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM, analyticsBundle)
-    }
-
-    private fun getDashboardNavigatorExtras(view: View): FragmentNavigator.Extras {
-        exitTransition = MaterialElevationScale(false).apply {
-            duration = resources.getInteger(R.integer.show_motion_duration_large).toLong()
-        }
-        reenterTransition = MaterialElevationScale(true).apply {
-            duration = resources.getInteger(R.integer.show_motion_duration_large).toLong()
-        }
-        val showDetailTransitionName = getString(R.string.show_detail_transition_name)
-        return FragmentNavigatorExtras(view to showDetailTransitionName)
     }
 }

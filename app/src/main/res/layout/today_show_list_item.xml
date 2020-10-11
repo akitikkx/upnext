@@ -16,6 +16,7 @@
     <com.google.android.material.card.MaterialCardView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/margin_horizontal_half"
         android:clickable="true"
         android:focusable="true"
         android:onClick="@{(view) -> listener.onTodayShowClick(view, show)}"

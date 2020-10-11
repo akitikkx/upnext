@@ -254,6 +254,9 @@
     <string name="dashboard_today_transition_name">dashboard_today_%1$s</string>
     <string name="dashboard_tomorrow_transition_name">dashboard_tomorrow_%1$s</string>
     <string name="dashboard_new_shows_transition_name">dashboard_new_shows_%1$s</string>
+    <string name="explore_trending_transition_name">explore_trending_%1$s</string>
+    <string name="explore_most_anticipated_transition_name">explore_most_anticipated_%1$s</string>
+    <string name="explore_popular_transition_name">explore_popular_%1$s</string>
     <string name="show_detail_transition_name">show_detail</string>
 
     <!-- Error -->
