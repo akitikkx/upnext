@@ -5,7 +5,6 @@ import androidx.lifecycle.*
 import com.theupnextapp.common.utils.DateUtils
 import com.theupnextapp.common.utils.models.DatabaseTables
 import com.theupnextapp.common.utils.models.TableUpdateInterval
-import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.TableUpdate
 import com.theupnextapp.repository.UpnextRepository
 import com.theupnextapp.ui.common.TraktViewModel
@@ -15,9 +14,8 @@ class DashboardViewModel(application: Application) : TraktViewModel(application)
 
     private val upnextRepository = UpnextRepository(database)
 
-    private val _navigateToSelectedShow = MutableLiveData<ShowDetailArg>()
-
     private val _showFeaturesBottomSheet = MutableLiveData<Boolean>()
+    val showFeaturesBottomSheet: LiveData<Boolean> = _showFeaturesBottomSheet
 
     val isLoadingNewShows = upnextRepository.isLoadingNewShows
 
@@ -26,10 +24,6 @@ class DashboardViewModel(application: Application) : TraktViewModel(application)
     val isLoadingTodayShows = upnextRepository.isLoadingTodayShows
 
     val isLoadingTomorrowShows = upnextRepository.isLoadingTomorrowShows
-
-    val navigateToSelectedShow: LiveData<ShowDetailArg> = _navigateToSelectedShow
-
-    val showFeaturesBottomSheet: LiveData<Boolean> = _showFeaturesBottomSheet
 
     val newShowsList = upnextRepository.newShows
 
@@ -177,14 +171,6 @@ class DashboardViewModel(application: Application) : TraktViewModel(application)
 
     fun onRefreshShowsClick() {
         requestShowsUpdate()
-    }
-
-    fun onDashboardItemClick(showDetailArg: ShowDetailArg) {
-        _navigateToSelectedShow.value = showDetailArg
-    }
-
-    fun displayShowDetailsComplete() {
-        _navigateToSelectedShow.value = null
     }
 
     fun showFeaturesBottomSheetComplete() {

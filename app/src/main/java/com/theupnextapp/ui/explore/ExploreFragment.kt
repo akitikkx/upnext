@@ -4,12 +4,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
+import androidx.core.view.doOnPreDraw
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.transition.MaterialFadeThrough
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
@@ -19,14 +20,18 @@ import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.TraktMostAnticipated
 import com.theupnextapp.domain.TraktPopularShows
 import com.theupnextapp.domain.TraktTrendingShows
+import com.theupnextapp.ui.common.BaseFragment
 
-class ExploreFragment : Fragment(),
+class ExploreFragment : BaseFragment(),
     TrendingShowsAdapter.TrendingShowsAdapterListener,
     PopularShowsAdapter.PopularShowsAdapterListener,
     MostAnticipatedShowsAdapter.MostAnticipatedShowsAdapterListener {
 
     private var _binding: FragmentExploreBinding? = null
     private val binding get() = _binding!!
+
+    private var _firebaseAnalytics: FirebaseAnalytics? = null
+    private val firebaseAnalytics get() = _firebaseAnalytics!!
 
     private var _trendingShowsAdapter: TrendingShowsAdapter? = null
     private val trendingShowsAdapter get() = _trendingShowsAdapter!!
@@ -48,6 +53,13 @@ class ExploreFragment : Fragment(),
         ).get(ExploreViewModel::class.java)
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enterTransition = MaterialFadeThrough().apply {
+            duration = resources.getInteger(R.integer.show_motion_duration_large).toLong()
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -58,6 +70,8 @@ class ExploreFragment : Fragment(),
         binding.lifecycleOwner = viewLifecycleOwner
 
         binding.viewModel = viewModel
+
+        _firebaseAnalytics = Firebase.analytics
 
         _trendingShowsAdapter = TrendingShowsAdapter(this)
 
@@ -132,16 +146,23 @@ class ExploreFragment : Fragment(),
         })
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        postponeEnterTransition()
+        view.doOnPreDraw { startPostponedEnterTransition() }
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
         _trendingShowsAdapter = null
         _popularShowsAdapter = null
         _mostAnticipatedShowsAdapter = null
+        _firebaseAnalytics = null
     }
 
     override fun onTrendingShowClick(view: View, traktTrending: TraktTrendingShows) {
-        viewModel.onExploreItemClick(
+        val directions = ExploreFragmentDirections.actionExploreFragmentToShowDetailFragment(
             ShowDetailArg(
                 source = "trending",
                 showId = traktTrending.tvMazeID,
@@ -149,19 +170,17 @@ class ExploreFragment : Fragment(),
                 showImageUrl = traktTrending.originalImageUrl
             )
         )
+        findNavController().navigate(directions, getShowDetailNavigatorExtras(view))
+
         val analyticsBundle = Bundle()
-        analyticsBundle.putString(
-            FirebaseAnalytics.Param.ITEM_ID,
-            traktTrending.tvMazeID.toString()
-        )
+        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, traktTrending.id.toString())
         analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, traktTrending.title)
         analyticsBundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "explore_show")
-
-        Firebase.analytics.logEvent("trending_shows_click", analyticsBundle)
+        firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM, analyticsBundle)
     }
 
     override fun onPopularShowClick(view: View, popularShows: TraktPopularShows) {
-        viewModel.onExploreItemClick(
+        val directions = ExploreFragmentDirections.actionExploreFragmentToShowDetailFragment(
             ShowDetailArg(
                 source = "popular",
                 showId = popularShows.tvMazeID,
@@ -169,16 +188,17 @@ class ExploreFragment : Fragment(),
                 showImageUrl = popularShows.originalImageUrl
             )
         )
+        findNavController().navigate(directions, getShowDetailNavigatorExtras(view))
+
         val analyticsBundle = Bundle()
-        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, popularShows.tvMazeID.toString())
+        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, popularShows.id.toString())
         analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, popularShows.title)
         analyticsBundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "explore_show")
-
-        Firebase.analytics.logEvent("popular_shows_click", analyticsBundle)
+        firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM, analyticsBundle)
     }
 
     override fun onMostAnticipatedShowClick(view: View, mostAnticipated: TraktMostAnticipated) {
-        viewModel.onExploreItemClick(
+        val directions = ExploreFragmentDirections.actionExploreFragmentToShowDetailFragment(
             ShowDetailArg(
                 source = "most_anticipated",
                 showId = mostAnticipated.tvMazeID,
@@ -186,11 +206,12 @@ class ExploreFragment : Fragment(),
                 showImageUrl = mostAnticipated.originalImageUrl
             )
         )
+        findNavController().navigate(directions, getShowDetailNavigatorExtras(view))
+
         val analyticsBundle = Bundle()
-        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, mostAnticipated.tvMazeID.toString())
+        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, mostAnticipated.id.toString())
         analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, mostAnticipated.title)
         analyticsBundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "explore_show")
-
-        Firebase.analytics.logEvent("most_anticipated_shows_click", analyticsBundle)
+        firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM, analyticsBundle)
     }
 }
