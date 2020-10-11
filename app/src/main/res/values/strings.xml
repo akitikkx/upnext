@@ -257,6 +257,7 @@
     <string name="explore_trending_transition_name">explore_trending_%1$s</string>
     <string name="explore_most_anticipated_transition_name">explore_most_anticipated_%1$s</string>
     <string name="explore_popular_transition_name">explore_popular_%1$s</string>
+    <string name="search_transition_name">search_transition_name_%1$s</string>
     <string name="show_detail_transition_name">show_detail</string>
 
     <!-- Error -->

@@ -6,11 +6,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView.OnQueryTextListener
+import androidx.core.view.doOnPreDraw
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.transition.MaterialFadeThrough
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
@@ -30,6 +32,9 @@ class SearchFragment : BaseFragment(),
     private var _searchAdapter: SearchAdapter? = null
     private val searchAdapter get() = _searchAdapter!!
 
+    private var _firebaseAnalytics: FirebaseAnalytics? = null
+    private val firebaseAnalytics get() = _firebaseAnalytics!!
+
     private val viewModel: SearchViewModel by lazy {
         val activity = requireNotNull(activity) {
             "You can only access the viewModel after onActivityCreated"
@@ -43,6 +48,9 @@ class SearchFragment : BaseFragment(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+        enterTransition = MaterialFadeThrough().apply {
+            duration = resources.getInteger(R.integer.show_motion_duration_large).toLong()
+        }
     }
 
     override fun onCreateView(
@@ -55,6 +63,8 @@ class SearchFragment : BaseFragment(),
         binding.lifecycleOwner = viewLifecycleOwner
 
         binding.viewModel = viewModel
+
+        _firebaseAnalytics = Firebase.analytics
 
         binding.search.setIconifiedByDefault(true)
         binding.search.isFocusable = true
@@ -75,26 +85,17 @@ class SearchFragment : BaseFragment(),
         return binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        postponeEnterTransition()
+        view.doOnPreDraw { startPostponedEnterTransition() }
+    }
+
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
         viewModel.searchResults.observe(viewLifecycleOwner, Observer {
             searchAdapter.submitList(it)
-        })
-
-        viewModel.navigateToSelectedShow.observe(viewLifecycleOwner, Observer {
-            if (null != it) {
-                this.findNavController().navigate(
-                    SearchFragmentDirections.actionSearchFragmentToShowDetailFragment(it)
-                )
-                val analyticsBundle = Bundle()
-                analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, it.showId.toString())
-                analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, it.showTitle)
-                analyticsBundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "search_show")
-
-                Firebase.analytics.logEvent("search_show_click", analyticsBundle)
-                viewModel.displayShowDetailsComplete()
-            }
         })
     }
 
@@ -117,17 +118,25 @@ class SearchFragment : BaseFragment(),
         super.onDestroyView()
         _binding = null
         _searchAdapter = null
+        _firebaseAnalytics = null
         (activity as MainActivity).hideKeyboard()
     }
 
     override fun onSearchItemClick(view: View, showSearch: ShowSearch) {
-        viewModel.displayShowDetails(
+        val directions = SearchFragmentDirections.actionSearchFragmentToShowDetailFragment(
             ShowDetailArg(
-                source = "history",
+                source = "search",
                 showId = showSearch.id,
                 showTitle = showSearch.name,
                 showImageUrl = showSearch.originalImageUrl
             )
         )
+        findNavController().navigate(directions, getShowDetailNavigatorExtras(view))
+
+        val analyticsBundle = Bundle()
+        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, showSearch.id.toString())
+        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, showSearch.name)
+        analyticsBundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "search_show")
+        firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM, analyticsBundle)
     }
 }
