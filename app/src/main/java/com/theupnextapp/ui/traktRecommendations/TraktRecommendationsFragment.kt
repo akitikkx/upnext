@@ -1,17 +1,18 @@
 package com.theupnextapp.ui.traktRecommendations
 
 import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.transition.MaterialContainerTransform
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
@@ -20,7 +21,6 @@ import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentTraktRecommendationsBinding
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.TraktRecommendations
-import com.theupnextapp.ui.history.HistoryFragmentDirections
 
 class TraktRecommendationsFragment : Fragment(),
     TraktRecommendationsAdapter.TraktRecommendationsAdapterListener {
@@ -31,6 +31,9 @@ class TraktRecommendationsFragment : Fragment(),
     private var _recommendedShowsAdapter: TraktRecommendationsAdapter? = null
     private val recommendedShowsAdapter get() = _recommendedShowsAdapter!!
 
+    private var _firebaseAnalytics: FirebaseAnalytics? = null
+    private val firebaseAnalytics get() = _firebaseAnalytics!!
+
     private val viewModel: TraktRecommendationsViewModel by lazy {
         val activity = requireNotNull(activity) {
             "You can only access the viewModel after onActivityCreated"
@@ -39,6 +42,15 @@ class TraktRecommendationsFragment : Fragment(),
             this@TraktRecommendationsFragment,
             TraktRecommendationsViewModel.Factory(activity.application)
         ).get(TraktRecommendationsViewModel::class.java)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        sharedElementEnterTransition = MaterialContainerTransform().apply {
+            drawingViewId = R.id.nav_host_fragment
+            duration = resources.getInteger(R.integer.show_motion_duration_large).toLong()
+            scrimColor = Color.TRANSPARENT
+        }
     }
 
     override fun onCreateView(
@@ -51,6 +63,8 @@ class TraktRecommendationsFragment : Fragment(),
         binding.viewModel = viewModel
 
         binding.lifecycleOwner = viewLifecycleOwner
+
+        _firebaseAnalytics = Firebase.analytics
 
         _recommendedShowsAdapter =
             TraktRecommendationsAdapter(this)
@@ -100,6 +114,7 @@ class TraktRecommendationsFragment : Fragment(),
         super.onDestroyView()
         _binding = null
         _recommendedShowsAdapter = null
+        _firebaseAnalytics = null
     }
 
     override fun onAttach(context: Context) {

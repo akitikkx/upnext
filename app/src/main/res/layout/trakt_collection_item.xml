@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
@@ -13,92 +14,100 @@
             type="com.theupnextapp.ui.collection.CollectionAdapter.CollectionAdapterListener" />
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_marginBottom="@dimen/margin_vertical"
-        android:background="?android:attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true"
-        android:onClick="@{(view) -> listener.onCollectionClick(view, show)}">
+        android:onClick="@{(view) -> listener.onCollectionClick(view, show)}"
+        android:transitionName="@{@string/collection_item_transition_name(show.id)}"
+        app:cardPreventCornerOverlap="false">
 
-        <FrameLayout
-            android:id="@+id/collection_poster"
-            android:layout_width="@dimen/search_poster_width"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_horizontal_double"
-            android:orientation="vertical"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            android:background="?android:attr/selectableItemBackground">
 
-            <ProgressBar
-                android:id="@+id/poster_progress"
-                style="?android:attr/progressBarStyleSmall"
-                android:layout_width="match_parent"
+            <FrameLayout
+                android:id="@+id/collection_poster"
+                android:layout_width="@dimen/search_poster_width"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                app:showHideView="@{show.originalImageUrl != null}" />
+                android:layout_marginStart="@dimen/margin_horizontal_double"
+                android:orientation="vertical"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ProgressBar
+                    android:id="@+id/poster_progress"
+                    style="?android:attr/progressBarStyleSmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    app:showHideView="@{show.originalImageUrl != null}" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/trakt_collection_poster"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/search_poster_height"
+                    android:layout_marginEnd="@dimen/margin_horizontal_half"
+                    android:contentDescription="@{String.format(@string/show_poster, show.title)}"
+                    android:scaleType="centerCrop"
+                    app:imageUrl="@{show.originalImageUrl}"
+                    tools:srcCompat="@drawable/loading_list_placeholder" />
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_horizontal_double"
+                android:layout_marginEnd="@dimen/margin_horizontal_double"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/collection_delete_button"
+                app:layout_constraintStart_toEndOf="@id/collection_poster"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:text="@{show.title}"
+                    android:textAppearance="?attr/textAppearanceSubtitle1"
+                    tools:text="Show Name" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin_vertical_quarter"
+                    android:gravity="center_vertical"
+                    android:textAppearance="?attr/textAppearanceCaption"
+                    app:showLastCollectedAt="@{show}"
+                    tools:text="Last collected at: Tue Jun 16 18:35" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin_vertical_quarter"
+                    android:text="@string/tv_maze_creative_commons_attribution_text_single"
+                    android:textAppearance="?attr/textAppearanceCaption" />
+            </LinearLayout>
 
             <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/trakt_collection_poster"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/search_poster_height"
-                android:layout_marginEnd="@dimen/margin_horizontal_half"
-                android:contentDescription="@{String.format(@string/show_poster, show.title)}"
-                android:scaleType="centerCrop"
-                app:imageUrl="@{show.originalImageUrl}"
-                tools:srcCompat="@drawable/loading_list_placeholder" />
-        </FrameLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_horizontal_double"
-            android:layout_marginEnd="@dimen/margin_horizontal_double"
-            android:orientation="vertical"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/collection_delete_button"
-            app:layout_constraintStart_toEndOf="@id/collection_poster"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <TextView
-                android:layout_width="match_parent"
+                android:id="@+id/collection_delete_button"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:text="@{show.title}"
-                android:textAppearance="?attr/textAppearanceSubtitle1"
-                tools:text="Show Name" />
+                android:layout_marginEnd="@dimen/margin_horizontal"
+                android:clickable="true"
+                android:contentDescription="@string/show_detail_remove_from_watchlist_button_description"
+                android:focusable="true"
+                android:onClick="@{(view) -> listener.onCollectionRemoveClick(view, show)}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_baseline_delete_24" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/margin_vertical_quarter"
-                android:gravity="center_vertical"
-                android:textAppearance="?attr/textAppearanceCaption"
-                app:showLastCollectedAt="@{show}"
-                tools:text="Last collected at: Tue Jun 16 18:35" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <com.google.android.material.textview.MaterialTextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/margin_vertical_quarter"
-                android:text="@string/tv_maze_creative_commons_attribution_text_single"
-                android:textAppearance="?attr/textAppearanceCaption" />
-        </LinearLayout>
-
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/collection_delete_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_horizontal"
-            android:clickable="true"
-            android:contentDescription="@string/show_detail_remove_from_watchlist_button_description"
-            android:focusable="true"
-            android:onClick="@{(view) -> listener.onCollectionRemoveClick(view, show)}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_baseline_delete_24" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
 </layout>

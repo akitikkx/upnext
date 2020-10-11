@@ -4,14 +4,10 @@ import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.doOnPreDraw
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.fragment.FragmentNavigator
-import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.transition.MaterialElevationScale
 import com.google.android.material.transition.MaterialFadeThrough
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
@@ -126,7 +122,7 @@ class DashboardFragment : BaseFragment(),
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        viewModel.showFeaturesBottomSheet.observe(viewLifecycleOwner, Observer {
+        viewModel.showFeaturesBottomSheet.observe(viewLifecycleOwner, {
             if (it != null && it == true) {
                 val featuresBottomSheet = FeaturesBottomSheetFragment()
                 activity?.supportFragmentManager?.let { fragmentManager ->
@@ -136,7 +132,7 @@ class DashboardFragment : BaseFragment(),
             }
         })
 
-        viewModel.newShowsList.observe(viewLifecycleOwner, Observer { newShows ->
+        viewModel.newShowsList.observe(viewLifecycleOwner, { newShows ->
             newShows.apply {
                 if (!newShows.isNullOrEmpty()) {
                     newShowsAdapter?.submitList(newShows)

@@ -4,12 +4,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.doOnPreDraw
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.transition.MaterialFadeThrough
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentLibraryBinding
@@ -26,6 +31,9 @@ class LibraryFragment : BaseTraktFragment(), LibraryAdapter.LibraryAdapterListen
     private var _adapter: LibraryAdapter? = null
     private val adapter get() = _adapter!!
 
+    private var _firebaseAnalytics: FirebaseAnalytics? = null
+    private val firebaseAnalytics get() = _firebaseAnalytics!!
+
     private val viewModel: LibraryViewModel by lazy {
         val activity = requireNotNull(activity) {
             "You can only access the viewModel after onActivityCreated"
@@ -38,6 +46,13 @@ class LibraryFragment : BaseTraktFragment(), LibraryAdapter.LibraryAdapterListen
         ).get(LibraryViewModel::class.java)
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enterTransition = MaterialFadeThrough().apply {
+            duration = resources.getInteger(R.integer.show_motion_duration_large).toLong()
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -48,6 +63,8 @@ class LibraryFragment : BaseTraktFragment(), LibraryAdapter.LibraryAdapterListen
         binding.viewModel = viewModel
 
         binding.lifecycleOwner = viewLifecycleOwner
+
+        _firebaseAnalytics = Firebase.analytics
 
         if (arguments?.getParcelable<TraktConnectionArg>(WatchlistViewModel.EXTRA_TRAKT_URI) != null) {
             viewModel.onTraktConnectionBundleReceived(arguments)
@@ -63,6 +80,12 @@ class LibraryFragment : BaseTraktFragment(), LibraryAdapter.LibraryAdapterListen
         }
 
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        postponeEnterTransition()
+        view.doOnPreDraw { startPostponedEnterTransition() }
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -226,6 +249,7 @@ class LibraryFragment : BaseTraktFragment(), LibraryAdapter.LibraryAdapterListen
         super.onDestroyView()
         _binding = null
         _adapter = null
+        _firebaseAnalytics = null
     }
 
     override fun onResume() {
@@ -234,7 +258,7 @@ class LibraryFragment : BaseTraktFragment(), LibraryAdapter.LibraryAdapterListen
     }
 
     override fun onLibraryItemClick(view: View, libraryList: LibraryList) {
-        this.findNavController().navigate(libraryList.link)
+        this.findNavController().navigate(libraryList.link, getLibraryNavigatorExtras(view, libraryList.transitionName))
     }
 
 }

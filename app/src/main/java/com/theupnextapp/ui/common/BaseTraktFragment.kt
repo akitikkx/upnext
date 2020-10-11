@@ -5,8 +5,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.FragmentNavigator
+import androidx.navigation.fragment.FragmentNavigatorExtras
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.transition.MaterialElevationScale
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentBaseTraktFragmentBinding
 import com.theupnextapp.domain.TraktConnectionArg
@@ -96,5 +99,26 @@ open class BaseTraktFragment: BaseFragment() {
                     .show()
             }
         })
+    }
+
+    protected fun getLibraryNavigatorExtras(view: View, transitionName: String): FragmentNavigator.Extras {
+        exitTransition = MaterialElevationScale(false).apply {
+            duration = resources.getInteger(R.integer.show_motion_duration_large).toLong()
+        }
+        reenterTransition = MaterialElevationScale(true).apply {
+            duration = resources.getInteger(R.integer.show_motion_duration_large).toLong()
+        }
+        return FragmentNavigatorExtras(view to transitionName)
+    }
+
+    protected fun getCollectionSeasonsNavigatorExtras(view: View): FragmentNavigator.Extras {
+        exitTransition = MaterialElevationScale(false).apply {
+            duration = resources.getInteger(R.integer.show_motion_duration_large).toLong()
+        }
+        reenterTransition = MaterialElevationScale(true).apply {
+            duration = resources.getInteger(R.integer.show_motion_duration_large).toLong()
+        }
+        val libraryTransitionName = getString(R.string.collection_seasons_transition_name)
+        return FragmentNavigatorExtras(view to libraryTransitionName)
     }
 }

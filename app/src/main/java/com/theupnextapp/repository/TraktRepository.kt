@@ -1312,6 +1312,10 @@ class TraktRepository(private val database: UpnextDatabase) {
     }
 
     suspend fun refreshTraktRecommendations(accessToken: String?) {
+        if (accessToken.isNullOrEmpty()) {
+            return
+        }
+
         withContext(Dispatchers.IO) {
             try {
                 _isLoadingTraktRecommendations.postValue(true)

@@ -14,60 +14,68 @@
             type="com.theupnextapp.ui.library.LibraryAdapter.LibraryAdapterListener" />
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/margin_vertical"
-        android:background="?android:attr/selectableItemBackground"
+        android:layout_marginBottom="@dimen/margin_vertical_half"
         android:clickable="true"
         android:focusable="true"
         android:onClick="@{(view) -> listener.onLibraryItemClick(view, item)}"
-        android:padding="@dimen/padding_standard">
+        android:transitionName="@{@string/library_item_transition_name(item)}"
+        app:cardPreventCornerOverlap="false">
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/library_left_icon"
-            android:layout_width="0dp"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_horizontal"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:srcCompat="@drawable/ic_baseline_chevron_right_24" />
+            android:background="?android:attr/selectableItemBackground"
+            android:padding="@dimen/padding_standard">
 
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/library_text"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_horizontal_double"
-            android:text="@{item.title}"
-            android:textAppearance="?attr/textAppearanceHeadline5"
-            app:layout_constraintEnd_toStartOf="@id/library_right_icon"
-            app:layout_constraintStart_toEndOf="@id/library_left_icon"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="Trakt Watchlist" />
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/library_left_icon"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_horizontal"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:srcCompat="@drawable/ic_baseline_chevron_right_24" />
 
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/library_item_last_updated"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_horizontal_double"
-            android:textAppearance="?attr/textAppearanceCaption"
-            app:lastUpdate="@{item.lastUpdated}"
-            app:layout_constraintEnd_toStartOf="@id/library_right_icon"
-            app:layout_constraintStart_toEndOf="@id/library_left_icon"
-            app:layout_constraintTop_toBottomOf="@id/library_text"
-            tools:text="Last updated" />
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/library_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_horizontal_double"
+                android:text="@{item.title}"
+                android:textAppearance="?attr/textAppearanceHeadline5"
+                app:layout_constraintEnd_toStartOf="@id/library_right_icon"
+                app:layout_constraintStart_toEndOf="@id/library_left_icon"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Trakt Watchlist" />
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/library_right_icon"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_horizontal"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:srcCompat="@drawable/ic_baseline_chevron_right_24" />
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/library_item_last_updated"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_horizontal_double"
+                android:textAppearance="?attr/textAppearanceCaption"
+                app:lastUpdate="@{item.lastUpdated}"
+                app:layout_constraintEnd_toStartOf="@id/library_right_icon"
+                app:layout_constraintStart_toEndOf="@id/library_left_icon"
+                app:layout_constraintTop_toBottomOf="@id/library_text"
+                tools:text="Last updated" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/library_right_icon"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/margin_horizontal"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:srcCompat="@drawable/ic_baseline_chevron_right_24" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </com.google.android.material.card.MaterialCardView>
 
 </layout>

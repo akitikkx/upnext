@@ -259,6 +259,18 @@
     <string name="explore_popular_transition_name">explore_popular_%1$s</string>
     <string name="search_transition_name">search_transition_name_%1$s</string>
     <string name="show_detail_transition_name">show_detail</string>
+    <string name="library_item_transition_name">library_item_%1$s</string>
+    <string name="library_transition_name">library_transition</string>
+    <string name="library_watchlist_transition_name">library_watchlist</string>
+    <string name="library_history_transition_name">library_history</string>
+    <string name="library_collection_transition_name">library_collection</string>
+    <string name="library_recommendations_transition_name">library_recommendations</string>
+    <string name="watchlist_transition_name">watchlist</string>
+    <string name="collection_transition_name">collection</string>
+    <string name="collection_item_transition_name">collection_%1$s</string>
+    <string name="history_transition_name">history</string>
+    <string name="recommendations_transition_name">recommendations</string>
+    <string name="collection_seasons_transition_name">collection_seasons</string>
 
     <!-- Error -->
     <string name="error_connect_to_internet">Settings</string>

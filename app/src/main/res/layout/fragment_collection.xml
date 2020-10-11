@@ -10,33 +10,41 @@
             type="com.theupnextapp.ui.collection.CollectionViewModel" />
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:transitionName="@string/collection_transition_name"
+        app:cardPreventCornerOverlap="false">
 
-        <include
-            layout="@layout/layout_trakt_collection_shows_list"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:showHideView="@{!viewModel.collectionEmpty}"
-            app:viewModel="@{viewModel}"
-            tools:visibility="visible" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-        <include
-            layout="@layout/layout_trakt_collection_shows_empty_state"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:showHideView="@{viewModel.collectionEmpty &amp;&amp; !viewModel.isLoadingCollection}"
-            app:viewModel="@{viewModel}" />
+            <include
+                layout="@layout/layout_trakt_collection_shows_list"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:showHideView="@{!viewModel.collectionEmpty}"
+                app:viewModel="@{viewModel}"
+                tools:visibility="visible" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <include
+                layout="@layout/layout_trakt_collection_shows_empty_state"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:showHideView="@{viewModel.collectionEmpty &amp;&amp; !viewModel.isLoadingCollection}"
+                app:viewModel="@{viewModel}" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </com.google.android.material.card.MaterialCardView>
 
 </layout>

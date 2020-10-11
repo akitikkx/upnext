@@ -14,7 +14,6 @@ import kotlinx.coroutines.launch
 class LibraryViewModel(application: Application) : TraktViewModel(application) {
 
     private val _libraryList = MutableLiveData<MutableList<LibraryList>>(mutableListOf())
-
     val libraryList: LiveData<MutableList<LibraryList>> = _libraryList
 
     private val traktWatchlist = traktRepository.traktWatchlist
@@ -130,6 +129,7 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
                 title = "Trakt Watchlist",
                 rightIcon = R.drawable.ic_baseline_chevron_right_24,
                 link = LibraryFragmentDirections.actionLibraryFragmentToWatchlistFragment(),
+                transitionName = "watchlist",
                 lastUpdated = timeDifferenceToDisplay
             )
         )
@@ -186,6 +186,7 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
                 title = "Trakt Collection",
                 rightIcon = R.drawable.ic_baseline_chevron_right_24,
                 link = LibraryFragmentDirections.actionLibraryFragmentToCollectionFragment(),
+                transitionName = "collection",
                 lastUpdated = diff
             )
         )
@@ -242,6 +243,7 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
                 title = "Trakt History",
                 rightIcon = R.drawable.ic_baseline_chevron_right_24,
                 link = LibraryFragmentDirections.actionLibraryFragmentToHistoryFragment(),
+                transitionName = "history",
                 lastUpdated = diff
             )
         )
@@ -298,6 +300,7 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
                 title = "Your Trakt Recommendations",
                 rightIcon = R.drawable.ic_baseline_chevron_right_24,
                 link = LibraryFragmentDirections.actionLibraryFragmentToTraktRecommendationsFragment(),
+                transitionName = "recommendations",
                 lastUpdated = diff
             )
         )

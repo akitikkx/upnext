@@ -8,5 +8,6 @@ data class LibraryList(
     val title: String,
     val rightIcon: Int,
     val link: NavDirections,
+    val transitionName: String,
     val lastUpdated: TimeDifferenceForDisplay?
 )

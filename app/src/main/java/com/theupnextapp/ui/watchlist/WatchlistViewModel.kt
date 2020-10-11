@@ -2,16 +2,11 @@ package com.theupnextapp.ui.watchlist
 
 import android.app.Application
 import androidx.lifecycle.*
-import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.TraktWatchlist
 import com.theupnextapp.ui.common.TraktViewModel
 import kotlinx.coroutines.launch
 
 class WatchlistViewModel(application: Application) : TraktViewModel(application) {
-
-    private val _navigateToSelectedShow = MutableLiveData<ShowDetailArg>()
-
-    val navigateToSelectedShow: LiveData<ShowDetailArg> = _navigateToSelectedShow
 
     val isLoadingWatchlist = traktRepository.isLoadingTraktWatchlist
 
@@ -33,14 +28,6 @@ class WatchlistViewModel(application: Application) : TraktViewModel(application)
                 )
             }
         }
-    }
-
-    fun displayShowDetails(showDetailArg: ShowDetailArg) {
-        _navigateToSelectedShow.value = showDetailArg
-    }
-
-    fun displayShowDetailsComplete() {
-        _navigateToSelectedShow.value = null
     }
 
     override fun onCleared() {
