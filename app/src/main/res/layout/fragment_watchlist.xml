@@ -10,146 +10,155 @@
             type="com.theupnextapp.ui.watchlist.WatchlistViewModel" />
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:transitionName="@string/watchlist_transition_name"
+        app:cardPreventCornerOverlap="false">
 
-        <ProgressBar
-            style="?attr/progressBarStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:showProgress="@{viewModel.isLoadingWatchlist}" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/watchlist_header"
-            android:layout_width="0dp"
-            android:layout_height="@dimen/trakt_watchlist_header_height"
-            android:layout_marginTop="?attr/actionBarSize"
-            android:contentDescription="@string/trakt_logo_description"
-            app:layout_constraintBottom_toTopOf="@id/watch_list"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:showHideView="@{viewModel.isAuthorizedOnTrakt &amp;&amp; !viewModel.watchlistEmpty}"
-            app:srcCompat="@drawable/ic_trakt_wide_red_white"
-            tools:visibility="gone" />
-
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/trakt_logo"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_horizontal"
-            android:layout_marginTop="@dimen/margin_vertical"
-            android:layout_marginEnd="@dimen/margin_horizontal"
-            android:contentDescription="@string/trakt_logo_description"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:showHideView="@{!viewModel.isAuthorizedOnTrakt}"
-            app:srcCompat="@drawable/ic_trakt_wide_red_white"
-            tools:visibility="visible" />
-
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/connection_description"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_horizontal"
-            android:layout_marginEnd="@dimen/margin_horizontal"
-            android:gravity="center_horizontal"
-            android:padding="@dimen/padding_standard"
-            android:text="@string/trakt_connect_description"
-            android:textAppearance="?attr/textAppearanceBody2"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/trakt_logo"
-            app:showHideView="@{!viewModel.isAuthorizedOnTrakt}"
-            tools:visibility="visible" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_horizontal"
-            android:layout_marginTop="@dimen/margin_vertical"
-            android:layout_marginEnd="@dimen/margin_horizontal"
-            android:backgroundTint="@android:color/holo_red_dark"
-            android:clickable="true"
-            android:enabled="@{!viewModel.isAuthorizedOnTrakt}"
-            android:focusable="true"
-            android:gravity="center_horizontal"
-            android:onClick="@{() -> viewModel.onConnectClick()}"
-            android:paddingStart="@dimen/padding_standard_double"
-            android:paddingTop="@dimen/padding_standard"
-            android:paddingEnd="@dimen/padding_standard_double"
-            android:paddingBottom="@dimen/padding_standard"
-            app:traktDynamicText="@{viewModel.isAuthorizedOnTrakt}"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/connection_description"
-            app:showHideView="@{!viewModel.isAuthorizedOnTrakt}"
-            tools:text="@string/trakt_button_text_not_connected"
-            tools:visibility="visible" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/watch_list"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_marginStart="@dimen/margin_horizontal_half"
-            android:layout_marginTop="@dimen/margin_vertical"
-            android:layout_marginEnd="@dimen/margin_horizontal_half"
-            android:layout_marginBottom="@dimen/margin_vertical"
-            android:clipToPadding="false"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/watchlist_header"
-            app:loadingVisibility="@{viewModel.isLoadingWatchlist}"
-            app:showHideView="@{viewModel.isAuthorizedOnTrakt &amp;&amp; !viewModel.watchlistEmpty}"
-            tools:listitem="@layout/trakt_watchlist_item"
-            tools:visibility="gone" />
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical"
-            android:orientation="vertical"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="parent"
-            app:showHideView="@{viewModel.watchlistEmpty &amp;&amp; viewModel.isAuthorizedOnTrakt()}"
-            tools:visibility="gone">
-
-            <androidx.appcompat.widget.AppCompatImageView
+            <ProgressBar
+                style="?attr/progressBarStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:alpha="0.5"
-                android:contentDescription="@string/empty_state_icon"
-                app:srcCompat="@drawable/empty_state_box_icon" />
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:showProgress="@{viewModel.isLoadingWatchlist}" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/watchlist_header"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/trakt_watchlist_header_height"
+                android:layout_marginTop="?attr/actionBarSize"
+                android:contentDescription="@string/trakt_logo_description"
+                app:layout_constraintBottom_toTopOf="@id/watch_list"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:showHideView="@{viewModel.isAuthorizedOnTrakt &amp;&amp; !viewModel.watchlistEmpty}"
+                app:srcCompat="@drawable/ic_trakt_wide_red_white"
+                tools:visibility="gone" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/trakt_logo"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_horizontal"
+                android:layout_marginTop="@dimen/margin_vertical"
+                android:layout_marginEnd="@dimen/margin_horizontal"
+                android:contentDescription="@string/trakt_logo_description"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:showHideView="@{!viewModel.isAuthorizedOnTrakt}"
+                app:srcCompat="@drawable/ic_trakt_wide_red_white"
+                tools:visibility="visible" />
 
             <com.google.android.material.textview.MaterialTextView
-                android:layout_width="match_parent"
+                android:id="@+id/connection_description"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
                 android:layout_marginStart="@dimen/margin_horizontal"
                 android:layout_marginEnd="@dimen/margin_horizontal"
                 android:gravity="center_horizontal"
-                android:text="@string/watchlist_empty_state_text"
-                android:textAppearance="?attr/textAppearanceBody2" />
-
-            <androidx.appcompat.widget.AppCompatImageView
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/trakt_watchlist_header_height"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="@dimen/margin_vertical"
-                android:contentDescription="@string/trakt_logo_description"
+                android:padding="@dimen/padding_standard"
+                android:text="@string/trakt_connect_description"
+                android:textAppearance="?attr/textAppearanceBody2"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:srcCompat="@drawable/ic_trakt_wide_red_white" />
-        </LinearLayout>
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/trakt_logo"
+                app:showHideView="@{!viewModel.isAuthorizedOnTrakt}"
+                tools:visibility="visible" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_horizontal"
+                android:layout_marginTop="@dimen/margin_vertical"
+                android:layout_marginEnd="@dimen/margin_horizontal"
+                android:backgroundTint="@android:color/holo_red_dark"
+                android:clickable="true"
+                android:enabled="@{!viewModel.isAuthorizedOnTrakt}"
+                android:focusable="true"
+                android:gravity="center_horizontal"
+                android:onClick="@{() -> viewModel.onConnectClick()}"
+                android:paddingStart="@dimen/padding_standard_double"
+                android:paddingTop="@dimen/padding_standard"
+                android:paddingEnd="@dimen/padding_standard_double"
+                android:paddingBottom="@dimen/padding_standard"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/connection_description"
+                app:showHideView="@{!viewModel.isAuthorizedOnTrakt}"
+                app:traktDynamicText="@{viewModel.isAuthorizedOnTrakt}"
+                tools:text="@string/trakt_button_text_not_connected"
+                tools:visibility="visible" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/watch_list"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="@dimen/margin_horizontal_half"
+                android:layout_marginTop="@dimen/margin_vertical"
+                android:layout_marginEnd="@dimen/margin_horizontal_half"
+                android:layout_marginBottom="@dimen/margin_vertical"
+                android:clipToPadding="false"
+                android:transitionGroup="true"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/watchlist_header"
+                app:loadingVisibility="@{viewModel.isLoadingWatchlist}"
+                app:showHideView="@{viewModel.isAuthorizedOnTrakt &amp;&amp; !viewModel.watchlistEmpty}"
+                tools:listitem="@layout/trakt_watchlist_item"
+                tools:visibility="gone" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="parent"
+                app:showHideView="@{viewModel.watchlistEmpty &amp;&amp; viewModel.isAuthorizedOnTrakt()}"
+                tools:visibility="gone">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:alpha="0.5"
+                    android:contentDescription="@string/empty_state_icon"
+                    app:srcCompat="@drawable/empty_state_box_icon" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginStart="@dimen/margin_horizontal"
+                    android:layout_marginEnd="@dimen/margin_horizontal"
+                    android:gravity="center_horizontal"
+                    android:text="@string/watchlist_empty_state_text"
+                    android:textAppearance="?attr/textAppearanceBody2" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/trakt_watchlist_header_height"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="@dimen/margin_vertical"
+                    android:contentDescription="@string/trakt_logo_description"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:srcCompat="@drawable/ic_trakt_wide_red_white" />
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </com.google.android.material.card.MaterialCardView>
 </layout>

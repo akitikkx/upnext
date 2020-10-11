@@ -74,11 +74,7 @@
 
         <action
             android:id="@+id/action_collectionFragment_to_collectionSeasonsFragment"
-            app:destination="@id/collectionSeasonsFragment"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
+            app:destination="@id/collectionSeasonsFragment" />
         <action
             android:id="@+id/action_collectionFragment_to_libraryFragment"
             app:destination="@id/libraryFragment"
@@ -99,11 +95,7 @@
             app:nullable="true" />
         <action
             android:id="@+id/action_watchlistFragment_to_showDetailFragment"
-            app:destination="@id/showDetailFragment"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
+            app:destination="@id/showDetailFragment" />
         <action
             android:id="@+id/action_watchlistFragment_to_libraryFragment"
             app:destination="@id/libraryFragment"
@@ -119,11 +111,7 @@
         tools:layout="@layout/fragment_history">
         <action
             android:id="@+id/action_historyFragment_to_showDetailFragment"
-            app:destination="@id/showDetailFragment"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
+            app:destination="@id/showDetailFragment" />
         <action
             android:id="@+id/action_historyFragment_to_libraryFragment"
             app:destination="@id/libraryFragment"
@@ -150,11 +138,7 @@
             app:popExitAnim="@anim/slide_out_right" />
         <action
             android:id="@+id/action_collectionSeasonsFragment_to_libraryFragment"
-            app:destination="@id/libraryFragment"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left" />
+            app:destination="@id/libraryFragment" />
     </fragment>
 
     <fragment
@@ -184,32 +168,16 @@
         android:label="@string/title_library" >
         <action
             android:id="@+id/action_libraryFragment_to_historyFragment"
-            app:destination="@id/historyFragment"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
+            app:destination="@id/historyFragment" />
         <action
             android:id="@+id/action_libraryFragment_to_watchlistFragment"
-            app:destination="@id/watchlistFragment"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_right"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
+            app:destination="@id/watchlistFragment" />
         <action
             android:id="@+id/action_libraryFragment_to_collectionFragment"
-            app:destination="@id/collectionFragment"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
+            app:destination="@id/collectionFragment" />
         <action
             android:id="@+id/action_libraryFragment_to_traktRecommendationsFragment"
-            app:destination="@id/traktRecommendationsFragment"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
+            app:destination="@id/traktRecommendationsFragment" />
     </fragment>
 
     <fragment

@@ -1,6 +1,7 @@
 package com.theupnextapp.ui.history
 
 import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,6 +13,10 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.transition.MaterialContainerTransform
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentHistoryBinding
@@ -23,6 +28,9 @@ class HistoryFragment : BaseFragment(), HistoryAdapter.HistoryAdapterListener {
 
     private var _binding: FragmentHistoryBinding? = null
     private val binding get() = _binding!!
+
+    private var _firebaseAnalytics: FirebaseAnalytics? = null
+    private val firebaseAnalytics get() = _firebaseAnalytics!!
 
     private var historyAdapter: HistoryAdapter? = null
 
@@ -36,6 +44,15 @@ class HistoryFragment : BaseFragment(), HistoryAdapter.HistoryAdapterListener {
         ).get(HistoryViewModel::class.java)
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        sharedElementEnterTransition = MaterialContainerTransform().apply {
+            drawingViewId = R.id.nav_host_fragment
+            duration = resources.getInteger(R.integer.show_motion_duration_large).toLong()
+            scrimColor = Color.TRANSPARENT
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -46,6 +63,8 @@ class HistoryFragment : BaseFragment(), HistoryAdapter.HistoryAdapterListener {
         binding.viewModel = viewModel
 
         binding.lifecycleOwner = viewLifecycleOwner
+
+        _firebaseAnalytics = Firebase.analytics
 
         historyAdapter = HistoryAdapter(this)
 
@@ -96,6 +115,7 @@ class HistoryFragment : BaseFragment(), HistoryAdapter.HistoryAdapterListener {
         super.onDestroyView()
         _binding = null
         historyAdapter = null
+        _firebaseAnalytics = null
     }
 
     override fun onAttach(context: Context) {

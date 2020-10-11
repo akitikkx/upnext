@@ -1,6 +1,7 @@
 package com.theupnextapp.ui.collection
 
 import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,7 +12,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.transition.MaterialContainerTransform
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
@@ -19,16 +20,19 @@ import com.theupnextapp.MainActivity
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentCollectionBinding
 import com.theupnextapp.domain.TraktCollection
-import com.theupnextapp.domain.TraktConnectionArg
-import com.theupnextapp.ui.common.BaseFragment
+import com.theupnextapp.domain.TraktCollectionArg
+import com.theupnextapp.ui.common.BaseTraktFragment
 
-class CollectionFragment : BaseFragment(), CollectionAdapter.CollectionAdapterListener {
+class CollectionFragment : BaseTraktFragment(), CollectionAdapter.CollectionAdapterListener {
 
     private var _binding: FragmentCollectionBinding? = null
     private val binding get() = _binding!!
 
     private var _adapter: CollectionAdapter? = null
     private val adapter get() = _adapter!!
+
+    private var _firebaseAnalytics: FirebaseAnalytics? = null
+    private val firebaseAnalytics get() = _firebaseAnalytics!!
 
     private val viewModel: CollectionViewModel by lazy {
         val activity = requireNotNull(activity) {
@@ -38,6 +42,15 @@ class CollectionFragment : BaseFragment(), CollectionAdapter.CollectionAdapterLi
             this@CollectionFragment,
             CollectionViewModel.Factory(activity.application)
         ).get(CollectionViewModel::class.java)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        sharedElementEnterTransition = MaterialContainerTransform().apply {
+            drawingViewId = R.id.nav_host_fragment
+            duration = resources.getInteger(R.integer.show_motion_duration_large).toLong()
+            scrimColor = Color.TRANSPARENT
+        }
     }
 
     override fun onCreateView(
@@ -50,6 +63,8 @@ class CollectionFragment : BaseFragment(), CollectionAdapter.CollectionAdapterLi
         binding.lifecycleOwner = viewLifecycleOwner
 
         binding.viewModel = viewModel
+
+        _firebaseAnalytics = Firebase.analytics
 
         _adapter = CollectionAdapter(this)
 
@@ -79,24 +94,6 @@ class CollectionFragment : BaseFragment(), CollectionAdapter.CollectionAdapterLi
                 adapter.submitList(it)
             }
         })
-
-        viewModel.navigateToSelectedCollection.observe(viewLifecycleOwner, Observer {
-            if (null != it) {
-                this.findNavController().navigate(
-                    CollectionFragmentDirections.actionCollectionFragmentToCollectionSeasonsFragment(
-                        it
-                    )
-                )
-                val analyticsBundle = Bundle()
-                analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, it.imdbID)
-                analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, it.title)
-                analyticsBundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "collection_show")
-
-                Firebase.analytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM, analyticsBundle)
-
-                viewModel.navigateToSelectedCollectionComplete()
-            }
-        })
     }
 
     override fun onResume() {
@@ -109,6 +106,7 @@ class CollectionFragment : BaseFragment(), CollectionAdapter.CollectionAdapterLi
         super.onDestroyView()
         _binding = null
         _adapter = null
+        _firebaseAnalytics = null
     }
 
     override fun onAttach(context: Context) {
@@ -117,7 +115,24 @@ class CollectionFragment : BaseFragment(), CollectionAdapter.CollectionAdapterLi
     }
 
     override fun onCollectionClick(view: View, traktCollection: TraktCollection) {
-        viewModel.onCollectionClick(traktCollection)
+        val directions =
+            CollectionFragmentDirections.actionCollectionFragmentToCollectionSeasonsFragment(
+                TraktCollectionArg(
+                    imdbID = traktCollection.imdbID,
+                    title = traktCollection.title,
+                    mediumImageUrl = traktCollection.mediumImageUrl,
+                    originalImageUrl = traktCollection.originalImageUrl,
+                    lastCollectedAt = traktCollection.lastCollectedAt,
+                    lastUpdatedAt = traktCollection.lastUpdatedAt
+                )
+            )
+        findNavController().navigate(directions, getCollectionSeasonsNavigatorExtras(view))
+
+        val analyticsBundle = Bundle()
+        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, traktCollection.tvMazeID.toString())
+        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, traktCollection.title)
+        analyticsBundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "collection_show")
+        firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM, analyticsBundle)
     }
 
     override fun onCollectionRemoveClick(view: View, traktCollection: TraktCollection) {

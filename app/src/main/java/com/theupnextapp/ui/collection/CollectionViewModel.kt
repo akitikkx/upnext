@@ -1,18 +1,14 @@
 package com.theupnextapp.ui.collection
 
 import android.app.Application
-import androidx.lifecycle.*
-import com.theupnextapp.domain.TraktCollection
-import com.theupnextapp.domain.TraktCollectionArg
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import com.theupnextapp.ui.common.TraktViewModel
 
 class CollectionViewModel(
     application: Application
 ) : TraktViewModel(application) {
-
-    private val _navigateToSelectedCollection = MutableLiveData<TraktCollectionArg>()
-
-    val navigateToSelectedCollection: LiveData<TraktCollectionArg> = _navigateToSelectedCollection
 
     val isLoadingCollection = traktRepository.isLoadingTraktCollection
 
@@ -22,21 +18,6 @@ class CollectionViewModel(
         addSource(traktCollection) {
             value = it.isNullOrEmpty() == true
         }
-    }
-
-    fun onCollectionClick(traktCollection: TraktCollection) {
-        _navigateToSelectedCollection.value = TraktCollectionArg(
-            imdbID = traktCollection.imdbID,
-            title = traktCollection.title,
-            mediumImageUrl = traktCollection.mediumImageUrl,
-            originalImageUrl = traktCollection.originalImageUrl,
-            lastCollectedAt = traktCollection.lastCollectedAt,
-            lastUpdatedAt = traktCollection.lastUpdatedAt
-        )
-    }
-
-    fun navigateToSelectedCollectionComplete() {
-        _navigateToSelectedCollection.value = null
     }
 
     override fun onCleared() {
