@@ -10,8 +10,11 @@ import com.theupnextapp.database.*
 import com.theupnextapp.domain.*
 import com.theupnextapp.network.TraktNetwork
 import com.theupnextapp.network.TvMazeNetwork
+import com.theupnextapp.network.UpnextKtorNetwork
 import com.theupnextapp.network.models.trakt.*
 import com.theupnextapp.network.models.tvmaze.NetworkShowSearchResponse
+import com.theupnextapp.network.models.upnextktor.NetworkUpnextKtorShowTrendingResponseItem
+import com.theupnextapp.network.models.upnextktor.asDatabaseModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
@@ -1200,50 +1203,26 @@ class TraktRepository(private val database: UpnextDatabase) {
                 _isLoadingTraktTrending.postValue(true)
                 val shows: MutableList<DatabaseTraktTrendingShows> = mutableListOf()
 
-                val trendingShowsResponse = TraktNetwork.traktApi.getTrendingShowsAsync().await()
+                val trendingShowsResponse = UpnextKtorNetwork.upnextKtorApi.getTrendingShowsAsync().await()
 
                 if (!trendingShowsResponse.isEmpty()) {
                     database.upnextDao.apply {
                         deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_TRENDING.tableName)
-                        deleteAllTraktTrending()
-                    }
-
-                    for (item in trendingShowsResponse) {
-                        val trendingItem: NetworkTraktTrendingShowsResponseItem = item
-
-                        val imdbID = trendingItem.show.ids.imdb
-                        val traktTitle = trendingItem.show.title
-
-                        // perform a TvMaze search for the Trakt item using the Trakt title
-                        val tvMazeSearch =
-                            traktTitle?.let {
-                                TvMazeNetwork.tvMazeApi.getSuggestionListAsync(it).await()
-                            }
-
-                        // loop through the search results from TvMaze and find a match for the IMDb ID
-                        // and update the watchlist item by adding the TvMaze ID
-                        if (!tvMazeSearch.isNullOrEmpty()) {
-                            for (searchItem in tvMazeSearch) {
-                                val showSearchItem: NetworkShowSearchResponse = searchItem
-                                if (showSearchItem.show.externals.imdb == imdbID) {
-                                    trendingItem.show.originalImageUrl =
-                                        showSearchItem.show.image?.medium
-                                    trendingItem.show.mediumImageUrl =
-                                        showSearchItem.show.image?.original
-                                    trendingItem.show.ids.tvMazeID = showSearchItem.show.id
-                                }
-                            }
-                        }
-                        shows.add(trendingItem.asDatabaseModel())
-                    }
-                    database.upnextDao.apply {
-                        insertAllTraktTrending(*shows.toTypedArray())
                         insertTableUpdateLog(
                             DatabaseTableUpdate(
                                 table_name = DatabaseTables.TABLE_TRAKT_TRENDING.tableName,
                                 last_updated = System.currentTimeMillis()
                             )
                         )
+                    }
+
+                    for (item in trendingShowsResponse) {
+                        val trendingItem: NetworkUpnextKtorShowTrendingResponseItem = item
+                        shows.add(trendingItem.asDatabaseModel())
+                    }
+                    database.upnextDao.apply {
+                        deleteAllTraktTrending()
+                        insertAllTraktTrending(*shows.toTypedArray())
                     }
                 }
                 _isLoadingTraktTrending.postValue(false)
