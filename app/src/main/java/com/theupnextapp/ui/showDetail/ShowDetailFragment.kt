@@ -259,7 +259,7 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
                     view = binding.root,
                     type = FeedBackStatus.CONNECTION_TO_TRAKT_REQUIRED,
                     duration = Snackbar.LENGTH_LONG,
-                    listener = View.OnClickListener { connectToTraktWindow() })
+                    listener = View.OnClickListener { launchTraktWindow() })
 
                 viewModel.showConnectionToTraktRequiredComplete()
             }
@@ -291,23 +291,11 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
         viewModel.onShowCastItemClicked(castItem)
     }
 
-    private fun connectToTraktWindow() {
-        val intent = Intent(
-            Intent.ACTION_VIEW,
-            Uri.parse("$TRAKT_API_URL$TRAKT_OAUTH_ENDPOINT?response_type=code&client_id=${BuildConfig.TRAKT_CLIENT_ID}&redirect_uri=${BuildConfig.TRAKT_REDIRECT_URI}")
-        )
-        intent.putExtra(Browser.EXTRA_APPLICATION_ID, activity?.packageName)
-        startActivity(intent)
-        viewModel.launchConnectWindowComplete()
-    }
-
     companion object {
         const val ARG_SHOW_CAST = "show_cast"
         const val ARG_SHOW_DETAIL = "show_detail"
         const val ARG_SHOW_SEASONS = "show_seasons"
         const val ARG_WATCHED_PROGRESS = "watched_progress"
-        const val TRAKT_API_URL = "https://api.trakt.tv"
-        const val TRAKT_OAUTH_ENDPOINT = "/oauth/authorize"
     }
 
 }

@@ -62,7 +62,7 @@ open class BaseFragment : Fragment() {
 
     companion object {
         const val EXTRA_TRAKT_URI = "extra_trakt_uri"
-        const val TRAKT_API_URL = "https://api.trakt.tv"
+        const val TRAKT_API_URL = "https://trakt.tv"
         const val TRAKT_OAUTH_ENDPOINT = "/oauth/authorize"
     }
 }
