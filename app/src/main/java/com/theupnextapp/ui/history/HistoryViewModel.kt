@@ -4,15 +4,21 @@ import android.app.Application
 import androidx.lifecycle.*
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.TraktHistory
+import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.ui.common.TraktViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class HistoryViewModel(application: Application) : TraktViewModel(application) {
+@HiltViewModel
+class HistoryViewModel @Inject constructor(
+    application: Application,
+    traktRepository: TraktRepository
+) : TraktViewModel(application, traktRepository) {
 
-    private val _navigateToSelectedShow = MutableLiveData<ShowDetailArg>()
+    private val _navigateToSelectedShow = MutableLiveData<ShowDetailArg?>()
+    val navigateToSelectedShow: LiveData<ShowDetailArg?> = _navigateToSelectedShow
 
     val isLoadingHistory = traktRepository.isLoadingTraktHistory
-
-    val navigateToSelectedShow: LiveData<ShowDetailArg> = _navigateToSelectedShow
 
     val traktHistory = traktRepository.traktHistory
 
@@ -37,18 +43,5 @@ class HistoryViewModel(application: Application) : TraktViewModel(application) {
     override fun onCleared() {
         super.onCleared()
         viewModelJob.cancel()
-    }
-
-    class Factory(val app: Application) :
-        ViewModelProvider.Factory {
-        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(HistoryViewModel::class.java)) {
-                @Suppress("UNCHECKED_CAST")
-                return HistoryViewModel(
-                    app
-                ) as T
-            }
-            throw IllegalArgumentException("Unable to construct viewModel")
-        }
     }
 }

@@ -5,8 +5,8 @@ import android.view.LayoutInflater
 import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -16,7 +16,10 @@ import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentCollectionSeasonEpisodesBinding
 import com.theupnextapp.domain.TraktCollectionSeasonEpisode
 import com.theupnextapp.ui.common.BaseFragment
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class CollectionSeasonEpisodesFragment : BaseFragment(),
     CollectionSeasonEpisodesAdapter.CollectionSeasonEpisodesAdapterListener {
 
@@ -28,18 +31,15 @@ class CollectionSeasonEpisodesFragment : BaseFragment(),
 
     private val args by navArgs<CollectionSeasonEpisodesFragmentArgs>()
 
-    private val viewModel: CollectionSeasonEpisodesViewModel by lazy {
-        val activity = requireNotNull(activity) {
-            "You can only access the viewModel after onActivityCreated"
-        }
-        ViewModelProvider(
-            this@CollectionSeasonEpisodesFragment,
-            CollectionSeasonEpisodesViewModel.Factory(
-                activity.application,
-                args.traktCollectionSeason.collection,
-                args.traktCollectionSeason.collectionSeason
-            )
-        ).get(CollectionSeasonEpisodesViewModel::class.java)
+    @Inject
+    lateinit var assistedFactory: CollectionSeasonEpisodesViewModel.CollectionSeasonEpisodesViewModelFactory
+
+    private val viewModel by viewModels<CollectionSeasonEpisodesViewModel> {
+        CollectionSeasonEpisodesViewModel.provideFactory(
+            assistedFactory,
+            args.traktCollectionSeason.collection,
+            args.traktCollectionSeason.collectionSeason
+        )
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

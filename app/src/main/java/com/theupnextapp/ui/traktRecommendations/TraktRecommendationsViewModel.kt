@@ -3,13 +3,19 @@ package com.theupnextapp.ui.traktRecommendations
 import android.app.Application
 import androidx.lifecycle.*
 import com.theupnextapp.domain.ShowDetailArg
+import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.ui.common.TraktViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class TraktRecommendationsViewModel(application: Application) : TraktViewModel(application) {
+@HiltViewModel
+class TraktRecommendationsViewModel @Inject constructor(
+    application: Application,
+    traktRepository: TraktRepository
+) : TraktViewModel(application, traktRepository) {
 
-    private val _navigateToSelectedShow = MutableLiveData<ShowDetailArg>()
-
-    val navigateToSelectedShow: LiveData<ShowDetailArg> = _navigateToSelectedShow
+    private val _navigateToSelectedShow = MutableLiveData<ShowDetailArg?>()
+    val navigateToSelectedShow: LiveData<ShowDetailArg?> = _navigateToSelectedShow
 
     val traktRecommendationsList = traktRepository.traktRecommendations
 
@@ -33,16 +39,5 @@ class TraktRecommendationsViewModel(application: Application) : TraktViewModel(a
         super.onCleared()
         viewModelJob.cancel()
     }
-
-    class Factory(val app: Application) : ViewModelProvider.Factory {
-        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(TraktRecommendationsViewModel::class.java)) {
-                @Suppress("UNCHECKED_CAST")
-                return TraktRecommendationsViewModel(app) as T
-            }
-            throw IllegalArgumentException("Unable to construct viewModel")
-        }
-    }
-
 
 }

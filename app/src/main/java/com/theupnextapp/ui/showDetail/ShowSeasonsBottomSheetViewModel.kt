@@ -1,16 +1,22 @@
 package com.theupnextapp.ui.showDetail
 
 import android.app.Application
+import android.view.View
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.theupnextapp.domain.*
+import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.ui.common.TraktViewModel
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import kotlinx.coroutines.launch
 
-class ShowSeasonsBottomSheetViewModel(
+class ShowSeasonsBottomSheetViewModel @AssistedInject constructor(
     application: Application,
-    val showDetail: ShowInfo?
-) : TraktViewModel(application) {
+    private val traktRepository: TraktRepository,
+    @Assisted val showDetail: ShowInfo?
+) : TraktViewModel(application, traktRepository) {
 
     val isLoading = traktRepository.isLoading
 
@@ -149,27 +155,24 @@ class ShowSeasonsBottomSheetViewModel(
         }
     }
 
+    @AssistedFactory
+    interface ShowSeasonsBottomSheetViewModelFactory {
+        fun create(showDetail: ShowInfo?): ShowSeasonsBottomSheetViewModel
+    }
+
     companion object {
         const val HISTORY_ACTION_ADD = "add_to_history"
         const val HISTORY_ACTION_REMOVE = "remove_from_history"
         const val COLLECTION_ACTION_ADD = "add_to_collection"
         const val COLLECTION_ACTION_REMOVE = "remove_from_collection"
-    }
 
-
-    class Factory(
-        val app: Application,
-        val showDetail: ShowInfo?
-    ) : ViewModelProvider.Factory {
-        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(ShowSeasonsBottomSheetViewModel::class.java)) {
-                @Suppress("UNCHECKED_CAST")
-                return ShowSeasonsBottomSheetViewModel(
-                    app,
-                    showDetail
-                ) as T
+        fun provideFactory(
+            assistedFactory: ShowSeasonsBottomSheetViewModelFactory,
+            showDetail: ShowInfo?
+        ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+                return assistedFactory.create(showDetail) as T
             }
-            throw IllegalArgumentException("Unable to construct viewModel")
         }
     }
 }

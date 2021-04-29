@@ -1,8 +1,10 @@
 package com.theupnextapp.database
 
-import android.content.Context
 import androidx.lifecycle.LiveData
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
 import com.theupnextapp.domain.ShowInfo
 
 @Dao
@@ -174,51 +176,4 @@ interface UpnextDao {
 
     @Query("select * from trakt_most_anticipated")
     fun getTraktMostAnticipated(): LiveData<List<DatabaseTraktMostAnticipated>>
-}
-
-@Database(
-    entities = [
-        DatabaseNewShows::class,
-        DatabaseYesterdaySchedule::class,
-        DatabaseTodaySchedule::class,
-        DatabaseTomorrowSchedule::class,
-        DatabaseShowInfo::class,
-        DatabaseTraktWatchlist::class,
-        DatabaseTraktHistory::class,
-        DatabaseTraktCollection::class,
-        DatabaseTraktCollectionSeason::class,
-        DatabaseTraktCollectionEpisode::class,
-        DatabaseTableUpdate::class,
-        DatabaseTraktRecommendations::class,
-        DatabaseTraktPopularShows::class,
-        DatabaseTraktTrendingShows::class,
-        DatabaseTraktMostAnticipated::class
-    ],
-    version = 18,
-    exportSchema = true
-)
-abstract class UpnextDatabase : RoomDatabase() {
-    abstract val upnextDao: UpnextDao
-}
-
-private lateinit var INSTANCE: UpnextDatabase
-
-fun getDatabase(context: Context): UpnextDatabase {
-    synchronized(UpnextDatabase::class.java) {
-        if (!::INSTANCE.isInitialized) {
-            INSTANCE = Room.databaseBuilder(
-                context.applicationContext,
-                UpnextDatabase::class.java,
-                "upnext"
-            )
-                .addMigrations(
-                    MIGRATION_14_15,
-                    MIGRATION_15_16,
-                    MIGRATION_16_17,
-                    MIGRATION_17_18
-                )
-                .build()
-        }
-    }
-    return INSTANCE
 }

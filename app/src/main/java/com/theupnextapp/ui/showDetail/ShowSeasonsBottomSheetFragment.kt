@@ -4,8 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -14,7 +14,10 @@ import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentShowSeasonsBottomSheetBinding
 import com.theupnextapp.domain.ShowSeason
 import com.theupnextapp.domain.TraktShowWatchedProgress
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class ShowSeasonsBottomSheetFragment : BottomSheetDialogFragment(),
     ShowSeasonsAdapter.ShowSeasonsAdapterListener {
 
@@ -24,17 +27,14 @@ class ShowSeasonsBottomSheetFragment : BottomSheetDialogFragment(),
     private var _adapter: ShowSeasonsAdapter? = null
     private val adapter get() = _adapter!!
 
-    private val viewModel: ShowSeasonsBottomSheetViewModel by lazy {
-        val activity = requireNotNull(activity) {
-            "You can only access the viewModel after onActivityCreated"
-        }
-        ViewModelProvider(
-            this@ShowSeasonsBottomSheetFragment,
-            ShowSeasonsBottomSheetViewModel.Factory(
-                activity.application,
-                arguments?.getParcelable(ShowDetailFragment.ARG_SHOW_DETAIL)
-            )
-        ).get(ShowSeasonsBottomSheetViewModel::class.java)
+    @Inject
+    lateinit var assistedFactory: ShowSeasonsBottomSheetViewModel.ShowSeasonsBottomSheetViewModelFactory
+
+    private val viewModel by viewModels<ShowSeasonsBottomSheetViewModel> {
+        ShowSeasonsBottomSheetViewModel.provideFactory(
+            assistedFactory,
+            arguments?.getParcelable(ShowDetailFragment.ARG_SHOW_DETAIL)
+        )
     }
 
     override fun onCreateView(

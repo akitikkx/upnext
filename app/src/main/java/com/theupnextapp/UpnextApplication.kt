@@ -4,20 +4,21 @@ import android.app.Application
 import android.content.Context
 import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.work.Constraints
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
+import androidx.hilt.work.HiltWorkerFactory
+import androidx.work.*
 import com.theupnextapp.common.utils.UpnextPreferenceManager
 import com.theupnextapp.common.utils.models.TableUpdateInterval
 import com.theupnextapp.work.RefreshDashboardShowsWorker
 import com.theupnextapp.work.RefreshTraktExploreWorker
+import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
-class UpnextApplication : Application() {
+@HiltAndroidApp
+class UpnextApplication : Application(), Configuration.Provider {
 
     init {
         application = this
@@ -26,11 +27,19 @@ class UpnextApplication : Application() {
 
     private val applicationScope = CoroutineScope(Dispatchers.Default)
 
+    @Inject
+    lateinit var workerFactory: HiltWorkerFactory
+
     override fun onCreate() {
         super.onCreate()
         delayedInit()
         setupTheme()
     }
+
+    override fun getWorkManagerConfiguration() =
+        Configuration.Builder()
+            .setWorkerFactory(workerFactory)
+            .build()
 
     private fun delayedInit() {
         applicationScope.launch {
@@ -53,7 +62,8 @@ class UpnextApplication : Application() {
                 AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY
             )
             else -> AppCompatDelegate.setDefaultNightMode(
-                AppCompatDelegate.MODE_NIGHT_YES)
+                AppCompatDelegate.MODE_NIGHT_YES
+            )
         }
     }
 

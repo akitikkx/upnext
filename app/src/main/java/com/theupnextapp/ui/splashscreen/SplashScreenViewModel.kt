@@ -3,19 +3,23 @@ package com.theupnextapp.ui.splashscreen
 import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
 import com.theupnextapp.BuildConfig
 import com.theupnextapp.common.utils.DateUtils
+import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.UpnextRepository
 import com.theupnextapp.ui.common.TraktViewModel
 import com.theupnextapp.ui.dashboard.DashboardViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class SplashScreenViewModel(application: Application) : TraktViewModel(application) {
-
-    private val upnextRepository = UpnextRepository(database)
+@HiltViewModel
+class SplashScreenViewModel @Inject constructor(
+    application: Application,
+    traktRepository: TraktRepository,
+    private val upnextRepository: UpnextRepository
+) : TraktViewModel(application, traktRepository) {
 
     private val _isFreshInstall = MutableLiveData<Boolean>()
 
@@ -23,11 +27,14 @@ class SplashScreenViewModel(application: Application) : TraktViewModel(applicati
 
     private val _isUpgradedInstall = MutableLiveData<Boolean>()
 
-    private val _showLoadingText = MutableLiveData<Boolean>()
+    private val _showLoadingText = MutableLiveData<Boolean?>()
+    val showLoadingText: LiveData<Boolean?> = _showLoadingText
 
-    private val _navigateToDashboard = MutableLiveData<Boolean>()
+    private val _navigateToDashboard = MutableLiveData<Boolean?>()
+    val navigateToDashboard: LiveData<Boolean?> = _navigateToDashboard
 
     private val _loadingText = MutableLiveData<String>()
+    val loadingText: LiveData<String> = _loadingText
 
     val isLoadingNewShows = upnextRepository.isLoadingNewShows
 
@@ -45,12 +52,6 @@ class SplashScreenViewModel(application: Application) : TraktViewModel(applicati
 
     val isUpgradeInstall: LiveData<Boolean> = _isUpgradedInstall
 
-    val showLoadingText: LiveData<Boolean> = _showLoadingText
-
-    val navigateToDashboard: LiveData<Boolean> = _navigateToDashboard
-
-    val loadingText: LiveData<String>
-        get() = _loadingText
 
     init {
         checkIfFirstRun()
@@ -124,15 +125,5 @@ class SplashScreenViewModel(application: Application) : TraktViewModel(applicati
     companion object {
         const val SHARED_PREF_VERSION_CODE_KEY = "version_code"
         const val SHARED_PREF_NOT_FOUND = -1
-    }
-
-    class Factory(val app: Application) : ViewModelProvider.Factory {
-        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(SplashScreenViewModel::class.java)) {
-                @Suppress("UNCHECKED_CAST")
-                return SplashScreenViewModel(app) as T
-            }
-            throw IllegalArgumentException("Unable to construct viewModel")
-        }
     }
 }

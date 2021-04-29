@@ -8,10 +8,17 @@ import com.theupnextapp.common.utils.models.DatabaseTables
 import com.theupnextapp.common.utils.models.TableUpdateInterval
 import com.theupnextapp.domain.LibraryList
 import com.theupnextapp.domain.TableUpdate
+import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.ui.common.TraktViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class LibraryViewModel(application: Application) : TraktViewModel(application) {
+@HiltViewModel
+class LibraryViewModel @Inject constructor(
+    application: Application,
+    private val traktRepository: TraktRepository
+) : TraktViewModel(application, traktRepository) {
 
     private val _libraryList = MutableLiveData<MutableList<LibraryList>>(mutableListOf())
     val libraryList: LiveData<MutableList<LibraryList>> = _libraryList
@@ -328,20 +335,6 @@ class LibraryViewModel(application: Application) : TraktViewModel(application) {
             viewModelScope?.launch {
                 traktRepository.refreshTraktRecommendations(accessToken.value)
             }
-        }
-    }
-
-    class Factory(
-        val app: Application
-    ) : ViewModelProvider.Factory {
-        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(LibraryViewModel::class.java)) {
-                @Suppress("UNCHECKED_CAST")
-                return LibraryViewModel(
-                    app
-                ) as T
-            }
-            throw IllegalArgumentException("Unable to construct viewModel")
         }
     }
 }

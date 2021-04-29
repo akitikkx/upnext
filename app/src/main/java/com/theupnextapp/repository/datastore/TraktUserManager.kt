@@ -1,124 +1,118 @@
 package com.theupnextapp.repository.datastore
 
 import android.content.Context
-import androidx.datastore.DataStore
+import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.*
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class TraktUserManager(context: Context) {
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "upnext_trakt_prefs")
 
-    private val dataStore: DataStore<Preferences> = context.createDataStore(
-        name = "upnext_trakt_prefs"
-    )
+class TraktUserManager(private val context: Context) {
 
-    val traktAccessToken: Flow<String?> = dataStore.data.map {
-        it[SHARED_PREF_TRAKT_ACCESS_TOKEN]
+    private val TRAKT_ACCESS_TOKEN = stringPreferencesKey("trakt_access_token")
+    val traktAccessTokenFlow: Flow<String> = context.dataStore.data.map { preferences ->
+        preferences[TRAKT_ACCESS_TOKEN].orEmpty()
     }
 
-    val traktAccessTokenRefresh: Flow<String?> = dataStore.data.map {
-        it[SHARED_PREF_TRAKT_ACCESS_TOKEN_REFRESH_TOKEN]
+    private val TRAKT_ACCESS_TOKEN_REFRESH = stringPreferencesKey("trakt_access_token_refresh")
+    val traktAccessTokenRefreshFlow: Flow<String> = context.dataStore.data.map { preferences ->
+        preferences[TRAKT_ACCESS_TOKEN_REFRESH].orEmpty()
     }
 
-    val traktAccessTokenCreatedAt: Flow<Int?> = dataStore.data.map {
-        it[SHARED_PREF_TRAKT_ACCESS_TOKEN_CREATED_AT]
+    private val TRAKT_ACCESS_TOKEN_CREATED_AT = intPreferencesKey("trakt_access_token_created_at")
+    val traktAccessTokenCreatedAtFlow: Flow<Int> = context.dataStore.data.map { preferences ->
+        preferences[TRAKT_ACCESS_TOKEN_CREATED_AT] ?: 0
     }
 
-    val traktAccessTokenExpiresIn: Flow<Int?> = dataStore.data.map {
-        it[SHARED_PREF_TRAKT_ACCESS_TOKEN_EXPIRES_IN]
+    val TRAKT_ACCESS_TOKEN_EXPIRES_IN = intPreferencesKey("trakt_access_token_expires_in")
+    val traktAccessTokenExpiresInFlow: Flow<Int?> = context.dataStore.data.map {
+        it[TRAKT_ACCESS_TOKEN_EXPIRES_IN]
     }
 
-    val traktAccessTokenScope: Flow<String> = dataStore.data.map {
-        it[SHARED_PREF_TRAKT_ACCESS_TOKEN_SCOPE] ?: ""
+    private val TRAKT_ACCESS_TOKEN_SCOPE = stringPreferencesKey("trakt_access_token_scope")
+    val traktAccessTokenScopeFlow: Flow<String> = context.dataStore.data.map { preferences ->
+        preferences[TRAKT_ACCESS_TOKEN_SCOPE].orEmpty()
     }
 
-    val traktAccessTokenType: Flow<String?> = dataStore.data.map {
-        it[SHARED_PREF_TRAKT_ACCESS_TOKEN_TYPE]
+    private val TRAKT_ACCESS_TOKEN_TYPE = stringPreferencesKey("trakt_access_token_type")
+    val traktAccessTokenTypeFlow: Flow<String?> = context.dataStore.data.map { preferences ->
+        preferences[TRAKT_ACCESS_TOKEN_TYPE]
     }
 
     suspend fun saveTraktAccessToken(token: String) {
-        dataStore.edit {
-            it[SHARED_PREF_TRAKT_ACCESS_TOKEN] = token
+        context.dataStore.edit {
+            it[TRAKT_ACCESS_TOKEN] = token
         }
     }
 
     suspend fun removeTraktAccessToken() {
-        dataStore.edit {
-            it.remove(SHARED_PREF_TRAKT_ACCESS_TOKEN)
+        context.dataStore.edit {
+            it.remove(TRAKT_ACCESS_TOKEN)
         }
     }
 
     suspend fun saveTraktAccessTokenRefresh(token: String) {
-        dataStore.edit {
-            it[SHARED_PREF_TRAKT_ACCESS_TOKEN_REFRESH_TOKEN] = token
+        context.dataStore.edit {
+            it[TRAKT_ACCESS_TOKEN_REFRESH] = token
         }
     }
 
     suspend fun removeTraktAccessTokenRefresh() {
-        dataStore.edit {
-            it.remove(SHARED_PREF_TRAKT_ACCESS_TOKEN_REFRESH_TOKEN)
+        context.dataStore.edit {
+            it.remove(TRAKT_ACCESS_TOKEN_REFRESH)
         }
     }
 
     suspend fun saveTraktAccessTokenCreatedAt(createdAt: Int) {
-        dataStore.edit {
-            it[SHARED_PREF_TRAKT_ACCESS_TOKEN_CREATED_AT] = createdAt
+        context.dataStore.edit {
+            it[TRAKT_ACCESS_TOKEN_CREATED_AT] = createdAt
         }
     }
 
     suspend fun removeTraktAccessTokenCreatedAt() {
-        dataStore.edit {
-            it.remove(SHARED_PREF_TRAKT_ACCESS_TOKEN_CREATED_AT)
+        context.dataStore.edit {
+            it.remove(TRAKT_ACCESS_TOKEN_CREATED_AT)
         }
     }
 
     suspend fun saveTraktAccessTokenExpiresIn(expiresIn: Int) {
-        dataStore.edit {
-            it[SHARED_PREF_TRAKT_ACCESS_TOKEN_EXPIRES_IN] = expiresIn
+        context.dataStore.edit {
+            it[TRAKT_ACCESS_TOKEN_EXPIRES_IN] = expiresIn
         }
     }
 
     suspend fun removeTraktAccessTokenExpiresIn() {
-        dataStore.edit {
-            it.remove(SHARED_PREF_TRAKT_ACCESS_TOKEN_EXPIRES_IN)
+        context.dataStore.edit {
+            it.remove(TRAKT_ACCESS_TOKEN_EXPIRES_IN)
         }
     }
 
     suspend fun saveTraktAccessTokenScope(token: String) {
-        dataStore.edit {
-            it[SHARED_PREF_TRAKT_ACCESS_TOKEN_SCOPE] = token
+        context.dataStore.edit {
+            it[TRAKT_ACCESS_TOKEN_SCOPE] = token
         }
     }
 
     suspend fun removeTraktAccessTokenScope() {
-        dataStore.edit {
-            it.remove(SHARED_PREF_TRAKT_ACCESS_TOKEN_SCOPE)
+        context.dataStore.edit {
+            it.remove(TRAKT_ACCESS_TOKEN_SCOPE)
         }
     }
 
     suspend fun saveTraktAccessTokenType(token: String) {
-        dataStore.edit {
-            it[SHARED_PREF_TRAKT_ACCESS_TOKEN_TYPE] = token
+        context.dataStore.edit {
+            it[TRAKT_ACCESS_TOKEN_TYPE] = token
         }
     }
 
     suspend fun removeTraktAccessTokenType() {
-        dataStore.edit {
-            it.remove(SHARED_PREF_TRAKT_ACCESS_TOKEN_TYPE)
+        context.dataStore.edit {
+            it.remove(TRAKT_ACCESS_TOKEN_TYPE)
         }
-    }
-
-    companion object {
-        val SHARED_PREF_TRAKT_ACCESS_TOKEN = preferencesKey<String>("trakt_access_token")
-        val SHARED_PREF_TRAKT_ACCESS_TOKEN_CREATED_AT =
-            preferencesKey<Int>("trakt_access_token_created_at")
-        val SHARED_PREF_TRAKT_ACCESS_TOKEN_EXPIRES_IN =
-            preferencesKey<Int>("trakt_access_token_expires_in")
-        val SHARED_PREF_TRAKT_ACCESS_TOKEN_REFRESH_TOKEN =
-            preferencesKey<String>("trakt_access_token_refresh_token")
-        val SHARED_PREF_TRAKT_ACCESS_TOKEN_SCOPE =
-            preferencesKey<String>("trakt_access_token_scope")
-        val SHARED_PREF_TRAKT_ACCESS_TOKEN_TYPE =
-            preferencesKey<String>("trakt_access_token_token_type")
     }
 }

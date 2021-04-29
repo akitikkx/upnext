@@ -46,8 +46,13 @@ class SettingsFragment : PreferenceFragmentCompat(),
         super.onDestroy()
     }
 
-    override fun onDetach() {
-        super.onDetach()
+    override fun onStart() {
+        super.onStart()
+        (activity as MainActivity).showBottomNavigation()
+    }
+
+    override fun onStop() {
+        super.onStop()
         (activity as MainActivity).showBottomNavigation()
     }
 

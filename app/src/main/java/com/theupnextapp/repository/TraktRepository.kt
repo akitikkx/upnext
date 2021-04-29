@@ -22,30 +22,30 @@ import timber.log.Timber
 import java.io.IOException
 import javax.net.ssl.SSLHandshakeException
 
-class TraktRepository(private val database: UpnextDatabase) {
+class TraktRepository constructor(private val upnextDao: UpnextDao) {
 
     val traktWatchlist: LiveData<List<TraktWatchlist>> =
-        Transformations.map(database.upnextDao.getTraktWatchlist()) {
+        Transformations.map(upnextDao.getTraktWatchlist()) {
             it.asDomainModel()
         }
 
     val traktHistory: LiveData<List<TraktHistory>> =
-        Transformations.map(database.upnextDao.getTraktHistory()) {
+        Transformations.map(upnextDao.getTraktHistory()) {
             it.asDomainModel()
         }
 
     fun traktWatchlistItem(imdbID: String): LiveData<TraktHistory?> =
-        Transformations.map(database.upnextDao.checkIfInTraktWatchlist(imdbID)) { result ->
+        Transformations.map(upnextDao.checkIfInTraktWatchlist(imdbID)) { result ->
             result?.asDomainModel()
         }
 
     val traktCollection: LiveData<List<TraktCollection>> =
-        Transformations.map(database.upnextDao.getTraktCollection()) {
+        Transformations.map(upnextDao.getTraktCollection()) {
             it.asDomainModel()
         }
 
     fun traktCollectionSeasons(imdbID: String): LiveData<List<TraktCollectionSeason>> =
-        Transformations.map(database.upnextDao.getTraktCollectionSeasons(imdbID)) {
+        Transformations.map(upnextDao.getTraktCollectionSeasons(imdbID)) {
             it.asDomainModel()
         }
 
@@ -54,7 +54,7 @@ class TraktRepository(private val database: UpnextDatabase) {
         seasonNumber: Int
     ): LiveData<List<TraktCollectionSeasonEpisode>> =
         Transformations.map(
-            database.upnextDao.getTraktCollectionSeasonEpisodes(
+            upnextDao.getTraktCollectionSeasonEpisodes(
                 imdbID,
                 seasonNumber
             )
@@ -63,35 +63,35 @@ class TraktRepository(private val database: UpnextDatabase) {
         }
 
     fun tableUpdate(tableName: String): LiveData<TableUpdate?> =
-        Transformations.map(database.upnextDao.getTableLastUpdate(tableName)) {
+        Transformations.map(upnextDao.getTableLastUpdate(tableName)) {
             it?.asDomainModel()
         }
 
     val traktRecommendations: LiveData<List<TraktRecommendations>> =
-        Transformations.map(database.upnextDao.getTraktRecommendations()) {
+        Transformations.map(upnextDao.getTraktRecommendations()) {
             it.asDomainModel()
         }
 
     val traktPopularShows: LiveData<List<TraktPopularShows>> =
-        Transformations.map(database.upnextDao.getTraktPopular()) {
+        Transformations.map(upnextDao.getTraktPopular()) {
             it.asDomainModel()
         }
 
     val traktTrendingShows: LiveData<List<TraktTrendingShows>> =
-        Transformations.map(database.upnextDao.getTraktTrending()) {
+        Transformations.map(upnextDao.getTraktTrending()) {
             it.asDomainModel()
         }
 
     val traktMostAnticipatedShows: LiveData<List<TraktMostAnticipated>> =
-        Transformations.map(database.upnextDao.getTraktMostAnticipated()) {
+        Transformations.map(upnextDao.getTraktMostAnticipated()) {
             it.asDomainModel()
         }
 
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
 
-    private val _traktAccessToken = MutableLiveData<TraktAccessToken>()
-    val traktAccessToken: LiveData<TraktAccessToken> = _traktAccessToken
+    private val _traktAccessToken = MutableLiveData<TraktAccessToken?>()
+    val traktAccessToken: LiveData<TraktAccessToken?> = _traktAccessToken
 
     private val _isLoadingTraktWatchlist = MutableLiveData<Boolean>()
     val isLoadingTraktWatchlist: LiveData<Boolean> = _isLoadingTraktWatchlist
@@ -189,8 +189,8 @@ class TraktRepository(private val database: UpnextDatabase) {
     private suspend fun removeAllWatchlistData() {
         withContext(Dispatchers.IO) {
             _isRemovingTraktWatchlist.postValue(true)
-            database.upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_WATCHLIST.tableName)
-            database.upnextDao.deleteAllTraktWatchlist()
+            upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_WATCHLIST.tableName)
+            upnextDao.deleteAllTraktWatchlist()
             _isRemovingTraktWatchlist.postValue(false)
         }
     }
@@ -198,10 +198,10 @@ class TraktRepository(private val database: UpnextDatabase) {
     private suspend fun removeAllCollectionData() {
         withContext(Dispatchers.IO) {
             _isRemovingTraktCollection.postValue(true)
-            database.upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_COLLECTION.tableName)
-            database.upnextDao.deleteAllTraktCollectionSeasonEpisodes()
-            database.upnextDao.deleteAllTraktCollectionSeasons()
-            database.upnextDao.deleteAllTraktCollection()
+            upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_COLLECTION.tableName)
+            upnextDao.deleteAllTraktCollectionSeasonEpisodes()
+            upnextDao.deleteAllTraktCollectionSeasons()
+            upnextDao.deleteAllTraktCollection()
             _isRemovingTraktCollection.postValue(false)
         }
     }
@@ -209,8 +209,8 @@ class TraktRepository(private val database: UpnextDatabase) {
     private suspend fun removeAllHistoryData() {
         withContext(Dispatchers.IO) {
             _isRemovingTraktHistory.postValue(true)
-            database.upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_HISTORY.tableName)
-            database.upnextDao.deleteAllTraktHistory()
+            upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_HISTORY.tableName)
+            upnextDao.deleteAllTraktHistory()
             _isRemovingTraktHistory.postValue(false)
         }
     }
@@ -218,8 +218,8 @@ class TraktRepository(private val database: UpnextDatabase) {
     private suspend fun removeAllRecommendationsData() {
         withContext(Dispatchers.IO) {
             _isRemovingTraktRecommendations.postValue(true)
-            database.upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_RECOMMENDATIONS.tableName)
-            database.upnextDao.deleteAllTraktRecommendations()
+            upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_RECOMMENDATIONS.tableName)
+            upnextDao.deleteAllTraktRecommendations()
             _isRemovingTraktRecommendations.postValue(false)
         }
     }
@@ -320,8 +320,8 @@ class TraktRepository(private val database: UpnextDatabase) {
 
                 // loop through each watchlist item to get the title and IMDB link
                 if (!watchlistResponse.isNullOrEmpty()) {
-                    database.upnextDao.deleteAllTraktWatchlist()
-                    database.upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_WATCHLIST.tableName)
+                    upnextDao.deleteAllTraktWatchlist()
+                    upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_WATCHLIST.tableName)
 
                     for (item in watchlistResponse) {
                         val watchListItem: NetworkTraktWatchlistResponseItem = item
@@ -350,8 +350,8 @@ class TraktRepository(private val database: UpnextDatabase) {
                         }
                         updatedWatchList.add(watchListItem.asDatabaseModel())
                     }
-                    database.upnextDao.insertAllTraktWatchlist(*updatedWatchList.toTypedArray())
-                    database.upnextDao.insertTableUpdateLog(
+                    upnextDao.insertAllTraktWatchlist(*updatedWatchList.toTypedArray())
+                    upnextDao.insertTableUpdateLog(
                         DatabaseTableUpdate(
                             table_name = DatabaseTables.TABLE_TRAKT_WATCHLIST.tableName,
                             last_updated = System.currentTimeMillis()
@@ -392,7 +392,7 @@ class TraktRepository(private val database: UpnextDatabase) {
     suspend fun removeFromCachedWatchlist(imdbID: String) {
         withContext(Dispatchers.IO) {
             try {
-                database.upnextDao.deleteWatchlistItem(imdbID)
+                upnextDao.deleteWatchlistItem(imdbID)
             } catch (e: Exception) {
                 Timber.d(e)
                 FirebaseCrashlytics.getInstance().recordException(e)
@@ -464,7 +464,7 @@ class TraktRepository(private val database: UpnextDatabase) {
         if (!list.isNullOrEmpty()) {
             withContext(Dispatchers.IO) {
                 try {
-                    database.upnextDao.apply {
+                    upnextDao.apply {
                         deleteAllTraktHistory()
                         insertAllTraktHistory(*list.toTypedArray())
                         deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_HISTORY.tableName)
@@ -613,17 +613,17 @@ class TraktRepository(private val database: UpnextDatabase) {
     ) {
         withContext(Dispatchers.IO) {
             try {
-                database.upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_COLLECTION.tableName)
+                upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_COLLECTION.tableName)
 
-                database.upnextDao.deleteAllTraktCollection()
-                database.upnextDao.deleteAllTraktCollectionSeasons()
-                database.upnextDao.deleteAllTraktCollectionSeasonEpisodes()
+                upnextDao.deleteAllTraktCollection()
+                upnextDao.deleteAllTraktCollectionSeasons()
+                upnextDao.deleteAllTraktCollectionSeasonEpisodes()
 
-                database.upnextDao.insertAllTraktCollection(*traktCollection.toTypedArray())
-                database.upnextDao.insertAllTraktCollectionSeasons(*traktCollectionSeasons.toTypedArray())
-                database.upnextDao.insertAllTraktCollectionEpisodes(*traktCollectionSeasonEpisodes.toTypedArray())
+                upnextDao.insertAllTraktCollection(*traktCollection.toTypedArray())
+                upnextDao.insertAllTraktCollectionSeasons(*traktCollectionSeasons.toTypedArray())
+                upnextDao.insertAllTraktCollectionEpisodes(*traktCollectionSeasonEpisodes.toTypedArray())
 
-                database.upnextDao.insertTableUpdateLog(
+                upnextDao.insertTableUpdateLog(
                     DatabaseTableUpdate(
                         table_name = DatabaseTables.TABLE_TRAKT_COLLECTION.tableName,
                         last_updated = System.currentTimeMillis()
@@ -642,15 +642,15 @@ class TraktRepository(private val database: UpnextDatabase) {
     private suspend fun removeSeasonAndEpisodesFromCollection(seasonNumber: Int, imdbID: String) {
         withContext(Dispatchers.IO) {
             try {
-                database.upnextDao.deleteAllTraktCollectionEpisodesBySeasonNumber(
+                upnextDao.deleteAllTraktCollectionEpisodesBySeasonNumber(
                     seasonNumber,
                     imdbID
                 )
-                database.upnextDao.deleteAllTraktCollectionSeasonsBySeasonNumber(
+                upnextDao.deleteAllTraktCollectionSeasonsBySeasonNumber(
                     seasonNumber,
                     imdbID
                 )
-                database.upnextDao.deleteAllTraktCollectionByImdbId(imdbID)
+                upnextDao.deleteAllTraktCollectionByImdbId(imdbID)
             } catch (e: Exception) {
                 Timber.d(e)
                 FirebaseCrashlytics.getInstance().recordException(e)
@@ -664,9 +664,9 @@ class TraktRepository(private val database: UpnextDatabase) {
     suspend fun removeCollection(imdbID: String) {
         withContext(Dispatchers.IO) {
             try {
-                database.upnextDao.deleteAllTraktCollectionEpisodesByImdbId(imdbID)
-                database.upnextDao.deleteAllTraktCollectionSeasonsByImdbId(imdbID)
-                database.upnextDao.deleteAllTraktCollectionByImdbId(imdbID)
+                upnextDao.deleteAllTraktCollectionEpisodesByImdbId(imdbID)
+                upnextDao.deleteAllTraktCollectionSeasonsByImdbId(imdbID)
+                upnextDao.deleteAllTraktCollectionByImdbId(imdbID)
             } catch (e: Exception) {
                 Timber.d(e)
                 FirebaseCrashlytics.getInstance().recordException(e)
@@ -680,8 +680,8 @@ class TraktRepository(private val database: UpnextDatabase) {
     private suspend fun removeAllSeasonsAndEpisodesFromCollection(imdbID: String) {
         withContext(Dispatchers.IO) {
             try {
-                database.upnextDao.deleteAllTraktCollectionEpisodesByImdbId(imdbID)
-                database.upnextDao.deleteAllTraktCollectionSeasonsByImdbId(imdbID)
+                upnextDao.deleteAllTraktCollectionEpisodesByImdbId(imdbID)
+                upnextDao.deleteAllTraktCollectionSeasonsByImdbId(imdbID)
             } catch (e: Exception) {
                 Timber.d(e)
                 FirebaseCrashlytics.getInstance().recordException(e)
@@ -1206,7 +1206,7 @@ class TraktRepository(private val database: UpnextDatabase) {
                 val trendingShowsResponse = UpnextKtorNetwork.upnextKtorApi.getTrendingShowsAsync().await()
 
                 if (!trendingShowsResponse.isEmpty()) {
-                    database.upnextDao.apply {
+                    upnextDao.apply {
                         deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_TRENDING.tableName)
                         insertTableUpdateLog(
                             DatabaseTableUpdate(
@@ -1220,7 +1220,7 @@ class TraktRepository(private val database: UpnextDatabase) {
                         val trendingItem: NetworkUpnextKtorShowTrendingResponseItem = item
                         shows.add(trendingItem.asDatabaseModel())
                     }
-                    database.upnextDao.apply {
+                    upnextDao.apply {
                         deleteAllTraktTrending()
                         insertAllTraktTrending(*shows.toTypedArray())
                     }
@@ -1303,7 +1303,7 @@ class TraktRepository(private val database: UpnextDatabase) {
                     TraktNetwork.traktApi.getRecommendationsAsync(token = "Bearer $accessToken")
                         .await()
                 if (!recommendationsResponse.isNullOrEmpty()) {
-                    database.upnextDao.apply {
+                    upnextDao.apply {
                         deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_RECOMMENDATIONS.tableName)
                         deleteAllTraktRecommendations()
                     }
@@ -1338,7 +1338,7 @@ class TraktRepository(private val database: UpnextDatabase) {
                             shows.add(recommendationItem.asDatabaseModel())
                         }
                     }
-                    database.upnextDao.apply {
+                    upnextDao.apply {
                         insertAllTraktRecommendations(*shows.toTypedArray())
                         insertTableUpdateLog(
                             DatabaseTableUpdate(
@@ -1374,7 +1374,7 @@ class TraktRepository(private val database: UpnextDatabase) {
                 val popularShowsResponse = TraktNetwork.traktApi.getPopularShowsAsync().await()
 
                 if (!popularShowsResponse.isEmpty()) {
-                    database.upnextDao.apply {
+                    upnextDao.apply {
                         deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_POPULAR.tableName)
                         deleteAllTraktPopular()
                     }
@@ -1407,7 +1407,7 @@ class TraktRepository(private val database: UpnextDatabase) {
                         }
                         shows.add(popularItem.asDatabaseModel())
                     }
-                    database.upnextDao.apply {
+                    upnextDao.apply {
                         insertAllTraktPopular(*shows.toTypedArray())
                         insertTableUpdateLog(
                             DatabaseTableUpdate(
@@ -1448,7 +1448,7 @@ class TraktRepository(private val database: UpnextDatabase) {
                     TraktNetwork.traktApi.getMostAnticipatedShowsAsync().await()
 
                 if (!mostAnticipatedShowsResponse.isEmpty()) {
-                    database.upnextDao.apply {
+                    upnextDao.apply {
                         deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_MOST_ANTICIPATED.tableName)
                         deleteAllTraktMostAnticipated()
                     }
@@ -1481,7 +1481,7 @@ class TraktRepository(private val database: UpnextDatabase) {
                         }
                         shows.add(mostAnticipatedItem.asDatabaseModel())
                     }
-                    database.upnextDao.apply {
+                    upnextDao.apply {
                         insertAllTraktMostAnticipated(*shows.toTypedArray())
                         insertTableUpdateLog(
                             DatabaseTableUpdate(

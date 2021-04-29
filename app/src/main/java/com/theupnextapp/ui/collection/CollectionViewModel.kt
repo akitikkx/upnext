@@ -2,13 +2,15 @@ package com.theupnextapp.ui.collection
 
 import android.app.Application
 import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.ui.common.TraktViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class CollectionViewModel(
-    application: Application
-) : TraktViewModel(application) {
+@HiltViewModel
+class CollectionViewModel @Inject constructor(
+    application: Application, traktRepository: TraktRepository
+) : TraktViewModel(application, traktRepository) {
 
     val isLoadingCollection = traktRepository.isLoadingTraktCollection
 
@@ -27,18 +29,5 @@ class CollectionViewModel(
 
     companion object {
         const val EXTRA_TRAKT_URI = "extra_trakt_uri"
-    }
-
-    class Factory(val app: Application) :
-        ViewModelProvider.Factory {
-        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(CollectionViewModel::class.java)) {
-                @Suppress("UNCHECKED_CAST")
-                return CollectionViewModel(
-                    app
-                ) as T
-            }
-            throw IllegalArgumentException("Unable to construct viewModel")
-        }
     }
 }

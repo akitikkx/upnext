@@ -1,19 +1,15 @@
 package com.theupnextapp.ui.showDetail
 
-import android.content.Context
-import android.content.Intent
 import android.graphics.Color
-import android.net.Uri
 import android.os.Bundle
-import android.provider.Browser
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -21,7 +17,6 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.MaterialContainerTransform
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
-import com.theupnextapp.BuildConfig
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
 import com.theupnextapp.common.utils.*
@@ -31,7 +26,10 @@ import com.theupnextapp.domain.ShowInfo
 import com.theupnextapp.domain.ShowSeason
 import com.theupnextapp.domain.TraktShowWatchedProgress
 import com.theupnextapp.ui.common.BaseFragment
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListener {
 
     private var _binding: FragmentShowDetailBinding? = null
@@ -46,14 +44,14 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
 
     val args by navArgs<ShowDetailFragmentArgs>()
 
-    private val viewModel: ShowDetailViewModel by lazy {
-        val activity = requireNotNull(activity) {
-            "You can only access the viewModel after onActivityCreated"
-        }
-        ViewModelProvider(
-            this@ShowDetailFragment,
-            ShowDetailViewModel.Factory(activity.application, args.show)
-        ).get(ShowDetailViewModel::class.java)
+    @Inject
+    lateinit var assistedFactory: ShowDetailViewModel.ShowDetailViewModelFactory
+
+    private val viewModel by viewModels<ShowDetailViewModel> {
+        ShowDetailViewModel.provideFactory(
+            assistedFactory,
+            args.show
+        )
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -77,7 +75,7 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentShowDetailBinding.inflate(inflater)
 
         binding.lifecycleOwner = viewLifecycleOwner
@@ -271,13 +269,13 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
         (activity as AppCompatActivity).supportActionBar?.title = args.show.showTitle
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
+    override fun onStart() {
+        super.onStart()
         (activity as MainActivity).hideBottomNavigation()
     }
 
-    override fun onDetach() {
-        super.onDetach()
+    override fun onStop() {
+        super.onStop()
         (activity as MainActivity).showBottomNavigation()
     }
 

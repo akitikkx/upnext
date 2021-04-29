@@ -26,7 +26,9 @@ import com.theupnextapp.common.utils.FeedBackStatus
 import com.theupnextapp.common.utils.Feedback
 import com.theupnextapp.domain.TraktConnectionArg
 import com.theupnextapp.ui.common.BaseFragment
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private val navController: NavController

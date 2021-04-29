@@ -1,18 +1,27 @@
 package com.theupnextapp.ui.dashboard
 
 import android.app.Application
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.MutableLiveData
 import com.theupnextapp.common.utils.DateUtils
 import com.theupnextapp.common.utils.models.DatabaseTables
 import com.theupnextapp.common.utils.models.TableUpdateInterval
 import com.theupnextapp.domain.TableUpdate
+import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.UpnextRepository
 import com.theupnextapp.ui.common.TraktViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class DashboardViewModel(application: Application) : TraktViewModel(application) {
-
-    private val upnextRepository = UpnextRepository(database)
+@HiltViewModel
+class DashboardViewModel @Inject constructor(
+    application: Application,
+    traktRepository: TraktRepository,
+    private val upnextRepository: UpnextRepository
+) :
+    TraktViewModel(application, traktRepository) {
 
     private val _showFeaturesBottomSheet = MutableLiveData<Boolean>()
     val showFeaturesBottomSheet: LiveData<Boolean> = _showFeaturesBottomSheet
@@ -202,15 +211,5 @@ class DashboardViewModel(application: Application) : TraktViewModel(application)
 
     companion object {
         const val DEFAULT_COUNTRY_CODE = "US"
-    }
-
-    class Factory(val app: Application) : ViewModelProvider.Factory {
-        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(DashboardViewModel::class.java)) {
-                @Suppress("UNCHECKED_CAST")
-                return DashboardViewModel(app) as T
-            }
-            throw IllegalArgumentException("Unable to construct viewModel")
-        }
     }
 }

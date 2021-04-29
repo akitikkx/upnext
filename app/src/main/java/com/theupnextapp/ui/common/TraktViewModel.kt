@@ -4,20 +4,26 @@ import android.app.Application
 import android.os.Bundle
 import androidx.lifecycle.*
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.theupnextapp.database.getDatabase
 import com.theupnextapp.domain.TraktAccessToken
 import com.theupnextapp.domain.TraktConnectionArg
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.datastore.TraktUserManager
 import com.theupnextapp.ui.collection.CollectionViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
-open class TraktViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+open class TraktViewModel @Inject constructor(
+    application: Application,
+    private val traktRepository: TraktRepository
+) :
+    AndroidViewModel(application) {
 
     private val preferences = TraktUserManager(application)
 
@@ -42,17 +48,13 @@ open class TraktViewModel(application: Application) : AndroidViewModel(applicati
 
     protected val viewModelScope: CoroutineScope? = CoroutineScope(viewModelJob + Dispatchers.Main)
 
-    protected val database = getDatabase(application)
+    private val prefTraktAccessToken = preferences.traktAccessTokenFlow
 
-    protected val traktRepository = TraktRepository(database)
+    private val prefTraktAccessTokenExpiresIn = preferences.traktAccessTokenExpiresInFlow
 
-    private val prefTraktAccessToken = preferences.traktAccessToken
+    private val prefTraktAccessTokenCreatedAt = preferences.traktAccessTokenCreatedAtFlow
 
-    private val prefTraktAccessTokenExpiresIn = preferences.traktAccessTokenExpiresIn
-
-    private val prefTraktAccessTokenCreatedAt = preferences.traktAccessTokenCreatedAt
-
-    private val prefTraktRefreshToken = preferences.traktAccessTokenRefresh
+    private val prefTraktRefreshToken = preferences.traktAccessTokenRefreshFlow
 
     val traktAccessToken = traktRepository.traktAccessToken
 
@@ -101,6 +103,11 @@ open class TraktViewModel(application: Application) : AndroidViewModel(applicati
 
     private fun checkIfTokenHasBeenRevoked() {
 
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        viewModelJob.cancel()
     }
 
     private fun refreshAccessToken(refreshToken: String?) {
@@ -164,7 +171,6 @@ open class TraktViewModel(application: Application) : AndroidViewModel(applicati
         }
 
         viewModelScope?.launch {
-            val preferences = TraktUserManager(getApplication())
             traktAccessTokenResponse.access_token?.let { preferences.saveTraktAccessToken(it) }
             traktAccessTokenResponse.created_at?.let { preferences.saveTraktAccessTokenCreatedAt(it) }
             traktAccessTokenResponse.expires_in?.let { preferences.saveTraktAccessTokenExpiresIn(it) }
@@ -182,7 +188,6 @@ open class TraktViewModel(application: Application) : AndroidViewModel(applicati
 
     private fun removeTraktData() {
         viewModelScope?.launch {
-            val preferences = TraktUserManager(getApplication())
             preferences.removeTraktAccessToken()
             preferences.removeTraktAccessTokenCreatedAt()
             preferences.removeTraktAccessTokenExpiresIn()
@@ -192,19 +197,6 @@ open class TraktViewModel(application: Application) : AndroidViewModel(applicati
 
             traktRepository.clearAllTraktData()
             _isAuthorizedOnTrakt.value = false
-        }
-    }
-
-    class Factory(val app: Application) :
-        ViewModelProvider.Factory {
-        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(TraktViewModel::class.java)) {
-                @Suppress("UNCHECKED_CAST")
-                return TraktViewModel(
-                    app
-                ) as T
-            }
-            throw IllegalArgumentException("Unable to construct viewModel")
         }
     }
 }

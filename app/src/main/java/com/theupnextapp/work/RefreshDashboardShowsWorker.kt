@@ -2,27 +2,31 @@ package com.theupnextapp.work
 
 import android.content.Context
 import android.os.Bundle
+import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.theupnextapp.database.getDatabase
 import com.theupnextapp.repository.UpnextRepository
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import java.text.SimpleDateFormat
 import java.util.*
 
-class RefreshDashboardShowsWorker(appContext: Context, workerParameters: WorkerParameters) :
+@HiltWorker
+class RefreshDashboardShowsWorker @AssistedInject constructor(
+    @Assisted appContext: Context,
+    @Assisted workerParameters: WorkerParameters,
+    private val upnextRepository: UpnextRepository
+) :
     CoroutineWorker(appContext, workerParameters) {
 
     override suspend fun doWork(): Result = coroutineScope {
-        val database = getDatabase(applicationContext)
-        val repository = UpnextRepository(database)
-
         val jobs = (0 until 100).map {
             async {
-                refreshShows(repository)
+                refreshShows(upnextRepository)
                 val bundle = Bundle()
                 bundle.putBoolean("Refresh shows job run", true)
                 FirebaseAnalytics.getInstance(this@RefreshDashboardShowsWorker.applicationContext)

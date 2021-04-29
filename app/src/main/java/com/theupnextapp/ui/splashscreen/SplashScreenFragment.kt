@@ -1,39 +1,32 @@
 package com.theupnextapp.ui.splashscreen
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentSplashScreenBinding
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class SplashScreenFragment : Fragment() {
 
     private var _binding: FragmentSplashScreenBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: SplashScreenViewModel by lazy {
-        val activity = requireNotNull(activity) {
-            "You can only access the viewModel after onActivityCreated"
-        }
-        ViewModelProvider(
-            this@SplashScreenFragment,
-            SplashScreenViewModel.Factory(activity.application)
-        ).get(SplashScreenViewModel::class.java)
-    }
+    private val viewModel by viewModels<SplashScreenViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
         _binding = FragmentSplashScreenBinding.inflate(inflater)
 
@@ -44,8 +37,8 @@ class SplashScreenFragment : Fragment() {
         return binding.root
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         viewModel.isFreshInstall.observe(viewLifecycleOwner, Observer {
             if (it) {
@@ -120,21 +113,14 @@ class SplashScreenFragment : Fragment() {
     override fun onStart() {
         super.onStart()
         (activity as AppCompatActivity).supportActionBar?.hide()
+        (activity as MainActivity).hideBottomNavigation()
     }
 
     override fun onStop() {
         super.onStop()
         (activity as AppCompatActivity).supportActionBar?.show()
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        (activity as MainActivity).hideBottomNavigation()
-    }
-
-    override fun onDetach() {
-        super.onDetach()
         (activity as MainActivity).showBottomNavigation()
+
     }
 
     override fun onDestroyView() {

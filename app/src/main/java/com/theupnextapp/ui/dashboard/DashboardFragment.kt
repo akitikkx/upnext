@@ -4,14 +4,12 @@ import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.doOnPreDraw
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.transition.MaterialFadeThrough
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.analytics
-import com.google.firebase.ktx.Firebase
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentDashboardBinding
 import com.theupnextapp.domain.NewShows
@@ -21,7 +19,10 @@ import com.theupnextapp.domain.TraktRecommendations
 import com.theupnextapp.ui.common.BaseFragment
 import com.theupnextapp.ui.features.FeaturesBottomSheetFragment
 import com.theupnextapp.ui.traktRecommendations.TraktRecommendationsAdapter
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class DashboardFragment : BaseFragment(),
     TraktRecommendationsAdapter.TraktRecommendationsAdapterListener,
     NewShowsAdapter.NewShowsAdapterListener,
@@ -32,10 +33,10 @@ class DashboardFragment : BaseFragment(),
     private var _binding: FragmentDashboardBinding? = null
     private val binding get() = _binding!!
 
-    private var _firebaseAnalytics: FirebaseAnalytics? = null
-    private val firebaseAnalytics get() = _firebaseAnalytics!!
+    @Inject
+    lateinit var firebaseAnalytics: FirebaseAnalytics
 
-    private var newShowsAdapter: NewShowsAdapter? = null
+    lateinit var newShowsAdapter: NewShowsAdapter
 
     private var yesterdayShowsAdapter: YesterdayShowsAdapter? = null
 
@@ -43,15 +44,7 @@ class DashboardFragment : BaseFragment(),
 
     private var tomorrowShowsAdapter: TomorrowShowsAdapter? = null
 
-    private val viewModel: DashboardViewModel by lazy {
-        val activity = requireNotNull(activity) {
-            "You can only access the viewModel after onActivityCreated"
-        }
-        ViewModelProvider(
-            this@DashboardFragment,
-            DashboardViewModel.Factory(activity.application)
-        ).get(DashboardViewModel::class.java)
-    }
+    private val viewModel by viewModels<DashboardViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,14 +58,12 @@ class DashboardFragment : BaseFragment(),
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentDashboardBinding.inflate(inflater)
 
         binding.lifecycleOwner = viewLifecycleOwner
 
         binding.viewModel = viewModel
-
-        _firebaseAnalytics = Firebase.analytics
 
         newShowsAdapter = NewShowsAdapter(this)
 
@@ -191,11 +182,9 @@ class DashboardFragment : BaseFragment(),
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        newShowsAdapter = null
         yesterdayShowsAdapter = null
         todayShowsAdapter = null
         tomorrowShowsAdapter = null
-        _firebaseAnalytics = null
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -206,7 +195,7 @@ class DashboardFragment : BaseFragment(),
         return when (item.itemId) {
             R.id.menu_refresh -> {
                 viewModel.onRefreshShowsClick()
-                Firebase.analytics.logEvent("dashboard_refresh_shows_click", null)
+                firebaseAnalytics.logEvent("dashboard_refresh_shows_click", null)
                 true
             }
             else -> super.onOptionsItemSelected(item)

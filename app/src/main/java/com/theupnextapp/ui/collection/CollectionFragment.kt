@@ -7,12 +7,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.FragmentNavigator
+import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.transition.MaterialContainerTransform
+import com.google.android.material.transition.MaterialElevationScale
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
@@ -21,9 +24,12 @@ import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentCollectionBinding
 import com.theupnextapp.domain.TraktCollection
 import com.theupnextapp.domain.TraktCollectionArg
-import com.theupnextapp.ui.common.BaseTraktFragment
+import com.theupnextapp.ui.common.BaseFragment
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
-class CollectionFragment : BaseTraktFragment(), CollectionAdapter.CollectionAdapterListener {
+@AndroidEntryPoint
+class CollectionFragment : BaseFragment(), CollectionAdapter.CollectionAdapterListener {
 
     private var _binding: FragmentCollectionBinding? = null
     private val binding get() = _binding!!
@@ -31,18 +37,10 @@ class CollectionFragment : BaseTraktFragment(), CollectionAdapter.CollectionAdap
     private var _adapter: CollectionAdapter? = null
     private val adapter get() = _adapter!!
 
-    private var _firebaseAnalytics: FirebaseAnalytics? = null
-    private val firebaseAnalytics get() = _firebaseAnalytics!!
+    @Inject
+    lateinit var firebaseAnalytics: FirebaseAnalytics
 
-    private val viewModel: CollectionViewModel by lazy {
-        val activity = requireNotNull(activity) {
-            "You can only access the viewModel after onActivityCreated"
-        }
-        ViewModelProvider(
-            this@CollectionFragment,
-            CollectionViewModel.Factory(activity.application)
-        ).get(CollectionViewModel::class.java)
-    }
+    private val viewModel by viewModels<CollectionViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,14 +55,12 @@ class CollectionFragment : BaseTraktFragment(), CollectionAdapter.CollectionAdap
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentCollectionBinding.inflate(inflater)
 
         binding.lifecycleOwner = viewLifecycleOwner
 
         binding.viewModel = viewModel
-
-        _firebaseAnalytics = Firebase.analytics
 
         _adapter = CollectionAdapter(this)
 
@@ -106,7 +102,6 @@ class CollectionFragment : BaseTraktFragment(), CollectionAdapter.CollectionAdap
         super.onDestroyView()
         _binding = null
         _adapter = null
-        _firebaseAnalytics = null
     }
 
     override fun onAttach(context: Context) {
@@ -129,7 +124,10 @@ class CollectionFragment : BaseTraktFragment(), CollectionAdapter.CollectionAdap
         findNavController().navigate(directions, getCollectionSeasonsNavigatorExtras(view))
 
         val analyticsBundle = Bundle()
-        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, traktCollection.tvMazeID.toString())
+        analyticsBundle.putString(
+            FirebaseAnalytics.Param.ITEM_ID,
+            traktCollection.tvMazeID.toString()
+        )
         analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, traktCollection.title)
         analyticsBundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "collection_show")
         firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM, analyticsBundle)
@@ -137,5 +135,16 @@ class CollectionFragment : BaseTraktFragment(), CollectionAdapter.CollectionAdap
 
     override fun onCollectionRemoveClick(view: View, traktCollection: TraktCollection) {
 
+    }
+
+    private fun getCollectionSeasonsNavigatorExtras(view: View): FragmentNavigator.Extras {
+        exitTransition = MaterialElevationScale(false).apply {
+            duration = resources.getInteger(R.integer.show_motion_duration_large).toLong()
+        }
+        reenterTransition = MaterialElevationScale(true).apply {
+            duration = resources.getInteger(R.integer.show_motion_duration_large).toLong()
+        }
+        val libraryTransitionName = getString(R.string.collection_seasons_transition_name)
+        return FragmentNavigatorExtras(view to libraryTransitionName)
     }
 }

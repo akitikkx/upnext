@@ -14,9 +14,11 @@ apply plugin: 'com.google.firebase.crashlytics'
 
 apply plugin: 'com.google.firebase.firebase-perf'
 
+apply plugin: 'dagger.hilt.android.plugin'
+
 android {
     compileSdkVersion 30
-    buildToolsVersion "30.0.2"
+    buildToolsVersion "30.0.3"
     defaultConfig {
         applicationId "com.theupnextapp"
         minSdkVersion 21
@@ -27,7 +29,7 @@ android {
 
         javaCompileOptions {
             annotationProcessorOptions {
-                arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
+                arguments += ["room.schemaLocation": "$projectDir/schemas".toString()]
             }
         }
     }
@@ -98,22 +100,31 @@ dependencies {
 
     // ViewModel and LiveData (arch components)
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
-    implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
+
+    // Data store
+    implementation "androidx.datastore:datastore-preferences:$datastore_version"
 
     // Room database
     implementation "androidx.room:room-runtime:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
 
-    // Kotlin + coroutines
+    // Hilt Work
+    implementation "androidx.hilt:hilt-work:$hilt_work_version"
+    kapt "androidx.hilt:hilt-compiler:$hilt_work_version"
     implementation "androidx.work:work-runtime-ktx:$work_version"
+
+    // Hilt
+    implementation "com.google.dagger:hilt-android:$hilt_version"
+    kapt "com.google.dagger:hilt-compiler:$hilt_version"
 
     // Timber
     // Logging
     implementation "com.jakewharton.timber:timber:$timber_version"
 
     // Navigation
+    implementation "androidx.hilt:hilt-navigation-fragment:$hilt_navigation_version"
     implementation "androidx.navigation:navigation-fragment-ktx:$navigation_version"
     implementation "androidx.navigation:navigation-ui-ktx:$navigation_version"
 
@@ -140,15 +151,12 @@ dependencies {
     implementation "com.google.firebase:firebase-perf:$firebase_performance_monitoring_version"
 
     // PreferenceManager
-    implementation "androidx.preference:preference:$androidx_preference_version"
-
-    // Preferences DataStore
-    implementation "androidx.datastore:datastore-preferences:1.0.0-alpha01"
+    implementation "androidx.preference:preference-ktx:$androidx_preference_version"
 
     // Leak canary
     debugImplementation "com.squareup.leakcanary:leakcanary-android:$leakcanary_version"
 
-    testImplementation 'junit:junit:4.13'
+    testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     androidTestImplementation "android.arch.persistence.room:testing:$room_version"

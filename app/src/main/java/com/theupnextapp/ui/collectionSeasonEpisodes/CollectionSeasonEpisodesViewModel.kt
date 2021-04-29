@@ -7,13 +7,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.theupnextapp.domain.TraktCollectionArg
 import com.theupnextapp.domain.TraktCollectionSeason
+import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.ui.common.TraktViewModel
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 
-class CollectionSeasonEpisodesViewModel(
+class CollectionSeasonEpisodesViewModel @AssistedInject constructor(
     application: Application,
-    collection: TraktCollectionArg?,
-    collectionSeason: TraktCollectionSeason?
-) : TraktViewModel(application) {
+    traktRepository: TraktRepository,
+    @Assisted collection: TraktCollectionArg?,
+    @Assisted collectionSeason: TraktCollectionSeason?
+) : TraktViewModel(application, traktRepository) {
 
     private val _collection = MutableLiveData<TraktCollectionArg>(collection)
 
@@ -43,22 +48,23 @@ class CollectionSeasonEpisodesViewModel(
         _collectionSeasonEpisodesEmpty.value = empty
     }
 
-    class Factory(
-        val app: Application,
-        val collection: TraktCollectionArg?,
-        val collectionSeason: TraktCollectionSeason?
-    ) :
-        ViewModelProvider.Factory {
-        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(CollectionSeasonEpisodesViewModel::class.java)) {
-                @Suppress("UNCHECKED_CAST")
-                return CollectionSeasonEpisodesViewModel(
-                    app,
-                    collection,
-                    collectionSeason
-                ) as T
+    @AssistedFactory
+    interface CollectionSeasonEpisodesViewModelFactory {
+        fun create(
+            collection: TraktCollectionArg?,
+            collectionSeason: TraktCollectionSeason?
+        ): CollectionSeasonEpisodesViewModel
+    }
+
+    companion object {
+        fun provideFactory(
+            assistedFactory: CollectionSeasonEpisodesViewModelFactory,
+            collection: TraktCollectionArg?,
+            collectionSeason: TraktCollectionSeason?
+        ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+                return assistedFactory.create(collection, collectionSeason) as T
             }
-            throw IllegalArgumentException("Unable to construct viewModel")
         }
     }
 }
