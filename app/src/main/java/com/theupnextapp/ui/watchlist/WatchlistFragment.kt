@@ -1,47 +1,39 @@
 package com.theupnextapp.ui.watchlist
 
-import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.transition.MaterialContainerTransform
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.analytics
-import com.google.firebase.ktx.Firebase
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentWatchlistBinding
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.TraktWatchlist
 import com.theupnextapp.ui.common.BaseFragment
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class WatchlistFragment : BaseFragment(), WatchlistAdapter.WatchlistAdapterListener {
 
     private var _binding: FragmentWatchlistBinding? = null
     private val binding get() = _binding!!
 
-    private var _firebaseAnalytics: FirebaseAnalytics? = null
-    private val firebaseAnalytics get() = _firebaseAnalytics!!
+    @Inject
+    lateinit var firebaseAnalytics: FirebaseAnalytics
 
     private var watchlistAdapter: WatchlistAdapter? = null
 
-    private val viewModel: WatchlistViewModel by lazy {
-        val activity = requireNotNull(activity) {
-            "You can only access the viewModel after onActivityCreated"
-        }
-        ViewModelProvider(
-            this@WatchlistFragment,
-            WatchlistViewModel.Factory(activity.application)
-        ).get(WatchlistViewModel::class.java)
-    }
+    private val viewModel by viewModels<WatchlistViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,14 +48,12 @@ class WatchlistFragment : BaseFragment(), WatchlistAdapter.WatchlistAdapterListe
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentWatchlistBinding.inflate(inflater)
 
         binding.viewModel = viewModel
 
         binding.lifecycleOwner = viewLifecycleOwner
-
-        _firebaseAnalytics = Firebase.analytics
 
         watchlistAdapter = WatchlistAdapter(this)
 
@@ -77,14 +67,15 @@ class WatchlistFragment : BaseFragment(), WatchlistAdapter.WatchlistAdapterListe
         return binding.root
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         viewModel.traktWatchlist.observe(viewLifecycleOwner, {
             if (!it.isNullOrEmpty()) {
                 watchlistAdapter?.submitList(it)
             }
         })
+
     }
 
     override fun onResume() {
@@ -97,16 +88,15 @@ class WatchlistFragment : BaseFragment(), WatchlistAdapter.WatchlistAdapterListe
         super.onDestroyView()
         _binding = null
         watchlistAdapter = null
-        _firebaseAnalytics = null
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
+    override fun onStart() {
+        super.onStart()
         (activity as MainActivity).hideBottomNavigation()
     }
 
-    override fun onDetach() {
-        super.onDetach()
+    override fun onStop() {
+        super.onStop()
         (activity as MainActivity).showBottomNavigation()
     }
 

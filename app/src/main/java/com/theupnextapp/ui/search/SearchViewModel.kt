@@ -1,23 +1,24 @@
 package com.theupnextapp.ui.search
 
 import android.app.Application
-import androidx.lifecycle.*
-import com.theupnextapp.database.getDatabase
+import androidx.lifecycle.AndroidViewModel
 import com.theupnextapp.repository.UpnextRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class SearchViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class SearchViewModel @Inject constructor(
+    application: Application,
+    private val upnextRepository: UpnextRepository
+) : AndroidViewModel(application) {
 
     private val viewModelJob = SupervisorJob()
 
     private val viewModelScope = CoroutineScope(viewModelJob + Dispatchers.Main)
-
-    private val database = getDatabase(application)
-
-    private val upnextRepository = UpnextRepository(database)
 
     val searchResults = upnextRepository.showSearch
 
@@ -36,15 +37,5 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     override fun onCleared() {
         super.onCleared()
         viewModelJob.cancel()
-    }
-
-    class Factory(val app: Application) : ViewModelProvider.Factory {
-        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(SearchViewModel::class.java)) {
-                @Suppress("UNCHECKED_CAST")
-                return SearchViewModel(app) as T
-            }
-            throw IllegalArgumentException("Unable to construct viewModel")
-        }
     }
 }

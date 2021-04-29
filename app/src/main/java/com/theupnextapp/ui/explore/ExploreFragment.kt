@@ -5,15 +5,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.doOnPreDraw
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.transition.MaterialFadeThrough
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.analytics
-import com.google.firebase.ktx.Firebase
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentExploreBinding
 import com.theupnextapp.domain.ShowDetailArg
@@ -21,7 +19,10 @@ import com.theupnextapp.domain.TraktMostAnticipated
 import com.theupnextapp.domain.TraktPopularShows
 import com.theupnextapp.domain.TraktTrendingShows
 import com.theupnextapp.ui.common.BaseFragment
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class ExploreFragment : BaseFragment(),
     TrendingShowsAdapter.TrendingShowsAdapterListener,
     PopularShowsAdapter.PopularShowsAdapterListener,
@@ -30,8 +31,8 @@ class ExploreFragment : BaseFragment(),
     private var _binding: FragmentExploreBinding? = null
     private val binding get() = _binding!!
 
-    private var _firebaseAnalytics: FirebaseAnalytics? = null
-    private val firebaseAnalytics get() = _firebaseAnalytics!!
+    @Inject
+    lateinit var firebaseAnalytics: FirebaseAnalytics
 
     private var _trendingShowsAdapter: TrendingShowsAdapter? = null
     private val trendingShowsAdapter get() = _trendingShowsAdapter!!
@@ -42,16 +43,7 @@ class ExploreFragment : BaseFragment(),
     private var _mostAnticipatedShowsAdapter: MostAnticipatedShowsAdapter? = null
     private val mostAnticipatedShowsAdapter get() = _mostAnticipatedShowsAdapter!!
 
-    private val viewModel: ExploreViewModel by lazy {
-        val activity = requireNotNull(activity) {
-            "You can only access the viewModel after onActivityCreated"
-        }
-
-        ViewModelProvider(
-            this@ExploreFragment,
-            ExploreViewModel.Factory(activity.application)
-        ).get(ExploreViewModel::class.java)
-    }
+    private val viewModel by viewModels<ExploreViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,14 +56,12 @@ class ExploreFragment : BaseFragment(),
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentExploreBinding.inflate(inflater)
 
         binding.lifecycleOwner = viewLifecycleOwner
 
         binding.viewModel = viewModel
-
-        _firebaseAnalytics = Firebase.analytics
 
         _trendingShowsAdapter = TrendingShowsAdapter(this)
 
@@ -158,7 +148,6 @@ class ExploreFragment : BaseFragment(),
         _trendingShowsAdapter = null
         _popularShowsAdapter = null
         _mostAnticipatedShowsAdapter = null
-        _firebaseAnalytics = null
     }
 
     override fun onTrendingShowClick(view: View, traktTrending: TraktTrendingShows) {

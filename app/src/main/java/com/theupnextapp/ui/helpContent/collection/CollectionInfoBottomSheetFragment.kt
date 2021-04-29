@@ -4,32 +4,24 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.theupnextapp.databinding.FragmentCollectionInfoBottomSheetBinding
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class CollectionInfoBottomSheetFragment : BottomSheetDialogFragment() {
 
     private var _binding: FragmentCollectionInfoBottomSheetBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: CollectionInfoBottomSheetViewModel by lazy {
-        val activity = requireNotNull(activity) {
-            "You can only access the viewModel after onActivityCreated"
-        }
-        ViewModelProvider(
-            this@CollectionInfoBottomSheetFragment,
-            CollectionInfoBottomSheetViewModel.Factory(
-                activity.application
-            )
-        ).get(CollectionInfoBottomSheetViewModel::class.java)
-    }
+    private val viewModel by viewModels<CollectionInfoBottomSheetViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentCollectionInfoBottomSheetBinding.inflate(inflater)
 
         binding.lifecycleOwner = viewLifecycleOwner
@@ -43,9 +35,5 @@ class CollectionInfoBottomSheetFragment : BottomSheetDialogFragment() {
         super.onDestroyView()
         _binding = null
         dialog?.dismiss()
-    }
-
-    companion object {
-        const val TAG = "CollectionInfoBottomSheetFragment"
     }
 }

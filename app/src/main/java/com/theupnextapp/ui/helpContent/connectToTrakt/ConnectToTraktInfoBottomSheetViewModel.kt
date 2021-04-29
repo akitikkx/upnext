@@ -2,23 +2,9 @@ package com.theupnextapp.ui.helpContent.connectToTrakt
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class ConnectToTraktInfoBottomSheetViewModel(application: Application) : AndroidViewModel(application) {
-
-
-    class Factory(
-        val app: Application
-    ) : ViewModelProvider.Factory {
-        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(ConnectToTraktInfoBottomSheetViewModel::class.java)) {
-                @Suppress("UNCHECKED_CAST")
-                return ConnectToTraktInfoBottomSheetViewModel(
-                    app
-                ) as T
-            }
-            throw IllegalArgumentException("Unable to construct viewModel")
-        }
-    }
-}
+@HiltViewModel
+class ConnectToTraktInfoBottomSheetViewModel @Inject constructor(application: Application) :
+    AndroidViewModel(application)

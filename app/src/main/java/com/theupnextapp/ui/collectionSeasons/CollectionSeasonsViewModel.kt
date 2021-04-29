@@ -8,25 +8,27 @@ import androidx.lifecycle.ViewModelProvider
 import com.theupnextapp.domain.TraktCollectionArg
 import com.theupnextapp.domain.TraktCollectionSeason
 import com.theupnextapp.domain.TraktCollectionSeasonEpisodeArg
+import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.ui.common.TraktViewModel
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 
-class CollectionSeasonsViewModel(
+class CollectionSeasonsViewModel @AssistedInject constructor(
     application: Application,
-    private val traktCollectionArg: TraktCollectionArg
-) : TraktViewModel(application) {
+    traktRepository: TraktRepository,
+    @Assisted traktCollectionArg: TraktCollectionArg
+) : TraktViewModel(application, traktRepository) {
 
     private val _collectionSeasonsEmpty = MutableLiveData(false)
-
-    private val _collection = MutableLiveData(traktCollectionArg)
-
-    private val _navigateToSelectedSeason = MutableLiveData<TraktCollectionSeasonEpisodeArg>()
-
     val collectionSeasonsEmpty: LiveData<Boolean> = _collectionSeasonsEmpty
 
-    val navigateToSelectedSeason: LiveData<TraktCollectionSeasonEpisodeArg> =
-        _navigateToSelectedSeason
-
+    private val _collection = MutableLiveData(traktCollectionArg)
     val collection: LiveData<TraktCollectionArg> = _collection
+
+    private val _navigateToSelectedSeason = MutableLiveData<TraktCollectionSeasonEpisodeArg?>()
+    val navigateToSelectedSeason: LiveData<TraktCollectionSeasonEpisodeArg?> =
+        _navigateToSelectedSeason
 
     val traktCollectionSeasons =
         traktCollectionArg.imdbID?.let { traktRepository.traktCollectionSeasons(it) }
@@ -39,7 +41,7 @@ class CollectionSeasonsViewModel(
 
     fun onSeasonClick(traktCollectionSeason: TraktCollectionSeason) {
         _navigateToSelectedSeason.value = TraktCollectionSeasonEpisodeArg(
-            collection = traktCollectionArg,
+            collection = collection.value,
             collectionSeason = traktCollectionSeason
         )
     }
@@ -53,20 +55,21 @@ class CollectionSeasonsViewModel(
         viewModelJob.cancel()
     }
 
-    class Factory(
-        val app: Application,
-        val collection: TraktCollectionArg
-    ) :
-        ViewModelProvider.Factory {
-        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(CollectionSeasonsViewModel::class.java)) {
-                @Suppress("UNCHECKED_CAST")
-                return CollectionSeasonsViewModel(
-                    app,
-                    collection
-                ) as T
+    @AssistedFactory
+    interface CollectionSeasonsViewModelFactory {
+        fun create(
+            traktCollectionArg: TraktCollectionArg
+        ): CollectionSeasonsViewModel
+    }
+
+    companion object {
+        fun provideFactory(
+            assistedFactory: CollectionSeasonsViewModelFactory,
+            traktCollectionArg: TraktCollectionArg
+        ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+                return assistedFactory.create(traktCollectionArg) as T
             }
-            throw IllegalArgumentException("Unable to construct viewModel")
         }
     }
 }

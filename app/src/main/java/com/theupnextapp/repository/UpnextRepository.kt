@@ -16,30 +16,30 @@ import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 import timber.log.Timber
 
-class UpnextRepository(private val database: UpnextDatabase) {
+class UpnextRepository constructor(private val upnextDao: UpnextDao) {
 
     val newShows: LiveData<List<NewShows>> =
-        Transformations.map(database.upnextDao.getNewShows()) {
+        Transformations.map(upnextDao.getNewShows()) {
             it.asDomainModel()
         }
 
     val yesterdayShows: LiveData<List<ScheduleShow>> =
-        Transformations.map(database.upnextDao.getYesterdayShows()) {
+        Transformations.map(upnextDao.getYesterdayShows()) {
             it.asDomainModel()
         }
 
     val todayShows: LiveData<List<ScheduleShow>> =
-        Transformations.map(database.upnextDao.getTodayShows()) {
+        Transformations.map(upnextDao.getTodayShows()) {
             it.asDomainModel()
         }
 
     val tomorrowShows: LiveData<List<ScheduleShow>> =
-        Transformations.map(database.upnextDao.getTomorrowShows()) {
+        Transformations.map(upnextDao.getTomorrowShows()) {
             it.asDomainModel()
         }
 
     fun tableUpdate(tableName: String): LiveData<TableUpdate?> =
-        Transformations.map(database.upnextDao.getTableLastUpdate(tableName)) {
+        Transformations.map(upnextDao.getTableLastUpdate(tableName)) {
             it?.asDomainModel()
         }
 
@@ -110,7 +110,7 @@ class UpnextRepository(private val database: UpnextDatabase) {
             try {
                 _isLoadingNewShows.postValue(true)
                 val newShowsList = UpnextNetwork.upnextApi.getNewShowsAsync().await()
-                database.upnextDao.apply {
+                upnextDao.apply {
                     deleteAllNewShows()
                     insertAllNewShows(*newShowsList.asDatabaseModel())
                 }
@@ -131,8 +131,8 @@ class UpnextRepository(private val database: UpnextDatabase) {
                 val yesterdayShowsList =
                     TvMazeNetwork.tvMazeApi.getYesterdayScheduleAsync(countryCode, date).await()
                 if (!yesterdayShowsList.isNullOrEmpty()) {
-                    database.upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_YESTERDAY_SHOWS.tableName)
-                    database.upnextDao.insertTableUpdateLog(
+                    upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_YESTERDAY_SHOWS.tableName)
+                    upnextDao.insertTableUpdateLog(
                         DatabaseTableUpdate(
                             table_name = DatabaseTables.TABLE_YESTERDAY_SHOWS.tableName,
                             last_updated = System.currentTimeMillis()
@@ -145,7 +145,7 @@ class UpnextRepository(private val database: UpnextDatabase) {
                             shows.add(it.asDatabaseModel())
                         }
                     }
-                    database.upnextDao.apply {
+                    upnextDao.apply {
                         deleteAllYesterdayShows()
                         insertAllYesterdayShows(*shows.toTypedArray())
                     }
@@ -167,8 +167,8 @@ class UpnextRepository(private val database: UpnextDatabase) {
                 val todayShowsList =
                     TvMazeNetwork.tvMazeApi.getTodayScheduleAsync(countryCode, date).await()
                 if (!todayShowsList.isNullOrEmpty()) {
-                    database.upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TODAY_SHOWS.tableName)
-                    database.upnextDao.insertTableUpdateLog(
+                    upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TODAY_SHOWS.tableName)
+                    upnextDao.insertTableUpdateLog(
                         DatabaseTableUpdate(
                             table_name = DatabaseTables.TABLE_TODAY_SHOWS.tableName,
                             last_updated = System.currentTimeMillis()
@@ -181,7 +181,7 @@ class UpnextRepository(private val database: UpnextDatabase) {
                             shows.add(it.asDatabaseModel())
                         }
                     }
-                    database.upnextDao.apply {
+                    upnextDao.apply {
                         deleteAllTodayShows()
                         insertAllTodayShows(*shows.toTypedArray())
                     }
@@ -219,8 +219,8 @@ class UpnextRepository(private val database: UpnextDatabase) {
                 val shows: MutableList<DatabaseTomorrowSchedule> = arrayListOf()
                 if (!tomorrowShowsList.isNullOrEmpty()) {
                     tomorrowShowsList.forEach {
-                        database.upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TOMORROW_SHOWS.tableName)
-                        database.upnextDao.insertTableUpdateLog(
+                        upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TOMORROW_SHOWS.tableName)
+                        upnextDao.insertTableUpdateLog(
                             DatabaseTableUpdate(
                                 table_name = DatabaseTables.TABLE_TOMORROW_SHOWS.tableName,
                                 last_updated = System.currentTimeMillis()
@@ -232,7 +232,7 @@ class UpnextRepository(private val database: UpnextDatabase) {
                             shows.add(it.asDatabaseModel())
                         }
                     }
-                    database.upnextDao.apply {
+                    upnextDao.apply {
                         deleteAllTomorrowShows()
                         insertAllTomorrowShows(*shows.toTypedArray())
                     }

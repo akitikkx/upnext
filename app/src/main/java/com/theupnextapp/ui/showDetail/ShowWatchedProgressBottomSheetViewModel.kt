@@ -4,11 +4,14 @@ import android.app.Application
 import androidx.lifecycle.*
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.TraktShowWatchedProgress
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 
-class ShowWatchedProgressBottomSheetViewModel(
+class ShowWatchedProgressBottomSheetViewModel @AssistedInject constructor(
     application: Application,
-    watchedProgressInfo: TraktShowWatchedProgress?,
-    showDetail: ShowDetailArg?
+    @Assisted watchedProgressInfo: TraktShowWatchedProgress?,
+    @Assisted showDetail: ShowDetailArg?
 ) : AndroidViewModel(application) {
 
     private val _watchedProgress = MutableLiveData<TraktShowWatchedProgress>(watchedProgressInfo)
@@ -19,22 +22,23 @@ class ShowWatchedProgressBottomSheetViewModel(
 
     val showInfo: LiveData<ShowDetailArg> = _showInfo
 
-    class Factory(
-        val app: Application,
-        private val watchedProgressInfo: TraktShowWatchedProgress?,
-        private val showDetail: ShowDetailArg?
-    ) : ViewModelProvider.Factory {
-        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(ShowWatchedProgressBottomSheetViewModel::class.java)) {
-                @Suppress("UNCHECKED_CAST")
-                return ShowWatchedProgressBottomSheetViewModel(
-                    app,
-                    watchedProgressInfo,
-                    showDetail
-                ) as T
-            }
-            throw IllegalArgumentException("Unable to construct viewModel")
-        }
+    @AssistedFactory
+    interface ShowWatchedProgressBottomSheetViewModelFactory {
+        fun create(
+            watchedProgressInfo: TraktShowWatchedProgress?,
+            showDetail: ShowDetailArg?
+        ): ShowWatchedProgressBottomSheetViewModel
     }
 
+    companion object {
+        fun provideFactory(
+            assistedFactory: ShowWatchedProgressBottomSheetViewModelFactory,
+            watchedProgressInfo: TraktShowWatchedProgress?,
+            showDetail: ShowDetailArg?
+        ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+                return assistedFactory.create(watchedProgressInfo, showDetail) as T
+            }
+        }
+    }
 }

@@ -3,10 +3,17 @@ package com.theupnextapp.ui.watchlist
 import android.app.Application
 import androidx.lifecycle.*
 import com.theupnextapp.domain.TraktWatchlist
+import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.ui.common.TraktViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class WatchlistViewModel(application: Application) : TraktViewModel(application) {
+@HiltViewModel
+class WatchlistViewModel @Inject constructor(
+    application: Application,
+    private val traktRepository: TraktRepository
+) : TraktViewModel(application, traktRepository) {
 
     val isLoadingWatchlist = traktRepository.isLoadingTraktWatchlist
 
@@ -37,18 +44,5 @@ class WatchlistViewModel(application: Application) : TraktViewModel(application)
 
     companion object {
         const val EXTRA_TRAKT_URI = "extra_trakt_uri"
-    }
-
-    class Factory(val app: Application) :
-        ViewModelProvider.Factory {
-        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(WatchlistViewModel::class.java)) {
-                @Suppress("UNCHECKED_CAST")
-                return WatchlistViewModel(
-                    app
-                ) as T
-            }
-            throw IllegalArgumentException("Unable to construct viewModel")
-        }
     }
 }

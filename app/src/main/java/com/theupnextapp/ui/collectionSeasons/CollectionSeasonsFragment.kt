@@ -7,8 +7,8 @@ import android.view.LayoutInflater
 import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,7 +20,10 @@ import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentCollectionSeasonsBinding
 import com.theupnextapp.domain.TraktCollectionSeason
 import com.theupnextapp.ui.common.BaseFragment
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class CollectionSeasonsFragment : BaseFragment(),
     CollectionSeasonsAdapter.CollectionSeasonsAdapterListener {
 
@@ -32,17 +35,14 @@ class CollectionSeasonsFragment : BaseFragment(),
 
     private val args by navArgs<CollectionSeasonsFragmentArgs>()
 
-    private val viewModel: CollectionSeasonsViewModel by lazy {
-        val activity = requireNotNull(activity) {
-            "You can only access the viewModel after onActivityCreated"
-        }
-        ViewModelProvider(
-            this@CollectionSeasonsFragment,
-            CollectionSeasonsViewModel.Factory(
-                activity.application,
-                args.traktCollection
-            )
-        ).get(CollectionSeasonsViewModel::class.java)
+    @Inject
+    lateinit var assistedFactory: CollectionSeasonsViewModel.CollectionSeasonsViewModelFactory
+
+    private val viewModel by viewModels<CollectionSeasonsViewModel> {
+        CollectionSeasonsViewModel.provideFactory(
+            assistedFactory,
+            args.traktCollection
+        )
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

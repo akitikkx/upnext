@@ -7,14 +7,20 @@ import com.theupnextapp.common.utils.models.DatabaseTables
 import com.theupnextapp.common.utils.models.TableUpdateInterval
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.TableUpdate
+import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.ui.common.TraktViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class ExploreViewModel(application: Application) : TraktViewModel(application) {
+@HiltViewModel
+class ExploreViewModel @Inject constructor(
+    application: Application,
+    private val traktRepository: TraktRepository
+) : TraktViewModel(application, traktRepository) {
 
-    private val _navigateToSelectedShow = MutableLiveData<ShowDetailArg>()
-
-    val navigateToSelectedShow: LiveData<ShowDetailArg> = _navigateToSelectedShow
+    private val _navigateToSelectedShow = MutableLiveData<ShowDetailArg?>()
+    val navigateToSelectedShow: LiveData<ShowDetailArg?> = _navigateToSelectedShow
 
     val trendingShows = traktRepository.traktTrendingShows
 
@@ -142,15 +148,5 @@ class ExploreViewModel(application: Application) : TraktViewModel(application) {
 
     fun displayShowDetailsComplete() {
         _navigateToSelectedShow.value = null
-    }
-
-    class Factory(val app: Application) : ViewModelProvider.Factory {
-        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(ExploreViewModel::class.java)) {
-                @Suppress("UNCHECKED_CAST")
-                return ExploreViewModel(app) as T
-            }
-            throw IllegalArgumentException("Unable to construct viewModel")
-        }
     }
 }

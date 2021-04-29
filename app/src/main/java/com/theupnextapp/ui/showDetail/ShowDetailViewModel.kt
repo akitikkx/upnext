@@ -3,16 +3,21 @@ package com.theupnextapp.ui.showDetail
 import android.app.Application
 import androidx.lifecycle.*
 import com.theupnextapp.domain.*
+import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.UpnextRepository
 import com.theupnextapp.ui.common.TraktViewModel
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 
-class ShowDetailViewModel(
+class ShowDetailViewModel @AssistedInject constructor(
     application: Application,
-    show: ShowDetailArg
-) : TraktViewModel(application) {
-
-    private val upnextRepository = UpnextRepository(database)
+    upnextRepository: UpnextRepository,
+    private val traktRepository: TraktRepository,
+    @Assisted show: ShowDetailArg
+) : TraktViewModel(application, traktRepository) {
 
     private val _onWatchList = MutableLiveData<Boolean>()
     val onWatchlist: LiveData<Boolean> = _onWatchList
@@ -32,8 +37,8 @@ class ShowDetailViewModel(
     private val _showCastEmpty = MutableLiveData<Boolean>()
     val showCastEmpty: LiveData<Boolean> = _showCastEmpty
 
-    private val _showCastBottomSheet = MutableLiveData<ShowCast>()
-    val showCastBottomSheet: LiveData<ShowCast> = _showCastBottomSheet
+    private val _showCastBottomSheet = MutableLiveData<ShowCast?>()
+    val showCastBottomSheet: LiveData<ShowCast?> = _showCastBottomSheet
 
     private val _showWatchedProgressBottomSheet = MutableLiveData<TraktShowWatchedProgress>()
     val showWatchedProgressBottomSheet: LiveData<TraktShowWatchedProgress> =
@@ -290,26 +295,24 @@ class ShowDetailViewModel(
         viewModelJob.cancel()
     }
 
+    @AssistedFactory
+    interface ShowDetailViewModelFactory {
+        fun create(show: ShowDetailArg): ShowDetailViewModel
+    }
+
     companion object {
         const val WATCHLIST_ACTION_ADD = "add_to_watchlist"
         const val WATCHLIST_ACTION_REMOVE = "remove_from_watchlist"
         const val COLLECTION_ACTION_ADD = "add_to_collection"
         const val COLLECTION_ACTION_REMOVE = "remove_from_collection"
-    }
 
-    class Factory(
-        val app: Application,
-        private val show: ShowDetailArg
-    ) : ViewModelProvider.Factory {
-        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(ShowDetailViewModel::class.java)) {
-                @Suppress("UNCHECKED_CAST")
-                return ShowDetailViewModel(
-                    app,
-                    show
-                ) as T
+        fun provideFactory(
+            assistedFactory: ShowDetailViewModelFactory,
+            show: ShowDetailArg
+        ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+                return assistedFactory.create(show) as T
             }
-            throw IllegalArgumentException("Unable to construct viewModel")
         }
     }
 }

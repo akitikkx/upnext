@@ -7,8 +7,8 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView.OnQueryTextListener
 import androidx.core.view.doOnPreDraw
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -22,7 +22,10 @@ import com.theupnextapp.databinding.FragmentSearchBinding
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.ShowSearch
 import com.theupnextapp.ui.common.BaseFragment
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class SearchFragment : BaseFragment(),
     OnQueryTextListener, SearchAdapter.SearchAdapterListener {
 
@@ -32,18 +35,10 @@ class SearchFragment : BaseFragment(),
     private var _searchAdapter: SearchAdapter? = null
     private val searchAdapter get() = _searchAdapter!!
 
-    private var _firebaseAnalytics: FirebaseAnalytics? = null
-    private val firebaseAnalytics get() = _firebaseAnalytics!!
+    @Inject
+    lateinit var firebaseAnalytics: FirebaseAnalytics
 
-    private val viewModel: SearchViewModel by lazy {
-        val activity = requireNotNull(activity) {
-            "You can only access the viewModel after onActivityCreated"
-        }
-        ViewModelProvider(
-            this@SearchFragment,
-            SearchViewModel.Factory(activity.application)
-        ).get(SearchViewModel::class.java)
-    }
+    private val viewModel by viewModels<SearchViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,8 +58,6 @@ class SearchFragment : BaseFragment(),
         binding.lifecycleOwner = viewLifecycleOwner
 
         binding.viewModel = viewModel
-
-        _firebaseAnalytics = Firebase.analytics
 
         binding.search.setIconifiedByDefault(true)
         binding.search.isFocusable = true
@@ -89,10 +82,6 @@ class SearchFragment : BaseFragment(),
         super.onViewCreated(view, savedInstanceState)
         postponeEnterTransition()
         view.doOnPreDraw { startPostponedEnterTransition() }
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
 
         viewModel.searchResults.observe(viewLifecycleOwner, Observer {
             searchAdapter.submitList(it)
@@ -118,7 +107,6 @@ class SearchFragment : BaseFragment(),
         super.onDestroyView()
         _binding = null
         _searchAdapter = null
-        _firebaseAnalytics = null
         (activity as MainActivity).hideKeyboard()
     }
 

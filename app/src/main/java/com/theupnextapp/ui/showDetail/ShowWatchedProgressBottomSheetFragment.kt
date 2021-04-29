@@ -4,14 +4,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentShowWatchedProgressBottomSheetBinding
 import com.theupnextapp.domain.TraktShowWatchedProgress
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class ShowWatchedProgressBottomSheetFragment : BottomSheetDialogFragment() {
 
     private var _binding: FragmentShowWatchedProgressBottomSheetBinding? = null
@@ -20,25 +23,22 @@ class ShowWatchedProgressBottomSheetFragment : BottomSheetDialogFragment() {
     private var _adapter: ShowWatchedProgressSeasonsAdapter? = null
     private val adapter get() = _adapter!!
 
-    private val viewModel: ShowWatchedProgressBottomSheetViewModel by lazy {
-        val activity = requireNotNull(activity) {
-            "You can only access the viewModel after onActivityCreated"
-        }
-        ViewModelProvider(
-            this@ShowWatchedProgressBottomSheetFragment,
-            ShowWatchedProgressBottomSheetViewModel.Factory(
-                activity.application,
-                arguments?.getParcelable(ShowDetailFragment.ARG_WATCHED_PROGRESS),
-                arguments?.getParcelable(ShowDetailFragment.ARG_SHOW_DETAIL)
-            )
-        ).get(ShowWatchedProgressBottomSheetViewModel::class.java)
+    @Inject
+    lateinit var assistedFactory: ShowWatchedProgressBottomSheetViewModel.ShowWatchedProgressBottomSheetViewModelFactory
+
+    private val viewModel by viewModels<ShowWatchedProgressBottomSheetViewModel> {
+        ShowWatchedProgressBottomSheetViewModel.provideFactory(
+            assistedFactory,
+            arguments?.getParcelable(ShowDetailFragment.ARG_WATCHED_PROGRESS),
+            arguments?.getParcelable(ShowDetailFragment.ARG_SHOW_DETAIL)
+        )
     }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentShowWatchedProgressBottomSheetBinding.inflate(inflater)
 
         binding.lifecycleOwner = viewLifecycleOwner

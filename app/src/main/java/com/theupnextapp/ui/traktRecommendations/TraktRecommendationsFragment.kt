@@ -7,8 +7,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -21,7 +21,10 @@ import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentTraktRecommendationsBinding
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.TraktRecommendations
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class TraktRecommendationsFragment : Fragment(),
     TraktRecommendationsAdapter.TraktRecommendationsAdapterListener {
 
@@ -31,18 +34,10 @@ class TraktRecommendationsFragment : Fragment(),
     private var _recommendedShowsAdapter: TraktRecommendationsAdapter? = null
     private val recommendedShowsAdapter get() = _recommendedShowsAdapter!!
 
-    private var _firebaseAnalytics: FirebaseAnalytics? = null
-    private val firebaseAnalytics get() = _firebaseAnalytics!!
+    @Inject
+    lateinit var firebaseAnalytics: FirebaseAnalytics
 
-    private val viewModel: TraktRecommendationsViewModel by lazy {
-        val activity = requireNotNull(activity) {
-            "You can only access the viewModel after onActivityCreated"
-        }
-        ViewModelProvider(
-            this@TraktRecommendationsFragment,
-            TraktRecommendationsViewModel.Factory(activity.application)
-        ).get(TraktRecommendationsViewModel::class.java)
-    }
+    private val viewModel by viewModels<TraktRecommendationsViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,14 +52,12 @@ class TraktRecommendationsFragment : Fragment(),
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentTraktRecommendationsBinding.inflate(inflater)
 
         binding.viewModel = viewModel
 
         binding.lifecycleOwner = viewLifecycleOwner
-
-        _firebaseAnalytics = Firebase.analytics
 
         _recommendedShowsAdapter =
             TraktRecommendationsAdapter(this)
@@ -103,7 +96,9 @@ class TraktRecommendationsFragment : Fragment(),
         viewModel.navigateToSelectedShow.observe(viewLifecycleOwner, Observer {
             if (null != it) {
                 this.findNavController().navigate(
-                    TraktRecommendationsFragmentDirections.actionTraktRecommendationsFragmentToShowDetailFragment(it)
+                    TraktRecommendationsFragmentDirections.actionTraktRecommendationsFragmentToShowDetailFragment(
+                        it
+                    )
                 )
                 viewModel.displayShowDetailsComplete()
             }
@@ -114,7 +109,6 @@ class TraktRecommendationsFragment : Fragment(),
         super.onDestroyView()
         _binding = null
         _recommendedShowsAdapter = null
-        _firebaseAnalytics = null
     }
 
     override fun onAttach(context: Context) {
@@ -132,7 +126,10 @@ class TraktRecommendationsFragment : Fragment(),
             )
         )
         val analyticsBundle = Bundle()
-        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, traktRecommendations.tvMazeID.toString())
+        analyticsBundle.putString(
+            FirebaseAnalytics.Param.ITEM_ID,
+            traktRecommendations.tvMazeID.toString()
+        )
         analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, traktRecommendations.title)
         analyticsBundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "trakt_recommended_show")
 
