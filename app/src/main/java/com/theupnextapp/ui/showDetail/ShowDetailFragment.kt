@@ -94,16 +94,16 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
         return binding.root
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        viewModel.showInfo.observe(viewLifecycleOwner, Observer {
+        viewModel.showInfo.observe(viewLifecycleOwner, {
             if (it != null) {
                 showInfo = it
             }
         })
 
-        viewModel.isLoading.observe(viewLifecycleOwner, Observer {
+        viewModel.isLoading.observe(viewLifecycleOwner, {
             if (it == true) {
                 binding.showDetailProgressBar.visibility = ProgressBar.VISIBLE
             } else {
@@ -111,18 +111,18 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
             }
         })
 
-        viewModel.watchlistRecord.observe(viewLifecycleOwner, Observer {
+        viewModel.watchlistRecord.observe(viewLifecycleOwner, {
             viewModel.onWatchlistRecordReceived(it)
         })
 
-        viewModel.showCast.observe(viewLifecycleOwner, Observer {
+        viewModel.showCast.observe(viewLifecycleOwner, {
             viewModel.onShowCastInfoReceived(it)
             if (it != null) {
                 showCastAdapter.submitList(it)
             }
         })
 
-        viewModel.showCastBottomSheet.observe(viewLifecycleOwner, Observer {
+        viewModel.showCastBottomSheet.observe(viewLifecycleOwner, {
             if (it != null) {
                 val showCastBottomSheet = ShowCastBottomSheetFragment()
 
@@ -140,31 +140,31 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
             }
         })
 
-        viewModel.addToWatchlistResponse.observe(viewLifecycleOwner, Observer {
+        viewModel.addToWatchlistResponse.observe(viewLifecycleOwner, {
             if (it != null) {
                 viewModel.onAddToWatchlistResponseReceived(it)
             }
         })
 
-        viewModel.removeFromWatchlistResponse.observe(viewLifecycleOwner, Observer {
+        viewModel.removeFromWatchlistResponse.observe(viewLifecycleOwner, {
             if (it != null) {
                 viewModel.onRemoveFromWatchlistResponseReceived(it)
             }
         })
 
-        viewModel.watchedProgress.observe(viewLifecycleOwner, Observer {
+        viewModel.watchedProgress.observe(viewLifecycleOwner, {
             if (it != null) {
                 _traktShowWatchedProgress = it
             }
         })
 
-        viewModel.showSeasons.observe(viewLifecycleOwner, Observer {
+        viewModel.showSeasons.observe(viewLifecycleOwner, {
             if (it != null) {
                 _showSeasons = it
             }
         })
 
-        viewModel.showWatchedProgressBottomSheet.observe(viewLifecycleOwner, Observer {
+        viewModel.showWatchedProgressBottomSheet.observe(viewLifecycleOwner, {
             if (it != null) {
                 val watchedProgressBottomSheet = ShowWatchedProgressBottomSheetFragment()
 
@@ -188,7 +188,7 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
             }
         })
 
-        viewModel.showSeasonsBottomSheet.observe(viewLifecycleOwner, Observer {
+        viewModel.showSeasonsBottomSheet.observe(viewLifecycleOwner, {
             if (!it.isNullOrEmpty()) {
                 val args = Bundle()
                 args.putParcelableArrayList(ARG_SHOW_SEASONS, ArrayList(it))
@@ -211,7 +211,7 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
             }
         })
 
-        viewModel.showWatchlistInfoBottomSheet.observe(viewLifecycleOwner, Observer {
+        viewModel.showWatchlistInfoBottomSheet.observe(viewLifecycleOwner, {
             if (it == true) {
                 HelpContentComponent.showContent(
                     HelpContentType.WATCHLIST_INFO,
@@ -222,7 +222,7 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
             }
         })
 
-        viewModel.showCollectionInfoBottomSheet.observe(viewLifecycleOwner, Observer {
+        viewModel.showCollectionInfoBottomSheet.observe(viewLifecycleOwner, {
             if (it == true) {
                 HelpContentComponent.showContent(
                     HelpContentType.COLLECTION_INFO,
@@ -233,14 +233,14 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
             }
         })
 
-        viewModel.launchTraktConnectWindow.observe(viewLifecycleOwner, Observer {
+        viewModel.launchTraktConnectWindow.observe(viewLifecycleOwner, {
             if (it) {
                 launchTraktWindow()
                 viewModel.launchConnectWindowComplete()
             }
         })
 
-        viewModel.showConnectToTraktInfoBottomSheet.observe(viewLifecycleOwner, Observer {
+        viewModel.showConnectToTraktInfoBottomSheet.observe(viewLifecycleOwner, {
             if (it == true) {
                 HelpContentComponent.showContent(
                     HelpContentType.CONNECT_TO_TRAKT_INFO,
@@ -251,13 +251,13 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
             }
         })
 
-        viewModel.showConnectionToTraktRequiredError.observe(viewLifecycleOwner, Observer {
+        viewModel.showConnectionToTraktRequiredError.observe(viewLifecycleOwner, {
             if (it == true) {
                 Feedback(requireContext()).showSnackBar(
                     view = binding.root,
                     type = FeedBackStatus.CONNECTION_TO_TRAKT_REQUIRED,
                     duration = Snackbar.LENGTH_LONG,
-                    listener = View.OnClickListener { launchTraktWindow() })
+                    listener = { launchTraktWindow() })
 
                 viewModel.showConnectionToTraktRequiredComplete()
             }

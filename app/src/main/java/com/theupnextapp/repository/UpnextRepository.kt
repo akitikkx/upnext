@@ -7,7 +7,9 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.theupnextapp.common.utils.models.DatabaseTables
 import com.theupnextapp.database.*
 import com.theupnextapp.domain.*
-import com.theupnextapp.network.*
+import com.theupnextapp.network.TvMazeNetwork
+import com.theupnextapp.network.UpnextNetwork
+import com.theupnextapp.network.asDatabaseModel
 import com.theupnextapp.network.models.tvmaze.*
 import com.theupnextapp.network.models.upnext.NetworkShowInfoCombined
 import com.theupnextapp.network.models.upnext.asDomainModel
@@ -15,8 +17,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 import timber.log.Timber
+import java.net.UnknownHostException
 
-class UpnextRepository constructor(private val upnextDao: UpnextDao) {
+class UpnextRepository constructor(
+    private val upnextDao: UpnextDao,
+    private val firebaseCrashlytics: FirebaseCrashlytics
+) {
 
     val newShows: LiveData<List<NewShows>> =
         Transformations.map(upnextDao.getNewShows()) {
@@ -44,39 +50,30 @@ class UpnextRepository constructor(private val upnextDao: UpnextDao) {
         }
 
     private val _showInfo = MutableLiveData<ShowInfo>()
-
-    private val _showSearch = MutableLiveData<List<ShowSearch>>()
-
-    private val _isLoading = MutableLiveData<Boolean>()
-
-    private val _isLoadingNewShows = MutableLiveData<Boolean>()
-
-    private val _isLoadingYesterdayShows = MutableLiveData<Boolean>()
-
-    private val _isLoadingTodayShows = MutableLiveData<Boolean>()
-
-    private val _isLoadingTomorrowShows = MutableLiveData<Boolean>()
-
-    private val _showCast = MutableLiveData<List<ShowCast>>()
-
-    private val _showSeasons = MutableLiveData<List<ShowSeason>>()
-
-    val isLoading: LiveData<Boolean> = _isLoading
-
-    val isLoadingNewShows: LiveData<Boolean> = _isLoadingNewShows
-
-    val isLoadingYesterdayShows: LiveData<Boolean> = _isLoadingYesterdayShows
-
-    val isLoadingTodayShows: LiveData<Boolean> = _isLoadingTodayShows
-
-    val isLoadingTomorrowShows: LiveData<Boolean> = _isLoadingTomorrowShows
-
     val showInfo: LiveData<ShowInfo> = _showInfo
 
+    private val _showSearch = MutableLiveData<List<ShowSearch>>()
     val showSearch: LiveData<List<ShowSearch>> = _showSearch
 
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> = _isLoading
+
+    private val _isLoadingNewShows = MutableLiveData<Boolean>()
+    val isLoadingNewShows: LiveData<Boolean> = _isLoadingNewShows
+
+    private val _isLoadingYesterdayShows = MutableLiveData<Boolean>()
+    val isLoadingYesterdayShows: LiveData<Boolean> = _isLoadingYesterdayShows
+
+    private val _isLoadingTodayShows = MutableLiveData<Boolean>()
+    val isLoadingTodayShows: LiveData<Boolean> = _isLoadingTodayShows
+
+    private val _isLoadingTomorrowShows = MutableLiveData<Boolean>()
+    val isLoadingTomorrowShows: LiveData<Boolean> = _isLoadingTomorrowShows
+
+    private val _showCast = MutableLiveData<List<ShowCast>>()
     val showCast: LiveData<List<ShowCast>> = _showCast
 
+    private val _showSeasons = MutableLiveData<List<ShowSeason>>()
     val showSeasons: LiveData<List<ShowSeason>> = _showSeasons
 
     suspend fun getSearchSuggestions(name: String?) {
@@ -99,7 +96,7 @@ class UpnextRepository constructor(private val upnextDao: UpnextDao) {
                     _showSearch.postValue(rebuiltList.asDomainModel())
                 } catch (e: Exception) {
                     Timber.d(e)
-                    FirebaseCrashlytics.getInstance().recordException(e)
+                    firebaseCrashlytics.recordException(e)
                 }
             }
         }
@@ -118,7 +115,7 @@ class UpnextRepository constructor(private val upnextDao: UpnextDao) {
             } catch (e: Exception) {
                 _isLoadingNewShows.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             }
         }
     }
@@ -154,7 +151,7 @@ class UpnextRepository constructor(private val upnextDao: UpnextDao) {
             } catch (e: Exception) {
                 _isLoadingYesterdayShows.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             }
         }
     }
@@ -190,7 +187,7 @@ class UpnextRepository constructor(private val upnextDao: UpnextDao) {
             } catch (e: Exception) {
                 _isLoadingTodayShows.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             }
         }
     }
@@ -208,7 +205,7 @@ class UpnextRepository constructor(private val upnextDao: UpnextDao) {
             } catch (e: Exception) {
                 _isLoadingTomorrowShows.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             }
         }
     }
@@ -239,7 +236,7 @@ class UpnextRepository constructor(private val upnextDao: UpnextDao) {
                 }
             } catch (e: Exception) {
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             }
         }
     }
@@ -251,25 +248,28 @@ class UpnextRepository constructor(private val upnextDao: UpnextDao) {
                 val showInfo =
                     TvMazeNetwork.tvMazeApi.getShowSummaryAsync(showId.toString()).await()
 
-                val previousEpisodeLink = showInfo._links?.previousepisode?.href?.substring(31)
-                val nextEpisodeLink = showInfo._links?.nextepisode?.href?.substring(31)
+                val previousEpisodeLink = showInfo._links?.previousepisode?.href?.substring(
+                    showInfo._links.previousepisode.href.lastIndexOf("/") + 1,
+                    showInfo._links.previousepisode.href.length
+                )?.replace("/", "")
+
+                val nextEpisodeLink = showInfo._links?.nextepisode?.href?.substring(
+                    showInfo._links.nextepisode.href.lastIndexOf("/") + 1,
+                    showInfo._links.nextepisode.href.length
+                )?.replace("/", "")
 
                 var showPreviousEpisode: NetworkShowPreviousEpisodeResponse? = null
                 var showNextEpisode: NetworkShowNextEpisodeResponse? = null
                 if (!previousEpisodeLink.isNullOrEmpty()) {
                     showPreviousEpisode =
                         TvMazeNetwork.tvMazeApi.getPreviousEpisodeAsync(
-                            showInfo._links.previousepisode.href.substring(
-                                31
-                            )
+                            previousEpisodeLink.replace("/", "")
                         ).await()
                 }
                 if (!nextEpisodeLink.isNullOrEmpty()) {
                     showNextEpisode =
                         TvMazeNetwork.tvMazeApi.getNextEpisodeAsync(
-                            showInfo._links.nextepisode.href.substring(
-                                31
-                            )
+                            nextEpisodeLink.replace("/", "")
                         ).await()
                 }
                 val showInfoCombined =
@@ -279,11 +279,15 @@ class UpnextRepository constructor(private val upnextDao: UpnextDao) {
                         nextEpisode = showNextEpisode
                     )
                 _showInfo.postValue(showInfoCombined.asDomainModel())
-                _isLoading.postValue(true)
+                _isLoading.postValue(false)
             } catch (e: Exception) {
-                _isLoading.postValue(true)
+                _isLoading.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
+            } catch (e: UnknownHostException) {
+                _isLoading.postValue(false)
+                Timber.d(e)
+                firebaseCrashlytics.recordException(e)
             }
         }
     }
@@ -298,7 +302,7 @@ class UpnextRepository constructor(private val upnextDao: UpnextDao) {
             } catch (e: HttpException) {
                 _isLoading.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             }
         }
     }
@@ -314,7 +318,7 @@ class UpnextRepository constructor(private val upnextDao: UpnextDao) {
             } catch (e: HttpException) {
                 _isLoading.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             }
         }
     }
