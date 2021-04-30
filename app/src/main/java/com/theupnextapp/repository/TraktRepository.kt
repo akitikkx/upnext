@@ -22,7 +22,10 @@ import timber.log.Timber
 import java.io.IOException
 import javax.net.ssl.SSLHandshakeException
 
-class TraktRepository constructor(private val upnextDao: UpnextDao) {
+class TraktRepository constructor(
+    private val upnextDao: UpnextDao,
+    private val firebaseCrashlytics: FirebaseCrashlytics
+) {
 
     val traktWatchlist: LiveData<List<TraktWatchlist>> =
         Transformations.map(upnextDao.getTraktWatchlist()) {
@@ -173,15 +176,15 @@ class TraktRepository constructor(private val upnextDao: UpnextDao) {
             } catch (e: Exception) {
                 _isLoading.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: SSLHandshakeException) {
                 _isLoading.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: IOException) {
                 _isLoading.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             }
         }
     }
@@ -249,15 +252,15 @@ class TraktRepository constructor(private val upnextDao: UpnextDao) {
             } catch (e: Exception) {
                 _isLoading.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: SSLHandshakeException) {
                 _isLoading.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: IOException) {
                 _isLoading.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             }
         }
     }
@@ -290,15 +293,15 @@ class TraktRepository constructor(private val upnextDao: UpnextDao) {
             } catch (e: Exception) {
                 _isLoading.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: SSLHandshakeException) {
                 _isLoading.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: IOException) {
                 _isLoading.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             }
         }
     }
@@ -362,15 +365,15 @@ class TraktRepository constructor(private val upnextDao: UpnextDao) {
             } catch (e: Exception) {
                 _isLoading.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: SSLHandshakeException) {
                 _isLoading.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: IOException) {
                 _isLoading.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             }
         }
     }
@@ -383,7 +386,7 @@ class TraktRepository constructor(private val upnextDao: UpnextDao) {
 
                 } catch (e: Exception) {
                     Timber.d(e)
-                    FirebaseCrashlytics.getInstance().recordException(e)
+                    firebaseCrashlytics.recordException(e)
                 }
             }
         }
@@ -395,7 +398,7 @@ class TraktRepository constructor(private val upnextDao: UpnextDao) {
                 upnextDao.deleteWatchlistItem(imdbID)
             } catch (e: Exception) {
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             }
         }
     }
@@ -447,15 +450,15 @@ class TraktRepository constructor(private val upnextDao: UpnextDao) {
             } catch (e: Exception) {
                 _isLoading.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: SSLHandshakeException) {
                 _isLoading.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: IOException) {
                 _isLoading.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             }
         }
     }
@@ -479,15 +482,15 @@ class TraktRepository constructor(private val upnextDao: UpnextDao) {
                 } catch (e: Exception) {
                     _isLoading.postValue(false)
                     Timber.d(e)
-                    FirebaseCrashlytics.getInstance().recordException(e)
+                    firebaseCrashlytics.recordException(e)
                 } catch (e: SSLHandshakeException) {
                     _isLoading.postValue(false)
                     Timber.d(e)
-                    FirebaseCrashlytics.getInstance().recordException(e)
+                    firebaseCrashlytics.recordException(e)
                 } catch (e: IOException) {
                     _isLoading.postValue(false)
                     Timber.d(e)
-                    FirebaseCrashlytics.getInstance().recordException(e)
+                    firebaseCrashlytics.recordException(e)
                 }
             }
         }
@@ -502,13 +505,13 @@ class TraktRepository constructor(private val upnextDao: UpnextDao) {
                 Timber.d(watchlistResponse.toString())
             } catch (e: Exception) {
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: SSLHandshakeException) {
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: IOException) {
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             }
         }
     }
@@ -593,15 +596,15 @@ class TraktRepository constructor(private val upnextDao: UpnextDao) {
             } catch (e: Exception) {
                 _isLoadingTraktCollection.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: SSLHandshakeException) {
                 _isLoadingTraktCollection.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: IOException) {
                 _isLoadingTraktCollection.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             }
         }
     }
@@ -631,10 +634,10 @@ class TraktRepository constructor(private val upnextDao: UpnextDao) {
                 )
             } catch (e: Exception) {
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: IOException) {
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             }
         }
     }
@@ -653,10 +656,10 @@ class TraktRepository constructor(private val upnextDao: UpnextDao) {
                 upnextDao.deleteAllTraktCollectionByImdbId(imdbID)
             } catch (e: Exception) {
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: IOException) {
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             }
         }
     }
@@ -669,10 +672,10 @@ class TraktRepository constructor(private val upnextDao: UpnextDao) {
                 upnextDao.deleteAllTraktCollectionByImdbId(imdbID)
             } catch (e: Exception) {
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: IOException) {
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             }
         }
     }
@@ -684,10 +687,10 @@ class TraktRepository constructor(private val upnextDao: UpnextDao) {
                 upnextDao.deleteAllTraktCollectionSeasonsByImdbId(imdbID)
             } catch (e: Exception) {
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: IOException) {
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             }
         }
     }
@@ -744,19 +747,19 @@ class TraktRepository constructor(private val upnextDao: UpnextDao) {
             } catch (e: Exception) {
                 _isLoading.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: HttpException) {
                 _isLoading.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: SSLHandshakeException) {
                 _isLoading.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: IOException) {
                 _isLoading.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             }
         }
     }
@@ -894,19 +897,19 @@ class TraktRepository constructor(private val upnextDao: UpnextDao) {
             } catch (e: Exception) {
                 _isLoading.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: HttpException) {
                 _isLoading.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: SSLHandshakeException) {
                 _isLoading.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: IOException) {
                 _isLoading.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             }
         }
     }
@@ -1049,19 +1052,19 @@ class TraktRepository constructor(private val upnextDao: UpnextDao) {
             } catch (e: Exception) {
                 _isLoading.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: HttpException) {
                 _isLoading.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: SSLHandshakeException) {
                 _isLoading.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: IOException) {
                 _isLoading.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             }
         }
     }
@@ -1146,19 +1149,19 @@ class TraktRepository constructor(private val upnextDao: UpnextDao) {
             } catch (e: Exception) {
                 _isLoading.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: HttpException) {
                 _isLoading.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: SSLHandshakeException) {
                 _isLoading.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: IOException) {
                 _isLoading.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             }
         }
     }
@@ -1180,19 +1183,19 @@ class TraktRepository constructor(private val upnextDao: UpnextDao) {
             } catch (e: Exception) {
                 _isLoading.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: HttpException) {
                 _isLoading.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: SSLHandshakeException) {
                 _isLoading.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: IOException) {
                 _isLoading.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             }
         }
     }
@@ -1203,7 +1206,8 @@ class TraktRepository constructor(private val upnextDao: UpnextDao) {
                 _isLoadingTraktTrending.postValue(true)
                 val shows: MutableList<DatabaseTraktTrendingShows> = mutableListOf()
 
-                val trendingShowsResponse = UpnextKtorNetwork.upnextKtorApi.getTrendingShowsAsync().await()
+                val trendingShowsResponse =
+                    UpnextKtorNetwork.upnextKtorApi.getTrendingShowsAsync().await()
 
                 if (!trendingShowsResponse.isEmpty()) {
                     upnextDao.apply {
@@ -1229,19 +1233,19 @@ class TraktRepository constructor(private val upnextDao: UpnextDao) {
             } catch (e: Exception) {
                 _isLoadingTraktTrending.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: HttpException) {
                 _isLoadingTraktTrending.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: SSLHandshakeException) {
                 _isLoadingTraktTrending.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: IOException) {
                 _isLoadingTraktTrending.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             }
         }
     }
@@ -1273,19 +1277,19 @@ class TraktRepository constructor(private val upnextDao: UpnextDao) {
                 handleTraktError(e)
                 _isLoading.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: Exception) {
                 _isLoading.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: SSLHandshakeException) {
                 _isLoading.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: IOException) {
                 _isLoading.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             }
         }
     }
@@ -1352,15 +1356,15 @@ class TraktRepository constructor(private val upnextDao: UpnextDao) {
             } catch (e: Exception) {
                 _isLoadingTraktRecommendations.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: SSLHandshakeException) {
                 _isLoadingTraktRecommendations.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: IOException) {
                 _isLoadingTraktRecommendations.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             }
         }
     }
@@ -1421,19 +1425,19 @@ class TraktRepository constructor(private val upnextDao: UpnextDao) {
             } catch (e: Exception) {
                 _isLoadingTraktPopular.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: HttpException) {
                 _isLoadingTraktPopular.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: SSLHandshakeException) {
                 _isLoadingTraktPopular.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: IOException) {
                 _isLoadingTraktPopular.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             }
         }
     }
@@ -1495,19 +1499,19 @@ class TraktRepository constructor(private val upnextDao: UpnextDao) {
             } catch (e: Exception) {
                 _isLoadingTraktMostAnticipated.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: HttpException) {
                 _isLoadingTraktMostAnticipated.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: SSLHandshakeException) {
                 _isLoadingTraktMostAnticipated.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             } catch (e: IOException) {
                 _isLoadingTraktMostAnticipated.postValue(false)
                 Timber.d(e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                firebaseCrashlytics.recordException(e)
             }
         }
     }
@@ -1532,7 +1536,7 @@ class TraktRepository constructor(private val upnextDao: UpnextDao) {
 
     private fun logTraktException(message: String) {
         Timber.d(Throwable(message = message))
-        FirebaseCrashlytics.getInstance()
+        firebaseCrashlytics
             .recordException(Throwable(message = "TraktRepository: $message"))
     }
 

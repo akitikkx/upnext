@@ -9,7 +9,7 @@ import com.theupnextapp.network.models.tvmaze.NetworkShowPreviousEpisodeResponse
 data class NetworkShowInfoCombined constructor(
     val showInfoResponse: NetworkShowInfoResponse,
     val previousEpisode: NetworkShowPreviousEpisodeResponse?,
-    val nextEpisode : NetworkShowNextEpisodeResponse?
+    val nextEpisode: NetworkShowNextEpisodeResponse?
 )
 
 fun NetworkShowInfoCombined.asDatabaseModel(): DatabaseShowInfo {
@@ -77,12 +77,18 @@ fun NetworkShowInfoCombined.asDomainModel(): ShowInfo {
         averageRating = showInfoResponse.rating?.average.toString(),
         airDays = showInfoResponse.schedule?.days?.joinToString(),
         time = showInfoResponse.schedule?.time,
-        nextEpisodeLinkedId = showInfoResponse._links?.nextepisode?.href?.substring(31)?.let {
+        nextEpisodeLinkedId = showInfoResponse._links?.nextepisode?.href?.substring(
+            showInfoResponse._links.nextepisode.href.lastIndexOf("/") + 1,
+            showInfoResponse._links.nextepisode.href.length
+        )?.replace("/", "")?.let {
             Integer.parseInt(
                 it
             )
         },
-        previousEpisodeLinkedId = showInfoResponse._links?.nextepisode?.href?.substring(31)?.let {
+        previousEpisodeLinkedId = showInfoResponse._links?.previousepisode?.href?.substring(
+            showInfoResponse._links.previousepisode.href.lastIndexOf("/") + 1,
+            showInfoResponse._links.previousepisode.href.length
+        )?.replace("/", "")?.let {
             Integer.parseInt(
                 it
             )
