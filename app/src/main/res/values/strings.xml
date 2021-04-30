@@ -265,7 +265,7 @@
     <string name="library_history_transition_name">library_history</string>
     <string name="library_collection_transition_name">library_collection</string>
     <string name="library_recommendations_transition_name">library_recommendations</string>
-    <string name="watchlist_transition_name">watchlist</string>
+    <string name="watchlist_transition_name">watchlist_%1$s</string>
     <string name="collection_transition_name">collection</string>
     <string name="collection_item_transition_name">collection_%1$s</string>
     <string name="history_transition_name">history</string>

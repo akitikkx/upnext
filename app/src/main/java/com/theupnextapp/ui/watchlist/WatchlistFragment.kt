@@ -1,17 +1,17 @@
 package com.theupnextapp.ui.watchlist
 
-import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.transition.MaterialContainerTransform
+import com.google.android.material.transition.MaterialFadeThrough
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
@@ -37,10 +37,8 @@ class WatchlistFragment : BaseFragment(), WatchlistAdapter.WatchlistAdapterListe
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        sharedElementEnterTransition = MaterialContainerTransform().apply {
-            drawingViewId = R.id.nav_host_fragment
+        enterTransition = MaterialFadeThrough().apply {
             duration = resources.getInteger(R.integer.show_motion_duration_large).toLong()
-            scrimColor = Color.TRANSPARENT
         }
     }
 
@@ -69,6 +67,8 @@ class WatchlistFragment : BaseFragment(), WatchlistAdapter.WatchlistAdapterListe
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        postponeEnterTransition()
+        view.doOnPreDraw { startPostponedEnterTransition() }
 
         viewModel.traktWatchlist.observe(viewLifecycleOwner, {
             if (!it.isNullOrEmpty()) {
