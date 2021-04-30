@@ -775,8 +775,7 @@ class TraktRepository constructor(
                 NetworkTraktAddToWatchlistRequestShow(
                     ids = watchlistItem.show.ids,
                     title = watchlistItem.show.title,
-                    year = watchlistItem.show.year,
-                    seasons = emptyList()
+                    year = watchlistItem.show.year
                 )
             addToWatchlistShowsList.add(addToWatchlistItem)
             val addToWatchlist = TraktNetwork.traktApi.addToWatchlistAsync(
@@ -784,7 +783,6 @@ class TraktRepository constructor(
                 request = NetworkTraktAddToWatchlistRequest(
                     shows = addToWatchlistShowsList,
                     movies = emptyList(),
-                    seasons = emptyList(),
                     episodes = emptyList()
                 )
             ).await()
