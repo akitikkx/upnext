@@ -1,24 +1,20 @@
 package com.theupnextapp.ui.collection
 
 import android.content.Context
-import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.navigation.fragment.FragmentNavigator
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.transition.MaterialContainerTransform
 import com.google.android.material.transition.MaterialElevationScale
+import com.google.android.material.transition.MaterialFadeThrough
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.analytics
-import com.google.firebase.ktx.Firebase
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentCollectionBinding
@@ -44,10 +40,8 @@ class CollectionFragment : BaseFragment(), CollectionAdapter.CollectionAdapterLi
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        sharedElementEnterTransition = MaterialContainerTransform().apply {
-            drawingViewId = R.id.nav_host_fragment
+        enterTransition = MaterialFadeThrough().apply {
             duration = resources.getInteger(R.integer.show_motion_duration_large).toLong()
-            scrimColor = Color.TRANSPARENT
         }
     }
 
@@ -74,10 +68,10 @@ class CollectionFragment : BaseFragment(), CollectionAdapter.CollectionAdapterLi
         return binding.root
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        viewModel.isAuthorizedOnTrakt.observe(viewLifecycleOwner, Observer {
+        viewModel.isAuthorizedOnTrakt.observe(viewLifecycleOwner, {
             if (it == false) {
                 this.findNavController().navigate(
                     CollectionFragmentDirections.actionCollectionFragmentToLibraryFragment()
@@ -85,7 +79,7 @@ class CollectionFragment : BaseFragment(), CollectionAdapter.CollectionAdapterLi
             }
         })
 
-        viewModel.traktCollection.observe(viewLifecycleOwner, Observer {
+        viewModel.traktCollection.observe(viewLifecycleOwner, {
             if (!it.isNullOrEmpty()) {
                 adapter.submitList(it)
             }
@@ -121,7 +115,7 @@ class CollectionFragment : BaseFragment(), CollectionAdapter.CollectionAdapterLi
                     lastUpdatedAt = traktCollection.lastUpdatedAt
                 )
             )
-        findNavController().navigate(directions, getCollectionSeasonsNavigatorExtras(view))
+        findNavController().navigate(directions, getCollectionNavigatorExtras(view))
 
         val analyticsBundle = Bundle()
         analyticsBundle.putString(
@@ -137,14 +131,13 @@ class CollectionFragment : BaseFragment(), CollectionAdapter.CollectionAdapterLi
 
     }
 
-    private fun getCollectionSeasonsNavigatorExtras(view: View): FragmentNavigator.Extras {
+    private fun getCollectionNavigatorExtras(view: View): FragmentNavigator.Extras {
         exitTransition = MaterialElevationScale(false).apply {
             duration = resources.getInteger(R.integer.show_motion_duration_large).toLong()
         }
         reenterTransition = MaterialElevationScale(true).apply {
             duration = resources.getInteger(R.integer.show_motion_duration_large).toLong()
         }
-        val libraryTransitionName = getString(R.string.collection_seasons_transition_name)
-        return FragmentNavigatorExtras(view to libraryTransitionName)
+        return FragmentNavigatorExtras(view to getString(R.string.collection_item_transition_name))
     }
 }

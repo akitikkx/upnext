@@ -1,20 +1,18 @@
 package com.theupnextapp.ui.collectionSeasons
 
 import android.content.Context
-import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.transition.MaterialContainerTransform
+import com.google.android.material.transition.MaterialFadeThrough
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentCollectionSeasonsBinding
@@ -48,10 +46,8 @@ class CollectionSeasonsFragment : BaseFragment(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        sharedElementEnterTransition = MaterialContainerTransform().apply {
-            drawingViewId = R.id.nav_host_fragment
+        enterTransition = MaterialFadeThrough().apply {
             duration = resources.getInteger(R.integer.show_motion_duration_large).toLong()
-            scrimColor = Color.TRANSPARENT
         }
     }
 
@@ -66,7 +62,7 @@ class CollectionSeasonsFragment : BaseFragment(),
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentCollectionSeasonsBinding.inflate(inflater)
 
         binding.lifecycleOwner = viewLifecycleOwner
@@ -85,10 +81,10 @@ class CollectionSeasonsFragment : BaseFragment(),
         return binding.root
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        viewModel.isAuthorizedOnTrakt.observe(viewLifecycleOwner, Observer {
+        viewModel.isAuthorizedOnTrakt.observe(viewLifecycleOwner, {
             if (it == false) {
                 this.findNavController().navigate(
                     CollectionSeasonsFragmentDirections.actionCollectionSeasonsFragmentToLibraryFragment()
@@ -96,7 +92,7 @@ class CollectionSeasonsFragment : BaseFragment(),
             }
         })
 
-        viewModel.traktCollectionSeasons?.observe(viewLifecycleOwner, Observer {
+        viewModel.traktCollectionSeasons?.observe(viewLifecycleOwner, {
             if (!it.isNullOrEmpty()) {
                 viewModel.onCollectionSeasonsEmpty(false)
                 adapter.submitList(it)
@@ -106,7 +102,7 @@ class CollectionSeasonsFragment : BaseFragment(),
             }
         })
 
-        viewModel.navigateToSelectedSeason.observe(viewLifecycleOwner, Observer {
+        viewModel.navigateToSelectedSeason.observe(viewLifecycleOwner, {
             if (it != null) {
                 this.findNavController().navigate(
                     CollectionSeasonsFragmentDirections.actionCollectionSeasonsFragmentToCollectionSeasonEpisodesFragment(

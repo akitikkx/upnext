@@ -131,11 +131,7 @@
             app:argType="com.theupnextapp.domain.TraktCollectionArg" />
         <action
             android:id="@+id/action_collectionSeasonsFragment_to_collectionSeasonEpisodesFragment"
-            app:destination="@id/collectionSeasonEpisodesFragment"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
+            app:destination="@id/collectionSeasonEpisodesFragment" />
         <action
             android:id="@+id/action_collectionSeasonsFragment_to_libraryFragment"
             app:destination="@id/libraryFragment" />
@@ -151,11 +147,7 @@
             app:argType="com.theupnextapp.domain.TraktCollectionSeasonEpisodeArg" />
         <action
             android:id="@+id/action_collectionSeasonEpisodesFragment_to_libraryFragment"
-            app:destination="@id/libraryFragment"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left" />
+            app:destination="@id/libraryFragment" />
     </fragment>
 
     <fragment
@@ -165,7 +157,8 @@
     <fragment
         android:id="@+id/libraryFragment"
         android:name="com.theupnextapp.ui.library.LibraryFragment"
-        android:label="@string/title_library" >
+        android:label="@string/title_library"
+        tools:layout="@layout/fragment_library">
         <action
             android:id="@+id/action_libraryFragment_to_historyFragment"
             app:destination="@id/historyFragment" />
@@ -183,7 +176,8 @@
     <fragment
         android:id="@+id/exploreFragment"
         android:name="com.theupnextapp.ui.explore.ExploreFragment"
-        android:label="@string/title_explore" >
+        tools:layout="@layout/fragment_explore"
+        android:label="@string/title_explore">
         <action
             android:id="@+id/action_exploreFragment_to_showDetailFragment"
             app:destination="@id/showDetailFragment" />

@@ -12,6 +12,7 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.transition.MaterialFadeThrough
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentCollectionSeasonEpisodesBinding
 import com.theupnextapp.domain.TraktCollectionSeasonEpisode
@@ -45,6 +46,9 @@ class CollectionSeasonEpisodesFragment : BaseFragment(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+        enterTransition = MaterialFadeThrough().apply {
+            duration = resources.getInteger(R.integer.show_motion_duration_large).toLong()
+        }
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {
