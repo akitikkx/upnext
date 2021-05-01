@@ -10,40 +10,32 @@
             type="com.theupnextapp.ui.history.HistoryViewModel" />
     </data>
 
-    <com.google.android.material.card.MaterialCardView
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:transitionName="@string/history_transition_name"
-        app:cardPreventCornerOverlap="false">
+        android:layout_height="match_parent">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+        <include
+            layout="@layout/layout_trakt_history_shows_list"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:showHideView="@{viewModel.isAuthorizedOnTrakt &amp;&amp; !viewModel.historyEmpty}"
+            app:viewModel="@{viewModel}"
+            tools:visibility="visible" />
 
-            <include
-                layout="@layout/layout_trakt_history_shows_list"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:visibility="gone"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:showHideView="@{viewModel.isAuthorizedOnTrakt &amp;&amp; !viewModel.historyEmpty}"
-                app:viewModel="@{viewModel}"
-                tools:visibility="visible" />
-
-            <include
-                layout="@layout/layout_trakt_history_shows_empty_state"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:visibility="gone"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:showHideView="@{viewModel.historyEmpty &amp;&amp; viewModel.isAuthorizedOnTrakt() &amp;&amp; !viewModel.isLoadingHistory}"
-                app:viewModel="@{viewModel}" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-    </com.google.android.material.card.MaterialCardView>
+        <include
+            layout="@layout/layout_trakt_history_shows_empty_state"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:showHideView="@{viewModel.historyEmpty &amp;&amp; viewModel.isAuthorizedOnTrakt() &amp;&amp; !viewModel.isLoadingHistory}"
+            app:viewModel="@{viewModel}" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>

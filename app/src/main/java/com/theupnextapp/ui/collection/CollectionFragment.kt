@@ -38,13 +38,6 @@ class CollectionFragment : BaseFragment(), CollectionAdapter.CollectionAdapterLi
 
     private val viewModel by viewModels<CollectionViewModel>()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enterTransition = MaterialFadeThrough().apply {
-            duration = resources.getInteger(R.integer.show_motion_duration_large).toLong()
-        }
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -115,7 +108,7 @@ class CollectionFragment : BaseFragment(), CollectionAdapter.CollectionAdapterLi
                     lastUpdatedAt = traktCollection.lastUpdatedAt
                 )
             )
-        findNavController().navigate(directions, getCollectionNavigatorExtras(view))
+        findNavController().navigate(directions, getShowDetailNavigatorExtras(view))
 
         val analyticsBundle = Bundle()
         analyticsBundle.putString(
@@ -127,17 +120,6 @@ class CollectionFragment : BaseFragment(), CollectionAdapter.CollectionAdapterLi
         firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM, analyticsBundle)
     }
 
-    override fun onCollectionRemoveClick(view: View, traktCollection: TraktCollection) {
+    override fun onCollectionRemoveClick(view: View, traktCollection: TraktCollection) {}
 
-    }
-
-    private fun getCollectionNavigatorExtras(view: View): FragmentNavigator.Extras {
-        exitTransition = MaterialElevationScale(false).apply {
-            duration = resources.getInteger(R.integer.show_motion_duration_large).toLong()
-        }
-        reenterTransition = MaterialElevationScale(true).apply {
-            duration = resources.getInteger(R.integer.show_motion_duration_large).toLong()
-        }
-        return FragmentNavigatorExtras(view to getString(R.string.collection_item_transition_name))
-    }
 }

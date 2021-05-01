@@ -3,12 +3,10 @@ package com.theupnextapp.ui.dashboard
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.transition.MaterialFadeThrough
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentDashboardBinding
@@ -49,9 +47,6 @@ class DashboardFragment : BaseFragment(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        enterTransition = MaterialFadeThrough().apply {
-            duration = resources.getInteger(R.integer.show_motion_duration_large).toLong()
-        }
     }
 
     override fun onCreateView(
@@ -106,12 +101,6 @@ class DashboardFragment : BaseFragment(),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        postponeEnterTransition()
-        view.doOnPreDraw { startPostponedEnterTransition() }
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
 
         viewModel.showFeaturesBottomSheet.observe(viewLifecycleOwner, {
             if (it != null && it == true) {
@@ -126,7 +115,7 @@ class DashboardFragment : BaseFragment(),
         viewModel.newShowsList.observe(viewLifecycleOwner, { newShows ->
             newShows.apply {
                 if (!newShows.isNullOrEmpty()) {
-                    newShowsAdapter?.submitList(newShows)
+                    newShowsAdapter.submitList(newShows)
                 }
             }
         })

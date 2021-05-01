@@ -43,16 +43,13 @@ class SearchFragment : BaseFragment(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        enterTransition = MaterialFadeThrough().apply {
-            duration = resources.getInteger(R.integer.show_motion_duration_large).toLong()
-        }
     }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentSearchBinding.inflate(inflater)
 
         binding.lifecycleOwner = viewLifecycleOwner
@@ -80,8 +77,6 @@ class SearchFragment : BaseFragment(),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        postponeEnterTransition()
-        view.doOnPreDraw { startPostponedEnterTransition() }
 
         viewModel.searchResults.observe(viewLifecycleOwner, Observer {
             searchAdapter.submitList(it)
