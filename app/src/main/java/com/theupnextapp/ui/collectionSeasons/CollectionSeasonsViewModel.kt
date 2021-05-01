@@ -6,8 +6,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.theupnextapp.domain.TraktCollectionArg
-import com.theupnextapp.domain.TraktCollectionSeason
-import com.theupnextapp.domain.TraktCollectionSeasonEpisodeArg
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.ui.common.TraktViewModel
 import dagger.assisted.Assisted
@@ -26,10 +24,6 @@ class CollectionSeasonsViewModel @AssistedInject constructor(
     private val _collection = MutableLiveData(traktCollectionArg)
     val collection: LiveData<TraktCollectionArg> = _collection
 
-    private val _navigateToSelectedSeason = MutableLiveData<TraktCollectionSeasonEpisodeArg?>()
-    val navigateToSelectedSeason: LiveData<TraktCollectionSeasonEpisodeArg?> =
-        _navigateToSelectedSeason
-
     val traktCollectionSeasons =
         traktCollectionArg.imdbID?.let { traktRepository.traktCollectionSeasons(it) }
 
@@ -37,17 +31,6 @@ class CollectionSeasonsViewModel @AssistedInject constructor(
 
     fun onCollectionSeasonsEmpty(empty: Boolean) {
         _collectionSeasonsEmpty.value = empty
-    }
-
-    fun onSeasonClick(traktCollectionSeason: TraktCollectionSeason) {
-        _navigateToSelectedSeason.value = TraktCollectionSeasonEpisodeArg(
-            collection = collection.value,
-            collectionSeason = traktCollectionSeason
-        )
-    }
-
-    fun navigateToSelectedSeasonComplete() {
-        _navigateToSelectedSeason.value = null
     }
 
     override fun onCleared() {

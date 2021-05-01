@@ -4,13 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.transition.MaterialFadeThrough
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentExploreBinding
@@ -44,13 +42,6 @@ class ExploreFragment : BaseFragment(),
     private val mostAnticipatedShowsAdapter get() = _mostAnticipatedShowsAdapter!!
 
     private val viewModel by viewModels<ExploreViewModel>()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enterTransition = MaterialFadeThrough().apply {
-            duration = resources.getInteger(R.integer.show_motion_duration_large).toLong()
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -93,8 +84,8 @@ class ExploreFragment : BaseFragment(),
         return binding.root
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         viewModel.popularShowsTableUpdate.observe(viewLifecycleOwner, Observer {
             viewModel.onPopularShowsTableUpdateReceived(it)
@@ -125,21 +116,6 @@ class ExploreFragment : BaseFragment(),
                 mostAnticipatedShowsAdapter.submitList(it)
             }
         })
-
-        viewModel.navigateToSelectedShow.observe(viewLifecycleOwner, Observer {
-            if (it != null) {
-                this.findNavController().navigate(
-                    ExploreFragmentDirections.actionExploreFragmentToShowDetailFragment(it)
-                )
-                viewModel.displayShowDetailsComplete()
-            }
-        })
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        postponeEnterTransition()
-        view.doOnPreDraw { startPostponedEnterTransition() }
     }
 
     override fun onDestroyView() {

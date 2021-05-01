@@ -1,8 +1,7 @@
 package com.theupnextapp.ui.traktRecommendations
 
 import android.app.Application
-import androidx.lifecycle.*
-import com.theupnextapp.domain.ShowDetailArg
+import androidx.lifecycle.MediatorLiveData
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.ui.common.TraktViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,9 +13,6 @@ class TraktRecommendationsViewModel @Inject constructor(
     traktRepository: TraktRepository
 ) : TraktViewModel(application, traktRepository) {
 
-    private val _navigateToSelectedShow = MutableLiveData<ShowDetailArg?>()
-    val navigateToSelectedShow: LiveData<ShowDetailArg?> = _navigateToSelectedShow
-
     val traktRecommendationsList = traktRepository.traktRecommendations
 
     val isLoadingTraktRecommendations = traktRepository.isLoadingTraktRecommendations
@@ -25,14 +21,6 @@ class TraktRecommendationsViewModel @Inject constructor(
         addSource(traktRecommendationsList) {
             value = it.isNullOrEmpty() == true
         }
-    }
-
-    fun onRecommendationsItemClick(showDetailArg: ShowDetailArg) {
-        _navigateToSelectedShow.value = showDetailArg
-    }
-
-    fun displayShowDetailsComplete() {
-        _navigateToSelectedShow.value = null
     }
 
     override fun onCleared() {

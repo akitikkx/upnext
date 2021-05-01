@@ -5,11 +5,13 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.Browser
 import android.view.View
+import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.FragmentNavigator
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.transition.MaterialElevationScale
+import com.google.android.material.transition.MaterialFadeThrough
 import com.theupnextapp.BuildConfig
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
@@ -17,8 +19,18 @@ import com.theupnextapp.common.utils.NetworkConnectivityUtil
 
 open class BaseFragment : Fragment() {
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enterTransition = MaterialFadeThrough().apply {
+            duration = resources.getInteger(R.integer.show_motion_duration_large).toLong()
+        }
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        postponeEnterTransition()
+        view.doOnPreDraw { startPostponedEnterTransition() }
+
         activity?.application?.let { application ->
             NetworkConnectivityUtil(application).observe(viewLifecycleOwner, {
                 if (it == false) {

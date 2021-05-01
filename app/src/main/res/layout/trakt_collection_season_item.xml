@@ -27,6 +27,7 @@
         android:clickable="true"
         android:focusable="true"
         android:onClick="@{(view) -> listener.onCollectionSeasonClick(view, showSeason)}"
+        android:transitionName="@{@string/collection_season_item_transition_name(showSeason.seasonNumber)}"
         app:cardPreventCornerOverlap="false">
 
         <androidx.constraintlayout.widget.ConstraintLayout

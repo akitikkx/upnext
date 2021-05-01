@@ -1,6 +1,5 @@
 package com.theupnextapp.ui.history
 
-import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,7 +10,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.transition.MaterialContainerTransform
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
@@ -34,15 +32,6 @@ class HistoryFragment : BaseFragment(), HistoryAdapter.HistoryAdapterListener {
     private var historyAdapter: HistoryAdapter? = null
 
     private val viewModel by viewModels<HistoryViewModel>()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        sharedElementEnterTransition = MaterialContainerTransform().apply {
-            drawingViewId = R.id.nav_host_fragment
-            duration = resources.getInteger(R.integer.show_motion_duration_large).toLong()
-            scrimColor = Color.TRANSPARENT
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -83,15 +72,6 @@ class HistoryFragment : BaseFragment(), HistoryAdapter.HistoryAdapterListener {
                 historyAdapter?.submitList(it)
             }
         })
-
-        viewModel.navigateToSelectedShow.observe(viewLifecycleOwner, {
-            if (null != it) {
-                this.findNavController().navigate(
-                    HistoryFragmentDirections.actionHistoryFragmentToShowDetailFragment(it)
-                )
-                viewModel.displayShowDetailsComplete()
-            }
-        })
     }
 
     override fun onResume() {
@@ -117,13 +97,15 @@ class HistoryFragment : BaseFragment(), HistoryAdapter.HistoryAdapterListener {
     }
 
     override fun onHistoryShowClick(view: View, historyItem: TraktHistory) {
-        viewModel.displayShowDetails(
-            ShowDetailArg(
-                source = "history",
-                showId = historyItem.tvMazeID,
-                showTitle = historyItem.showTitle,
-                showImageUrl = historyItem.originalImageUrl
-            )
+        findNavController().navigate(
+            HistoryFragmentDirections.actionHistoryFragmentToShowDetailFragment(
+                ShowDetailArg(
+                    source = "history",
+                    showId = historyItem.tvMazeID,
+                    showTitle = historyItem.showTitle,
+                    showImageUrl = historyItem.originalImageUrl
+                )
+            ), getShowDetailNavigatorExtras(view)
         )
     }
 
@@ -139,4 +121,5 @@ class HistoryFragment : BaseFragment(), HistoryAdapter.HistoryAdapterListener {
             }
             .show()
     }
+
 }

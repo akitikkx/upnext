@@ -12,11 +12,11 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.transition.MaterialFadeThrough
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentCollectionSeasonsBinding
 import com.theupnextapp.domain.TraktCollectionSeason
+import com.theupnextapp.domain.TraktCollectionSeasonEpisodeArg
 import com.theupnextapp.ui.common.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -41,14 +41,6 @@ class CollectionSeasonsFragment : BaseFragment(),
             assistedFactory,
             args.traktCollection
         )
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-        enterTransition = MaterialFadeThrough().apply {
-            duration = resources.getInteger(R.integer.show_motion_duration_large).toLong()
-        }
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {
@@ -101,17 +93,6 @@ class CollectionSeasonsFragment : BaseFragment(),
                 viewModel.onCollectionSeasonsEmpty(true)
             }
         })
-
-        viewModel.navigateToSelectedSeason.observe(viewLifecycleOwner, {
-            if (it != null) {
-                this.findNavController().navigate(
-                    CollectionSeasonsFragmentDirections.actionCollectionSeasonsFragmentToCollectionSeasonEpisodesFragment(
-                        it
-                    )
-                )
-                viewModel.navigateToSelectedSeasonComplete()
-            }
-        })
     }
 
     override fun onDestroyView() {
@@ -126,7 +107,15 @@ class CollectionSeasonsFragment : BaseFragment(),
     }
 
     override fun onCollectionSeasonClick(view: View, traktCollectionSeason: TraktCollectionSeason) {
-        viewModel.onSeasonClick(traktCollectionSeason)
+        this.findNavController().navigate(
+            CollectionSeasonsFragmentDirections.actionCollectionSeasonsFragmentToCollectionSeasonEpisodesFragment(
+                TraktCollectionSeasonEpisodeArg(
+                    collection = args.traktCollection,
+                    collectionSeason = traktCollectionSeason
+                )
+            ),
+            getShowDetailNavigatorExtras(view)
+        )
     }
 
     override fun onCollectionSeasonRemoveClick(

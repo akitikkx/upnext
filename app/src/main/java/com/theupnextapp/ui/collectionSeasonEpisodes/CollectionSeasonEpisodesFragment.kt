@@ -43,14 +43,6 @@ class CollectionSeasonEpisodesFragment : BaseFragment(),
         )
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-        enterTransition = MaterialFadeThrough().apply {
-            duration = resources.getInteger(R.integer.show_motion_duration_large).toLong()
-        }
-    }
-
     override fun onPrepareOptionsMenu(menu: Menu) {
         val settingsItem = menu.findItem(R.id.menu_settings)
         if (settingsItem != null) {
@@ -62,7 +54,7 @@ class CollectionSeasonEpisodesFragment : BaseFragment(),
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentCollectionSeasonEpisodesBinding.inflate(inflater)
 
         binding.viewModel = viewModel
@@ -81,8 +73,8 @@ class CollectionSeasonEpisodesFragment : BaseFragment(),
         return binding.root
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         viewModel.isAuthorizedOnTrakt.observe(viewLifecycleOwner, Observer {
             if (it == false) {

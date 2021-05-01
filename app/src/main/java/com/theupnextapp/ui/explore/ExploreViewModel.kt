@@ -1,11 +1,10 @@
 package com.theupnextapp.ui.explore
 
 import android.app.Application
-import androidx.lifecycle.*
+import androidx.lifecycle.MediatorLiveData
 import com.theupnextapp.common.utils.DateUtils
 import com.theupnextapp.common.utils.models.DatabaseTables
 import com.theupnextapp.common.utils.models.TableUpdateInterval
-import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.TableUpdate
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.ui.common.TraktViewModel
@@ -18,9 +17,6 @@ class ExploreViewModel @Inject constructor(
     application: Application,
     private val traktRepository: TraktRepository
 ) : TraktViewModel(application, traktRepository) {
-
-    private val _navigateToSelectedShow = MutableLiveData<ShowDetailArg?>()
-    val navigateToSelectedShow: LiveData<ShowDetailArg?> = _navigateToSelectedShow
 
     val trendingShows = traktRepository.traktTrendingShows
 
@@ -140,13 +136,5 @@ class ExploreViewModel @Inject constructor(
                 traktRepository.refreshTraktMostAnticipatedShows()
             }
         }
-    }
-
-    fun onExploreItemClick(showDetailArg: ShowDetailArg) {
-        _navigateToSelectedShow.value = showDetailArg
-    }
-
-    fun displayShowDetailsComplete() {
-        _navigateToSelectedShow.value = null
     }
 }

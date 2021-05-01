@@ -15,9 +15,6 @@ class HistoryViewModel @Inject constructor(
     traktRepository: TraktRepository
 ) : TraktViewModel(application, traktRepository) {
 
-    private val _navigateToSelectedShow = MutableLiveData<ShowDetailArg?>()
-    val navigateToSelectedShow: LiveData<ShowDetailArg?> = _navigateToSelectedShow
-
     val isLoadingHistory = traktRepository.isLoadingTraktHistory
 
     val traktHistory = traktRepository.traktHistory
@@ -26,14 +23,6 @@ class HistoryViewModel @Inject constructor(
         addSource(traktHistory) {
             value = it.isNullOrEmpty() == true
         }
-    }
-
-    fun displayShowDetails(showDetailArg: ShowDetailArg) {
-        _navigateToSelectedShow.value = showDetailArg
-    }
-
-    fun displayShowDetailsComplete() {
-        _navigateToSelectedShow.value = null
     }
 
     fun onRemoveClick(historyItem: TraktHistory) {

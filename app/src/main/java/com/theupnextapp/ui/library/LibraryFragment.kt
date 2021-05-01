@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.FragmentNavigator
 import androidx.navigation.fragment.FragmentNavigatorExtras
@@ -14,7 +13,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.MaterialElevationScale
-import com.google.android.material.transition.MaterialFadeThrough
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
@@ -39,13 +37,6 @@ class LibraryFragment : BaseFragment(), LibraryAdapter.LibraryAdapterListener {
     lateinit var firebaseAnalytics: FirebaseAnalytics
 
     private val viewModel by viewModels<LibraryViewModel>()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enterTransition = MaterialFadeThrough().apply {
-            duration = resources.getInteger(R.integer.show_motion_duration_large).toLong()
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -77,8 +68,6 @@ class LibraryFragment : BaseFragment(), LibraryAdapter.LibraryAdapterListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        postponeEnterTransition()
-        view.doOnPreDraw { startPostponedEnterTransition() }
 
         viewModel.launchTraktConnectWindow.observe(viewLifecycleOwner, {
             if (it) {
