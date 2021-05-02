@@ -15,7 +15,10 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:layout_marginStart="@dimen/margin_vertical"
+            android:layout_marginEnd="@dimen/margin_vertical"
+            android:paddingBottom="@dimen/margin_vertical">
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/watched_progress_show_title"

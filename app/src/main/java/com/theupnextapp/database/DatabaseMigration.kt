@@ -46,3 +46,9 @@ val MIGRATION_17_18: Migration = object : Migration(17, 18) {
         database.execSQL("CREATE TABLE IF NOT EXISTS trakt_popular (id INTEGER NOT NULL, title TEXT, year TEXT, medium_image_url TEXT, original_image_url TEXT, imdbID TEXT, slug TEXT, tmdbID INTEGER, traktID INTEGER, tvdbID INTEGER, tvMazeID INTEGER, PRIMARY KEY(id))")
     }
 }
+
+val MIGRATION_18_19: Migration = object : Migration(18, 19) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL("DROP TABLE IF EXISTS new_shows")
+    }
+}

@@ -5,7 +5,6 @@ import androidx.room.RoomDatabase
 
 @Database(
     entities = [
-        DatabaseNewShows::class,
         DatabaseYesterdaySchedule::class,
         DatabaseTodaySchedule::class,
         DatabaseTomorrowSchedule::class,
@@ -21,7 +20,7 @@ import androidx.room.RoomDatabase
         DatabaseTraktTrendingShows::class,
         DatabaseTraktMostAnticipated::class
     ],
-    version = 18,
+    version = 19,
     exportSchema = true
 )
 abstract class UpnextDatabase : RoomDatabase() {
