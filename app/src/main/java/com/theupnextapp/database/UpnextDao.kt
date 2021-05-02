@@ -18,22 +18,12 @@ interface UpnextDao {
     @Query("delete from table_updates where table_name = :tableName")
     fun deleteRecentTableUpdate(tableName: String)
 
-    // New shows
-    @Query("select * from new_shows")
-    fun getNewShows(): LiveData<List<DatabaseNewShows>>
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertAllNewShows(vararg newShows: DatabaseNewShows)
-
-    @Query("delete from new_shows")
-    fun deleteAllNewShows()
-
     // Schedule shows
     @Query("select * from schedule_yesterday")
     fun getYesterdayShows(): LiveData<List<DatabaseYesterdaySchedule>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertAllYesterdayShows(vararg newShows: DatabaseYesterdaySchedule)
+    fun insertAllYesterdayShows(vararg yesterdayShows: DatabaseYesterdaySchedule)
 
     @Query("delete from schedule_yesterday")
     fun deleteAllYesterdayShows()
@@ -42,7 +32,7 @@ interface UpnextDao {
     fun getTodayShows(): LiveData<List<DatabaseTodaySchedule>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertAllTodayShows(vararg newShows: DatabaseTodaySchedule)
+    fun insertAllTodayShows(vararg todayShows: DatabaseTodaySchedule)
 
     @Query("delete from schedule_today")
     fun deleteAllTodayShows()
@@ -51,7 +41,7 @@ interface UpnextDao {
     fun getTomorrowShows(): LiveData<List<DatabaseTomorrowSchedule>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertAllTomorrowShows(vararg newShows: DatabaseTomorrowSchedule)
+    fun insertAllTomorrowShows(vararg tomorrowShows: DatabaseTomorrowSchedule)
 
     @Query("delete from schedule_tomorrow")
     fun deleteAllTomorrowShows()

@@ -83,7 +83,6 @@ class SplashScreenViewModel @Inject constructor(
 
     private fun requestShowsUpdate() {
         viewModelScope?.launch {
-            upnextRepository.refreshNewShows()
             upnextRepository.refreshYesterdayShows(
                 DashboardViewModel.DEFAULT_COUNTRY_CODE,
                 DateUtils.yesterdayDate()

@@ -8,7 +8,6 @@ import com.theupnextapp.common.utils.models.DatabaseTables
 import com.theupnextapp.database.*
 import com.theupnextapp.domain.*
 import com.theupnextapp.network.TvMazeNetwork
-import com.theupnextapp.network.UpnextNetwork
 import com.theupnextapp.network.asDatabaseModel
 import com.theupnextapp.network.models.tvmaze.*
 import com.theupnextapp.network.models.upnext.NetworkShowInfoCombined
@@ -23,11 +22,6 @@ class UpnextRepository constructor(
     private val upnextDao: UpnextDao,
     private val firebaseCrashlytics: FirebaseCrashlytics
 ) {
-
-    val newShows: LiveData<List<NewShows>> =
-        Transformations.map(upnextDao.getNewShows()) {
-            it.asDomainModel()
-        }
 
     val yesterdayShows: LiveData<List<ScheduleShow>> =
         Transformations.map(upnextDao.getYesterdayShows()) {
@@ -98,24 +92,6 @@ class UpnextRepository constructor(
                     Timber.d(e)
                     firebaseCrashlytics.recordException(e)
                 }
-            }
-        }
-    }
-
-    suspend fun refreshNewShows() {
-        withContext(Dispatchers.IO) {
-            try {
-                _isLoadingNewShows.postValue(true)
-                val newShowsList = UpnextNetwork.upnextApi.getNewShowsAsync().await()
-                upnextDao.apply {
-                    deleteAllNewShows()
-                    insertAllNewShows(*newShowsList.asDatabaseModel())
-                }
-                _isLoadingNewShows.postValue(false)
-            } catch (e: Exception) {
-                _isLoadingNewShows.postValue(false)
-                Timber.d(e)
-                firebaseCrashlytics.recordException(e)
             }
         }
     }

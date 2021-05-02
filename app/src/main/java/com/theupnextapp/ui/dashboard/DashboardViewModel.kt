@@ -26,15 +26,11 @@ class DashboardViewModel @Inject constructor(
     private val _showFeaturesBottomSheet = MutableLiveData<Boolean>()
     val showFeaturesBottomSheet: LiveData<Boolean> = _showFeaturesBottomSheet
 
-    val isLoadingNewShows = upnextRepository.isLoadingNewShows
-
     val isLoadingYesterdayShows = upnextRepository.isLoadingYesterdayShows
 
     val isLoadingTodayShows = upnextRepository.isLoadingTodayShows
 
     val isLoadingTomorrowShows = upnextRepository.isLoadingTomorrowShows
-
-    val newShowsList = upnextRepository.newShows
 
     val yesterdayShowsList = upnextRepository.yesterdayShows
 
@@ -50,12 +46,6 @@ class DashboardViewModel @Inject constructor(
 
     val tomorrowShowsTableUpdate =
         upnextRepository.tableUpdate(DatabaseTables.TABLE_TOMORROW_SHOWS.tableName)
-
-    private val newShowsEmpty = MediatorLiveData<Boolean>().apply {
-        addSource(newShowsList) {
-            value = it.isNullOrEmpty() == true
-        }
-    }
 
     private val yesterdayShowsEmpty = MediatorLiveData<Boolean>().apply {
         addSource(yesterdayShowsList) {
@@ -76,9 +66,6 @@ class DashboardViewModel @Inject constructor(
     }
 
     val isLoading = MediatorLiveData<Boolean>().apply {
-        addSource(isLoadingNewShows) {
-            value = it
-        }
         addSource(isLoadingYesterdayShows) {
             value = it
         }
@@ -200,7 +187,6 @@ class DashboardViewModel @Inject constructor(
                 DEFAULT_COUNTRY_CODE,
                 DateUtils.tomorrowDate()
             )
-            upnextRepository.refreshNewShows()
         }
     }
 

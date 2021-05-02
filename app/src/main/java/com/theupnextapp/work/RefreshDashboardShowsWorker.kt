@@ -39,7 +39,6 @@ class RefreshDashboardShowsWorker @AssistedInject constructor(
     }
 
     private suspend fun refreshShows(repository: UpnextRepository) {
-        repository.refreshNewShows()
         repository.refreshYesterdayShows(
             DEFAULT_COUNTRY_CODE,
             yesterdayDate()

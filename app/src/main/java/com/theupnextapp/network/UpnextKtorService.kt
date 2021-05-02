@@ -4,9 +4,6 @@ import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterF
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import com.theupnextapp.UpnextApplication
-import com.theupnextapp.network.models.trakt.NetworkTraktTrendingShowsResponse
-import com.theupnextapp.network.models.upnext.NetworkNewShowsResponse
-import com.theupnextapp.network.models.upnextktor.NetworkUpnextKtorShowTrendingResponse
 import com.theupnextapp.network.models.upnextktor.NetworkUpnextKtorShowTrendingResponseItem
 import kotlinx.coroutines.Deferred
 import okhttp3.Cache

@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentDashboardBinding
-import com.theupnextapp.domain.NewShows
 import com.theupnextapp.domain.ScheduleShow
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.TraktRecommendations
@@ -23,7 +22,6 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class DashboardFragment : BaseFragment(),
     TraktRecommendationsAdapter.TraktRecommendationsAdapterListener,
-    NewShowsAdapter.NewShowsAdapterListener,
     TodayShowsAdapter.TodayShowsAdapterListener,
     YesterdayShowsAdapter.YesterdayShowsAdapterListener,
     TomorrowShowsAdapter.TomorrowShowsAdapterListener {
@@ -33,8 +31,6 @@ class DashboardFragment : BaseFragment(),
 
     @Inject
     lateinit var firebaseAnalytics: FirebaseAnalytics
-
-    lateinit var newShowsAdapter: NewShowsAdapter
 
     private var yesterdayShowsAdapter: YesterdayShowsAdapter? = null
 
@@ -60,20 +56,11 @@ class DashboardFragment : BaseFragment(),
 
         binding.viewModel = viewModel
 
-        newShowsAdapter = NewShowsAdapter(this)
-
         yesterdayShowsAdapter = YesterdayShowsAdapter(this)
 
         todayShowsAdapter = TodayShowsAdapter(this)
 
         tomorrowShowsAdapter = TomorrowShowsAdapter(this)
-
-        binding.root.findViewById<RecyclerView>(R.id.new_shows_list).apply {
-            layoutManager = LinearLayoutManager(requireContext()).apply {
-                orientation = LinearLayoutManager.HORIZONTAL
-            }
-            adapter = newShowsAdapter
-        }
 
         binding.root.findViewById<RecyclerView>(R.id.yesterday_shows_list).apply {
             layoutManager = LinearLayoutManager(requireContext()).apply {
@@ -108,14 +95,6 @@ class DashboardFragment : BaseFragment(),
                 activity?.supportFragmentManager?.let { fragmentManager ->
                     featuresBottomSheet.show(fragmentManager, FeaturesBottomSheetFragment.TAG)
                     viewModel.showFeaturesBottomSheetComplete()
-                }
-            }
-        })
-
-        viewModel.newShowsList.observe(viewLifecycleOwner, { newShows ->
-            newShows.apply {
-                if (!newShows.isNullOrEmpty()) {
-                    newShowsAdapter.submitList(newShows)
                 }
             }
         })
@@ -227,24 +206,6 @@ class DashboardFragment : BaseFragment(),
             traktRecommendations.id.toString()
         )
         analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, traktRecommendations.title)
-        analyticsBundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "dashboard_show")
-        firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM, analyticsBundle)
-    }
-
-    override fun onNewShowClick(view: View, newShow: NewShows) {
-        val directions = DashboardFragmentDirections.actionDashboardFragmentToShowDetailFragment(
-            ShowDetailArg(
-                source = "new",
-                showId = newShow.id,
-                showTitle = newShow.name,
-                showImageUrl = newShow.originalImageUrl
-            )
-        )
-        findNavController().navigate(directions, getShowDetailNavigatorExtras(view))
-
-        val analyticsBundle = Bundle()
-        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, newShow.id.toString())
-        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, newShow.name)
         analyticsBundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "dashboard_show")
         firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM, analyticsBundle)
     }
