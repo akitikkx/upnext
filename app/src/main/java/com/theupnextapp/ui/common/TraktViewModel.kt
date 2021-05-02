@@ -8,7 +8,7 @@ import com.theupnextapp.domain.TraktAccessToken
 import com.theupnextapp.domain.TraktConnectionArg
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.datastore.TraktUserManager
-import com.theupnextapp.ui.collection.CollectionViewModel
+import com.theupnextapp.ui.common.BaseFragment.Companion.EXTRA_TRAKT_URI
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -46,7 +46,7 @@ open class TraktViewModel @Inject constructor(
 
     protected val viewModelJob = SupervisorJob()
 
-    protected val viewModelScope: CoroutineScope? = CoroutineScope(viewModelJob + Dispatchers.Main)
+    protected val viewModelScope: CoroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
     private val prefTraktAccessToken = preferences.traktAccessTokenFlow
 
@@ -101,17 +101,13 @@ open class TraktViewModel @Inject constructor(
 
     val isAuthorizedOnTrakt: LiveData<Boolean?> = _isAuthorizedOnTrakt
 
-    private fun checkIfTokenHasBeenRevoked() {
-
-    }
-
     override fun onCleared() {
         super.onCleared()
         viewModelJob.cancel()
     }
 
     private fun refreshAccessToken(refreshToken: String?) {
-        viewModelScope?.launch {
+        viewModelScope.launch {
             traktRepository.getTraktAccessRefreshToken(refreshToken)
         }
     }
@@ -138,8 +134,7 @@ open class TraktViewModel @Inject constructor(
         _isAuthorizedOnTrakt.value = true
         _storingTraktAccessTokenInProgress.value = false
 
-        viewModelScope?.launch {
-            traktRepository.refreshTraktCollection(traktAccessToken.access_token)
+        viewModelScope.launch {
             traktRepository.refreshTraktHistory(traktAccessToken.access_token)
             traktRepository.refreshTraktWatchlist(traktAccessToken.access_token)
         }
@@ -153,11 +148,11 @@ open class TraktViewModel @Inject constructor(
 
     private fun extractCode(bundle: Bundle?) {
         val traktConnectionArg =
-            bundle?.getParcelable<TraktConnectionArg>(CollectionViewModel.EXTRA_TRAKT_URI)
+            bundle?.getParcelable<TraktConnectionArg>(EXTRA_TRAKT_URI)
 
         _fetchingAccessTokenInProgress.value = true
 
-        viewModelScope?.launch {
+        viewModelScope.launch {
             traktRepository.getTraktAccessToken(traktConnectionArg?.code)
         }
         _fetchingAccessTokenInProgress.value = false
@@ -170,7 +165,7 @@ open class TraktViewModel @Inject constructor(
             return
         }
 
-        viewModelScope?.launch {
+        viewModelScope.launch {
             traktAccessTokenResponse.access_token?.let { preferences.saveTraktAccessToken(it) }
             traktAccessTokenResponse.created_at?.let { preferences.saveTraktAccessTokenCreatedAt(it) }
             traktAccessTokenResponse.expires_in?.let { preferences.saveTraktAccessTokenExpiresIn(it) }

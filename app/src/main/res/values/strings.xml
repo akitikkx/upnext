@@ -9,9 +9,6 @@
     <string name="title_tomorrow_shows">Airing Tomorrow</string>
     <string name="title_library">Library</string>
     <string name="title_explore">Explore</string>
-    <string name="title_trakt_collection">Trakt Collection</string>
-    <string name="title_trakt_collection_seasons">Collection Seasons</string>
-    <string name="title_trakt_collection_episodes">Collection Episodes</string>
     <string name="title_trakt_watchlist">Trakt Watchlist</string>
     <string name="title_trakt_history">Trakt History</string>
     <string name="title_settings">Settings</string>
@@ -20,7 +17,6 @@
     <!-- Bottom navigation -->
     <string name="bottom_nav_title_search">Search</string>
     <string name="bottom_nav_title_dashboard">Dashboard</string>
-    <string name="bottom_nav_title_collection">Collection</string>
     <string name="bottom_nav_title_history">History</string>
     <string name="bottom_nav_title_watchlist">Watchlist</string>
     <string name="bottom_nav_title_library">Library</string>
@@ -35,8 +31,6 @@
     <string name="show_detail_add_to_watchlist_button">Add to watchlist</string>
     <string name="show_detail_remove_from_watchlist_button">Remove from watchlist</string>
     <string name="show_detail_remove_from_watchlist_button_description">Remove from watchlist button</string>
-    <string name="show_detail_add_to_collection_button">Add to collection</string>
-    <string name="show_detail_remove_from_collection_button">Remove from collection</string>
     <string name="show_detail_get_watched_progress">Your Watched Progress</string>
     <string name="show_detail_genres_heading">Genres</string>
     <string name="show_detail_air_days_heading">Airs on</string>
@@ -80,7 +74,6 @@
     <string name="splash_screen_loading_text_tomorrow_schedule">Fetching tomorrow\'s schedule…</string>
     <string name="splash_screen_loading_text_today_schedule">Fetching today\'s schedule…</string>
     <string name="splash_screen_loading_text_yesterday_schedule">Fetching yesterday\'s schedule…</string>
-    <string name="splash_screen_loading_text_new_shows">Fetching new shows…</string>
     <string name="splash_screen_loading_text_recommended_shows">Fetching recommended shows…</string>
 
     <!-- Search -->
@@ -113,17 +106,15 @@
     <string name="library_trakt_connection_status_connected">Connection status: Connected</string>
     <string name="library_trakt_connection_status_not_connected">Connection status: Not connected</string>
     <string name="library_disconnect_from_trakt_dialog_title">Disconnecting Trakt Account</string>
-    <string name="library_disconnect_from_trakt_dialog_message">All your cached Watchlist, Collection and History data will be removed.
+    <string name="library_disconnect_from_trakt_dialog_message">All your cached Watchlist and History data will be removed.
         You will need to reconnect your Trakt account for the data to be synchronized again</string>
     <string name="library_disconnect_from_trakt_dialog_negative">Cancel</string>
     <string name="library_disconnect_from_trakt_dialog_positive">Proceed</string>
     <string name="library_removing_watchlist_data">Clearing watchlist cache…</string>
     <string name="library_removing_history_data">Clearing history cache…</string>
-    <string name="library_removing_collection_data">Clearing collection cache…</string>
     <string name="library_loading_watchlist_data">Synchronizing Trakt watchlist…</string>
     <string name="library_loading_history_data">Synchronizing Trakt history…</string>
     <string name="library_loading_recommendations_data">Synchronizing Trakt recommendations…</string>
-    <string name="library_loading_collection_data">Synchronizing Trakt collection…</string>
     <string name="library_table_last_update">Last sync: %1$d %2$s ago</string>
     <string name="library_table_last_update_null">Last sync: -</string>
 
@@ -143,26 +134,6 @@
     <string name="remove_from_watchlist_confirm">Remove %1$s from your watchlist?</string>
     <string name="remove_from_watchlist_dialog_button_negative">Cancel</string>
     <string name="remove_from_watchlist_dialog_button_positive">Yes</string>
-
-    <!-- Trakt Collection -->
-    <string name="collection_item_collected_at">Collected at: %1$s</string>
-    <string name="collection_empty_state_text">Your Trakt collection is empty. Add shows to your collection in your Trakt account and they will appear here</string>
-    <string name="collection_season_empty_state_text">This show collection has no seasons added</string>
-    <string name="collection_screen_subtitle">Shows that you have added to your collection will be shown here</string>
-    <string name="collection_season_screen_subtitle">You have collected episodes from these seasons</string>
-
-    <!-- Trakt Collection Season -->
-    <string name="collection_season_delete_button_description">Delete season from collection button</string>
-    <string name="collection_season_remove_dialog_title">Remove this season from your collection?</string>
-    <string name="collection_season_remove_dialog_negative">Cancel</string>
-    <string name="collection_season_remove_dialog_positive">Yes</string>
-
-    <!-- Trakt Collection Season Episode -->
-    <string name="collection_season_episode_delete_button_description">Delete episode from collection button</string>
-    <string name="collection_season_episode_empty_state_text">There are no episodes listed in your collection for this season</string>
-    <string name="collection_season_episode_remove_dialog_title">Remove this episode from your collection?</string>
-    <string name="collection_season_episode_remove_dialog_negative">Cancel</string>
-    <string name="collection_season_episode_remove_dialog_positive">Yes</string>
 
     <!-- Trakt History -->
     <string name="trakt_history_episode_details">Season %1$d Episode %2$d</string>
@@ -214,10 +185,10 @@
     <string name="why_do_need_trakt_account_body">The aim of the UpNext TV Series Manager is to not only provide you with series information but also
         functionality that will allow you to track and manage your favorite shows. \n\nThis tracking functionality is offered by the very reputable
         Trakt service which we have integrated into the management sections of the UpNext TV Series Manager. To be able to take advantage of the
-        Trakt features in the Upnext TV Series Manager such as managing your watchlist, collection or your series watch history, you will need
+        Trakt features in the Upnext TV Series Manager such as managing your watchlist or your series watch history, you will need
         to have a Trakt account and through any of the \"Connect to Trakt\" buttons in the UpNext TV Series Manager we can then link your Trakt
         account. \n\nAt any time you can revoke UpNext TV Series Manager\'s access to your account from your Trakt.tv account. Bear in mind this
-        will then sever any connection UpNext TV Series manager has to your account thus disabling any management features - watchlist, history and collection.
+        will then sever any connection UpNext TV Series manager has to your account thus disabling any management features - watchlist, and history.
     </string>
     <string name="what_is_trakt_title">What is Trakt?</string>
     <string name="what_is_trakt_body">Trakt is a platform that does many things, but primarily keeps
@@ -240,20 +211,10 @@
         A watchlist is intended for shows you want to watch
     to 100%. In other words you want to watch all the episodes for the series that have aired to date.</string>
 
-    <!-- Collection Info bottom sheet -->
-    <string name="what_is_a_collection_title">What is a collection?</string>
-    <string name="what_is_a_collection_body">Items in your collection will consist of episodes, seasons or even shows that you own digitally or
-        physically and have available to watch.\n\nFrom the UpNext TV Series Manager the \"Add to Collection\" button is what you will need to
-        click in order to add a show, its season or its episode.</string>
-    <string name="how_trakt_manages_your_collection_title">How Trakt manages your collection</string>
-    <string name="how_trakt_manages_your_collection_body">Your collected TV shows will be added to your personal collection page on Trakt [https://trakt.tv/users/me/collection] and can be
-        accessible on the UpNext TV Series Manager by clicking on the Collection tab</string>
-
     <!-- Transition names -->
     <string name="dashboard_yesterday_transition_name">dashboard_yesterday_%1$s</string>
     <string name="dashboard_today_transition_name">dashboard_today_%1$s</string>
     <string name="dashboard_tomorrow_transition_name">dashboard_tomorrow_%1$s</string>
-    <string name="dashboard_new_shows_transition_name">dashboard_new_shows_%1$s</string>
     <string name="explore_trending_transition_name">explore_trending_%1$s</string>
     <string name="explore_most_anticipated_transition_name">explore_most_anticipated_%1$s</string>
     <string name="explore_popular_transition_name">explore_popular_%1$s</string>
@@ -263,13 +224,10 @@
     <string name="library_transition_name">library_transition</string>
     <string name="library_watchlist_transition_name">library_watchlist</string>
     <string name="library_history_transition_name">library_history</string>
-    <string name="library_collection_transition_name">library_collection</string>
     <string name="library_recommendations_transition_name">library_recommendations</string>
     <string name="watchlist_transition_name">watchlist_%1$s</string>
     <string name="history_transition_name">history_%1$s</string>
     <string name="recommendation_transition_name">recommendation_%1$s</string>
-    <string name="collection_item_transition_name">collection_%1$s</string>
-    <string name="collection_season_item_transition_name">collection_season_item_%1$s</string>
     <string name="recommendations_transition_name">recommendations</string>
 
     <!-- Error -->

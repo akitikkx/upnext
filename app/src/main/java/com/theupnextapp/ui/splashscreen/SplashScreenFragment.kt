@@ -58,14 +58,6 @@ class SplashScreenFragment : Fragment() {
             }
         })
 
-        viewModel.isLoadingNewShows.observe(viewLifecycleOwner, Observer {
-            if (it) {
-                viewModel.displayLoadingText(getString(R.string.splash_screen_loading_text_new_shows))
-            } else {
-                viewModel.displayLoadingTextComplete()
-            }
-        })
-
         viewModel.isLoadingYesterdayShows.observe(viewLifecycleOwner, Observer {
             if (it) {
                 viewModel.displayLoadingText(getString(R.string.splash_screen_loading_text_yesterday_schedule))

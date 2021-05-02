@@ -22,11 +22,6 @@ interface TraktService {
     @POST(" oauth/token")
     fun getAccessRefreshTokenAsync(@Body traktAccessRefreshTokenRequest: NetworkTraktAccessRefreshTokenRequest): Deferred<NetworkTraktAccessRefreshTokenResponse>
 
-    @GET("sync/collection/shows")
-    fun getCollectionAsync(
-        @Header("Authorization") token: String
-    ): Deferred<NetworkTraktCollectionResponse>
-
     @GET("sync/watchlist/shows/rank")
     fun getWatchlistAsync(
         @Header("Authorization") token: String
@@ -78,18 +73,6 @@ interface TraktService {
         @Header("Authorization") token: String,
         @Body request: NetworkTraktRemoveSeasonFromHistoryRequest
     ): Deferred<NetworkTraktRemoveFromHistoryResponse>
-
-    @POST("sync/collection")
-    fun addToCollectionAsync(
-        @Header("Authorization") token: String,
-        @Body request: NetworkTraktAddToCollectionRequest
-    ): Deferred<NetworkTraktAddToCollectionResponse>
-
-    @POST("sync/collection/remove")
-    fun removeFromCollectionAsync(
-        @Header("Authorization") token: String,
-        @Body request: NetworkTraktRemoveFromCollectionRequest
-    ): Deferred<NetworkTraktRemoveFromCollectionResponse>
 
     @GET("shows/{id}/ratings")
     fun getShowRatingsAsync(

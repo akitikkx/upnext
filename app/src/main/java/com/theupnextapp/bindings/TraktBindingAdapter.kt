@@ -1,7 +1,6 @@
 package com.theupnextapp.bindings
 
 import android.view.View
-import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
@@ -51,33 +50,6 @@ fun addRemoveFromWatchlistButtonText(view: TextView, isAdded: Boolean) {
     }
 }
 
-@BindingAdapter("addRemoveFromWatchlistButtonIcon")
-fun addRemoveFromWatchlistButtonIcon(view: ImageView, isAdded: Boolean) {
-    if (isAdded) {
-        view.setBackgroundResource(R.drawable.ic_baseline_playlist_add_check_24)
-    } else {
-        view.setBackgroundResource(R.drawable.ic_baseline_playlist_add_24)
-    }
-}
-
-@BindingAdapter("addRemoveFromCollectionButtonText")
-fun addRemoveFromCollectionButtonText(view: TextView, isAdded: Boolean) {
-    if (isAdded) {
-        view.text = view.resources.getString(R.string.show_detail_remove_from_collection_button)
-    } else {
-        view.text = view.resources.getString(R.string.show_detail_add_to_collection_button)
-    }
-}
-
-@BindingAdapter("addRemoveFromCollectionButtonIcon")
-fun addRemoveFromCollectionButtonIcon(view: ImageView, isAdded: Boolean) {
-    if (isAdded) {
-        view.setBackgroundResource(R.drawable.ic_baseline_library_add_check_24)
-    } else {
-        view.setBackgroundResource(R.drawable.ic_baseline_library_add_24)
-    }
-}
-
 @BindingAdapter("showListedAt")
 fun showListedAt(view: TextView, watchlist: TraktWatchlist) {
     if (!watchlist.listed_at.isNullOrEmpty()) {
@@ -88,46 +60,6 @@ fun showListedAt(view: TextView, watchlist: TraktWatchlist) {
 
             view.text = view.resources.getString(
                 R.string.watchlist_item_listed_at,
-                formattedDate
-            )
-        } catch (e: Exception) {
-            FirebaseCrashlytics.getInstance().recordException(e)
-        }
-    } else {
-        view.visibility = View.GONE
-    }
-}
-
-@BindingAdapter("showLastCollectedAt")
-fun showLastCollectedAt(view: TextView, collection: TraktCollection) {
-    if (!collection.lastCollectedAt.isNullOrEmpty()) {
-        try {
-            val format =
-                SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.000Z'", Locale.getDefault())
-            val formattedDate: Date? = format.parse(collection.lastCollectedAt)
-
-            view.text = view.resources.getString(
-                R.string.collection_item_collected_at,
-                formattedDate
-            )
-        } catch (e: Exception) {
-            FirebaseCrashlytics.getInstance().recordException(e)
-        }
-    } else {
-        view.visibility = View.GONE
-    }
-}
-
-@BindingAdapter("episodeCollectedAt")
-fun episodeCollectedAt(view: TextView, collectionEpisode: TraktCollectionSeasonEpisode) {
-    if (!collectionEpisode.collectedAt.isNullOrEmpty()) {
-        try {
-            val format =
-                SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.000Z'", Locale.getDefault())
-            val formattedDate: Date? = format.parse(collectionEpisode.collectedAt)
-
-            view.text = view.resources.getString(
-                R.string.collection_item_collected_at,
                 formattedDate
             )
         } catch (e: Exception) {

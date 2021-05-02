@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.theupnextapp.R
 import com.theupnextapp.databinding.ShowSeasonItemBinding
 import com.theupnextapp.domain.ShowSeason
-import com.theupnextapp.domain.TraktCollectionSeason
 import com.theupnextapp.domain.TraktWatchedShowProgressSeason
 
 class ShowSeasonsAdapter(val listener: ShowSeasonsAdapterListener) :
@@ -21,8 +20,6 @@ class ShowSeasonsAdapter(val listener: ShowSeasonsAdapterListener) :
     private var showSeasons: List<ShowSeason> = ArrayList()
 
     private var traktWatchedProgress: List<TraktWatchedShowProgressSeason> = ArrayList()
-
-    private var traktCollectionSeasons: List<TraktCollectionSeason> = ArrayList()
 
     var isAuthorizedOnTrakt: Boolean = false
 
@@ -45,31 +42,19 @@ class ShowSeasonsAdapter(val listener: ShowSeasonsAdapterListener) :
 
             var watchedSeason: TraktWatchedShowProgressSeason? = null
 
-            var collectedSeason: TraktCollectionSeason? = null
-
             it.listener = listener
 
             it.showSeason = showSeason
 
             if (!traktWatchedProgress.isNullOrEmpty()) {
-                traktWatchedProgress?.forEach { season ->
+                traktWatchedProgress.forEach { season ->
                     if (season.number == showSeason.seasonNumber && season.aired == season.completed) {
                         watchedSeason = season
                     }
                 }
             }
 
-            if (!traktCollectionSeasons.isNullOrEmpty()) {
-                traktCollectionSeasons?.forEach { season ->
-                    if (season.seasonNumber == showSeason.seasonNumber) {
-                        collectedSeason = season
-                    }
-                }
-            }
-
             it.watchedSeason = watchedSeason
-
-            it.collectedSeason = collectedSeason
 
             if (isAuthorizedOnTrakt) {
                 it.seasonOptionsMenu.visibility = View.VISIBLE
@@ -78,12 +63,6 @@ class ShowSeasonsAdapter(val listener: ShowSeasonsAdapterListener) :
                     it.showSeasonTraktWatchedTag.visibility = View.VISIBLE
                 } else {
                     it.showSeasonTraktWatchedTag.visibility = View.GONE
-                }
-
-                if (collectedSeason != null) {
-                    it.showSeasonTraktCollectedTag.visibility = View.VISIBLE
-                } else {
-                    it.showSeasonTraktCollectedTag.visibility = View.GONE
                 }
             } else {
                 it.seasonOptionsMenu.visibility = View.GONE
@@ -100,8 +79,7 @@ class ShowSeasonsAdapter(val listener: ShowSeasonsAdapterListener) :
         fun onShowSeasonTraktOptionsMenuClick(
             view: View,
             showSeason: ShowSeason,
-            watchedSeason: TraktWatchedShowProgressSeason?,
-            collectedSeason: TraktCollectionSeason?
+            watchedSeason: TraktWatchedShowProgressSeason?
         ) {
             val seasonWatched = watchedSeason != null
 
@@ -135,10 +113,6 @@ class ShowSeasonsAdapter(val listener: ShowSeasonsAdapterListener) :
             }
             popupMenu.show()
         }
-
-        fun onShowSeasonAddToTraktCollectionClick(view: View, showSeason: ShowSeason)
-
-        fun onShowSeasonRemoveFromTraktCollectionClick(view: View, showSeason: ShowSeason)
     }
 
     fun submitShowSeasonsList(showSeasonsList: List<ShowSeason>) {
@@ -150,18 +124,6 @@ class ShowSeasonsAdapter(val listener: ShowSeasonsAdapterListener) :
             )
         )
         showSeasons = showSeasonsList
-        diffResult.dispatchUpdatesTo(this)
-    }
-
-    fun submitCollectionSeasonsList(collectionSeasonsList: List<TraktCollectionSeason>) {
-        val oldCollectionSeasonsList = traktCollectionSeasons
-        val diffResult: DiffUtil.DiffResult = DiffUtil.calculateDiff(
-            CollectionSeasonItemCallback(
-                oldCollectionSeasonsList,
-                collectionSeasonsList
-            )
-        )
-        traktCollectionSeasons = collectionSeasonsList
         diffResult.dispatchUpdatesTo(this)
     }
 
@@ -191,26 +153,8 @@ class ShowSeasonsAdapter(val listener: ShowSeasonsAdapterListener) :
 
         override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
             return oldWatchedProgressSeasonsList[oldItemPosition].equals(
-                newWatchedProgressSeasonsList?.get(newItemPosition)
+                newWatchedProgressSeasonsList.get(newItemPosition)
             )
-        }
-
-    }
-
-    class CollectionSeasonItemCallback(
-        private val oldCollectionSeasonsList: List<TraktCollectionSeason>,
-        private val newCollectionSeasonsList: List<TraktCollectionSeason>
-    ) : DiffUtil.Callback() {
-        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return oldCollectionSeasonsList[oldItemPosition].id == newCollectionSeasonsList[newItemPosition].id
-        }
-
-        override fun getOldListSize(): Int = oldCollectionSeasonsList.size
-
-        override fun getNewListSize(): Int = newCollectionSeasonsList.size
-
-        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return oldCollectionSeasonsList[oldItemPosition].equals(newCollectionSeasonsList[newItemPosition])
         }
 
     }

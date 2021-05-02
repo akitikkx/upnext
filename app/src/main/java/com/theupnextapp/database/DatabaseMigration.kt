@@ -52,3 +52,11 @@ val MIGRATION_18_19: Migration = object : Migration(18, 19) {
         database.execSQL("DROP TABLE IF EXISTS new_shows")
     }
 }
+
+val MIGRATION_19_20: Migration = object : Migration(19, 20) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL("DROP TABLE IF EXISTS trakt_collection")
+        database.execSQL("DROP TABLE IF EXISTS trakt_collection_seasons")
+        database.execSQL("DROP TABLE IF EXISTS trakt_collection_episodes")
+    }
+}

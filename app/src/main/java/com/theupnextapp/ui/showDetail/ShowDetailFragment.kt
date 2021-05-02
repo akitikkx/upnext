@@ -214,17 +214,6 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
             }
         })
 
-        viewModel.showCollectionInfoBottomSheet.observe(viewLifecycleOwner, {
-            if (it == true) {
-                HelpContentComponent.showContent(
-                    HelpContentType.COLLECTION_INFO,
-                    activity?.supportFragmentManager
-                )
-                Firebase.analytics.logEvent("collection_info_icon_click", null)
-                viewModel.showCollectionInfoBottomSheetComplete()
-            }
-        })
-
         viewModel.launchTraktConnectWindow.observe(viewLifecycleOwner, {
             if (it) {
                 launchTraktWindow()

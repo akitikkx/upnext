@@ -52,9 +52,6 @@ class UpnextRepository constructor(
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
 
-    private val _isLoadingNewShows = MutableLiveData<Boolean>()
-    val isLoadingNewShows: LiveData<Boolean> = _isLoadingNewShows
-
     private val _isLoadingYesterdayShows = MutableLiveData<Boolean>()
     val isLoadingYesterdayShows: LiveData<Boolean> = _isLoadingYesterdayShows
 
