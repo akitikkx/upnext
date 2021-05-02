@@ -128,10 +128,6 @@ class LibraryFragment : BaseFragment(), LibraryAdapter.LibraryAdapterListener {
             viewModel.onHistoryTableUpdateReceived(it)
         })
 
-        viewModel.collectionTableUpdate.observe(viewLifecycleOwner, {
-            viewModel.onCollectionTableUpdateReceived(it)
-        })
-
         viewModel.recommendationsTableUpdate.observe(viewLifecycleOwner, {
             viewModel.onRecommendationsTableUpdateReceived(it)
         })
@@ -157,16 +153,6 @@ class LibraryFragment : BaseFragment(), LibraryAdapter.LibraryAdapterListener {
                 Snackbar.make(
                     binding.root,
                     getString(R.string.library_removing_watchlist_data),
-                    Snackbar.LENGTH_SHORT
-                ).show()
-            }
-        })
-
-        viewModel.isRemovingCollectionData.observe(viewLifecycleOwner, {
-            if (it == true) {
-                Snackbar.make(
-                    binding.root,
-                    getString(R.string.library_removing_collection_data),
                     Snackbar.LENGTH_SHORT
                 ).show()
             }
@@ -207,16 +193,6 @@ class LibraryFragment : BaseFragment(), LibraryAdapter.LibraryAdapterListener {
                 Snackbar.make(
                     binding.root,
                     getString(R.string.library_loading_recommendations_data),
-                    Snackbar.LENGTH_SHORT
-                ).show()
-            }
-        })
-
-        viewModel.isLoadingCollection.observe(viewLifecycleOwner, {
-            if (it == true) {
-                Snackbar.make(
-                    binding.root,
-                    getString(R.string.library_loading_collection_data),
                     Snackbar.LENGTH_SHORT
                 ).show()
             }

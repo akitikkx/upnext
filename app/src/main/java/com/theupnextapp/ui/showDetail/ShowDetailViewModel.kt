@@ -9,7 +9,6 @@ import com.theupnextapp.ui.common.TraktViewModel
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 
 class ShowDetailViewModel @AssistedInject constructor(
@@ -22,14 +21,8 @@ class ShowDetailViewModel @AssistedInject constructor(
     private val _onWatchList = MutableLiveData<Boolean>()
     val onWatchlist: LiveData<Boolean> = _onWatchList
 
-    private val _inCollection = MutableLiveData<Boolean>(false)
-    val inCollection: LiveData<Boolean> = _inCollection
-
     private val _notOnWatchlist = MutableLiveData<Boolean>()
     val notOnWatchlist: LiveData<Boolean> = _notOnWatchlist
-
-    private val _notInCollection = MutableLiveData<Boolean>(false)
-    val notInCollection: LiveData<Boolean> = _notInCollection
 
     private val _show = MutableLiveData(show)
     val showDetailArg: LiveData<ShowDetailArg> = _show
@@ -52,9 +45,6 @@ class ShowDetailViewModel @AssistedInject constructor(
 
     private val _showConnectToTraktInfoBottomSheet = MutableLiveData<Boolean>()
     val showConnectToTraktInfoBottomSheet: LiveData<Boolean> = _showConnectToTraktInfoBottomSheet
-
-    private val _showCollectionInfoBottomSheet = MutableLiveData<Boolean>()
-    val showCollectionInfoBottomSheet: LiveData<Boolean> = _showCollectionInfoBottomSheet
 
     private val _showConnectionToTraktRequiredError = MutableLiveData<Boolean>()
     val showConnectionToTraktRequiredError: LiveData<Boolean> = _showConnectionToTraktRequiredError
@@ -86,7 +76,7 @@ class ShowDetailViewModel @AssistedInject constructor(
     val watchedProgress = traktRepository.traktWatchedProgress
 
     init {
-        viewModelScope?.launch {
+        viewModelScope.launch {
             show.showId?.let {
                 upnextRepository.getShowData(it)
                 upnextRepository.getShowCast(it)
@@ -119,10 +109,6 @@ class ShowDetailViewModel @AssistedInject constructor(
 
     fun showWatchlistInfoBottomSheetComplete() {
         _showWatchlistInfoBottomSheet.value = false
-    }
-
-    fun showCollectionInfoBottomSheetComplete() {
-        _showCollectionInfoBottomSheet.value = false
     }
 
     fun showConnectToTraktInfoBottomSheetComplete() {
@@ -172,22 +158,6 @@ class ShowDetailViewModel @AssistedInject constructor(
         onWatchlistAction(WATCHLIST_ACTION_REMOVE)
     }
 
-    fun onAddRemoveCollectionClick() {
-        if (_inCollection.value == true) {
-            onRemoveFromCollectionClick()
-        } else {
-            onAddToCollectionClick()
-        }
-    }
-
-    private fun onAddToCollectionClick() {
-        onCollectionAction(COLLECTION_ACTION_ADD)
-    }
-
-    private fun onRemoveFromCollectionClick() {
-        onCollectionAction(COLLECTION_ACTION_REMOVE)
-    }
-
     fun onWatchedProgressClick() {
         _showWatchedProgressBottomSheet.value = watchedProgress.value
     }
@@ -204,16 +174,12 @@ class ShowDetailViewModel @AssistedInject constructor(
         _showWatchlistInfoBottomSheet.value = true
     }
 
-    fun onAddRemoveCollectionInfoClick() {
-        _showCollectionInfoBottomSheet.value = true
-    }
-
     private fun onWatchlistAction(action: String) {
         if (isAuthorizedOnTrakt.value == true) {
 
             when (action) {
                 WATCHLIST_ACTION_ADD -> {
-                    viewModelScope?.launch {
+                    viewModelScope.launch {
                         showInfo.value?.imdbID?.let { imdbID ->
                             traktRepository.traktAddToWatchlist(
                                 accessToken.value,
@@ -223,7 +189,7 @@ class ShowDetailViewModel @AssistedInject constructor(
                     }
                 }
                 WATCHLIST_ACTION_REMOVE -> {
-                    viewModelScope?.launch {
+                    viewModelScope.launch {
                         showInfo.value?.imdbID?.let { imdbID ->
                             traktRepository.traktRemoveFromWatchlist(
                                 accessToken.value,
@@ -241,31 +207,9 @@ class ShowDetailViewModel @AssistedInject constructor(
     }
 
     fun onRemoveFromWatchlistResponseReceived(removeFromWatchlist: TraktRemoveFromWatchlist) {
-        viewModelScope?.launch {
+        viewModelScope.launch {
             showInfo.value?.imdbID?.let { traktRepository.removeFromCachedWatchlist(it) }
         }
-    }
-
-
-    private fun onCollectionAction(action: String) {
-        if (isAuthorizedOnTrakt.value == true) {
-            when (action) {
-                COLLECTION_ACTION_ADD -> {
-
-                }
-                COLLECTION_ACTION_REMOVE -> {
-
-                }
-            }
-        }
-    }
-
-    fun onAddToCollectionResponseReceived() {
-        requestCollectionRefresh()
-    }
-
-    fun onRemoveFromCollectionResponseReceived() {
-
     }
 
     private fun requestWatchlistRefresh() {
@@ -275,18 +219,8 @@ class ShowDetailViewModel @AssistedInject constructor(
     }
 
     private fun loadTraktWatchlist() {
-        viewModelScope?.launch {
+        viewModelScope.launch {
             traktRepository.refreshTraktWatchlist(accessToken.value)
-        }
-    }
-
-    private fun requestCollectionRefresh() {
-        loadTraktCollection()
-    }
-
-    private fun loadTraktCollection() {
-        viewModelScope?.launch {
-            traktRepository.refreshTraktCollection(accessToken.value)
         }
     }
 
@@ -303,8 +237,6 @@ class ShowDetailViewModel @AssistedInject constructor(
     companion object {
         const val WATCHLIST_ACTION_ADD = "add_to_watchlist"
         const val WATCHLIST_ACTION_REMOVE = "remove_from_watchlist"
-        const val COLLECTION_ACTION_ADD = "add_to_collection"
-        const val COLLECTION_ACTION_REMOVE = "remove_from_collection"
 
         fun provideFactory(
             assistedFactory: ShowDetailViewModelFactory,

@@ -16,11 +16,4 @@
         android:title="@string/bottom_nav_title_dashboard"
         app:showAsAction="ifRoom" />
 
-    <item
-        android:id="@+id/collectionFragment"
-        android:icon="@drawable/ic_video_library_white_24dp"
-        android:orderInCategory="2"
-        android:title="@string/bottom_nav_title_collection"
-        app:showAsAction="ifRoom" />
-
 </menu>

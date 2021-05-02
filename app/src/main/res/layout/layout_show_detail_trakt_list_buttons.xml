@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
@@ -9,185 +10,88 @@
             type="com.theupnextapp.ui.showDetail.ShowDetailViewModel" />
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:loadingVisibility="@{viewModel.isLoading}">
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/connect_to_trakt_layer"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_horizontal"
-            android:gravity="center_horizontal"
-            android:orientation="vertical"
             app:layout_constraintEnd_toStartOf="@id/add_to_watchlist_layer"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:showHideView="@{!viewModel.isAuthorizedOnTrakt}">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+            <Button
+                android:id="@+id/connect_to_trakt_button"
+                style="?materialButtonOutlinedStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:clickable="@{!viewModel.isLoading}"
+                android:focusable="@{!viewModel.isLoading}"
+                android:onClick="@{() -> viewModel.onConnectClick()}"
+                android:padding="@dimen/padding_standard"
+                app:connectToTraktButtonText="@{viewModel.isAuthorizedOnTrakt}"
+                app:layout_constraintEnd_toStartOf="@id/show_detail_connect_to_trakt_info_icon"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Connect Trakt Account"
+                tools:visibility="visible" />
 
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:clickable="@{!viewModel.isLoading}"
-                    android:focusable="@{!viewModel.isLoading}"
-                    android:onClick="@{() -> viewModel.onConnectClick()}"
-                    android:orientation="vertical"
-                    app:layout_constraintEnd_toStartOf="@id/show_detail_connect_to_trakt_info_icon"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/show_detail_connect_to_trakt_info_icon"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_horizontal_half"
+                android:clickable="true"
+                android:focusable="true"
+                android:onClick="@{() -> viewModel.onConnectToTraktInfoClick()}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_baseline_info_24" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-                    <androidx.appcompat.widget.AppCompatImageView
-                        android:id="@+id/show_detail_connect_to_trakt_icon"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        app:srcCompat="@drawable/ic_baseline_public_24" />
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/show_detail_connect_to_trakt_text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_horizontal"
-                        android:textAppearance="?attr/textAppearanceBody2"
-                        app:connectToTraktButtonText="@{viewModel.isAuthorizedOnTrakt}"
-                        tools:text="Connect Trakt Account" />
-                </LinearLayout>
-
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/show_detail_connect_to_trakt_info_icon"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:onClick="@{() -> viewModel.onConnectToTraktInfoClick()}"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:srcCompat="@drawable/ic_baseline_info_24" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </LinearLayout>
-
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/add_to_watchlist_layer"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_horizontal"
-            android:gravity="center_horizontal"
-            android:orientation="vertical"
-            app:layout_constraintEnd_toStartOf="@id/add_to_collection_layer"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/connect_to_trakt_layer"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_chainStyle="packed">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+            <Button
+                android:id="@+id/add_to_watchlist_trakt_button"
+                style="?materialButtonOutlinedStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:clickable="@{!viewModel.isLoading}"
+                android:focusable="@{!viewModel.isLoading}"
+                android:onClick="@{() -> viewModel.onAddRemoveWatchlistClick()}"
+                android:padding="@dimen/padding_standard"
+                app:addRemoveFromWatchlistButtonText="@{viewModel.onWatchlist}"
+                app:layout_constraintEnd_toStartOf="@id/show_detail_add_to_watchlist_info_icon"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Add to watchlist" />
 
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:clickable="@{!viewModel.isLoading}"
-                    android:focusable="@{!viewModel.isLoading}"
-                    android:onClick="@{() -> viewModel.onAddRemoveWatchlistClick()}"
-                    android:orientation="vertical"
-                    app:layout_constraintEnd_toStartOf="@id/show_detail_add_to_watchlist_info_icon"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/show_detail_add_to_watchlist_info_icon"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_horizontal_half"
+                android:clickable="true"
+                android:focusable="true"
+                android:onClick="@{() -> viewModel.onAddRemoveWatchlistInfoClick()}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_baseline_info_24" />
 
-                    <androidx.appcompat.widget.AppCompatImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        app:addRemoveFromWatchlistButtonIcon="@{viewModel.onWatchlist}"
-                        tools:srcCompat="@drawable/ic_baseline_playlist_add_24" />
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:gravity="center_horizontal"
-                        android:textAppearance="?attr/textAppearanceBody2"
-                        app:addRemoveFromWatchlistButtonText="@{viewModel.onWatchlist}"
-                        tools:text="Add to watchlist" />
-                </LinearLayout>
-
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/show_detail_add_to_watchlist_info_icon"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:onClick="@{() -> viewModel.onAddRemoveWatchlistInfoClick()}"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:srcCompat="@drawable/ic_baseline_info_24" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/add_to_collection_layer"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_horizontal"
-            android:gravity="center_horizontal"
-            android:orientation="vertical"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/add_to_watchlist_layer"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_chainStyle="packed">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:clickable="@{!viewModel.isLoading}"
-                    android:focusable="@{!viewModel.isLoading}"
-                    android:onClick="@{()-> viewModel.onAddRemoveCollectionClick()}"
-                    android:orientation="vertical"
-                    app:layout_constraintEnd_toStartOf="@id/show_detail_add_to_collection_info_icon"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
-
-                    <androidx.appcompat.widget.AppCompatImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        app:addRemoveFromCollectionButtonIcon="@{viewModel.inCollection}"
-                        tools:srcCompat="@drawable/ic_baseline_library_add_24" />
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:gravity="center_horizontal"
-                        android:textAppearance="?attr/textAppearanceBody2"
-                        app:addRemoveFromCollectionButtonText="@{viewModel.inCollection}"
-                        tools:text="Add to collection" />
-                </LinearLayout>
-
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/show_detail_add_to_collection_info_icon"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:onClick="@{() -> viewModel.onAddRemoveCollectionInfoClick()}"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:srcCompat="@drawable/ic_baseline_info_24" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-        </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

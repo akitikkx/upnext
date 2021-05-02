@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -41,7 +40,7 @@ class ShowSeasonsBottomSheetFragment : BottomSheetDialogFragment(),
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentShowSeasonsBottomSheetBinding.inflate(inflater)
 
         binding.lifecycleOwner = viewLifecycleOwner
@@ -70,31 +69,19 @@ class ShowSeasonsBottomSheetFragment : BottomSheetDialogFragment(),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.addToHistoryResponse.observe(viewLifecycleOwner, Observer {
+        viewModel.addToHistoryResponse.observe(viewLifecycleOwner, {
             if (it != null) {
                 viewModel.onAddToHistoryResponseReceived(it)
             }
         })
 
-        viewModel.removeFromHistoryResponse.observe(viewLifecycleOwner, Observer {
+        viewModel.removeFromHistoryResponse.observe(viewLifecycleOwner, {
             if (it != null) {
                 viewModel.onRemoveFromHistoryResponseReceived(it)
             }
         })
 
-        viewModel.addToCollectionResponse.observe(viewLifecycleOwner, Observer {
-            if (it != null) {
-                viewModel.onAddToCollectionResponseReceived(it)
-            }
-        })
-
-        viewModel.removeFromCollectionResponse.observe(viewLifecycleOwner, Observer {
-            if (it != null) {
-                viewModel.onRemoveFromCollectionResponseReceived(it)
-            }
-        })
-
-        viewModel.watchedProgress.observe(viewLifecycleOwner, Observer {
+        viewModel.watchedProgress.observe(viewLifecycleOwner, {
             if (it != null) {
                 it.seasons?.let { watchedProgressSeasons ->
                     adapter.submitWatchedProgressSeasonsList(
@@ -104,13 +91,7 @@ class ShowSeasonsBottomSheetFragment : BottomSheetDialogFragment(),
             }
         })
 
-        viewModel.traktCollectionSeasons?.observe(viewLifecycleOwner, Observer {
-            if (it != null) {
-                adapter.submitCollectionSeasonsList(it)
-            }
-        })
-
-        viewModel.isAuthorizedOnTrakt.observe(viewLifecycleOwner, Observer {
+        viewModel.isAuthorizedOnTrakt.observe(viewLifecycleOwner, {
             if (it != null) {
                 adapter.isAuthorizedOnTrakt = it
             }
@@ -147,14 +128,6 @@ class ShowSeasonsBottomSheetFragment : BottomSheetDialogFragment(),
                 dialog.dismiss()
             }
             .show()
-    }
-
-    override fun onShowSeasonAddToTraktCollectionClick(view: View, showSeason: ShowSeason) {
-        viewModel.onAddSeasonToCollectionClick(showSeason)
-    }
-
-    override fun onShowSeasonRemoveFromTraktCollectionClick(view: View, showSeason: ShowSeason) {
-        viewModel.onRemoveSeasonFromCollectionClick(showSeason)
     }
 
     companion object {

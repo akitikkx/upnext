@@ -25,8 +25,6 @@ class LibraryViewModel @Inject constructor(
 
     private val traktWatchlist = traktRepository.traktWatchlist
 
-    private val traktCollection = traktRepository.traktCollection
-
     private val traktHistory = traktRepository.traktHistory
 
     private val traktRecommendations = traktRepository.traktRecommendations
@@ -39,11 +37,7 @@ class LibraryViewModel @Inject constructor(
 
     val isRemovingRecommendationsData = traktRepository.isRemovingTraktRecommendations
 
-    val isRemovingCollectionData = traktRepository.isRemovingTraktCollection
-
     val isLoadingWatchlist = traktRepository.isLoadingTraktWatchlist
-
-    val isLoadingCollection = traktRepository.isLoadingTraktCollection
 
     val isLoadingHistory = traktRepository.isLoadingTraktHistory
 
@@ -51,9 +45,6 @@ class LibraryViewModel @Inject constructor(
 
     val historyTableUpdate =
         traktRepository.tableUpdate(DatabaseTables.TABLE_TRAKT_HISTORY.tableName)
-
-    val collectionTableUpdate =
-        traktRepository.tableUpdate(DatabaseTables.TABLE_TRAKT_COLLECTION.tableName)
 
     val watchlistTableUpdate =
         traktRepository.tableUpdate(DatabaseTables.TABLE_TRAKT_WATCHLIST.tableName)
@@ -63,12 +54,6 @@ class LibraryViewModel @Inject constructor(
 
     private val watchlistEmpty = MediatorLiveData<Boolean>().apply {
         addSource(traktWatchlist) {
-            value = it.isNullOrEmpty() == true
-        }
-    }
-
-    private val collectionEmpty = MediatorLiveData<Boolean>().apply {
-        addSource(traktCollection) {
             value = it.isNullOrEmpty() == true
         }
     }
@@ -86,9 +71,6 @@ class LibraryViewModel @Inject constructor(
     }
 
     val isLoading = MediatorLiveData<Boolean>().apply {
-        addSource(isLoadingCollection) {
-            value = it
-        }
         addSource(isLoadingHistory) {
             value = it
         }
@@ -155,71 +137,14 @@ class LibraryViewModel @Inject constructor(
 
         if (diffInMinutes != null && diffInMinutes != 0L) {
             if (diffInMinutes > TableUpdateInterval.TRAKT_WATCHLIST_ITEMS.intervalMins && (isLoadingWatchlist.value == false || isLoadingWatchlist.value == null)) {
-                viewModelScope?.launch {
+                viewModelScope.launch {
                     traktRepository.refreshTraktWatchlist(accessToken.value)
                 }
             }
             // no updates have been done yet for this table
         } else if (((watchlistEmpty.value == null || watchlistEmpty.value == true) && (isLoadingWatchlist.value == null || isLoadingWatchlist.value == false)) && tableUpdate == null && diffInMinutes == null) {
-            viewModelScope?.launch {
+            viewModelScope.launch {
                 traktRepository.refreshTraktWatchlist(accessToken.value)
-            }
-        }
-    }
-
-    fun onCollectionTableUpdateReceived(tableUpdate: TableUpdate?) {
-        if (isAuthorizedOnTrakt.value == false) {
-            return
-        }
-
-        val diff =
-            tableUpdate?.lastUpdated?.let { it -> DateUtils.getTimeDifferenceForDisplay(endTime = it) }
-
-        shouldUpdateCollection(tableUpdate)
-
-        if (!_libraryList.value.isNullOrEmpty()) {
-            val iterator = _libraryList.value!!.iterator()
-            while (iterator.hasNext()) {
-                val item = iterator.next()
-                if (item.title == "Trakt Collection") {
-                    iterator.remove()
-                }
-            }
-        }
-
-        _libraryList.value?.add(
-            LibraryList(
-                leftIcon = R.drawable.ic_baseline_library_add_check_24,
-                title = "Trakt Collection",
-                rightIcon = R.drawable.ic_baseline_chevron_right_24,
-                link = LibraryFragmentDirections.actionLibraryFragmentToCollectionFragment(),
-                transitionName = "collection",
-                lastUpdated = diff
-            )
-        )
-        _libraryList.value?.sortBy { it.title }
-        _libraryList.value = _libraryList.value
-    }
-
-    private fun shouldUpdateCollection(tableUpdate: TableUpdate?) {
-        val diffInMinutes =
-            tableUpdate?.lastUpdated?.let { it ->
-                DateUtils.dateDifference(
-                    endTime = it,
-                    type = "minutes"
-                )
-            }
-
-        if (diffInMinutes != null && diffInMinutes != 0L) {
-            if (diffInMinutes > TableUpdateInterval.TRAKT_COLLECTION_ITEMS.intervalMins && (isLoadingCollection.value == false || isLoadingCollection.value == null)) {
-                viewModelScope?.launch {
-                    traktRepository.refreshTraktCollection(accessToken.value)
-                }
-            }
-            // no updates have been done yet for this table
-        } else if (((collectionEmpty.value == null || collectionEmpty.value == true) && (isLoadingCollection.value == null || isLoadingCollection.value == false)) && tableUpdate == null && diffInMinutes == null) {
-            viewModelScope?.launch {
-                traktRepository.refreshTraktCollection(accessToken.value)
             }
         }
     }
@@ -269,13 +194,13 @@ class LibraryViewModel @Inject constructor(
 
         if (diffInMinutes != null && diffInMinutes != 0L) {
             if (diffInMinutes > TableUpdateInterval.TRAKT_HISTORY_ITEMS.intervalMins && (isLoadingHistory.value == false || isLoadingHistory.value == null)) {
-                viewModelScope?.launch {
+                viewModelScope.launch {
                     traktRepository.refreshTraktHistory(accessToken.value)
                 }
             }
             // no updates have been done yet for this table
         } else if (((historyEmpty.value == null || historyEmpty.value == true) && (isLoadingHistory.value == null || isLoadingHistory.value == false)) && tableUpdate == null && diffInMinutes == null) {
-            viewModelScope?.launch {
+            viewModelScope.launch {
                 traktRepository.refreshTraktHistory(accessToken.value)
             }
         }
@@ -326,13 +251,13 @@ class LibraryViewModel @Inject constructor(
 
         if (diffInMinutes != null && diffInMinutes != 0L) {
             if (diffInMinutes > TableUpdateInterval.TRAKT_RECOMMENDED_ITEMS.intervalMins && (isLoadingRecommendations.value == false || isLoadingRecommendations.value == null)) {
-                viewModelScope?.launch {
+                viewModelScope.launch {
                     traktRepository.refreshTraktRecommendations(accessToken.value)
                 }
             }
             // no updates have been done yet for this table
         } else if (((recommendationsEmpty.value == null || recommendationsEmpty.value == true) && (isLoadingRecommendations.value == null || isLoadingRecommendations.value == false)) && tableUpdate == null && diffInMinutes == null) {
-            viewModelScope?.launch {
+            viewModelScope.launch {
                 traktRepository.refreshTraktRecommendations(accessToken.value)
             }
         }

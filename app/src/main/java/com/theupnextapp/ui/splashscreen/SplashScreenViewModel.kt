@@ -36,8 +36,6 @@ class SplashScreenViewModel @Inject constructor(
     private val _loadingText = MutableLiveData<String>()
     val loadingText: LiveData<String> = _loadingText
 
-    val isLoadingNewShows = upnextRepository.isLoadingNewShows
-
     val isLoadingYesterdayShows = upnextRepository.isLoadingYesterdayShows
 
     val isLoadingTodayShows = upnextRepository.isLoadingTodayShows
@@ -82,7 +80,7 @@ class SplashScreenViewModel @Inject constructor(
     }
 
     private fun requestShowsUpdate() {
-        viewModelScope?.launch {
+        viewModelScope.launch {
             upnextRepository.refreshYesterdayShows(
                 DashboardViewModel.DEFAULT_COUNTRY_CODE,
                 DateUtils.yesterdayDate()

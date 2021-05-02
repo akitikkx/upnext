@@ -16,7 +16,10 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:layout_marginStart="@dimen/margin_horizontal"
+            android:layout_marginEnd="@dimen/margin_horizontal"
+            android:paddingBottom="@dimen/margin_vertical">
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/why_do_need_trakt_account_title"

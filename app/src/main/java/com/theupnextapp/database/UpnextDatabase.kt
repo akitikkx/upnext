@@ -11,16 +11,13 @@ import androidx.room.RoomDatabase
         DatabaseShowInfo::class,
         DatabaseTraktWatchlist::class,
         DatabaseTraktHistory::class,
-        DatabaseTraktCollection::class,
-        DatabaseTraktCollectionSeason::class,
-        DatabaseTraktCollectionEpisode::class,
         DatabaseTableUpdate::class,
         DatabaseTraktRecommendations::class,
         DatabaseTraktPopularShows::class,
         DatabaseTraktTrendingShows::class,
         DatabaseTraktMostAnticipated::class
     ],
-    version = 19,
+    version = 20,
     exportSchema = true
 )
 abstract class UpnextDatabase : RoomDatabase() {
