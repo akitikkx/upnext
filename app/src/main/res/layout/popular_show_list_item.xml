@@ -43,7 +43,7 @@
                     app:showHideStringContent="@{show.originalImageUrl}" />
 
                 <androidx.appcompat.widget.AppCompatImageView
-                    android:layout_width="match_parent"
+                    android:layout_width="@dimen/poster_frame_width"
                     android:layout_height="@dimen/shows_list_poster_height"
                     android:layout_marginEnd="@dimen/margin_horizontal_half"
                     android:contentDescription="@{String.format(@string/show_poster, show.title)}"
@@ -55,6 +55,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
+                android:padding="@dimen/padding_standard"
                 android:text="@string/tv_maze_creative_commons_attribution_text_single"
                 android:textAppearance="?attr/textAppearanceCaption"
                 app:layout_constraintEnd_toEndOf="@id/popular_shows_poster"
