@@ -17,6 +17,8 @@
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/margin_horizontal"
+        android:layout_marginEnd="@dimen/margin_horizontal"
         android:layout_marginBottom="@dimen/margin_vertical_half"
         android:clickable="true"
         android:focusable="true"
