@@ -585,7 +585,6 @@ class TraktRepository constructor(
     ) {
         val season = NetworkTraktAddToHistoryRequestSeasonX(
             number = showSeason.seasonNumber,
-            episodes = emptyList(),
             watched_at = null
         )
 
@@ -603,8 +602,7 @@ class TraktRepository constructor(
         showSeason: ShowSeason
     ) {
         val season = NetworkTraktRemoveSeasonFromHistoryRequestSeasonX(
-            number = showSeason.seasonNumber,
-            episodes = emptyList()
+            number = showSeason.seasonNumber
         )
 
         traktPerformHistorySeasonAction(
@@ -694,8 +692,7 @@ class TraktRepository constructor(
                 request = NetworkTraktAddToHistoryRequest(
                     shows = addToHistoryShowsList,
                     movies = emptyList(),
-                    seasons = emptyList(),
-                    episodes = emptyList()
+                    seasons = emptyList()
                 )
             ).await()
             _addToHistoryResponse.postValue(addToHistoryList.asDomainModel())
@@ -726,7 +723,6 @@ class TraktRepository constructor(
                     shows = removeFromHistoryShowsList,
                     movies = emptyList(),
                     seasons = emptyList(),
-                    episodes = emptyList(),
                     ids = emptyList()
                 )
             ).await()
