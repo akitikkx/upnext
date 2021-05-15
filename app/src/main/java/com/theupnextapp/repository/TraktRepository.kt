@@ -560,8 +560,7 @@ class TraktRepository constructor(
                 NetworkTraktRemoveFromWatchlistRequestShow(
                     ids = watchlistItem.show.ids,
                     title = watchlistItem.show.title,
-                    year = watchlistItem.show.year,
-                    seasons = emptyList()
+                    year = watchlistItem.show.year
                 )
             removeFromWatchlistShowsList.add(removeFromWatchlistItem)
             val removeFromWatchlist =
@@ -569,9 +568,7 @@ class TraktRepository constructor(
                     token = "Bearer $accessToken",
                     request = NetworkTraktRemoveFromWatchlistRequest(
                         shows = removeFromWatchlistShowsList,
-                        movies = emptyList(),
-                        seasons = emptyList(),
-                        episodes = emptyList()
+                        movies = emptyList()
                     )
                 ).await()
             _removeFromWatchlistResponse.postValue(removeFromWatchlist.asDomainModel())

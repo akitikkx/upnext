@@ -1,14 +1,8 @@
 package com.theupnextapp.network.models.trakt
 
 data class NetworkTraktRemoveFromWatchlistRequest(
-    val episodes: List<NetworkTraktWatchedShowProgressSeasonEpisode>,
     val movies: List<NetworkTraktRemoveFromWatchlistRequestMovy>,
-    val seasons: List<NetworkTraktWatchedShowProgressSeason>,
     val shows: List<NetworkTraktRemoveFromWatchlistRequestShow>
-)
-
-data class NetworkTraktRemoveFromWatchlistEpisode(
-    val ids: NetworkTraktRemoveFromWatchlistRequestEpisodeIds
 )
 
 data class NetworkTraktRemoveFromWatchlistRequestMovy(
@@ -17,13 +11,8 @@ data class NetworkTraktRemoveFromWatchlistRequestMovy(
     val year: Int
 )
 
-data class NetworkTraktRemoveFromWatchlistSeason(
-    val ids: NetworkTraktRemoveFromWatchlistRequestIdsXX
-)
-
 data class NetworkTraktRemoveFromWatchlistRequestShow(
     val ids: Any,
-    val seasons: List<NetworkTraktRemoveFromWatchlistRequestSeasonX?>,
     val title: String,
     val year: Int
 )
@@ -33,13 +22,6 @@ data class NetworkTraktRemoveFromWatchlistRequestEpisodeIds(
     val tmdb: Int,
     val trakt: Int,
     val tvdb: Int
-)
-
-data class NetworkTraktRemoveFromWatchlistRequestIdsX(
-    val imdb: String,
-    val slug: String,
-    val tmdb: Int,
-    val trakt: Int
 )
 
 data class NetworkTraktRemoveFromWatchlistRequestIdsXX(
