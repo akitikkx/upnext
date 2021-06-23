@@ -1,28 +1,26 @@
 package com.theupnextapp.ui.showDetail
 
-import android.app.Application
 import androidx.lifecycle.*
 import com.theupnextapp.domain.*
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.UpnextRepository
-import com.theupnextapp.ui.common.TraktViewModel
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
 class ShowDetailViewModel @AssistedInject constructor(
-    application: Application,
     upnextRepository: UpnextRepository,
     private val traktRepository: TraktRepository,
     @Assisted show: ShowDetailArg
-) : TraktViewModel(application, traktRepository) {
+) : ViewModel() {
 
-    private val _onWatchList = MutableLiveData<Boolean>()
-    val onWatchlist: LiveData<Boolean> = _onWatchList
+    private val viewModelJob = SupervisorJob()
 
-    private val _notOnWatchlist = MutableLiveData<Boolean>()
-    val notOnWatchlist: LiveData<Boolean> = _notOnWatchlist
+    private val viewModelScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
     private val _show = MutableLiveData(show)
     val showDetailArg: LiveData<ShowDetailArg> = _show
@@ -33,21 +31,8 @@ class ShowDetailViewModel @AssistedInject constructor(
     private val _showCastBottomSheet = MutableLiveData<ShowCast?>()
     val showCastBottomSheet: LiveData<ShowCast?> = _showCastBottomSheet
 
-    private val _showWatchedProgressBottomSheet = MutableLiveData<TraktShowWatchedProgress>()
-    val showWatchedProgressBottomSheet: LiveData<TraktShowWatchedProgress> =
-        _showWatchedProgressBottomSheet
-
     private val _showSeasonsBottomSheet = MutableLiveData<List<ShowSeason>>()
     val showSeasonsBottomSheet: LiveData<List<ShowSeason>> = _showSeasonsBottomSheet
-
-    private val _showWatchlistInfoBottomSheet = MutableLiveData<Boolean>()
-    val showWatchlistInfoBottomSheet: LiveData<Boolean> = _showWatchlistInfoBottomSheet
-
-    private val _showConnectToTraktInfoBottomSheet = MutableLiveData<Boolean>()
-    val showConnectToTraktInfoBottomSheet: LiveData<Boolean> = _showConnectToTraktInfoBottomSheet
-
-    private val _showConnectionToTraktRequiredError = MutableLiveData<Boolean>()
-    val showConnectionToTraktRequiredError: LiveData<Boolean> = _showConnectionToTraktRequiredError
 
     val isLoading = MediatorLiveData<Boolean>()
 
@@ -57,23 +42,14 @@ class ShowDetailViewModel @AssistedInject constructor(
 
     val showInfo = upnextRepository.showInfo
 
-    val watchlistRecord = Transformations.switchMap(showInfo) { showInfo ->
-        showInfo.imdbID?.let { it -> traktRepository.traktWatchlistItem(it) }
-    }
-
     val showCast = upnextRepository.showCast
 
     val showSeasons = upnextRepository.showSeasons
-
-    val addToWatchlistResponse = traktRepository.addToWatchlistResponse
-
-    val removeFromWatchlistResponse = traktRepository.removeFromWatchlistResponse
 
     val showRating = traktRepository.traktShowRating
 
     val showStats = traktRepository.traktShowStats
 
-    val watchedProgress = traktRepository.traktWatchedProgress
 
     init {
         viewModelScope.launch {
@@ -84,11 +60,6 @@ class ShowDetailViewModel @AssistedInject constructor(
             }
             traktRepository.getTraktShowRating(showInfo.value?.imdbID)
             traktRepository.getTraktShowStats(showInfo.value?.imdbID)
-
-            traktRepository.getTraktWatchedProgress(
-                accessToken.value,
-                showInfo.value?.imdbID
-            )
         }
 
         isLoading.addSource(isUpnextRepositoryLoading) { result ->
@@ -103,18 +74,6 @@ class ShowDetailViewModel @AssistedInject constructor(
         _showCastBottomSheet.value = null
     }
 
-    fun showConnectionToTraktRequiredComplete() {
-        _showConnectionToTraktRequiredError.value = false
-    }
-
-    fun showWatchlistInfoBottomSheetComplete() {
-        _showWatchlistInfoBottomSheet.value = false
-    }
-
-    fun showConnectToTraktInfoBottomSheetComplete() {
-        _showConnectToTraktInfoBottomSheet.value = false
-    }
-
     fun onShowCastInfoReceived(showCast: List<ShowCast>) {
         _showCastEmpty.value = showCast.isNullOrEmpty()
     }
@@ -123,105 +82,8 @@ class ShowDetailViewModel @AssistedInject constructor(
         _showCastBottomSheet.value = showCast
     }
 
-    fun onWatchlistRecordReceived(traktHistory: TraktHistory?) {
-        if (isAuthorizedOnTrakt.value == false) {
-            _notOnWatchlist.value = false
-            _onWatchList.value = false
-        } else {
-            if (traktHistory == null) {
-                _notOnWatchlist.value = true
-                _onWatchList.value = false
-            } else {
-                _onWatchList.value = true
-                _notOnWatchlist.value = false
-            }
-        }
-    }
-
-    fun onAddRemoveWatchlistClick() {
-        if (isAuthorizedOnTrakt.value == true) {
-            if (_onWatchList.value == true) {
-                onRemoveFromWatchlistClick()
-            } else {
-                onAddToWatchlistClick()
-            }
-        } else {
-            _showConnectionToTraktRequiredError.value = true
-        }
-    }
-
-    private fun onAddToWatchlistClick() {
-        onWatchlistAction(WATCHLIST_ACTION_ADD)
-    }
-
-    private fun onRemoveFromWatchlistClick() {
-        onWatchlistAction(WATCHLIST_ACTION_REMOVE)
-    }
-
-    fun onWatchedProgressClick() {
-        _showWatchedProgressBottomSheet.value = watchedProgress.value
-    }
-
     fun onSeasonsClick() {
         _showSeasonsBottomSheet.value = showSeasons.value
-    }
-
-    fun onConnectToTraktInfoClick() {
-        _showConnectToTraktInfoBottomSheet.value = true
-    }
-
-    fun onAddRemoveWatchlistInfoClick() {
-        _showWatchlistInfoBottomSheet.value = true
-    }
-
-    private fun onWatchlistAction(action: String) {
-        if (isAuthorizedOnTrakt.value == true) {
-
-            when (action) {
-                WATCHLIST_ACTION_ADD -> {
-                    viewModelScope.launch {
-                        showInfo.value?.imdbID?.let { imdbID ->
-                            traktRepository.traktAddToWatchlist(
-                                accessToken.value,
-                                imdbID
-                            )
-                        }
-                    }
-                }
-                WATCHLIST_ACTION_REMOVE -> {
-                    viewModelScope.launch {
-                        showInfo.value?.imdbID?.let { imdbID ->
-                            traktRepository.traktRemoveFromWatchlist(
-                                accessToken.value,
-                                imdbID
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    fun onAddToWatchlistResponseReceived(addToWatchlist: TraktAddToWatchlist) {
-        requestWatchlistRefresh()
-    }
-
-    fun onRemoveFromWatchlistResponseReceived(removeFromWatchlist: TraktRemoveFromWatchlist) {
-        viewModelScope.launch {
-            showInfo.value?.imdbID?.let { traktRepository.removeFromCachedWatchlist(it) }
-        }
-    }
-
-    private fun requestWatchlistRefresh() {
-        if (isAuthorizedOnTrakt.value == true) {
-            loadTraktWatchlist()
-        }
-    }
-
-    private fun loadTraktWatchlist() {
-        viewModelScope.launch {
-            traktRepository.refreshTraktWatchlist(accessToken.value)
-        }
     }
 
     override fun onCleared() {
@@ -235,9 +97,6 @@ class ShowDetailViewModel @AssistedInject constructor(
     }
 
     companion object {
-        const val WATCHLIST_ACTION_ADD = "add_to_watchlist"
-        const val WATCHLIST_ACTION_REMOVE = "remove_from_watchlist"
-
         fun provideFactory(
             assistedFactory: ShowDetailViewModelFactory,
             show: ShowDetailArg

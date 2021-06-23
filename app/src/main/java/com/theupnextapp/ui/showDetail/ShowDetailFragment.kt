@@ -12,8 +12,6 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.analytics.ktx.analytics
-import com.google.firebase.ktx.Firebase
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
 import com.theupnextapp.common.utils.*
@@ -21,7 +19,6 @@ import com.theupnextapp.databinding.FragmentShowDetailBinding
 import com.theupnextapp.domain.ShowCast
 import com.theupnextapp.domain.ShowInfo
 import com.theupnextapp.domain.ShowSeason
-import com.theupnextapp.domain.TraktShowWatchedProgress
 import com.theupnextapp.ui.common.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -35,7 +32,6 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
     private var _showCastAdapter: ShowCastAdapter? = null
     private val showCastAdapter get() = _showCastAdapter!!
 
-    private var _traktShowWatchedProgress: TraktShowWatchedProgress? = null
     private var _showSeasons: List<ShowSeason>? = null
     private var showInfo: ShowInfo? = null
 
@@ -103,10 +99,6 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
             }
         })
 
-        viewModel.watchlistRecord.observe(viewLifecycleOwner, {
-            viewModel.onWatchlistRecordReceived(it)
-        })
-
         viewModel.showCast.observe(viewLifecycleOwner, {
             viewModel.onShowCastInfoReceived(it)
             if (it != null) {
@@ -132,51 +124,9 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
             }
         })
 
-        viewModel.addToWatchlistResponse.observe(viewLifecycleOwner, {
-            if (it != null) {
-                viewModel.onAddToWatchlistResponseReceived(it)
-            }
-        })
-
-        viewModel.removeFromWatchlistResponse.observe(viewLifecycleOwner, {
-            if (it != null) {
-                viewModel.onRemoveFromWatchlistResponseReceived(it)
-            }
-        })
-
-        viewModel.watchedProgress.observe(viewLifecycleOwner, {
-            if (it != null) {
-                _traktShowWatchedProgress = it
-            }
-        })
-
         viewModel.showSeasons.observe(viewLifecycleOwner, {
             if (it != null) {
                 _showSeasons = it
-            }
-        })
-
-        viewModel.showWatchedProgressBottomSheet.observe(viewLifecycleOwner, {
-            if (it != null) {
-                val watchedProgressBottomSheet = ShowWatchedProgressBottomSheetFragment()
-
-                val args = Bundle()
-                args.putParcelable(ARG_WATCHED_PROGRESS, it)
-                args.putParcelable(ARG_SHOW_DETAIL, this@ShowDetailFragment.args.show)
-                watchedProgressBottomSheet.arguments = args
-
-                activity?.supportFragmentManager?.let { fragmentManager ->
-                    watchedProgressBottomSheet.show(
-                        fragmentManager,
-                        ShowWatchedProgressBottomSheetFragment.TAG
-                    )
-                }
-            } else {
-                Snackbar.make(
-                    binding.root,
-                    getString(R.string.error_show_detail_watched_progress_empty),
-                    Snackbar.LENGTH_LONG
-                ).show()
             }
         })
 
@@ -184,7 +134,6 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
             if (!it.isNullOrEmpty()) {
                 val args = Bundle()
                 args.putParcelableArrayList(ARG_SHOW_SEASONS, ArrayList(it))
-                args.putParcelable(ARG_WATCHED_PROGRESS, _traktShowWatchedProgress)
                 args.putParcelable(ARG_SHOW_DETAIL, this@ShowDetailFragment.showInfo)
 
                 showBottomSheet(
@@ -200,47 +149,6 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
                     duration = Snackbar.LENGTH_LONG,
                     listener = null
                 )
-            }
-        })
-
-        viewModel.showWatchlistInfoBottomSheet.observe(viewLifecycleOwner, {
-            if (it == true) {
-                HelpContentComponent.showContent(
-                    HelpContentType.WATCHLIST_INFO,
-                    activity?.supportFragmentManager
-                )
-                Firebase.analytics.logEvent("watchlist_info_icon_click", null)
-                viewModel.showWatchlistInfoBottomSheetComplete()
-            }
-        })
-
-        viewModel.launchTraktConnectWindow.observe(viewLifecycleOwner, {
-            if (it) {
-                launchTraktWindow()
-                viewModel.launchConnectWindowComplete()
-            }
-        })
-
-        viewModel.showConnectToTraktInfoBottomSheet.observe(viewLifecycleOwner, {
-            if (it == true) {
-                HelpContentComponent.showContent(
-                    HelpContentType.CONNECT_TO_TRAKT_INFO,
-                    activity?.supportFragmentManager
-                )
-                Firebase.analytics.logEvent("trakt_connection_info_icon_click", null)
-                viewModel.showConnectToTraktInfoBottomSheetComplete()
-            }
-        })
-
-        viewModel.showConnectionToTraktRequiredError.observe(viewLifecycleOwner, {
-            if (it == true) {
-                Feedback(requireContext()).showSnackBar(
-                    view = binding.root,
-                    type = FeedBackStatus.CONNECTION_TO_TRAKT_REQUIRED,
-                    duration = Snackbar.LENGTH_LONG,
-                    listener = { launchTraktWindow() })
-
-                viewModel.showConnectionToTraktRequiredComplete()
             }
         })
     }
@@ -274,7 +182,6 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
         const val ARG_SHOW_CAST = "show_cast"
         const val ARG_SHOW_DETAIL = "show_detail"
         const val ARG_SHOW_SEASONS = "show_seasons"
-        const val ARG_WATCHED_PROGRESS = "watched_progress"
     }
 
 }
