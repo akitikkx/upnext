@@ -3,7 +3,6 @@ package com.theupnextapp.common.utils
 import android.app.Application
 import androidx.preference.PreferenceManager
 import com.theupnextapp.R
-import com.theupnextapp.ui.common.TraktViewModel
 
 @Deprecated(message = "SharedPreferences no longer recommended")
 class UpnextPreferenceManager(val application: Application) {

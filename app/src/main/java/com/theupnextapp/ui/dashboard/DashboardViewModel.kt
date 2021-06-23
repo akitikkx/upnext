@@ -1,30 +1,27 @@
 package com.theupnextapp.ui.dashboard
 
-import android.app.Application
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import com.theupnextapp.common.utils.DateUtils
 import com.theupnextapp.common.utils.models.DatabaseTables
 import com.theupnextapp.common.utils.models.TableUpdateInterval
 import com.theupnextapp.domain.TableUpdate
-import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.UpnextRepository
-import com.theupnextapp.ui.common.TraktViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
-    application: Application,
-    traktRepository: TraktRepository,
     private val upnextRepository: UpnextRepository
-) :
-    TraktViewModel(application, traktRepository) {
+) : ViewModel() {
 
-    private val _showFeaturesBottomSheet = MutableLiveData<Boolean>()
-    val showFeaturesBottomSheet: LiveData<Boolean> = _showFeaturesBottomSheet
+    private val viewModelJob = SupervisorJob()
+
+    private val viewModelScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
     val isLoadingYesterdayShows = upnextRepository.isLoadingYesterdayShows
 
@@ -86,10 +83,12 @@ class DashboardViewModel @Inject constructor(
                     type = "minutes"
                 )
             }
+        val isYesterdayShowsEmpty =
+            yesterdayShowsEmpty.value == null || yesterdayShowsEmpty.value == true
 
         if (diffInMinutes != null && diffInMinutes != 0L) {
             if (diffInMinutes > TableUpdateInterval.DASHBOARD_ITEMS.intervalMins && (isLoadingYesterdayShows.value == false || isLoadingYesterdayShows.value == null)) {
-                viewModelScope?.launch {
+                viewModelScope.launch {
                     upnextRepository.refreshYesterdayShows(
                         DEFAULT_COUNTRY_CODE,
                         DateUtils.yesterdayDate()
@@ -97,8 +96,8 @@ class DashboardViewModel @Inject constructor(
                 }
             }
             // no updates have been done yet for this table
-        } else if ((yesterdayShowsEmpty.value == true && isLoadingYesterdayShows.value == false) && tableUpdate == null && diffInMinutes == null) {
-            viewModelScope?.launch {
+        } else if (isYesterdayShowsEmpty && (isLoadingYesterdayShows.value == null || isLoadingYesterdayShows.value == false) && tableUpdate == null && diffInMinutes == null) {
+            viewModelScope.launch {
                 upnextRepository.refreshYesterdayShows(
                     DEFAULT_COUNTRY_CODE,
                     DateUtils.yesterdayDate()
@@ -116,9 +115,11 @@ class DashboardViewModel @Inject constructor(
                 )
             }
 
+        val isTodayShowsEmpty = todayShowsEmpty.value == null || todayShowsEmpty.value == true
+
         if (diffInMinutes != null && diffInMinutes != 0L) {
             if (diffInMinutes > TableUpdateInterval.DASHBOARD_ITEMS.intervalMins && (isLoadingTodayShows.value == false || isLoadingTodayShows.value == null)) {
-                viewModelScope?.launch {
+                viewModelScope.launch {
                     upnextRepository.refreshTodayShows(
                         DEFAULT_COUNTRY_CODE,
                         DateUtils.currentDate()
@@ -126,8 +127,8 @@ class DashboardViewModel @Inject constructor(
                 }
             }
             // no updates have been done yet for this table
-        } else if ((todayShowsEmpty.value == true && isLoadingTodayShows.value == false) && tableUpdate == null && diffInMinutes == null) {
-            viewModelScope?.launch {
+        } else if (isTodayShowsEmpty && (isLoadingTodayShows.value == null || isLoadingTodayShows.value == false) && tableUpdate == null && diffInMinutes == null) {
+            viewModelScope.launch {
                 upnextRepository.refreshTodayShows(
                     DEFAULT_COUNTRY_CODE,
                     DateUtils.currentDate()
@@ -145,9 +146,12 @@ class DashboardViewModel @Inject constructor(
                 )
             }
 
+        val isTomorrowShowsEmpty =
+            tomorrowShowsEmpty.value == null || tomorrowShowsEmpty.value == true
+
         if (diffInMinutes != null && diffInMinutes != 0L) {
             if (diffInMinutes > TableUpdateInterval.DASHBOARD_ITEMS.intervalMins && (isLoadingTomorrowShows.value == false || isLoadingTomorrowShows.value == null)) {
-                viewModelScope?.launch {
+                viewModelScope.launch {
                     upnextRepository.refreshTomorrowShows(
                         DEFAULT_COUNTRY_CODE,
                         DateUtils.tomorrowDate()
@@ -155,8 +159,8 @@ class DashboardViewModel @Inject constructor(
                 }
             }
             // no updates have been done yet for this table
-        } else if ((tomorrowShowsEmpty.value == true && isLoadingTomorrowShows.value == false) && tableUpdate == null && diffInMinutes == null) {
-            viewModelScope?.launch {
+        } else if (isTomorrowShowsEmpty && (isLoadingTomorrowShows.value == null || isLoadingTomorrowShows.value == false) && tableUpdate == null && diffInMinutes == null) {
+            viewModelScope.launch {
                 upnextRepository.refreshTomorrowShows(
                     DEFAULT_COUNTRY_CODE,
                     DateUtils.tomorrowDate()
@@ -169,12 +173,8 @@ class DashboardViewModel @Inject constructor(
         requestShowsUpdate()
     }
 
-    fun showFeaturesBottomSheetComplete() {
-        _showFeaturesBottomSheet.value = false
-    }
-
     private fun requestShowsUpdate() {
-        viewModelScope?.launch {
+        viewModelScope.launch {
             upnextRepository.refreshYesterdayShows(
                 DEFAULT_COUNTRY_CODE,
                 DateUtils.yesterdayDate()

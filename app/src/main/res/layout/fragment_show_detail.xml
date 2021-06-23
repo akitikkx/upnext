@@ -148,20 +148,6 @@
                             app:viewModel="@{viewModel}" />
                     </LinearLayout>
 
-                    <include
-                        android:id="@+id/show_detail_trakt_list_buttons"
-                        layout="@layout/layout_show_detail_trakt_list_buttons"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/margin_horizontal"
-                        android:layout_marginTop="@dimen/margin_vertical"
-                        android:layout_marginEnd="@dimen/margin_horizontal"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/poster_and_detail_layer"
-                        app:loadingVisibility="@{!viewModel.isLoading}"
-                        app:viewModel="@{viewModel}" />
-
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/show_detail_synopsis"
                         android:layout_width="0dp"
@@ -173,7 +159,7 @@
                         app:fromHtml="@{viewModel.showInfo.summary}"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/show_detail_trakt_list_buttons"
+                        app:layout_constraintTop_toBottomOf="@id/poster_and_detail_layer"
                         tools:text="Show Summary" />
 
                     <include
@@ -191,25 +177,6 @@
                         app:viewModel="@{viewModel}" />
 
                     <Button
-                        android:id="@+id/watched_progress"
-                        style="?materialButtonOutlinedStyle"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/margin_horizontal_double"
-                        android:layout_marginTop="@dimen/margin_vertical"
-                        android:layout_marginEnd="@dimen/margin_horizontal_double"
-                        android:clickable="true"
-                        android:enabled="@{!viewModel.isLoading}"
-                        android:focusable="true"
-                        android:onClick="@{() -> viewModel.onWatchedProgressClick()}"
-                        android:text="@string/show_detail_get_watched_progress"
-                        app:layout_constraintEnd_toStartOf="@id/show_seasons"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/trakt_show_stats"
-                        app:showHideView="@{viewModel.isAuthorizedOnTrakt}"
-                        tools:visibility="visible" />
-
-                    <Button
                         android:id="@+id/show_seasons"
                         style="?materialButtonOutlinedStyle"
                         android:layout_width="0dp"
@@ -223,9 +190,8 @@
                         android:onClick="@{() -> viewModel.onSeasonsClick()}"
                         android:text="@string/show_detail_seasons"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/watched_progress"
+                        app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/trakt_show_stats"
-                        app:showHideView="@{viewModel.isAuthorizedOnTrakt}"
                         tools:visibility="visible" />
 
                     <com.google.android.material.textview.MaterialTextView
@@ -239,7 +205,7 @@
                         android:textAppearance="?attr/textAppearanceHeadline6"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/watched_progress"
+                        app:layout_constraintTop_toBottomOf="@id/show_seasons"
                         app:loadingVisibility="@{viewModel.isLoading()}"
                         app:showHideView="@{!viewModel.showCastEmpty}" />
 

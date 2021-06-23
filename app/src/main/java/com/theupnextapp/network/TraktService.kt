@@ -11,69 +11,12 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.*
+import retrofit2.http.GET
+import retrofit2.http.Path
 import java.io.File
 import java.util.concurrent.TimeUnit
 
 interface TraktService {
-    @POST(" oauth/token")
-    fun getAccessTokenAsync(@Body traktAccessTokenRequest: NetworkTraktAccessTokenRequest): Deferred<NetworkTraktAccessTokenResponse>
-
-    @POST(" oauth/token")
-    fun getAccessRefreshTokenAsync(@Body traktAccessRefreshTokenRequest: NetworkTraktAccessRefreshTokenRequest): Deferred<NetworkTraktAccessRefreshTokenResponse>
-
-    @GET("sync/watchlist/shows/rank")
-    fun getWatchlistAsync(
-        @Header("Authorization") token: String
-    ): Deferred<NetworkTraktWatchlistResponse>
-
-    @GET("sync/watched/shows")
-    fun getWatchedAsync(
-        @Header("Authorization") token: String
-    ): Deferred<NetworkTraktWatchedResponse>
-
-    @GET("sync/history")
-    fun getHistoryAsync(
-        @Header("Authorization") token: String
-    ): Deferred<NetworkTraktHistoryResponse>
-
-    @GET("recommendations/shows")
-    fun getRecommendationsAsync(
-        @Header("Authorization") token: String,
-        @Query("ignore_collected") hidden: String = "true"
-    ): Deferred<NetworkTraktRecommendationsResponse>
-
-    @GET("search/imdb/{id}")
-    fun getIDLookupAsync(
-        @Header("Authorization") token: String,
-        @Path("id") id: String,
-        @Query("type") type: String
-    ): Deferred<NetworkTraktIDLookupResponse>
-
-    @POST("sync/watchlist")
-    fun addToWatchlistAsync(
-        @Header("Authorization") token: String,
-        @Body request: NetworkTraktAddToWatchlistRequest
-    ): Deferred<NetworkTraktAddToWatchlistResponse>
-
-    @POST("sync/watchlist/remove")
-    fun removeFromWatchlistAsync(
-        @Header("Authorization") token: String,
-        @Body request: NetworkTraktRemoveFromWatchlistRequest
-    ): Deferred<NetworkTraktRemoveFromWatchlistResponse>
-
-    @POST("sync/history")
-    fun addToHistoryAsync(
-        @Header("Authorization") token: String,
-        @Body request: NetworkTraktAddToHistoryRequest
-    ): Deferred<NetworkTraktAddToHistoryResponse>
-
-    @POST("sync/history/remove")
-    fun removeFromHistoryAsync(
-        @Header("Authorization") token: String,
-        @Body request: NetworkTraktRemoveSeasonFromHistoryRequest
-    ): Deferred<NetworkTraktRemoveFromHistoryResponse>
-
     @GET("shows/{id}/ratings")
     fun getShowRatingsAsync(
         @Path("id") id: String
@@ -92,15 +35,6 @@ interface TraktService {
 
     @GET("shows/anticipated")
     fun getMostAnticipatedShowsAsync(): Deferred<NetworkTraktMostAnticipatedResponse>
-
-    @GET("shows/{id}/progress/watched")
-    fun getShowWatchedProgressAsync(
-        @Header("Authorization") token: String,
-        @Path("id") id: String,
-        @Query("hidden") hidden: String = "false",
-        @Query("specials") specials: String = "false",
-        @Query("count_specials") countSpecials: String = "true"
-    ): Deferred<NetworkTraktShowWatchedProgressResponse>
 }
 
 object TraktNetwork {

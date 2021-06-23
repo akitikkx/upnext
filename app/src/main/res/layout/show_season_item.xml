@@ -8,14 +8,6 @@
         <variable
             name="showSeason"
             type="com.theupnextapp.domain.ShowSeason" />
-
-        <variable
-            name="watchedSeason"
-            type="com.theupnextapp.domain.TraktWatchedShowProgressSeason" />
-
-        <variable
-            name="listener"
-            type="com.theupnextapp.ui.showDetail.ShowSeasonsAdapter.ShowSeasonsAdapterListener" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -59,7 +51,7 @@
             android:layout_marginEnd="@dimen/margin_horizontal"
             android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/season_add_remove_toggle"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/season_poster"
             app:layout_constraintTop_toTopOf="parent">
 
@@ -76,37 +68,6 @@
                     android:textAppearance="?attr/textAppearanceSubtitle1"
                     app:seasonAndNumber="@{showSeason.seasonNumber}"
                     tools:text="Season 1" />
-
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/show_season_trakt_watched_tag"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/margin_horizontal"
-                    android:background="@drawable/show_season_trakt_watched_tag_border"
-                    android:gravity="center_vertical"
-                    android:padding="@dimen/padding_standard_half"
-                    android:text="@string/show_detail_trakt_watched_season_tag"
-                    android:textAllCaps="true"
-                    android:textAppearance="?attr/textAppearanceCaption"
-                    android:visibility="gone"
-                    tools:text="Watched"
-                    tools:visibility="visible" />
-
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/show_season_trakt_collected_tag"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/margin_horizontal"
-                    android:background="@drawable/show_season_trakt_collected_tag_border"
-                    android:gravity="center_vertical"
-                    android:padding="@dimen/padding_standard_half"
-                    android:text="@string/show_detail_trakt_collected_season_tag"
-                    android:textAllCaps="true"
-                    android:textAppearance="?attr/textAppearanceCaption"
-                    android:visibility="gone"
-                    tools:text="Collected"
-                    tools:visibility="visible" />
-
             </LinearLayout>
 
             <com.google.android.material.textview.MaterialTextView
@@ -145,26 +106,6 @@
                 android:text="@string/tv_maze_creative_commons_attribution_text_single"
                 android:textAppearance="?attr/textAppearanceCaption"
                 app:showHideView="@{showSeason.originalImageUrl != null}" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/season_add_remove_toggle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin_vertical"
-            android:orientation="vertical"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/season_options_menu"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/margin_horizontal"
-                android:clickable="true"
-                android:focusable="true"
-                android:onClick="@{(view) -> listener.onShowSeasonTraktOptionsMenuClick(view, showSeason,  watchedSeason)}"
-                app:srcCompat="@drawable/ic_baseline_more_vert_24" />
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

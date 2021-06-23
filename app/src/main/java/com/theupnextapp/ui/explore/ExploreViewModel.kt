@@ -1,22 +1,27 @@
 package com.theupnextapp.ui.explore
 
-import android.app.Application
 import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.ViewModel
 import com.theupnextapp.common.utils.DateUtils
 import com.theupnextapp.common.utils.models.DatabaseTables
 import com.theupnextapp.common.utils.models.TableUpdateInterval
 import com.theupnextapp.domain.TableUpdate
 import com.theupnextapp.repository.TraktRepository
-import com.theupnextapp.ui.common.TraktViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ExploreViewModel @Inject constructor(
-    application: Application,
     private val traktRepository: TraktRepository
-) : TraktViewModel(application, traktRepository) {
+) : ViewModel() {
+
+    private val viewModelJob = SupervisorJob()
+
+    private val viewModelScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
     val trendingShows = traktRepository.traktTrendingShows
 
@@ -80,13 +85,13 @@ class ExploreViewModel @Inject constructor(
 
         if (diffInMinutes != null && diffInMinutes != 0L) {
             if (diffInMinutes > TableUpdateInterval.TRAKT_POPULAR_ITEMS.intervalMins && (isLoadingTraktPopular.value == false || isLoadingTraktPopular.value == null)) {
-                viewModelScope?.launch {
+                viewModelScope.launch {
                     traktRepository.refreshTraktPopularShows()
                 }
             }
             // no updates have been done yet for this table
         } else if ((popularShowsEmpty.value == true && (isLoadingTraktPopular.value == null || isLoadingTraktPopular.value == false)) && tableUpdate == null && diffInMinutes == null) {
-            viewModelScope?.launch {
+            viewModelScope.launch {
                 traktRepository.refreshTraktPopularShows()
             }
         }
@@ -103,13 +108,13 @@ class ExploreViewModel @Inject constructor(
 
         if (diffInMinutes != null && diffInMinutes != 0L) {
             if (diffInMinutes > TableUpdateInterval.TRAKT_TRENDING_ITEMS.intervalMins && (isLoadingTraktTrending.value == false || isLoadingTraktTrending.value == null)) {
-                viewModelScope?.launch {
+                viewModelScope.launch {
                     traktRepository.refreshTraktTrendingShows()
                 }
             }
             // no updates have been done yet for this table
         } else if ((trendingShowsEmpty.value == true && (isLoadingTraktTrending.value == null || isLoadingTraktTrending.value == false)) && tableUpdate == null && diffInMinutes == null) {
-            viewModelScope?.launch {
+            viewModelScope.launch {
                 traktRepository.refreshTraktTrendingShows()
             }
         }
@@ -126,13 +131,13 @@ class ExploreViewModel @Inject constructor(
 
         if (diffInMinutes != null && diffInMinutes != 0L) {
             if (diffInMinutes > TableUpdateInterval.TRAKT_MOST_ANTICIPATED_ITEMS.intervalMins && (isLoadingTraktMostAnticipated.value == false || isLoadingTraktMostAnticipated.value == null)) {
-                viewModelScope?.launch {
+                viewModelScope.launch {
                     traktRepository.refreshTraktMostAnticipatedShows()
                 }
             }
             // no updates have been done yet for this table
         } else if ((mostAnticipatedShowsEmpty.value == true && (isLoadingTraktMostAnticipated.value == false || isLoadingTraktMostAnticipated.value == null)) && tableUpdate == null && diffInMinutes == null) {
-            viewModelScope?.launch {
+            viewModelScope.launch {
                 traktRepository.refreshTraktMostAnticipatedShows()
             }
         }

@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
@@ -40,25 +39,25 @@ class SplashScreenFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.isFreshInstall.observe(viewLifecycleOwner, Observer {
+        viewModel.isFreshInstall.observe(viewLifecycleOwner, {
             if (it) {
                 viewModel.updateShows()
             }
         })
 
-        viewModel.isUpgradeInstall.observe(viewLifecycleOwner, Observer {
+        viewModel.isUpgradeInstall.observe(viewLifecycleOwner, {
             if (it) {
                 viewModel.showDashboard()
             }
         })
 
-        viewModel.isNormalInstall.observe(viewLifecycleOwner, Observer {
+        viewModel.isNormalInstall.observe(viewLifecycleOwner, {
             if (it) {
                 viewModel.showDashboard()
             }
         })
 
-        viewModel.isLoadingYesterdayShows.observe(viewLifecycleOwner, Observer {
+        viewModel.isLoadingYesterdayShows.observe(viewLifecycleOwner, {
             if (it) {
                 viewModel.displayLoadingText(getString(R.string.splash_screen_loading_text_yesterday_schedule))
             } else {
@@ -66,7 +65,7 @@ class SplashScreenFragment : Fragment() {
             }
         })
 
-        viewModel.isLoadingTodayShows.observe(viewLifecycleOwner, Observer {
+        viewModel.isLoadingTodayShows.observe(viewLifecycleOwner, {
             if (it) {
                 viewModel.displayLoadingText(getString(R.string.splash_screen_loading_text_today_schedule))
             } else {
@@ -74,7 +73,7 @@ class SplashScreenFragment : Fragment() {
             }
         })
 
-        viewModel.isLoadingTomorrowShows.observe(viewLifecycleOwner, Observer {
+        viewModel.isLoadingTomorrowShows.observe(viewLifecycleOwner, {
             if (it) {
                 viewModel.displayLoadingText(getString(R.string.splash_screen_loading_text_tomorrow_schedule))
             } else {
@@ -83,16 +82,7 @@ class SplashScreenFragment : Fragment() {
             }
         })
 
-        viewModel.isLoadingTraktRecommendations.observe(viewLifecycleOwner, Observer {
-            if (it) {
-                viewModel.displayLoadingText(getString(R.string.splash_screen_loading_text_recommended_shows))
-            } else {
-                viewModel.displayLoadingTextComplete()
-                viewModel.showDashboard()
-            }
-        })
-
-        viewModel.navigateToDashboard.observe(viewLifecycleOwner, Observer {
+        viewModel.navigateToDashboard.observe(viewLifecycleOwner, {
             if (null != it) {
                 this.findNavController().navigate(
                     SplashScreenFragmentDirections.actionSplashScreenFragmentToDashboardFragment()

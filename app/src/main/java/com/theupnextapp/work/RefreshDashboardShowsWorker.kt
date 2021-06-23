@@ -24,18 +24,16 @@ class RefreshDashboardShowsWorker @AssistedInject constructor(
     CoroutineWorker(appContext, workerParameters) {
 
     override suspend fun doWork(): Result = coroutineScope {
-        val jobs = (0 until 100).map {
-            async {
-                refreshShows(upnextRepository)
-                val bundle = Bundle()
-                bundle.putBoolean("Refresh shows job run", true)
-                FirebaseAnalytics.getInstance(this@RefreshDashboardShowsWorker.applicationContext)
-                    .logEvent("RefreshShowsWorker", bundle)
-            }
+        try {
+            refreshShows(upnextRepository)
+            val bundle = Bundle()
+            bundle.putBoolean("Refresh shows job run", true)
+            FirebaseAnalytics.getInstance(this@RefreshDashboardShowsWorker.applicationContext)
+                .logEvent("RefreshShowsWorker", bundle)
+            Result.success()
+        } catch (e: Exception) {
+            Result.failure()
         }
-
-        jobs.awaitAll()
-        Result.success()
     }
 
     private suspend fun refreshShows(repository: UpnextRepository) {

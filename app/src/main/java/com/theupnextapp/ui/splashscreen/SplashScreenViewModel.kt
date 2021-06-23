@@ -1,31 +1,37 @@
 package com.theupnextapp.ui.splashscreen
 
-import android.app.Application
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.preference.PreferenceManager
+import androidx.lifecycle.*
 import com.theupnextapp.BuildConfig
 import com.theupnextapp.common.utils.DateUtils
-import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.UpnextRepository
-import com.theupnextapp.ui.common.TraktViewModel
+import com.theupnextapp.repository.datastore.UpnextManager
+import com.theupnextapp.repository.datastore.UpnextManager.Companion.SHARED_PREF_NOT_FOUND
 import com.theupnextapp.ui.dashboard.DashboardViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class SplashScreenViewModel @Inject constructor(
-    application: Application,
-    traktRepository: TraktRepository,
+    private val upnextManager: UpnextManager,
     private val upnextRepository: UpnextRepository
-) : TraktViewModel(application, traktRepository) {
+) : ViewModel() {
+
+    private val viewModelJob = SupervisorJob()
+
+    private val viewModelScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
     private val _isFreshInstall = MutableLiveData<Boolean>()
+    val isFreshInstall: LiveData<Boolean> = _isFreshInstall
 
     private val _isNormalInstall = MutableLiveData<Boolean>()
+    val isNormalInstall: LiveData<Boolean> = _isNormalInstall
 
     private val _isUpgradedInstall = MutableLiveData<Boolean>()
+    val isUpgradeInstall: LiveData<Boolean> = _isUpgradedInstall
 
     private val _showLoadingText = MutableLiveData<Boolean?>()
     val showLoadingText: LiveData<Boolean?> = _showLoadingText
@@ -41,19 +47,6 @@ class SplashScreenViewModel @Inject constructor(
     val isLoadingTodayShows = upnextRepository.isLoadingTodayShows
 
     val isLoadingTomorrowShows = upnextRepository.isLoadingTomorrowShows
-
-    val isLoadingTraktRecommendations = traktRepository.isLoadingTraktRecommendations
-
-    val isFreshInstall: LiveData<Boolean> = _isFreshInstall
-
-    val isNormalInstall: LiveData<Boolean> = _isNormalInstall
-
-    val isUpgradeInstall: LiveData<Boolean> = _isUpgradedInstall
-
-
-    init {
-        checkIfFirstRun()
-    }
 
     override fun onCleared() {
         super.onCleared()
@@ -96,31 +89,4 @@ class SplashScreenViewModel @Inject constructor(
         }
     }
 
-    private fun checkIfFirstRun() {
-        val currentAppVersionCode = BuildConfig.VERSION_CODE
-
-        val preferences = PreferenceManager.getDefaultSharedPreferences(getApplication())
-
-        val savedVersionCode =
-            preferences.getInt(SHARED_PREF_VERSION_CODE_KEY, SHARED_PREF_NOT_FOUND)
-
-        when {
-            currentAppVersionCode == savedVersionCode -> {
-                _isNormalInstall.value = true
-            }
-            savedVersionCode == SHARED_PREF_NOT_FOUND -> {
-                _isFreshInstall.value = true
-            }
-            currentAppVersionCode > savedVersionCode -> {
-                _isUpgradedInstall.value = true
-            }
-        }
-
-        preferences.edit().putInt(SHARED_PREF_VERSION_CODE_KEY, currentAppVersionCode).apply()
-    }
-
-    companion object {
-        const val SHARED_PREF_VERSION_CODE_KEY = "version_code"
-        const val SHARED_PREF_NOT_FOUND = -1
-    }
 }

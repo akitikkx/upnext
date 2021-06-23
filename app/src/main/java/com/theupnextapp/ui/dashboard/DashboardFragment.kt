@@ -12,16 +12,12 @@ import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentDashboardBinding
 import com.theupnextapp.domain.ScheduleShow
 import com.theupnextapp.domain.ShowDetailArg
-import com.theupnextapp.domain.TraktRecommendations
 import com.theupnextapp.ui.common.BaseFragment
-import com.theupnextapp.ui.features.FeaturesBottomSheetFragment
-import com.theupnextapp.ui.traktRecommendations.TraktRecommendationsAdapter
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class DashboardFragment : BaseFragment(),
-    TraktRecommendationsAdapter.TraktRecommendationsAdapterListener,
     TodayShowsAdapter.TodayShowsAdapterListener,
     YesterdayShowsAdapter.YesterdayShowsAdapterListener,
     TomorrowShowsAdapter.TomorrowShowsAdapterListener {
@@ -88,16 +84,6 @@ class DashboardFragment : BaseFragment(),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        viewModel.showFeaturesBottomSheet.observe(viewLifecycleOwner, {
-            if (it != null && it == true) {
-                val featuresBottomSheet = FeaturesBottomSheetFragment()
-                activity?.supportFragmentManager?.let { fragmentManager ->
-                    featuresBottomSheet.show(fragmentManager, FeaturesBottomSheetFragment.TAG)
-                    viewModel.showFeaturesBottomSheetComplete()
-                }
-            }
-        })
 
         viewModel.yesterdayShowsList.observe(
             viewLifecycleOwner,
@@ -185,27 +171,6 @@ class DashboardFragment : BaseFragment(),
         val analyticsBundle = Bundle()
         analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, yesterdayShow.id.toString())
         analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, yesterdayShow.name)
-        analyticsBundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "dashboard_show")
-        firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM, analyticsBundle)
-    }
-
-    override fun onRecommendedShowClick(view: View, traktRecommendations: TraktRecommendations) {
-        val directions = DashboardFragmentDirections.actionDashboardFragmentToShowDetailFragment(
-            ShowDetailArg(
-                source = "recommended",
-                showId = traktRecommendations.tvMazeID,
-                showTitle = traktRecommendations.title,
-                showImageUrl = traktRecommendations.originalImageUrl
-            )
-        )
-        findNavController().navigate(directions, getShowDetailNavigatorExtras(view))
-
-        val analyticsBundle = Bundle()
-        analyticsBundle.putString(
-            FirebaseAnalytics.Param.ITEM_ID,
-            traktRecommendations.id.toString()
-        )
-        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, traktRecommendations.title)
         analyticsBundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "dashboard_show")
         firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM, analyticsBundle)
     }

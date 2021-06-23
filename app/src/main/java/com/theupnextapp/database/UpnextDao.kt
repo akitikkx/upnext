@@ -55,39 +55,6 @@ interface UpnextDao {
     @Query("select * from shows_info where id = :id")
     fun getShowWithId(id: Int): ShowInfo
 
-    @Query("delete from trakt_watchlist")
-    fun deleteAllTraktWatchlist()
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertAllTraktWatchlist(vararg traktWatchlist: DatabaseTraktWatchlist)
-
-    @Query("select * from trakt_watchlist")
-    fun getTraktWatchlist(): LiveData<List<DatabaseTraktWatchlist>>
-
-    @Query("delete from trakt_history")
-    fun deleteAllTraktHistory()
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertAllTraktHistory(vararg traktHistory: DatabaseTraktHistory)
-
-    @Query("select * from trakt_history order by watchedAt desc")
-    fun getTraktHistory(): LiveData<List<DatabaseTraktHistory>>
-
-    @Query("select * from trakt_watchlist where imdbID = :imdbID")
-    fun checkIfInTraktWatchlist(imdbID: String): LiveData<DatabaseTraktHistory?>
-
-    @Query("delete from trakt_watchlist where imdbID = :imdbID")
-    fun deleteWatchlistItem(imdbID: String)
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertAllTraktRecommendations(vararg traktRecommendations: DatabaseTraktRecommendations)
-
-    @Query("delete from trakt_recommendations")
-    fun deleteAllTraktRecommendations()
-
-    @Query("select * from trakt_recommendations")
-    fun getTraktRecommendations(): LiveData<List<DatabaseTraktRecommendations>>
-
     // TRAKT POPULAR SHOWS
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAllTraktPopular(vararg traktPopularShows: DatabaseTraktPopularShows)
