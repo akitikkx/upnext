@@ -154,55 +154,11 @@ class TraktRepository constructor(
                     for (item in trendingShowsResponse) {
                         val trendingItem: NetworkTraktTrendingShowsResponseItem = item
 
-                        val imdbID = trendingItem.show.ids.imdb
-                        var tvMazeSearch: NetworkTvMazeShowLookupResponse? = null
+                        val (id, poster, heroImage) = getImages(trendingItem.show.ids.imdb)
 
-                        // perform a TvMaze search for the Trakt item using the Trakt title
-                        try {
-                            tvMazeSearch = imdbID?.let {
-                                TvMazeNetwork.tvMazeApi.getShowLookupAsync(it).await()
-                            }
-                        } catch (e: Exception) {
-                            Timber.d(e)
-                            firebaseCrashlytics.recordException(e)
-                        }
-
-                        // loop through the search results from TvMaze and find a match for the IMDb ID
-                        // and update the watchlist item by adding the TvMaze ID
-
-                        val fallbackPoster = tvMazeSearch?.image?.original
-                        val fallbackMedium = tvMazeSearch?.image?.medium
-                        var poster: String? = ""
-                        var heroImage: String? = ""
-
-                        var showImagesResponse: NetworkTvMazeShowImageResponse? = null
-                        try {
-                            showImagesResponse =
-                                TvMazeNetwork.tvMazeApi.getShowImagesAsync(tvMazeSearch?.id.toString())
-                                    .await()
-                        } catch (e: Exception) {
-                            Timber.d(e)
-                            firebaseCrashlytics.recordException(e)
-                        }
-
-                        showImagesResponse.let { response ->
-                            if (!response.isNullOrEmpty()) {
-                                for (image in response) {
-                                    if (image.type == "poster") {
-                                        poster = image.resolutions.original.url
-                                    }
-
-                                    if (image.type == "background") {
-                                        heroImage = image.resolutions.original.url
-                                    }
-                                }
-                            }
-
-                        }
-
-                        trendingItem.show.originalImageUrl = poster ?: fallbackPoster
-                        trendingItem.show.mediumImageUrl = heroImage ?: fallbackMedium
-                        trendingItem.show.ids.tvMazeID = tvMazeSearch?.id
+                        trendingItem.show.originalImageUrl = poster
+                        trendingItem.show.mediumImageUrl = heroImage
+                        trendingItem.show.ids.tvMazeID = id
 
                         shows.add(trendingItem.asDatabaseModel())
                     }
@@ -233,6 +189,55 @@ class TraktRepository constructor(
         }
     }
 
+    /**
+     * Get the images for the given ImdbID
+     */
+    private suspend fun getImages(
+        imdbID: String?
+    ): Triple<Int?, String?, String?> {
+        var tvMazeSearch: NetworkTvMazeShowLookupResponse? = null
+
+        // perform a TvMaze search for the Trakt item using the Trakt title
+        try {
+            tvMazeSearch = imdbID?.let {
+                TvMazeNetwork.tvMazeApi.getShowLookupAsync(it).await()
+            }
+        } catch (e: Exception) {
+            Timber.d(e)
+            firebaseCrashlytics.recordException(e)
+        }
+
+        val fallbackPoster = tvMazeSearch?.image?.original
+        val fallbackMedium = tvMazeSearch?.image?.medium
+        var poster: String? = ""
+        var heroImage: String? = ""
+
+        var showImagesResponse: NetworkTvMazeShowImageResponse? = null
+        try {
+            showImagesResponse =
+                TvMazeNetwork.tvMazeApi.getShowImagesAsync(tvMazeSearch?.id.toString())
+                    .await()
+        } catch (e: Exception) {
+            Timber.d(e)
+            firebaseCrashlytics.recordException(e)
+        }
+
+        showImagesResponse.let { response ->
+            if (!response.isNullOrEmpty()) {
+                for (image in response) {
+                    if (image.type == "poster") {
+                        poster = image.resolutions.original.url
+                    }
+
+                    if (image.type == "background") {
+                        heroImage = image.resolutions.original.url
+                    }
+                }
+            }
+        }
+        return Triple(tvMazeSearch?.id, poster ?: fallbackPoster, heroImage ?: fallbackMedium)
+    }
+
     suspend fun refreshTraktPopularShows() {
         withContext(Dispatchers.IO) {
             try {
@@ -250,29 +255,14 @@ class TraktRepository constructor(
                     for (item in popularShowsResponse) {
                         val popularItem: NetworkTraktPopularShowsResponseItem = item
 
-                        val imdbID = popularItem.ids.imdb
-                        val traktTitle = popularItem.title
+                        val (id, poster, heroImage) = getImages(popularItem.ids.imdb)
 
-                        // perform a TvMaze search for the Trakt item using the Trakt title
-                        val tvMazeSearch =
-                            traktTitle?.let {
-                                TvMazeNetwork.tvMazeApi.getSuggestionListAsync(it).await()
-                            }
+                        popularItem.originalImageUrl =
+                            poster
+                        popularItem.mediumImageUrl =
+                            heroImage
+                        popularItem.ids.tvMazeID = id
 
-                        // loop through the search results from TvMaze and find a match for the IMDb ID
-                        // and update the watchlist item by adding the TvMaze ID
-                        if (!tvMazeSearch.isNullOrEmpty()) {
-                            for (searchItem in tvMazeSearch) {
-                                val showSearchItem: NetworkShowSearchResponse = searchItem
-                                if (showSearchItem.show.externals.imdb == imdbID) {
-                                    popularItem.originalImageUrl =
-                                        showSearchItem.show.image?.medium
-                                    popularItem.mediumImageUrl =
-                                        showSearchItem.show.image?.original
-                                    popularItem.ids.tvMazeID = showSearchItem.show.id
-                                }
-                            }
-                        }
                         shows.add(popularItem.asDatabaseModel())
                     }
                     upnextDao.apply {
@@ -324,29 +314,13 @@ class TraktRepository constructor(
                     for (item in mostAnticipatedShowsResponse) {
                         val mostAnticipatedItem: NetworkTraktMostAnticipatedResponseItem = item
 
-                        val imdbID = mostAnticipatedItem.show.ids.imdb
-                        val traktTitle = mostAnticipatedItem.show.title
+                        val (id, poster, heroImage) = getImages(mostAnticipatedItem.show.ids.imdb)
 
-                        // perform a TvMaze search for the Trakt item using the Trakt title
-                        val tvMazeSearch =
-                            traktTitle?.let {
-                                TvMazeNetwork.tvMazeApi.getSuggestionListAsync(it).await()
-                            }
-
-                        // loop through the search results from TvMaze and find a match for the IMDb ID
-                        // and update the watchlist item by adding the TvMaze ID
-                        if (!tvMazeSearch.isNullOrEmpty()) {
-                            for (searchItem in tvMazeSearch) {
-                                val showSearchItem: NetworkShowSearchResponse = searchItem
-                                if (showSearchItem.show.externals.imdb == imdbID) {
-                                    mostAnticipatedItem.show.originalImageUrl =
-                                        showSearchItem.show.image?.medium
-                                    mostAnticipatedItem.show.mediumImageUrl =
-                                        showSearchItem.show.image?.original
-                                    mostAnticipatedItem.show.ids.tvMazeID = showSearchItem.show.id
-                                }
-                            }
-                        }
+                        mostAnticipatedItem.show.originalImageUrl =
+                            poster
+                        mostAnticipatedItem.show.mediumImageUrl =
+                            heroImage
+                        mostAnticipatedItem.show.ids.tvMazeID = id
                         shows.add(mostAnticipatedItem.asDatabaseModel())
                     }
                     upnextDao.apply {
