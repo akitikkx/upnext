@@ -11,6 +11,7 @@ fun NetworkYesterdayScheduleResponse.asDatabaseModel(): DatabaseYesterdaySchedul
     return DatabaseYesterdaySchedule(
         id = show.id,
         image = show.image?.original,
+        mediumImage = show.image?.medium,
         language = show.language,
         name = show.name,
         officialSite = show.officialSite,
@@ -28,6 +29,7 @@ fun NetworkTodayScheduleResponse.asDatabaseModel(): DatabaseTodaySchedule {
     return DatabaseTodaySchedule(
         id = show.id,
         image = show.image?.original,
+        mediumImage = show.image?.medium,
         language = show.language,
         name = show.name,
         officialSite = show.officialSite,
@@ -45,6 +47,7 @@ fun NetworkTomorrowScheduleResponse.asDatabaseModel(): DatabaseTomorrowSchedule 
     return DatabaseTomorrowSchedule(
         id = show.id,
         image = show.image?.original,
+        mediumImage = show.image?.medium,
         language = show.language,
         name = show.name,
         officialSite = show.officialSite,

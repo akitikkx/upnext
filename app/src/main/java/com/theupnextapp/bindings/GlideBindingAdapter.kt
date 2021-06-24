@@ -7,6 +7,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.theupnextapp.R
+import com.theupnextapp.domain.ShowDetailArg
 
 @BindingAdapter("imageUrl")
 fun setImageUrl(imageView: ImageView, url: String?) {
@@ -27,13 +28,13 @@ fun setImageUrl(imageView: ImageView, url: String?) {
 }
 
 @BindingAdapter("wideImageUrl")
-fun setWideImageUrl(imageView: ImageView, url: String?) {
+fun setWideImageUrl(imageView: ImageView, showDetailArg: ShowDetailArg) {
     val requestOptions = RequestOptions()
         .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
 
     try {
         Glide.with(imageView.context)
-            .load(url)
+            .load(showDetailArg.showBackgroundUrl ?: showDetailArg.showImageUrl)
             .placeholder(R.drawable.backdrop_background)
             .error(R.drawable.backdrop_background)
             .fallback(R.drawable.backdrop_background)

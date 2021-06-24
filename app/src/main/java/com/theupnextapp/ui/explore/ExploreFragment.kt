@@ -132,7 +132,8 @@ class ExploreFragment : BaseFragment(),
                 source = "trending",
                 showId = traktTrending.tvMazeID,
                 showTitle = traktTrending.title,
-                showImageUrl = traktTrending.originalImageUrl
+                showImageUrl = traktTrending.originalImageUrl,
+                showBackgroundUrl = traktTrending.mediumImageUrl
             )
         )
         findNavController().navigate(directions, getShowDetailNavigatorExtras(view))
@@ -150,7 +151,8 @@ class ExploreFragment : BaseFragment(),
                 source = "popular",
                 showId = popularShows.tvMazeID,
                 showTitle = popularShows.title,
-                showImageUrl = popularShows.originalImageUrl
+                showImageUrl = popularShows.originalImageUrl,
+                showBackgroundUrl = popularShows.mediumImageUrl
             )
         )
         findNavController().navigate(directions, getShowDetailNavigatorExtras(view))
@@ -168,7 +170,8 @@ class ExploreFragment : BaseFragment(),
                 source = "most_anticipated",
                 showId = mostAnticipated.tvMazeID,
                 showTitle = mostAnticipated.title,
-                showImageUrl = mostAnticipated.originalImageUrl
+                showImageUrl = mostAnticipated.originalImageUrl,
+                showBackgroundUrl = mostAnticipated.mediumImageUrl
             )
         )
         findNavController().navigate(directions, getShowDetailNavigatorExtras(view))

@@ -163,7 +163,8 @@ class DashboardFragment : BaseFragment(),
                 source = "yesterday",
                 showId = yesterdayShow.id,
                 showTitle = yesterdayShow.name,
-                showImageUrl = yesterdayShow.image
+                showImageUrl = yesterdayShow.originalImage,
+                showBackgroundUrl = yesterdayShow.mediumImage
             )
         )
         findNavController().navigate(directions, getShowDetailNavigatorExtras(view))
@@ -181,7 +182,8 @@ class DashboardFragment : BaseFragment(),
                 source = "today",
                 showId = scheduleShow.id,
                 showTitle = scheduleShow.name,
-                showImageUrl = scheduleShow.image
+                showImageUrl = scheduleShow.originalImage,
+                showBackgroundUrl = scheduleShow.mediumImage
             )
         )
         findNavController().navigate(directions, getShowDetailNavigatorExtras(view))
@@ -199,7 +201,8 @@ class DashboardFragment : BaseFragment(),
                 source = "tomorrow",
                 showId = scheduleShow.id,
                 showTitle = scheduleShow.name,
-                showImageUrl = scheduleShow.image
+                showImageUrl = scheduleShow.originalImage,
+                showBackgroundUrl = scheduleShow.mediumImage
             )
         )
         findNavController().navigate(directions, getShowDetailNavigatorExtras(view))

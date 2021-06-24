@@ -9,6 +9,7 @@ data class DatabaseYesterdaySchedule(
     @PrimaryKey
     val id: Int,
     val image: String?,
+    val mediumImage: String?,
     val language: String?,
     val name: String?,
     val officialSite: String?,
@@ -25,7 +26,8 @@ fun List<DatabaseYesterdaySchedule>.asDomainModel(): List<ScheduleShow> {
     return map {
         ScheduleShow(
             id = it.id,
-            image = it.image,
+            originalImage = it.image,
+            mediumImage = it.mediumImage,
             language = it.language,
             name = it.name,
             officialSite = it.officialSite,

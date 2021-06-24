@@ -68,3 +68,11 @@ val MIGRATION_20_21: Migration = object : Migration(20, 21) {
         database.execSQL("DROP TABLE IF EXISTS trakt_recommendations")
     }
 }
+
+val MIGRATION_21_22: Migration = object : Migration(21, 22) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL("ALTER TABLE schedule_yesterday ADD COLUMN mediumImage TEXT DEFAULT NULL")
+        database.execSQL("ALTER TABLE schedule_today ADD COLUMN mediumImage TEXT DEFAULT NULL")
+        database.execSQL("ALTER TABLE schedule_tomorrow ADD COLUMN mediumImage TEXT DEFAULT NULL")
+    }
+}
