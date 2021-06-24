@@ -151,8 +151,33 @@ class TraktRepository constructor(
 
                     for (item in trendingShowsResponse) {
                         val trendingItem: NetworkTraktTrendingShowsResponseItem = item
+
+                        val imdbID = trendingItem.show.ids.imdb
+                        val traktTitle = trendingItem.show.title
+
+                        // perform a TvMaze search for the Trakt item using the Trakt title
+                        val tvMazeSearch =
+                            traktTitle?.let {
+                                TvMazeNetwork.tvMazeApi.getSuggestionListAsync(it).await()
+                            }
+
+                        // loop through the search results from TvMaze and find a match for the IMDb ID
+                        // and update the watchlist item by adding the TvMaze ID
+                        if (!tvMazeSearch.isNullOrEmpty()) {
+                            for (searchItem in tvMazeSearch) {
+                                val showSearchItem: NetworkShowSearchResponse = searchItem
+                                if (showSearchItem.show.externals.imdb == imdbID) {
+                                    trendingItem.show.originalImageUrl =
+                                        showSearchItem.show.image?.medium
+                                    trendingItem.show.mediumImageUrl =
+                                        showSearchItem.show.image?.original
+                                    trendingItem.show.ids.tvMazeID = showSearchItem.show.id
+                                }
+                            }
+                        }
                         shows.add(trendingItem.asDatabaseModel())
                     }
+
                     upnextDao.apply {
                         deleteAllTraktTrending()
                         insertAllTraktTrending(*shows.toTypedArray())
