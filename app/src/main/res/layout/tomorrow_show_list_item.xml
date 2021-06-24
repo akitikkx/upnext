@@ -41,7 +41,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    app:showHideStringContent="@{show.image}" />
+                    app:showHideStringContent="@{show.originalImage}" />
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/tomorrow_show_poster"
@@ -50,7 +50,7 @@
                     android:layout_marginEnd="@dimen/margin_horizontal_half"
                     android:contentDescription="@{String.format(@string/show_poster, show.name)}"
                     android:scaleType="centerCrop"
-                    app:imageUrl="@{show.image}" />
+                    app:imageUrl="@{show.originalImage}" />
             </FrameLayout>
 
             <com.google.android.material.textview.MaterialTextView

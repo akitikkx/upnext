@@ -11,6 +11,8 @@ import com.theupnextapp.network.TraktNetwork
 import com.theupnextapp.network.TvMazeNetwork
 import com.theupnextapp.network.models.trakt.*
 import com.theupnextapp.network.models.tvmaze.NetworkShowSearchResponse
+import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowImageResponse
+import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
@@ -153,28 +155,55 @@ class TraktRepository constructor(
                         val trendingItem: NetworkTraktTrendingShowsResponseItem = item
 
                         val imdbID = trendingItem.show.ids.imdb
-                        val traktTitle = trendingItem.show.title
+                        var tvMazeSearch: NetworkTvMazeShowLookupResponse? = null
 
                         // perform a TvMaze search for the Trakt item using the Trakt title
-                        val tvMazeSearch =
-                            traktTitle?.let {
-                                TvMazeNetwork.tvMazeApi.getSuggestionListAsync(it).await()
+                        try {
+                            tvMazeSearch = imdbID?.let {
+                                TvMazeNetwork.tvMazeApi.getShowLookupAsync(it).await()
                             }
+                        } catch (e: Exception) {
+                            Timber.d(e)
+                            firebaseCrashlytics.recordException(e)
+                        }
 
                         // loop through the search results from TvMaze and find a match for the IMDb ID
                         // and update the watchlist item by adding the TvMaze ID
-                        if (!tvMazeSearch.isNullOrEmpty()) {
-                            for (searchItem in tvMazeSearch) {
-                                val showSearchItem: NetworkShowSearchResponse = searchItem
-                                if (showSearchItem.show.externals.imdb == imdbID) {
-                                    trendingItem.show.originalImageUrl =
-                                        showSearchItem.show.image?.medium
-                                    trendingItem.show.mediumImageUrl =
-                                        showSearchItem.show.image?.original
-                                    trendingItem.show.ids.tvMazeID = showSearchItem.show.id
+
+                        val fallbackPoster = tvMazeSearch?.image?.original
+                        val fallbackMedium = tvMazeSearch?.image?.medium
+                        var poster: String? = ""
+                        var heroImage: String? = ""
+
+                        var showImagesResponse: NetworkTvMazeShowImageResponse? = null
+                        try {
+                            showImagesResponse =
+                                TvMazeNetwork.tvMazeApi.getShowImagesAsync(tvMazeSearch?.id.toString())
+                                    .await()
+                        } catch (e: Exception) {
+                            Timber.d(e)
+                            firebaseCrashlytics.recordException(e)
+                        }
+
+                        showImagesResponse.let { response ->
+                            if (!response.isNullOrEmpty()) {
+                                for (image in response) {
+                                    if (image.type == "poster") {
+                                        poster = image.resolutions.original.url
+                                    }
+
+                                    if (image.type == "background") {
+                                        heroImage = image.resolutions.original.url
+                                    }
                                 }
                             }
+
                         }
+
+                        trendingItem.show.originalImageUrl = poster ?: fallbackPoster
+                        trendingItem.show.mediumImageUrl = heroImage ?: fallbackMedium
+                        trendingItem.show.ids.tvMazeID = tvMazeSearch?.id
+
                         shows.add(trendingItem.asDatabaseModel())
                     }
 

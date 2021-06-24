@@ -2,7 +2,8 @@ package com.theupnextapp.domain
 
 data class ScheduleShow(
     val id: Int,
-    val image: String?,
+    val originalImage: String?,
+    val mediumImage: String?,
     val language: String?,
     val name: String?,
     val officialSite: String?,
@@ -25,7 +26,11 @@ data class ScheduleShow(
             return false
         }
 
-        if (image != other.image) {
+        if (originalImage != other.originalImage) {
+            return false
+        }
+
+        if (mediumImage != other.mediumImage) {
             return false
         }
 
@@ -74,7 +79,8 @@ data class ScheduleShow(
 
     override fun hashCode(): Int {
         var result = id
-        result = 31 * result + (image?.hashCode() ?: 0)
+        result = 31 * result + (originalImage?.hashCode() ?: 0)
+        result = 31 * result + (mediumImage?.hashCode() ?: 0)
         result = 31 * result + (language?.hashCode() ?: 0)
         result = 31 * result + (name?.hashCode() ?: 0)
         result = 31 * result + (officialSite?.hashCode() ?: 0)

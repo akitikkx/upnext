@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView.OnQueryTextListener
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -74,7 +73,7 @@ class SearchFragment : BaseFragment(),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.searchResults.observe(viewLifecycleOwner, Observer {
+        viewModel.searchResults.observe(viewLifecycleOwner, {
             searchAdapter.submitList(it)
         })
     }
@@ -107,7 +106,8 @@ class SearchFragment : BaseFragment(),
                 source = "search",
                 showId = showSearch.id,
                 showTitle = showSearch.name,
-                showImageUrl = showSearch.originalImageUrl
+                showImageUrl = showSearch.originalImageUrl,
+                showBackgroundUrl = showSearch.mediumImageUrl
             )
         )
         findNavController().navigate(directions, getShowDetailNavigatorExtras(view))

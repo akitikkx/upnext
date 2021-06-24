@@ -7,11 +7,13 @@ data class ShowDetailArg(
     val source: String?,
     val showId: Int?,
     val showTitle: String?,
-    val showImageUrl: String?
+    val showImageUrl: String?,
+    val showBackgroundUrl: String?
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readString(),
         parcel.readValue(Int::class.java.classLoader) as? Int,
+        parcel.readString(),
         parcel.readString(),
         parcel.readString()
     )
@@ -21,6 +23,7 @@ data class ShowDetailArg(
         parcel.writeValue(showId)
         parcel.writeString(showTitle)
         parcel.writeString(showImageUrl)
+        parcel.writeString(showBackgroundUrl)
     }
 
     override fun describeContents(): Int {
