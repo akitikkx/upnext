@@ -102,22 +102,32 @@ class UpnextRepository constructor(
                     TvMazeNetwork.tvMazeApi.getYesterdayScheduleAsync(countryCode, date).await()
                 if (!yesterdayShowsList.isNullOrEmpty()) {
                     upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_YESTERDAY_SHOWS.tableName)
-                    upnextDao.insertTableUpdateLog(
-                        DatabaseTableUpdate(
-                            table_name = DatabaseTables.TABLE_YESTERDAY_SHOWS.tableName,
-                            last_updated = System.currentTimeMillis()
-                        )
-                    )
 
                     yesterdayShowsList.forEach {
+                        val yesterdayShow: NetworkYesterdayScheduleResponse = it
+
                         // only adding shows that have an image
-                        if (!it.show.image?.original.isNullOrEmpty() && !it.show.externals?.imdb.isNullOrEmpty()) {
-                            shows.add(it.asDatabaseModel())
+                        if (!yesterdayShow.show.image?.original.isNullOrEmpty() && !yesterdayShow.show.externals?.imdb.isNullOrEmpty()) {
+
+                            val (poster, heroImage) = getImages(yesterdayShow.show.externals?.imdb)
+
+                            yesterdayShow.show.image?.original =
+                                poster ?: yesterdayShow.show.image?.original
+                            yesterdayShow.show.image?.medium =
+                                heroImage ?: yesterdayShow.show.image?.medium
+
+                            shows.add(yesterdayShow.asDatabaseModel())
                         }
                     }
                     upnextDao.apply {
                         deleteAllYesterdayShows()
                         insertAllYesterdayShows(*shows.toTypedArray())
+                        insertTableUpdateLog(
+                            DatabaseTableUpdate(
+                                table_name = DatabaseTables.TABLE_YESTERDAY_SHOWS.tableName,
+                                last_updated = System.currentTimeMillis()
+                            )
+                        )
                     }
                 }
                 _isLoadingYesterdayShows.postValue(false)
@@ -138,22 +148,31 @@ class UpnextRepository constructor(
                     TvMazeNetwork.tvMazeApi.getTodayScheduleAsync(countryCode, date).await()
                 if (!todayShowsList.isNullOrEmpty()) {
                     upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TODAY_SHOWS.tableName)
-                    upnextDao.insertTableUpdateLog(
-                        DatabaseTableUpdate(
-                            table_name = DatabaseTables.TABLE_TODAY_SHOWS.tableName,
-                            last_updated = System.currentTimeMillis()
-                        )
-                    )
 
                     todayShowsList.forEach {
+                        val todayShow: NetworkTodayScheduleResponse = it
+
                         // only adding shows that have an image
                         if (!it.show.image?.original.isNullOrEmpty() && !it.show.externals?.imdb.isNullOrEmpty()) {
-                            shows.add(it.asDatabaseModel())
+
+                            val (poster, heroImage) = getImages(todayShow.show.externals?.imdb)
+
+                            todayShow.show.image?.original =
+                                poster ?: todayShow.show.image?.original
+                            todayShow.show.image?.medium = heroImage ?: todayShow.show.image?.medium
+
+                            shows.add(todayShow.asDatabaseModel())
                         }
                     }
                     upnextDao.apply {
                         deleteAllTodayShows()
                         insertAllTodayShows(*shows.toTypedArray())
+                        insertTableUpdateLog(
+                            DatabaseTableUpdate(
+                                table_name = DatabaseTables.TABLE_TODAY_SHOWS.tableName,
+                                last_updated = System.currentTimeMillis()
+                            )
+                        )
                     }
                 }
                 _isLoadingTodayShows.postValue(false)
@@ -188,23 +207,33 @@ class UpnextRepository constructor(
             try {
                 val shows: MutableList<DatabaseTomorrowSchedule> = arrayListOf()
                 if (!tomorrowShowsList.isNullOrEmpty()) {
+                    upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TOMORROW_SHOWS.tableName)
+
                     tomorrowShowsList.forEach {
-                        upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TOMORROW_SHOWS.tableName)
-                        upnextDao.insertTableUpdateLog(
-                            DatabaseTableUpdate(
-                                table_name = DatabaseTables.TABLE_TOMORROW_SHOWS.tableName,
-                                last_updated = System.currentTimeMillis()
-                            )
-                        )
+                        val tomorrowShow: NetworkTomorrowScheduleResponse = it
 
                         // only adding shows that have an image
-                        if (!it.show.image?.original.isNullOrEmpty() && !it.show.externals?.imdb.isNullOrEmpty()) {
-                            shows.add(it.asDatabaseModel())
+                        if (!tomorrowShow.show.image?.original.isNullOrEmpty() && !tomorrowShow.show.externals?.imdb.isNullOrEmpty()) {
+
+                            val (poster, heroImage) = getImages(tomorrowShow.show.externals?.imdb)
+
+                            tomorrowShow.show.image?.original =
+                                poster ?: tomorrowShow.show.image?.original
+                            tomorrowShow.show.image?.medium =
+                                heroImage ?: tomorrowShow.show.image?.medium
+
+                            shows.add(tomorrowShow.asDatabaseModel())
                         }
                     }
                     upnextDao.apply {
                         deleteAllTomorrowShows()
                         insertAllTomorrowShows(*shows.toTypedArray())
+                        insertTableUpdateLog(
+                            DatabaseTableUpdate(
+                                table_name = DatabaseTables.TABLE_TOMORROW_SHOWS.tableName,
+                                last_updated = System.currentTimeMillis()
+                            )
+                        )
                     }
                 }
             } catch (e: Exception) {
@@ -212,6 +241,55 @@ class UpnextRepository constructor(
                 firebaseCrashlytics.recordException(e)
             }
         }
+    }
+
+    /**
+     * Get the images for the given ImdbID
+     */
+    private suspend fun getImages(
+        imdbID: String?
+    ): Pair<String?, String?> {
+        var tvMazeSearch: NetworkTvMazeShowLookupResponse? = null
+
+        // perform a TvMaze search for the Trakt item using the Trakt title
+        try {
+            tvMazeSearch = imdbID?.let {
+                TvMazeNetwork.tvMazeApi.getShowLookupAsync(it).await()
+            }
+        } catch (e: Exception) {
+            Timber.d(e)
+            firebaseCrashlytics.recordException(e)
+        }
+
+        val fallbackPoster = tvMazeSearch?.image?.original
+        val fallbackMedium = tvMazeSearch?.image?.medium
+        var poster: String? = ""
+        var heroImage: String? = ""
+
+        var showImagesResponse: NetworkTvMazeShowImageResponse? = null
+        try {
+            showImagesResponse =
+                TvMazeNetwork.tvMazeApi.getShowImagesAsync(tvMazeSearch?.id.toString())
+                    .await()
+        } catch (e: Exception) {
+            Timber.d(e)
+            firebaseCrashlytics.recordException(e)
+        }
+
+        showImagesResponse.let { response ->
+            if (!response.isNullOrEmpty()) {
+                for (image in response) {
+                    if (image.type == "poster") {
+                        poster = image.resolutions.original.url
+                    }
+
+                    if (image.type == "background") {
+                        heroImage = image.resolutions.original.url
+                    }
+                }
+            }
+        }
+        return Pair(poster ?: fallbackPoster, heroImage ?: fallbackMedium)
     }
 
     suspend fun getShowData(showId: Int) {
