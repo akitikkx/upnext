@@ -64,8 +64,8 @@ data class NetworkScheduleExternals(
 )
 
 data class NetworkScheduleImage(
-    val medium: String?,
-    val original: String?
+    var medium: String?,
+    var original: String?
 )
 
 data class NetworkScheduleNetwork(
