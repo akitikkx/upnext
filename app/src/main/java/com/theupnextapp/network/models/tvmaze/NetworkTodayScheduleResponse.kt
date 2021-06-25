@@ -13,5 +13,6 @@ data class NetworkTodayScheduleResponse(
     val season: Int,
     val show: NetworkScheduleShow,
     val summary: String,
-    val url: String
+    val url: String,
+    val imdbId: String?
 )
