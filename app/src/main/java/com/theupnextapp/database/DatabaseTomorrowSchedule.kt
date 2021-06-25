@@ -8,8 +8,8 @@ import com.theupnextapp.domain.ScheduleShow
 data class DatabaseTomorrowSchedule(
     @PrimaryKey
     val id: Int,
-    val image: String?,
-    val mediumImage: String?,
+    var image: String?,
+    var mediumImage: String?,
     val language: String?,
     val name: String?,
     val officialSite: String?,
@@ -19,7 +19,8 @@ data class DatabaseTomorrowSchedule(
     val summary: String?,
     val type: String?,
     val updated: String?,
-    val url: String?
+    val url: String?,
+    val imdbId: String?
 )
 
 fun List<DatabaseTomorrowSchedule>.asDomainModel(): List<ScheduleShow> {
