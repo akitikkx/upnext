@@ -109,12 +109,14 @@ class UpnextRepository constructor(
                         // only adding shows that have an image
                         if (!yesterdayShow.show.image?.original.isNullOrEmpty() && !yesterdayShow.show.externals?.imdb.isNullOrEmpty()) {
 
-                            val (poster, heroImage) = getImages(yesterdayShow.show.externals?.imdb)
+                            val (poster, heroImage) = getImages(
+                                id = yesterdayShow.show.id.toString(),
+                                fallbackPoster = yesterdayShow.show.image?.original,
+                                fallbackMedium = yesterdayShow.show.image?.medium
+                            )
 
-                            yesterdayShow.show.image?.original =
-                                poster ?: yesterdayShow.show.image?.original
-                            yesterdayShow.show.image?.medium =
-                                heroImage ?: yesterdayShow.show.image?.medium
+                            yesterdayShow.show.image?.original = poster
+                            yesterdayShow.show.image?.medium = heroImage
 
                             shows.add(yesterdayShow.asDatabaseModel())
                         }
@@ -155,11 +157,14 @@ class UpnextRepository constructor(
                         // only adding shows that have an image
                         if (!it.show.image?.original.isNullOrEmpty() && !it.show.externals?.imdb.isNullOrEmpty()) {
 
-                            val (poster, heroImage) = getImages(todayShow.show.externals?.imdb)
+                            val (poster, heroImage) = getImages(
+                                id = todayShow.show.id.toString(),
+                                fallbackPoster = todayShow.show.image?.original,
+                                fallbackMedium = todayShow.show.image?.medium
+                            )
 
-                            todayShow.show.image?.original =
-                                poster ?: todayShow.show.image?.original
-                            todayShow.show.image?.medium = heroImage ?: todayShow.show.image?.medium
+                            todayShow.show.image?.original = poster
+                            todayShow.show.image?.medium = heroImage
 
                             shows.add(todayShow.asDatabaseModel())
                         }
@@ -215,12 +220,14 @@ class UpnextRepository constructor(
                         // only adding shows that have an image
                         if (!tomorrowShow.show.image?.original.isNullOrEmpty() && !tomorrowShow.show.externals?.imdb.isNullOrEmpty()) {
 
-                            val (poster, heroImage) = getImages(tomorrowShow.show.externals?.imdb)
+                            val (poster, heroImage) = getImages(
+                                id = tomorrowShow.show.id.toString(),
+                                fallbackPoster = tomorrowShow.show.image?.original,
+                                fallbackMedium = tomorrowShow.show.image?.medium
+                            )
 
-                            tomorrowShow.show.image?.original =
-                                poster ?: tomorrowShow.show.image?.original
-                            tomorrowShow.show.image?.medium =
-                                heroImage ?: tomorrowShow.show.image?.medium
+                            tomorrowShow.show.image?.original = poster
+                            tomorrowShow.show.image?.medium = heroImage
 
                             shows.add(tomorrowShow.asDatabaseModel())
                         }
@@ -247,29 +254,17 @@ class UpnextRepository constructor(
      * Get the images for the given ImdbID
      */
     private suspend fun getImages(
-        imdbID: String?
+        id: String,
+        fallbackPoster: String?,
+        fallbackMedium: String?
     ): Pair<String?, String?> {
-        var tvMazeSearch: NetworkTvMazeShowLookupResponse? = null
-
-        // perform a TvMaze search for the Trakt item using the Trakt title
-        try {
-            tvMazeSearch = imdbID?.let {
-                TvMazeNetwork.tvMazeApi.getShowLookupAsync(it).await()
-            }
-        } catch (e: Exception) {
-            Timber.d(e)
-            firebaseCrashlytics.recordException(e)
-        }
-
-        val fallbackPoster = tvMazeSearch?.image?.original
-        val fallbackMedium = tvMazeSearch?.image?.medium
         var poster: String? = ""
         var heroImage: String? = ""
 
         var showImagesResponse: NetworkTvMazeShowImageResponse? = null
         try {
             showImagesResponse =
-                TvMazeNetwork.tvMazeApi.getShowImagesAsync(tvMazeSearch?.id.toString())
+                TvMazeNetwork.tvMazeApi.getShowImagesAsync(id)
                     .await()
         } catch (e: Exception) {
             Timber.d(e)
