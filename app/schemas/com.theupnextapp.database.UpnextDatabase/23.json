@@ -1,12 +1,12 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 22,
-    "identityHash": "4546584cbe1ce4a8ea913395d1196a75",
+    "version": 23,
+    "identityHash": "6e8d1c109f1047a026f4683e603ac323",
     "entities": [
       {
         "tableName": "schedule_yesterday",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `image` TEXT, `mediumImage` TEXT, `language` TEXT, `name` TEXT, `officialSite` TEXT, `premiered` TEXT, `runtime` TEXT, `status` TEXT, `summary` TEXT, `type` TEXT, `updated` TEXT, `url` TEXT, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `image` TEXT, `mediumImage` TEXT, `language` TEXT, `name` TEXT, `officialSite` TEXT, `premiered` TEXT, `runtime` TEXT, `status` TEXT, `summary` TEXT, `type` TEXT, `updated` TEXT, `url` TEXT, `imdbId` TEXT, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -83,6 +83,12 @@
           {
             "fieldPath": "url",
             "columnName": "url",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "imdbId",
+            "columnName": "imdbId",
             "affinity": "TEXT",
             "notNull": false
           }
@@ -98,7 +104,7 @@
       },
       {
         "tableName": "schedule_today",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `image` TEXT, `mediumImage` TEXT, `language` TEXT, `name` TEXT, `officialSite` TEXT, `premiered` TEXT, `runtime` TEXT, `status` TEXT, `summary` TEXT, `type` TEXT, `updated` TEXT, `url` TEXT, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `image` TEXT, `mediumImage` TEXT, `language` TEXT, `name` TEXT, `officialSite` TEXT, `premiered` TEXT, `runtime` TEXT, `status` TEXT, `summary` TEXT, `type` TEXT, `updated` TEXT, `url` TEXT, `imdbId` TEXT, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -175,6 +181,12 @@
           {
             "fieldPath": "url",
             "columnName": "url",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "imdbId",
+            "columnName": "imdbId",
             "affinity": "TEXT",
             "notNull": false
           }
@@ -190,7 +202,7 @@
       },
       {
         "tableName": "schedule_tomorrow",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `image` TEXT, `mediumImage` TEXT, `language` TEXT, `name` TEXT, `officialSite` TEXT, `premiered` TEXT, `runtime` TEXT, `status` TEXT, `summary` TEXT, `type` TEXT, `updated` TEXT, `url` TEXT, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `image` TEXT, `mediumImage` TEXT, `language` TEXT, `name` TEXT, `officialSite` TEXT, `premiered` TEXT, `runtime` TEXT, `status` TEXT, `summary` TEXT, `type` TEXT, `updated` TEXT, `url` TEXT, `imdbId` TEXT, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -267,6 +279,12 @@
           {
             "fieldPath": "url",
             "columnName": "url",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "imdbId",
+            "columnName": "imdbId",
             "affinity": "TEXT",
             "notNull": false
           }
@@ -804,7 +822,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4546584cbe1ce4a8ea913395d1196a75')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6e8d1c109f1047a026f4683e603ac323')"
     ]
   }
 }
