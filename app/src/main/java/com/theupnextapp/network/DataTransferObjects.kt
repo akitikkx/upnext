@@ -21,8 +21,7 @@ fun NetworkYesterdayScheduleResponse.asDatabaseModel(): DatabaseYesterdaySchedul
         summary = show.summary,
         type = show.type,
         updated = show.updated.toString(),
-        url = show.url,
-        imdbId = show.externals?.imdb
+        url = show.url
     )
 }
 
@@ -40,8 +39,7 @@ fun NetworkTodayScheduleResponse.asDatabaseModel(): DatabaseTodaySchedule {
         summary = show.summary,
         type = show.type,
         updated = show.updated.toString(),
-        url = show.url,
-        imdbId = show.externals?.imdb
+        url = show.url
     )
 }
 
@@ -59,7 +57,6 @@ fun NetworkTomorrowScheduleResponse.asDatabaseModel(): DatabaseTomorrowSchedule 
         summary = show.summary,
         type = show.type,
         updated = show.updated.toString(),
-        url = show.url,
-        imdbId = show.externals?.imdb
+        url = show.url
     )
 }

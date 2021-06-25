@@ -19,8 +19,7 @@ data class DatabaseYesterdaySchedule(
     val summary: String?,
     val type: String?,
     val updated: String?,
-    val url: String?,
-    val imdbId: String?
+    val url: String?
 )
 
 fun List<DatabaseYesterdaySchedule>.asDomainModel(): List<ScheduleShow> {
