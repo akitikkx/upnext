@@ -9,13 +9,11 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.theupnextapp.repository.TraktRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import javax.inject.Inject
 
 @HiltWorker
-class RefreshTraktExploreWorker @AssistedInject constructor(
+class RefreshTraktAnticipatedShowsWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParameters: WorkerParameters,
     private val traktRepository: TraktRepository
@@ -27,24 +25,22 @@ class RefreshTraktExploreWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result = coroutineScope {
         try {
-            refreshShows(traktRepository)
+            refreshAnticipatedShows(traktRepository)
             val bundle = Bundle()
             bundle.putBoolean("Refresh shows job run", true)
-            FirebaseAnalytics.getInstance(this@RefreshTraktExploreWorker.applicationContext)
-                .logEvent("RefreshTraktExploreWorker", bundle)
+            FirebaseAnalytics.getInstance(this@RefreshTraktAnticipatedShowsWorker.applicationContext)
+                .logEvent("RefreshTraktAnticipatedShowsWorker", bundle)
             Result.success()
         } catch (e: Exception) {
             Result.failure()
         }
     }
 
-    private suspend fun refreshShows(repository: TraktRepository) {
-        repository.refreshTraktPopularShows()
-        repository.refreshTraktTrendingShows()
+    private suspend fun refreshAnticipatedShows(repository: TraktRepository) {
         repository.refreshTraktMostAnticipatedShows()
     }
 
     companion object {
-        const val WORK_NAME = "RefreshTraktExploreWorker"
+        const val WORK_NAME = "RefreshTraktAnticipatedShowsWorker"
     }
 }

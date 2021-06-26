@@ -2,26 +2,24 @@ package com.theupnextapp.ui.explore
 
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
 import com.theupnextapp.common.utils.DateUtils
 import com.theupnextapp.common.utils.models.DatabaseTables
 import com.theupnextapp.common.utils.models.TableUpdateInterval
 import com.theupnextapp.domain.TableUpdate
 import com.theupnextapp.repository.TraktRepository
+import com.theupnextapp.work.RefreshTraktAnticipatedShowsWorker
+import com.theupnextapp.work.RefreshTraktPopularShowsWorker
+import com.theupnextapp.work.RefreshTraktTrendingShowsWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ExploreViewModel @Inject constructor(
-    private val traktRepository: TraktRepository
+    private val traktRepository: TraktRepository,
+    private val workManager: WorkManager
 ) : ViewModel() {
-
-    private val viewModelJob = SupervisorJob()
-
-    private val viewModelScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
     val trendingShows = traktRepository.traktTrendingShows
 
@@ -83,17 +81,15 @@ class ExploreViewModel @Inject constructor(
                 )
             }
 
+        val isPopularShowsEmpty = popularShowsEmpty.value == null || popularShowsEmpty.value == true
+
         if (diffInMinutes != null && diffInMinutes != 0L) {
             if (diffInMinutes > TableUpdateInterval.TRAKT_POPULAR_ITEMS.intervalMins && (isLoadingTraktPopular.value == false || isLoadingTraktPopular.value == null)) {
-                viewModelScope.launch {
-                    traktRepository.refreshTraktPopularShows()
-                }
+                workManager.enqueue(OneTimeWorkRequest.from(RefreshTraktPopularShowsWorker::class.java))
             }
             // no updates have been done yet for this table
-        } else if ((popularShowsEmpty.value == true && (isLoadingTraktPopular.value == null || isLoadingTraktPopular.value == false)) && tableUpdate == null && diffInMinutes == null) {
-            viewModelScope.launch {
-                traktRepository.refreshTraktPopularShows()
-            }
+        } else if (isPopularShowsEmpty && (isLoadingTraktPopular.value == null || isLoadingTraktPopular.value == false) && tableUpdate == null && diffInMinutes == null) {
+            workManager.enqueue(OneTimeWorkRequest.from(RefreshTraktPopularShowsWorker::class.java))
         }
     }
 
@@ -106,17 +102,15 @@ class ExploreViewModel @Inject constructor(
                 )
             }
 
+        val isTrendingShowsEmpty = trendingShowsEmpty.value == null || trendingShowsEmpty.value == true
+
         if (diffInMinutes != null && diffInMinutes != 0L) {
             if (diffInMinutes > TableUpdateInterval.TRAKT_TRENDING_ITEMS.intervalMins && (isLoadingTraktTrending.value == false || isLoadingTraktTrending.value == null)) {
-                viewModelScope.launch {
-                    traktRepository.refreshTraktTrendingShows()
-                }
+                workManager.enqueue(OneTimeWorkRequest.from(RefreshTraktTrendingShowsWorker::class.java))
             }
             // no updates have been done yet for this table
-        } else if ((trendingShowsEmpty.value == true && (isLoadingTraktTrending.value == null || isLoadingTraktTrending.value == false)) && tableUpdate == null && diffInMinutes == null) {
-            viewModelScope.launch {
-                traktRepository.refreshTraktTrendingShows()
-            }
+        } else if (isTrendingShowsEmpty && (isLoadingTraktTrending.value == null || isLoadingTraktTrending.value == false) && tableUpdate == null && diffInMinutes == null) {
+            workManager.enqueue(OneTimeWorkRequest.from(RefreshTraktTrendingShowsWorker::class.java))
         }
     }
 
@@ -129,17 +123,15 @@ class ExploreViewModel @Inject constructor(
                 )
             }
 
+        val isMostAnticipatedShowsEmpty = mostAnticipatedShowsEmpty.value == null || mostAnticipatedShowsEmpty.value == true
+
         if (diffInMinutes != null && diffInMinutes != 0L) {
             if (diffInMinutes > TableUpdateInterval.TRAKT_MOST_ANTICIPATED_ITEMS.intervalMins && (isLoadingTraktMostAnticipated.value == false || isLoadingTraktMostAnticipated.value == null)) {
-                viewModelScope.launch {
-                    traktRepository.refreshTraktMostAnticipatedShows()
-                }
+                workManager.enqueue(OneTimeWorkRequest.from(RefreshTraktAnticipatedShowsWorker::class.java))
             }
             // no updates have been done yet for this table
-        } else if ((mostAnticipatedShowsEmpty.value == true && (isLoadingTraktMostAnticipated.value == false || isLoadingTraktMostAnticipated.value == null)) && tableUpdate == null && diffInMinutes == null) {
-            viewModelScope.launch {
-                traktRepository.refreshTraktMostAnticipatedShows()
-            }
+        } else if (isMostAnticipatedShowsEmpty && (isLoadingTraktMostAnticipated.value == null || isLoadingTraktMostAnticipated.value == false) && tableUpdate == null && diffInMinutes == null) {
+            workManager.enqueue(OneTimeWorkRequest.from(RefreshTraktAnticipatedShowsWorker::class.java))
         }
     }
 }

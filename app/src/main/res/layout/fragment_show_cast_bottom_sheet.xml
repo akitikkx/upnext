@@ -145,35 +145,5 @@
             app:layout_constraintTop_toBottomOf="@id/show_cast_deathday_heading"
             app:showHideStringContent="@{viewModel.showCast.deathday}"
             tools:text="2020-01-01" />
-
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/show_cast_gender_heading"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_horizontal_double"
-            android:layout_marginTop="@dimen/margin_vertical"
-            android:layout_marginEnd="@dimen/margin_horizontal_double"
-            android:text="@string/cast_info_gender"
-            android:textAppearance="?attr/textAppearanceHeadline6"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/show_cast_deathday"
-            app:showHideStringContent="@{viewModel.showCast.gender}" />
-
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/show_cast_gender"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_horizontal_double"
-            android:layout_marginTop="@dimen/margin_vertical_half"
-            android:layout_marginEnd="@dimen/margin_horizontal_double"
-            android:text="@{viewModel.showCast.gender}"
-            android:textAppearance="?attr/textAppearanceBody2"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/show_cast_gender_heading"
-            app:showHideStringContent="@{viewModel.showCast.gender}"
-            tools:text="Gender" />
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
