@@ -2,11 +2,16 @@ package com.theupnextapp.ui.dashboard
 
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
 import com.theupnextapp.common.utils.DateUtils
 import com.theupnextapp.common.utils.models.DatabaseTables
 import com.theupnextapp.common.utils.models.TableUpdateInterval
 import com.theupnextapp.domain.TableUpdate
 import com.theupnextapp.repository.UpnextRepository
+import com.theupnextapp.work.RefreshTodayShowsWorker
+import com.theupnextapp.work.RefreshTomorrowShowsWorker
+import com.theupnextapp.work.RefreshYesterdayShowsWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -16,7 +21,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
-    private val upnextRepository: UpnextRepository
+    private val upnextRepository: UpnextRepository,
+    private val workManager: WorkManager
 ) : ViewModel() {
 
     private val viewModelJob = SupervisorJob()
@@ -88,21 +94,11 @@ class DashboardViewModel @Inject constructor(
 
         if (diffInMinutes != null && diffInMinutes != 0L) {
             if (diffInMinutes > TableUpdateInterval.DASHBOARD_ITEMS.intervalMins && (isLoadingYesterdayShows.value == false || isLoadingYesterdayShows.value == null)) {
-                viewModelScope.launch {
-                    upnextRepository.refreshYesterdayShows(
-                        DEFAULT_COUNTRY_CODE,
-                        DateUtils.yesterdayDate()
-                    )
-                }
+                workManager.enqueue(OneTimeWorkRequest.from(RefreshYesterdayShowsWorker::class.java))
             }
             // no updates have been done yet for this table
         } else if (isYesterdayShowsEmpty && (isLoadingYesterdayShows.value == null || isLoadingYesterdayShows.value == false) && tableUpdate == null && diffInMinutes == null) {
-            viewModelScope.launch {
-                upnextRepository.refreshYesterdayShows(
-                    DEFAULT_COUNTRY_CODE,
-                    DateUtils.yesterdayDate()
-                )
-            }
+            workManager.enqueue(OneTimeWorkRequest.from(RefreshYesterdayShowsWorker::class.java))
         }
     }
 
@@ -119,21 +115,11 @@ class DashboardViewModel @Inject constructor(
 
         if (diffInMinutes != null && diffInMinutes != 0L) {
             if (diffInMinutes > TableUpdateInterval.DASHBOARD_ITEMS.intervalMins && (isLoadingTodayShows.value == false || isLoadingTodayShows.value == null)) {
-                viewModelScope.launch {
-                    upnextRepository.refreshTodayShows(
-                        DEFAULT_COUNTRY_CODE,
-                        DateUtils.currentDate()
-                    )
-                }
+                workManager.enqueue(OneTimeWorkRequest.from(RefreshTodayShowsWorker::class.java))
             }
             // no updates have been done yet for this table
         } else if (isTodayShowsEmpty && (isLoadingTodayShows.value == null || isLoadingTodayShows.value == false) && tableUpdate == null && diffInMinutes == null) {
-            viewModelScope.launch {
-                upnextRepository.refreshTodayShows(
-                    DEFAULT_COUNTRY_CODE,
-                    DateUtils.currentDate()
-                )
-            }
+            workManager.enqueue(OneTimeWorkRequest.from(RefreshTodayShowsWorker::class.java))
         }
     }
 
@@ -151,21 +137,11 @@ class DashboardViewModel @Inject constructor(
 
         if (diffInMinutes != null && diffInMinutes != 0L) {
             if (diffInMinutes > TableUpdateInterval.DASHBOARD_ITEMS.intervalMins && (isLoadingTomorrowShows.value == false || isLoadingTomorrowShows.value == null)) {
-                viewModelScope.launch {
-                    upnextRepository.refreshTomorrowShows(
-                        DEFAULT_COUNTRY_CODE,
-                        DateUtils.tomorrowDate()
-                    )
-                }
+                workManager.enqueue(OneTimeWorkRequest.from(RefreshTomorrowShowsWorker::class.java))
             }
             // no updates have been done yet for this table
         } else if (isTomorrowShowsEmpty && (isLoadingTomorrowShows.value == null || isLoadingTomorrowShows.value == false) && tableUpdate == null && diffInMinutes == null) {
-            viewModelScope.launch {
-                upnextRepository.refreshTomorrowShows(
-                    DEFAULT_COUNTRY_CODE,
-                    DateUtils.tomorrowDate()
-                )
-            }
+            workManager.enqueue(OneTimeWorkRequest.from(RefreshTomorrowShowsWorker::class.java))
         }
     }
 
