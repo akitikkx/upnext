@@ -1,6 +1,5 @@
 package com.theupnextapp.work
 
-import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
@@ -9,7 +8,6 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
-import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.theupnextapp.R
 
@@ -30,19 +28,16 @@ abstract class BaseWorker (
             .setOngoing(true)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            createNotificationChannel(notification)
+            createNotificationChannel()
         }
 
         return ForegroundInfo(1, notification.build())
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    protected fun createNotificationChannel(
-        notificationBuilder: NotificationCompat.Builder
-    ) {
+    protected fun createNotificationChannel() {
         val notificationManager =
             applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationBuilder.setDefaults(Notification.DEFAULT_VIBRATE)
         val channel = NotificationChannel(
             CHANNEL_ID,
             applicationContext.getString(R.string.app_name),
