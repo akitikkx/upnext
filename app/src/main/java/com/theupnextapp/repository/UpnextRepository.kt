@@ -101,8 +101,6 @@ class UpnextRepository constructor(
                 val yesterdayShowsList =
                     TvMazeNetwork.tvMazeApi.getYesterdayScheduleAsync(countryCode, date).await()
                 if (!yesterdayShowsList.isNullOrEmpty()) {
-                    upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_YESTERDAY_SHOWS.tableName)
-
                     yesterdayShowsList.forEach {
                         val yesterdayShow: NetworkYesterdayScheduleResponse = it
 
@@ -122,6 +120,7 @@ class UpnextRepository constructor(
                         }
                     }
                     upnextDao.apply {
+                        deleteRecentTableUpdate(DatabaseTables.TABLE_YESTERDAY_SHOWS.tableName)
                         deleteAllYesterdayShows()
                         insertAllYesterdayShows(*shows.toTypedArray())
                         insertTableUpdateLog(
@@ -149,8 +148,6 @@ class UpnextRepository constructor(
                 val todayShowsList =
                     TvMazeNetwork.tvMazeApi.getTodayScheduleAsync(countryCode, date).await()
                 if (!todayShowsList.isNullOrEmpty()) {
-                    upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TODAY_SHOWS.tableName)
-
                     todayShowsList.forEach {
                         val todayShow: NetworkTodayScheduleResponse = it
 
@@ -170,6 +167,7 @@ class UpnextRepository constructor(
                         }
                     }
                     upnextDao.apply {
+                        deleteRecentTableUpdate(DatabaseTables.TABLE_TODAY_SHOWS.tableName)
                         deleteAllTodayShows()
                         insertAllTodayShows(*shows.toTypedArray())
                         insertTableUpdateLog(
@@ -212,8 +210,6 @@ class UpnextRepository constructor(
             try {
                 val shows: MutableList<DatabaseTomorrowSchedule> = arrayListOf()
                 if (!tomorrowShowsList.isNullOrEmpty()) {
-                    upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TOMORROW_SHOWS.tableName)
-
                     tomorrowShowsList.forEach {
                         val tomorrowShow: NetworkTomorrowScheduleResponse = it
 
@@ -233,6 +229,7 @@ class UpnextRepository constructor(
                         }
                     }
                     upnextDao.apply {
+                        deleteRecentTableUpdate(DatabaseTables.TABLE_TOMORROW_SHOWS.tableName)
                         deleteAllTomorrowShows()
                         insertAllTomorrowShows(*shows.toTypedArray())
                         insertTableUpdateLog(

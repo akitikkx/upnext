@@ -141,16 +141,6 @@ class TraktRepository constructor(
                     TraktNetwork.traktApi.getTrendingShowsAsync().await()
 
                 if (!trendingShowsResponse.isEmpty()) {
-                    upnextDao.apply {
-                        deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_TRENDING.tableName)
-                        insertTableUpdateLog(
-                            DatabaseTableUpdate(
-                                table_name = DatabaseTables.TABLE_TRAKT_TRENDING.tableName,
-                                last_updated = System.currentTimeMillis()
-                            )
-                        )
-                    }
-
                     for (item in trendingShowsResponse) {
                         val trendingItem: NetworkTraktTrendingShowsResponseItem = item
 
@@ -164,8 +154,15 @@ class TraktRepository constructor(
                     }
 
                     upnextDao.apply {
+                        deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_TRENDING.tableName)
                         deleteAllTraktTrending()
                         insertAllTraktTrending(*shows.toTypedArray())
+                        insertTableUpdateLog(
+                            DatabaseTableUpdate(
+                                table_name = DatabaseTables.TABLE_TRAKT_TRENDING.tableName,
+                                last_updated = System.currentTimeMillis()
+                            )
+                        )
                     }
                 }
                 _isLoadingTraktTrending.postValue(false)
@@ -247,11 +244,6 @@ class TraktRepository constructor(
                 val popularShowsResponse = TraktNetwork.traktApi.getPopularShowsAsync().await()
 
                 if (!popularShowsResponse.isEmpty()) {
-                    upnextDao.apply {
-                        deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_POPULAR.tableName)
-                        deleteAllTraktPopular()
-                    }
-
                     for (item in popularShowsResponse) {
                         val popularItem: NetworkTraktPopularShowsResponseItem = item
 
@@ -266,6 +258,8 @@ class TraktRepository constructor(
                         shows.add(popularItem.asDatabaseModel())
                     }
                     upnextDao.apply {
+                        deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_POPULAR.tableName)
+                        deleteAllTraktPopular()
                         insertAllTraktPopular(*shows.toTypedArray())
                         insertTableUpdateLog(
                             DatabaseTableUpdate(
@@ -306,11 +300,6 @@ class TraktRepository constructor(
                     TraktNetwork.traktApi.getMostAnticipatedShowsAsync().await()
 
                 if (!mostAnticipatedShowsResponse.isEmpty()) {
-                    upnextDao.apply {
-                        deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_MOST_ANTICIPATED.tableName)
-                        deleteAllTraktMostAnticipated()
-                    }
-
                     for (item in mostAnticipatedShowsResponse) {
                         val mostAnticipatedItem: NetworkTraktMostAnticipatedResponseItem = item
 
@@ -324,6 +313,8 @@ class TraktRepository constructor(
                         shows.add(mostAnticipatedItem.asDatabaseModel())
                     }
                     upnextDao.apply {
+                        deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_MOST_ANTICIPATED.tableName)
+                        deleteAllTraktMostAnticipated()
                         insertAllTraktMostAnticipated(*shows.toTypedArray())
                         insertTableUpdateLog(
                             DatabaseTableUpdate(

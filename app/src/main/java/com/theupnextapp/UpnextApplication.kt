@@ -2,10 +2,12 @@ package com.theupnextapp
 
 import android.app.Application
 import android.content.Context
-import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.hilt.work.HiltWorkerFactory
-import androidx.work.*
+import androidx.work.Configuration
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.theupnextapp.common.utils.UpnextPreferenceManager
 import com.theupnextapp.common.utils.models.TableUpdateInterval
 import com.theupnextapp.work.RefreshDashboardShowsWorker
@@ -68,21 +70,12 @@ class UpnextApplication : Application(), Configuration.Provider {
     }
 
     private fun launchBackgroundTasks() {
-        val constraints = Constraints.Builder()
-            .apply {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    setRequiresDeviceIdle(true)
-                }
-            }.build()
-
         val workManager = WorkManager.getInstance(this)
 
         val refreshDashboardShowsRequest = PeriodicWorkRequestBuilder<RefreshDashboardShowsWorker>(
             TableUpdateInterval.DASHBOARD_ITEMS.intervalHours,
             TimeUnit.HOURS
-        )
-            .setConstraints(constraints)
-            .build()
+        ).build()
 
         workManager.enqueueUniquePeriodicWork(
             RefreshDashboardShowsWorker.WORK_NAME,
@@ -93,9 +86,7 @@ class UpnextApplication : Application(), Configuration.Provider {
         val refreshExploreShowsRequest = PeriodicWorkRequestBuilder<RefreshTraktExploreWorker>(
             TableUpdateInterval.TRAKT_TRENDING_ITEMS.intervalHours,
             TimeUnit.HOURS
-        )
-            .setConstraints(constraints)
-            .build()
+        ).build()
 
         workManager.enqueueUniquePeriodicWork(
             RefreshTraktExploreWorker.WORK_NAME,
