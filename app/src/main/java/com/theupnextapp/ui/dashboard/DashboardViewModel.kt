@@ -86,7 +86,7 @@ class DashboardViewModel @Inject constructor(
             tableUpdate?.lastUpdated?.let { it ->
                 DateUtils.dateDifference(
                     endTime = it,
-                    type = "minutes"
+                    type = DateUtils.MINUTES
                 )
             }
         val isYesterdayShowsEmpty =
@@ -107,7 +107,7 @@ class DashboardViewModel @Inject constructor(
             tableUpdate?.lastUpdated?.let { it ->
                 DateUtils.dateDifference(
                     endTime = it,
-                    type = "minutes"
+                    type = DateUtils.MINUTES
                 )
             }
 

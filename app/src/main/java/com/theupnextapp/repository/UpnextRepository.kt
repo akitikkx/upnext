@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.theupnextapp.common.utils.models.DatabaseTables
+import com.theupnextapp.common.utils.models.TableUpdateInterval
 import com.theupnextapp.database.*
 import com.theupnextapp.domain.*
 import com.theupnextapp.network.TvMazeNetwork
@@ -21,7 +22,7 @@ import java.net.UnknownHostException
 class UpnextRepository constructor(
     private val upnextDao: UpnextDao,
     private val firebaseCrashlytics: FirebaseCrashlytics
-) {
+): BaseRepository(upnextDao) {
 
     val yesterdayShows: LiveData<List<ScheduleShow>> =
         Transformations.map(upnextDao.getYesterdayShows()) {
@@ -96,42 +97,52 @@ class UpnextRepository constructor(
     suspend fun refreshYesterdayShows(countryCode: String, date: String?) {
         withContext(Dispatchers.IO) {
             try {
-                _isLoadingYesterdayShows.postValue(true)
-                val shows: MutableList<DatabaseYesterdaySchedule> = arrayListOf()
-                val yesterdayShowsList =
-                    TvMazeNetwork.tvMazeApi.getYesterdayScheduleAsync(countryCode, date).await()
-                if (!yesterdayShowsList.isNullOrEmpty()) {
-                    yesterdayShowsList.forEach {
-                        val yesterdayShow: NetworkYesterdayScheduleResponse = it
+                if (canProceedWithUpdate(
+                        tableName = DatabaseTables.TABLE_YESTERDAY_SHOWS.tableName,
+                        intervalMins = TableUpdateInterval.DASHBOARD_ITEMS.intervalMins
+                    )
+                ) {
+                    _isLoadingYesterdayShows.postValue(true)
+                    val shows: MutableList<DatabaseYesterdaySchedule> = arrayListOf()
+                    val yesterdayShowsList =
+                        TvMazeNetwork.tvMazeApi.getYesterdayScheduleAsync(
+                            countryCode,
+                            date
+                        )
+                            .await()
+                    if (!yesterdayShowsList.isNullOrEmpty()) {
+                        yesterdayShowsList.forEach {
+                            val yesterdayShow: NetworkYesterdayScheduleResponse = it
 
-                        // only adding shows that have an image
-                        if (!yesterdayShow.show.image?.original.isNullOrEmpty() && !yesterdayShow.show.externals?.imdb.isNullOrEmpty()) {
+                            // only adding shows that have an image
+                            if (!yesterdayShow.show.image?.original.isNullOrEmpty() && !yesterdayShow.show.externals?.imdb.isNullOrEmpty()) {
 
-                            val (poster, heroImage) = getImages(
-                                id = yesterdayShow.show.id.toString(),
-                                fallbackPoster = yesterdayShow.show.image?.original,
-                                fallbackMedium = yesterdayShow.show.image?.medium
+                                val (poster, heroImage) = getImages(
+                                    id = yesterdayShow.show.id.toString(),
+                                    fallbackPoster = yesterdayShow.show.image?.original,
+                                    fallbackMedium = yesterdayShow.show.image?.medium
+                                )
+
+                                yesterdayShow.show.image?.original = poster
+                                yesterdayShow.show.image?.medium = heroImage
+
+                                shows.add(yesterdayShow.asDatabaseModel())
+                            }
+                        }
+                        upnextDao.apply {
+                            deleteAllYesterdayShows()
+                            insertAllYesterdayShows(*shows.toTypedArray())
+                            deleteRecentTableUpdate(DatabaseTables.TABLE_YESTERDAY_SHOWS.tableName)
+                            insertTableUpdateLog(
+                                DatabaseTableUpdate(
+                                    table_name = DatabaseTables.TABLE_YESTERDAY_SHOWS.tableName,
+                                    last_updated = System.currentTimeMillis()
+                                )
                             )
-
-                            yesterdayShow.show.image?.original = poster
-                            yesterdayShow.show.image?.medium = heroImage
-
-                            shows.add(yesterdayShow.asDatabaseModel())
                         }
                     }
-                    upnextDao.apply {
-                        deleteRecentTableUpdate(DatabaseTables.TABLE_YESTERDAY_SHOWS.tableName)
-                        deleteAllYesterdayShows()
-                        insertAllYesterdayShows(*shows.toTypedArray())
-                        insertTableUpdateLog(
-                            DatabaseTableUpdate(
-                                table_name = DatabaseTables.TABLE_YESTERDAY_SHOWS.tableName,
-                                last_updated = System.currentTimeMillis()
-                            )
-                        )
-                    }
+                    _isLoadingYesterdayShows.postValue(false)
                 }
-                _isLoadingYesterdayShows.postValue(false)
             } catch (e: Exception) {
                 _isLoadingYesterdayShows.postValue(false)
                 Timber.d(e)
@@ -143,42 +154,48 @@ class UpnextRepository constructor(
     suspend fun refreshTodayShows(countryCode: String, date: String?) {
         withContext(Dispatchers.IO) {
             try {
-                _isLoadingTodayShows.postValue(true)
-                val shows: MutableList<DatabaseTodaySchedule> = arrayListOf()
-                val todayShowsList =
-                    TvMazeNetwork.tvMazeApi.getTodayScheduleAsync(countryCode, date).await()
-                if (!todayShowsList.isNullOrEmpty()) {
-                    todayShowsList.forEach {
-                        val todayShow: NetworkTodayScheduleResponse = it
+                if (canProceedWithUpdate(
+                        tableName = DatabaseTables.TABLE_TODAY_SHOWS.tableName,
+                        intervalMins = TableUpdateInterval.DASHBOARD_ITEMS.intervalMins
+                    )
+                ) {
+                    _isLoadingTodayShows.postValue(true)
+                    val shows: MutableList<DatabaseTodaySchedule> = arrayListOf()
+                    val todayShowsList =
+                        TvMazeNetwork.tvMazeApi.getTodayScheduleAsync(countryCode, date).await()
+                    if (!todayShowsList.isNullOrEmpty()) {
+                        todayShowsList.forEach {
+                            val todayShow: NetworkTodayScheduleResponse = it
 
-                        // only adding shows that have an image
-                        if (!it.show.image?.original.isNullOrEmpty() && !it.show.externals?.imdb.isNullOrEmpty()) {
+                            // only adding shows that have an image
+                            if (!it.show.image?.original.isNullOrEmpty() && !it.show.externals?.imdb.isNullOrEmpty()) {
 
-                            val (poster, heroImage) = getImages(
-                                id = todayShow.show.id.toString(),
-                                fallbackPoster = todayShow.show.image?.original,
-                                fallbackMedium = todayShow.show.image?.medium
+                                val (poster, heroImage) = getImages(
+                                    id = todayShow.show.id.toString(),
+                                    fallbackPoster = todayShow.show.image?.original,
+                                    fallbackMedium = todayShow.show.image?.medium
+                                )
+
+                                todayShow.show.image?.original = poster
+                                todayShow.show.image?.medium = heroImage
+
+                                shows.add(todayShow.asDatabaseModel())
+                            }
+                        }
+                        upnextDao.apply {
+                            deleteAllTodayShows()
+                            insertAllTodayShows(*shows.toTypedArray())
+                            deleteRecentTableUpdate(DatabaseTables.TABLE_TODAY_SHOWS.tableName)
+                            insertTableUpdateLog(
+                                DatabaseTableUpdate(
+                                    table_name = DatabaseTables.TABLE_TODAY_SHOWS.tableName,
+                                    last_updated = System.currentTimeMillis()
+                                )
                             )
-
-                            todayShow.show.image?.original = poster
-                            todayShow.show.image?.medium = heroImage
-
-                            shows.add(todayShow.asDatabaseModel())
                         }
                     }
-                    upnextDao.apply {
-                        deleteRecentTableUpdate(DatabaseTables.TABLE_TODAY_SHOWS.tableName)
-                        deleteAllTodayShows()
-                        insertAllTodayShows(*shows.toTypedArray())
-                        insertTableUpdateLog(
-                            DatabaseTableUpdate(
-                                table_name = DatabaseTables.TABLE_TODAY_SHOWS.tableName,
-                                last_updated = System.currentTimeMillis()
-                            )
-                        )
-                    }
+                    _isLoadingTodayShows.postValue(false)
                 }
-                _isLoadingTodayShows.postValue(false)
             } catch (e: Exception) {
                 _isLoadingTodayShows.postValue(false)
                 Timber.d(e)
@@ -190,57 +207,51 @@ class UpnextRepository constructor(
     suspend fun refreshTomorrowShows(countryCode: String, date: String?) {
         withContext(Dispatchers.IO) {
             try {
-                _isLoadingTomorrowShows.postValue(true)
-                val tomorrowShowsList =
-                    TvMazeNetwork.tvMazeApi.getTomorrowScheduleAsync(countryCode, date).await()
+                if (canProceedWithUpdate(
+                        tableName = DatabaseTables.TABLE_TOMORROW_SHOWS.tableName,
+                        intervalMins = TableUpdateInterval.DASHBOARD_ITEMS.intervalMins
+                    )
+                ) {
+                    _isLoadingTomorrowShows.postValue(true)
+                    val tomorrowShowsList =
+                        TvMazeNetwork.tvMazeApi.getTomorrowScheduleAsync(countryCode, date).await()
 
-                saveTomorrowShows(tomorrowShowsList)
+                    val shows: MutableList<DatabaseTomorrowSchedule> = arrayListOf()
+                    if (!tomorrowShowsList.isNullOrEmpty()) {
+                        tomorrowShowsList.forEach {
+                            val tomorrowShow: NetworkTomorrowScheduleResponse = it
 
-                _isLoadingTomorrowShows.postValue(false)
-            } catch (e: Exception) {
-                _isLoadingTomorrowShows.postValue(false)
-                Timber.d(e)
-                firebaseCrashlytics.recordException(e)
-            }
-        }
-    }
+                            // only adding shows that have an image
+                            if (!tomorrowShow.show.image?.original.isNullOrEmpty() && !tomorrowShow.show.externals?.imdb.isNullOrEmpty()) {
 
-    private suspend fun saveTomorrowShows(tomorrowShowsList: List<NetworkTomorrowScheduleResponse>) {
-        withContext(Dispatchers.IO) {
-            try {
-                val shows: MutableList<DatabaseTomorrowSchedule> = arrayListOf()
-                if (!tomorrowShowsList.isNullOrEmpty()) {
-                    tomorrowShowsList.forEach {
-                        val tomorrowShow: NetworkTomorrowScheduleResponse = it
+                                val (poster, heroImage) = getImages(
+                                    id = tomorrowShow.show.id.toString(),
+                                    fallbackPoster = tomorrowShow.show.image?.original,
+                                    fallbackMedium = tomorrowShow.show.image?.medium
+                                )
 
-                        // only adding shows that have an image
-                        if (!tomorrowShow.show.image?.original.isNullOrEmpty() && !tomorrowShow.show.externals?.imdb.isNullOrEmpty()) {
+                                tomorrowShow.show.image?.original = poster
+                                tomorrowShow.show.image?.medium = heroImage
 
-                            val (poster, heroImage) = getImages(
-                                id = tomorrowShow.show.id.toString(),
-                                fallbackPoster = tomorrowShow.show.image?.original,
-                                fallbackMedium = tomorrowShow.show.image?.medium
+                                shows.add(tomorrowShow.asDatabaseModel())
+                            }
+                        }
+                        upnextDao.apply {
+                            deleteAllTomorrowShows()
+                            insertAllTomorrowShows(*shows.toTypedArray())
+                            deleteRecentTableUpdate(DatabaseTables.TABLE_TOMORROW_SHOWS.tableName)
+                            insertTableUpdateLog(
+                                DatabaseTableUpdate(
+                                    table_name = DatabaseTables.TABLE_TOMORROW_SHOWS.tableName,
+                                    last_updated = System.currentTimeMillis()
+                                )
                             )
-
-                            tomorrowShow.show.image?.original = poster
-                            tomorrowShow.show.image?.medium = heroImage
-
-                            shows.add(tomorrowShow.asDatabaseModel())
                         }
                     }
-                    upnextDao.apply {
-                        deleteRecentTableUpdate(DatabaseTables.TABLE_TOMORROW_SHOWS.tableName)
-                        deleteAllTomorrowShows()
-                        insertAllTomorrowShows(*shows.toTypedArray())
-                        insertTableUpdateLog(
-                            DatabaseTableUpdate(
-                                table_name = DatabaseTables.TABLE_TOMORROW_SHOWS.tableName,
-                                last_updated = System.currentTimeMillis()
-                            )
-                        )
-                    }
+                    _isLoadingTomorrowShows.postValue(false)
                 }
             } catch (e: Exception) {
+                _isLoadingTomorrowShows.postValue(false)
                 Timber.d(e)
                 firebaseCrashlytics.recordException(e)
             }
@@ -339,7 +350,8 @@ class UpnextRepository constructor(
         withContext(Dispatchers.IO) {
             try {
                 _isLoading.postValue(true)
-                val showCast = TvMazeNetwork.tvMazeApi.getShowCastAsync(showId.toString()).await()
+                val showCast =
+                    TvMazeNetwork.tvMazeApi.getShowCastAsync(showId.toString()).await()
                 _showCast.postValue(showCast.asDomainModel())
                 _isLoading.postValue(false)
             } catch (e: HttpException) {

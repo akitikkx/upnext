@@ -73,8 +73,8 @@ class UpnextApplication : Application(), Configuration.Provider {
         val workManager = WorkManager.getInstance(this)
 
         val refreshDashboardShowsRequest = PeriodicWorkRequestBuilder<RefreshDashboardShowsWorker>(
-            TableUpdateInterval.DASHBOARD_ITEMS.intervalHours,
-            TimeUnit.HOURS
+            TableUpdateInterval.DASHBOARD_ITEMS.intervalMins,
+            TimeUnit.MINUTES
         ).build()
 
         workManager.enqueueUniquePeriodicWork(
@@ -84,8 +84,8 @@ class UpnextApplication : Application(), Configuration.Provider {
         )
 
         val refreshExploreShowsRequest = PeriodicWorkRequestBuilder<RefreshTraktExploreWorker>(
-            TableUpdateInterval.TRAKT_TRENDING_ITEMS.intervalHours,
-            TimeUnit.HOURS
+            TableUpdateInterval.TRAKT_TRENDING_ITEMS.intervalMins,
+            TimeUnit.MINUTES
         ).build()
 
         workManager.enqueueUniquePeriodicWork(
