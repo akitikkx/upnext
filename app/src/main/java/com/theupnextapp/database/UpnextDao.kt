@@ -15,6 +15,9 @@ interface UpnextDao {
     @Query("select * from table_updates where table_name = :tableName")
     fun getTableLastUpdate(tableName: String): LiveData<DatabaseTableUpdate?>
 
+    @Query("select * from table_updates where table_name = :tableName")
+    fun getTableLastUpdateTime(tableName: String): DatabaseTableUpdate?
+
     @Query("delete from table_updates where table_name = :tableName")
     fun deleteRecentTableUpdate(tableName: String)
 

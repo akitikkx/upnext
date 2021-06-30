@@ -77,11 +77,16 @@ object DateUtils {
         var diff: Long = -1L
 
         when (type) {
-            "days" -> diff = endTime.let { TimeUnit.MILLISECONDS.toDays(diffCount) }
-            "hours" -> diff = endTime.let { TimeUnit.MILLISECONDS.toHours(diffCount) }
-            "minutes" -> diff = endTime.let { TimeUnit.MILLISECONDS.toMinutes(diffCount) }
-            "seconds" -> diff = endTime.let { TimeUnit.MILLISECONDS.toSeconds(diffCount) }
+            DAYS -> diff = endTime.let { TimeUnit.MILLISECONDS.toDays(diffCount) }
+            HOURS -> diff = endTime.let { TimeUnit.MILLISECONDS.toHours(diffCount) }
+            MINUTES -> diff = endTime.let { TimeUnit.MILLISECONDS.toMinutes(diffCount) }
+            SECONDS -> diff = endTime.let { TimeUnit.MILLISECONDS.toSeconds(diffCount) }
         }
         return diff
     }
+
+    const val DAYS = "days"
+    const val HOURS = "hours"
+    const val MINUTES = "minutes"
+    const val SECONDS = "seconds"
 }

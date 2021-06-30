@@ -5,12 +5,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.theupnextapp.common.utils.models.DatabaseTables
+import com.theupnextapp.common.utils.models.TableUpdateInterval
 import com.theupnextapp.database.*
 import com.theupnextapp.domain.*
 import com.theupnextapp.network.TraktNetwork
 import com.theupnextapp.network.TvMazeNetwork
 import com.theupnextapp.network.models.trakt.*
-import com.theupnextapp.network.models.tvmaze.NetworkShowSearchResponse
 import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowImageResponse
 import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupResponse
 import kotlinx.coroutines.Dispatchers
@@ -23,7 +23,7 @@ import javax.net.ssl.SSLHandshakeException
 class TraktRepository constructor(
     private val upnextDao: UpnextDao,
     private val firebaseCrashlytics: FirebaseCrashlytics
-) {
+) : BaseRepository(upnextDao) {
 
     fun tableUpdate(tableName: String): LiveData<TableUpdate?> =
         Transformations.map(upnextDao.getTableLastUpdate(tableName)) {
@@ -134,38 +134,44 @@ class TraktRepository constructor(
     suspend fun refreshTraktTrendingShows() {
         withContext(Dispatchers.IO) {
             try {
-                _isLoadingTraktTrending.postValue(true)
-                val shows: MutableList<DatabaseTraktTrendingShows> = mutableListOf()
+                if (canProceedWithUpdate(
+                        tableName = DatabaseTables.TABLE_TRAKT_TRENDING.tableName,
+                        intervalMins = TableUpdateInterval.TRAKT_TRENDING_ITEMS.intervalMins
+                    )
+                ) {
+                    _isLoadingTraktTrending.postValue(true)
+                    val shows: MutableList<DatabaseTraktTrendingShows> = mutableListOf()
 
-                val trendingShowsResponse =
-                    TraktNetwork.traktApi.getTrendingShowsAsync().await()
+                    val trendingShowsResponse =
+                        TraktNetwork.traktApi.getTrendingShowsAsync().await()
 
-                if (!trendingShowsResponse.isEmpty()) {
-                    for (item in trendingShowsResponse) {
-                        val trendingItem: NetworkTraktTrendingShowsResponseItem = item
+                    if (!trendingShowsResponse.isEmpty()) {
+                        for (item in trendingShowsResponse) {
+                            val trendingItem: NetworkTraktTrendingShowsResponseItem = item
 
-                        val (id, poster, heroImage) = getImages(trendingItem.show.ids.imdb)
+                            val (id, poster, heroImage) = getImages(trendingItem.show.ids.imdb)
 
-                        trendingItem.show.originalImageUrl = poster
-                        trendingItem.show.mediumImageUrl = heroImage
-                        trendingItem.show.ids.tvMazeID = id
+                            trendingItem.show.originalImageUrl = poster
+                            trendingItem.show.mediumImageUrl = heroImage
+                            trendingItem.show.ids.tvMazeID = id
 
-                        shows.add(trendingItem.asDatabaseModel())
-                    }
+                            shows.add(trendingItem.asDatabaseModel())
+                        }
 
-                    upnextDao.apply {
-                        deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_TRENDING.tableName)
-                        deleteAllTraktTrending()
-                        insertAllTraktTrending(*shows.toTypedArray())
-                        insertTableUpdateLog(
-                            DatabaseTableUpdate(
-                                table_name = DatabaseTables.TABLE_TRAKT_TRENDING.tableName,
-                                last_updated = System.currentTimeMillis()
+                        upnextDao.apply {
+                            deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_TRENDING.tableName)
+                            deleteAllTraktTrending()
+                            insertAllTraktTrending(*shows.toTypedArray())
+                            insertTableUpdateLog(
+                                DatabaseTableUpdate(
+                                    table_name = DatabaseTables.TABLE_TRAKT_TRENDING.tableName,
+                                    last_updated = System.currentTimeMillis()
+                                )
                             )
-                        )
+                        }
                     }
+                    _isLoadingTraktTrending.postValue(false)
                 }
-                _isLoadingTraktTrending.postValue(false)
             } catch (e: Exception) {
                 _isLoadingTraktTrending.postValue(false)
                 Timber.d(e)
@@ -238,38 +244,44 @@ class TraktRepository constructor(
     suspend fun refreshTraktPopularShows() {
         withContext(Dispatchers.IO) {
             try {
-                _isLoadingTraktPopular.postValue(true)
-                val shows: MutableList<DatabaseTraktPopularShows> = mutableListOf()
+                if (canProceedWithUpdate(
+                        tableName = DatabaseTables.TABLE_TRAKT_POPULAR.tableName,
+                        intervalMins = TableUpdateInterval.TRAKT_POPULAR_ITEMS.intervalMins
+                    )
+                ) {
+                    _isLoadingTraktPopular.postValue(true)
+                    val shows: MutableList<DatabaseTraktPopularShows> = mutableListOf()
 
-                val popularShowsResponse = TraktNetwork.traktApi.getPopularShowsAsync().await()
+                    val popularShowsResponse = TraktNetwork.traktApi.getPopularShowsAsync().await()
 
-                if (!popularShowsResponse.isEmpty()) {
-                    for (item in popularShowsResponse) {
-                        val popularItem: NetworkTraktPopularShowsResponseItem = item
+                    if (!popularShowsResponse.isEmpty()) {
+                        for (item in popularShowsResponse) {
+                            val popularItem: NetworkTraktPopularShowsResponseItem = item
 
-                        val (id, poster, heroImage) = getImages(popularItem.ids.imdb)
+                            val (id, poster, heroImage) = getImages(popularItem.ids.imdb)
 
-                        popularItem.originalImageUrl =
-                            poster
-                        popularItem.mediumImageUrl =
-                            heroImage
-                        popularItem.ids.tvMazeID = id
+                            popularItem.originalImageUrl =
+                                poster
+                            popularItem.mediumImageUrl =
+                                heroImage
+                            popularItem.ids.tvMazeID = id
 
-                        shows.add(popularItem.asDatabaseModel())
-                    }
-                    upnextDao.apply {
-                        deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_POPULAR.tableName)
-                        deleteAllTraktPopular()
-                        insertAllTraktPopular(*shows.toTypedArray())
-                        insertTableUpdateLog(
-                            DatabaseTableUpdate(
-                                table_name = DatabaseTables.TABLE_TRAKT_POPULAR.tableName,
-                                last_updated = System.currentTimeMillis()
+                            shows.add(popularItem.asDatabaseModel())
+                        }
+                        upnextDao.apply {
+                            deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_POPULAR.tableName)
+                            deleteAllTraktPopular()
+                            insertAllTraktPopular(*shows.toTypedArray())
+                            insertTableUpdateLog(
+                                DatabaseTableUpdate(
+                                    table_name = DatabaseTables.TABLE_TRAKT_POPULAR.tableName,
+                                    last_updated = System.currentTimeMillis()
+                                )
                             )
-                        )
+                        }
                     }
+                    _isLoadingTraktPopular.postValue(false)
                 }
-                _isLoadingTraktPopular.postValue(false)
             } catch (e: Exception) {
                 _isLoadingTraktPopular.postValue(false)
                 Timber.d(e)
@@ -293,38 +305,44 @@ class TraktRepository constructor(
     suspend fun refreshTraktMostAnticipatedShows() {
         withContext(Dispatchers.IO) {
             try {
-                _isLoadingTraktMostAnticipated.postValue(true)
-                val shows: MutableList<DatabaseTraktMostAnticipated> = mutableListOf()
+                if (canProceedWithUpdate(
+                        tableName = DatabaseTables.TABLE_TRAKT_MOST_ANTICIPATED.tableName,
+                        intervalMins = TableUpdateInterval.TRAKT_MOST_ANTICIPATED_ITEMS.intervalMins
+                    )
+                ) {
+                    _isLoadingTraktMostAnticipated.postValue(true)
+                    val shows: MutableList<DatabaseTraktMostAnticipated> = mutableListOf()
 
-                val mostAnticipatedShowsResponse =
-                    TraktNetwork.traktApi.getMostAnticipatedShowsAsync().await()
+                    val mostAnticipatedShowsResponse =
+                        TraktNetwork.traktApi.getMostAnticipatedShowsAsync().await()
 
-                if (!mostAnticipatedShowsResponse.isEmpty()) {
-                    for (item in mostAnticipatedShowsResponse) {
-                        val mostAnticipatedItem: NetworkTraktMostAnticipatedResponseItem = item
+                    if (!mostAnticipatedShowsResponse.isEmpty()) {
+                        for (item in mostAnticipatedShowsResponse) {
+                            val mostAnticipatedItem: NetworkTraktMostAnticipatedResponseItem = item
 
-                        val (id, poster, heroImage) = getImages(mostAnticipatedItem.show.ids.imdb)
+                            val (id, poster, heroImage) = getImages(mostAnticipatedItem.show.ids.imdb)
 
-                        mostAnticipatedItem.show.originalImageUrl =
-                            poster
-                        mostAnticipatedItem.show.mediumImageUrl =
-                            heroImage
-                        mostAnticipatedItem.show.ids.tvMazeID = id
-                        shows.add(mostAnticipatedItem.asDatabaseModel())
-                    }
-                    upnextDao.apply {
-                        deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_MOST_ANTICIPATED.tableName)
-                        deleteAllTraktMostAnticipated()
-                        insertAllTraktMostAnticipated(*shows.toTypedArray())
-                        insertTableUpdateLog(
-                            DatabaseTableUpdate(
-                                table_name = DatabaseTables.TABLE_TRAKT_MOST_ANTICIPATED.tableName,
-                                last_updated = System.currentTimeMillis()
+                            mostAnticipatedItem.show.originalImageUrl =
+                                poster
+                            mostAnticipatedItem.show.mediumImageUrl =
+                                heroImage
+                            mostAnticipatedItem.show.ids.tvMazeID = id
+                            shows.add(mostAnticipatedItem.asDatabaseModel())
+                        }
+                        upnextDao.apply {
+                            deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_MOST_ANTICIPATED.tableName)
+                            deleteAllTraktMostAnticipated()
+                            insertAllTraktMostAnticipated(*shows.toTypedArray())
+                            insertTableUpdateLog(
+                                DatabaseTableUpdate(
+                                    table_name = DatabaseTables.TABLE_TRAKT_MOST_ANTICIPATED.tableName,
+                                    last_updated = System.currentTimeMillis()
+                                )
                             )
-                        )
+                        }
                     }
+                    _isLoadingTraktMostAnticipated.postValue(false)
                 }
-                _isLoadingTraktMostAnticipated.postValue(false)
             } catch (e: Exception) {
                 _isLoadingTraktMostAnticipated.postValue(false)
                 Timber.d(e)

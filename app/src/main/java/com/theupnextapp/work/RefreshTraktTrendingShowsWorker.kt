@@ -17,14 +17,16 @@ class RefreshTraktTrendingShowsWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParameters: WorkerParameters,
     private val traktRepository: TraktRepository
-) :
-    CoroutineWorker(appContext, workerParameters) {
+) : BaseWorker(appContext, workerParameters) {
+
+    override val contentTitle: String = "Refreshing Trakt Trending shows"
 
     @Inject
     lateinit var firebaseAnalytics: FirebaseAnalytics
 
     override suspend fun doWork(): Result = coroutineScope {
         try {
+            setForeground(createForegroundInfo())
             refreshTrendingShows(traktRepository)
             val bundle = Bundle()
             bundle.putBoolean("Refresh shows job run", true)

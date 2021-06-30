@@ -18,11 +18,13 @@ class RefreshYesterdayShowsWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParameters: WorkerParameters,
     private val upnextRepository: UpnextRepository
-) :
-    CoroutineWorker(appContext, workerParameters) {
+) : BaseWorker(appContext, workerParameters) {
+
+    override val contentTitle: String = "Refreshing yesterday's schedule"
 
     override suspend fun doWork(): Result = coroutineScope {
         try {
+            setForeground(createForegroundInfo())
             refreshYesterdayShows(upnextRepository)
             val bundle = Bundle()
             bundle.putBoolean("Refresh shows job run", true)

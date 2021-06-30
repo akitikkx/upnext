@@ -3,7 +3,6 @@ package com.theupnextapp.work
 import android.content.Context
 import android.os.Bundle
 import androidx.hilt.work.HiltWorker
-import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.theupnextapp.repository.UpnextRepository
@@ -18,11 +17,13 @@ class RefreshTodayShowsWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParameters: WorkerParameters,
     private val upnextRepository: UpnextRepository
-) :
-    CoroutineWorker(appContext, workerParameters) {
+) : BaseWorker(appContext, workerParameters) {
+
+    override val contentTitle: String = "Refreshing Today's schedule"
 
     override suspend fun doWork(): Result = coroutineScope {
         try {
+            setForeground(createForegroundInfo())
             refreshTodayShows(upnextRepository)
             val bundle = Bundle()
             bundle.putBoolean("Refresh shows job run", true)

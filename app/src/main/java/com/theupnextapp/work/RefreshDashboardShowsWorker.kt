@@ -20,11 +20,13 @@ class RefreshDashboardShowsWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParameters: WorkerParameters,
     private val upnextRepository: UpnextRepository
-) :
-    CoroutineWorker(appContext, workerParameters) {
+) : BaseWorker(appContext, workerParameters) {
+
+    override val contentTitle: String = "Refreshing dashboard shows"
 
     override suspend fun doWork(): Result = coroutineScope {
         try {
+            setForeground(createForegroundInfo())
             refreshShows(upnextRepository)
             val bundle = Bundle()
             bundle.putBoolean("Refresh shows job run", true)
