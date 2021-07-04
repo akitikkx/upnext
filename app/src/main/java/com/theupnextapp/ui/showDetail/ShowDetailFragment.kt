@@ -19,6 +19,7 @@ import com.theupnextapp.databinding.FragmentShowDetailBinding
 import com.theupnextapp.domain.ShowCast
 import com.theupnextapp.domain.ShowInfo
 import com.theupnextapp.domain.ShowSeason
+import com.theupnextapp.network.models.trakt.Distribution
 import com.theupnextapp.ui.common.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -34,6 +35,9 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
 
     private var _showSeasons: List<ShowSeason>? = null
     private var showInfo: ShowInfo? = null
+
+    private var _showRatingsAdapter: ShowRatingsAdapter? = null
+    private val showRatingsAdapter get() = _showRatingsAdapter
 
     val args by navArgs<ShowDetailFragmentArgs>()
 
@@ -72,11 +76,20 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
 
         _showCastAdapter = ShowCastAdapter(this)
 
+        _showRatingsAdapter = ShowRatingsAdapter()
+
         binding.root.findViewById<RecyclerView>(R.id.cast_list).apply {
-            layoutManager = LinearLayoutManager(context).apply {
+            layoutManager = LinearLayoutManager(requireContext()).apply {
                 orientation = LinearLayoutManager.HORIZONTAL
             }
             adapter = showCastAdapter
+        }
+
+        binding.traktShowRatings.ratingsList.apply {
+            layoutManager = LinearLayoutManager(requireContext()).apply {
+                orientation = LinearLayoutManager.VERTICAL
+            }
+            adapter = showRatingsAdapter
         }
 
         return binding.root
@@ -150,6 +163,20 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
                     listener = null
                 )
             }
+        })
+
+        viewModel.showRating.observe(viewLifecycleOwner, {
+            showRatingsAdapter?.setVotes(it.votes)
+
+            val distributionList = mutableListOf<Distribution>()
+            it.distribution?.forEach { (key,value) ->
+                val distribution = Distribution(
+                    score = key,
+                    value = value
+                )
+                distributionList.add(distribution)
+            }
+            showRatingsAdapter?.submitList(distributionList.asReversed())
         })
     }
 
