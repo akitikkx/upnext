@@ -35,10 +35,26 @@
             android:layout_marginStart="@dimen/margin_horizontal"
             android:layout_marginTop="@dimen/margin_vertical_half"
             android:textAppearance="?attr/textAppearanceHeadline3"
+            app:layout_constraintEnd_toStartOf="@id/ratings_list"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/show_rating_heading"
             app:showRatingNumerator="@{viewModel.showRating.rating}"
             tools:text="4,0" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/rating_vote_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_horizontal"
+            android:layout_marginTop="@dimen/margin_vertical_half"
+            android:gravity="center_horizontal"
+            android:textAlignment="center"
+            android:textAppearance="?attr/textAppearanceSubtitle2"
+            app:layout_constraintEnd_toStartOf="@id/ratings_list"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/rating_score"
+            app:showRatingVotes="@{viewModel.showRating.votes}"
+            tools:text="256 votes" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/ratings_list"

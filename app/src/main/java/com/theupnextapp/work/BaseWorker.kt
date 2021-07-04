@@ -26,6 +26,7 @@ abstract class BaseWorker (
             .setTicker(contentTitle)
             .setSmallIcon(R.drawable.ic_baseline_arrow_circle_down_24)
             .setOngoing(true)
+            .setSilent(true)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createNotificationChannel()
