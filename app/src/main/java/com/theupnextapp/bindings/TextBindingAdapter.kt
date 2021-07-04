@@ -56,6 +56,19 @@ fun showRating(view: TextView, rating: Int?) {
     }
 }
 
+@BindingAdapter("showRatingNumerator")
+fun showRatingNumerator(view: TextView, rating: Int?) {
+    if (rating != null) {
+        view.text = view.resources.getString(
+            R.string.show_detail_rating_numerator,
+            rating
+        )
+        view.visibility = View.VISIBLE
+    } else {
+        view.visibility = View.GONE
+    }
+}
+
 @BindingAdapter("lastUpdate")
 fun lastUpdate(view: TextView, timeDifferenceForDisplay: TimeDifferenceForDisplay?) {
     if (timeDifferenceForDisplay != null) {

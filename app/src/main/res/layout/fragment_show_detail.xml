@@ -236,6 +236,18 @@
                         app:layout_constraintTop_toBottomOf="@id/cast_list"
                         app:viewModel="@{viewModel}" />
 
+                    <include
+                        android:id="@+id/trakt_show_ratings"
+                        layout="@layout/layout_trakt_show_rating"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/margin_horizontal"
+                        android:layout_marginTop="@dimen/margin_vertical"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/show_detail_episodes_info"
+                        app:viewModel="@{viewModel}" />
+
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
             </com.google.android.material.card.MaterialCardView>

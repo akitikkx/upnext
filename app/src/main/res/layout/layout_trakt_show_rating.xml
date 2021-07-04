@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.theupnextapp.ui.showDetail.ShowDetailViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/show_rating_heading"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_horizontal"
+            android:layout_marginTop="@dimen/margin_vertical"
+            android:layout_marginEnd="@dimen/margin_horizontal"
+            android:text="@string/show_detail_ratings_heading"
+            android:textAppearance="?attr/textAppearanceHeadline6"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:showHidePreviousEpisodeInfo="@{viewModel.showInfo}" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/rating_score"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_horizontal"
+            android:layout_marginTop="@dimen/margin_vertical_half"
+            android:textAppearance="?attr/textAppearanceHeadline3"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/show_rating_heading"
+            app:showRatingNumerator="@{viewModel.showRating.rating}"
+            tools:text="4,0" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/ratings_list"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_horizontal"
+            android:layout_marginTop="@dimen/margin_vertical_half"
+            android:layout_marginEnd="@dimen/margin_horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/rating_score"
+            app:layout_constraintTop_toBottomOf="@id/show_rating_heading"
+            tools:listitem="@layout/trakt_show_rating_item" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
