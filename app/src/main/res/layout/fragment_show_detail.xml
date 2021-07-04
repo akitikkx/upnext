@@ -238,7 +238,7 @@
 
                     <include
                         android:id="@+id/trakt_show_ratings"
-                        layout="@layout/layout_trakt_show_rating"
+                        layout="@layout/layout_trakt_show_ratings"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/margin_horizontal"
