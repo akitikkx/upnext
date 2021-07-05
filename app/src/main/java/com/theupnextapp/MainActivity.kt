@@ -2,7 +2,6 @@ package com.theupnextapp
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
@@ -13,8 +12,6 @@ import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.os.bundleOf
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -25,10 +22,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
 import com.theupnextapp.common.utils.FeedBackStatus
 import com.theupnextapp.common.utils.Feedback
-import com.theupnextapp.domain.TraktConnectionArg
-import com.theupnextapp.ui.common.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -62,18 +56,12 @@ class MainActivity : AppCompatActivity() {
                 R.id.splashScreenFragment,
                 R.id.searchFragment,
                 R.id.dashboardFragment,
-                R.id.exploreFragment,
-                R.id.libraryFragment
+                R.id.exploreFragment
             )
             .build()
 
         setupActionBarWithNavController(navController, appBarConfiguration)
         bottomNavigationView?.setupWithNavController(navController)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        handleDeepLinks()
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -98,28 +86,6 @@ class MainActivity : AppCompatActivity() {
         _bottomNavigationView = null
         _toolbar = null
         _container = null
-    }
-
-    private fun handleDeepLinks() {
-        val uri: Uri? = intent?.data
-
-        if (uri != null) {
-            val code = uri.getQueryParameter("code")
-
-            val connectionArg = TraktConnectionArg(code)
-
-            val bundle = bundleOf(BaseFragment.EXTRA_TRAKT_URI to connectionArg)
-            navController.navigate(R.id.libraryFragment, bundle)
-            bundle.clear()
-            clearIntent()
-        }
-    }
-
-    private fun clearIntent() {
-        intent.replaceExtras(Bundle())
-        intent.action = ""
-        intent.data = null
-        intent.flags = 0
     }
 
     fun hideBottomNavigation() {

@@ -10,104 +10,123 @@
             type="com.theupnextapp.domain.ShowSeason" />
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/margin_vertical">
+        android:layout_marginStart="@dimen/margin_horizontal"
+        android:layout_marginEnd="@dimen/margin_horizontal"
+        android:layout_marginBottom="@dimen/margin_vertical_half"
+        android:clickable="true"
+        android:focusable="true"
+        app:cardPreventCornerOverlap="false">
 
-        <FrameLayout
-            android:id="@+id/season_poster"
-            showHideView="@{showSeason.originalImageUrl != null}"
-            android:layout_width="@dimen/search_poster_width"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_horizontal"
-            android:orientation="vertical"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-            <ProgressBar
-                android:id="@+id/season_item_poster_progress"
-                style="?android:attr/progressBarStyleSmall"
-                android:layout_width="match_parent"
+            <FrameLayout
+                android:id="@+id/season_poster"
+                android:layout_width="@dimen/search_poster_width"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                app:showHideView="@{showSeason.originalImageUrl != null}" />
+                android:orientation="vertical"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/season_item_poster"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/search_poster_height"
-                android:layout_marginEnd="@dimen/margin_horizontal_half"
-                android:contentDescription="@{String.format(@string/show_poster, showSeason.name)}"
-                android:scaleType="centerCrop"
-                app:imageUrl="@{showSeason.originalImageUrl}"
-                app:srcCompat="@drawable/loading_list_placeholder" />
-        </FrameLayout>
+                <ProgressBar
+                    android:id="@+id/season_item_poster_progress"
+                    style="?android:attr/progressBarStyleSmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical" />
 
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_horizontal"
-            android:layout_marginEnd="@dimen/margin_horizontal"
-            android:orientation="vertical"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/season_poster"
-            app:layout_constraintTop_toTopOf="parent">
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/season_item_poster"
+                    android:layout_width="@dimen/search_poster_width"
+                    android:layout_height="@dimen/search_poster_height"
+                    android:layout_marginEnd="@dimen/margin_horizontal_half"
+                    android:contentDescription="@{String.format(@string/show_poster, showSeason.name)}"
+                    android:scaleType="centerCrop"
+                    app:imageUrl="@{showSeason.originalImageUrl}"
+                    app:srcCompat="@drawable/loading_list_placeholder" />
+            </FrameLayout>
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:weightSum="3">
+                android:layout_marginStart="@dimen/margin_horizontal"
+                android:layout_marginEnd="@dimen/margin_horizontal"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/season_right_icon"
+                app:layout_constraintStart_toEndOf="@id/season_poster"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="3">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:textAppearance="?attr/textAppearanceSubtitle1"
+                        app:seasonAndNumber="@{showSeason.seasonNumber}"
+                        tools:text="Season 1" />
+                </LinearLayout>
 
                 <com.google.android.material.textview.MaterialTextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin_vertical_quarter"
                     android:gravity="center_vertical"
-                    android:textAppearance="?attr/textAppearanceSubtitle1"
-                    app:seasonAndNumber="@{showSeason.seasonNumber}"
-                    tools:text="Season 1" />
+                    android:textAppearance="?attr/textAppearanceCaption"
+                    app:seasonCount="@{showSeason.episodeCount}"
+                    app:showHideIntContent="@{showSeason.episodeCount}"
+                    tools:text="12 episodes" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin_vertical_quarter"
+                    android:gravity="center_vertical"
+                    android:textAppearance="?attr/textAppearanceCaption"
+                    app:seasonPremiereDate="@{showSeason.premiereDate}"
+                    tools:text="Premiered: 1 January 2020" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin_vertical_quarter"
+                    android:gravity="center_vertical"
+                    android:textAppearance="?attr/textAppearanceCaption"
+                    app:seasonEndDate="@{showSeason.endDate}"
+                    tools:text="Ended: 31 January 2020" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/season_item_images_attribution"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin_vertical_quarter"
+                    android:text="@string/tv_maze_creative_commons_attribution_text_single"
+                    android:textAppearance="?attr/textAppearanceCaption"
+                    app:showHideView="@{showSeason.originalImageUrl != null}" />
             </LinearLayout>
 
-            <com.google.android.material.textview.MaterialTextView
-                android:layout_width="match_parent"
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/season_right_icon"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/margin_vertical_quarter"
-                android:gravity="center_vertical"
-                android:textAppearance="?attr/textAppearanceCaption"
-                app:seasonCount="@{showSeason.episodeCount}"
-                app:showHideIntContent="@{showSeason.episodeCount}"
-                tools:text="12 episodes" />
+                android:layout_marginEnd="@dimen/margin_horizontal"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_baseline_chevron_right_24" />
 
-            <com.google.android.material.textview.MaterialTextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/margin_vertical_quarter"
-                android:gravity="center_vertical"
-                android:textAppearance="?attr/textAppearanceCaption"
-                app:seasonPremiereDate="@{showSeason.premiereDate}"
-                tools:text="Premiered: 1 January 2020" />
 
-            <com.google.android.material.textview.MaterialTextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/margin_vertical_quarter"
-                android:gravity="center_vertical"
-                android:textAppearance="?attr/textAppearanceCaption"
-                app:seasonEndDate="@{showSeason.endDate}"
-                tools:text="Ended: 31 January 2020" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/season_item_images_attribution"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/margin_vertical_quarter"
-                android:text="@string/tv_maze_creative_commons_attribution_text_single"
-                android:textAppearance="?attr/textAppearanceCaption"
-                app:showHideView="@{showSeason.originalImageUrl != null}" />
-        </LinearLayout>
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
 
 </layout>

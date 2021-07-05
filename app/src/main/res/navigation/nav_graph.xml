@@ -47,6 +47,10 @@
             app:popExitAnim="@anim/slide_out_left"
             app:popUpTo="@id/dashboardFragment"
             app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_showDetailFragment_to_showSeasonsFragment"
+            app:destination="@id/showSeasonsFragment"
+            app:enterAnim="@anim/slide_in_left" />
     </fragment>
 
     <fragment
@@ -60,91 +64,35 @@
     </fragment>
 
     <fragment
-        android:id="@+id/watchlistFragment"
-        android:name="com.theupnextapp.ui.watchlist.WatchlistFragment"
-        tools:layout="@layout/fragment_watchlist">
-        <argument
-            android:name="traktUri"
-            android:defaultValue="@null"
-            app:argType="com.theupnextapp.domain.TraktConnectionArg"
-            app:nullable="true" />
-        <action
-            android:id="@+id/action_watchlistFragment_to_showDetailFragment"
-            app:destination="@id/showDetailFragment" />
-        <action
-            android:id="@+id/action_watchlistFragment_to_libraryFragment"
-            app:destination="@id/libraryFragment"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/historyFragment"
-        android:name="com.theupnextapp.ui.history.HistoryFragment"
-        tools:layout="@layout/fragment_history">
-        <action
-            android:id="@+id/action_historyFragment_to_showDetailFragment"
-            app:destination="@id/showDetailFragment" />
-        <action
-            android:id="@+id/action_historyFragment_to_libraryFragment"
-            app:destination="@id/libraryFragment"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left" />
-    </fragment>
-
-    <fragment
         android:id="@+id/settingsFragment"
         android:name="com.theupnextapp.ui.settings.SettingsFragment" />
 
     <fragment
-        android:id="@+id/libraryFragment"
-        android:name="com.theupnextapp.ui.library.LibraryFragment"
-        android:label="@string/title_library"
-        tools:layout="@layout/fragment_library">
-        <action
-            android:id="@+id/action_libraryFragment_to_historyFragment"
-            app:destination="@id/historyFragment" />
-        <action
-            android:id="@+id/action_libraryFragment_to_watchlistFragment"
-            app:destination="@id/watchlistFragment" />
-        <action
-            android:id="@+id/action_libraryFragment_to_traktRecommendationsFragment"
-            app:destination="@id/traktRecommendationsFragment" />
-    </fragment>
-
-    <fragment
         android:id="@+id/exploreFragment"
         android:name="com.theupnextapp.ui.explore.ExploreFragment"
-        tools:layout="@layout/fragment_explore"
-        android:label="@string/title_explore">
+        android:label="@string/title_explore"
+        tools:layout="@layout/fragment_explore">
         <action
             android:id="@+id/action_exploreFragment_to_showDetailFragment"
             app:destination="@id/showDetailFragment" />
     </fragment>
 
     <fragment
-        android:id="@+id/traktRecommendationsFragment"
-        android:name="com.theupnextapp.ui.traktRecommendations.TraktRecommendationsFragment"
-        android:label="@string/title_recommendations"
-        tools:layout="@layout/fragment_trakt_recommendations">
+        android:id="@+id/showSeasonsFragment"
+        android:name="com.theupnextapp.ui.showSeasons.ShowSeasonsFragment"
+        tools:layout="@layout/fragment_show_seasons">
         <action
-            android:id="@+id/action_traktRecommendationsFragment_to_libraryFragment"
-            app:destination="@id/libraryFragment"
+            android:id="@+id/action_showSeasonsFragment3_to_showDetailFragment"
+            app:destination="@id/showDetailFragment"
             app:enterAnim="@anim/slide_in_left"
             app:exitAnim="@anim/slide_out_right"
             app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left" />
-        <action
-            android:id="@+id/action_traktRecommendationsFragment_to_showDetailFragment"
-            app:destination="@id/showDetailFragment"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
+            app:popExitAnim="@anim/slide_out_left"
+            app:popUpTo="@id/showDetailFragment"
+            app:popUpToInclusive="true" />
+        <argument
+            android:name="show"
+            app:argType="com.theupnextapp.domain.ShowDetailArg" />
     </fragment>
 
 </navigation>

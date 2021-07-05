@@ -4,7 +4,7 @@ import android.os.Parcel
 import android.os.Parcelable
 
 data class ShowDetailArg(
-    val source: String?,
+    val source: String? = null,
     val showId: Int?,
     val showTitle: String?,
     val showImageUrl: String?,
