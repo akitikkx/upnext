@@ -31,8 +31,8 @@ class ShowDetailViewModel @AssistedInject constructor(
     private val _showCastBottomSheet = MutableLiveData<ShowCast?>()
     val showCastBottomSheet: LiveData<ShowCast?> = _showCastBottomSheet
 
-    private val _showSeasonsBottomSheet = MutableLiveData<List<ShowSeason>>()
-    val showSeasonsBottomSheet: LiveData<List<ShowSeason>> = _showSeasonsBottomSheet
+    private val _navigateToSeasons = MutableLiveData<Boolean>()
+    val navigateToSeasons: LiveData<Boolean> = _navigateToSeasons
 
     val isLoading = MediatorLiveData<Boolean>()
 
@@ -49,7 +49,6 @@ class ShowDetailViewModel @AssistedInject constructor(
     val showRating = traktRepository.traktShowRating
 
     val showStats = traktRepository.traktShowStats
-
 
     init {
         viewModelScope.launch {
@@ -83,7 +82,11 @@ class ShowDetailViewModel @AssistedInject constructor(
     }
 
     fun onSeasonsClick() {
-        _showSeasonsBottomSheet.value = showSeasons.value
+        _navigateToSeasons.value = true
+    }
+
+    fun onSeasonsNavigationComplete() {
+        _navigateToSeasons.value = false
     }
 
     override fun onCleared() {

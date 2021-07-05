@@ -8,9 +8,9 @@ buildscript {
 
         constraintlayout_version = "2.0.4"
 
-        core_ktx_version = "1.5.0"
+        core_ktx_version = "1.6.0"
 
-        datastore_version = "1.0.0-beta02"
+        datastore_version = "1.0.0-rc01"
 
         glide_version = "4.11.0"
 
@@ -24,13 +24,13 @@ buildscript {
 
         firebase_analytics_version = "19.0.0"
         firebase_core_version = "19.0.0"
-        firebase_crashlytics_version = "18.0.1"
+        firebase_crashlytics_version = "18.1.0"
         firebase_performance_monitoring_version = "20.0.1"
 
         jsoup_version = "1.8.1"
 
         kotlin_version = '1.5.0'
-        kotlin_coroutines_version = "1.4.1"
+        kotlin_coroutines_version = "1.4.3"
 
         leakcanary_version = "2.3"
 
@@ -44,6 +44,8 @@ buildscript {
 
         okhttp_version = "4.7.2"
         okhttp_logging_interceptor_version = "4.7.2"
+
+        paging_version = "3.0.0"
 
         recyclerview_version = "1.2.1"
         recyclerview_selection_version = "1.1.0"

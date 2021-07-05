@@ -10,11 +10,11 @@
         <item name="colorSecondary">@color/purple_200</item>
         <item name="colorSecondaryVariant">@color/purple_500</item>
 
+        <item name="colorOnPrimary">@color/white_50</item>
         <item name="android:colorBackground">@color/white_50</item>
         <item name="colorSurface">@color/white_50</item>
         <item name="colorError">@color/red_600</item>
 
-        <item name="colorOnPrimary">@color/white_50</item>
         <item name="colorOnBackground">@color/black_900</item>
         <item name="colorOnSurface">@color/black_900</item>
         <item name="colorOnSecondary">@color/black_900</item>
@@ -53,14 +53,13 @@
             @style/TextAppearance.Upnext.BottomNavigation.TextInactive
         </item>
 
-        <!--System/Platform attributes-->
-        <item name="android:windowBackground">?android:colorBackground</item>
-        <item name="android:windowLightStatusBar" tools:ignore="NewApi">true</item>
+        <item name="materialButtonStyle">@style/Widget.Upnext.Button</item>
     </style>
 
     <style name="Base.Theme.MaterialTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="android:statusBarColor">?attr/colorSurface</item>
+        <item name="android:windowBackground">?android:colorBackground</item>
         <item name="android:windowLightStatusBar" tools:ignore="NewApi">true</item>
+        <item name="android:statusBarColor">?attr/colorSurface</item>
         <item name="android:navigationBarColor">?android:attr/colorBackground</item>
         <item name="android:windowDisablePreview">true</item>
         <item name="android:windowIsTranslucent">true</item>
@@ -68,6 +67,11 @@
         <item name="android:navigationBarDividerColor" tools:ignore="NewApi">
             ?attr/colorControlHighlight
         </item>
+    </style>
+
+    <style name="Widget.Upnext.Button" parent="Widget.MaterialComponents.Button">
+        <item name="shapeAppearance">@style/ShapeAppearance.Upnext.SmallComponent</item>
+        <item name="android:padding">16dp</item>
     </style>
 
 </resources>

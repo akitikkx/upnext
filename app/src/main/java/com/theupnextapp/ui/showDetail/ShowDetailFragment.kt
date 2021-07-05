@@ -8,15 +8,15 @@ import android.view.ViewGroup
 import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.snackbar.Snackbar
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
-import com.theupnextapp.common.utils.*
 import com.theupnextapp.databinding.FragmentShowDetailBinding
 import com.theupnextapp.domain.ShowCast
+import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.ShowInfo
 import com.theupnextapp.domain.ShowSeason
 import com.theupnextapp.network.models.trakt.Distribution
@@ -143,25 +143,19 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
             }
         })
 
-        viewModel.showSeasonsBottomSheet.observe(viewLifecycleOwner, {
-            if (!it.isNullOrEmpty()) {
-                val args = Bundle()
-                args.putParcelableArrayList(ARG_SHOW_SEASONS, ArrayList(it))
-                args.putParcelable(ARG_SHOW_DETAIL, this@ShowDetailFragment.showInfo)
-
-                showBottomSheet(
-                    bottomSheetFragment = ShowSeasonsBottomSheetFragment(),
-                    fragmentArguments = args,
-                    fragmentManager = activity?.supportFragmentManager,
-                    fragmentTag = ShowSeasonsBottomSheetFragment.TAG
-                )
-            } else {
-                Feedback(requireContext()).showSnackBar(
-                    view = binding.root,
-                    type = FeedBackStatus.SHOW_SEASONS_EMPTY,
-                    duration = Snackbar.LENGTH_LONG,
-                    listener = null
-                )
+        viewModel.navigateToSeasons.observe(viewLifecycleOwner, {
+            if (it) {
+                val directions =
+                    ShowDetailFragmentDirections.actionShowDetailFragmentToShowSeasonsFragment(
+                        ShowDetailArg(
+                            showId = args.show.showId,
+                            showTitle = args.show.showTitle,
+                            showImageUrl = args.show.showImageUrl,
+                            showBackgroundUrl = args.show.showBackgroundUrl
+                        )
+                    )
+                findNavController().navigate(directions)
+                viewModel.onSeasonsNavigationComplete()
             }
         })
 

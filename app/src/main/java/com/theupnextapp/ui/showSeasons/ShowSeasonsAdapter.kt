@@ -1,4 +1,4 @@
-package com.theupnextapp.ui.showDetail
+package com.theupnextapp.ui.showSeasons
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
