@@ -99,3 +99,9 @@ fun getPreviousAirDate(view: TextView, showInfo: ShowInfo?) {
         view.visibility = View.GONE
     }
 }
+
+@BindingAdapter("airDate")
+fun airDate(view: TextView, airstamp: String?) {
+    val date = airstamp?.let { DateUtils.getDisplayDateFromDateStamp(it) }
+    view.text = view.resources.getString(R.string.show_detail_air_date_general, date)
+}
