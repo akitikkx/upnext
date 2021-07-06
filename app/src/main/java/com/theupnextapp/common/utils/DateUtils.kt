@@ -30,7 +30,10 @@ object DateUtils {
         return simpleDateFormat.format(yesterday)
     }
 
-    fun getTimeDifferenceForDisplay(startTime: Long? = null, endTime: Long): TimeDifferenceForDisplay? {
+    fun getTimeDifferenceForDisplay(
+        startTime: Long? = null,
+        endTime: Long
+    ): TimeDifferenceForDisplay? {
         var timeDifferenceForDisplay: TimeDifferenceForDisplay? = null
 
         val daysDiff = dateDifference(startTime = startTime, endTime = endTime, type = "days")
@@ -83,6 +86,11 @@ object DateUtils {
             SECONDS -> diff = endTime.let { TimeUnit.MILLISECONDS.toSeconds(diffCount) }
         }
         return diff
+    }
+
+    fun getDisplayDateFromDateStamp(dateStamp: String): Date? {
+        val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        return format.parse(dateStamp)
     }
 
     const val DAYS = "days"
