@@ -6,8 +6,16 @@
     <data>
 
         <variable
+            name="showId"
+            type="Integer" />
+
+        <variable
             name="showSeason"
             type="com.theupnextapp.domain.ShowSeason" />
+
+        <variable
+            name="listener"
+            type="com.theupnextapp.ui.showSeasons.ShowSeasonsAdapter.ShowSeasonsAdapterListener" />
     </data>
 
     <com.google.android.material.card.MaterialCardView
@@ -18,6 +26,7 @@
         android:layout_marginBottom="@dimen/margin_vertical_half"
         android:clickable="true"
         android:focusable="true"
+        android:onClick="@{(view) -> listener.onSeasonClick(view, showId, showSeason.seasonNumber)}"
         app:cardPreventCornerOverlap="false">
 
         <androidx.constraintlayout.widget.ConstraintLayout
