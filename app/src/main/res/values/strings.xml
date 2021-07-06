@@ -65,6 +65,7 @@
 
     <!-- Show season episodes -->
     <string name="show_detail_show_season_episodes_title">Season episodes</string>
+    <string name="show_detail_show_season_episodes_title_with_number">Season %1$d episodes</string>
 
     <!-- Splash screen -->
     <string name="splash_screen_loading_text_tomorrow_schedule">Fetching tomorrow\'s schedule…</string>
