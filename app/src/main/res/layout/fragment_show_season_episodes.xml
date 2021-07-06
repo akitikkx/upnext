@@ -6,7 +6,7 @@
 
         <variable
             name="viewModel"
-            type="com.theupnextapp.ui.showSeasons.ShowSeasonsViewModel" />
+            type="com.theupnextapp.ui.showSeasonEpisodes.ShowSeasonEpisodesViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -22,7 +22,7 @@
                 android:layout_height="match_parent">
 
                 <com.google.android.material.progressindicator.LinearProgressIndicator
-                    android:id="@+id/show_seasons_progress_indicator"
+                    android:id="@+id/show_season_episodes_progress_indicator"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:indeterminate="true"
@@ -34,18 +34,18 @@
                     tools:visibility="visible" />
 
                 <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/textview_show_seasons_episodes_title"
+                    android:id="@+id/textview_show_season_episodes_title"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/margin_horizontal_double"
                     android:layout_marginTop="@dimen/margin_vertical"
                     android:layout_marginEnd="@dimen/margin_horizontal_double"
-                    android:text="@string/show_detail_show_seasons_title"
+                    android:text="@string/show_detail_show_season_episodes_title"
                     android:textAppearance="?attr/textAppearanceHeadline6"
                     android:textStyle="bold"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/show_seasons_progress_indicator"
+                    app:layout_constraintTop_toBottomOf="@id/show_season_episodes_progress_indicator"
                     tools:text="Seasons" />
 
                 <androidx.recyclerview.widget.RecyclerView
@@ -60,10 +60,9 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/textview_show_seasons_episodes_title"
+                    app:layout_constraintTop_toBottomOf="@id/textview_show_season_episodes_title"
                     app:loadingVisibility="@{viewModel.isLoading}"
-                    tools:listitem="@layout/show_season_item" />
-
+                    tools:listitem="@layout/show_season_episode_item" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.core.widget.NestedScrollView>

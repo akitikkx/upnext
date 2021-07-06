@@ -22,7 +22,7 @@ import java.net.UnknownHostException
 class UpnextRepository constructor(
     private val upnextDao: UpnextDao,
     private val firebaseCrashlytics: FirebaseCrashlytics
-): BaseRepository(upnextDao) {
+) : BaseRepository(upnextDao) {
 
     val yesterdayShows: LiveData<List<ScheduleShow>> =
         Transformations.map(upnextDao.getYesterdayShows()) {
@@ -67,6 +67,9 @@ class UpnextRepository constructor(
 
     private val _showSeasons = MutableLiveData<List<ShowSeason>>()
     val showSeasons: LiveData<List<ShowSeason>> = _showSeasons
+
+    private val _episodes = MutableLiveData<List<ShowSeasonEpisode>>()
+    val episodes: LiveData<List<ShowSeasonEpisode>> = _episodes
 
     suspend fun getSearchSuggestions(name: String?) {
         if (!name.isNullOrEmpty()) {
@@ -371,6 +374,23 @@ class UpnextRepository constructor(
                 _showSeasons.postValue(showSeasons.asDomainModel())
                 _isLoading.postValue(false)
             } catch (e: HttpException) {
+                _isLoading.postValue(false)
+                Timber.d(e)
+                firebaseCrashlytics.recordException(e)
+            }
+        }
+    }
+
+    suspend fun getShowSeasonEpisodes(showId: Int, seasonNumber: Int) {
+        withContext(Dispatchers.IO) {
+            try {
+                _isLoading.postValue(true)
+                val seasonEpisodes =
+                    TvMazeNetwork.tvMazeApi.getSeasonEpisodesAsync(showId.toString()).await()
+                _episodes.postValue(seasonEpisodes.filter { it.season == seasonNumber }
+                    .asDomainModel())
+                _isLoading.postValue(false)
+            } catch (e: Exception) {
                 _isLoading.postValue(false)
                 Timber.d(e)
                 firebaseCrashlytics.recordException(e)

@@ -5,16 +5,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.theupnextapp.MainActivity
 import com.theupnextapp.databinding.FragmentShowSeasonsBinding
+import com.theupnextapp.domain.ShowSeasonEpisodesArg
 import com.theupnextapp.ui.common.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ShowSeasonsFragment : BaseFragment() {
+class ShowSeasonsFragment : BaseFragment(), ShowSeasonsAdapter.ShowSeasonsAdapterListener {
 
     private var _binding: FragmentShowSeasonsBinding? = null
     private val binding get() = _binding!!
@@ -39,9 +41,9 @@ class ShowSeasonsFragment : BaseFragment() {
 
         binding.lifecycleOwner = viewLifecycleOwner
 
-        _showSeasonsAdapter = ShowSeasonsAdapter()
+        _showSeasonsAdapter = ShowSeasonsAdapter(this, args.show.showId)
 
-        binding.seasonList.apply {
+        binding.seasonEpisodesList.apply {
             layoutManager = LinearLayoutManager(requireContext()).apply {
                 orientation = LinearLayoutManager.VERTICAL
             }
@@ -73,6 +75,17 @@ class ShowSeasonsFragment : BaseFragment() {
     override fun onStop() {
         super.onStop()
         (activity as MainActivity).showBottomNavigation()
+    }
+
+    override fun onSeasonClick(view: View, showId: Int, seasonNumber: Int) {
+        val directions =
+            ShowSeasonsFragmentDirections.actionShowSeasonsFragmentToShowSeasonEpisodesFragment(
+                ShowSeasonEpisodesArg(
+                    showId = showId,
+                    seasonNumber = seasonNumber
+                )
+            )
+        findNavController().navigate(directions)
     }
 
 }

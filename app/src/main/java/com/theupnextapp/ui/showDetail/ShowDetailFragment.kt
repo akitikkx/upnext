@@ -104,14 +104,6 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
             }
         })
 
-        viewModel.isLoading.observe(viewLifecycleOwner, {
-            if (it == true) {
-                binding.showDetailProgressBar.visibility = ProgressBar.VISIBLE
-            } else {
-                binding.showDetailProgressBar.visibility = ProgressBar.GONE
-            }
-        })
-
         viewModel.showCast.observe(viewLifecycleOwner, {
             viewModel.onShowCastInfoReceived(it)
             if (it != null) {

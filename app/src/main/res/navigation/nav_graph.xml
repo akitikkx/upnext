@@ -80,6 +80,7 @@
     <fragment
         android:id="@+id/showSeasonsFragment"
         android:name="com.theupnextapp.ui.showSeasons.ShowSeasonsFragment"
+        android:label="@string/title_seasons"
         tools:layout="@layout/fragment_show_seasons">
         <action
             android:id="@+id/action_showSeasonsFragment3_to_showDetailFragment"
@@ -93,6 +94,22 @@
         <argument
             android:name="show"
             app:argType="com.theupnextapp.domain.ShowDetailArg" />
+        <action
+            android:id="@+id/action_showSeasonsFragment_to_showSeasonEpisodesFragment"
+            app:destination="@id/showSeasonEpisodesFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/showSeasonEpisodesFragment"
+        android:name="com.theupnextapp.ui.showSeasonEpisodes.ShowSeasonEpisodesFragment"
+        android:label="@string/title_season_episodes"
+        tools:layout="@layout/fragment_show_season_episodes">
+        <action
+            android:id="@+id/action_showSeasonEpisodesFragment_to_showSeasonsFragment"
+            app:destination="@id/showSeasonsFragment" />
+        <argument
+            android:name="showSeasonEpisode"
+            app:argType="com.theupnextapp.domain.ShowSeasonEpisodesArg" />
     </fragment>
 
 </navigation>

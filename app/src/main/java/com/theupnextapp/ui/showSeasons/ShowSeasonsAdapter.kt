@@ -1,6 +1,7 @@
 package com.theupnextapp.ui.showSeasons
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
@@ -10,7 +11,10 @@ import com.theupnextapp.R
 import com.theupnextapp.databinding.ShowSeasonItemBinding
 import com.theupnextapp.domain.ShowSeason
 
-class ShowSeasonsAdapter :
+class ShowSeasonsAdapter(
+    val listener: ShowSeasonsAdapterListener,
+    val showId: Int?
+) :
     RecyclerView.Adapter<ShowSeasonsAdapter.ViewHolder>() {
 
     private var showSeasons: List<ShowSeason> = ArrayList()
@@ -31,8 +35,9 @@ class ShowSeasonsAdapter :
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.viewDataBinding.also {
             val showSeason = showSeasons[position]
-
             it.showSeason = showSeason
+            it.showId = showId
+            it.listener = listener
         }
     }
 
@@ -48,6 +53,14 @@ class ShowSeasonsAdapter :
         diffResult.dispatchUpdatesTo(this)
     }
 
+    interface ShowSeasonsAdapterListener {
+        fun onSeasonClick(
+            view: View,
+            showId: Int,
+            seasonNumber: Int
+        )
+    }
+
     class ShowSeasonItemDiffCallback(
         private val oldShowSeasonsList: List<ShowSeason>,
         private val newShowSeasonsList: List<ShowSeason>
@@ -61,9 +74,8 @@ class ShowSeasonsAdapter :
         override fun getNewListSize(): Int = newShowSeasonsList.size
 
         override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return oldShowSeasonsList[oldItemPosition].equals(newShowSeasonsList[newItemPosition])
+            return oldShowSeasonsList[oldItemPosition] == newShowSeasonsList[newItemPosition]
         }
-
     }
 
     class ViewHolder(val viewDataBinding: ShowSeasonItemBinding) :
