@@ -8,6 +8,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.theupnextapp.MainActivity
+import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentShowSeasonEpisodesBinding
 import com.theupnextapp.ui.common.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
@@ -56,6 +57,13 @@ class ShowSeasonEpisodesFragment : BaseFragment() {
 
         viewModel.episodes.observe(viewLifecycleOwner, {
             showSeasonEpisodesAdapter.submitSeasonEpisodesList(it)
+        })
+
+        viewModel.seasonNumber.observe(viewLifecycleOwner, {
+            if (it != null) {
+                binding.textviewShowSeasonEpisodesTitle.text =
+                    getString(R.string.show_detail_show_season_episodes_title_with_number, it)
+            }
         })
     }
 

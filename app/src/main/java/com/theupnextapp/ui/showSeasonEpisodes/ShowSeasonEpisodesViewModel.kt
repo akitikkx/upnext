@@ -1,8 +1,6 @@
 package com.theupnextapp.ui.showSeasonEpisodes
 
-import androidx.lifecycle.AbstractSavedStateViewModelFactory
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.*
 import androidx.savedstate.SavedStateRegistryOwner
 import com.theupnextapp.domain.ShowSeasonEpisodesArg
 import com.theupnextapp.repository.UpnextRepository
@@ -27,6 +25,9 @@ class ShowSeasonEpisodesViewModel(
     val isLoading = upnextRepository.isLoading
 
     val episodes = upnextRepository.episodes
+
+    private val _seasonNumber = MutableLiveData<Int?>(showSeasonEpisodesArg.seasonNumber)
+    val seasonNumber: LiveData<Int?> = _seasonNumber
 
     init {
         savedStateHandle.set(SEASON_NUMBER, showSeasonEpisodesArg.seasonNumber)
