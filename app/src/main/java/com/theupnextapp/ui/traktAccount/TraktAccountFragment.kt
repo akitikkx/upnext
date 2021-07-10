@@ -7,8 +7,10 @@ import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import com.theupnextapp.MainActivity
 import com.theupnextapp.databinding.FragmentTraktAccountBinding
+import com.theupnextapp.domain.TraktConnectionArg
 import com.theupnextapp.ui.common.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class TraktAccountFragment : BaseFragment() {
@@ -16,7 +18,12 @@ class TraktAccountFragment : BaseFragment() {
     private var _binding: FragmentTraktAccountBinding? = null
     val binding get() = _binding!!
 
-    private val viewModel by viewModels<TraktAccountViewModel>()
+    @Inject
+    lateinit var traktAccountViewModelFactory: TraktAccountViewModel.TraktAccountViewModelFactory
+
+    private val viewModel by viewModels<TraktAccountViewModel>() {
+        traktAccountViewModelFactory.create(this)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -28,6 +35,12 @@ class TraktAccountFragment : BaseFragment() {
 
         binding.viewModel = viewModel
 
+        if (arguments?.getParcelable<TraktConnectionArg>(MainActivity.EXTRA_TRAKT_URI) != null) {
+            val connectionArg =
+                arguments?.getParcelable<TraktConnectionArg>(MainActivity.EXTRA_TRAKT_URI)
+            viewModel.onCodeReceived(connectionArg?.code)
+        }
+
         return binding.root
     }
 
@@ -38,6 +51,18 @@ class TraktAccountFragment : BaseFragment() {
             if (it) {
                 (activity as MainActivity).connectToTrakt()
                 viewModel.onCustomTabOpened()
+            }
+        })
+
+        viewModel.traktAccessToken.observe(viewLifecycleOwner, {
+            if (it != null) {
+                viewModel.onAccessTokenReceived(it)
+            }
+        })
+
+        viewModel.prefTraktAccessToken.observe(viewLifecycleOwner, {
+            if (it != null) {
+                viewModel.onPrefAccessTokenRetrieved(it)
             }
         })
     }

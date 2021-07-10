@@ -12,6 +12,7 @@
     <string name="title_season_episodes">Episodes</string>
     <string name="title_settings">Settings</string>
     <string name="title_recommendations">Recommendations</string>
+    <string name="title_trakt_account">Trakt Account</string>
 
     <!-- Bottom navigation -->
     <string name="bottom_nav_title_search">Search</string>
