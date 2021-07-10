@@ -1,11 +1,11 @@
 package com.theupnextapp.ui.splashscreen
 
-import androidx.lifecycle.*
-import com.theupnextapp.BuildConfig
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import com.theupnextapp.common.utils.DateUtils
 import com.theupnextapp.repository.UpnextRepository
-import com.theupnextapp.repository.datastore.UpnextManager
-import com.theupnextapp.repository.datastore.UpnextManager.Companion.SHARED_PREF_NOT_FOUND
+import com.theupnextapp.repository.datastore.UpnextDataStoreManager
 import com.theupnextapp.ui.dashboard.DashboardViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -16,7 +16,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SplashScreenViewModel @Inject constructor(
-    private val upnextManager: UpnextManager,
+    private val upnextDataStoreManager: UpnextDataStoreManager,
     private val upnextRepository: UpnextRepository
 ) : ViewModel() {
 

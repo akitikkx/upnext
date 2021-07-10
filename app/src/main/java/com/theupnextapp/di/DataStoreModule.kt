@@ -1,7 +1,7 @@
 package com.theupnextapp.di
 
 import android.content.Context
-import com.theupnextapp.repository.datastore.UpnextManager
+import com.theupnextapp.repository.datastore.UpnextDataStoreManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -15,6 +15,6 @@ class DataStoreModule {
 
     @Provides
     @Singleton
-    fun provideUpnextManager(@ApplicationContext applicationContext: Context): UpnextManager =
-        UpnextManager(applicationContext)
+    fun provideUpnextManager(@ApplicationContext applicationContext: Context): UpnextDataStoreManager =
+        UpnextDataStoreManager(applicationContext)
 }

@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.theupnextapp.BuildConfig
 import com.theupnextapp.common.utils.models.DatabaseTables
 import com.theupnextapp.common.utils.models.TableUpdateInterval
 import com.theupnextapp.database.*
@@ -62,6 +63,39 @@ class TraktRepository constructor(
 
     private val _traktShowStats = MutableLiveData<TraktShowStats>()
     val traktShowStats: LiveData<TraktShowStats> = _traktShowStats
+
+    private val _traktAccessToken = MutableLiveData<TraktAccessToken?>()
+    val traktAccessToken: LiveData<TraktAccessToken?> = _traktAccessToken
+
+    suspend fun getTraktAccessToken(code: String?) {
+        if (code.isNullOrEmpty()) {
+            logTraktException("Could not get the access token due to a null code")
+            return
+        }
+
+        withContext(Dispatchers.IO) {
+            try {
+                _isLoading.postValue(true)
+                val traktAccessTokenRequest =
+                    NetworkTraktAccessTokenRequest(
+                        code = code,
+                        client_id = BuildConfig.TRAKT_CLIENT_ID,
+                        client_secret = BuildConfig.TRAKT_CLIENT_SECRET,
+                        redirect_uri = BuildConfig.TRAKT_REDIRECT_URI,
+                        grant_type = "authorization_code"
+                    )
+
+                val accessTokenResponse =
+                    TraktNetwork.traktApi.getAccessTokenAsync(traktAccessTokenRequest).await()
+                _traktAccessToken.postValue(accessTokenResponse.asDomainModel())
+                _isLoading.postValue(false)
+            } catch (e: Exception) {
+                _isLoading.postValue(false)
+                Timber.d(e)
+                firebaseCrashlytics.recordException(e)
+            }
+        }
+    }
 
     suspend fun getTraktShowRating(imdbID: String?) {
         if (imdbID.isNullOrEmpty()) {

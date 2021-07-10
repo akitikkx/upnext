@@ -12,8 +12,10 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.os.bundleOf
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -27,6 +29,7 @@ import com.theupnextapp.common.utils.Feedback
 import com.theupnextapp.common.utils.customTab.CustomTabComponent
 import com.theupnextapp.common.utils.customTab.TabConnectionCallback
 import com.theupnextapp.common.utils.customTab.WebviewFallback
+import com.theupnextapp.domain.TraktConnectionArg
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -125,6 +128,15 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
         customTabComponent.mayLaunchUrl(null, null, null)
     }
 
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        val code = intent?.data?.getQueryParameter("code")
+        val traktConnectionArg = TraktConnectionArg(code)
+
+        val bundle = bundleOf(EXTRA_TRAKT_URI to traktConnectionArg)
+        navController.navigate(R.id.traktAccountFragment, bundle)
+    }
+
     fun hideBottomNavigation() {
         if (bottomNavigationView != null) {
             if (bottomNavigationView?.visibility == View.VISIBLE) {
@@ -191,7 +203,16 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
     }
 
     fun connectToTrakt() {
-        val customTabsIntent = CustomTabsIntent.Builder(customTabComponent.getSession()).build()
+        val customTabsIntent = CustomTabsIntent.Builder(customTabComponent.getSession())
+            .setStartAnimations(this, R.anim.slide_in_right, R.anim.slide_out_left)
+            .setExitAnimations(this, R.anim.slide_in_left, R.anim.slide_out_right)
+            .setDefaultColorSchemeParams(
+                CustomTabColorSchemeParams.Builder()
+                    .setToolbarColor(R.attr.colorPrimary)
+                    .build()
+            )
+            .build()
+
         customTabComponent.openCustomTab(
             this,
             customTabsIntent,
