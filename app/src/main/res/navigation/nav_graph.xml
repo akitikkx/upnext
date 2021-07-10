@@ -65,6 +65,7 @@
 
     <fragment
         android:id="@+id/settingsFragment"
+        tools:layout="@layout/fragment_trakt_account"
         android:name="com.theupnextapp.ui.settings.SettingsFragment" />
 
     <fragment
@@ -111,5 +112,9 @@
             android:name="showSeasonEpisode"
             app:argType="com.theupnextapp.domain.ShowSeasonEpisodesArg" />
     </fragment>
+    <fragment
+        android:id="@+id/traktAccountFragment"
+        android:name="com.theupnextapp.ui.traktAccount.TraktAccountFragment"
+        android:label="TraktAccountFragment" />
 
 </navigation>

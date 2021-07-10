@@ -27,7 +27,7 @@
             android:enabled="@{!viewModel.isLoading}"
             android:focusable="true"
             android:onClick="@{() -> viewModel.onConnectToTraktClick()}"
-            android:text="@string/show_detail_seasons"
+            android:text="@string/connect_to_trakt_button"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

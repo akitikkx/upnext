@@ -3,8 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".MainActivity">
     <item
+        android:id="@+id/menu_account"
+        android:icon="@drawable/ic_baseline_account_circle_24"
+        android:title="@string/menu_account"
+        app:showAsAction="ifRoom" />
+    <item
         android:id="@+id/menu_settings"
         android:icon="@drawable/ic_baseline_settings_24"
         android:title="@string/menu_refresh"
-        app:showAsAction="always" />
+        app:showAsAction="ifRoom" />
 </menu>
