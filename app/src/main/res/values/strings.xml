@@ -93,6 +93,9 @@
         to authorize the UpNext app. You can revoke the access at any time from your Trakt account.</string>
     <string name="trakt_connect_description_source">[Source: https://trakt.tv/about]</string>
 
+    <!-- Trakt account screen  -->
+    <string name="connect_to_trakt_button">Connect to Trakt</string>
+
 
     <!-- Library -->
     <string name="library_connect_to_trakt_dialog_title">Heads up!</string>
@@ -175,6 +178,7 @@
 
     <!-- Contextual menu-->
     <string name="menu_refresh">Refresh shows</string>
+    <string name="menu_account">Account settings</string>
     <string name="menu_trakt_add_to_history">Mark as watched</string>
     <string name="menu_trakt_remove_from_history">Remove from watched</string>
 

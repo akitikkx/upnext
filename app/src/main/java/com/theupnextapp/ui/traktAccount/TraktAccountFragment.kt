@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
-import com.theupnextapp.R
+import com.theupnextapp.MainActivity
 import com.theupnextapp.databinding.FragmentTraktAccountBinding
 import com.theupnextapp.ui.common.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
@@ -26,6 +26,8 @@ class TraktAccountFragment : BaseFragment() {
 
         binding.lifecycleOwner = viewLifecycleOwner
 
+        binding.viewModel = viewModel
+
         return binding.root
     }
 
@@ -33,7 +35,10 @@ class TraktAccountFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         viewModel.openCustomTab.observe(viewLifecycleOwner, {
-
+            if (it) {
+                (activity as MainActivity).connectToTrakt()
+                viewModel.onCustomTabOpened()
+            }
         })
     }
 

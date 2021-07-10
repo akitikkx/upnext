@@ -2,6 +2,7 @@ package com.theupnextapp
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
@@ -11,6 +12,7 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
@@ -22,10 +24,13 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
 import com.theupnextapp.common.utils.FeedBackStatus
 import com.theupnextapp.common.utils.Feedback
+import com.theupnextapp.common.utils.customTab.CustomTabComponent
+import com.theupnextapp.common.utils.customTab.TabConnectionCallback
+import com.theupnextapp.common.utils.customTab.WebviewFallback
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), TabConnectionCallback {
 
     private val navController: NavController
         get() = findNavController(R.id.nav_host_fragment)
@@ -41,6 +46,8 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var snackbar: Snackbar
 
+    private lateinit var customTabComponent: CustomTabComponent
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -48,6 +55,9 @@ class MainActivity : AppCompatActivity() {
         _toolbar = findViewById(R.id.toolbar)
         _bottomNavigationView = findViewById(R.id.bottom_navigation)
         _container = findViewById(R.id.container)
+
+        customTabComponent = CustomTabComponent()
+        customTabComponent.setConnectionCallback(this)
 
         setSupportActionBar(toolbar)
 
@@ -69,11 +79,29 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.menu_settings) {
-            navController.navigate(R.id.settingsFragment)
-            return true
+        return when (item.itemId) {
+            R.id.menu_settings -> {
+                navController.navigate(R.id.settingsFragment)
+                true
+            }
+            R.id.menu_account -> {
+                navController.navigate(R.id.traktAccountFragment)
+                true
+            }
+            else -> item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(
+                item
+            )
         }
-        return item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        customTabComponent.bindCustomService(this)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        customTabComponent.unBindCustomTabService(this)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -86,6 +114,15 @@ class MainActivity : AppCompatActivity() {
         _bottomNavigationView = null
         _toolbar = null
         _container = null
+        customTabComponent.setConnectionCallback(null)
+    }
+
+    override fun onTabConnected() {
+        customTabComponent.mayLaunchUrl(Uri.parse(TRAKT_AUTH_URL), null, null)
+    }
+
+    override fun onTabDisconnected() {
+        customTabComponent.mayLaunchUrl(null, null, null)
     }
 
     fun hideBottomNavigation() {
@@ -153,6 +190,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    fun connectToTrakt() {
+        val customTabsIntent = CustomTabsIntent.Builder(customTabComponent.getSession()).build()
+        customTabComponent.openCustomTab(
+            this,
+            customTabsIntent,
+            Uri.parse(TRAKT_AUTH_URL),
+            WebviewFallback()
+        )
+    }
+
     fun hideKeyboard() {
         val view = this.currentFocus
         if (view != null) {
@@ -163,6 +210,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
+        const val TRAKT_AUTH_URL =
+            "https://trakt.tv/oauth/authorize?response_type=code&client_id=${BuildConfig.TRAKT_CLIENT_ID}&redirect_uri=${BuildConfig.TRAKT_REDIRECT_URI}"
         const val REQUEST_CODE_INTERNET = 10
+        const val EXTRA_TRAKT_URI = "extra_trakt_uri"
     }
 }
