@@ -4,8 +4,8 @@ import com.theupnextapp.domain.TraktAccessToken
 
 data class NetworkTraktAccessTokenResponse(
     val access_token: String?,
-    val created_at: Int?,
-    val expires_in: Int?,
+    val created_at: Long?,
+    val expires_in: Long?,
     val refresh_token: String?,
     val scope: String?,
     val token_type: String?

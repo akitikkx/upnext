@@ -3,6 +3,7 @@ package com.theupnextapp.ui.traktAccount
 import androidx.lifecycle.*
 import androidx.savedstate.SavedStateRegistryOwner
 import com.theupnextapp.domain.TraktAccessToken
+import com.theupnextapp.domain.areVariablesEmpty
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.datastore.UpnextDataStoreManager
 import dagger.assisted.Assisted
@@ -12,6 +13,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
 
 class TraktAccountViewModel(
     savedStateHandle: SavedStateHandle,
@@ -51,19 +53,51 @@ class TraktAccountViewModel(
         }
     }
 
-    fun onAccessTokenReceived(traktAccessToken: TraktAccessToken) {
+    fun onAccessTokenReceived(response: TraktAccessToken) {
         viewModelScope.launch {
-            traktAccessToken.access_token?.let { upnextDataStoreManager.saveTraktAccessToken(it) }
-            traktAccessToken.created_at?.let { upnextDataStoreManager.saveTraktAccessTokenCreatedAt(it) }
-            traktAccessToken.expires_in?.let { upnextDataStoreManager.saveTraktAccessTokenExpiredIn(it) }
-            traktAccessToken.scope?.let { upnextDataStoreManager.saveTraktAccessScope(it) }
-            traktAccessToken.token_type?.let { upnextDataStoreManager.saveTraktAccessTokenType(it) }
-            traktAccessToken.refresh_token?.let { upnextDataStoreManager.saveRefreshTraktAccessToken(it) }
+            upnextDataStoreManager.apply {
+                if (!response.areVariablesEmpty()) {
+                    saveTraktAccessToken("")
+                    saveTraktAccessTokenCreatedAt(UpnextDataStoreManager.NOT_FOUND)
+                    saveTraktAccessTokenExpiredIn(UpnextDataStoreManager.NOT_FOUND)
+                    saveTraktAccessScope("")
+                    saveTraktAccessTokenType("")
+                    saveRefreshTraktAccessToken("")
+
+                    saveTraktAccessToken(response.access_token.orEmpty())
+                    saveTraktAccessTokenCreatedAt(
+                        response.created_at ?: UpnextDataStoreManager.NOT_FOUND
+                    )
+                    saveTraktAccessTokenExpiredIn(
+                        response.expires_in ?: UpnextDataStoreManager.NOT_FOUND
+                    )
+                    saveTraktAccessScope(response.scope.orEmpty())
+                    saveTraktAccessTokenType(response.token_type.orEmpty())
+                    saveRefreshTraktAccessToken(response.refresh_token.orEmpty())
+                }
+            }
         }
     }
 
     fun onPrefAccessTokenRetrieved(accessToken: TraktAccessToken) {
+        if (accessToken.areVariablesEmpty()) {
+            _isAuthorizedOnTrakt.postValue(false)
+            return
+        }
 
+        val currentDateEpoch = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())
+        val expiryDateEpoch = accessToken.expires_in?.let { accessToken.created_at?.plus(it) }
+
+        if (expiryDateEpoch != null) {
+            if (currentDateEpoch >= expiryDateEpoch) {
+                _isAuthorizedOnTrakt.postValue(false)
+                viewModelScope.launch {
+                    traktRepository.getTraktAccessRefreshToken(accessToken.refresh_token)
+                }
+            } else {
+                _isAuthorizedOnTrakt.postValue(true)
+            }
+        }
     }
 
     @AssistedFactory

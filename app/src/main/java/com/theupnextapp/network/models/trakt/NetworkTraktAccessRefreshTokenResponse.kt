@@ -5,10 +5,10 @@ import com.theupnextapp.domain.TraktAccessToken
 data class NetworkTraktAccessRefreshTokenResponse(
     val access_token: String?,
     val token_type: String?,
-    val expires_in: Int?,
+    val expires_in: Long?,
     val refresh_token: String?,
     val scope: String?,
-    val created_at: Int?
+    val created_at: Long?
 )
 
 fun NetworkTraktAccessRefreshTokenResponse.asDomainModel(): TraktAccessToken {

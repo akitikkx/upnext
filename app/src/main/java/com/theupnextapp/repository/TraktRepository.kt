@@ -97,6 +97,38 @@ class TraktRepository constructor(
         }
     }
 
+    suspend fun getTraktAccessRefreshToken(refreshToken: String?) {
+        if (refreshToken.isNullOrEmpty()) {
+            logTraktException("Could not get the access refresh token due to a null refresh token")
+            return
+        }
+
+        withContext(Dispatchers.IO) {
+            try {
+                _isLoading.postValue(true)
+
+                val traktAccessTokenRequest =
+                    NetworkTraktAccessRefreshTokenRequest(
+                        refresh_token = refreshToken,
+                        client_id = BuildConfig.TRAKT_CLIENT_ID,
+                        client_secret = BuildConfig.TRAKT_CLIENT_SECRET,
+                        redirect_uri = BuildConfig.TRAKT_REDIRECT_URI,
+                        grant_type = "refresh_token"
+                    )
+
+                val accessTokenResponse =
+                    TraktNetwork.traktApi.getAccessRefreshTokenAsync(traktAccessTokenRequest)
+                        .await()
+                _traktAccessToken.postValue(accessTokenResponse.asDomainModel())
+                _isLoading.postValue(false)
+            } catch (e: Exception) {
+                _isLoading.postValue(false)
+                Timber.d(e)
+                firebaseCrashlytics.recordException(e)
+            }
+        }
+    }
+
     suspend fun getTraktShowRating(imdbID: String?) {
         if (imdbID.isNullOrEmpty()) {
             logTraktException("Could not get the show rating due to a null imdb ID")
