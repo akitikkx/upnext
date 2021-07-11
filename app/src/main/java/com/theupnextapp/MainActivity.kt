@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -15,6 +16,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
@@ -203,12 +205,16 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
     }
 
     fun connectToTrakt() {
+        val typedValue = TypedValue()
+        theme.resolveAttribute(R.attr.colorPrimaryDark, typedValue, true)
+        val toolbarColor = ContextCompat.getColor(this, typedValue.resourceId)
+
         val customTabsIntent = CustomTabsIntent.Builder(customTabComponent.getSession())
             .setStartAnimations(this, R.anim.slide_in_right, R.anim.slide_out_left)
             .setExitAnimations(this, R.anim.slide_in_left, R.anim.slide_out_right)
             .setDefaultColorSchemeParams(
                 CustomTabColorSchemeParams.Builder()
-                    .setToolbarColor(R.attr.colorPrimary)
+                    .setToolbarColor(toolbarColor)
                     .build()
             )
             .build()

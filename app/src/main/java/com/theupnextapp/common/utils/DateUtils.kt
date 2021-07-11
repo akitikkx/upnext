@@ -75,7 +75,7 @@ object DateUtils {
         return timeDifferenceForDisplay
     }
 
-    fun dateDifference(startTime: Long? = null, endTime: Long, type: String): Long? {
+    fun dateDifference(startTime: Long? = null, endTime: Long, type: String): Long {
         val diffCount = startTime ?: Calendar.getInstance().timeInMillis - endTime
         var diff: Long = -1L
 

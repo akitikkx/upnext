@@ -29,9 +29,9 @@ class UpnextDataStoreManager constructor(context: Context) {
                 access_token = preferences[TRAKT_ACCESS_TOKEN],
                 created_at = preferences[TRAKT_ACCESS_TOKEN_CREATED_AT] ?: NOT_FOUND,
                 expires_in = preferences[TRAKT_ACCESS_TOKEN_EXPIRES_IN] ?: NOT_FOUND,
-                refresh_token = preferences[TRAKT_REFRESH_ACCESS_TOKEN].orEmpty(),
-                scope = preferences[TRAKT_ACCESS_TOKEN_SCOPE].orEmpty(),
-                token_type = preferences[TRAKT_ACCESS_TOKEN_TYPE].orEmpty(),
+                refresh_token = preferences[TRAKT_REFRESH_ACCESS_TOKEN],
+                scope = preferences[TRAKT_ACCESS_TOKEN_SCOPE],
+                token_type = preferences[TRAKT_ACCESS_TOKEN_TYPE],
             )
         }
 
@@ -41,13 +41,13 @@ class UpnextDataStoreManager constructor(context: Context) {
         }
     }
 
-    suspend fun saveTraktAccessTokenCreatedAt(accessTokenCreatedAt: Int) {
+    suspend fun saveTraktAccessTokenCreatedAt(accessTokenCreatedAt: Long) {
         dataStore.edit {
             it[TRAKT_ACCESS_TOKEN_CREATED_AT] = accessTokenCreatedAt
         }
     }
 
-    suspend fun saveTraktAccessTokenExpiredIn(accessTokenExpiredIn: Int) {
+    suspend fun saveTraktAccessTokenExpiredIn(accessTokenExpiredIn: Long) {
         dataStore.edit {
             it[TRAKT_ACCESS_TOKEN_EXPIRES_IN] = accessTokenExpiredIn
         }
@@ -73,12 +73,12 @@ class UpnextDataStoreManager constructor(context: Context) {
 
     companion object {
         val TRAKT_ACCESS_TOKEN = stringPreferencesKey("trakt_access_token")
-        val TRAKT_ACCESS_TOKEN_CREATED_AT = intPreferencesKey("trakt_access_token_created_at")
-        val TRAKT_ACCESS_TOKEN_EXPIRES_IN = intPreferencesKey("trakt_access_token_expires_in")
+        val TRAKT_ACCESS_TOKEN_CREATED_AT = longPreferencesKey("trakt_access_token_created_at")
+        val TRAKT_ACCESS_TOKEN_EXPIRES_IN = longPreferencesKey("trakt_access_token_expires_in")
         val TRAKT_REFRESH_ACCESS_TOKEN = stringPreferencesKey("trakt_refresh_access_token")
         val TRAKT_ACCESS_TOKEN_SCOPE = stringPreferencesKey("trakt_access_token_scope")
         val TRAKT_ACCESS_TOKEN_TYPE = stringPreferencesKey("trakt_access_token_type")
-        const val NOT_FOUND = -1
+        const val NOT_FOUND = -1L
     }
 
 }
