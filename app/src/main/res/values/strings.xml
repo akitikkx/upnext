@@ -96,7 +96,10 @@
 
     <!-- Trakt account screen  -->
     <string name="connect_to_trakt_button">Connect to Trakt</string>
-
+    <string name="trakt_connection_status_connected">Connection status: Connected</string>
+    <string name="trakt_connection_status_disconnect">Logout</string>
+    <string name="disconnect_from_trakt_dialog_message">Are you sure you want to disconnect your Trakt account from
+        Upnext: TV Series Manager? You will need to reconnect your Trakt account for the data to be synchronized again.</string>
 
     <!-- Library -->
     <string name="library_connect_to_trakt_dialog_title">Heads up!</string>
@@ -105,11 +108,7 @@
     in order to make use of the Trakt functionality around the app. After you authorize, you will return to the Library screen</string>
     <string name="library_connect_to_trakt_dialog_negative">No thanks</string>
     <string name="library_connect_to_trakt_dialog_positive">Proceed</string>
-    <string name="library_trakt_connection_status_connected">Connection status: Connected</string>
-    <string name="library_trakt_connection_status_not_connected">Connection status: Not connected</string>
     <string name="library_disconnect_from_trakt_dialog_title">Disconnecting Trakt Account</string>
-    <string name="library_disconnect_from_trakt_dialog_message">All your cached Watchlist and History data will be removed.
-        You will need to reconnect your Trakt account for the data to be synchronized again</string>
     <string name="library_disconnect_from_trakt_dialog_negative">Cancel</string>
     <string name="library_disconnect_from_trakt_dialog_positive">Proceed</string>
     <string name="library_removing_watchlist_data">Clearing watchlist cache…</string>
