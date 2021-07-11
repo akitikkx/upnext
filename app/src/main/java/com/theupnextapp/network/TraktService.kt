@@ -43,6 +43,40 @@ interface TraktService {
 
     @GET("shows/anticipated")
     fun getMostAnticipatedShowsAsync(): Deferred<NetworkTraktMostAnticipatedResponse>
+
+    @GET("users/settings")
+    fun getUserSettingsAsync(): Deferred<NetworkTraktUserSettingsResponse>
+
+    @GET("users/{id}/lists")
+    fun getUserCustomListsAsync(
+        @Path("id") userSlug: String
+    ): Deferred<NetworkTraktUserListsResponse>
+
+    @POST("users/{id}/lists")
+    fun createCustomListAsync(
+        @Path("id") userSlug: String,
+        @Body createCustomListRequest: NetworkTraktCreateCustomListRequest
+    ): Deferred<NetworkTraktCreateCustomListResponse>
+
+    @GET("users/{id}/lists/{list_id}/items/show")
+    fun getCustomListItemsAsync(
+        @Path("id") userSlug: String,
+        @Path("list_id") traktId: String
+    ): Deferred<NetworkTraktUserListItemResponse>
+
+    @POST("users/{id}/lists/{list_id}/items")
+    fun addShowToCustomListAsync(
+        @Path("id") userSlug: String,
+        @Path("list_id") traktId: String,
+        @Body networkTraktAddShowToListRequest: NetworkTraktAddShowToListRequest
+    ): Deferred<NetworkTraktAddShowToListResponse>
+
+    @POST("users/{id}/lists/{list_id}/items/remove")
+    fun removeShowFromCustomListAsync(
+        @Path("id") userSlug: String,
+        @Path("list_id") traktId: String,
+        @Body networkTraktRemoveShowFromListRequest: NetworkTraktRemoveShowFromListRequest
+    ): Deferred<NetworkTraktRemoveShowFromListResponse>
 }
 
 object TraktNetwork {
