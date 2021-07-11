@@ -37,8 +37,19 @@ class TraktAccountViewModel(
     private val _openCustomTab = MutableLiveData<Boolean>()
     val openCustomTab: LiveData<Boolean> = _openCustomTab
 
+    private val _confirmDisconnectFromTrakt = MutableLiveData<Boolean>()
+    val confirmDisconnectFromTrakt: LiveData<Boolean> = _confirmDisconnectFromTrakt
+
     fun onConnectToTraktClick() {
         _openCustomTab.postValue(true)
+    }
+
+    fun onDisconnectFromTraktClick() {
+        _confirmDisconnectFromTrakt.postValue(true)
+    }
+
+    fun onDisconnectConfirm() {
+
     }
 
     fun onCustomTabOpened() {

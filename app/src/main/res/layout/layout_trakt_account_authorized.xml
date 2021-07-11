@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.theupnextapp.ui.traktAccount.TraktAccountViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/trakt_account_header"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/trakt_watchlist_header_height"
+            android:layout_marginTop="@dimen/margin_vertical"
+            android:contentDescription="@string/trakt_logo_description"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_trakt_wide_red_white" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/textview_trakt_connection_status"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_horizontal"
+            android:layout_marginTop="@dimen/margin_vertical_half"
+            android:layout_marginEnd="@dimen/margin_horizontal"
+            android:gravity="center_horizontal"
+            android:text="@string/trakt_connection_status_connected"
+            android:textAppearance="?attr/textAppearanceCaption"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/trakt_account_header" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/textview_trakt_disconnect"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_horizontal"
+            android:layout_marginTop="@dimen/margin_vertical_half"
+            android:layout_marginEnd="@dimen/margin_horizontal"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_horizontal"
+            android:onClick="@{() -> viewModel.onDisconnectFromTraktClick()}"
+            android:text="@string/trakt_connection_status_disconnect"
+            android:textAllCaps="true"
+            android:textAppearance="?attr/textAppearanceBody2"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textview_trakt_connection_status" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

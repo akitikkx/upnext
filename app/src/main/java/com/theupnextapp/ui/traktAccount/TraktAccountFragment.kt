@@ -5,7 +5,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.theupnextapp.MainActivity
+import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentTraktAccountBinding
 import com.theupnextapp.domain.TraktConnectionArg
 import com.theupnextapp.ui.common.BaseFragment
@@ -63,6 +65,22 @@ class TraktAccountFragment : BaseFragment() {
         viewModel.prefTraktAccessToken.observe(viewLifecycleOwner, {
             if (it != null) {
                 viewModel.onPrefAccessTokenRetrieved(it)
+            }
+        })
+
+        viewModel.confirmDisconnectFromTrakt.observe(viewLifecycleOwner, {
+            if (it == true) {
+                MaterialAlertDialogBuilder(requireActivity())
+                    .setTitle(resources.getString(R.string.library_disconnect_from_trakt_dialog_title))
+                    .setMessage(resources.getString(R.string.disconnect_from_trakt_dialog_message))
+                    .setNegativeButton(resources.getString(R.string.library_disconnect_from_trakt_dialog_negative)) { dialog, _ ->
+                        dialog.dismiss()
+                    }
+                    .setPositiveButton(resources.getString(R.string.library_disconnect_from_trakt_dialog_positive)) { dialog, _ ->
+                        viewModel.onDisconnectConfirm()
+                        dialog.dismiss()
+                    }
+                    .show()
             }
         })
     }
