@@ -46,6 +46,11 @@ class TraktRepository constructor(
             it.asDomainModel()
         }
 
+    val traktFavoriteShows: LiveData<List<TraktUserListItem>> =
+        Transformations.map(upnextDao.getFavoriteShows()) {
+            it.asDomainModel()
+        }
+
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
 
@@ -66,9 +71,6 @@ class TraktRepository constructor(
 
     private val _traktAccessToken = MutableLiveData<TraktAccessToken?>()
     val traktAccessToken: LiveData<TraktAccessToken?> = _traktAccessToken
-
-    private val _traktUserListItems = MutableLiveData<List<TraktUserListItem>>()
-    val traktUserListItems: LiveData<List<TraktUserListItem>> = _traktUserListItems
 
     suspend fun getTraktAccessToken(code: String?) {
         if (code.isNullOrEmpty()) {
@@ -173,9 +175,36 @@ class TraktRepository constructor(
                                     traktId = favoritesListId.toString()
                                 ).await()
                             }
-                        _traktUserListItems.postValue(customListItemsResponse?.asDomainModel())
-                    }
+                        val shows = mutableListOf<DatabaseFavoriteShows>()
+                        if (!customListItemsResponse.isNullOrEmpty()) {
+                            for(item in customListItemsResponse) {
+                                shows.add(item.asDatabaseModel())
+                            }
 
+                            upnextDao.apply {
+                                deleteRecentTableUpdate(DatabaseTables.TABLE_FAVORITE_SHOWS.tableName)
+                                deleteAllFavoriteShows()
+                                insertAllFavoriteShows(*shows.toTypedArray())
+                                insertTableUpdateLog(
+                                    DatabaseTableUpdate(
+                                        table_name = DatabaseTables.TABLE_FAVORITE_SHOWS.tableName,
+                                        last_updated = System.currentTimeMillis()
+                                    )
+                                )
+                            }
+                        } else {
+                            upnextDao.apply {
+                                deleteRecentTableUpdate(DatabaseTables.TABLE_FAVORITE_SHOWS.tableName)
+                                deleteAllFavoriteShows()
+                                insertTableUpdateLog(
+                                    DatabaseTableUpdate(
+                                        table_name = DatabaseTables.TABLE_FAVORITE_SHOWS.tableName,
+                                        last_updated = System.currentTimeMillis()
+                                    )
+                                )
+                            }
+                        }
+                    }
                 }
                 _isLoading.postValue(false)
             } catch (e: Exception) {

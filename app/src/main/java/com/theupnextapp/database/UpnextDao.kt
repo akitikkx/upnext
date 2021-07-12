@@ -87,4 +87,13 @@ interface UpnextDao {
 
     @Query("select * from trakt_most_anticipated")
     fun getTraktMostAnticipated(): LiveData<List<DatabaseTraktMostAnticipated>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertAllFavoriteShows(vararg databaseFavoriteShows: DatabaseFavoriteShows)
+
+    @Query("delete from favorite_shows")
+    fun deleteAllFavoriteShows()
+
+    @Query("select * from favorite_shows")
+    fun getFavoriteShows(): LiveData<List<DatabaseFavoriteShows>>
 }

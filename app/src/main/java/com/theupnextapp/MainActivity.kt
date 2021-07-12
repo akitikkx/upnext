@@ -90,7 +90,9 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
                 true
             }
             R.id.menu_account -> {
-                navController.navigate(R.id.traktAccountFragment)
+                if (navController.currentDestination?.id != R.id.traktAccountFragment) {
+                    navController.navigate(R.id.traktAccountFragment)
+                }
                 true
             }
             else -> item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(

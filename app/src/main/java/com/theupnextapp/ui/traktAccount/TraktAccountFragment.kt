@@ -91,8 +91,8 @@ class TraktAccountFragment : BaseFragment() {
             }
         })
 
-        viewModel.traktUserListItems.observe(viewLifecycleOwner, {
-            if (it.isNotEmpty()) {
+        viewModel.favoriteShows.observe(viewLifecycleOwner, {
+            if (!it.isNullOrEmpty()) {
 
             }
         })

@@ -29,7 +29,7 @@ class TraktAccountViewModel(
 
     val traktAccessToken = traktRepository.traktAccessToken
 
-    val traktUserListItems = traktRepository.traktUserListItems
+    val favoriteShows = traktRepository.traktFavoriteShows
 
     val prefTraktAccessToken = upnextDataStoreManager.traktAccessTokenFlow.asLiveData()
 
