@@ -29,6 +29,8 @@ class TraktAccountViewModel(
 
     val traktAccessToken = traktRepository.traktAccessToken
 
+    val traktUserListItems = traktRepository.traktUserListItems
+
     val prefTraktAccessToken = upnextDataStoreManager.traktAccessTokenFlow.asLiveData()
 
     private val _isAuthorizedOnTrakt = MutableLiveData<Boolean>()
@@ -107,6 +109,14 @@ class TraktAccountViewModel(
                 }
             } else {
                 _isAuthorizedOnTrakt.postValue(true)
+            }
+        }
+    }
+
+    fun onAuthorizationConfirmation(){
+        if (!prefTraktAccessToken.value?.access_token.isNullOrEmpty()) {
+            viewModelScope.launch {
+                traktRepository.getFavoriteShows(prefTraktAccessToken.value?.access_token)
             }
         }
     }
