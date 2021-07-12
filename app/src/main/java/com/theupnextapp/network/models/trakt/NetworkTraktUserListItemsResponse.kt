@@ -1,6 +1,6 @@
 package com.theupnextapp.network.models.trakt
 
-import com.theupnextapp.domain.TraktUserListItem
+import com.theupnextapp.database.DatabaseFavoriteShows
 
 class NetworkTraktUserListItemResponse : ArrayList<NetworkTraktUserListItemResponseItem>()
 
@@ -29,20 +29,18 @@ data class NetworkTraktUserListItemResponseItemShowIds(
     var tvMazeID: Int?
 )
 
-fun List<NetworkTraktUserListItemResponseItem>.asDomainModel(): List<TraktUserListItem> {
-    return map {
-        TraktUserListItem(
-            id = it.id,
-            title = it.show?.title,
-            slug = it.show?.ids?.slug,
-            year = it.show?.year.toString(),
-            mediumImageUrl = it.show?.mediumImageUrl,
-            originalImageUrl = it.show?.originalImageUrl,
-            imdbID = it.show?.ids?.imdb,
-            tmdbID = it.show?.ids?.tmdb,
-            traktID = it.show?.ids?.trakt,
-            tvdbID = it.show?.ids?.tvdb,
-            tvMazeID = it.show?.ids?.tvMazeID
-        )
-    }
+fun NetworkTraktUserListItemResponseItem.asDatabaseModel(): DatabaseFavoriteShows {
+    return DatabaseFavoriteShows(
+        id = id,
+        title = show?.title,
+        slug = show?.ids?.slug,
+        year = show?.year.toString(),
+        mediumImageUrl = show?.mediumImageUrl,
+        originalImageUrl = show?.originalImageUrl,
+        imdbID = show?.ids?.imdb,
+        tmdbID = show?.ids?.tmdb,
+        traktID = show?.ids?.trakt,
+        tvdbID = show?.ids?.tvdb,
+        tvMazeID = show?.ids?.tvMazeID
+    )
 }

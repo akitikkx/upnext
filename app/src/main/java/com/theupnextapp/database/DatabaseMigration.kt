@@ -76,3 +76,9 @@ val MIGRATION_21_22: Migration = object : Migration(21, 22) {
         database.execSQL("ALTER TABLE schedule_tomorrow ADD COLUMN mediumImage TEXT DEFAULT NULL")
     }
 }
+
+val MIGRATION_22_23: Migration = object : Migration(22, 23) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL("CREATE TABLE IF NOT EXISTS favorite_shows (id INTEGER, title TEXT, year TEXT, mediumImageUrl TEXT, originalImageUrl TEXT, imdbID TEXT, slug TEXT, tmdbID INTEGER, traktID INTEGER, tvdbID INTEGER, tvMazeID INTEGER, PRIMARY KEY(id))")
+    }
+}
