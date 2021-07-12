@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
@@ -81,6 +82,18 @@ class TraktAccountFragment : BaseFragment() {
                         dialog.dismiss()
                     }
                     .show()
+            }
+        })
+
+        viewModel.isAuthorizedOnTrakt.observe(viewLifecycleOwner, {
+            if (it) {
+                viewModel.onAuthorizationConfirmation()
+            }
+        })
+
+        viewModel.traktUserListItems.observe(viewLifecycleOwner, {
+            if (it.isNotEmpty()) {
+
             }
         })
     }

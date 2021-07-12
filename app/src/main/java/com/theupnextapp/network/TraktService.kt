@@ -11,10 +11,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Path
+import retrofit2.http.*
 import java.io.File
 import java.util.concurrent.TimeUnit
 
@@ -45,27 +42,33 @@ interface TraktService {
     fun getMostAnticipatedShowsAsync(): Deferred<NetworkTraktMostAnticipatedResponse>
 
     @GET("users/settings")
-    fun getUserSettingsAsync(): Deferred<NetworkTraktUserSettingsResponse>
+    fun getUserSettingsAsync(
+        @Header("Authorization") token: String
+    ): Deferred<NetworkTraktUserSettingsResponse>
 
     @GET("users/{id}/lists")
     fun getUserCustomListsAsync(
+        @Header("Authorization") token: String,
         @Path("id") userSlug: String
     ): Deferred<NetworkTraktUserListsResponse>
 
     @POST("users/{id}/lists")
     fun createCustomListAsync(
+        @Header("Authorization") token: String,
         @Path("id") userSlug: String,
         @Body createCustomListRequest: NetworkTraktCreateCustomListRequest
     ): Deferred<NetworkTraktCreateCustomListResponse>
 
     @GET("users/{id}/lists/{list_id}/items/show")
     fun getCustomListItemsAsync(
+        @Header("Authorization") token: String,
         @Path("id") userSlug: String,
         @Path("list_id") traktId: String
     ): Deferred<NetworkTraktUserListItemResponse>
 
     @POST("users/{id}/lists/{list_id}/items")
     fun addShowToCustomListAsync(
+        @Header("Authorization") token: String,
         @Path("id") userSlug: String,
         @Path("list_id") traktId: String,
         @Body networkTraktAddShowToListRequest: NetworkTraktAddShowToListRequest
@@ -73,6 +76,7 @@ interface TraktService {
 
     @POST("users/{id}/lists/{list_id}/items/remove")
     fun removeShowFromCustomListAsync(
+        @Header("Authorization") token: String,
         @Path("id") userSlug: String,
         @Path("list_id") traktId: String,
         @Body networkTraktRemoveShowFromListRequest: NetworkTraktRemoveShowFromListRequest

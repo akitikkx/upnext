@@ -67,6 +67,9 @@ class TraktRepository constructor(
     private val _traktAccessToken = MutableLiveData<TraktAccessToken?>()
     val traktAccessToken: LiveData<TraktAccessToken?> = _traktAccessToken
 
+    private val _traktUserListItems = MutableLiveData<List<TraktUserListItem>>()
+    val traktUserListItems: LiveData<List<TraktUserListItem>> = _traktUserListItems
+
     suspend fun getTraktAccessToken(code: String?) {
         if (code.isNullOrEmpty()) {
             logTraktException("Could not get the access token due to a null code")
@@ -126,6 +129,88 @@ class TraktRepository constructor(
                 Timber.d(e)
                 firebaseCrashlytics.recordException(e)
             }
+        }
+    }
+
+    suspend fun getFavoriteShows(token: String?) {
+        if (token.isNullOrEmpty()) {
+            logTraktException("Could not get the favorite shows due to a null access token")
+            return
+        }
+
+        withContext(Dispatchers.IO) {
+            try {
+                _isLoading.postValue(true)
+                var hasFavoritesList = false
+                var favoritesListId: Int? = -1
+
+                val userSettings =
+                    TraktNetwork.traktApi.getUserSettingsAsync(token = "Bearer $token").await()
+                if (!userSettings.user?.ids?.slug.isNullOrEmpty()) {
+                    val userSlug = userSettings.user?.ids?.slug
+                    val userCustomLists = getUserSettings(userSlug, token)
+
+                    if (!userCustomLists.isNullOrEmpty()) {
+                        for (listItem in userCustomLists) {
+                            if (listItem.name == FAVORITES_LIST_NAME) {
+                                hasFavoritesList = true
+                                favoritesListId = listItem.ids?.trakt
+                            }
+                        }
+                    }
+                    if (!hasFavoritesList) {
+                        val createCustomListResponse = createCustomList(userSlug, token)
+                        if (createCustomListResponse?.ids?.trakt != null) {
+                            favoritesListId = createCustomListResponse.ids.trakt
+                        }
+                    }
+                    if (favoritesListId != -1) {
+                        val customListItemsResponse =
+                            userSlug?.let { slug ->
+                                TraktNetwork.traktApi.getCustomListItemsAsync(
+                                    token = "Bearer $token",
+                                    userSlug = slug,
+                                    traktId = favoritesListId.toString()
+                                ).await()
+                            }
+                        _traktUserListItems.postValue(customListItemsResponse?.asDomainModel())
+                    }
+
+                }
+                _isLoading.postValue(false)
+            } catch (e: Exception) {
+                _isLoading.postValue(false)
+                Timber.d(e)
+                firebaseCrashlytics.recordException(e)
+            }
+        }
+    }
+
+    private suspend fun getUserSettings(
+        userSlug: String?,
+        token: String?
+    ): NetworkTraktUserListsResponse? {
+        return userSlug?.let { slug ->
+            TraktNetwork.traktApi.getUserCustomListsAsync(
+                token = "Bearer $token",
+                userSlug = slug
+            ).await()
+        }
+    }
+
+    private suspend fun createCustomList(
+        userSlug: String?,
+        token: String?
+    ): NetworkTraktCreateCustomListResponse? {
+        val createCustomListRequest = NetworkTraktCreateCustomListRequest(
+            name = FAVORITES_LIST_NAME
+        )
+        return userSlug?.let { slug ->
+            TraktNetwork.traktApi.createCustomListAsync(
+                token = "Bearer $token",
+                userSlug = slug,
+                createCustomListRequest = createCustomListRequest
+            ).await()
         }
     }
 
@@ -433,5 +518,9 @@ class TraktRepository constructor(
         Timber.d(Throwable(message = message))
         firebaseCrashlytics
             .recordException(Throwable(message = "TraktRepository: $message"))
+    }
+
+    companion object {
+        const val FAVORITES_LIST_NAME = "Upnext Favorites"
     }
 }
