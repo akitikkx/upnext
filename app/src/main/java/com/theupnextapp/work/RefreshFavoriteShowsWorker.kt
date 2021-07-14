@@ -29,10 +29,11 @@ class RefreshFavoriteShowsWorker @AssistedInject constructor(
     }
 
     private suspend fun refreshFavoriteShows(token: String, repository: TraktRepository) {
-        repository.refreshFavoriteShows(token)
+        repository.refreshFavoriteShows(token = token)
     }
 
     companion object {
+        const val WORK_NAME = "RefreshFavoriteShowsWorker"
         const val ARG_TOKEN = "arg_token"
     }
 }
