@@ -134,58 +134,63 @@ class TraktRepository constructor(
         }
     }
 
-    suspend fun refreshFavoriteShows(token: String?) {
+    suspend fun refreshFavoriteShows(forceRefresh: Boolean = false, token: String?) {
         if (token.isNullOrEmpty()) {
             logTraktException("Could not get the favorite shows due to a null access token")
             return
         }
 
-        withContext(Dispatchers.IO) {
-            try {
-                _isLoading.postValue(true)
-                var hasFavoritesList = false
-                var favoritesListId: String? = null
+        if (forceRefresh || canProceedWithUpdate(
+                tableName = DatabaseTables.TABLE_FAVORITE_SHOWS.tableName,
+                intervalMins = TableUpdateInterval.TRAKT_FAVORITE_SHOWS.intervalMins
+            )
+        ) {
+            withContext(Dispatchers.IO) {
+                try {
+                    _isLoading.postValue(true)
+                    var hasFavoritesList = false
+                    var favoritesListId: String? = null
 
-                val userSettings =
-                    TraktNetwork.traktApi.getUserSettingsAsync(token = "Bearer $token").await()
-                if (!userSettings.user?.ids?.slug.isNullOrEmpty()) {
-                    val userSlug = userSettings.user?.ids?.slug
-                    val userCustomLists = getUserSettings(userSlug, token)
+                    val userSettings =
+                        TraktNetwork.traktApi.getUserSettingsAsync(token = "Bearer $token").await()
+                    if (!userSettings.user?.ids?.slug.isNullOrEmpty()) {
+                        val userSlug = userSettings.user?.ids?.slug
+                        val userCustomLists = getUserSettings(userSlug, token)
 
-                    if (!userCustomLists.isNullOrEmpty()) {
-                        for (listItem in userCustomLists) {
-                            if (listItem.name == FAVORITES_LIST_NAME) {
-                                hasFavoritesList = true
-                                favoritesListId = listItem.ids?.slug
+                        if (!userCustomLists.isNullOrEmpty()) {
+                            for (listItem in userCustomLists) {
+                                if (listItem.name == FAVORITES_LIST_NAME) {
+                                    hasFavoritesList = true
+                                    favoritesListId = listItem.ids?.slug
+                                }
                             }
                         }
-                    }
-                    if (!hasFavoritesList) {
-                        val createCustomListResponse = createCustomList(userSlug, token)
-                        if (createCustomListResponse?.ids?.trakt != null) {
-                            favoritesListId = createCustomListResponse.ids.slug
+                        if (!hasFavoritesList) {
+                            val createCustomListResponse = createCustomList(userSlug, token)
+                            if (createCustomListResponse?.ids?.trakt != null) {
+                                favoritesListId = createCustomListResponse.ids.slug
+                            }
+                        }
+                        if (!favoritesListId.isNullOrEmpty()) {
+                            val customListItemsResponse =
+                                userSlug?.let { slug ->
+                                    TraktNetwork.traktApi.getCustomListItemsAsync(
+                                        token = "Bearer $token",
+                                        userSlug = slug,
+                                        traktId = favoritesListId
+                                    ).await()
+                                }
+                            handleTraktUserListItemsResponse(customListItemsResponse)
                         }
                     }
-                    if (!favoritesListId.isNullOrEmpty()) {
-                        val customListItemsResponse =
-                            userSlug?.let { slug ->
-                                TraktNetwork.traktApi.getCustomListItemsAsync(
-                                    token = "Bearer $token",
-                                    userSlug = slug,
-                                    traktId = favoritesListId
-                                ).await()
-                            }
-                        handleTraktUserListItemsResponse(customListItemsResponse)
-                    }
+                    _isLoading.postValue(false)
+                } catch (e: Exception) {
+                    _isLoading.postValue(false)
+                    Timber.d(e)
+                    firebaseCrashlytics.recordException(e)
                 }
-                _isLoading.postValue(false)
-            } catch (e: Exception) {
-                _isLoading.postValue(false)
-                Timber.d(e)
-                firebaseCrashlytics.recordException(e)
             }
         }
-
     }
 
     private suspend fun handleTraktUserListItemsResponse(customListItemsResponse: NetworkTraktUserListItemResponse?) {
