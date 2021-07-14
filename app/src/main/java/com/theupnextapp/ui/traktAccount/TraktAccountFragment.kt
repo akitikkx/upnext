@@ -5,21 +5,30 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
+import com.google.android.flexbox.FlexDirection
+import com.google.android.flexbox.FlexboxLayoutManager
+import com.google.android.flexbox.JustifyContent
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentTraktAccountBinding
+import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.TraktConnectionArg
+import com.theupnextapp.domain.TraktUserListItem
 import com.theupnextapp.ui.common.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class TraktAccountFragment : BaseFragment() {
+class TraktAccountFragment : BaseFragment(), FavoritesAdapter.FavoritesAdapterListener {
 
     private var _binding: FragmentTraktAccountBinding? = null
     val binding get() = _binding!!
+
+    private lateinit var favoritesAdapter: FavoritesAdapter
 
     @Inject
     lateinit var traktAccountViewModelFactory: TraktAccountViewModel.TraktAccountViewModelFactory
@@ -37,6 +46,15 @@ class TraktAccountFragment : BaseFragment() {
         binding.lifecycleOwner = viewLifecycleOwner
 
         binding.viewModel = viewModel
+
+        favoritesAdapter = FavoritesAdapter(this)
+        binding.layoutAuthorized.recyclerviewFavorites.apply {
+            layoutManager = FlexboxLayoutManager(requireContext()).apply {
+                flexDirection = FlexDirection.ROW
+                justifyContent = JustifyContent.FLEX_START
+            }
+            adapter = favoritesAdapter
+        }
 
         if (arguments?.getParcelable<TraktConnectionArg>(MainActivity.EXTRA_TRAKT_URI) != null) {
             val connectionArg =
@@ -91,11 +109,11 @@ class TraktAccountFragment : BaseFragment() {
             }
         })
 
-        viewModel.favoriteShows.observe(viewLifecycleOwner, {
-            if (!it.isNullOrEmpty()) {
-
-            }
-        })
+        lifecycleScope.launch {
+            viewModel.favoriteShows.observe(viewLifecycleOwner, {
+                favoritesAdapter.submitFavoriteShowsList(it)
+            })
+        }
     }
 
     override fun onDestroyView() {
@@ -103,4 +121,17 @@ class TraktAccountFragment : BaseFragment() {
         _binding = null
     }
 
+    override fun onFavoriteItemClick(view: View, favoriteShows: TraktUserListItem) {
+        val directions =
+            TraktAccountFragmentDirections.actionTraktAccountFragmentToShowDetailFragment(
+                ShowDetailArg(
+                    source = "most_anticipated",
+                    showId = favoriteShows.tvMazeID,
+                    showTitle = favoriteShows.title,
+                    showImageUrl = favoriteShows.originalImageUrl,
+                    showBackgroundUrl = favoriteShows.mediumImageUrl
+                )
+            )
+        findNavController().navigate(directions, getShowDetailNavigatorExtras(view))
+    }
 }

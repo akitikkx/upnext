@@ -77,6 +77,7 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
 
         setupActionBarWithNavController(navController, appBarConfiguration)
         bottomNavigationView?.setupWithNavController(navController)
+        bottomNavigationView?.setOnNavigationItemReselectedListener {  }
     }
 
     override fun onSupportNavigateUp(): Boolean {

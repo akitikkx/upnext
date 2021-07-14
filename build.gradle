@@ -14,6 +14,8 @@ buildscript {
 
         datastore_version = "1.0.0-rc01"
 
+        flexbox_version = "3.0.0"
+
         glide_version = "4.11.0"
 
         google_services = "4.3.3"

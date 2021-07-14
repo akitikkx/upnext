@@ -13,6 +13,7 @@
     <string name="title_settings">Settings</string>
     <string name="title_recommendations">Recommendations</string>
     <string name="title_trakt_account">Trakt Account</string>
+    <string name="title_favorites_list">Your Favorite Shows</string>
 
     <!-- Bottom navigation -->
     <string name="bottom_nav_title_search">Search</string>
@@ -100,6 +101,8 @@
     <string name="trakt_connection_status_disconnect">Logout</string>
     <string name="disconnect_from_trakt_dialog_message">Are you sure you want to disconnect your Trakt account from
         Upnext: TV Series Manager? You will need to reconnect your Trakt account for the data to be synchronized again.</string>
+    <string name="favorite_title_and_release_year">%1$s (%2$s)</string>
+    <string name="favorite_title_no_year">%1$s</string>
 
     <!-- Library -->
     <string name="library_connect_to_trakt_dialog_title">Heads up!</string>
@@ -231,6 +234,11 @@
     <string name="history_transition_name">history_%1$s</string>
     <string name="recommendation_transition_name">recommendation_%1$s</string>
     <string name="recommendations_transition_name">recommendations</string>
+
+    <!-- Messages -->
+    <string name="loading_general">Loading…</string>
+    <string name="load_state_retry_button">Retry</string>
+    <string name="load_state_error_default">There was an error loading the results: %1$s</string>
 
     <!-- Error -->
     <string name="error_connect_to_internet">Settings</string>
