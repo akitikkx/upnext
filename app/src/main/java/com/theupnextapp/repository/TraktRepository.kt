@@ -134,7 +134,7 @@ class TraktRepository constructor(
         }
     }
 
-    suspend fun getFavoriteShows(token: String?) {
+    suspend fun refreshFavoriteShows(token: String?) {
         if (token.isNullOrEmpty()) {
             logTraktException("Could not get the favorite shows due to a null access token")
             return
@@ -144,7 +144,7 @@ class TraktRepository constructor(
             try {
                 _isLoading.postValue(true)
                 var hasFavoritesList = false
-                var favoritesListId: Int? = -1
+                var favoritesListId: String? = null
 
                 val userSettings =
                     TraktNetwork.traktApi.getUserSettingsAsync(token = "Bearer $token").await()
@@ -156,54 +156,26 @@ class TraktRepository constructor(
                         for (listItem in userCustomLists) {
                             if (listItem.name == FAVORITES_LIST_NAME) {
                                 hasFavoritesList = true
-                                favoritesListId = listItem.ids?.trakt
+                                favoritesListId = listItem.ids?.slug
                             }
                         }
                     }
                     if (!hasFavoritesList) {
                         val createCustomListResponse = createCustomList(userSlug, token)
                         if (createCustomListResponse?.ids?.trakt != null) {
-                            favoritesListId = createCustomListResponse.ids.trakt
+                            favoritesListId = createCustomListResponse.ids.slug
                         }
                     }
-                    if (favoritesListId != -1) {
+                    if (!favoritesListId.isNullOrEmpty()) {
                         val customListItemsResponse =
                             userSlug?.let { slug ->
                                 TraktNetwork.traktApi.getCustomListItemsAsync(
                                     token = "Bearer $token",
                                     userSlug = slug,
-                                    traktId = favoritesListId.toString()
+                                    traktId = favoritesListId
                                 ).await()
                             }
-                        val shows = mutableListOf<DatabaseFavoriteShows>()
-                        if (!customListItemsResponse.isNullOrEmpty()) {
-                            for(item in customListItemsResponse) {
-                                shows.add(item.asDatabaseModel())
-                            }
-
-                            upnextDao.apply {
-                                deleteRecentTableUpdate(DatabaseTables.TABLE_FAVORITE_SHOWS.tableName)
-                                deleteAllFavoriteShows()
-                                insertAllFavoriteShows(*shows.toTypedArray())
-                                insertTableUpdateLog(
-                                    DatabaseTableUpdate(
-                                        table_name = DatabaseTables.TABLE_FAVORITE_SHOWS.tableName,
-                                        last_updated = System.currentTimeMillis()
-                                    )
-                                )
-                            }
-                        } else {
-                            upnextDao.apply {
-                                deleteRecentTableUpdate(DatabaseTables.TABLE_FAVORITE_SHOWS.tableName)
-                                deleteAllFavoriteShows()
-                                insertTableUpdateLog(
-                                    DatabaseTableUpdate(
-                                        table_name = DatabaseTables.TABLE_FAVORITE_SHOWS.tableName,
-                                        last_updated = System.currentTimeMillis()
-                                    )
-                                )
-                            }
-                        }
+                        handleTraktUserListItemsResponse(customListItemsResponse)
                     }
                 }
                 _isLoading.postValue(false)
@@ -213,6 +185,36 @@ class TraktRepository constructor(
                 firebaseCrashlytics.recordException(e)
             }
         }
+
+    }
+
+    private suspend fun handleTraktUserListItemsResponse(customListItemsResponse: NetworkTraktUserListItemResponse?) {
+        val shows = mutableListOf<DatabaseFavoriteShows>()
+        if (!customListItemsResponse.isNullOrEmpty()) {
+            for (item in customListItemsResponse) {
+                val favoriteItem: NetworkTraktUserListItemResponseItem = item
+
+                val (id, poster, heroImage) = getImages(favoriteItem.show?.ids?.imdb)
+
+                favoriteItem.show?.originalImageUrl = poster
+                favoriteItem.show?.mediumImageUrl = heroImage
+                favoriteItem.show?.ids?.tvMazeID = id
+
+                shows.add(item.asDatabaseModel())
+            }
+        }
+
+        upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_FAVORITE_SHOWS.tableName)
+        upnextDao.deleteAllFavoriteShows()
+        if (shows.isNotEmpty()) {
+            upnextDao.insertAllFavoriteShows(*shows.toTypedArray())
+        }
+        upnextDao.insertTableUpdateLog(
+            DatabaseTableUpdate(
+                table_name = DatabaseTables.TABLE_FAVORITE_SHOWS.tableName,
+                last_updated = System.currentTimeMillis()
+            )
+        )
     }
 
     private suspend fun getUserSettings(

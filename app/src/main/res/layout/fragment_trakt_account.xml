@@ -33,6 +33,7 @@
                 tools:visibility="visible" />
 
             <include
+                android:id="@+id/layout_not_authorized"
                 layout="@layout/layout_trakt_account_not_authorized"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
@@ -44,6 +45,7 @@
                 app:viewModel="@{viewModel}" />
 
             <include
+                android:id="@+id/layout_authorized"
                 layout="@layout/layout_trakt_account_authorized"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"

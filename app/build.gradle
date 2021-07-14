@@ -160,7 +160,11 @@ dependencies {
     // Paging
     implementation "androidx.paging:paging-runtime-ktx:$paging_version"
 
+    // Chrome Custom Tabs
     implementation "androidx.browser:browser:$custom_tabs_version"
+
+    // Flexbox
+    implementation "com.google.android.flexbox:flexbox:$flexbox_version"
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

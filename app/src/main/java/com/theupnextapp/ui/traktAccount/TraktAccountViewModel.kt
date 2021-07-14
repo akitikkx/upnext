@@ -2,10 +2,14 @@ package com.theupnextapp.ui.traktAccount
 
 import androidx.lifecycle.*
 import androidx.savedstate.SavedStateRegistryOwner
+import androidx.work.Data
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
 import com.theupnextapp.domain.TraktAccessToken
 import com.theupnextapp.domain.areVariablesEmpty
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.datastore.UpnextDataStoreManager
+import com.theupnextapp.work.RefreshFavoriteShowsWorker
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -18,7 +22,8 @@ import java.util.concurrent.TimeUnit
 class TraktAccountViewModel(
     savedStateHandle: SavedStateHandle,
     private val traktRepository: TraktRepository,
-    private val upnextDataStoreManager: UpnextDataStoreManager
+    private val upnextDataStoreManager: UpnextDataStoreManager,
+    private val workManager: WorkManager
 ) : ViewModel() {
 
     private val viewModelJob = SupervisorJob()
@@ -41,6 +46,12 @@ class TraktAccountViewModel(
 
     private val _confirmDisconnectFromTrakt = MutableLiveData<Boolean>()
     val confirmDisconnectFromTrakt: LiveData<Boolean> = _confirmDisconnectFromTrakt
+
+    val favoriteShowsEmpty = MediatorLiveData<Boolean>().apply {
+        addSource(favoriteShows) {
+            value = it.isNullOrEmpty() == true
+        }
+    }
 
     fun onConnectToTraktClick() {
         _openCustomTab.postValue(true)
@@ -113,11 +124,17 @@ class TraktAccountViewModel(
         }
     }
 
-    fun onAuthorizationConfirmation(){
+    fun onAuthorizationConfirmation() {
         if (!prefTraktAccessToken.value?.access_token.isNullOrEmpty()) {
-            viewModelScope.launch {
-                traktRepository.getFavoriteShows(prefTraktAccessToken.value?.access_token)
-            }
+            val workerData = Data.Builder().putString(
+                RefreshFavoriteShowsWorker.ARG_TOKEN,
+                prefTraktAccessToken.value?.access_token
+            )
+            val refreshFavoritesWork =
+                OneTimeWorkRequest.Builder(RefreshFavoriteShowsWorker::class.java)
+            refreshFavoritesWork.setInputData(workerData.build())
+
+            workManager.enqueue(refreshFavoritesWork.build())
         }
     }
 
@@ -131,15 +148,20 @@ class TraktAccountViewModel(
     class Factory @AssistedInject constructor(
         @Assisted owner: SavedStateRegistryOwner,
         private val traktRepository: TraktRepository,
-        private val upnextDataStoreManager: UpnextDataStoreManager
+        private val upnextDataStoreManager: UpnextDataStoreManager,
+        private val workManager: WorkManager
     ) : AbstractSavedStateViewModelFactory(owner, null) {
         override fun <T : ViewModel?> create(
             key: String,
             modelClass: Class<T>,
             handle: SavedStateHandle
         ): T {
-            return TraktAccountViewModel(handle, traktRepository, upnextDataStoreManager) as T
+            return TraktAccountViewModel(
+                handle,
+                traktRepository,
+                upnextDataStoreManager,
+                workManager
+            ) as T
         }
     }
-
 }

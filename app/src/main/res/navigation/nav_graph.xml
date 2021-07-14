@@ -120,6 +120,9 @@
         <argument
             android:name="code"
             app:argType="com.theupnextapp.domain.TraktConnectionArg" />
+        <action
+            android:id="@+id/action_traktAccountFragment_to_showDetailFragment"
+            app:destination="@id/showDetailFragment" />
     </fragment>
 
 </navigation>
