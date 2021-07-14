@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="show"
+            type="com.theupnextapp.domain.TraktUserListItem" />
+
+        <variable
+            name="listener"
+            type="com.theupnextapp.ui.traktAccount.FavoritesAdapter.FavoritesAdapterListener" />
+    </data>
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/margin_horizontal"
+        android:layout_marginEnd="@dimen/margin_horizontal"
+        android:layout_marginBottom="@dimen/margin_vertical_half"
+        android:clickable="true"
+        android:focusable="true"
+        android:onClick="@{(view) -> listener.onFavoriteItemClick(view, show)}"
+        android:transitionName="@{@string/search_transition_name(show.id)}"
+        app:cardPreventCornerOverlap="false">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/selectableItemBackground">
+
+            <FrameLayout
+                android:id="@+id/favorite_poster"
+                android:layout_width="@dimen/poster_frame_width"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ProgressBar
+                    android:id="@+id/poster_progress"
+                    style="?android:attr/progressBarStyleSmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    app:showHideView="@{show.originalImageUrl != null}" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/favorite_item_poster"
+                    android:layout_width="@dimen/poster_frame_width"
+                    android:layout_height="@dimen/shows_list_poster_height"
+                    android:layout_marginEnd="@dimen/margin_horizontal_half"
+                    android:contentDescription="@{String.format(@string/show_poster, show.title)}"
+                    android:scaleType="centerCrop"
+                    app:imageUrl="@{show.originalImageUrl}"
+                    tools:srcCompat="@drawable/loading_list_placeholder" />
+            </FrameLayout>
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:padding="@dimen/padding_standard"
+                android:text="@string/tv_maze_creative_commons_attribution_text_single"
+                android:textAppearance="?attr/textAppearanceCaption"
+                app:layout_constraintEnd_toEndOf="@id/favorite_poster"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/favorite_poster" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+</layout>
