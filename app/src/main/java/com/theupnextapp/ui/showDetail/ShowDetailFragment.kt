@@ -185,6 +185,7 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
         super.onDestroyView()
         _binding = null
         _showCastAdapter = null
+        _showRatingsAdapter = null
     }
 
     override fun onShowCastClick(view: View, castItem: ShowCast) {
