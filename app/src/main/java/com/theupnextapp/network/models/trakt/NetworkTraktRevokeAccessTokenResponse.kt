@@ -1,0 +1,3 @@
+package com.theupnextapp.network.models.trakt
+
+class NetworkTraktRevokeAccessTokenResponse

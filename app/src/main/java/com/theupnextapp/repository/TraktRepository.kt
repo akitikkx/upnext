@@ -102,6 +102,29 @@ class TraktRepository constructor(
         }
     }
 
+    suspend fun revokeTraktAccessToken(traktAccessToken: TraktAccessToken) {
+        if (traktAccessToken.areVariablesEmpty()) return
+
+        withContext(Dispatchers.IO) {
+            try {
+                _isLoading.postValue(true)
+                val revokeRequest = traktAccessToken.access_token?.let {
+                    NetworkTraktRevokeAccessTokenRequest(
+                        client_id = BuildConfig.TRAKT_CLIENT_ID,
+                        client_secret = BuildConfig.TRAKT_CLIENT_SECRET,
+                        token = it
+                    )
+                }
+                revokeRequest?.let { TraktNetwork.traktApi.revokeAccessTokenAsync(it).await() }
+                _isLoading.postValue(false)
+            } catch (e: Exception) {
+                _isLoading.postValue(false)
+                Timber.d(e)
+                firebaseCrashlytics.recordException(e)
+            }
+        }
+    }
+
     suspend fun getTraktAccessRefreshToken(refreshToken: String?) {
         if (refreshToken.isNullOrEmpty()) {
             logTraktException("Could not get the access refresh token due to a null refresh token")
@@ -220,6 +243,13 @@ class TraktRepository constructor(
                 last_updated = System.currentTimeMillis()
             )
         )
+    }
+
+    suspend fun clearFavorites() {
+        withContext(Dispatchers.IO) {
+            upnextDao.deleteAllFavoriteShows()
+            upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_FAVORITE_SHOWS.tableName)
+        }
     }
 
     private suspend fun getUserSettings(

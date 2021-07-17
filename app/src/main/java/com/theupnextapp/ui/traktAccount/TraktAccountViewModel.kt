@@ -7,16 +7,15 @@ import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.theupnextapp.domain.TraktAccessToken
 import com.theupnextapp.domain.areVariablesEmpty
+import com.theupnextapp.domain.isTraktAccessTokenValid
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.datastore.UpnextDataStoreManager
 import com.theupnextapp.work.RefreshFavoriteShowsWorker
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.first
 import java.util.concurrent.TimeUnit
 
 class TraktAccountViewModel(
@@ -62,7 +61,38 @@ class TraktAccountViewModel(
     }
 
     fun onDisconnectConfirm() {
+        viewModelScope.launch {
+            revokeTraktAccessToken()
+            clearTraktPreferences()
+            traktRepository.clearFavorites()
+        }
+    }
 
+    private fun clearTraktPreferences() {
+        viewModelScope.launch {
+            upnextDataStoreManager.apply {
+                saveTraktAccessToken("")
+                saveTraktAccessTokenCreatedAt(UpnextDataStoreManager.NOT_FOUND)
+                saveTraktAccessTokenExpiredIn(UpnextDataStoreManager.NOT_FOUND)
+                saveTraktAccessScope("")
+                saveTraktAccessTokenType("")
+                saveRefreshTraktAccessToken("")
+            }
+        }
+    }
+
+    private fun revokeTraktAccessToken() {
+        val traktAccessToken: TraktAccessToken?
+        runBlocking(Dispatchers.IO) {
+            traktAccessToken = upnextDataStoreManager.traktAccessTokenFlow.first()
+        }
+        if (traktAccessToken != null) {
+            if (!traktAccessToken.access_token.isNullOrEmpty() && traktAccessToken.isTraktAccessTokenValid()) {
+                viewModelScope.launch {
+                    traktRepository.revokeTraktAccessToken(traktAccessToken)
+                }
+            }
+        }
     }
 
     fun onCustomTabOpened() {
@@ -151,6 +181,7 @@ class TraktAccountViewModel(
         private val upnextDataStoreManager: UpnextDataStoreManager,
         private val workManager: WorkManager
     ) : AbstractSavedStateViewModelFactory(owner, null) {
+        @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel?> create(
             key: String,
             modelClass: Class<T>,

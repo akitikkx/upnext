@@ -29,18 +29,18 @@ buildscript {
         firebase_analytics_version = "19.0.0"
         firebase_core_version = "19.0.0"
         firebase_crashlytics_version = "18.1.0"
-        firebase_performance_monitoring_version = "20.0.1"
+        firebase_performance_monitoring_version = "20.0.2"
 
         jsoup_version = "1.8.1"
 
-        kotlin_version = '1.5.0'
+        kotlin_version = '1.5.21'
         kotlin_coroutines_version = "1.4.3"
 
         leakcanary_version = "2.3"
 
         lifecycle_version = "2.3.1"
 
-        material_version = "1.4.0-alpha01"
+        material_version = "1.5.0-alpha01"
 
         moshi_version = "1.8.0"
         

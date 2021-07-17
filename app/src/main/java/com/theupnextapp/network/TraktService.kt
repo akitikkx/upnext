@@ -22,6 +22,9 @@ interface TraktService {
     @POST(" oauth/token")
     fun getAccessRefreshTokenAsync(@Body traktAccessRefreshTokenRequest: NetworkTraktAccessRefreshTokenRequest): Deferred<NetworkTraktAccessRefreshTokenResponse>
 
+    @POST("oauth/revoke")
+    fun revokeAccessTokenAsync(@Body networkTraktRevokeAccessTokenRequest: NetworkTraktRevokeAccessTokenRequest): Deferred<NetworkTraktRevokeAccessTokenResponse>
+
     @GET("shows/{id}/ratings")
     fun getShowRatingsAsync(
         @Path("id") id: String

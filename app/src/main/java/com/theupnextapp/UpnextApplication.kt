@@ -8,6 +8,7 @@ import androidx.work.*
 import com.theupnextapp.common.utils.UpnextPreferenceManager
 import com.theupnextapp.common.utils.models.TableUpdateInterval
 import com.theupnextapp.domain.TraktAccessToken
+import com.theupnextapp.domain.isTraktAccessTokenValid
 import com.theupnextapp.repository.datastore.UpnextDataStoreManager
 import com.theupnextapp.work.RefreshDashboardShowsWorker
 import com.theupnextapp.work.RefreshFavoriteShowsWorker
@@ -96,10 +97,7 @@ class UpnextApplication : Application(), Configuration.Provider {
             traktAccessToken = upnextDataStoreManager.traktAccessTokenFlow.first()
         }
         if (traktAccessToken != null) {
-            if (!traktAccessToken.access_token.isNullOrEmpty() && isTraktAccessTokenValid(
-                    traktAccessToken
-                )
-            ) {
+            if (!traktAccessToken.access_token.isNullOrEmpty() && traktAccessToken.isTraktAccessTokenValid()) {
                 val workerData = Data.Builder().putString(
                     RefreshFavoriteShowsWorker.ARG_TOKEN,
                     traktAccessToken.access_token
