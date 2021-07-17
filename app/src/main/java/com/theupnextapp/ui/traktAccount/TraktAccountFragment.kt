@@ -28,12 +28,12 @@ class TraktAccountFragment : BaseFragment(), FavoritesAdapter.FavoritesAdapterLi
     private var _binding: FragmentTraktAccountBinding? = null
     val binding get() = _binding!!
 
-    private lateinit var favoritesAdapter: FavoritesAdapter
+    private var favoritesAdapter: FavoritesAdapter? = null
 
     @Inject
     lateinit var traktAccountViewModelFactory: TraktAccountViewModel.TraktAccountViewModelFactory
 
-    private val viewModel by viewModels<TraktAccountViewModel>() {
+    private val viewModel by viewModels<TraktAccountViewModel> {
         traktAccountViewModelFactory.create(this)
     }
 
@@ -111,7 +111,7 @@ class TraktAccountFragment : BaseFragment(), FavoritesAdapter.FavoritesAdapterLi
 
         lifecycleScope.launch {
             viewModel.favoriteShows.observe(viewLifecycleOwner, {
-                favoritesAdapter.submitFavoriteShowsList(it)
+                favoritesAdapter?.submitFavoriteShowsList(it)
             })
         }
     }
@@ -119,6 +119,7 @@ class TraktAccountFragment : BaseFragment(), FavoritesAdapter.FavoritesAdapterLi
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        favoritesAdapter = null
     }
 
     override fun onFavoriteItemClick(view: View, favoriteShows: TraktUserListItem) {

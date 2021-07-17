@@ -17,7 +17,7 @@
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/trakt_account_header"
             android:layout_width="0dp"
-            android:layout_height="@dimen/trakt_watchlist_header_height"
+            android:layout_height="@dimen/trakt_account_authorized_logo_height"
             android:layout_marginTop="@dimen/margin_vertical"
             android:contentDescription="@string/trakt_logo_description"
             app:layout_constraintEnd_toEndOf="parent"
