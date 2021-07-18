@@ -49,9 +49,6 @@ interface UpnextDao {
     @Query("delete from schedule_tomorrow")
     fun deleteAllTomorrowShows()
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertAllShowInfo(showInfo: DatabaseShowInfo)
-
     @Query("delete from shows_info where id = :id")
     fun deleteAllShowInfo(id: Int)
 

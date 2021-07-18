@@ -25,6 +25,11 @@ interface TraktService {
     @POST("oauth/revoke")
     fun revokeAccessTokenAsync(@Body networkTraktRevokeAccessTokenRequest: NetworkTraktRevokeAccessTokenRequest): Deferred<NetworkTraktRevokeAccessTokenResponse>
 
+    @GET("shows/{id}")
+    fun getShowInfoAsync(
+        @Path("id") imdbID: String
+    ): Deferred<NetworkTraktShowInfoResponse>
+
     @GET("shows/{id}/ratings")
     fun getShowRatingsAsync(
         @Path("id") id: String

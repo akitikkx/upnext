@@ -264,8 +264,8 @@ class TraktRepository constructor(
         }
     }
 
-    suspend fun addShowToList(traktId: Int?, token: String?) {
-        if (traktId == null) {
+    suspend fun addShowToList(imdbID: String?, token: String?) {
+        if (imdbID.isNullOrEmpty()) {
             logTraktException("Could add the show to the favorites due to a null traktID")
             return
         }
@@ -296,30 +296,35 @@ class TraktRepository constructor(
                         }
                     }
                     if (!favoritesListId.isNullOrEmpty()) {
-                        val addShowToListRequest = NetworkTraktAddShowToListRequest(
-                            shows = listOf(
-                                NetworkTraktAddShowToListRequestShow(
-                                    ids = NetworkTraktAddShowToListRequestShowIds(trakt = traktId)
+                        val showInfoResponse =
+                            TraktNetwork.traktApi.getShowInfoAsync(imdbID).await()
+                        if (showInfoResponse.ids?.trakt != null) {
+                            val addShowToListRequest = NetworkTraktAddShowToListRequest(
+                                shows = listOf(
+                                    NetworkTraktAddShowToListRequestShow(
+                                        ids = NetworkTraktAddShowToListRequestShowIds(trakt = showInfoResponse.ids.trakt)
+                                    )
                                 )
                             )
-                        )
-                        val addToListResponse = userSlug?.let {
-                            TraktNetwork.traktApi.addShowToCustomListAsync(
-                                userSlug = it,
-                                traktId = favoritesListId,
-                                token = "Bearer $token",
-                                networkTraktAddShowToListRequest = addShowToListRequest
-                            ).await()
-                        }
-
-                        if (addToListResponse?.added?.shows == 1) {
-                            val customListItemsResponse =
-                                TraktNetwork.traktApi.getCustomListItemsAsync(
+                            val addToListResponse = userSlug?.let {
+                                TraktNetwork.traktApi.addShowToCustomListAsync(
+                                    userSlug = it,
+                                    traktId = favoritesListId,
                                     token = "Bearer $token",
-                                    userSlug = userSlug,
-                                    traktId = favoritesListId
+                                    networkTraktAddShowToListRequest = addShowToListRequest
                                 ).await()
-                            handleTraktUserListItemsResponse(customListItemsResponse)
+                            }
+
+                            if (addToListResponse?.added?.shows == 1) {
+                                val customListItemsResponse =
+                                    TraktNetwork.traktApi.getCustomListItemsAsync(
+                                        token = "Bearer $token",
+                                        userSlug = userSlug,
+                                        traktId = favoritesListId
+                                    ).await()
+                                handleTraktUserListItemsResponse(customListItemsResponse)
+                                checkIfShowIsFavorite(imdbID)
+                            }
                         }
                     }
                 }
