@@ -72,6 +72,9 @@ class TraktRepository constructor(
     private val _traktAccessToken = MutableLiveData<TraktAccessToken?>()
     val traktAccessToken: LiveData<TraktAccessToken?> = _traktAccessToken
 
+    private val _favoriteShow = MutableLiveData<TraktUserListItem>()
+    val favoriteShow: LiveData<TraktUserListItem> = _favoriteShow
+
     suspend fun getTraktAccessToken(code: String?) {
         if (code.isNullOrEmpty()) {
             logTraktException("Could not get the access token due to a null code")
@@ -249,6 +252,15 @@ class TraktRepository constructor(
         withContext(Dispatchers.IO) {
             upnextDao.deleteAllFavoriteShows()
             upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_FAVORITE_SHOWS.tableName)
+        }
+    }
+
+    suspend fun checkIfShowIsFavorite(imdbID: String?) {
+        if (imdbID.isNullOrEmpty()) return
+
+        withContext(Dispatchers.IO) {
+            val show = upnextDao.getFavoriteShow(imdbID)
+            _favoriteShow.postValue(show?.asDomainModel())
         }
     }
 

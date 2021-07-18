@@ -17,3 +17,11 @@ fun favoriteTitleAndYear(view: TextView, show: TraktUserListItem) {
         )
     }
 }
+@BindingAdapter("addRemoveFavoriteBtnText")
+fun addRemoveFavoriteBtnText(view: TextView, traktUserListItem: TraktUserListItem?) {
+    if (traktUserListItem == null) {
+        view.text = view.resources.getString(R.string.btn_show_detail_add_to_favorites)
+    } else {
+        view.text = view.resources.getString(R.string.btn_show_detail_remove_from_favorites)
+    }
+}

@@ -96,4 +96,7 @@ interface UpnextDao {
 
     @Query("select * from favorite_shows")
     fun getFavoriteShows(): LiveData<List<DatabaseFavoriteShows>>
+
+    @Query("select * from favorite_shows where imdbID = :imdbID")
+    fun getFavoriteShow(imdbID: String): DatabaseFavoriteShows?
 }
