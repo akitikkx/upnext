@@ -17,9 +17,9 @@ import kotlinx.coroutines.launch
 
 class ShowDetailViewModel @AssistedInject constructor(
     upnextRepository: UpnextRepository,
+    upnextDataStoreManager: UpnextDataStoreManager,
+    workManager: WorkManager,
     private val traktRepository: TraktRepository,
-    private val upnextDataStoreManager: UpnextDataStoreManager,
-    private val workManager: WorkManager,
     @Assisted show: ShowDetailArg
 ) : BaseTraktViewModel(
     traktRepository,
@@ -108,7 +108,15 @@ class ShowDetailViewModel @AssistedInject constructor(
         viewModelScope.launch {
             if (favoriteShow.value != null) {
                 val traktUserListItem = favoriteShow.value
-                traktRepository.removeShowFromList(traktUserListItem, prefTraktAccessToken.value?.access_token)
+                traktRepository.removeShowFromList(
+                    traktUserListItem,
+                    prefTraktAccessToken.value?.access_token
+                )
+            } else {
+                traktRepository.addShowToList(
+                    showInfo.value?.imdbID,
+                    prefTraktAccessToken.value?.access_token
+                )
             }
         }
     }
