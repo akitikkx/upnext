@@ -105,7 +105,12 @@ class ShowDetailViewModel @AssistedInject constructor(
     }
 
     fun onAddRemoveFavoriteClick() {
-
+        viewModelScope.launch {
+            if (favoriteShow.value != null) {
+                val traktUserListItem = favoriteShow.value
+                traktRepository.removeShowFromList(traktUserListItem, prefTraktAccessToken.value?.access_token)
+            }
+        }
     }
 
     fun onSeasonsNavigationComplete() {

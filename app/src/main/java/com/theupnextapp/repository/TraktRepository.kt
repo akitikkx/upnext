@@ -264,6 +264,146 @@ class TraktRepository constructor(
         }
     }
 
+    suspend fun addShowToList(traktId: Int?, token: String?) {
+        if (traktId == null) {
+            logTraktException("Could add the show to the favorites due to a null traktID")
+            return
+        }
+        withContext(Dispatchers.IO) {
+            try {
+                _isLoading.postValue(true)
+                var hasFavoritesList = false
+                var favoritesListId: String? = null
+
+                val userSettings =
+                    TraktNetwork.traktApi.getUserSettingsAsync(token = "Bearer $token").await()
+                if (!userSettings.user?.ids?.slug.isNullOrEmpty()) {
+                    val userSlug = userSettings.user?.ids?.slug
+                    val userCustomLists = getUserSettings(userSlug, token)
+
+                    if (!userCustomLists.isNullOrEmpty()) {
+                        for (listItem in userCustomLists) {
+                            if (listItem.name == FAVORITES_LIST_NAME) {
+                                hasFavoritesList = true
+                                favoritesListId = listItem.ids?.slug
+                            }
+                        }
+                    }
+                    if (!hasFavoritesList) {
+                        val createCustomListResponse = createCustomList(userSlug, token)
+                        if (createCustomListResponse?.ids?.trakt != null) {
+                            favoritesListId = createCustomListResponse.ids.slug
+                        }
+                    }
+                    if (!favoritesListId.isNullOrEmpty()) {
+                        val addShowToListRequest = NetworkTraktAddShowToListRequest(
+                            shows = listOf(
+                                NetworkTraktAddShowToListRequestShow(
+                                    ids = NetworkTraktAddShowToListRequestShowIds(trakt = traktId)
+                                )
+                            )
+                        )
+                        val addToListResponse = userSlug?.let {
+                            TraktNetwork.traktApi.addShowToCustomListAsync(
+                                userSlug = it,
+                                traktId = favoritesListId,
+                                token = "Bearer $token",
+                                networkTraktAddShowToListRequest = addShowToListRequest
+                            ).await()
+                        }
+
+                        if (addToListResponse?.added?.shows == 1) {
+                            val customListItemsResponse =
+                                TraktNetwork.traktApi.getCustomListItemsAsync(
+                                    token = "Bearer $token",
+                                    userSlug = userSlug,
+                                    traktId = favoritesListId
+                                ).await()
+                            handleTraktUserListItemsResponse(customListItemsResponse)
+                        }
+                    }
+                }
+                _isLoading.postValue(false)
+            } catch (e: Exception) {
+                _isLoading.postValue(false)
+                Timber.d(e)
+                firebaseCrashlytics.recordException(e)
+            }
+        }
+    }
+
+    /**
+     * Remove a show from the personal list on Trakt
+     */
+    suspend fun removeShowFromList(traktUserListItem: TraktUserListItem?, token: String?) {
+        if (traktUserListItem?.traktID == null) {
+            logTraktException("Could remove the show from the favorites due to a null traktID")
+            return
+        }
+        withContext(Dispatchers.IO) {
+            try {
+                _isLoading.postValue(true)
+                var hasFavoritesList = false
+                var favoritesListId: String? = null
+
+                val userSettings =
+                    TraktNetwork.traktApi.getUserSettingsAsync(token = "Bearer $token").await()
+                if (!userSettings.user?.ids?.slug.isNullOrEmpty()) {
+                    val userSlug = userSettings.user?.ids?.slug
+                    val userCustomLists = getUserSettings(userSlug, token)
+
+                    if (!userCustomLists.isNullOrEmpty()) {
+                        for (listItem in userCustomLists) {
+                            if (listItem.name == FAVORITES_LIST_NAME) {
+                                hasFavoritesList = true
+                                favoritesListId = listItem.ids?.slug
+                            }
+                        }
+                    }
+                    if (!hasFavoritesList) {
+                        val createCustomListResponse = createCustomList(userSlug, token)
+                        if (createCustomListResponse?.ids?.trakt != null) {
+                            favoritesListId = createCustomListResponse.ids.slug
+                        }
+                    }
+                    if (!favoritesListId.isNullOrEmpty()) {
+                        val removeShowFromListRequest = NetworkTraktRemoveShowFromListRequest(
+                            shows = listOf(
+                                NetworkTraktRemoveShowFromListRequestShow(
+                                    ids = NetworkTraktRemoveShowFromListRequestShowIds(trakt = traktUserListItem.traktID)
+                                )
+                            )
+                        )
+                        val removeFromListResponse = userSlug?.let {
+                            TraktNetwork.traktApi.removeShowFromCustomListAsync(
+                                userSlug = it,
+                                traktId = favoritesListId,
+                                token = "Bearer $token",
+                                networkTraktRemoveShowFromListRequest = removeShowFromListRequest
+                            ).await()
+                        }
+
+                        if (removeFromListResponse?.deleted?.shows == 1) {
+                            val customListItemsResponse =
+                                TraktNetwork.traktApi.getCustomListItemsAsync(
+                                    token = "Bearer $token",
+                                    userSlug = userSlug,
+                                    traktId = favoritesListId
+                                ).await()
+                            handleTraktUserListItemsResponse(customListItemsResponse)
+                            checkIfShowIsFavorite(traktUserListItem.imdbID)
+                        }
+                    }
+                }
+                _isLoading.postValue(false)
+            } catch (e: Exception) {
+                _isLoading.postValue(false)
+                Timber.d(e)
+                firebaseCrashlytics.recordException(e)
+            }
+        }
+    }
+
     private suspend fun getUserSettings(
         userSlug: String?,
         token: String?
