@@ -164,6 +164,18 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
             }
             showRatingsAdapter?.submitList(distributionList.asReversed())
         })
+
+        viewModel.prefTraktAccessToken.observe(viewLifecycleOwner, {
+            if (it != null) {
+                viewModel.onPrefAccessTokenRetrieved(it)
+            }
+        })
+
+        viewModel.isAuthorizedOnTrakt.observe(viewLifecycleOwner, {
+            if (it) {
+                viewModel.onAuthorizationConfirmation()
+            }
+        })
     }
 
     override fun onResume() {

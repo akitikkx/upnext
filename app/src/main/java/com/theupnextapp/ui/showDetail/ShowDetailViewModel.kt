@@ -1,9 +1,12 @@
 package com.theupnextapp.ui.showDetail
 
 import androidx.lifecycle.*
+import androidx.work.WorkManager
 import com.theupnextapp.domain.*
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.UpnextRepository
+import com.theupnextapp.repository.datastore.UpnextDataStoreManager
+import com.theupnextapp.ui.common.BaseTraktViewModel
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -15,8 +18,14 @@ import kotlinx.coroutines.launch
 class ShowDetailViewModel @AssistedInject constructor(
     upnextRepository: UpnextRepository,
     private val traktRepository: TraktRepository,
+    private val upnextDataStoreManager: UpnextDataStoreManager,
+    private val workManager: WorkManager,
     @Assisted show: ShowDetailArg
-) : ViewModel() {
+) : BaseTraktViewModel(
+    traktRepository,
+    upnextDataStoreManager,
+    workManager
+) {
 
     private val viewModelJob = SupervisorJob()
 
@@ -36,6 +45,8 @@ class ShowDetailViewModel @AssistedInject constructor(
 
     val isLoading = MediatorLiveData<Boolean>()
 
+    val isFavoriteShow = MediatorLiveData<Boolean>()
+
     private val isUpnextRepositoryLoading = upnextRepository.isLoading
 
     private val isTraktRepositoryLoading = traktRepository.isLoading
@@ -50,6 +61,8 @@ class ShowDetailViewModel @AssistedInject constructor(
 
     val showStats = traktRepository.traktShowStats
 
+    val favoriteShow = traktRepository.favoriteShow
+
     init {
         viewModelScope.launch {
             show.showId?.let {
@@ -59,13 +72,19 @@ class ShowDetailViewModel @AssistedInject constructor(
             }
             traktRepository.getTraktShowRating(showInfo.value?.imdbID)
             traktRepository.getTraktShowStats(showInfo.value?.imdbID)
+            traktRepository.checkIfShowIsFavorite(showInfo.value?.imdbID)
         }
 
         isLoading.addSource(isUpnextRepositoryLoading) { result ->
             isLoading.value = result == true
         }
+
         isLoading.addSource(isTraktRepositoryLoading) { result ->
             isLoading.value = result == true
+        }
+
+        isFavoriteShow.addSource(favoriteShow) { result ->
+            isFavoriteShow.value = result != null
         }
     }
 
@@ -85,6 +104,10 @@ class ShowDetailViewModel @AssistedInject constructor(
         _navigateToSeasons.value = true
     }
 
+    fun onAddRemoveFavoriteClick() {
+
+    }
+
     fun onSeasonsNavigationComplete() {
         _navigateToSeasons.value = false
     }
@@ -100,6 +123,7 @@ class ShowDetailViewModel @AssistedInject constructor(
     }
 
     companion object {
+        @Suppress("UNCHECKED_CAST")
         fun provideFactory(
             assistedFactory: ShowDetailViewModelFactory,
             show: ShowDetailArg

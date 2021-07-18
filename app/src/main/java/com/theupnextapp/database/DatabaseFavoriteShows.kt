@@ -37,3 +37,19 @@ fun List<DatabaseFavoriteShows>.asDomainModel(): List<TraktUserListItem> {
         )
     }
 }
+
+fun DatabaseFavoriteShows.asDomainModel(): TraktUserListItem {
+    return TraktUserListItem(
+        id = id,
+        title = title,
+        slug = slug,
+        year = year,
+        mediumImageUrl = mediumImageUrl,
+        originalImageUrl = originalImageUrl,
+        imdbID = imdbID,
+        tmdbID = tmdbID,
+        traktID = traktID,
+        tvdbID = tvdbID,
+        tvMazeID = tvMazeID
+    )
+}

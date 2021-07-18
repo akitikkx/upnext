@@ -35,7 +35,9 @@
     <string name="show_detail_get_watched_progress">Your Watched Progress</string>
     <string name="show_detail_genres_heading">Genres</string>
     <string name="show_detail_air_days_heading">Airs on</string>
-    <string name="show_detail_seasons">Seasons</string>
+    <string name="btn_show_detail_seasons">Seasons</string>
+    <string name="btn_show_detail_add_to_favorites">Add favorite</string>
+    <string name="btn_show_detail_remove_from_favorites">Remove favorite</string>
     <string name="show_detail_cast_list">Cast</string>
     <string name="show_detail_rating_heading">Trakt Rating</string>
     <string name="show_detail_plays_heading">Trakt Plays</string>
