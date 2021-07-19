@@ -50,10 +50,23 @@
         <action
             android:id="@+id/action_showDetailFragment_to_showSeasonsFragment"
             app:destination="@id/showSeasonsFragment"
-            app:enterAnim="@anim/slide_in_left" />
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:launchSingleTop="false"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_out_left"
+            app:popUpTo="@id/showSeasonsFragment"
+            app:popUpToInclusive="true" />
         <action
             android:id="@+id/action_showDetailFragment_to_traktAccountFragment"
-            app:destination="@id/traktAccountFragment" />
+            app:destination="@id/traktAccountFragment"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:launchSingleTop="true"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_out_left"
+            app:popUpTo="@id/traktAccountFragment"
+            app:popUpToInclusive="true" />
     </fragment>
 
     <fragment
@@ -63,7 +76,13 @@
         <action
             android:id="@+id/action_searchFragment_to_showDetailFragment"
             app:destination="@id/showDetailFragment"
-            app:popExitAnim="@anim/slide_out_right" />
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:launchSingleTop="false"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_out_left"
+            app:popUpTo="@id/showDetailFragment"
+            app:popUpToInclusive="true" />
     </fragment>
 
     <fragment
@@ -99,7 +118,14 @@
             app:argType="com.theupnextapp.domain.ShowDetailArg" />
         <action
             android:id="@+id/action_showSeasonsFragment_to_showSeasonEpisodesFragment"
-            app:destination="@id/showSeasonEpisodesFragment" />
+            app:destination="@id/showSeasonEpisodesFragment"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:launchSingleTop="false"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_out_left"
+            app:popUpTo="@id/showSeasonEpisodesFragment"
+            app:popUpToInclusive="true" />
     </fragment>
 
     <fragment
@@ -109,7 +135,14 @@
         tools:layout="@layout/fragment_show_season_episodes">
         <action
             android:id="@+id/action_showSeasonEpisodesFragment_to_showSeasonsFragment"
-            app:destination="@id/showSeasonsFragment" />
+            app:destination="@id/showSeasonsFragment"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:launchSingleTop="false"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_out_left"
+            app:popUpTo="@id/showSeasonsFragment"
+            app:popUpToInclusive="true" />
         <argument
             android:name="showSeasonEpisode"
             app:argType="com.theupnextapp.domain.ShowSeasonEpisodesArg" />
@@ -122,12 +155,17 @@
         tools:layout="@layout/fragment_trakt_account">
         <argument
             android:name="code"
-            app:nullable="true"
-            app:argType="com.theupnextapp.domain.TraktConnectionArg" />
+            app:argType="com.theupnextapp.domain.TraktConnectionArg"
+            app:nullable="true" />
         <action
             android:id="@+id/action_traktAccountFragment_to_showDetailFragment"
             app:destination="@id/showDetailFragment"
-            app:launchSingleTop="true"/>
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_out_left"
+            app:popUpTo="@id/showDetailFragment"
+            app:popUpToInclusive="true" />
     </fragment>
 
 </navigation>
