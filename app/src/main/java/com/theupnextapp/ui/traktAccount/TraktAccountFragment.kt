@@ -100,6 +100,7 @@ class TraktAccountFragment : BaseFragment(), FavoritesAdapter.FavoritesAdapterLi
                         dialog.dismiss()
                     }
                     .show()
+                viewModel.onDisconnectFromTraktConfirmed()
             }
         })
 
@@ -109,11 +110,9 @@ class TraktAccountFragment : BaseFragment(), FavoritesAdapter.FavoritesAdapterLi
             }
         })
 
-        lifecycleScope.launch {
-            viewModel.favoriteShows.observe(viewLifecycleOwner, {
-                favoritesAdapter?.submitFavoriteShowsList(it)
-            })
-        }
+        viewModel.favoriteShows.observe(viewLifecycleOwner, {
+            favoritesAdapter?.submitFavoriteShowsList(it)
+        })
     }
 
     override fun onDestroyView() {

@@ -33,6 +33,7 @@ import com.theupnextapp.common.utils.customTab.TabConnectionCallback
 import com.theupnextapp.common.utils.customTab.WebviewFallback
 import com.theupnextapp.domain.TraktConnectionArg
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), TabConnectionCallback {
@@ -51,7 +52,8 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
 
     private lateinit var snackbar: Snackbar
 
-    private lateinit var customTabComponent: CustomTabComponent
+    @Inject
+    lateinit var customTabComponent: CustomTabComponent
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,7 +63,6 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
         _bottomNavigationView = findViewById(R.id.bottom_navigation)
         _container = findViewById(R.id.container)
 
-        customTabComponent = CustomTabComponent()
         customTabComponent.setConnectionCallback(this)
 
         setSupportActionBar(toolbar)
@@ -71,13 +72,14 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
                 R.id.splashScreenFragment,
                 R.id.searchFragment,
                 R.id.dashboardFragment,
-                R.id.exploreFragment
+                R.id.exploreFragment,
+                R.id.traktAccountFragment
             )
             .build()
 
         setupActionBarWithNavController(navController, appBarConfiguration)
         bottomNavigationView?.setupWithNavController(navController)
-        bottomNavigationView?.setOnNavigationItemReselectedListener {  }
+        bottomNavigationView?.setOnItemReselectedListener {  }
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -88,12 +90,6 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
         return when (item.itemId) {
             R.id.menu_settings -> {
                 navController.navigate(R.id.settingsFragment)
-                true
-            }
-            R.id.menu_account -> {
-                if (navController.currentDestination?.id != R.id.traktAccountFragment) {
-                    navController.navigate(R.id.traktAccountFragment)
-                }
                 true
             }
             else -> item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(

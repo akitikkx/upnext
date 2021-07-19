@@ -11,54 +11,59 @@
 
     </data>
 
-    <androidx.core.widget.NestedScrollView
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:context=".ui.traktAccount.TraktAccountFragment">
+            android:layout_height="match_parent">
 
-            <com.google.android.material.progressindicator.LinearProgressIndicator
-                android:id="@+id/trakt_account_progress_indicator"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:indeterminate="true"
-                android:visibility="gone"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:showHideView="@{viewModel.isLoading}"
-                tools:visibility="visible" />
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-            <include
-                android:id="@+id/layout_not_authorized"
-                layout="@layout/layout_trakt_account_not_authorized"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:showHideView="@{!viewModel.isAuthorizedOnTrakt}"
-                app:viewModel="@{viewModel}" />
+                <include
+                    android:id="@+id/layout_not_authorized"
+                    layout="@layout/layout_trakt_account_not_authorized"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:visibility="gone"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:showHideView="@{!viewModel.isAuthorizedOnTrakt}"
+                    app:viewModel="@{viewModel}" />
 
-            <include
-                android:id="@+id/layout_authorized"
-                layout="@layout/layout_trakt_account_authorized"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:showHideView="@{viewModel.isAuthorizedOnTrakt}"
-                app:viewModel="@{viewModel}" />
+                <include
+                    android:id="@+id/layout_authorized"
+                    layout="@layout/layout_trakt_account_authorized"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:visibility="gone"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:showHideView="@{viewModel.isAuthorizedOnTrakt}"
+                    app:viewModel="@{viewModel}" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </androidx.core.widget.NestedScrollView>
+        </androidx.core.widget.NestedScrollView>
+
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/trakt_account_progress_indicator"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:showHideView="@{viewModel.isLoading}"
+            tools:visibility="visible" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

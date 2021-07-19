@@ -53,6 +53,10 @@ class TraktAccountViewModel(
         _confirmDisconnectFromTrakt.postValue(true)
     }
 
+    fun onDisconnectFromTraktConfirmed() {
+        _confirmDisconnectFromTrakt.postValue(false)
+    }
+
     fun onDisconnectConfirm() {
         viewModelScope.launch {
             revokeTraktAccessToken()
