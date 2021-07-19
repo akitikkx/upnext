@@ -51,6 +51,9 @@
             android:id="@+id/action_showDetailFragment_to_showSeasonsFragment"
             app:destination="@id/showSeasonsFragment"
             app:enterAnim="@anim/slide_in_left" />
+        <action
+            android:id="@+id/action_showDetailFragment_to_traktAccountFragment"
+            app:destination="@id/traktAccountFragment" />
     </fragment>
 
     <fragment
@@ -119,10 +122,12 @@
         tools:layout="@layout/fragment_trakt_account">
         <argument
             android:name="code"
+            app:nullable="true"
             app:argType="com.theupnextapp.domain.TraktConnectionArg" />
         <action
             android:id="@+id/action_traktAccountFragment_to_showDetailFragment"
-            app:destination="@id/showDetailFragment" />
+            app:destination="@id/showDetailFragment"
+            app:launchSingleTop="true"/>
     </fragment>
 
 </navigation>

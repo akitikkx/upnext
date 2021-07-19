@@ -155,7 +155,7 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
             showRatingsAdapter?.setVotes(it.votes)
 
             val distributionList = mutableListOf<Distribution>()
-            it.distribution?.forEach { (key,value) ->
+            it.distribution?.forEach { (key, value) ->
                 val distribution = Distribution(
                     score = key,
                     value = value
@@ -174,6 +174,17 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
         viewModel.isAuthorizedOnTrakt.observe(viewLifecycleOwner, {
             if (it) {
                 viewModel.onAuthorizationConfirmation()
+            }
+        })
+
+        viewModel.navigateToAccountScreen.observe(viewLifecycleOwner, {
+            if (it) {
+                findNavController().navigate(
+                    ShowDetailFragmentDirections.actionShowDetailFragmentToTraktAccountFragment(
+                        null
+                    )
+                )
+                viewModel.onNavigateToAccountScreenComplete()
             }
         })
     }
