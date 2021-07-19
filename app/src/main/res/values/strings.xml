@@ -106,6 +106,7 @@
         Upnext: TV Series Manager? You will need to reconnect your Trakt account for the data to be synchronized again.</string>
     <string name="favorite_title_and_release_year">%1$s (%2$s)</string>
     <string name="favorite_title_no_year">%1$s</string>
+    <string name="trakt_account_favorites_empty">You currently have no favorite shows. Search for your favorite show and click \'Add Favorite\' so it can appear here.</string>
 
     <!-- Library -->
     <string name="library_connect_to_trakt_dialog_title">Heads up!</string>
