@@ -32,25 +32,13 @@
                     android:layout_height="match_parent"
                     android:paddingBottom="@dimen/margin_vertical">
 
-                    <com.google.android.material.progressindicator.LinearProgressIndicator
-                        android:id="@+id/show_detail_progress_indicator"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:indeterminate="true"
-                        android:visibility="gone"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:showHideView="@{viewModel.isLoading}"
-                        tools:visibility="visible" />
-
                     <FrameLayout
                         android:id="@+id/show_detail_backdrop"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/show_detail_progress_indicator">
+                        app:layout_constraintTop_toTopOf="parent">
 
                         <ProgressBar
                             android:id="@+id/poster_progress"
@@ -282,6 +270,18 @@
             </com.google.android.material.card.MaterialCardView>
 
         </androidx.core.widget.NestedScrollView>
+
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/show_detail_progress_indicator"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:showHideView="@{viewModel.isLoading}"
+            tools:visibility="visible" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
