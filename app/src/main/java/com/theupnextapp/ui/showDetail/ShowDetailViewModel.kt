@@ -43,6 +43,9 @@ class ShowDetailViewModel @AssistedInject constructor(
     private val _navigateToSeasons = MutableLiveData<Boolean>()
     val navigateToSeasons: LiveData<Boolean> = _navigateToSeasons
 
+    private val _navigateToAccountScreen = MutableLiveData<Boolean>()
+    val navigateToAccountScreen = _navigateToAccountScreen
+
     val isLoading = MediatorLiveData<Boolean>()
 
     val isFavoriteShow = MediatorLiveData<Boolean>()
@@ -123,6 +126,14 @@ class ShowDetailViewModel @AssistedInject constructor(
 
     fun onSeasonsNavigationComplete() {
         _navigateToSeasons.value = false
+    }
+
+    fun onTraktPromptTextClick() {
+        _navigateToAccountScreen.postValue(true)
+    }
+
+    fun onNavigateToAccountScreenComplete() {
+        _navigateToAccountScreen.postValue(false)
     }
 
     override fun onCleared() {

@@ -30,5 +30,21 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_horizontal_double"
+            android:layout_marginEnd="@dimen/margin_horizontal_double"
+            android:clickable="true"
+            android:enabled="@{!viewModel.isLoading}"
+            android:focusable="true"
+            android:gravity="center_horizontal"
+            android:onClick="@{() -> viewModel.onTraktPromptTextClick()}"
+            android:text="@string/show_detail_connect_trakt_prompt"
+            android:textAppearance="?attr/textAppearanceCaption"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btn_show_seasons" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
