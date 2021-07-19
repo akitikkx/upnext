@@ -82,3 +82,9 @@ val MIGRATION_22_23: Migration = object : Migration(22, 23) {
         database.execSQL("CREATE TABLE IF NOT EXISTS favorite_shows (id INTEGER, title TEXT, year TEXT, mediumImageUrl TEXT, originalImageUrl TEXT, imdbID TEXT, slug TEXT, tmdbID INTEGER, traktID INTEGER, tvdbID INTEGER, tvMazeID INTEGER, PRIMARY KEY(id))")
     }
 }
+
+val MIGRATION_23_24: Migration = object: Migration(23, 24) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL("CREATE TABLE IF NOT EXISTS trakt_access (id INTEGER NOT NULL, access_token TEXT, created_at INTEGER, expires_in INTEGER, refresh_token TEXT, scope TEXT, token_type TEXT, PRIMARY KEY(id))")
+    }
+}

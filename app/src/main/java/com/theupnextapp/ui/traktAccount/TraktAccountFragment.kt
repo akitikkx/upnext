@@ -75,18 +75,6 @@ class TraktAccountFragment : BaseFragment(), FavoritesAdapter.FavoritesAdapterLi
             }
         })
 
-        viewModel.traktAccessToken.observe(viewLifecycleOwner, {
-            if (it != null) {
-                viewModel.onAccessTokenReceived(it)
-            }
-        })
-
-        viewModel.prefTraktAccessToken.observe(viewLifecycleOwner, {
-            if (it != null) {
-                viewModel.onPrefAccessTokenRetrieved(it)
-            }
-        })
-
         viewModel.confirmDisconnectFromTrakt.observe(viewLifecycleOwner, {
             if (it == true) {
                 MaterialAlertDialogBuilder(requireActivity())
@@ -101,12 +89,6 @@ class TraktAccountFragment : BaseFragment(), FavoritesAdapter.FavoritesAdapterLi
                     }
                     .show()
                 viewModel.onDisconnectFromTraktConfirmed()
-            }
-        })
-
-        viewModel.isAuthorizedOnTrakt.observe(viewLifecycleOwner, {
-            if (it) {
-                viewModel.onAuthorizationConfirmation()
             }
         })
 

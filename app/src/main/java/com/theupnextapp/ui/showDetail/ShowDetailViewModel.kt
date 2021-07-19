@@ -5,7 +5,6 @@ import androidx.work.WorkManager
 import com.theupnextapp.domain.*
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.UpnextRepository
-import com.theupnextapp.repository.datastore.UpnextDataStoreManager
 import com.theupnextapp.ui.common.BaseTraktViewModel
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -17,13 +16,11 @@ import kotlinx.coroutines.launch
 
 class ShowDetailViewModel @AssistedInject constructor(
     upnextRepository: UpnextRepository,
-    upnextDataStoreManager: UpnextDataStoreManager,
     workManager: WorkManager,
     private val traktRepository: TraktRepository,
     @Assisted show: ShowDetailArg
 ) : BaseTraktViewModel(
     traktRepository,
-    upnextDataStoreManager,
     workManager
 ) {
 
@@ -43,9 +40,6 @@ class ShowDetailViewModel @AssistedInject constructor(
     private val _navigateToSeasons = MutableLiveData<Boolean>()
     val navigateToSeasons: LiveData<Boolean> = _navigateToSeasons
 
-    private val _navigateToAccountScreen = MutableLiveData<Boolean>()
-    val navigateToAccountScreen = _navigateToAccountScreen
-
     val isLoading = MediatorLiveData<Boolean>()
 
     val isFavoriteShow = MediatorLiveData<Boolean>()
@@ -64,7 +58,7 @@ class ShowDetailViewModel @AssistedInject constructor(
 
     val showStats = traktRepository.traktShowStats
 
-    val favoriteShow = traktRepository.favoriteShow
+    private val favoriteShow = traktRepository.favoriteShow
 
     init {
         viewModelScope.launch {
@@ -109,31 +103,27 @@ class ShowDetailViewModel @AssistedInject constructor(
 
     fun onAddRemoveFavoriteClick() {
         viewModelScope.launch {
-            if (favoriteShow.value != null) {
-                val traktUserListItem = favoriteShow.value
-                traktRepository.removeShowFromList(
-                    traktUserListItem,
-                    prefTraktAccessToken.value?.access_token
-                )
-            } else {
-                traktRepository.addShowToList(
-                    showInfo.value?.imdbID,
-                    prefTraktAccessToken.value?.access_token
-                )
+            val accessToken = traktAccessToken.value
+            if (accessToken != null) {
+                if (favoriteShow.value != null) {
+                    val traktUserListItem = favoriteShow.value
+
+                    traktRepository.removeShowFromList(
+                        traktUserListItem,
+                        accessToken.access_token
+                    )
+                } else {
+                    traktRepository.addShowToList(
+                        showInfo.value?.imdbID,
+                        accessToken.access_token
+                    )
+                }
             }
         }
     }
 
     fun onSeasonsNavigationComplete() {
         _navigateToSeasons.value = false
-    }
-
-    fun onTraktPromptTextClick() {
-        _navigateToAccountScreen.postValue(true)
-    }
-
-    fun onNavigateToAccountScreenComplete() {
-        _navigateToAccountScreen.postValue(false)
     }
 
     override fun onCleared() {

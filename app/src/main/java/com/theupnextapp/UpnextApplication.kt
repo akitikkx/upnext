@@ -4,21 +4,18 @@ import android.app.Application
 import android.content.Context
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.hilt.work.HiltWorkerFactory
-import androidx.work.*
+import androidx.work.Configuration
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.theupnextapp.common.utils.UpnextPreferenceManager
 import com.theupnextapp.common.utils.models.TableUpdateInterval
-import com.theupnextapp.domain.TraktAccessToken
-import com.theupnextapp.domain.isTraktAccessTokenValid
-import com.theupnextapp.repository.datastore.UpnextDataStoreManager
 import com.theupnextapp.work.RefreshDashboardShowsWorker
-import com.theupnextapp.work.RefreshFavoriteShowsWorker
 import com.theupnextapp.work.RefreshTraktExploreWorker
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -34,9 +31,6 @@ class UpnextApplication : Application(), Configuration.Provider {
 
     @Inject
     lateinit var workerFactory: HiltWorkerFactory
-
-    @Inject
-    lateinit var upnextDataStoreManager: UpnextDataStoreManager
 
     override fun onCreate() {
         super.onCreate()
@@ -78,43 +72,9 @@ class UpnextApplication : Application(), Configuration.Provider {
     private fun launchBackgroundTasks() {
         val workManager = WorkManager.getInstance(this)
 
-        setupTraktFavoritesWorker(workManager)
-
         setupDashboardWorker(workManager)
 
         setupTraktExploreWorker(workManager)
-    }
-
-    /**
-     * Setup the worker for updating the favorites stored by Trakt
-     * only if the access token is still valid
-     */
-    private fun setupTraktFavoritesWorker(workManager: WorkManager) {
-        val upnextDataStoreManager = UpnextDataStoreManager(this)
-
-        val traktAccessToken: TraktAccessToken?
-        runBlocking(Dispatchers.IO) {
-            traktAccessToken = upnextDataStoreManager.traktAccessTokenFlow.first()
-        }
-        if (traktAccessToken != null) {
-            if (!traktAccessToken.access_token.isNullOrEmpty() && traktAccessToken.isTraktAccessTokenValid()) {
-                val workerData = Data.Builder().putString(
-                    RefreshFavoriteShowsWorker.ARG_TOKEN,
-                    traktAccessToken.access_token
-                )
-                val refreshFavoriteShowsRequest =
-                    PeriodicWorkRequestBuilder<RefreshFavoriteShowsWorker>(
-                        TableUpdateInterval.TRAKT_FAVORITE_SHOWS.intervalMins,
-                        TimeUnit.MINUTES
-                    ).setInputData(workerData.build()).build()
-
-                workManager.enqueueUniquePeriodicWork(
-                    RefreshFavoriteShowsWorker.WORK_NAME,
-                    ExistingPeriodicWorkPolicy.REPLACE,
-                    refreshFavoriteShowsRequest
-                )
-            }
-        }
     }
 
     /**
@@ -147,23 +107,6 @@ class UpnextApplication : Application(), Configuration.Provider {
             ExistingPeriodicWorkPolicy.REPLACE,
             refreshDashboardShowsRequest
         )
-    }
-
-    /**
-     * Check if the Trakt access token is still valid
-     */
-    private fun isTraktAccessTokenValid(traktAccessToken: TraktAccessToken): Boolean {
-        var isValid = false
-        val currentDateEpoch = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())
-        val expiryDateEpoch =
-            traktAccessToken.expires_in?.let { traktAccessToken.created_at?.plus(it) }
-
-        if (expiryDateEpoch != null) {
-            if (expiryDateEpoch > currentDateEpoch) {
-                isValid = true
-            }
-        }
-        return isValid
     }
 
     companion object {

@@ -51,7 +51,7 @@
     <string name="show_detail_previous_episode_airdate">Aired %1$d %2$s ago</string>
     <string name="show_detail_air_date_general">Aired on %1$s</string>
     <string name="show_detail_ratings_heading">Ratings (users on Trakt)</string>
-    <string name="show_detail_connect_trakt_prompt">Go to the <u><b>Account screen</b></u> to connect your Trakt Account so you can add this show to your favorites</string>
+    <string name="show_detail_connect_trakt_prompt">Go to the Account screen to connect your Trakt Account so you can add this show to your favorites</string>
 
     <!-- Watched progress bottom sheet -->
     <string name="trakt_watched_overall_progress_percentage">%1$d%% watched</string>

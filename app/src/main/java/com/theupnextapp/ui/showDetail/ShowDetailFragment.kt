@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -39,7 +38,7 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
     private var _showRatingsAdapter: ShowRatingsAdapter? = null
     private val showRatingsAdapter get() = _showRatingsAdapter
 
-    val args by navArgs<ShowDetailFragmentArgs>()
+    private val args by navArgs<ShowDetailFragmentArgs>()
 
     @Inject
     lateinit var assistedFactory: ShowDetailViewModel.ShowDetailViewModelFactory
@@ -164,29 +163,6 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
             }
             showRatingsAdapter?.submitList(distributionList.asReversed())
         })
-
-        viewModel.prefTraktAccessToken.observe(viewLifecycleOwner, {
-            if (it != null) {
-                viewModel.onPrefAccessTokenRetrieved(it)
-            }
-        })
-
-        viewModel.isAuthorizedOnTrakt.observe(viewLifecycleOwner, {
-            if (it) {
-                viewModel.onAuthorizationConfirmation()
-            }
-        })
-
-        viewModel.navigateToAccountScreen.observe(viewLifecycleOwner, {
-            if (it) {
-                findNavController().navigate(
-                    ShowDetailFragmentDirections.actionShowDetailFragmentToTraktAccountFragment(
-                        null
-                    )
-                )
-                viewModel.onNavigateToAccountScreenComplete()
-            }
-        })
     }
 
     override fun onResume() {
@@ -217,8 +193,5 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
 
     companion object {
         const val ARG_SHOW_CAST = "show_cast"
-        const val ARG_SHOW_DETAIL = "show_detail"
-        const val ARG_SHOW_SEASONS = "show_seasons"
     }
-
 }

@@ -4,7 +4,6 @@ import androidx.lifecycle.*
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.work.WorkManager
 import com.theupnextapp.repository.TraktRepository
-import com.theupnextapp.repository.datastore.UpnextDataStoreManager
 import com.theupnextapp.ui.common.BaseTraktViewModel
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -17,11 +16,9 @@ import kotlinx.coroutines.launch
 class TraktAccountViewModel(
     savedStateHandle: SavedStateHandle,
     private val traktRepository: TraktRepository,
-    upnextDataStoreManager: UpnextDataStoreManager,
     workManager: WorkManager
 ) : BaseTraktViewModel(
     traktRepository,
-    upnextDataStoreManager,
     workManager
 ) {
 
@@ -59,9 +56,8 @@ class TraktAccountViewModel(
 
     fun onDisconnectConfirm() {
         viewModelScope.launch {
-            revokeTraktAccessToken()
-            clearTraktPreferences()
             traktRepository.clearFavorites()
+            revokeTraktAccessToken()
         }
     }
 
@@ -87,7 +83,6 @@ class TraktAccountViewModel(
     class Factory @AssistedInject constructor(
         @Assisted owner: SavedStateRegistryOwner,
         private val traktRepository: TraktRepository,
-        private val upnextDataStoreManager: UpnextDataStoreManager,
         private val workManager: WorkManager
     ) : AbstractSavedStateViewModelFactory(owner, null) {
         @Suppress("UNCHECKED_CAST")
@@ -99,7 +94,6 @@ class TraktAccountViewModel(
             return TraktAccountViewModel(
                 handle,
                 traktRepository,
-                upnextDataStoreManager,
                 workManager
             ) as T
         }

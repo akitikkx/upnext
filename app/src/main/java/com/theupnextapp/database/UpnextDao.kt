@@ -96,4 +96,13 @@ interface UpnextDao {
 
     @Query("select * from favorite_shows where imdbID = :imdbID")
     fun getFavoriteShow(imdbID: String): DatabaseFavoriteShows?
+
+    @Query("delete from trakt_access")
+    fun deleteTraktAccessData()
+
+    @Query("select * from trakt_access")
+    fun getTraktAccessData() : LiveData<DatabaseTraktAccess?>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertAllTraktAccessData(databaseTraktAccess: DatabaseTraktAccess)
 }
