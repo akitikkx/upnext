@@ -1,6 +1,6 @@
 package com.theupnextapp.network.models.trakt
 
-import com.theupnextapp.domain.TraktAccessToken
+import com.theupnextapp.database.DatabaseTraktAccess
 
 data class NetworkTraktAccessRefreshTokenResponse(
     val access_token: String?,
@@ -11,8 +11,9 @@ data class NetworkTraktAccessRefreshTokenResponse(
     val created_at: Long?
 )
 
-fun NetworkTraktAccessRefreshTokenResponse.asDomainModel(): TraktAccessToken {
-    return TraktAccessToken(
+fun NetworkTraktAccessRefreshTokenResponse.asDatabaseModel(): DatabaseTraktAccess {
+    return DatabaseTraktAccess(
+        id = 1,
         access_token = access_token,
         token_type = token_type,
         expires_in = expires_in,

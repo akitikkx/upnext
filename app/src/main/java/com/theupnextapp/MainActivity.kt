@@ -69,7 +69,6 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
 
         val appBarConfiguration = AppBarConfiguration
             .Builder(
-                R.id.splashScreenFragment,
                 R.id.searchFragment,
                 R.id.dashboardFragment,
                 R.id.exploreFragment,

@@ -6,22 +6,6 @@
     app:startDestination="@id/dashboardFragment">
 
     <fragment
-        android:id="@+id/splashScreenFragment"
-        android:name="com.theupnextapp.ui.splashscreen.SplashScreenFragment"
-        tools:layout="@layout/fragment_splash_screen">
-        <action
-            android:id="@+id/action_splashScreenFragment_to_dashboardFragment"
-            app:destination="@id/dashboardFragment"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"
-            app:launchSingleTop="true"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left"
-            app:popUpTo="@id/splashScreenFragment"
-            app:popUpToInclusive="true" />
-    </fragment>
-
-    <fragment
         android:id="@+id/dashboardFragment"
         android:name="com.theupnextapp.ui.dashboard.DashboardFragment"
         tools:layout="@layout/fragment_dashboard">
@@ -56,16 +40,6 @@
             app:popEnterAnim="@anim/slide_in_right"
             app:popExitAnim="@anim/slide_out_left"
             app:popUpTo="@id/showSeasonsFragment"
-            app:popUpToInclusive="true" />
-        <action
-            android:id="@+id/action_showDetailFragment_to_traktAccountFragment"
-            app:destination="@id/traktAccountFragment"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"
-            app:launchSingleTop="true"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left"
-            app:popUpTo="@id/traktAccountFragment"
             app:popUpToInclusive="true" />
     </fragment>
 

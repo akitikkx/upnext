@@ -51,6 +51,11 @@ class TraktRepository constructor(
             it.asDomainModel()
         }
 
+    val traktAccessToken: LiveData<TraktAccessToken?> =
+        Transformations.map(upnextDao.getTraktAccessData()) {
+            it?.asDomainModel()
+        }
+
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
 
@@ -68,9 +73,6 @@ class TraktRepository constructor(
 
     private val _traktShowStats = MutableLiveData<TraktShowStats>()
     val traktShowStats: LiveData<TraktShowStats> = _traktShowStats
-
-    private val _traktAccessToken = MutableLiveData<TraktAccessToken?>()
-    val traktAccessToken: LiveData<TraktAccessToken?> = _traktAccessToken
 
     private val _favoriteShow = MutableLiveData<TraktUserListItem>()
     val favoriteShow: LiveData<TraktUserListItem> = _favoriteShow
@@ -95,7 +97,8 @@ class TraktRepository constructor(
 
                 val accessTokenResponse =
                     TraktNetwork.traktApi.getAccessTokenAsync(traktAccessTokenRequest).await()
-                _traktAccessToken.postValue(accessTokenResponse.asDomainModel())
+                upnextDao.deleteTraktAccessData()
+                upnextDao.insertAllTraktAccessData(accessTokenResponse.asDatabaseModel())
                 _isLoading.postValue(false)
             } catch (e: Exception) {
                 _isLoading.postValue(false)
@@ -119,6 +122,7 @@ class TraktRepository constructor(
                     )
                 }
                 revokeRequest?.let { TraktNetwork.traktApi.revokeAccessTokenAsync(it).await() }
+                upnextDao.deleteTraktAccessData()
                 _isLoading.postValue(false)
             } catch (e: Exception) {
                 _isLoading.postValue(false)
@@ -150,7 +154,8 @@ class TraktRepository constructor(
                 val accessTokenResponse =
                     TraktNetwork.traktApi.getAccessRefreshTokenAsync(traktAccessTokenRequest)
                         .await()
-                _traktAccessToken.postValue(accessTokenResponse.asDomainModel())
+                upnextDao.deleteTraktAccessData()
+                upnextDao.insertAllTraktAccessData(accessTokenResponse.asDatabaseModel())
                 _isLoading.postValue(false)
             } catch (e: Exception) {
                 _isLoading.postValue(false)

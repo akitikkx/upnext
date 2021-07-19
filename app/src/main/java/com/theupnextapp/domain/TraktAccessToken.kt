@@ -1,6 +1,5 @@
 package com.theupnextapp.domain
 
-import com.theupnextapp.repository.datastore.UpnextDataStoreManager
 import java.util.concurrent.TimeUnit
 
 data class TraktAccessToken(
@@ -13,8 +12,9 @@ data class TraktAccessToken(
 )
 
 fun TraktAccessToken.areVariablesEmpty(): Boolean {
-    return (access_token.isNullOrEmpty() || created_at == UpnextDataStoreManager.NOT_FOUND || expires_in == UpnextDataStoreManager.NOT_FOUND || refresh_token.isNullOrEmpty() || scope.isNullOrEmpty() || token_type.isNullOrEmpty())
+    return (access_token.isNullOrEmpty() || created_at == null || expires_in == null || refresh_token.isNullOrEmpty() || scope.isNullOrEmpty() || token_type.isNullOrEmpty())
 }
+
 /**
  * Check if the Trakt access token is still valid
  */
