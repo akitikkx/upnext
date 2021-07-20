@@ -56,6 +56,8 @@ class TraktRepository constructor(
             it?.asDomainModel()
         }
 
+    fun getTraktAccessTokenRaw(): DatabaseTraktAccess? = upnextDao.getTraktAccessDataRaw()
+
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
 
