@@ -103,6 +103,9 @@ interface UpnextDao {
     @Query("select * from trakt_access")
     fun getTraktAccessData() : LiveData<DatabaseTraktAccess?>
 
+    @Query("select * from trakt_access")
+    fun getTraktAccessDataRaw() : DatabaseTraktAccess?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAllTraktAccessData(databaseTraktAccess: DatabaseTraktAccess)
 }

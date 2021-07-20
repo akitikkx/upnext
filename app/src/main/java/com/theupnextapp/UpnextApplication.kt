@@ -4,18 +4,20 @@ import android.app.Application
 import android.content.Context
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.hilt.work.HiltWorkerFactory
-import androidx.work.Configuration
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
+import androidx.work.*
 import com.theupnextapp.common.utils.UpnextPreferenceManager
 import com.theupnextapp.common.utils.models.TableUpdateInterval
+import com.theupnextapp.database.asDomainModel
+import com.theupnextapp.domain.isTraktAccessTokenValid
+import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.work.RefreshDashboardShowsWorker
+import com.theupnextapp.work.RefreshFavoriteShowsWorker
 import com.theupnextapp.work.RefreshTraktExploreWorker
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -31,6 +33,9 @@ class UpnextApplication : Application(), Configuration.Provider {
 
     @Inject
     lateinit var workerFactory: HiltWorkerFactory
+
+    @Inject
+    lateinit var traktRepository: TraktRepository
 
     override fun onCreate() {
         super.onCreate()
@@ -72,9 +77,36 @@ class UpnextApplication : Application(), Configuration.Provider {
     private fun launchBackgroundTasks() {
         val workManager = WorkManager.getInstance(this)
 
+        setupFavoritesWorker(workManager)
+
         setupDashboardWorker(workManager)
 
         setupTraktExploreWorker(workManager)
+    }
+
+    private fun setupFavoritesWorker(workManager: WorkManager) {
+        runBlocking(Dispatchers.IO) {
+            val traktAccessToken = traktRepository.getTraktAccessTokenRaw()?.asDomainModel()
+            if (traktAccessToken != null) {
+                if (!traktAccessToken.access_token.isNullOrEmpty() && traktAccessToken.isTraktAccessTokenValid()) {
+                    val workerData = Data.Builder().putString(
+                        RefreshFavoriteShowsWorker.ARG_TOKEN,
+                        traktAccessToken.access_token
+                    )
+                    val refreshFavoriteShowsRequest =
+                        PeriodicWorkRequestBuilder<RefreshFavoriteShowsWorker>(
+                            TableUpdateInterval.TRAKT_FAVORITE_SHOWS.intervalMins,
+                            TimeUnit.MINUTES
+                        ).setInputData(workerData.build()).build()
+
+                    workManager.enqueueUniquePeriodicWork(
+                        RefreshFavoriteShowsWorker.WORK_NAME,
+                        ExistingPeriodicWorkPolicy.REPLACE,
+                        refreshFavoriteShowsRequest
+                    )
+                }
+            }
+        }
     }
 
     /**
