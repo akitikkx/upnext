@@ -6,6 +6,7 @@ import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.theupnextapp.domain.isTraktAccessTokenValid
 import com.theupnextapp.repository.TraktRepository
+import com.theupnextapp.work.RefreshFavoriteEpisodesWorker
 import com.theupnextapp.work.RefreshFavoriteShowsWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
@@ -45,7 +46,11 @@ open class BaseTraktViewModel @Inject constructor(
                         OneTimeWorkRequest.Builder(RefreshFavoriteShowsWorker::class.java)
                     refreshFavoritesWork.setInputData(workerData.build())
 
+                    val refreshFavoriteEpisodesWork =
+                        OneTimeWorkRequest.Builder(RefreshFavoriteEpisodesWorker::class.java)
+
                     workManager.enqueue(refreshFavoritesWork.build())
+                    workManager.enqueue(refreshFavoriteEpisodesWork.build())
                 }
             }
         }
