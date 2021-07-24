@@ -94,6 +94,9 @@ interface UpnextDao {
     @Query("select * from favorite_shows")
     fun getFavoriteShows(): LiveData<List<DatabaseFavoriteShows>>
 
+    @Query("select * from favorite_shows")
+    fun getFavoriteShowsRaw(): List<DatabaseFavoriteShows>
+
     @Query("select * from favorite_shows where imdbID = :imdbID")
     fun getFavoriteShow(imdbID: String): DatabaseFavoriteShows?
 
@@ -108,4 +111,13 @@ interface UpnextDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAllTraktAccessData(databaseTraktAccess: DatabaseTraktAccess)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertAllFavoriteNextEpisodes(vararg databaseFavoriteNextEpisode: DatabaseFavoriteNextEpisode)
+
+    @Query("delete from favorite_next_episodes")
+    fun deleteAllFavoriteEpisodes()
+
+    @Query("delete from favorite_next_episodes where imdb = :imdbID")
+    fun deleteFavoriteEpisode(imdbID: String)
 }

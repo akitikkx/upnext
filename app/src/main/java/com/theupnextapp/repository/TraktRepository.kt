@@ -14,6 +14,7 @@ import com.theupnextapp.network.TvMazeNetwork
 import com.theupnextapp.network.models.trakt.*
 import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowImageResponse
 import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupResponse
+import com.theupnextapp.network.models.tvmaze.asDatabaseModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
@@ -271,6 +272,9 @@ class TraktRepository constructor(
         }
     }
 
+    /**
+     * Add the show to a custom list stored on Trakt
+     */
     suspend fun addShowToList(imdbID: String?, token: String?) {
         if (imdbID.isNullOrEmpty()) {
             logTraktException("Could add the show to the favorites due to a null traktID")
@@ -396,6 +400,8 @@ class TraktRepository constructor(
                         }
 
                         if (removeFromListResponse?.deleted?.shows == 1) {
+                            traktUserListItem.imdbID?.let { upnextDao.deleteFavoriteEpisode(it) }
+
                             val customListItemsResponse =
                                 TraktNetwork.traktApi.getCustomListItemsAsync(
                                     token = "Bearer $token",
@@ -412,6 +418,48 @@ class TraktRepository constructor(
                 _isLoading.postValue(false)
                 Timber.d(e)
                 firebaseCrashlytics.recordException(e)
+            }
+        }
+    }
+
+    suspend fun refreshFavoriteNextEpisodes(forceRefresh: Boolean = false) {
+        if (forceRefresh || canProceedWithUpdate(
+                tableName = DatabaseTables.TABLE_FAVORITE_EPISODES.tableName,
+                intervalMins = TableUpdateInterval.TRAKT_FAVORITE_EPISODES.intervalMins
+            )
+        ) {
+            withContext(Dispatchers.IO) {
+                try {
+                    val episodesList = mutableListOf<DatabaseFavoriteNextEpisode>()
+                    val favoriteShows = upnextDao.getFavoriteShowsRaw()
+                    if (!favoriteShows.isNullOrEmpty()) {
+                        for (item in favoriteShows) {
+                            val nextEpisode = item.tvMazeID?.let { getNextEpisode(it) }
+
+                            val (id, poster, heroImage) = getImages(item.imdbID)
+
+                            nextEpisode?.originalShowImageUrl = poster
+                            nextEpisode?.mediumShowImageUrl = heroImage
+                            nextEpisode?.tvMazeID = id
+
+                            nextEpisode?.asDatabaseModel()?.let { episodesList.add(it) }
+                        }
+                        if (episodesList.isNotEmpty()) {
+                            upnextDao.insertAllFavoriteNextEpisodes(*episodesList.toTypedArray())
+                            upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_TRENDING.tableName)
+                            upnextDao.insertTableUpdateLog(
+                                DatabaseTableUpdate(
+                                    table_name = DatabaseTables.TABLE_FAVORITE_EPISODES.tableName,
+                                    last_updated = System.currentTimeMillis()
+                                )
+                            )
+                        }
+                    }
+                } catch (e: Exception) {
+                    _isLoading.postValue(false)
+                    Timber.d(e)
+                    firebaseCrashlytics.recordException(e)
+                }
             }
         }
     }
