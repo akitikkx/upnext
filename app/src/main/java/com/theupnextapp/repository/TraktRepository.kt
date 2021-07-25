@@ -445,6 +445,7 @@ class TraktRepository constructor(
                             nextEpisode?.asDatabaseModel()?.let { episodesList.add(it) }
                         }
                         if (episodesList.isNotEmpty()) {
+                            upnextDao.deleteAllFavoriteEpisodes()
                             upnextDao.insertAllFavoriteNextEpisodes(*episodesList.toTypedArray())
                             upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_TRENDING.tableName)
                             upnextDao.insertTableUpdateLog(
