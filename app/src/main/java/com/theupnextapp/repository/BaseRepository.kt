@@ -1,6 +1,5 @@
 package com.theupnextapp.repository
 
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.theupnextapp.common.utils.DateUtils
 import com.theupnextapp.database.UpnextDao
 
@@ -10,7 +9,7 @@ abstract class BaseRepository(private val upnextDao: UpnextDao) {
      * Determine whether this particular update request may proceed
      * based on the last update timestamp
      */
-    protected fun canProceedWithUpdate(tableName: String, intervalMins: Long): Boolean {
+    protected fun canProceedWithUpdate(tableName: String, intervalMinutes: Long): Boolean {
         var canProceedWithUpdate = false
 
         val lastUpdateTime =
@@ -23,7 +22,7 @@ abstract class BaseRepository(private val upnextDao: UpnextDao) {
             )
         }
         if (diffInMinutes != null) {
-            if (diffInMinutes > intervalMins) {
+            if (diffInMinutes > intervalMinutes) {
                 canProceedWithUpdate = true
             }
         }

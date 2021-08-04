@@ -3,7 +3,6 @@
     <dimen name="appbar_elevation">4dp</dimen>
 
     <dimen name="padding_standard">8dp</dimen>
-    <dimen name="padding_standard_half">4dp</dimen>
     <dimen name="padding_standard_double">16dp</dimen>
 
     <dimen name="margin_vertical">16dp</dimen>
@@ -21,7 +20,6 @@
     <!-- Show Detail -->
     <dimen name="show_detail_poster_height">180dp</dimen>
     <dimen name="detail_poster_width">130dp</dimen>
-    <dimen name="detail_poster_height">250dp</dimen>
     <dimen name="show_backdrop_height">250dp</dimen>
 
     <!-- Show Search -->
@@ -30,9 +28,6 @@
 
     <!-- Show season episodes -->
     <dimen name="show_season_episode_poster_height">160dp</dimen>
-
-    <!-- Splash screen -->
-    <dimen name="splash_screen_logo_height">100dp</dimen>
 
     <!-- Trakt Account -->
     <dimen name="trakt_account_authorized_logo_height">30dp</dimen>

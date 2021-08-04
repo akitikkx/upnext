@@ -42,25 +42,6 @@ open class BaseFragment : Fragment() {
         }
     }
 
-    protected fun launchTraktWindow() {
-        MaterialAlertDialogBuilder(requireActivity())
-            .setTitle(resources.getString(R.string.library_connect_to_trakt_dialog_title))
-            .setMessage(resources.getString(R.string.library_connect_to_trakt_dialog_message))
-            .setNegativeButton(resources.getString(R.string.library_connect_to_trakt_dialog_negative)) { dialog, _ ->
-                dialog.dismiss()
-            }
-            .setPositiveButton(resources.getString(R.string.library_connect_to_trakt_dialog_positive)) { dialog, _ ->
-                val intent = Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse("${TRAKT_API_URL}${TRAKT_OAUTH_ENDPOINT}?response_type=code&client_id=${BuildConfig.TRAKT_CLIENT_ID}&redirect_uri=${BuildConfig.TRAKT_REDIRECT_URI}")
-                )
-                intent.putExtra(Browser.EXTRA_APPLICATION_ID, activity?.packageName)
-                startActivity(intent)
-                dialog.dismiss()
-            }
-            .show()
-    }
-
     protected fun getShowDetailNavigatorExtras(view: View): FragmentNavigator.Extras {
         exitTransition = MaterialElevationScale(false).apply {
             duration = resources.getInteger(R.integer.show_motion_duration_large).toLong()
@@ -73,7 +54,6 @@ open class BaseFragment : Fragment() {
     }
 
     companion object {
-        const val EXTRA_TRAKT_URI = "extra_trakt_uri"
         const val TRAKT_API_URL = "https://trakt.tv"
         const val TRAKT_OAUTH_ENDPOINT = "/oauth/authorize"
     }

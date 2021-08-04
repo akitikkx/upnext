@@ -102,7 +102,7 @@ class UpnextRepository constructor(
             try {
                 if (canProceedWithUpdate(
                         tableName = DatabaseTables.TABLE_YESTERDAY_SHOWS.tableName,
-                        intervalMins = TableUpdateInterval.DASHBOARD_ITEMS.intervalMins
+                        intervalMinutes = TableUpdateInterval.DASHBOARD_ITEMS.intervalMins
                     )
                 ) {
                     _isLoadingYesterdayShows.postValue(true)
@@ -159,7 +159,7 @@ class UpnextRepository constructor(
             try {
                 if (canProceedWithUpdate(
                         tableName = DatabaseTables.TABLE_TODAY_SHOWS.tableName,
-                        intervalMins = TableUpdateInterval.DASHBOARD_ITEMS.intervalMins
+                        intervalMinutes = TableUpdateInterval.DASHBOARD_ITEMS.intervalMins
                     )
                 ) {
                     _isLoadingTodayShows.postValue(true)
@@ -212,7 +212,7 @@ class UpnextRepository constructor(
             try {
                 if (canProceedWithUpdate(
                         tableName = DatabaseTables.TABLE_TOMORROW_SHOWS.tableName,
-                        intervalMins = TableUpdateInterval.DASHBOARD_ITEMS.intervalMins
+                        intervalMinutes = TableUpdateInterval.DASHBOARD_ITEMS.intervalMins
                     )
                 ) {
                     _isLoadingTomorrowShows.postValue(true)
