@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -87,31 +86,31 @@ class ExploreFragment : BaseFragment(),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.popularShowsTableUpdate.observe(viewLifecycleOwner, Observer {
+        viewModel.popularShowsTableUpdate.observe(viewLifecycleOwner, {
             viewModel.onPopularShowsTableUpdateReceived(it)
         })
 
-        viewModel.trendingShowsTableUpdate.observe(viewLifecycleOwner, Observer {
+        viewModel.trendingShowsTableUpdate.observe(viewLifecycleOwner, {
             viewModel.onTrendingShowsTableUpdateReceived(it)
         })
 
-        viewModel.mostAnticipatedShowsTableUpdate.observe(viewLifecycleOwner, Observer {
+        viewModel.mostAnticipatedShowsTableUpdate.observe(viewLifecycleOwner, {
             viewModel.onMostAnticipatedShowsTableUpdateReceived(it)
         })
 
-        viewModel.trendingShows.observe(viewLifecycleOwner, Observer {
+        viewModel.trendingShows.observe(viewLifecycleOwner, {
             if (!it.isNullOrEmpty()) {
                 trendingShowsAdapter.submitList(it)
             }
         })
 
-        viewModel.popularShows.observe(viewLifecycleOwner, Observer {
+        viewModel.popularShows.observe(viewLifecycleOwner, {
             if (!it.isNullOrEmpty()) {
                 popularShowsAdapter.submitList(it)
             }
         })
 
-        viewModel.mostAnticipatedShows.observe(viewLifecycleOwner, Observer {
+        viewModel.mostAnticipatedShows.observe(viewLifecycleOwner, {
             if (!it.isNullOrEmpty()) {
                 mostAnticipatedShowsAdapter.submitList(it)
             }

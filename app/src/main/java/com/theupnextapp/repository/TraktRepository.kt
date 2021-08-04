@@ -175,7 +175,7 @@ class TraktRepository constructor(
 
         if (forceRefresh || canProceedWithUpdate(
                 tableName = DatabaseTables.TABLE_FAVORITE_SHOWS.tableName,
-                intervalMins = TableUpdateInterval.TRAKT_FAVORITE_SHOWS.intervalMins
+                intervalMinutes = TableUpdateInterval.TRAKT_FAVORITE_SHOWS.intervalMins
             )
         ) {
             withContext(Dispatchers.IO) {
@@ -517,7 +517,7 @@ class TraktRepository constructor(
             try {
                 if (canProceedWithUpdate(
                         tableName = DatabaseTables.TABLE_TRAKT_TRENDING.tableName,
-                        intervalMins = TableUpdateInterval.TRAKT_TRENDING_ITEMS.intervalMins
+                        intervalMinutes = TableUpdateInterval.TRAKT_TRENDING_ITEMS.intervalMins
                     )
                 ) {
                     _isLoadingTraktTrending.postValue(true)
@@ -627,7 +627,7 @@ class TraktRepository constructor(
             try {
                 if (canProceedWithUpdate(
                         tableName = DatabaseTables.TABLE_TRAKT_POPULAR.tableName,
-                        intervalMins = TableUpdateInterval.TRAKT_POPULAR_ITEMS.intervalMins
+                        intervalMinutes = TableUpdateInterval.TRAKT_POPULAR_ITEMS.intervalMins
                     )
                 ) {
                     _isLoadingTraktPopular.postValue(true)
@@ -688,7 +688,7 @@ class TraktRepository constructor(
             try {
                 if (canProceedWithUpdate(
                         tableName = DatabaseTables.TABLE_TRAKT_MOST_ANTICIPATED.tableName,
-                        intervalMins = TableUpdateInterval.TRAKT_MOST_ANTICIPATED_ITEMS.intervalMins
+                        intervalMinutes = TableUpdateInterval.TRAKT_MOST_ANTICIPATED_ITEMS.intervalMins
                     )
                 ) {
                     _isLoadingTraktMostAnticipated.postValue(true)
