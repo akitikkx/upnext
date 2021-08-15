@@ -8,4 +8,5 @@ enum class DatabaseTables(val tableName: String) {
     TABLE_TRAKT_TRENDING("trakt_trending"),
     TABLE_TRAKT_MOST_ANTICIPATED("trakt_most_anticipated"),
     TABLE_FAVORITE_SHOWS("favorite_shows"),
+    TABLE_FAVORITE_EPISODES("favorite_next_episodes"),
 }
