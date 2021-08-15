@@ -5,10 +5,10 @@ import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import com.theupnextapp.R
 import com.theupnextapp.common.utils.DateUtils
+import com.theupnextapp.domain.FavoriteNextEpisode
 import com.theupnextapp.domain.ShowInfo
 import java.text.SimpleDateFormat
-import java.util.*
-import kotlin.math.abs
+import java.util.Locale
 
 @BindingAdapter("showHideNextEpisodeInfo")
 fun showHideNextEpisodeInfo(view: TextView, showInfo: ShowInfo?) {
@@ -59,6 +59,30 @@ fun getNextAirDate(view: TextView, showInfo: ShowInfo?) {
             SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'+00:00'", Locale.getDefault())
 
         val date = showInfo?.nextEpisodeAirstamp?.let { format.parse(it) }
+        if (date != null) {
+            val difference =
+                DateUtils.getTimeDifferenceForDisplay(endTime = date.time)
+            view.text = view.resources.getString(
+                R.string.show_detail_next_episode_airdate,
+                difference?.difference?.unaryMinus(),
+                difference?.type
+            )
+            view.visibility = View.VISIBLE
+        } else {
+            view.visibility = View.GONE
+        }
+    } else {
+        view.visibility = View.GONE
+    }
+}
+
+@BindingAdapter("nextAirDate")
+fun getNextAirDate(view: TextView, showInfo: FavoriteNextEpisode?) {
+    if (!showInfo?.airStamp.isNullOrEmpty()) {
+        val format =
+            SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'+00:00'", Locale.getDefault())
+
+        val date = showInfo?.airStamp?.let { format.parse(it) }
         if (date != null) {
             val difference =
                 DateUtils.getTimeDifferenceForDisplay(endTime = date.time)

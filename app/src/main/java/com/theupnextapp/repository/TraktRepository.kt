@@ -52,6 +52,11 @@ class TraktRepository constructor(
             it.asDomainModel()
         }
 
+    val favoriteShowEpisodes: LiveData<List<FavoriteNextEpisode>> =
+        Transformations.map(upnextDao.getFavoriteEpisodes()) {
+            it.asDomainModel()
+        }
+
     val traktAccessToken: LiveData<TraktAccessToken?> =
         Transformations.map(upnextDao.getTraktAccessData()) {
             it?.asDomainModel()
