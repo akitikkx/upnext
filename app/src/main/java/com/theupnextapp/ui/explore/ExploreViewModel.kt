@@ -17,7 +17,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ExploreViewModel @Inject constructor(
-    private val traktRepository: TraktRepository,
+    traktRepository: TraktRepository,
     private val workManager: WorkManager
 ) : ViewModel() {
 

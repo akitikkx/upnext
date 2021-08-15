@@ -69,7 +69,7 @@ data class TraktMostAnticipated(
     }
 
     override fun hashCode(): Int {
-        var result = id.hashCode() ?: 0
+        var result = id.hashCode()
         result = 31 * result + (title?.hashCode() ?: 0)
         result = 31 * result + (year?.hashCode() ?: 0)
         result = 31 * result + (mediumImageUrl?.hashCode() ?: 0)

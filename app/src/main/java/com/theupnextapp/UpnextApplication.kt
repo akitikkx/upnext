@@ -11,6 +11,7 @@ import com.theupnextapp.database.asDomainModel
 import com.theupnextapp.domain.isTraktAccessTokenValid
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.work.RefreshDashboardShowsWorker
+import com.theupnextapp.work.RefreshFavoriteEpisodesWorker
 import com.theupnextapp.work.RefreshFavoriteShowsWorker
 import com.theupnextapp.work.RefreshTraktExploreWorker
 import dagger.hilt.android.HiltAndroidApp
@@ -99,10 +100,22 @@ class UpnextApplication : Application(), Configuration.Provider {
                             TimeUnit.MINUTES
                         ).setInputData(workerData.build()).build()
 
+                    val refreshFavoriteEpisodesRequest =
+                        PeriodicWorkRequestBuilder<RefreshFavoriteEpisodesWorker>(
+                            TableUpdateInterval.TRAKT_FAVORITE_EPISODES.intervalMins,
+                            TimeUnit.MINUTES
+                        ).build()
+
                     workManager.enqueueUniquePeriodicWork(
                         RefreshFavoriteShowsWorker.WORK_NAME,
                         ExistingPeriodicWorkPolicy.REPLACE,
                         refreshFavoriteShowsRequest
+                    )
+
+                    workManager.enqueueUniquePeriodicWork(
+                        RefreshFavoriteEpisodesWorker.WORK_NAME,
+                        ExistingPeriodicWorkPolicy.REPLACE,
+                        refreshFavoriteEpisodesRequest
                     )
                 }
             }

@@ -6,4 +6,5 @@
     <attr name="shapeAppearanceShowCast" format="reference" />
     <attr name="showSeasonTraktWatchedTagStrokeColor" format="color" />
     <attr name="showSeasonTraktCollectedTagStrokeColor" format="color" />
+    <attr name="favoritesEpisodeOverlayColor" format="color" />
 </resources>
