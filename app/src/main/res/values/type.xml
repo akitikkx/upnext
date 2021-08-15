@@ -77,4 +77,11 @@
         <item name="android:fontFamily">@font/open_sans_semibold</item>
     </style>
 
+    <style name="Widget.Upnext.NextEpisode.Overlay" parent="">
+        <item name="android:background">?attr/favoritesEpisodeOverlayColor</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textAppearance">?attr/textAppearanceCaption</item>
+    </style>
+
 </resources>

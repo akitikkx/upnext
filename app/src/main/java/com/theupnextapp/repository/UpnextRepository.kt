@@ -102,7 +102,7 @@ class UpnextRepository constructor(
             try {
                 if (canProceedWithUpdate(
                         tableName = DatabaseTables.TABLE_YESTERDAY_SHOWS.tableName,
-                        intervalMins = TableUpdateInterval.DASHBOARD_ITEMS.intervalMins
+                        intervalMinutes = TableUpdateInterval.DASHBOARD_ITEMS.intervalMins
                     )
                 ) {
                     _isLoadingYesterdayShows.postValue(true)
@@ -159,7 +159,7 @@ class UpnextRepository constructor(
             try {
                 if (canProceedWithUpdate(
                         tableName = DatabaseTables.TABLE_TODAY_SHOWS.tableName,
-                        intervalMins = TableUpdateInterval.DASHBOARD_ITEMS.intervalMins
+                        intervalMinutes = TableUpdateInterval.DASHBOARD_ITEMS.intervalMins
                     )
                 ) {
                     _isLoadingTodayShows.postValue(true)
@@ -212,7 +212,7 @@ class UpnextRepository constructor(
             try {
                 if (canProceedWithUpdate(
                         tableName = DatabaseTables.TABLE_TOMORROW_SHOWS.tableName,
-                        intervalMins = TableUpdateInterval.DASHBOARD_ITEMS.intervalMins
+                        intervalMinutes = TableUpdateInterval.DASHBOARD_ITEMS.intervalMins
                     )
                 ) {
                     _isLoadingTomorrowShows.postValue(true)
@@ -305,35 +305,13 @@ class UpnextRepository constructor(
                 val showInfo =
                     TvMazeNetwork.tvMazeApi.getShowSummaryAsync(showId.toString()).await()
 
-                val previousEpisodeLink = showInfo._links?.previousepisode?.href?.substring(
-                    showInfo._links.previousepisode.href.lastIndexOf("/") + 1,
-                    showInfo._links.previousepisode.href.length
-                )?.replace("/", "")
+                val (nextEpisode, previousEpisode) = getPreviousAndNextEpisodes(showId)
 
-                val nextEpisodeLink = showInfo._links?.nextepisode?.href?.substring(
-                    showInfo._links.nextepisode.href.lastIndexOf("/") + 1,
-                    showInfo._links.nextepisode.href.length
-                )?.replace("/", "")
-
-                var showPreviousEpisode: NetworkShowPreviousEpisodeResponse? = null
-                var showNextEpisode: NetworkShowNextEpisodeResponse? = null
-                if (!previousEpisodeLink.isNullOrEmpty()) {
-                    showPreviousEpisode =
-                        TvMazeNetwork.tvMazeApi.getPreviousEpisodeAsync(
-                            previousEpisodeLink.replace("/", "")
-                        ).await()
-                }
-                if (!nextEpisodeLink.isNullOrEmpty()) {
-                    showNextEpisode =
-                        TvMazeNetwork.tvMazeApi.getNextEpisodeAsync(
-                            nextEpisodeLink.replace("/", "")
-                        ).await()
-                }
                 val showInfoCombined =
                     NetworkShowInfoCombined(
                         showInfoResponse = showInfo,
-                        previousEpisode = showPreviousEpisode,
-                        nextEpisode = showNextEpisode
+                        previousEpisode = previousEpisode,
+                        nextEpisode = nextEpisode
                     )
                 _showInfo.postValue(showInfoCombined.asDomainModel())
                 _isLoading.postValue(false)

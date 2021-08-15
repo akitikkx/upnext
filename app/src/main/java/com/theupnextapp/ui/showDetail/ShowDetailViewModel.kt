@@ -1,11 +1,15 @@
 package com.theupnextapp.ui.showDetail
 
 import androidx.lifecycle.*
+import androidx.work.Data
+import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.theupnextapp.domain.*
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.UpnextRepository
 import com.theupnextapp.ui.common.BaseTraktViewModel
+import com.theupnextapp.work.AddFavoriteShowWorker
+import com.theupnextapp.work.RemoveFavoriteShowWorker
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -16,7 +20,7 @@ import kotlinx.coroutines.launch
 
 class ShowDetailViewModel @AssistedInject constructor(
     upnextRepository: UpnextRepository,
-    workManager: WorkManager,
+    private val workManager: WorkManager,
     private val traktRepository: TraktRepository,
     @Assisted show: ShowDetailArg
 ) : BaseTraktViewModel(
@@ -107,16 +111,37 @@ class ShowDetailViewModel @AssistedInject constructor(
             if (accessToken != null) {
                 if (favoriteShow.value != null) {
                     val traktUserListItem = favoriteShow.value
+                    val workerData = Data.Builder()
+                    traktUserListItem?.traktID?.let {
+                        workerData.putInt(
+                            RemoveFavoriteShowWorker.ARG_TRAKT_ID,
+                            it
+                        )
+                    }
+                    workerData.putString(
+                        RemoveFavoriteShowWorker.ARG_IMDB_ID,
+                        traktUserListItem?.imdbID
+                    )
+                    workerData.putString(
+                        RemoveFavoriteShowWorker.ARG_TOKEN,
+                        accessToken.access_token
+                    )
 
-                    traktRepository.removeShowFromList(
-                        traktUserListItem,
-                        accessToken.access_token
-                    )
+                    val removeFavoriteWork =
+                        OneTimeWorkRequest.Builder(RemoveFavoriteShowWorker::class.java)
+                    removeFavoriteWork.setInputData(workerData.build())
+
+                    workManager.enqueue(removeFavoriteWork.build())
                 } else {
-                    traktRepository.addShowToList(
-                        showInfo.value?.imdbID,
-                        accessToken.access_token
-                    )
+                    val workerData = Data.Builder()
+                    workerData.putString(AddFavoriteShowWorker.ARG_IMDB_ID, showInfo.value?.imdbID)
+                    workerData.putString(AddFavoriteShowWorker.ARG_TOKEN, accessToken.access_token)
+
+                    val addFavoriteWork =
+                        OneTimeWorkRequest.Builder(AddFavoriteShowWorker::class.java)
+                    addFavoriteWork.setInputData(workerData.build())
+
+                    workManager.enqueue(addFavoriteWork.build())
                 }
             }
         }
