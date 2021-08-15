@@ -347,9 +347,9 @@ class TraktRepository constructor(
     /**
      * Remove a show from the personal list on Trakt
      */
-    suspend fun removeShowFromList(traktUserListItem: TraktUserListItem?, token: String?) {
-        if (traktUserListItem?.traktID == null) {
-            logTraktException("Could remove the show from the favorites due to a null traktID")
+    suspend fun removeShowFromList(traktId: Int?, imdbID: String?, token: String?) {
+        if (traktId == null || imdbID.isNullOrEmpty()) {
+            logTraktException("Could remove the show from the favorites due to either a null traktID or imdbID: $imdbID, traktID: $traktId")
             return
         }
         withContext(Dispatchers.IO) {
@@ -382,7 +382,7 @@ class TraktRepository constructor(
                         val removeShowFromListRequest = NetworkTraktRemoveShowFromListRequest(
                             shows = listOf(
                                 NetworkTraktRemoveShowFromListRequestShow(
-                                    ids = NetworkTraktRemoveShowFromListRequestShowIds(trakt = traktUserListItem.traktID)
+                                    ids = NetworkTraktRemoveShowFromListRequestShowIds(trakt = traktId)
                                 )
                             )
                         )
@@ -403,7 +403,7 @@ class TraktRepository constructor(
                                     traktId = favoritesListId
                                 ).await()
                             handleTraktUserListItemsResponse(customListItemsResponse)
-                            checkIfShowIsFavorite(traktUserListItem.imdbID)
+                            checkIfShowIsFavorite(imdbID)
                         }
                     }
                 }
