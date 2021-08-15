@@ -19,6 +19,9 @@
 
     <color name="red_200">#cf6679</color> <!--Color error (dark)-->
     <color name="red_600">#b00020</color> <!--Color error (light)-->
+    
+    <color name="orange_200">#FFC77D</color>
+    <color name="orange_500">#FF8D00</color>
 
     <color name="grey_light">#FFD3DADB</color>
 </resources>
