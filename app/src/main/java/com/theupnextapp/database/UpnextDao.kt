@@ -118,6 +118,9 @@ interface UpnextDao {
     @Query("delete from favorite_next_episodes")
     fun deleteAllFavoriteEpisodes()
 
+    @Query("select * from favorite_next_episodes")
+    fun getFavoriteEpisodes(): LiveData<List<DatabaseFavoriteNextEpisode>>
+
     @Query("delete from favorite_next_episodes where imdb = :imdbID")
     fun deleteFavoriteEpisode(imdbID: String)
 }

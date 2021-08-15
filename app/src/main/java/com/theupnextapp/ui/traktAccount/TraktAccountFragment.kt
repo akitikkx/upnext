@@ -95,6 +95,10 @@ class TraktAccountFragment : BaseFragment(), FavoritesAdapter.FavoritesAdapterLi
         viewModel.favoriteShows.observe(viewLifecycleOwner, {
             favoritesAdapter?.submitFavoriteShowsList(it)
         })
+
+        viewModel.favoriteEpisodes.observe(viewLifecycleOwner, {
+            favoritesAdapter?.submitFavoriteNextEpisodes(it)
+        })
     }
 
     override fun onDestroyView() {
