@@ -17,7 +17,8 @@ data class DatabaseFavoriteShows(
     val tmdbID: Int?,
     val traktID: Int?,
     val tvdbID: Int?,
-    val tvMazeID: Int?
+    val tvMazeID: Int?,
+    var airStamp: String? = null
 )
 
 fun List<DatabaseFavoriteShows>.asDomainModel(): List<TraktUserListItem> {
@@ -33,7 +34,8 @@ fun List<DatabaseFavoriteShows>.asDomainModel(): List<TraktUserListItem> {
             tmdbID = it.tmdbID,
             traktID = it.traktID,
             tvdbID = it.tvdbID,
-            tvMazeID = it.tvMazeID
+            tvMazeID = it.tvMazeID,
+            airStamp = it.airStamp
         )
     }
 }
@@ -50,6 +52,7 @@ fun DatabaseFavoriteShows.asDomainModel(): TraktUserListItem {
         tmdbID = tmdbID,
         traktID = traktID,
         tvdbID = tvdbID,
-        tvMazeID = tvMazeID
+        tvMazeID = tvMazeID,
+        airStamp = airStamp
     )
 }

@@ -72,7 +72,7 @@
                 app:layout_constraintEnd_toEndOf="@id/favorite_poster"
                 app:layout_constraintStart_toStartOf="@id/favorite_poster"
                 app:layout_constraintTop_toTopOf="@id/favorite_poster"
-                app:nextAirDate="@{nextEpisode}"
+                app:nextAirDate="@{show.airStamp}"
                 tools:text="5 hrs to go" />
 
             <com.google.android.material.textview.MaterialTextView

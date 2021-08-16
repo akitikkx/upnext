@@ -94,3 +94,9 @@ val MIGRATION_24_25: Migration = object : Migration(24, 25) {
         database.execSQL("CREATE TABLE IF NOT EXISTS favorite_next_episodes (tvMazeID INTEGER, number INTEGER, season INTEGER, title TEXT, airStamp TEXT, mediumImageUrl TEXT, originalImageUrl TEXT, imdb TEXT, PRIMARY KEY(tvMazeID))")
     }
 }
+
+val MIGRATION_25_26: Migration = object : Migration(25, 26) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL("ALTER TABLE favorite_shows ADD COLUMN airStamp TEXT DEFAULT NULL")
+    }
+}
