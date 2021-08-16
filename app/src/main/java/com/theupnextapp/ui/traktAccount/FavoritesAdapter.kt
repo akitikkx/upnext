@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FavoriteItemBinding
-import com.theupnextapp.domain.FavoriteNextEpisode
 import com.theupnextapp.domain.TraktUserListItem
 
 class FavoritesAdapter(val listener: FavoritesAdapterListener) :
@@ -17,15 +16,9 @@ class FavoritesAdapter(val listener: FavoritesAdapterListener) :
 
     private var favoriteShows: List<TraktUserListItem> = ArrayList()
 
-    private var favoriteEpisodes: List<FavoriteNextEpisode> = ArrayList()
-
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.binding.also { binding ->
-            val favoriteShow = favoriteShows[position]
-            binding.show = favoriteShow
-            if (favoriteEpisodes.isNotEmpty()) {
-                binding.nextEpisode = favoriteEpisodes.find { it.tvMazeID == favoriteShow.tvMazeID }
-            }
+            binding.show = favoriteShows[position]
             binding.listener = listener
         }
     }
@@ -53,10 +46,6 @@ class FavoritesAdapter(val listener: FavoritesAdapterListener) :
         )
         favoriteShows = list
         diffResult.dispatchUpdatesTo(this)
-    }
-
-    fun submitFavoriteNextEpisodes(episodesList: List<FavoriteNextEpisode>) {
-        this.favoriteEpisodes = episodesList
     }
 
     class FavoriteItemDiffCallback(

@@ -1,10 +1,7 @@
 package com.theupnextapp.database
 
 import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 import com.theupnextapp.domain.ShowInfo
 
 @Dao
@@ -104,10 +101,10 @@ interface UpnextDao {
     fun deleteTraktAccessData()
 
     @Query("select * from trakt_access")
-    fun getTraktAccessData() : LiveData<DatabaseTraktAccess?>
+    fun getTraktAccessData(): LiveData<DatabaseTraktAccess?>
 
     @Query("select * from trakt_access")
-    fun getTraktAccessDataRaw() : DatabaseTraktAccess?
+    fun getTraktAccessDataRaw(): DatabaseTraktAccess?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAllTraktAccessData(databaseTraktAccess: DatabaseTraktAccess)
@@ -115,11 +112,17 @@ interface UpnextDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAllFavoriteNextEpisodes(vararg databaseFavoriteNextEpisode: DatabaseFavoriteNextEpisode)
 
+    @Update(entity = DatabaseFavoriteShows::class)
+    fun updateFavoriteEpisode(databaseFavoriteShows: DatabaseFavoriteShows)
+
     @Query("delete from favorite_next_episodes")
     fun deleteAllFavoriteEpisodes()
 
     @Query("select * from favorite_next_episodes")
     fun getFavoriteEpisodes(): LiveData<List<DatabaseFavoriteNextEpisode>>
+
+    @Query("select * from favorite_shows where tvMazeID = :tvMazeId")
+    fun getFavoriteShowRaw(tvMazeId: Int): DatabaseFavoriteShows
 
     @Query("delete from favorite_next_episodes where imdb = :imdbID")
     fun deleteFavoriteEpisode(imdbID: String)

@@ -30,8 +30,6 @@ class TraktAccountViewModel(
 
     val favoriteShows = traktRepository.traktFavoriteShows
 
-    val favoriteEpisodes = traktRepository.favoriteShowEpisodes
-
     private val _openCustomTab = MutableLiveData<Boolean>()
     val openCustomTab: LiveData<Boolean> = _openCustomTab
 

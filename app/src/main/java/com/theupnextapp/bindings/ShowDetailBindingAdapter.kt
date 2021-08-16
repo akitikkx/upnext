@@ -77,12 +77,12 @@ fun getNextAirDate(view: TextView, showInfo: ShowInfo?) {
 }
 
 @BindingAdapter("nextAirDate")
-fun getNextAirDate(view: TextView, showInfo: FavoriteNextEpisode?) {
-    if (!showInfo?.airStamp.isNullOrEmpty()) {
+fun getNextAirDate(view: TextView, airStamp: String?) {
+    if (!airStamp.isNullOrEmpty()) {
         val format =
             SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'+00:00'", Locale.getDefault())
 
-        val date = showInfo?.airStamp?.let { format.parse(it) }
+        val date = airStamp.let { format.parse(it) }
         if (date != null) {
             val difference =
                 DateUtils.getTimeDifferenceForDisplay(endTime = date.time)

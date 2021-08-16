@@ -264,7 +264,9 @@ class TraktRepository constructor(
     suspend fun clearFavorites() {
         withContext(Dispatchers.IO) {
             upnextDao.deleteAllFavoriteShows()
+            upnextDao.deleteAllFavoriteEpisodes()
             upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_FAVORITE_SHOWS.tableName)
+            upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_FAVORITE_EPISODES.tableName)
         }
     }
 
@@ -452,6 +454,17 @@ class TraktRepository constructor(
                         if (episodesList.isNotEmpty()) {
                             upnextDao.deleteAllFavoriteEpisodes()
                             upnextDao.insertAllFavoriteNextEpisodes(*episodesList.toTypedArray())
+
+                            for (episode in episodesList) {
+                                val showRecord = episode.tvMazeID?.let { tvMazeId ->
+                                    upnextDao.getFavoriteShowRaw(
+                                        tvMazeId
+                                    )
+                                }
+                                showRecord?.airStamp = episode.airStamp
+                                showRecord?.let { upnextDao.updateFavoriteEpisode(it) }
+                            }
+
                             upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_TRENDING.tableName)
                             upnextDao.insertTableUpdateLog(
                                 DatabaseTableUpdate(
