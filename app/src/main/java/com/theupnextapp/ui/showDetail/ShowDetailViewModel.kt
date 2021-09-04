@@ -4,7 +4,8 @@ import androidx.lifecycle.*
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
-import com.theupnextapp.domain.*
+import com.theupnextapp.domain.ShowCast
+import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.UpnextRepository
 import com.theupnextapp.ui.common.BaseTraktViewModel
@@ -13,9 +14,7 @@ import com.theupnextapp.work.RemoveFavoriteShowWorker
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
 class ShowDetailViewModel @AssistedInject constructor(
@@ -27,10 +26,6 @@ class ShowDetailViewModel @AssistedInject constructor(
     traktRepository,
     workManager
 ) {
-
-    private val viewModelJob = SupervisorJob()
-
-    private val viewModelScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
     private val _show = MutableLiveData(show)
     val showDetailArg: LiveData<ShowDetailArg> = _show
@@ -65,7 +60,7 @@ class ShowDetailViewModel @AssistedInject constructor(
     private val favoriteShow = traktRepository.favoriteShow
 
     init {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             show.showId?.let {
                 upnextRepository.getShowData(it)
                 upnextRepository.getShowCast(it)
@@ -106,7 +101,7 @@ class ShowDetailViewModel @AssistedInject constructor(
     }
 
     fun onAddRemoveFavoriteClick() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val accessToken = traktAccessToken.value
             if (accessToken != null) {
                 if (favoriteShow.value != null) {
@@ -149,11 +144,6 @@ class ShowDetailViewModel @AssistedInject constructor(
 
     fun onSeasonsNavigationComplete() {
         _navigateToSeasons.value = false
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        viewModelJob.cancel()
     }
 
     @AssistedFactory

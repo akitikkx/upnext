@@ -8,9 +8,7 @@ import com.theupnextapp.ui.common.BaseTraktViewModel
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
 class TraktAccountViewModel(
@@ -21,10 +19,6 @@ class TraktAccountViewModel(
     traktRepository,
     workManager
 ) {
-
-    private val viewModelJob = SupervisorJob()
-
-    private val viewModelScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
     val isLoading = traktRepository.isLoading
 
@@ -55,7 +49,7 @@ class TraktAccountViewModel(
     }
 
     fun onDisconnectConfirm() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             traktRepository.clearFavorites()
             revokeTraktAccessToken()
         }
@@ -67,7 +61,7 @@ class TraktAccountViewModel(
 
     fun onCodeReceived(code: String?) {
         if (!code.isNullOrEmpty()) {
-            viewModelScope.launch {
+            viewModelScope.launch(Dispatchers.IO) {
                 traktRepository.getTraktAccessToken(code)
             }
         }

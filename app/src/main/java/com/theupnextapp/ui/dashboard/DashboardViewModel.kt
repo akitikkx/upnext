@@ -2,6 +2,7 @@ package com.theupnextapp.ui.dashboard
 
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.theupnextapp.common.utils.DateUtils
@@ -13,9 +14,7 @@ import com.theupnextapp.work.RefreshTodayShowsWorker
 import com.theupnextapp.work.RefreshTomorrowShowsWorker
 import com.theupnextapp.work.RefreshYesterdayShowsWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -24,10 +23,6 @@ class DashboardViewModel @Inject constructor(
     private val upnextRepository: UpnextRepository,
     private val workManager: WorkManager
 ) : ViewModel() {
-
-    private val viewModelJob = SupervisorJob()
-
-    private val viewModelScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
     val isLoadingYesterdayShows = upnextRepository.isLoadingYesterdayShows
 
@@ -150,7 +145,7 @@ class DashboardViewModel @Inject constructor(
     }
 
     private fun requestShowsUpdate() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             upnextRepository.refreshYesterdayShows(
                 DEFAULT_COUNTRY_CODE,
                 DateUtils.yesterdayDate()
@@ -164,11 +159,6 @@ class DashboardViewModel @Inject constructor(
                 DateUtils.tomorrowDate()
             )
         }
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        viewModelJob.cancel()
     }
 
     companion object {
