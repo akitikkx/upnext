@@ -18,10 +18,6 @@ open class BaseTraktViewModel @Inject constructor(
     private val workManager: WorkManager
 ) : ViewModel() {
 
-    private val viewModelJob = SupervisorJob()
-
-    private val viewModelScope = CoroutineScope(viewModelJob + Dispatchers.Main)
-
     val traktAccessToken = traktRepository.traktAccessToken
 
     private val _isAuthorizedOnTrakt = MediatorLiveData<Boolean>()
@@ -34,7 +30,7 @@ open class BaseTraktViewModel @Inject constructor(
                     accessToken?.access_token.isNullOrEmpty() == false && accessToken?.isTraktAccessTokenValid() == true
 
                 if (accessToken?.isTraktAccessTokenValid() == false) {
-                    viewModelScope.launch {
+                    viewModelScope.launch(Dispatchers.IO) {
                         traktRepository.getTraktAccessRefreshToken(accessToken.refresh_token)
                     }
                 } else {
@@ -57,11 +53,11 @@ open class BaseTraktViewModel @Inject constructor(
     }
 
     fun revokeTraktAccessToken() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val accessToken = traktAccessToken.value
             if (accessToken != null) {
                 if (!accessToken.access_token.isNullOrEmpty() && accessToken.isTraktAccessTokenValid()) {
-                    viewModelScope.launch {
+                    viewModelScope.launch(Dispatchers.IO) {
                         traktRepository.revokeTraktAccessToken(accessToken)
                     }
                 }

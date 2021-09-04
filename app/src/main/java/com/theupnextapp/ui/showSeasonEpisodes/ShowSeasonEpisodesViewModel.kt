@@ -7,9 +7,7 @@ import com.theupnextapp.repository.UpnextRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
 class ShowSeasonEpisodesViewModel(
@@ -17,10 +15,6 @@ class ShowSeasonEpisodesViewModel(
     upnextRepository: UpnextRepository,
     showSeasonEpisodesArg: ShowSeasonEpisodesArg
 ) : ViewModel() {
-
-    private val viewModelJob = SupervisorJob()
-
-    private val viewModelScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
     val isLoading = upnextRepository.isLoading
 
@@ -33,7 +27,7 @@ class ShowSeasonEpisodesViewModel(
         savedStateHandle.set(SEASON_NUMBER, showSeasonEpisodesArg.seasonNumber)
         savedStateHandle.set(SHOW_ID, showSeasonEpisodesArg.showId)
 
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             savedStateHandle.get<Int>(SEASON_NUMBER)?.let { seasonNumber ->
                 savedStateHandle.get<Int>(SHOW_ID)?.let { showId ->
                     upnextRepository.getShowSeasonEpisodes(
