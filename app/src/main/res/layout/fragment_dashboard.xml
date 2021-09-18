@@ -10,117 +10,123 @@
             type="com.theupnextapp.ui.dashboard.DashboardViewModel" />
     </data>
 
-    <androidx.core.widget.NestedScrollView
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <com.google.android.material.progressindicator.LinearProgressIndicator
-                android:id="@+id/dashboard_progress_indicator"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:indeterminate="true"
-                android:visibility="gone"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:showHideView="@{viewModel.isLoading}"
-                tools:visibility="visible" />
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/yesterday_shows_title"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/margin_horizontal"
-                android:layout_marginTop="@dimen/margin_vertical"
-                android:text="@string/title_yesterday_shows"
-                android:textAppearance="?attr/textAppearanceHeadline6"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/dashboard_progress_indicator"
-                app:loadingVisibility="@{viewModel.isLoadingYesterdayShows}" />
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/yesterday_shows_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/margin_horizontal"
+                    android:layout_marginTop="@dimen/margin_vertical"
+                    android:text="@string/title_yesterday_shows"
+                    android:textAppearance="?attr/textAppearanceHeadline6"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:loadingVisibility="@{viewModel.isLoadingYesterdayShows}" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/yesterday_shows_list"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/margin_horizontal_half"
-                android:layout_marginTop="@dimen/margin_vertical"
-                android:layout_marginEnd="@dimen/margin_horizontal_half"
-                android:layout_marginBottom="@dimen/margin_vertical"
-                android:clipToPadding="false"
-                android:transitionGroup="true"
-                app:canClickItem="@{viewModel.isLoadingYesterdayShows}"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/yesterday_shows_title"
-                app:loadingVisibility="@{viewModel.isLoadingYesterdayShows}"
-                tools:listitem="@layout/yesterday_show_list_item" />
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/yesterday_shows_list"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/margin_horizontal_half"
+                    android:layout_marginTop="@dimen/margin_vertical"
+                    android:layout_marginEnd="@dimen/margin_horizontal_half"
+                    android:layout_marginBottom="@dimen/margin_vertical"
+                    android:clipToPadding="false"
+                    android:transitionGroup="true"
+                    app:canClickItem="@{viewModel.isLoadingYesterdayShows}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/yesterday_shows_title"
+                    app:loadingVisibility="@{viewModel.isLoadingYesterdayShows}"
+                    tools:listitem="@layout/yesterday_show_list_item" />
 
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/today_shows_title"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/margin_horizontal"
-                android:layout_marginTop="@dimen/margin_vertical_half"
-                android:text="@string/title_today_shows"
-                android:textAppearance="?attr/textAppearanceHeadline6"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/yesterday_shows_list"
-                app:loadingVisibility="@{viewModel.isLoadingTodayShows}" />
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/today_shows_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/margin_horizontal"
+                    android:layout_marginTop="@dimen/margin_vertical_half"
+                    android:text="@string/title_today_shows"
+                    android:textAppearance="?attr/textAppearanceHeadline6"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/yesterday_shows_list"
+                    app:loadingVisibility="@{viewModel.isLoadingTodayShows}" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/today_shows_list"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/margin_horizontal_half"
-                android:layout_marginTop="@dimen/margin_vertical"
-                android:layout_marginEnd="@dimen/margin_horizontal_half"
-                android:layout_marginBottom="@dimen/margin_vertical"
-                android:clipToPadding="false"
-                android:transitionGroup="true"
-                app:canClickItem="@{viewModel.isLoadingTodayShows}"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/today_shows_title"
-                app:loadingVisibility="@{viewModel.isLoadingTodayShows}"
-                tools:listitem="@layout/today_show_list_item" />
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/today_shows_list"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/margin_horizontal_half"
+                    android:layout_marginTop="@dimen/margin_vertical"
+                    android:layout_marginEnd="@dimen/margin_horizontal_half"
+                    android:layout_marginBottom="@dimen/margin_vertical"
+                    android:clipToPadding="false"
+                    android:transitionGroup="true"
+                    app:canClickItem="@{viewModel.isLoadingTodayShows}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/today_shows_title"
+                    app:loadingVisibility="@{viewModel.isLoadingTodayShows}"
+                    tools:listitem="@layout/today_show_list_item" />
 
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/tomorrow_shows_title"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/margin_horizontal"
-                android:layout_marginTop="@dimen/margin_vertical"
-                android:text="@string/title_tomorrow_shows"
-                android:textAppearance="?attr/textAppearanceHeadline6"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/today_shows_list"
-                app:loadingVisibility="@{viewModel.isLoadingTomorrowShows}" />
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tomorrow_shows_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/margin_horizontal"
+                    android:layout_marginTop="@dimen/margin_vertical"
+                    android:text="@string/title_tomorrow_shows"
+                    android:textAppearance="?attr/textAppearanceHeadline6"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/today_shows_list"
+                    app:loadingVisibility="@{viewModel.isLoadingTomorrowShows}" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/tomorrow_shows_list"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/margin_horizontal_half"
-                android:layout_marginTop="@dimen/margin_vertical"
-                android:layout_marginEnd="@dimen/margin_horizontal_half"
-                android:layout_marginBottom="@dimen/margin_vertical"
-                android:clipToPadding="false"
-                android:transitionGroup="true"
-                app:canClickItem="@{viewModel.isLoadingTomorrowShows}"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tomorrow_shows_title"
-                app:loadingVisibility="@{viewModel.isLoadingTomorrowShows}"
-                tools:listitem="@layout/tomorrow_show_list_item" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/tomorrow_shows_list"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/margin_horizontal_half"
+                    android:layout_marginTop="@dimen/margin_vertical"
+                    android:layout_marginEnd="@dimen/margin_horizontal_half"
+                    android:layout_marginBottom="@dimen/margin_vertical"
+                    android:clipToPadding="false"
+                    android:transitionGroup="true"
+                    app:canClickItem="@{viewModel.isLoadingTomorrowShows}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tomorrow_shows_title"
+                    app:loadingVisibility="@{viewModel.isLoadingTomorrowShows}"
+                    tools:listitem="@layout/tomorrow_show_list_item" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </androidx.core.widget.NestedScrollView>
+        </androidx.core.widget.NestedScrollView>
+
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/dashboard_progress_indicator"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:showHideView="@{viewModel.isLoading}"
+            tools:visibility="visible" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>
