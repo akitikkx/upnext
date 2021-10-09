@@ -8,6 +8,14 @@
         <variable
             name="episode"
             type="com.theupnextapp.domain.ShowSeasonEpisode" />
+
+        <variable
+            name="listener"
+            type="com.theupnextapp.ui.showSeasonEpisodes.ShowSeasonEpisodesAdapter.ShowSeasonEpisodesAdapterListener" />
+
+        <variable
+            name="isAuthorizedOnTrakt"
+            type="Boolean" />
     </data>
 
     <com.google.android.material.card.MaterialCardView
@@ -91,13 +99,25 @@
                 android:id="@+id/textview_airstamp"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:padding="@dimen/padding_standard"
+                android:textAppearance="?attr/textAppearanceCaption"
+                app:airDate="@{episode.airstamp}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:airDate="@{episode.airstamp}"
-                android:textAppearance="?attr/textAppearanceCaption"
-                android:padding="@dimen/padding_standard"
                 app:layout_constraintTop_toBottomOf="@id/textview_episode_summary"
                 tools:text="Aired on 1 January 2021" />
+
+            <com.google.android.material.button.MaterialButton
+                style="?attr/borderlessButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:focusable="true"
+                android:onClick="@{() -> listener.onCheckInClick(episode)}"
+                android:text="@string/show_detail_show_season_episode_trakt_check_in"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/textview_airstamp"
+                app:showHideView="@{!isAuthorizedOnTrakt}" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
