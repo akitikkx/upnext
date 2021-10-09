@@ -2,6 +2,7 @@ package com.theupnextapp.ui.showSeasonEpisodes
 
 import androidx.lifecycle.*
 import androidx.savedstate.SavedStateRegistryOwner
+import com.theupnextapp.domain.ShowSeasonEpisode
 import com.theupnextapp.domain.ShowSeasonEpisodesArg
 import com.theupnextapp.repository.UpnextRepository
 import dagger.assisted.Assisted
@@ -23,6 +24,9 @@ class ShowSeasonEpisodesViewModel(
     private val _seasonNumber = MutableLiveData<Int?>(showSeasonEpisodesArg.seasonNumber)
     val seasonNumber: LiveData<Int?> = _seasonNumber
 
+    private val _confirmCheckIn = MutableLiveData<ShowSeasonEpisode?>()
+    val confirmCheckIn: LiveData<ShowSeasonEpisode?> = _confirmCheckIn
+
     init {
         savedStateHandle.set(SEASON_NUMBER, showSeasonEpisodesArg.seasonNumber)
         savedStateHandle.set(SHOW_ID, showSeasonEpisodesArg.showId)
@@ -37,6 +41,18 @@ class ShowSeasonEpisodesViewModel(
                 }
             }
         }
+    }
+
+    fun onCheckInClick(showSeasonEpisode: ShowSeasonEpisode) {
+        _confirmCheckIn.value = showSeasonEpisode
+    }
+
+    fun onCheckInConfirm(showSeasonEpisode: ShowSeasonEpisode) {
+
+    }
+
+    fun onCheckInComplete() {
+        _confirmCheckIn.value = null
     }
 
     @AssistedFactory

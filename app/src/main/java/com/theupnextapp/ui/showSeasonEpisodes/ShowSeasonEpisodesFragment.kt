@@ -7,15 +7,18 @@ import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentShowSeasonEpisodesBinding
+import com.theupnextapp.domain.ShowSeasonEpisode
 import com.theupnextapp.ui.common.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ShowSeasonEpisodesFragment : BaseFragment() {
+class ShowSeasonEpisodesFragment : BaseFragment(),
+    ShowSeasonEpisodesAdapter.ShowSeasonEpisodesAdapterListener {
 
     private var _binding: FragmentShowSeasonEpisodesBinding? = null
     private val binding get() = _binding!!
@@ -40,7 +43,7 @@ class ShowSeasonEpisodesFragment : BaseFragment() {
 
         binding.lifecycleOwner = viewLifecycleOwner
 
-        _showSeasonEpisodesAdapter = ShowSeasonEpisodesAdapter()
+        _showSeasonEpisodesAdapter = ShowSeasonEpisodesAdapter(this)
 
         binding.seasonEpisodesList.apply {
             layoutManager = LinearLayoutManager(requireContext()).apply {
@@ -65,6 +68,30 @@ class ShowSeasonEpisodesFragment : BaseFragment() {
                     getString(R.string.show_detail_show_season_episodes_title_with_number, it)
             }
         })
+
+        viewModel.confirmCheckIn.observe(viewLifecycleOwner, {
+            if (it != null) {
+                MaterialAlertDialogBuilder(requireActivity())
+                    .setTitle(
+                        resources.getString(
+                            R.string.show_detail_show_season_episode_check_in_dialog_title,
+                            it.season,
+                            it.number
+                        )
+                    )
+                    .setMessage(
+                        resources.getString(R.string.show_detail_show_season_episode_check_in_dialog_message)
+                    )
+                    .setNegativeButton(resources.getString(R.string.show_detail_show_season_episode_check_in_dialog_negative)) { dialog, _ ->
+                        dialog.dismiss()
+                    }
+                    .setPositiveButton(resources.getString(R.string.show_detail_show_season_episode_check_in_dialog_positive)) { dialog, _ ->
+                        viewModel.onCheckInConfirm(it)
+                        dialog.dismiss()
+                    }
+                    .show()
+            }
+        })
     }
 
     override fun onDestroyView() {
@@ -81,5 +108,9 @@ class ShowSeasonEpisodesFragment : BaseFragment() {
     override fun onStop() {
         super.onStop()
         (activity as MainActivity).showBottomNavigation()
+    }
+
+    override fun onCheckInClick(showSeasonEpisode: ShowSeasonEpisode) {
+        viewModel.onCheckInClick(showSeasonEpisode)
     }
 }

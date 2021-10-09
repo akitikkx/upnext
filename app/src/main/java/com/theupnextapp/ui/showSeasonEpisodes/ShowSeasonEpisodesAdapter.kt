@@ -9,7 +9,7 @@ import com.theupnextapp.R
 import com.theupnextapp.databinding.ShowSeasonEpisodeItemBinding
 import com.theupnextapp.domain.ShowSeasonEpisode
 
-class ShowSeasonEpisodesAdapter : RecyclerView.Adapter<ShowSeasonEpisodesAdapter.ViewHolder>() {
+class ShowSeasonEpisodesAdapter(val listener: ShowSeasonEpisodesAdapterListener) : RecyclerView.Adapter<ShowSeasonEpisodesAdapter.ViewHolder>() {
 
     private var showSeasonEpisodes: List<ShowSeasonEpisode> = ArrayList()
 
@@ -27,6 +27,7 @@ class ShowSeasonEpisodesAdapter : RecyclerView.Adapter<ShowSeasonEpisodesAdapter
             val showSeasonEpisode = showSeasonEpisodes[position]
 
             it.episode = showSeasonEpisode
+            it.listener = listener
         }
     }
 
@@ -43,6 +44,10 @@ class ShowSeasonEpisodesAdapter : RecyclerView.Adapter<ShowSeasonEpisodesAdapter
         )
         showSeasonEpisodes = episodesList
         diffResult.dispatchUpdatesTo(this)
+    }
+
+    interface ShowSeasonEpisodesAdapterListener {
+        fun onCheckInClick(showSeasonEpisode: ShowSeasonEpisode)
     }
 
     class ShowSeasonEpisodeItemDiffCallback(
