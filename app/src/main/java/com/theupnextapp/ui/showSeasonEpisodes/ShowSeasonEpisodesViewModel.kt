@@ -4,6 +4,7 @@ import androidx.lifecycle.*
 import androidx.savedstate.SavedStateRegistryOwner
 import com.theupnextapp.domain.ShowSeasonEpisode
 import com.theupnextapp.domain.ShowSeasonEpisodesArg
+import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.UpnextRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -14,6 +15,7 @@ import kotlinx.coroutines.launch
 class ShowSeasonEpisodesViewModel(
     savedStateHandle: SavedStateHandle,
     upnextRepository: UpnextRepository,
+    traktRepository: TraktRepository,
     showSeasonEpisodesArg: ShowSeasonEpisodesArg
 ) : ViewModel() {
 
@@ -43,12 +45,15 @@ class ShowSeasonEpisodesViewModel(
         }
     }
 
-    fun onCheckInClick(showSeasonEpisode: ShowSeasonEpisode) {
+    fun onCheckInClick(showSeasonEpisode: ShowSeasonEpisode, imdbID: String?) {
+        showSeasonEpisode.imdbID = imdbID
         _confirmCheckIn.value = showSeasonEpisode
     }
 
     fun onCheckInConfirm(showSeasonEpisode: ShowSeasonEpisode) {
+        viewModelScope.launch {
 
+        }
     }
 
     fun onCheckInComplete() {
@@ -71,14 +76,21 @@ class ShowSeasonEpisodesViewModel(
     class Factory @AssistedInject constructor(
         @Assisted owner: SavedStateRegistryOwner,
         private val repository: UpnextRepository,
+        private val traktRepository: TraktRepository,
         @Assisted private val showSeasonEpisodesArg: ShowSeasonEpisodesArg
     ) : AbstractSavedStateViewModelFactory(owner, null) {
+        @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel?> create(
             key: String,
             modelClass: Class<T>,
             handle: SavedStateHandle
         ): T {
-            return ShowSeasonEpisodesViewModel(handle, repository, showSeasonEpisodesArg) as T
+            return ShowSeasonEpisodesViewModel(
+                handle,
+                repository,
+                traktRepository,
+                showSeasonEpisodesArg
+            ) as T
         }
     }
 }

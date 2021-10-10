@@ -16,6 +16,10 @@
         <variable
             name="isAuthorizedOnTrakt"
             type="Boolean" />
+
+        <variable
+            name="imdbID"
+            type="String" />
     </data>
 
     <com.google.android.material.card.MaterialCardView
@@ -113,11 +117,11 @@
                 android:layout_height="wrap_content"
                 android:clickable="true"
                 android:focusable="true"
-                android:onClick="@{() -> listener.onCheckInClick(episode)}"
+                android:onClick="@{() -> listener.onCheckInClick(episode, imdbID)}"
                 android:text="@string/show_detail_show_season_episode_trakt_check_in"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/textview_airstamp"
-                app:showHideView="@{!isAuthorizedOnTrakt}" />
+                app:showHideView="@{isAuthorizedOnTrakt}" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

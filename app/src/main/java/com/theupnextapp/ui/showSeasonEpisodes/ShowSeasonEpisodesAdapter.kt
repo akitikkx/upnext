@@ -9,7 +9,11 @@ import com.theupnextapp.R
 import com.theupnextapp.databinding.ShowSeasonEpisodeItemBinding
 import com.theupnextapp.domain.ShowSeasonEpisode
 
-class ShowSeasonEpisodesAdapter(val listener: ShowSeasonEpisodesAdapterListener) : RecyclerView.Adapter<ShowSeasonEpisodesAdapter.ViewHolder>() {
+class ShowSeasonEpisodesAdapter(
+    val listener: ShowSeasonEpisodesAdapterListener,
+    val isAuthorizedOnTrakt: Boolean = false,
+    val imdbID: String? = null
+) : RecyclerView.Adapter<ShowSeasonEpisodesAdapter.ViewHolder>() {
 
     private var showSeasonEpisodes: List<ShowSeasonEpisode> = ArrayList()
 
@@ -28,6 +32,8 @@ class ShowSeasonEpisodesAdapter(val listener: ShowSeasonEpisodesAdapterListener)
 
             it.episode = showSeasonEpisode
             it.listener = listener
+            it.isAuthorizedOnTrakt = isAuthorizedOnTrakt
+            it.imdbID = imdbID
         }
     }
 
@@ -47,7 +53,7 @@ class ShowSeasonEpisodesAdapter(val listener: ShowSeasonEpisodesAdapterListener)
     }
 
     interface ShowSeasonEpisodesAdapterListener {
-        fun onCheckInClick(showSeasonEpisode: ShowSeasonEpisode)
+        fun onCheckInClick(showSeasonEpisode: ShowSeasonEpisode, imdbID: String?)
     }
 
     class ShowSeasonEpisodeItemDiffCallback(
