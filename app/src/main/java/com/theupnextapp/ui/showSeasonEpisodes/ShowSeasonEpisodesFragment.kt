@@ -8,6 +8,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentShowSeasonEpisodesBinding
@@ -71,6 +72,24 @@ class ShowSeasonEpisodesFragment : BaseFragment(),
             if (it != null) {
                 binding.textviewShowSeasonEpisodesTitle.text =
                     getString(R.string.show_detail_show_season_episodes_title_with_number, it)
+            }
+        })
+
+        viewModel.traktCheckInStatus.observe(viewLifecycleOwner, {
+            if (it != null) {
+                if (it.season == null && it.episode == null && !it.message.isNullOrEmpty()) {
+                    Snackbar.make(
+                        binding.root,
+                        "${it.message}",
+                        Snackbar.LENGTH_LONG
+                    ).show()
+                } else if (it.season != null && it.episode != null && !it.checkInTime.isNullOrEmpty()) {
+                    Snackbar.make(
+                        binding.root,
+                        "Trakt Check-in for Season ${it.season} Episode ${it.episode} in progress from ${it.checkInTime}",
+                        Snackbar.LENGTH_LONG
+                    ).show()
+                }
             }
         })
 

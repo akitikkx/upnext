@@ -85,6 +85,9 @@ class TraktRepository constructor(
     private val _favoriteShow = MutableLiveData<TraktUserListItem>()
     val favoriteShow: LiveData<TraktUserListItem> = _favoriteShow
 
+    private val _traktCheckInStatus = MutableLiveData<TraktCheckInStatus>()
+    val traktCheckInStatus: LiveData<TraktCheckInStatus> = _traktCheckInStatus
+
     suspend fun getTraktAccessToken(code: String?) {
         if (code.isNullOrEmpty()) {
             logTraktException("Could not get the access token due to a null code")
@@ -811,6 +814,68 @@ class TraktRepository constructor(
         }
     }
 
+    suspend fun checkInToShow(showSeasonEpisode: ShowSeasonEpisode, token: String?) {
+        if (showSeasonEpisode.imdbID.isNullOrEmpty()) {
+            logTraktException("Could not check-in to the episode due to a null imdb ID")
+            return
+        }
+
+        withContext(Dispatchers.IO) {
+            try {
+                _isLoading.postValue(true)
+                val showLookupResponse =
+                    showSeasonEpisode.imdbID?.let {
+                        TraktNetwork.traktApi.idLookupAsync(idType = "imdb", id = it)
+                            .await()
+                    }
+                if (!showLookupResponse.isNullOrEmpty()) {
+                    val showLookup = showLookupResponse.firstOrNull()
+                    if (showLookup != null) {
+                        val checkInRequest = NetworkTraktCheckInRequest(
+                            show = NetworkTraktCheckInRequestShow(
+                                ids = NetworkTraktCheckInRequestShowIds(
+                                    trakt = showLookup.show?.ids?.trakt
+                                ),
+                                title = showLookup.show?.title,
+                                year = showLookup.show?.year
+                            ),
+                            episode = NetworkTraktCheckInRequestEpisode(
+                                season = showSeasonEpisode.season,
+                                number = showSeasonEpisode.number
+                            )
+                        )
+                        val checkInResponse =
+                            TraktNetwork.traktApi.checkInAsync(
+                                token = "Bearer $token",
+                                networkTraktCheckInRequest = checkInRequest
+                            ).await()
+                        _traktCheckInStatus.postValue(checkInResponse.asDomainModel())
+                    }
+                }
+                _isLoading.postValue(false)
+            } catch (e: HttpException) {
+                if (e.code() == HTTP_409) {
+                    _traktCheckInStatus.postValue(TraktCheckInStatus(message = "A check-in is already in progress on Trakt. Check-ins for an episode at a time"))
+                }
+                _isLoading.postValue(false)
+                Timber.d(e)
+                firebaseCrashlytics.recordException(e)
+            } catch (e: Exception) {
+                _isLoading.postValue(false)
+                Timber.d(e)
+                firebaseCrashlytics.recordException(e)
+            } catch (e: SSLHandshakeException) {
+                _isLoading.postValue(false)
+                Timber.d(e)
+                firebaseCrashlytics.recordException(e)
+            } catch (e: IOException) {
+                _isLoading.postValue(false)
+                Timber.d(e)
+                firebaseCrashlytics.recordException(e)
+            }
+        }
+    }
+
     private fun logTraktException(message: String) {
         Timber.d(Throwable(message = message))
         firebaseCrashlytics
@@ -819,5 +884,6 @@ class TraktRepository constructor(
 
     companion object {
         const val FAVORITES_LIST_NAME = "Upnext Favorites"
+        const val HTTP_409 = 409
     }
 }

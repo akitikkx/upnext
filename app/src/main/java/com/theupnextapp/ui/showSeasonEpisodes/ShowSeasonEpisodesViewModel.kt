@@ -2,10 +2,12 @@ package com.theupnextapp.ui.showSeasonEpisodes
 
 import androidx.lifecycle.*
 import androidx.savedstate.SavedStateRegistryOwner
+import androidx.work.WorkManager
 import com.theupnextapp.domain.ShowSeasonEpisode
 import com.theupnextapp.domain.ShowSeasonEpisodesArg
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.UpnextRepository
+import com.theupnextapp.ui.common.BaseTraktViewModel
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -15,13 +17,19 @@ import kotlinx.coroutines.launch
 class ShowSeasonEpisodesViewModel(
     savedStateHandle: SavedStateHandle,
     upnextRepository: UpnextRepository,
-    traktRepository: TraktRepository,
+    private val traktRepository: TraktRepository,
+    workManager: WorkManager,
     showSeasonEpisodesArg: ShowSeasonEpisodesArg
-) : ViewModel() {
+) : BaseTraktViewModel(
+    traktRepository,
+    workManager
+) {
 
     val isLoading = upnextRepository.isLoading
 
     val episodes = upnextRepository.episodes
+
+    val traktCheckInStatus = traktRepository.traktCheckInStatus
 
     private val _seasonNumber = MutableLiveData<Int?>(showSeasonEpisodesArg.seasonNumber)
     val seasonNumber: LiveData<Int?> = _seasonNumber
@@ -52,11 +60,12 @@ class ShowSeasonEpisodesViewModel(
 
     fun onCheckInConfirm(showSeasonEpisode: ShowSeasonEpisode) {
         viewModelScope.launch {
-
+            traktRepository.checkInToShow(showSeasonEpisode, traktAccessToken.value?.access_token)
+            onCheckInComplete()
         }
     }
 
-    fun onCheckInComplete() {
+    private fun onCheckInComplete() {
         _confirmCheckIn.value = null
     }
 
@@ -77,6 +86,7 @@ class ShowSeasonEpisodesViewModel(
         @Assisted owner: SavedStateRegistryOwner,
         private val repository: UpnextRepository,
         private val traktRepository: TraktRepository,
+        private val workManager: WorkManager,
         @Assisted private val showSeasonEpisodesArg: ShowSeasonEpisodesArg
     ) : AbstractSavedStateViewModelFactory(owner, null) {
         @Suppress("UNCHECKED_CAST")
@@ -89,6 +99,7 @@ class ShowSeasonEpisodesViewModel(
                 handle,
                 repository,
                 traktRepository,
+                workManager,
                 showSeasonEpisodesArg
             ) as T
         }

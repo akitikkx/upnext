@@ -89,6 +89,18 @@ interface TraktService {
         @Path("list_id") traktId: String,
         @Body networkTraktRemoveShowFromListRequest: NetworkTraktRemoveShowFromListRequest
     ): Deferred<NetworkTraktRemoveShowFromListResponse>
+
+    @GET("search/{id_type}/{id}?type=show")
+    fun idLookupAsync(
+        @Path("id_type") idType: String,
+        @Path("id") id: String
+    ): Deferred<NetworkTraktIdLookupResponse>
+
+    @POST("checkin")
+    fun checkInAsync(
+        @Header("Authorization") token: String,
+        @Body networkTraktCheckInRequest: NetworkTraktCheckInRequest
+    ): Deferred<NetworkTraktCheckInResponse>
 }
 
 object TraktNetwork {

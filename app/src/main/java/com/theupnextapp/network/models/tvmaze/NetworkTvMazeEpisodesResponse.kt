@@ -47,7 +47,8 @@ fun List<NetworkTvMazeEpisodesResponseItem>.asDomainModel(): List<ShowSeasonEpis
             type = it.type,
             airdate = it.airdate,
             airstamp = it.airstamp,
-            airtime = it.airtime
+            airtime = it.airtime,
+            imdbID = null
         )
     }
 }
