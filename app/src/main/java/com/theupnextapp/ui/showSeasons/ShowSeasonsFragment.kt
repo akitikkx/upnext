@@ -82,7 +82,9 @@ class ShowSeasonsFragment : BaseFragment(), ShowSeasonsAdapter.ShowSeasonsAdapte
             ShowSeasonsFragmentDirections.actionShowSeasonsFragmentToShowSeasonEpisodesFragment(
                 ShowSeasonEpisodesArg(
                     showId = showId,
-                    seasonNumber = seasonNumber
+                    seasonNumber = seasonNumber,
+                    imdbID = args.show.imdbID,
+                    isAuthorizedOnTrakt = args.show.isAuthorizedOnTrakt
                 )
             )
         findNavController().navigate(directions)

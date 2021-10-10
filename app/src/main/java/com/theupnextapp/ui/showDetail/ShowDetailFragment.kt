@@ -38,6 +38,10 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
     private var _showRatingsAdapter: ShowRatingsAdapter? = null
     private val showRatingsAdapter get() = _showRatingsAdapter
 
+    private var _imdbID: String? = null
+
+    private var _isAuthorizedOnTrakt: Boolean = false
+
     private val args by navArgs<ShowDetailFragmentArgs>()
 
     @Inject
@@ -100,6 +104,7 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
         viewModel.showInfo.observe(viewLifecycleOwner, {
             if (it != null) {
                 showInfo = it
+                _imdbID = it.imdbID
             }
         })
 
@@ -134,6 +139,10 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
             }
         })
 
+        viewModel.isAuthorizedOnTrakt.observe(viewLifecycleOwner, {
+            _isAuthorizedOnTrakt = it
+        })
+
         viewModel.navigateToSeasons.observe(viewLifecycleOwner, {
             if (it) {
                 val directions =
@@ -142,7 +151,9 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
                             showId = args.show.showId,
                             showTitle = args.show.showTitle,
                             showImageUrl = args.show.showImageUrl,
-                            showBackgroundUrl = args.show.showBackgroundUrl
+                            showBackgroundUrl = args.show.showBackgroundUrl,
+                            imdbID = _imdbID,
+                            isAuthorizedOnTrakt = _isAuthorizedOnTrakt
                         )
                     )
                 findNavController().navigate(directions)

@@ -43,7 +43,12 @@ class ShowSeasonEpisodesFragment : BaseFragment(),
 
         binding.lifecycleOwner = viewLifecycleOwner
 
-        _showSeasonEpisodesAdapter = ShowSeasonEpisodesAdapter(this)
+        _showSeasonEpisodesAdapter =
+            ShowSeasonEpisodesAdapter(
+                this,
+                args.showSeasonEpisode.isAuthorizedOnTrakt,
+                args.showSeasonEpisode.imdbID
+            )
 
         binding.seasonEpisodesList.apply {
             layoutManager = LinearLayoutManager(requireContext()).apply {
@@ -110,7 +115,7 @@ class ShowSeasonEpisodesFragment : BaseFragment(),
         (activity as MainActivity).showBottomNavigation()
     }
 
-    override fun onCheckInClick(showSeasonEpisode: ShowSeasonEpisode) {
-        viewModel.onCheckInClick(showSeasonEpisode)
+    override fun onCheckInClick(showSeasonEpisode: ShowSeasonEpisode, imdbID: String?) {
+        viewModel.onCheckInClick(showSeasonEpisode, imdbID)
     }
 }
