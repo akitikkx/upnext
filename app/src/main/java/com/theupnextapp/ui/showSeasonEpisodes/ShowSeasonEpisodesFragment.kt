@@ -76,17 +76,17 @@ class ShowSeasonEpisodesFragment : BaseFragment(),
         })
 
         viewModel.traktCheckInStatus.observe(viewLifecycleOwner, {
-            if (it != null) {
-                if (it.season == null && it.episode == null && !it.message.isNullOrEmpty()) {
+            it.getContentIfNotHandled()?.let { checkInStatus ->
+                if (checkInStatus.season == null && checkInStatus.episode == null && !checkInStatus.message.isNullOrEmpty()) {
                     Snackbar.make(
                         binding.root,
-                        "${it.message}",
+                        "${checkInStatus.message}",
                         Snackbar.LENGTH_LONG
                     ).show()
-                } else if (it.season != null && it.episode != null && !it.checkInTime.isNullOrEmpty()) {
+                } else if (checkInStatus.season != null && checkInStatus.episode != null && !checkInStatus.checkInTime.isNullOrEmpty()) {
                     Snackbar.make(
                         binding.root,
-                        "Trakt Check-in for Season ${it.season} Episode ${it.episode} in progress from ${it.checkInTime}",
+                        "Trakt Check-in for Season ${checkInStatus.season} Episode ${checkInStatus.episode} in progress from ${checkInStatus.checkInTime}",
                         Snackbar.LENGTH_LONG
                     ).show()
                 }
