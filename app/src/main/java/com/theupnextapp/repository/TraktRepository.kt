@@ -9,6 +9,7 @@ import com.theupnextapp.common.utils.models.DatabaseTables
 import com.theupnextapp.common.utils.models.TableUpdateInterval
 import com.theupnextapp.database.*
 import com.theupnextapp.domain.*
+import com.theupnextapp.extensions.Event
 import com.theupnextapp.network.TraktNetwork
 import com.theupnextapp.network.TvMazeNetwork
 import com.theupnextapp.network.models.trakt.*
@@ -85,8 +86,8 @@ class TraktRepository constructor(
     private val _favoriteShow = MutableLiveData<TraktUserListItem>()
     val favoriteShow: LiveData<TraktUserListItem> = _favoriteShow
 
-    private val _traktCheckInStatus = MutableLiveData<TraktCheckInStatus>()
-    val traktCheckInStatus: LiveData<TraktCheckInStatus> = _traktCheckInStatus
+    private val _traktCheckInStatus = MutableLiveData<Event<TraktCheckInStatus>>()
+    val traktCheckInStatus: LiveData<Event<TraktCheckInStatus>> = _traktCheckInStatus
 
     suspend fun getTraktAccessToken(code: String?) {
         if (code.isNullOrEmpty()) {
@@ -849,13 +850,13 @@ class TraktRepository constructor(
                                 token = "Bearer $token",
                                 networkTraktCheckInRequest = checkInRequest
                             ).await()
-                        _traktCheckInStatus.postValue(checkInResponse.asDomainModel())
+                        _traktCheckInStatus.postValue(Event(checkInResponse.asDomainModel()))
                     }
                 }
                 _isLoading.postValue(false)
             } catch (e: HttpException) {
                 if (e.code() == HTTP_409) {
-                    _traktCheckInStatus.postValue(TraktCheckInStatus(message = "A check-in is already in progress on Trakt. Check-ins for an episode at a time"))
+                    _traktCheckInStatus.postValue(Event(TraktCheckInStatus(message = "A check-in is already in progress on Trakt. Check-ins for an episode at a time")))
                 }
                 _isLoading.postValue(false)
                 Timber.d(e)
