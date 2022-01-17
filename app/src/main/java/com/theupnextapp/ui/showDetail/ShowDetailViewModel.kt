@@ -157,7 +157,7 @@ class ShowDetailViewModel @AssistedInject constructor(
             assistedFactory: ShowDetailViewModelFactory,
             show: ShowDetailArg
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-            override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 return assistedFactory.create(show) as T
             }
         }
