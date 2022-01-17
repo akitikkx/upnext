@@ -1,12 +1,12 @@
 plugins {
-    id("kotlin-kapt")
     id("com.android.application")
-    id("kotlin-android")
     id("androidx.navigation.safeargs")
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
     id("com.google.firebase.firebase-perf")
     id("dagger.hilt.android.plugin")
+    id("kotlin-android")
+    id("kotlin-kapt")
 }
 
 android {
@@ -16,8 +16,8 @@ android {
         applicationId "com.theupnextapp"
         minSdkVersion 21
         targetSdkVersion 31
-        versionCode 166
-        versionName "3.2.4"
+        versionCode 167
+        versionName "3.2.5"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         javaCompileOptions {
@@ -64,8 +64,6 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation "androidx.appcompat:appcompat:$appcompat_version"
     implementation "androidx.core:core-ktx:$core_ktx_version"
     implementation "androidx.constraintlayout:constraintlayout:$constraintlayout_version"
@@ -111,8 +109,8 @@ dependencies {
     implementation "androidx.work:work-runtime-ktx:$work_version"
 
     // Hilt
-    implementation("com.google.dagger:hilt-android:$hilt_version")
-    kapt("com.google.dagger:hilt-android-compiler:$hilt_version")
+    implementation "com.google.dagger:hilt-android:$hilt_version"
+    kapt "com.google.dagger:hilt-android-compiler:$hilt_version"
 
     // Timber
     // Logging

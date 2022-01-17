@@ -22,12 +22,13 @@ class ShowCastBottomSheetViewModel @AssistedInject constructor(
         fun create(castInfo: ShowCast?): ShowCastBottomSheetViewModel
     }
 
+    @Suppress("UNCHECKED_CAST")
     companion object {
         fun provideFactory(
             assistedFactory: ShowCastBottomSheetViewModelFactory,
             castInfo: ShowCast?
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-            override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 return assistedFactory.create(castInfo) as T
             }
         }
