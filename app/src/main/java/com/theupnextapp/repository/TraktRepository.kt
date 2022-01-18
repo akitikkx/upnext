@@ -2,7 +2,6 @@ package com.theupnextapp.repository
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.theupnextapp.BuildConfig
 import com.theupnextapp.common.utils.models.DatabaseTables
@@ -59,6 +58,8 @@ import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowImageResponse
 import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupResponse
 import com.theupnextapp.network.models.tvmaze.asDatabaseModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 import timber.log.Timber
@@ -73,38 +74,38 @@ class TraktRepository constructor(
     private val firebaseCrashlytics: FirebaseCrashlytics
 ) : BaseRepository(upnextDao = upnextDao, tvMazeService = tvMazeService) {
 
-    fun tableUpdate(tableName: String): LiveData<TableUpdate?> =
-        Transformations.map(upnextDao.getTableLastUpdate(tableName)) {
+    fun tableUpdate(tableName: String): Flow<TableUpdate?> =
+        upnextDao.getTableLastUpdate(tableName).map {
             it?.asDomainModel()
         }
 
-    val traktPopularShows: LiveData<List<TraktPopularShows>> =
-        Transformations.map(traktDao.getTraktPopular()) {
+    val traktPopularShows: Flow<List<TraktPopularShows>>
+        get() = traktDao.getTraktPopular().map {
             it.asDomainModel()
         }
 
-    val traktTrendingShows: LiveData<List<TraktTrendingShows>> =
-        Transformations.map(traktDao.getTraktTrending()) {
+    val traktTrendingShows: Flow<List<TraktTrendingShows>>
+        get() = traktDao.getTraktTrending().map {
             it.asDomainModel()
         }
 
-    val traktMostAnticipatedShows: LiveData<List<TraktMostAnticipated>> =
-        Transformations.map(traktDao.getTraktMostAnticipated()) {
+    val traktMostAnticipatedShows: Flow<List<TraktMostAnticipated>>
+        get() = traktDao.getTraktMostAnticipated().map {
             it.asDomainModel()
         }
 
-    val traktFavoriteShows: LiveData<List<TraktUserListItem>> =
-        Transformations.map(traktDao.getFavoriteShows()) {
+    val traktFavoriteShows: Flow<List<TraktUserListItem>>
+        get() = traktDao.getFavoriteShows().map {
             it.asDomainModel()
         }
 
-    val favoriteShowEpisodes: LiveData<List<FavoriteNextEpisode>> =
-        Transformations.map(traktDao.getFavoriteEpisodes()) {
+    val favoriteShowEpisodes: Flow<List<FavoriteNextEpisode>>
+        get() = traktDao.getFavoriteEpisodes().map {
             it.asDomainModel()
         }
 
-    val traktAccessToken: LiveData<TraktAccessToken?> =
-        Transformations.map(traktDao.getTraktAccessData()) {
+    val traktAccessToken: Flow<TraktAccessToken?>
+        get() = traktDao.getTraktAccessData().map {
             it?.asDomainModel()
         }
 

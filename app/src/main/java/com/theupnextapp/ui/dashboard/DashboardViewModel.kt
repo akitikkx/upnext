@@ -2,6 +2,7 @@ package com.theupnextapp.ui.dashboard
 
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
@@ -30,20 +31,20 @@ class DashboardViewModel @Inject constructor(
 
     val isLoadingTomorrowShows = upnextRepository.isLoadingTomorrowShows
 
-    val yesterdayShowsList = upnextRepository.yesterdayShows
+    val yesterdayShowsList = upnextRepository.yesterdayShows.asLiveData()
 
-    val todayShowsList = upnextRepository.todayShows
+    val todayShowsList = upnextRepository.todayShows.asLiveData()
 
-    val tomorrowShowsList = upnextRepository.tomorrowShows
+    val tomorrowShowsList = upnextRepository.tomorrowShows.asLiveData()
 
     val yesterdayShowsTableUpdate =
-        upnextRepository.tableUpdate(DatabaseTables.TABLE_YESTERDAY_SHOWS.tableName)
+        upnextRepository.tableUpdate(DatabaseTables.TABLE_YESTERDAY_SHOWS.tableName).asLiveData()
 
     val todayShowsTableUpdate =
-        upnextRepository.tableUpdate(DatabaseTables.TABLE_TODAY_SHOWS.tableName)
+        upnextRepository.tableUpdate(DatabaseTables.TABLE_TODAY_SHOWS.tableName).asLiveData()
 
     val tomorrowShowsTableUpdate =
-        upnextRepository.tableUpdate(DatabaseTables.TABLE_TOMORROW_SHOWS.tableName)
+        upnextRepository.tableUpdate(DatabaseTables.TABLE_TOMORROW_SHOWS.tableName).asLiveData()
 
     private val yesterdayShowsEmpty = MediatorLiveData<Boolean>().apply {
         addSource(yesterdayShowsList) {

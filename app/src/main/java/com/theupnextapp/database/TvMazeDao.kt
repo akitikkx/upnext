@@ -1,16 +1,16 @@
 package com.theupnextapp.database
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.theupnextapp.domain.ShowInfo
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TvMazeDao {
     @Query("select * from schedule_yesterday")
-    fun getYesterdayShows(): LiveData<List<DatabaseYesterdaySchedule>>
+    fun getYesterdayShows(): Flow<List<DatabaseYesterdaySchedule>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAllYesterdayShows(vararg yesterdayShows: DatabaseYesterdaySchedule)
@@ -19,7 +19,7 @@ interface TvMazeDao {
     fun deleteAllYesterdayShows()
 
     @Query("select * from schedule_today")
-    fun getTodayShows(): LiveData<List<DatabaseTodaySchedule>>
+    fun getTodayShows(): Flow<List<DatabaseTodaySchedule>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAllTodayShows(vararg todayShows: DatabaseTodaySchedule)
@@ -28,7 +28,7 @@ interface TvMazeDao {
     fun deleteAllTodayShows()
 
     @Query("select * from schedule_tomorrow")
-    fun getTomorrowShows(): LiveData<List<DatabaseTomorrowSchedule>>
+    fun getTomorrowShows(): Flow<List<DatabaseTomorrowSchedule>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAllTomorrowShows(vararg tomorrowShows: DatabaseTomorrowSchedule)

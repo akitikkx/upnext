@@ -22,7 +22,7 @@ class TraktAccountViewModel(
 
     val isLoading = traktRepository.isLoading
 
-    val favoriteShows = traktRepository.traktFavoriteShows
+    val favoriteShows = traktRepository.traktFavoriteShows.asLiveData()
 
     private val _openCustomTab = MutableLiveData<Boolean>()
     val openCustomTab: LiveData<Boolean> = _openCustomTab

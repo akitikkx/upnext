@@ -2,6 +2,7 @@ package com.theupnextapp.ui.explore
 
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.theupnextapp.common.utils.DateUtils
@@ -21,11 +22,11 @@ class ExploreViewModel @Inject constructor(
     private val workManager: WorkManager
 ) : ViewModel() {
 
-    val trendingShows = traktRepository.traktTrendingShows
+    val trendingShows = traktRepository.traktTrendingShows.asLiveData()
 
-    val popularShows = traktRepository.traktPopularShows
+    val popularShows = traktRepository.traktPopularShows.asLiveData()
 
-    val mostAnticipatedShows = traktRepository.traktMostAnticipatedShows
+    val mostAnticipatedShows = traktRepository.traktMostAnticipatedShows.asLiveData()
 
     val isLoadingTraktTrending = traktRepository.isLoadingTraktTrending
 
@@ -34,13 +35,13 @@ class ExploreViewModel @Inject constructor(
     val isLoadingTraktMostAnticipated = traktRepository.isLoadingTraktMostAnticipated
 
     val popularShowsTableUpdate =
-        traktRepository.tableUpdate(DatabaseTables.TABLE_TRAKT_POPULAR.tableName)
+        traktRepository.tableUpdate(DatabaseTables.TABLE_TRAKT_POPULAR.tableName).asLiveData()
 
     val trendingShowsTableUpdate =
-        traktRepository.tableUpdate(DatabaseTables.TABLE_TRAKT_TRENDING.tableName)
+        traktRepository.tableUpdate(DatabaseTables.TABLE_TRAKT_TRENDING.tableName).asLiveData()
 
     val mostAnticipatedShowsTableUpdate =
-        traktRepository.tableUpdate(DatabaseTables.TABLE_TRAKT_MOST_ANTICIPATED.tableName)
+        traktRepository.tableUpdate(DatabaseTables.TABLE_TRAKT_MOST_ANTICIPATED.tableName).asLiveData()
 
     val trendingShowsEmpty = MediatorLiveData<Boolean>().apply {
         addSource(trendingShows) {

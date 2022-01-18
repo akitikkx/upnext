@@ -2,7 +2,6 @@ package com.theupnextapp.repository
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.theupnextapp.common.utils.models.DatabaseTables
 import com.theupnextapp.common.utils.models.TableUpdateInterval
@@ -22,10 +21,17 @@ import com.theupnextapp.domain.ShowSeasonEpisode
 import com.theupnextapp.domain.TableUpdate
 import com.theupnextapp.network.TvMazeService
 import com.theupnextapp.network.asDatabaseModel
-import com.theupnextapp.network.models.tvmaze.*
+import com.theupnextapp.network.models.tvmaze.NetworkShowSearchResponse
+import com.theupnextapp.network.models.tvmaze.NetworkTodayScheduleResponse
+import com.theupnextapp.network.models.tvmaze.NetworkTomorrowScheduleResponse
+import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowImageResponse
+import com.theupnextapp.network.models.tvmaze.NetworkYesterdayScheduleResponse
+import com.theupnextapp.network.models.tvmaze.asDomainModel
 import com.theupnextapp.network.models.upnext.NetworkShowInfoCombined
 import com.theupnextapp.network.models.upnext.asDomainModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 import timber.log.Timber
@@ -38,23 +44,23 @@ class UpnextRepository constructor(
     private val firebaseCrashlytics: FirebaseCrashlytics
 ) : BaseRepository(upnextDao = upnextDao, tvMazeService = tvMazeService) {
 
-    val yesterdayShows: LiveData<List<ScheduleShow>> =
-        Transformations.map(tvMazeDao.getYesterdayShows()) {
+    val yesterdayShows: Flow<List<ScheduleShow>>
+        get() = tvMazeDao.getYesterdayShows().map {
             it.asDomainModel()
         }
 
-    val todayShows: LiveData<List<ScheduleShow>> =
-        Transformations.map(tvMazeDao.getTodayShows()) {
+    val todayShows: Flow<List<ScheduleShow>>
+        get() = tvMazeDao.getTodayShows().map {
             it.asDomainModel()
         }
 
-    val tomorrowShows: LiveData<List<ScheduleShow>> =
-        Transformations.map(tvMazeDao.getTomorrowShows()) {
+    val tomorrowShows: Flow<List<ScheduleShow>>
+        get() = tvMazeDao.getTomorrowShows().map {
             it.asDomainModel()
         }
 
-    fun tableUpdate(tableName: String): LiveData<TableUpdate?> =
-        Transformations.map(upnextDao.getTableLastUpdate(tableName)) {
+    fun tableUpdate(tableName: String): Flow<TableUpdate?> =
+        upnextDao.getTableLastUpdate(tableName).map {
             it?.asDomainModel()
         }
 
