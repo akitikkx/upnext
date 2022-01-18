@@ -2,13 +2,16 @@ package com.theupnextapp.repository
 
 import com.theupnextapp.common.utils.DateUtils
 import com.theupnextapp.database.UpnextDao
-import com.theupnextapp.network.TvMazeNetwork
+import com.theupnextapp.network.TvMazeService
 import com.theupnextapp.network.models.tvmaze.NetworkShowNextEpisodeResponse
 import com.theupnextapp.network.models.tvmaze.NetworkShowPreviousEpisodeResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-abstract class BaseRepository(private val upnextDao: UpnextDao) {
+abstract class BaseRepository(
+    private val upnextDao: UpnextDao,
+    private val tvMazeService: TvMazeService
+) {
 
     /**
      * Determine whether this particular update request may proceed
@@ -43,7 +46,7 @@ abstract class BaseRepository(private val upnextDao: UpnextDao) {
         return try {
             withContext(Dispatchers.IO) {
                 val showInfo =
-                    TvMazeNetwork.tvMazeApi.getShowSummaryAsync(tvMazeID.toString()).await()
+                    tvMazeService.getShowSummaryAsync(tvMazeID.toString()).await()
 
                 val previousEpisodeLink = showInfo._links?.previousepisode?.href?.substring(
                     showInfo._links.previousepisode.href.lastIndexOf("/") + 1,
@@ -68,7 +71,7 @@ abstract class BaseRepository(private val upnextDao: UpnextDao) {
     private suspend fun getNextEpisodeInfo(nextEpisodeLink: String?): NetworkShowNextEpisodeResponse? {
         var showNextEpisode: NetworkShowNextEpisodeResponse? = null
         if (!nextEpisodeLink.isNullOrEmpty()) {
-            showNextEpisode = TvMazeNetwork.tvMazeApi.getNextEpisodeAsync(
+            showNextEpisode = tvMazeService.getNextEpisodeAsync(
                 nextEpisodeLink.replace("/", "")
             ).await()
         }
@@ -79,7 +82,7 @@ abstract class BaseRepository(private val upnextDao: UpnextDao) {
         var showPreviousEpisode: NetworkShowPreviousEpisodeResponse? = null
         if (!previousEpisodeLink.isNullOrEmpty()) {
             showPreviousEpisode =
-                TvMazeNetwork.tvMazeApi.getPreviousEpisodeAsync(
+                tvMazeService.getPreviousEpisodeAsync(
                     previousEpisodeLink.replace("/", "")
                 ).await()
         }
@@ -90,7 +93,7 @@ abstract class BaseRepository(private val upnextDao: UpnextDao) {
         return try {
             withContext(Dispatchers.IO) {
                 val showInfo =
-                    TvMazeNetwork.tvMazeApi.getShowSummaryAsync(tvMazeID.toString()).await()
+                    tvMazeService.getShowSummaryAsync(tvMazeID.toString()).await()
 
                 val nextEpisodeLink = showInfo._links?.nextepisode?.href?.substring(
                     showInfo._links.nextepisode.href.lastIndexOf("/") + 1,

@@ -15,7 +15,9 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 import java.io.File
 import java.util.concurrent.TimeUnit
+import javax.inject.Singleton
 
+@Singleton
 interface TvMazeService {
     @GET("schedule")
     fun getYesterdayScheduleAsync(
@@ -61,7 +63,7 @@ interface TvMazeService {
 }
 
 object TvMazeNetwork {
-    private const val BASE_URL = "http://api.tvmaze.com/"
+    const val BASE_URL = "http://api.tvmaze.com/"
 
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
