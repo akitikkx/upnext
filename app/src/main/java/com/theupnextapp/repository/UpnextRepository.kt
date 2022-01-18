@@ -6,9 +6,22 @@ import androidx.lifecycle.Transformations
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.theupnextapp.common.utils.models.DatabaseTables
 import com.theupnextapp.common.utils.models.TableUpdateInterval
-import com.theupnextapp.database.*
-import com.theupnextapp.domain.*
+import com.theupnextapp.database.DatabaseTableUpdate
+import com.theupnextapp.database.DatabaseTodaySchedule
+import com.theupnextapp.database.DatabaseTomorrowSchedule
+import com.theupnextapp.database.DatabaseYesterdaySchedule
+import com.theupnextapp.database.TvMazeDao
+import com.theupnextapp.database.UpnextDao
+import com.theupnextapp.database.asDomainModel
+import com.theupnextapp.domain.ScheduleShow
+import com.theupnextapp.domain.ShowCast
+import com.theupnextapp.domain.ShowInfo
+import com.theupnextapp.domain.ShowSearch
+import com.theupnextapp.domain.ShowSeason
+import com.theupnextapp.domain.ShowSeasonEpisode
+import com.theupnextapp.domain.TableUpdate
 import com.theupnextapp.network.TvMazeNetwork
+import com.theupnextapp.network.TvMazeService
 import com.theupnextapp.network.asDatabaseModel
 import com.theupnextapp.network.models.tvmaze.*
 import com.theupnextapp.network.models.upnext.NetworkShowInfoCombined
@@ -22,8 +35,9 @@ import java.net.UnknownHostException
 class UpnextRepository constructor(
     private val upnextDao: UpnextDao,
     private val tvMazeDao: TvMazeDao,
+    private val tvMazeService: TvMazeService,
     private val firebaseCrashlytics: FirebaseCrashlytics
-) : BaseRepository(upnextDao) {
+) : BaseRepository(upnextDao = upnextDao, tvMazeService = tvMazeService) {
 
     val yesterdayShows: LiveData<List<ScheduleShow>> =
         Transformations.map(tvMazeDao.getYesterdayShows()) {

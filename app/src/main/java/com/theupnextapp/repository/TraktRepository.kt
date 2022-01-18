@@ -7,12 +7,55 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.theupnextapp.BuildConfig
 import com.theupnextapp.common.utils.models.DatabaseTables
 import com.theupnextapp.common.utils.models.TableUpdateInterval
-import com.theupnextapp.database.*
-import com.theupnextapp.domain.*
+import com.theupnextapp.database.DatabaseFavoriteNextEpisode
+import com.theupnextapp.database.DatabaseFavoriteShows
+import com.theupnextapp.database.DatabaseTableUpdate
+import com.theupnextapp.database.DatabaseTraktAccess
+import com.theupnextapp.database.DatabaseTraktMostAnticipated
+import com.theupnextapp.database.DatabaseTraktPopularShows
+import com.theupnextapp.database.DatabaseTraktTrendingShows
+import com.theupnextapp.database.TraktDao
+import com.theupnextapp.database.UpnextDao
+import com.theupnextapp.database.asDomainModel
+import com.theupnextapp.domain.FavoriteNextEpisode
+import com.theupnextapp.domain.ShowSeasonEpisode
+import com.theupnextapp.domain.TableUpdate
+import com.theupnextapp.domain.TraktAccessToken
+import com.theupnextapp.domain.TraktCheckInStatus
+import com.theupnextapp.domain.TraktMostAnticipated
+import com.theupnextapp.domain.TraktPopularShows
+import com.theupnextapp.domain.TraktShowRating
+import com.theupnextapp.domain.TraktShowStats
+import com.theupnextapp.domain.TraktTrendingShows
+import com.theupnextapp.domain.TraktUserListItem
+import com.theupnextapp.domain.areVariablesEmpty
 import com.theupnextapp.extensions.Event
 import com.theupnextapp.network.TraktNetwork
 import com.theupnextapp.network.TvMazeNetwork
-import com.theupnextapp.network.models.trakt.*
+import com.theupnextapp.network.TvMazeService
+import com.theupnextapp.network.models.trakt.NetworkTraktAccessRefreshTokenRequest
+import com.theupnextapp.network.models.trakt.NetworkTraktAccessTokenRequest
+import com.theupnextapp.network.models.trakt.NetworkTraktAddShowToListRequest
+import com.theupnextapp.network.models.trakt.NetworkTraktAddShowToListRequestShow
+import com.theupnextapp.network.models.trakt.NetworkTraktAddShowToListRequestShowIds
+import com.theupnextapp.network.models.trakt.NetworkTraktCheckInRequest
+import com.theupnextapp.network.models.trakt.NetworkTraktCheckInRequestEpisode
+import com.theupnextapp.network.models.trakt.NetworkTraktCheckInRequestShow
+import com.theupnextapp.network.models.trakt.NetworkTraktCheckInRequestShowIds
+import com.theupnextapp.network.models.trakt.NetworkTraktCreateCustomListRequest
+import com.theupnextapp.network.models.trakt.NetworkTraktCreateCustomListResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktMostAnticipatedResponseItem
+import com.theupnextapp.network.models.trakt.NetworkTraktPopularShowsResponseItem
+import com.theupnextapp.network.models.trakt.NetworkTraktRemoveShowFromListRequest
+import com.theupnextapp.network.models.trakt.NetworkTraktRemoveShowFromListRequestShow
+import com.theupnextapp.network.models.trakt.NetworkTraktRemoveShowFromListRequestShowIds
+import com.theupnextapp.network.models.trakt.NetworkTraktRevokeAccessTokenRequest
+import com.theupnextapp.network.models.trakt.NetworkTraktTrendingShowsResponseItem
+import com.theupnextapp.network.models.trakt.NetworkTraktUserListItemResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktUserListItemResponseItem
+import com.theupnextapp.network.models.trakt.NetworkTraktUserListsResponse
+import com.theupnextapp.network.models.trakt.asDatabaseModel
+import com.theupnextapp.network.models.trakt.asDomainModel
 import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowImageResponse
 import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupResponse
 import com.theupnextapp.network.models.tvmaze.asDatabaseModel
@@ -26,8 +69,9 @@ import javax.net.ssl.SSLHandshakeException
 class TraktRepository constructor(
     private val upnextDao: UpnextDao,
     private val traktDao: TraktDao,
+    tvMazeService: TvMazeService,
     private val firebaseCrashlytics: FirebaseCrashlytics
-) : BaseRepository(upnextDao) {
+) : BaseRepository(upnextDao = upnextDao, tvMazeService = tvMazeService) {
 
     fun tableUpdate(tableName: String): LiveData<TableUpdate?> =
         Transformations.map(upnextDao.getTableLastUpdate(tableName)) {
