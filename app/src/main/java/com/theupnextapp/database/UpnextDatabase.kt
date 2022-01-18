@@ -22,4 +22,6 @@ import androidx.room.RoomDatabase
 )
 abstract class UpnextDatabase : RoomDatabase() {
     abstract val upnextDao: UpnextDao
+    abstract val traktDao: TraktDao
+    abstract val tvMazeDao: TvMazeDao
 }

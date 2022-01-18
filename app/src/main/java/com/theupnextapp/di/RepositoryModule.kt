@@ -1,6 +1,8 @@
 package com.theupnextapp.di
 
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.theupnextapp.database.TraktDao
+import com.theupnextapp.database.TvMazeDao
 import com.theupnextapp.database.UpnextDao
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.UpnextRepository
@@ -18,17 +20,27 @@ object RepositoryModule {
     @Provides
     fun provideUpnextRepository(
         upnextDao: UpnextDao,
+        tvMazeDao: TvMazeDao,
         firebaseCrashlytics: FirebaseCrashlytics
     ): UpnextRepository {
-        return UpnextRepository(upnextDao, firebaseCrashlytics)
+        return UpnextRepository(
+            upnextDao = upnextDao,
+            tvMazeDao = tvMazeDao,
+            firebaseCrashlytics = firebaseCrashlytics
+        )
     }
 
     @Singleton
     @Provides
     fun provideTraktRepository(
         upnextDao: UpnextDao,
+        traktDao: TraktDao,
         firebaseCrashlytics: FirebaseCrashlytics
     ): TraktRepository {
-        return TraktRepository(upnextDao, firebaseCrashlytics)
+        return TraktRepository(
+            upnextDao = upnextDao,
+            traktDao = traktDao,
+            firebaseCrashlytics = firebaseCrashlytics
+        )
     }
 }
