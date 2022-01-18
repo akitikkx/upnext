@@ -20,7 +20,6 @@ import com.theupnextapp.domain.ShowSearch
 import com.theupnextapp.domain.ShowSeason
 import com.theupnextapp.domain.ShowSeasonEpisode
 import com.theupnextapp.domain.TableUpdate
-import com.theupnextapp.network.TvMazeNetwork
 import com.theupnextapp.network.TvMazeService
 import com.theupnextapp.network.asDatabaseModel
 import com.theupnextapp.network.models.tvmaze.*
@@ -90,7 +89,7 @@ class UpnextRepository constructor(
         if (!name.isNullOrEmpty()) {
             withContext(Dispatchers.IO) {
                 try {
-                    val searchList = TvMazeNetwork.tvMazeApi.getSuggestionListAsync(name).await()
+                    val searchList = tvMazeService.getSuggestionListAsync(name).await()
                     val rebuiltList: MutableList<NetworkShowSearchResponse> = arrayListOf()
 
                     // we need to ensure that the items returned have an IMDB link
@@ -123,7 +122,7 @@ class UpnextRepository constructor(
                     _isLoadingYesterdayShows.postValue(true)
                     val shows: MutableList<DatabaseYesterdaySchedule> = arrayListOf()
                     val yesterdayShowsList =
-                        TvMazeNetwork.tvMazeApi.getYesterdayScheduleAsync(
+                        tvMazeService.getYesterdayScheduleAsync(
                             countryCode,
                             date
                         )
@@ -180,7 +179,7 @@ class UpnextRepository constructor(
                     _isLoadingTodayShows.postValue(true)
                     val shows: MutableList<DatabaseTodaySchedule> = arrayListOf()
                     val todayShowsList =
-                        TvMazeNetwork.tvMazeApi.getTodayScheduleAsync(countryCode, date).await()
+                        tvMazeService.getTodayScheduleAsync(countryCode, date).await()
                     if (!todayShowsList.isNullOrEmpty()) {
                         todayShowsList.forEach {
                             val todayShow: NetworkTodayScheduleResponse = it
@@ -232,7 +231,7 @@ class UpnextRepository constructor(
                 ) {
                     _isLoadingTomorrowShows.postValue(true)
                     val tomorrowShowsList =
-                        TvMazeNetwork.tvMazeApi.getTomorrowScheduleAsync(countryCode, date).await()
+                        tvMazeService.getTomorrowScheduleAsync(countryCode, date).await()
 
                     val shows: MutableList<DatabaseTomorrowSchedule> = arrayListOf()
                     if (!tomorrowShowsList.isNullOrEmpty()) {
@@ -290,7 +289,7 @@ class UpnextRepository constructor(
         var showImagesResponse: NetworkTvMazeShowImageResponse? = null
         try {
             showImagesResponse =
-                TvMazeNetwork.tvMazeApi.getShowImagesAsync(id)
+                tvMazeService.getShowImagesAsync(id)
                     .await()
         } catch (e: Exception) {
             Timber.d(e)
@@ -318,7 +317,7 @@ class UpnextRepository constructor(
             try {
                 _isLoading.postValue(true)
                 val showInfo =
-                    TvMazeNetwork.tvMazeApi.getShowSummaryAsync(showId.toString()).await()
+                    tvMazeService.getShowSummaryAsync(showId.toString()).await()
 
                 val (nextEpisode, previousEpisode) = getPreviousAndNextEpisodes(showId)
 
@@ -347,7 +346,7 @@ class UpnextRepository constructor(
             try {
                 _isLoading.postValue(true)
                 val showCast =
-                    TvMazeNetwork.tvMazeApi.getShowCastAsync(showId.toString()).await()
+                    tvMazeService.getShowCastAsync(showId.toString()).await()
                 _showCast.postValue(showCast.asDomainModel())
                 _isLoading.postValue(false)
             } catch (e: HttpException) {
@@ -363,7 +362,7 @@ class UpnextRepository constructor(
             try {
                 _isLoading.postValue(true)
                 val showSeasons =
-                    TvMazeNetwork.tvMazeApi.getShowSeasonsAsync(showId.toString()).await()
+                    tvMazeService.getShowSeasonsAsync(showId.toString()).await()
                 _showSeasons.postValue(showSeasons.asDomainModel())
                 _isLoading.postValue(false)
             } catch (e: HttpException) {
@@ -379,7 +378,7 @@ class UpnextRepository constructor(
             try {
                 _isLoading.postValue(true)
                 val seasonEpisodes =
-                    TvMazeNetwork.tvMazeApi.getSeasonEpisodesAsync(showId.toString()).await()
+                    tvMazeService.getSeasonEpisodesAsync(showId.toString()).await()
                 _episodes.postValue(seasonEpisodes.filter { it.season == seasonNumber }
                     .asDomainModel())
                 _isLoading.postValue(false)

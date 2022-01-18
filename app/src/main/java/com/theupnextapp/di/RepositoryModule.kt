@@ -4,6 +4,7 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.theupnextapp.database.TraktDao
 import com.theupnextapp.database.TvMazeDao
 import com.theupnextapp.database.UpnextDao
+import com.theupnextapp.network.TraktService
 import com.theupnextapp.network.TvMazeService
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.UpnextRepository
@@ -39,12 +40,14 @@ object RepositoryModule {
         upnextDao: UpnextDao,
         traktDao: TraktDao,
         tvMazeService: TvMazeService,
+        traktService: TraktService,
         firebaseCrashlytics: FirebaseCrashlytics
     ): TraktRepository {
         return TraktRepository(
             upnextDao = upnextDao,
             traktDao = traktDao,
             tvMazeService = tvMazeService,
+            traktService = traktService,
             firebaseCrashlytics = firebaseCrashlytics
         )
     }
