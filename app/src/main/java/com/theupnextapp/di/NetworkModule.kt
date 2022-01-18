@@ -2,6 +2,9 @@ package com.theupnextapp.di
 
 import android.content.Context
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
+import com.theupnextapp.common.utils.TraktConnectionInterceptor
+import com.theupnextapp.network.TraktNetwork
+import com.theupnextapp.network.TraktService
 import com.theupnextapp.network.TvMazeNetwork.BASE_URL
 import com.theupnextapp.network.TvMazeService
 import dagger.Module
@@ -24,7 +27,7 @@ object NetworkModule {
 
     @Singleton
     @Provides
-    fun provideTvMazeClient(@ApplicationContext context: Context): OkHttpClient {
+    fun provideNetworkClient(@ApplicationContext context: Context): OkHttpClient {
         return OkHttpClient().newBuilder()
             .cache(Cache(context.cacheDir, (5 * 1024 * 1024).toLong()))
             .addInterceptor(HttpLoggingInterceptor().apply {
@@ -33,7 +36,8 @@ object NetworkModule {
             .addInterceptor { chain ->
                 var request = chain.request()
                 request =
-                    request.newBuilder().header("Cache-Control", "public, max-age=" + 60 * 5).build()
+                    request.newBuilder().header("Cache-Control", "public, max-age=" + 60 * 5)
+                        .build()
                 chain.proceed(request)
             }
             .connectTimeout(30, TimeUnit.SECONDS)
@@ -45,13 +49,27 @@ object NetworkModule {
 
     @Singleton
     @Provides
-    fun provideTvMazeService(tvMazeClient: OkHttpClient): TvMazeService {
+    fun provideTvMazeService(
+        networkClient: OkHttpClient
+    ): TvMazeService {
         return Retrofit.Builder()
-            .client(tvMazeClient)
+            .client(networkClient)
             .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .addCallAdapterFactory(CoroutineCallAdapterFactory())
             .build()
             .create(TvMazeService::class.java)
+    }
+
+    @Singleton
+    @Provides
+    fun provideTraktService(networkClient: OkHttpClient): TraktService {
+        return Retrofit.Builder()
+            .client(networkClient.newBuilder().addInterceptor(TraktConnectionInterceptor()).build())
+            .baseUrl(TraktNetwork.BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .addCallAdapterFactory(CoroutineCallAdapterFactory())
+            .build()
+            .create(TraktService::class.java)
     }
 }

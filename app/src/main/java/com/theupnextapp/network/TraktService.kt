@@ -104,38 +104,5 @@ interface TraktService {
 }
 
 object TraktNetwork {
-    private const val BASE_URL = "https://api.trakt.tv/"
-
-    private val loggingInterceptor = HttpLoggingInterceptor().apply {
-        level = HttpLoggingInterceptor.Level.BODY
-    }
-
-    var httpCacheDirectory: File = File(UpnextApplication.context?.cacheDir, "responses")
-
-    private const val cacheSize = (5 * 1024 * 1024).toLong()
-
-    private val client = OkHttpClient().newBuilder()
-        .cache(Cache(httpCacheDirectory, cacheSize))
-        .addInterceptor(loggingInterceptor)
-        .addInterceptor(TraktConnectionInterceptor())
-        .addInterceptor { chain ->
-            var request = chain.request()
-            request =
-                request.newBuilder().header("Cache-Control", "public, max-age=" + 60 * 5).build()
-            chain.proceed(request)
-        }
-        .connectTimeout(30, TimeUnit.SECONDS)
-        .retryOnConnectionFailure(true)
-        .readTimeout(30, TimeUnit.SECONDS)
-        .connectionPool(ConnectionPool(0, 1, TimeUnit.NANOSECONDS))
-        .build()
-
-    private val retrofit = Retrofit.Builder()
-        .client(client)
-        .baseUrl(BASE_URL)
-        .addConverterFactory(GsonConverterFactory.create())
-        .addCallAdapterFactory(CoroutineCallAdapterFactory())
-        .build()
-
-    val traktApi: TraktService = retrofit.create(TraktService::class.java)
+    const val BASE_URL = "https://api.trakt.tv/"
 }

@@ -30,8 +30,7 @@ import com.theupnextapp.domain.TraktTrendingShows
 import com.theupnextapp.domain.TraktUserListItem
 import com.theupnextapp.domain.areVariablesEmpty
 import com.theupnextapp.extensions.Event
-import com.theupnextapp.network.TraktNetwork
-import com.theupnextapp.network.TvMazeNetwork
+import com.theupnextapp.network.TraktService
 import com.theupnextapp.network.TvMazeService
 import com.theupnextapp.network.models.trakt.NetworkTraktAccessRefreshTokenRequest
 import com.theupnextapp.network.models.trakt.NetworkTraktAccessTokenRequest
@@ -69,7 +68,8 @@ import javax.net.ssl.SSLHandshakeException
 class TraktRepository constructor(
     private val upnextDao: UpnextDao,
     private val traktDao: TraktDao,
-    tvMazeService: TvMazeService,
+    private val tvMazeService: TvMazeService,
+    private val traktService: TraktService,
     private val firebaseCrashlytics: FirebaseCrashlytics
 ) : BaseRepository(upnextDao = upnextDao, tvMazeService = tvMazeService) {
 
@@ -153,7 +153,7 @@ class TraktRepository constructor(
                     )
 
                 val accessTokenResponse =
-                    TraktNetwork.traktApi.getAccessTokenAsync(traktAccessTokenRequest).await()
+                    traktService.getAccessTokenAsync(traktAccessTokenRequest).await()
                 traktDao.deleteTraktAccessData()
                 traktDao.insertAllTraktAccessData(accessTokenResponse.asDatabaseModel())
                 _isLoading.postValue(false)
@@ -178,7 +178,7 @@ class TraktRepository constructor(
                         token = it
                     )
                 }
-                revokeRequest?.let { TraktNetwork.traktApi.revokeAccessTokenAsync(it).await() }
+                revokeRequest?.let { traktService.revokeAccessTokenAsync(it).await() }
                 traktDao.deleteTraktAccessData()
                 _isLoading.postValue(false)
             } catch (e: Exception) {
@@ -209,7 +209,7 @@ class TraktRepository constructor(
                     )
 
                 val accessTokenResponse =
-                    TraktNetwork.traktApi.getAccessRefreshTokenAsync(traktAccessTokenRequest)
+                    traktService.getAccessRefreshTokenAsync(traktAccessTokenRequest)
                         .await()
                 traktDao.deleteTraktAccessData()
                 traktDao.insertAllTraktAccessData(accessTokenResponse.asDatabaseModel())
@@ -240,7 +240,7 @@ class TraktRepository constructor(
                     var favoritesListId: String? = null
 
                     val userSettings =
-                        TraktNetwork.traktApi.getUserSettingsAsync(token = "Bearer $token").await()
+                        traktService.getUserSettingsAsync(token = "Bearer $token").await()
                     if (!userSettings.user?.ids?.slug.isNullOrEmpty()) {
                         val userSlug = userSettings.user?.ids?.slug
                         val userCustomLists = getUserSettings(userSlug, token)
@@ -262,7 +262,7 @@ class TraktRepository constructor(
                         if (!favoritesListId.isNullOrEmpty()) {
                             val customListItemsResponse =
                                 userSlug?.let { slug ->
-                                    TraktNetwork.traktApi.getCustomListItemsAsync(
+                                    traktService.getCustomListItemsAsync(
                                         token = "Bearer $token",
                                         userSlug = slug,
                                         traktId = favoritesListId
@@ -343,7 +343,7 @@ class TraktRepository constructor(
                 var favoritesListId: String? = null
 
                 val userSettings =
-                    TraktNetwork.traktApi.getUserSettingsAsync(token = "Bearer $token").await()
+                    traktService.getUserSettingsAsync(token = "Bearer $token").await()
                 if (!userSettings.user?.ids?.slug.isNullOrEmpty()) {
                     val userSlug = userSettings.user?.ids?.slug
                     val userCustomLists = getUserSettings(userSlug, token)
@@ -364,7 +364,7 @@ class TraktRepository constructor(
                     }
                     if (!favoritesListId.isNullOrEmpty()) {
                         val showInfoResponse =
-                            TraktNetwork.traktApi.getShowInfoAsync(imdbID).await()
+                            traktService.getShowInfoAsync(imdbID).await()
                         if (showInfoResponse.ids?.trakt != null) {
                             val addShowToListRequest = NetworkTraktAddShowToListRequest(
                                 shows = listOf(
@@ -374,7 +374,7 @@ class TraktRepository constructor(
                                 )
                             )
                             val addToListResponse = userSlug?.let {
-                                TraktNetwork.traktApi.addShowToCustomListAsync(
+                                traktService.addShowToCustomListAsync(
                                     userSlug = it,
                                     traktId = favoritesListId,
                                     token = "Bearer $token",
@@ -384,7 +384,7 @@ class TraktRepository constructor(
 
                             if (addToListResponse?.added?.shows == 1) {
                                 val customListItemsResponse =
-                                    TraktNetwork.traktApi.getCustomListItemsAsync(
+                                    traktService.getCustomListItemsAsync(
                                         token = "Bearer $token",
                                         userSlug = userSlug,
                                         traktId = favoritesListId
@@ -419,7 +419,7 @@ class TraktRepository constructor(
                 var favoritesListId: String? = null
 
                 val userSettings =
-                    TraktNetwork.traktApi.getUserSettingsAsync(token = "Bearer $token").await()
+                    traktService.getUserSettingsAsync(token = "Bearer $token").await()
                 if (!userSettings.user?.ids?.slug.isNullOrEmpty()) {
                     val userSlug = userSettings.user?.ids?.slug
                     val userCustomLists = getUserSettings(userSlug, token)
@@ -447,7 +447,7 @@ class TraktRepository constructor(
                             )
                         )
                         val removeFromListResponse = userSlug?.let {
-                            TraktNetwork.traktApi.removeShowFromCustomListAsync(
+                            traktService.removeShowFromCustomListAsync(
                                 userSlug = it,
                                 traktId = favoritesListId,
                                 token = "Bearer $token",
@@ -459,7 +459,7 @@ class TraktRepository constructor(
                             traktDao.deleteFavoriteEpisode(imdbID)
 
                             val customListItemsResponse =
-                                TraktNetwork.traktApi.getCustomListItemsAsync(
+                                traktService.getCustomListItemsAsync(
                                     token = "Bearer $token",
                                     userSlug = userSlug,
                                     traktId = favoritesListId
@@ -537,7 +537,7 @@ class TraktRepository constructor(
         token: String?
     ): NetworkTraktUserListsResponse? {
         return userSlug?.let { slug ->
-            TraktNetwork.traktApi.getUserCustomListsAsync(
+            traktService.getUserCustomListsAsync(
                 token = "Bearer $token",
                 userSlug = slug
             ).await()
@@ -552,7 +552,7 @@ class TraktRepository constructor(
             name = FAVORITES_LIST_NAME
         )
         return userSlug?.let { slug ->
-            TraktNetwork.traktApi.createCustomListAsync(
+            traktService.createCustomListAsync(
                 token = "Bearer $token",
                 userSlug = slug,
                 createCustomListRequest = createCustomListRequest
@@ -569,7 +569,7 @@ class TraktRepository constructor(
         withContext(Dispatchers.IO) {
             try {
                 _isLoading.postValue(true)
-                val showRatingResponse = TraktNetwork.traktApi.getShowRatingsAsync(
+                val showRatingResponse = traktService.getShowRatingsAsync(
                     id = imdbID
                 ).await()
                 _traktShowRating.postValue(showRatingResponse.asDomainModel())
@@ -603,7 +603,7 @@ class TraktRepository constructor(
         withContext(Dispatchers.IO) {
             try {
                 _isLoading.postValue(true)
-                val showStatsResponse = TraktNetwork.traktApi.getShowStatsAsync(
+                val showStatsResponse = traktService.getShowStatsAsync(
                     id = imdbID
                 ).await()
                 _traktShowStats.postValue(showStatsResponse.asDomainModel())
@@ -640,7 +640,7 @@ class TraktRepository constructor(
                     val shows: MutableList<DatabaseTraktTrendingShows> = mutableListOf()
 
                     val trendingShowsResponse =
-                        TraktNetwork.traktApi.getTrendingShowsAsync().await()
+                        traktService.getTrendingShowsAsync().await()
 
                     if (!trendingShowsResponse.isEmpty()) {
                         for (item in trendingShowsResponse) {
@@ -698,7 +698,7 @@ class TraktRepository constructor(
         // perform a TvMaze search for the Trakt item using the Trakt title
         try {
             tvMazeSearch = imdbID?.let {
-                TvMazeNetwork.tvMazeApi.getShowLookupAsync(it).await()
+                tvMazeService.getShowLookupAsync(it).await()
             }
         } catch (e: Exception) {
             Timber.d(e)
@@ -713,7 +713,7 @@ class TraktRepository constructor(
         var showImagesResponse: NetworkTvMazeShowImageResponse? = null
         try {
             showImagesResponse =
-                TvMazeNetwork.tvMazeApi.getShowImagesAsync(tvMazeSearch?.id.toString())
+                tvMazeService.getShowImagesAsync(tvMazeSearch?.id.toString())
                     .await()
         } catch (e: Exception) {
             Timber.d(e)
@@ -747,7 +747,7 @@ class TraktRepository constructor(
                     _isLoadingTraktPopular.postValue(true)
                     val shows: MutableList<DatabaseTraktPopularShows> = mutableListOf()
 
-                    val popularShowsResponse = TraktNetwork.traktApi.getPopularShowsAsync().await()
+                    val popularShowsResponse = traktService.getPopularShowsAsync().await()
 
                     if (!popularShowsResponse.isEmpty()) {
                         for (item in popularShowsResponse) {
@@ -809,7 +809,7 @@ class TraktRepository constructor(
                     val shows: MutableList<DatabaseTraktMostAnticipated> = mutableListOf()
 
                     val mostAnticipatedShowsResponse =
-                        TraktNetwork.traktApi.getMostAnticipatedShowsAsync().await()
+                        traktService.getMostAnticipatedShowsAsync().await()
 
                     if (!mostAnticipatedShowsResponse.isEmpty()) {
                         for (item in mostAnticipatedShowsResponse) {
@@ -869,7 +869,7 @@ class TraktRepository constructor(
                 _isLoading.postValue(true)
                 val showLookupResponse =
                     showSeasonEpisode.imdbID?.let {
-                        TraktNetwork.traktApi.idLookupAsync(idType = "imdb", id = it)
+                        traktService.idLookupAsync(idType = "imdb", id = it)
                             .await()
                     }
                 if (!showLookupResponse.isNullOrEmpty()) {
@@ -889,7 +889,7 @@ class TraktRepository constructor(
                             )
                         )
                         val checkInResponse =
-                            TraktNetwork.traktApi.checkInAsync(
+                            traktService.checkInAsync(
                                 token = "Bearer $token",
                                 networkTraktCheckInRequest = checkInRequest
                             ).await()
