@@ -18,7 +18,7 @@ open class BaseTraktViewModel @Inject constructor(
     private val workManager: WorkManager
 ) : ViewModel() {
 
-    val traktAccessToken = traktRepository.traktAccessToken
+    val traktAccessToken = traktRepository.traktAccessToken.asLiveData()
 
     private val _isAuthorizedOnTrakt = MediatorLiveData<Boolean>()
     val isAuthorizedOnTrakt: LiveData<Boolean> = _isAuthorizedOnTrakt

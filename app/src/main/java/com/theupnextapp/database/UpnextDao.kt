@@ -1,10 +1,10 @@
 package com.theupnextapp.database
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface UpnextDao {
@@ -12,7 +12,7 @@ interface UpnextDao {
     fun insertTableUpdateLog(vararg databaseTableUpdate: DatabaseTableUpdate)
 
     @Query("select * from table_updates where table_name = :tableName")
-    fun getTableLastUpdate(tableName: String): LiveData<DatabaseTableUpdate?>
+    fun getTableLastUpdate(tableName: String): Flow<DatabaseTableUpdate?>
 
     @Query("select * from table_updates where table_name = :tableName")
     fun getTableLastUpdateTime(tableName: String): DatabaseTableUpdate?

@@ -1,11 +1,11 @@
 package com.theupnextapp.database
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TraktDao {
@@ -16,7 +16,7 @@ interface TraktDao {
     fun deleteAllTraktPopular()
 
     @Query("select * from trakt_popular")
-    fun getTraktPopular(): LiveData<List<DatabaseTraktPopularShows>>
+    fun getTraktPopular(): Flow<List<DatabaseTraktPopularShows>>
 
     // TRAKT TRENDING SHOWS
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -26,7 +26,7 @@ interface TraktDao {
     fun deleteAllTraktTrending()
 
     @Query("select * from trakt_trending")
-    fun getTraktTrending(): LiveData<List<DatabaseTraktTrendingShows>>
+    fun getTraktTrending(): Flow<List<DatabaseTraktTrendingShows>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAllTraktMostAnticipated(vararg traktMostAnticipatedShows: DatabaseTraktMostAnticipated)
@@ -35,7 +35,7 @@ interface TraktDao {
     fun deleteAllTraktMostAnticipated()
 
     @Query("select * from trakt_most_anticipated")
-    fun getTraktMostAnticipated(): LiveData<List<DatabaseTraktMostAnticipated>>
+    fun getTraktMostAnticipated(): Flow<List<DatabaseTraktMostAnticipated>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAllFavoriteShows(vararg databaseFavoriteShows: DatabaseFavoriteShows)
@@ -44,7 +44,7 @@ interface TraktDao {
     fun deleteAllFavoriteShows()
 
     @Query("select * from favorite_shows")
-    fun getFavoriteShows(): LiveData<List<DatabaseFavoriteShows>>
+    fun getFavoriteShows(): Flow<List<DatabaseFavoriteShows>>
 
     @Query("select * from favorite_shows")
     fun getFavoriteShowsRaw(): List<DatabaseFavoriteShows>
@@ -56,7 +56,7 @@ interface TraktDao {
     fun deleteTraktAccessData()
 
     @Query("select * from trakt_access")
-    fun getTraktAccessData(): LiveData<DatabaseTraktAccess?>
+    fun getTraktAccessData(): Flow<DatabaseTraktAccess?>
 
     @Query("select * from trakt_access")
     fun getTraktAccessDataRaw(): DatabaseTraktAccess?
@@ -74,7 +74,7 @@ interface TraktDao {
     fun deleteAllFavoriteEpisodes()
 
     @Query("select * from favorite_next_episodes")
-    fun getFavoriteEpisodes(): LiveData<List<DatabaseFavoriteNextEpisode>>
+    fun getFavoriteEpisodes(): Flow<List<DatabaseFavoriteNextEpisode>>
 
     @Query("select * from favorite_shows where tvMazeID = :tvMazeId")
     fun getFavoriteShowRaw(tvMazeId: Int): DatabaseFavoriteShows
