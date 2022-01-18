@@ -45,4 +45,16 @@ class RoomModule {
     fun provideUpnextDao(upnextDatabase: UpnextDatabase): UpnextDao {
         return upnextDatabase.upnextDao
     }
+
+    @Singleton
+    @Provides
+    fun provideTraktDao(upnextDatabase: UpnextDatabase): TraktDao {
+        return upnextDatabase.traktDao
+    }
+
+    @Singleton
+    @Provides
+    fun provideTvMazeDao(upnextDatabase: UpnextDatabase): TvMazeDao {
+        return upnextDatabase.tvMazeDao
+    }
 }

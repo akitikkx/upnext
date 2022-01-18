@@ -21,21 +21,22 @@ import java.net.UnknownHostException
 
 class UpnextRepository constructor(
     private val upnextDao: UpnextDao,
+    private val tvMazeDao: TvMazeDao,
     private val firebaseCrashlytics: FirebaseCrashlytics
 ) : BaseRepository(upnextDao) {
 
     val yesterdayShows: LiveData<List<ScheduleShow>> =
-        Transformations.map(upnextDao.getYesterdayShows()) {
+        Transformations.map(tvMazeDao.getYesterdayShows()) {
             it.asDomainModel()
         }
 
     val todayShows: LiveData<List<ScheduleShow>> =
-        Transformations.map(upnextDao.getTodayShows()) {
+        Transformations.map(tvMazeDao.getTodayShows()) {
             it.asDomainModel()
         }
 
     val tomorrowShows: LiveData<List<ScheduleShow>> =
-        Transformations.map(upnextDao.getTomorrowShows()) {
+        Transformations.map(tvMazeDao.getTomorrowShows()) {
             it.asDomainModel()
         }
 
@@ -132,17 +133,17 @@ class UpnextRepository constructor(
                                 shows.add(yesterdayShow.asDatabaseModel())
                             }
                         }
-                        upnextDao.apply {
-                            deleteAllYesterdayShows()
-                            insertAllYesterdayShows(*shows.toTypedArray())
-                            deleteRecentTableUpdate(DatabaseTables.TABLE_YESTERDAY_SHOWS.tableName)
-                            insertTableUpdateLog(
-                                DatabaseTableUpdate(
-                                    table_name = DatabaseTables.TABLE_YESTERDAY_SHOWS.tableName,
-                                    last_updated = System.currentTimeMillis()
-                                )
+
+                        tvMazeDao.deleteAllYesterdayShows()
+                        tvMazeDao.insertAllYesterdayShows(*shows.toTypedArray())
+                        upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_YESTERDAY_SHOWS.tableName)
+                        upnextDao.insertTableUpdateLog(
+                            DatabaseTableUpdate(
+                                table_name = DatabaseTables.TABLE_YESTERDAY_SHOWS.tableName,
+                                last_updated = System.currentTimeMillis()
                             )
-                        }
+                        )
+
                     }
                     _isLoadingYesterdayShows.postValue(false)
                 }
@@ -185,17 +186,17 @@ class UpnextRepository constructor(
                                 shows.add(todayShow.asDatabaseModel())
                             }
                         }
-                        upnextDao.apply {
-                            deleteAllTodayShows()
-                            insertAllTodayShows(*shows.toTypedArray())
-                            deleteRecentTableUpdate(DatabaseTables.TABLE_TODAY_SHOWS.tableName)
-                            insertTableUpdateLog(
-                                DatabaseTableUpdate(
-                                    table_name = DatabaseTables.TABLE_TODAY_SHOWS.tableName,
-                                    last_updated = System.currentTimeMillis()
-                                )
+
+                        tvMazeDao.deleteAllTodayShows()
+                        tvMazeDao.insertAllTodayShows(*shows.toTypedArray())
+                        upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TODAY_SHOWS.tableName)
+                        upnextDao.insertTableUpdateLog(
+                            DatabaseTableUpdate(
+                                table_name = DatabaseTables.TABLE_TODAY_SHOWS.tableName,
+                                last_updated = System.currentTimeMillis()
                             )
-                        }
+                        )
+
                     }
                     _isLoadingTodayShows.postValue(false)
                 }
@@ -239,17 +240,17 @@ class UpnextRepository constructor(
                                 shows.add(tomorrowShow.asDatabaseModel())
                             }
                         }
-                        upnextDao.apply {
-                            deleteAllTomorrowShows()
-                            insertAllTomorrowShows(*shows.toTypedArray())
-                            deleteRecentTableUpdate(DatabaseTables.TABLE_TOMORROW_SHOWS.tableName)
-                            insertTableUpdateLog(
-                                DatabaseTableUpdate(
-                                    table_name = DatabaseTables.TABLE_TOMORROW_SHOWS.tableName,
-                                    last_updated = System.currentTimeMillis()
-                                )
+
+                        tvMazeDao.deleteAllTomorrowShows()
+                        tvMazeDao.insertAllTomorrowShows(*shows.toTypedArray())
+                        upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TOMORROW_SHOWS.tableName)
+                        upnextDao.insertTableUpdateLog(
+                            DatabaseTableUpdate(
+                                table_name = DatabaseTables.TABLE_TOMORROW_SHOWS.tableName,
+                                last_updated = System.currentTimeMillis()
                             )
-                        }
+                        )
+
                     }
                     _isLoadingTomorrowShows.postValue(false)
                 }

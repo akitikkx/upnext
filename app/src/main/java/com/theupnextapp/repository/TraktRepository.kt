@@ -25,6 +25,7 @@ import javax.net.ssl.SSLHandshakeException
 
 class TraktRepository constructor(
     private val upnextDao: UpnextDao,
+    private val traktDao: TraktDao,
     private val firebaseCrashlytics: FirebaseCrashlytics
 ) : BaseRepository(upnextDao) {
 
@@ -34,36 +35,36 @@ class TraktRepository constructor(
         }
 
     val traktPopularShows: LiveData<List<TraktPopularShows>> =
-        Transformations.map(upnextDao.getTraktPopular()) {
+        Transformations.map(traktDao.getTraktPopular()) {
             it.asDomainModel()
         }
 
     val traktTrendingShows: LiveData<List<TraktTrendingShows>> =
-        Transformations.map(upnextDao.getTraktTrending()) {
+        Transformations.map(traktDao.getTraktTrending()) {
             it.asDomainModel()
         }
 
     val traktMostAnticipatedShows: LiveData<List<TraktMostAnticipated>> =
-        Transformations.map(upnextDao.getTraktMostAnticipated()) {
+        Transformations.map(traktDao.getTraktMostAnticipated()) {
             it.asDomainModel()
         }
 
     val traktFavoriteShows: LiveData<List<TraktUserListItem>> =
-        Transformations.map(upnextDao.getFavoriteShows()) {
+        Transformations.map(traktDao.getFavoriteShows()) {
             it.asDomainModel()
         }
 
     val favoriteShowEpisodes: LiveData<List<FavoriteNextEpisode>> =
-        Transformations.map(upnextDao.getFavoriteEpisodes()) {
+        Transformations.map(traktDao.getFavoriteEpisodes()) {
             it.asDomainModel()
         }
 
     val traktAccessToken: LiveData<TraktAccessToken?> =
-        Transformations.map(upnextDao.getTraktAccessData()) {
+        Transformations.map(traktDao.getTraktAccessData()) {
             it?.asDomainModel()
         }
 
-    fun getTraktAccessTokenRaw(): DatabaseTraktAccess? = upnextDao.getTraktAccessDataRaw()
+    fun getTraktAccessTokenRaw(): DatabaseTraktAccess? = traktDao.getTraktAccessDataRaw()
 
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
@@ -109,8 +110,8 @@ class TraktRepository constructor(
 
                 val accessTokenResponse =
                     TraktNetwork.traktApi.getAccessTokenAsync(traktAccessTokenRequest).await()
-                upnextDao.deleteTraktAccessData()
-                upnextDao.insertAllTraktAccessData(accessTokenResponse.asDatabaseModel())
+                traktDao.deleteTraktAccessData()
+                traktDao.insertAllTraktAccessData(accessTokenResponse.asDatabaseModel())
                 _isLoading.postValue(false)
             } catch (e: Exception) {
                 _isLoading.postValue(false)
@@ -134,7 +135,7 @@ class TraktRepository constructor(
                     )
                 }
                 revokeRequest?.let { TraktNetwork.traktApi.revokeAccessTokenAsync(it).await() }
-                upnextDao.deleteTraktAccessData()
+                traktDao.deleteTraktAccessData()
                 _isLoading.postValue(false)
             } catch (e: Exception) {
                 _isLoading.postValue(false)
@@ -166,8 +167,8 @@ class TraktRepository constructor(
                 val accessTokenResponse =
                     TraktNetwork.traktApi.getAccessRefreshTokenAsync(traktAccessTokenRequest)
                         .await()
-                upnextDao.deleteTraktAccessData()
-                upnextDao.insertAllTraktAccessData(accessTokenResponse.asDatabaseModel())
+                traktDao.deleteTraktAccessData()
+                traktDao.insertAllTraktAccessData(accessTokenResponse.asDatabaseModel())
                 _isLoading.postValue(false)
             } catch (e: Exception) {
                 _isLoading.postValue(false)
@@ -253,9 +254,9 @@ class TraktRepository constructor(
         }
 
         upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_FAVORITE_SHOWS.tableName)
-        upnextDao.deleteAllFavoriteShows()
+        traktDao.deleteAllFavoriteShows()
         if (shows.isNotEmpty()) {
-            upnextDao.insertAllFavoriteShows(*shows.toTypedArray())
+            traktDao.insertAllFavoriteShows(*shows.toTypedArray())
         }
         upnextDao.insertTableUpdateLog(
             DatabaseTableUpdate(
@@ -267,8 +268,8 @@ class TraktRepository constructor(
 
     suspend fun clearFavorites() {
         withContext(Dispatchers.IO) {
-            upnextDao.deleteAllFavoriteShows()
-            upnextDao.deleteAllFavoriteEpisodes()
+            traktDao.deleteAllFavoriteShows()
+            traktDao.deleteAllFavoriteEpisodes()
             upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_FAVORITE_SHOWS.tableName)
             upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_FAVORITE_EPISODES.tableName)
         }
@@ -278,7 +279,7 @@ class TraktRepository constructor(
         if (imdbID.isNullOrEmpty()) return
 
         withContext(Dispatchers.IO) {
-            val show = upnextDao.getFavoriteShow(imdbID)
+            val show = traktDao.getFavoriteShow(imdbID)
             _favoriteShow.postValue(show?.asDomainModel())
         }
     }
@@ -411,7 +412,7 @@ class TraktRepository constructor(
                         }
 
                         if (removeFromListResponse?.deleted?.shows == 1) {
-                            upnextDao.deleteFavoriteEpisode(imdbID)
+                            traktDao.deleteFavoriteEpisode(imdbID)
 
                             val customListItemsResponse =
                                 TraktNetwork.traktApi.getCustomListItemsAsync(
@@ -442,7 +443,7 @@ class TraktRepository constructor(
             withContext(Dispatchers.IO) {
                 try {
                     val episodesList = mutableListOf<DatabaseFavoriteNextEpisode>()
-                    val favoriteShows = upnextDao.getFavoriteShowsRaw()
+                    val favoriteShows = traktDao.getFavoriteShowsRaw()
                     if (!favoriteShows.isNullOrEmpty()) {
                         for (item in favoriteShows) {
                             val nextEpisode = item.tvMazeID?.let { getNextEpisode(it) }
@@ -456,17 +457,17 @@ class TraktRepository constructor(
                             nextEpisode?.asDatabaseModel()?.let { episodesList.add(it) }
                         }
                         if (episodesList.isNotEmpty()) {
-                            upnextDao.deleteAllFavoriteEpisodes()
-                            upnextDao.insertAllFavoriteNextEpisodes(*episodesList.toTypedArray())
+                            traktDao.deleteAllFavoriteEpisodes()
+                            traktDao.insertAllFavoriteNextEpisodes(*episodesList.toTypedArray())
 
                             for (episode in episodesList) {
                                 val showRecord = episode.tvMazeID?.let { tvMazeId ->
-                                    upnextDao.getFavoriteShowRaw(
+                                    traktDao.getFavoriteShowRaw(
                                         tvMazeId
                                     )
                                 }
                                 showRecord?.airStamp = episode.airStamp
-                                showRecord?.let { upnextDao.updateFavoriteEpisode(it) }
+                                showRecord?.let { traktDao.updateFavoriteEpisode(it) }
                             }
 
                             upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_TRENDING.tableName)
@@ -610,17 +611,15 @@ class TraktRepository constructor(
                             shows.add(trendingItem.asDatabaseModel())
                         }
 
-                        upnextDao.apply {
-                            deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_TRENDING.tableName)
-                            deleteAllTraktTrending()
-                            insertAllTraktTrending(*shows.toTypedArray())
-                            insertTableUpdateLog(
-                                DatabaseTableUpdate(
-                                    table_name = DatabaseTables.TABLE_TRAKT_TRENDING.tableName,
-                                    last_updated = System.currentTimeMillis()
-                                )
+                        upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_TRENDING.tableName)
+                        traktDao.deleteAllTraktTrending()
+                        traktDao.insertAllTraktTrending(*shows.toTypedArray())
+                        upnextDao.insertTableUpdateLog(
+                            DatabaseTableUpdate(
+                                table_name = DatabaseTables.TABLE_TRAKT_TRENDING.tableName,
+                                last_updated = System.currentTimeMillis()
                             )
-                        }
+                        )
                     }
                     _isLoadingTraktTrending.postValue(false)
                 }
@@ -720,17 +719,17 @@ class TraktRepository constructor(
 
                             shows.add(popularItem.asDatabaseModel())
                         }
-                        upnextDao.apply {
-                            deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_POPULAR.tableName)
-                            deleteAllTraktPopular()
-                            insertAllTraktPopular(*shows.toTypedArray())
-                            insertTableUpdateLog(
-                                DatabaseTableUpdate(
-                                    table_name = DatabaseTables.TABLE_TRAKT_POPULAR.tableName,
-                                    last_updated = System.currentTimeMillis()
-                                )
+
+                        upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_POPULAR.tableName)
+                        traktDao.deleteAllTraktPopular()
+                        traktDao.insertAllTraktPopular(*shows.toTypedArray())
+                        upnextDao.insertTableUpdateLog(
+                            DatabaseTableUpdate(
+                                table_name = DatabaseTables.TABLE_TRAKT_POPULAR.tableName,
+                                last_updated = System.currentTimeMillis()
                             )
-                        }
+                        )
+
                     }
                     _isLoadingTraktPopular.postValue(false)
                 }
@@ -781,17 +780,17 @@ class TraktRepository constructor(
                             mostAnticipatedItem.show.ids.tvMazeID = id
                             shows.add(mostAnticipatedItem.asDatabaseModel())
                         }
-                        upnextDao.apply {
-                            deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_MOST_ANTICIPATED.tableName)
-                            deleteAllTraktMostAnticipated()
-                            insertAllTraktMostAnticipated(*shows.toTypedArray())
-                            insertTableUpdateLog(
-                                DatabaseTableUpdate(
-                                    table_name = DatabaseTables.TABLE_TRAKT_MOST_ANTICIPATED.tableName,
-                                    last_updated = System.currentTimeMillis()
-                                )
+
+                        upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_MOST_ANTICIPATED.tableName)
+                        traktDao.deleteAllTraktMostAnticipated()
+                        traktDao.insertAllTraktMostAnticipated(*shows.toTypedArray())
+                        upnextDao.insertTableUpdateLog(
+                            DatabaseTableUpdate(
+                                table_name = DatabaseTables.TABLE_TRAKT_MOST_ANTICIPATED.tableName,
+                                last_updated = System.currentTimeMillis()
                             )
-                        }
+                        )
+
                     }
                     _isLoadingTraktMostAnticipated.postValue(false)
                 }
