@@ -1,22 +1,28 @@
 package com.theupnextapp.ui.showSeasonEpisodes
 
-import androidx.lifecycle.*
+import androidx.lifecycle.AbstractSavedStateViewModelFactory
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.work.WorkManager
+import com.theupnextapp.domain.Result
 import com.theupnextapp.domain.ShowSeasonEpisode
 import com.theupnextapp.domain.ShowSeasonEpisodesArg
+import com.theupnextapp.repository.ShowDetailRepository
 import com.theupnextapp.repository.TraktRepository
-import com.theupnextapp.repository.UpnextRepository
 import com.theupnextapp.ui.common.BaseTraktViewModel
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class ShowSeasonEpisodesViewModel(
     savedStateHandle: SavedStateHandle,
-    upnextRepository: UpnextRepository,
+    showDetailRepository: ShowDetailRepository,
     private val traktRepository: TraktRepository,
     workManager: WorkManager,
     showSeasonEpisodesArg: ShowSeasonEpisodesArg
@@ -25,9 +31,11 @@ class ShowSeasonEpisodesViewModel(
     workManager
 ) {
 
-    val isLoading = upnextRepository.isLoading
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> = _isLoading
 
-    val episodes = upnextRepository.episodes
+    private val _episodes = MutableLiveData<List<ShowSeasonEpisode>?>()
+    val episodes: LiveData<List<ShowSeasonEpisode>?> = _episodes
 
     val traktCheckInStatus = traktRepository.traktCheckInStatus
 
@@ -41,13 +49,23 @@ class ShowSeasonEpisodesViewModel(
         savedStateHandle.set(SEASON_NUMBER, showSeasonEpisodesArg.seasonNumber)
         savedStateHandle.set(SHOW_ID, showSeasonEpisodesArg.showId)
 
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             savedStateHandle.get<Int>(SEASON_NUMBER)?.let { seasonNumber ->
                 savedStateHandle.get<Int>(SHOW_ID)?.let { showId ->
-                    upnextRepository.getShowSeasonEpisodes(
+                    showDetailRepository.getShowSeasonEpisodes(
                         showId = showId,
                         seasonNumber = seasonNumber
-                    )
+                    ).collect { result ->
+                        when (result) {
+                            is Result.Success -> {
+                                _episodes.value = result.data
+                            }
+                            is Result.Loading -> {
+                                _isLoading.value = result.status
+                            }
+                            else -> {}
+                        }
+                    }
                 }
             }
         }
@@ -84,7 +102,7 @@ class ShowSeasonEpisodesViewModel(
 
     class Factory @AssistedInject constructor(
         @Assisted owner: SavedStateRegistryOwner,
-        private val repository: UpnextRepository,
+        private val repository: ShowDetailRepository,
         private val traktRepository: TraktRepository,
         private val workManager: WorkManager,
         @Assisted private val showSeasonEpisodesArg: ShowSeasonEpisodesArg

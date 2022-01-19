@@ -10,7 +10,7 @@ import com.theupnextapp.common.utils.DateUtils
 import com.theupnextapp.common.utils.models.DatabaseTables
 import com.theupnextapp.common.utils.models.TableUpdateInterval
 import com.theupnextapp.domain.TableUpdate
-import com.theupnextapp.repository.UpnextRepository
+import com.theupnextapp.repository.DashboardRepository
 import com.theupnextapp.work.RefreshTodayShowsWorker
 import com.theupnextapp.work.RefreshTomorrowShowsWorker
 import com.theupnextapp.work.RefreshYesterdayShowsWorker
@@ -21,30 +21,30 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
-    private val upnextRepository: UpnextRepository,
+    private val dashboardRepository: DashboardRepository,
     private val workManager: WorkManager
 ) : ViewModel() {
 
-    val isLoadingYesterdayShows = upnextRepository.isLoadingYesterdayShows
+    val isLoadingYesterdayShows = dashboardRepository.isLoadingYesterdayShows
 
-    val isLoadingTodayShows = upnextRepository.isLoadingTodayShows
+    val isLoadingTodayShows = dashboardRepository.isLoadingTodayShows
 
-    val isLoadingTomorrowShows = upnextRepository.isLoadingTomorrowShows
+    val isLoadingTomorrowShows = dashboardRepository.isLoadingTomorrowShows
 
-    val yesterdayShowsList = upnextRepository.yesterdayShows.asLiveData()
+    val yesterdayShowsList = dashboardRepository.yesterdayShows.asLiveData()
 
-    val todayShowsList = upnextRepository.todayShows.asLiveData()
+    val todayShowsList = dashboardRepository.todayShows.asLiveData()
 
-    val tomorrowShowsList = upnextRepository.tomorrowShows.asLiveData()
+    val tomorrowShowsList = dashboardRepository.tomorrowShows.asLiveData()
 
     val yesterdayShowsTableUpdate =
-        upnextRepository.tableUpdate(DatabaseTables.TABLE_YESTERDAY_SHOWS.tableName).asLiveData()
+        dashboardRepository.tableUpdate(DatabaseTables.TABLE_YESTERDAY_SHOWS.tableName).asLiveData()
 
     val todayShowsTableUpdate =
-        upnextRepository.tableUpdate(DatabaseTables.TABLE_TODAY_SHOWS.tableName).asLiveData()
+        dashboardRepository.tableUpdate(DatabaseTables.TABLE_TODAY_SHOWS.tableName).asLiveData()
 
     val tomorrowShowsTableUpdate =
-        upnextRepository.tableUpdate(DatabaseTables.TABLE_TOMORROW_SHOWS.tableName).asLiveData()
+        dashboardRepository.tableUpdate(DatabaseTables.TABLE_TOMORROW_SHOWS.tableName).asLiveData()
 
     private val yesterdayShowsEmpty = MediatorLiveData<Boolean>().apply {
         addSource(yesterdayShowsList) {
@@ -147,15 +147,15 @@ class DashboardViewModel @Inject constructor(
 
     private fun requestShowsUpdate() {
         viewModelScope.launch(Dispatchers.IO) {
-            upnextRepository.refreshYesterdayShows(
+            dashboardRepository.refreshYesterdayShows(
                 DEFAULT_COUNTRY_CODE,
                 DateUtils.yesterdayDate()
             )
-            upnextRepository.refreshTodayShows(
+            dashboardRepository.refreshTodayShows(
                 DEFAULT_COUNTRY_CODE,
                 DateUtils.currentDate()
             )
-            upnextRepository.refreshTomorrowShows(
+            dashboardRepository.refreshTomorrowShows(
                 DEFAULT_COUNTRY_CODE,
                 DateUtils.tomorrowDate()
             )

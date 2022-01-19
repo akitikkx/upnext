@@ -1,32 +1,50 @@
 package com.theupnextapp.ui.showSeasons
 
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.savedstate.SavedStateRegistryOwner
+import com.theupnextapp.domain.Result
 import com.theupnextapp.domain.ShowDetailArg
-import com.theupnextapp.repository.UpnextRepository
+import com.theupnextapp.domain.ShowSeason
+import com.theupnextapp.repository.ShowDetailRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class ShowSeasonsViewModel constructor(
     savedStateHandle: SavedStateHandle,
-    upnextRepository: UpnextRepository,
+    showDetailRepository: ShowDetailRepository,
     show: ShowDetailArg
 ) : ViewModel() {
 
-    val isLoading = upnextRepository.isLoading
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> = _isLoading
 
-    val showSeasons = upnextRepository.showSeasons
+    private val _showSeasons = MutableLiveData<List<ShowSeason>?>()
+    val showSeasons: LiveData<List<ShowSeason>?> = _showSeasons
 
     init {
         savedStateHandle.set(SHOW_ID, show.showId)
-        viewModelScope.launch(Dispatchers.IO) {
-            savedStateHandle.get<Int>(SHOW_ID)?.let { upnextRepository.getShowSeasons(it) }
+        viewModelScope.launch {
+            savedStateHandle.get<Int>(SHOW_ID)?.let {
+                showDetailRepository.getShowSeasons(it).collect { result ->
+                    when (result) {
+                        is Result.Success -> {
+                            _showSeasons.value = result.data
+                        }
+                        is Result.Loading -> {
+                            _isLoading.value = result.status
+                        }
+                        else -> {}
+                    }
+                }
+            }
         }
     }
 
@@ -42,9 +60,10 @@ class ShowSeasonsViewModel constructor(
         const val SHOW_ID = "showId"
     }
 
+    @Suppress("UNCHECKED_CAST")
     class Factory @AssistedInject constructor(
         @Assisted owner: SavedStateRegistryOwner,
-        private val repository: UpnextRepository,
+        private val repository: ShowDetailRepository,
         @Assisted private val showDetailArg: ShowDetailArg
     ) : AbstractSavedStateViewModelFactory(owner, null) {
         override fun <T : ViewModel?> create(

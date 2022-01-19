@@ -3,10 +3,9 @@ package com.theupnextapp.work
 import android.content.Context
 import android.os.Bundle
 import androidx.hilt.work.HiltWorker
-import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.theupnextapp.repository.UpnextRepository
+import com.theupnextapp.repository.DashboardRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.coroutineScope
@@ -17,7 +16,7 @@ import java.util.*
 class RefreshTomorrowShowsWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParameters: WorkerParameters,
-    private val upnextRepository: UpnextRepository
+    private val repository: DashboardRepository
 ) : BaseWorker(appContext, workerParameters) {
 
     override val contentTitle: String = "Refreshing tomorrow's schedule"
@@ -25,7 +24,7 @@ class RefreshTomorrowShowsWorker @AssistedInject constructor(
     override suspend fun doWork(): Result = coroutineScope {
         try {
             setForeground(createForegroundInfo())
-            refreshTomorrowShows(upnextRepository)
+            refreshTomorrowShows()
             val bundle = Bundle()
             bundle.putBoolean("Refresh shows job run", true)
             FirebaseAnalytics.getInstance(this@RefreshTomorrowShowsWorker.applicationContext)
@@ -36,7 +35,7 @@ class RefreshTomorrowShowsWorker @AssistedInject constructor(
         }
     }
 
-    private suspend fun refreshTomorrowShows(repository: UpnextRepository) {
+    private suspend fun refreshTomorrowShows() {
         repository.refreshTomorrowShows(
             DEFAULT_COUNTRY_CODE,
             tomorrowDate()

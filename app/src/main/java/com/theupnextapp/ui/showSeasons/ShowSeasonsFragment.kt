@@ -56,8 +56,10 @@ class ShowSeasonsFragment : BaseFragment(), ShowSeasonsAdapter.ShowSeasonsAdapte
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.showSeasons.observe(viewLifecycleOwner, {
-            showSeasonsAdapter.submitShowSeasonsList(it)
+        viewModel.showSeasons.observe(viewLifecycleOwner, { showSeasons ->
+            if (showSeasons != null) {
+                showSeasonsAdapter.submitShowSeasonsList(showSeasons)
+            }
         })
     }
 

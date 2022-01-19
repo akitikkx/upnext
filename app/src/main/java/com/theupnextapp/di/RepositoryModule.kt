@@ -6,9 +6,10 @@ import com.theupnextapp.database.TvMazeDao
 import com.theupnextapp.database.UpnextDao
 import com.theupnextapp.network.TraktService
 import com.theupnextapp.network.TvMazeService
+import com.theupnextapp.repository.DashboardRepository
 import com.theupnextapp.repository.SearchRepository
 import com.theupnextapp.repository.TraktRepository
-import com.theupnextapp.repository.UpnextRepository
+import com.theupnextapp.repository.ShowDetailRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -21,15 +22,13 @@ object RepositoryModule {
 
     @Singleton
     @Provides
-    fun provideUpnextRepository(
+    fun provideShowDetailRepository(
         upnextDao: UpnextDao,
-        tvMazeDao: TvMazeDao,
         tvMazeService: TvMazeService,
         firebaseCrashlytics: FirebaseCrashlytics
-    ): UpnextRepository {
-        return UpnextRepository(
+    ): ShowDetailRepository {
+        return ShowDetailRepository(
             upnextDao = upnextDao,
-            tvMazeDao = tvMazeDao,
             tvMazeService = tvMazeService,
             firebaseCrashlytics = firebaseCrashlytics
         )
@@ -57,5 +56,21 @@ object RepositoryModule {
     @Provides
     fun provideSearchRepository(tvMazeService: TvMazeService): SearchRepository {
         return SearchRepository(tvMazeService)
+    }
+
+    @Singleton
+    @Provides
+    fun provideDashboardRepository(
+        upnextDao: UpnextDao,
+        tvMazeDao: TvMazeDao,
+        tvMazeService: TvMazeService,
+        firebaseCrashlytics: FirebaseCrashlytics
+    ): DashboardRepository {
+        return DashboardRepository(
+            upnextDao = upnextDao,
+            tvMazeDao = tvMazeDao,
+            tvMazeService = tvMazeService,
+            firebaseCrashlytics = firebaseCrashlytics
+        )
     }
 }

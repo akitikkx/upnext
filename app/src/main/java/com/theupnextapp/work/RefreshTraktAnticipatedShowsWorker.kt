@@ -16,7 +16,7 @@ import javax.inject.Inject
 class RefreshTraktAnticipatedShowsWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParameters: WorkerParameters,
-    private val traktRepository: TraktRepository
+    private val repository: TraktRepository
 ) : BaseWorker(appContext, workerParameters) {
 
     override val contentTitle: String = "Refreshing Trakt Most Anticipated"
@@ -27,7 +27,7 @@ class RefreshTraktAnticipatedShowsWorker @AssistedInject constructor(
     override suspend fun doWork(): Result = coroutineScope {
         try {
             setForeground(createForegroundInfo())
-            refreshAnticipatedShows(traktRepository)
+            refreshAnticipatedShows()
             val bundle = Bundle()
             bundle.putBoolean("Refresh shows job run", true)
             FirebaseAnalytics.getInstance(this@RefreshTraktAnticipatedShowsWorker.applicationContext)
@@ -38,7 +38,7 @@ class RefreshTraktAnticipatedShowsWorker @AssistedInject constructor(
         }
     }
 
-    private suspend fun refreshAnticipatedShows(repository: TraktRepository) {
+    private suspend fun refreshAnticipatedShows() {
         repository.refreshTraktMostAnticipatedShows()
     }
 
