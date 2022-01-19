@@ -12,30 +12,33 @@ import com.theupnextapp.database.DatabaseYesterdaySchedule
 import com.theupnextapp.database.TvMazeDao
 import com.theupnextapp.database.UpnextDao
 import com.theupnextapp.database.asDomainModel
+import com.theupnextapp.domain.Result
 import com.theupnextapp.domain.ScheduleShow
 import com.theupnextapp.domain.ShowCast
+import com.theupnextapp.domain.ShowDetailSummary
 import com.theupnextapp.domain.ShowInfo
+import com.theupnextapp.domain.ShowNextEpisode
+import com.theupnextapp.domain.ShowPreviousEpisode
 import com.theupnextapp.domain.ShowSearch
 import com.theupnextapp.domain.ShowSeason
 import com.theupnextapp.domain.ShowSeasonEpisode
 import com.theupnextapp.domain.TableUpdate
+import com.theupnextapp.domain.safeApiCall
 import com.theupnextapp.network.TvMazeService
 import com.theupnextapp.network.asDatabaseModel
-import com.theupnextapp.network.models.tvmaze.NetworkShowSearchResponse
 import com.theupnextapp.network.models.tvmaze.NetworkTodayScheduleResponse
 import com.theupnextapp.network.models.tvmaze.NetworkTomorrowScheduleResponse
 import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowImageResponse
 import com.theupnextapp.network.models.tvmaze.NetworkYesterdayScheduleResponse
 import com.theupnextapp.network.models.tvmaze.asDomainModel
-import com.theupnextapp.network.models.upnext.NetworkShowInfoCombined
-import com.theupnextapp.network.models.upnext.asDomainModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 import timber.log.Timber
-import java.net.UnknownHostException
 
 class UpnextRepository constructor(
     private val upnextDao: UpnextDao,
@@ -90,32 +93,6 @@ class UpnextRepository constructor(
 
     private val _episodes = MutableLiveData<List<ShowSeasonEpisode>>()
     val episodes: LiveData<List<ShowSeasonEpisode>> = _episodes
-
-    suspend fun getSearchSuggestions(name: String?) {
-        if (!name.isNullOrEmpty()) {
-            withContext(Dispatchers.IO) {
-                try {
-                    val searchList = tvMazeService.getSuggestionListAsync(name).await()
-                    val rebuiltList: MutableList<NetworkShowSearchResponse> = arrayListOf()
-
-                    // we need to ensure that the items returned have an IMDB link
-                    if (!searchList.isNullOrEmpty()) {
-                        searchList.forEach {
-                            val item: NetworkShowSearchResponse = it
-                            if (!item.show.externals.imdb.isNullOrEmpty()) {
-                                rebuiltList.add(item)
-                            }
-                        }
-                    }
-
-                    _showSearch.postValue(rebuiltList.asDomainModel())
-                } catch (e: Exception) {
-                    Timber.d(e)
-                    firebaseCrashlytics.recordException(e)
-                }
-            }
-        }
-    }
 
     suspend fun refreshYesterdayShows(countryCode: String, date: String?) {
         withContext(Dispatchers.IO) {
@@ -318,33 +295,56 @@ class UpnextRepository constructor(
         return Pair(poster ?: fallbackPoster, heroImage ?: fallbackMedium)
     }
 
-    suspend fun getShowData(showId: Int) {
-        withContext(Dispatchers.IO) {
-            try {
-                _isLoading.postValue(true)
-                val showInfo =
-                    tvMazeService.getShowSummaryAsync(showId.toString()).await()
+    suspend fun getShowSummary(showId: Int): Flow<Result<ShowDetailSummary>> {
+        return flow {
+            emit(Result.Loading(true))
+            val response =
+                safeApiCall(Dispatchers.IO) {
+                    tvMazeService.getShowSummaryAsync(showId.toString()).await().asDomainModel()
+                }
+            emit(Result.Loading(false))
+            emit(response)
+        }.flowOn(Dispatchers.IO)
+    }
 
-                val (nextEpisode, previousEpisode) = getPreviousAndNextEpisodes(showId)
+    suspend fun getPreviousEpisode(episodeRef: String?): Flow<Result<ShowPreviousEpisode>> {
+        return flow {
+            emit(Result.Loading(true))
+            val previousEpisodeLink = episodeRef?.substring(
+                episodeRef.lastIndexOf("/") + 1,
+                episodeRef.length
+            )?.replace("/", "")
 
-                val showInfoCombined =
-                    NetworkShowInfoCombined(
-                        showInfoResponse = showInfo,
-                        previousEpisode = previousEpisode,
-                        nextEpisode = nextEpisode
-                    )
-                _showInfo.postValue(showInfoCombined.asDomainModel())
-                _isLoading.postValue(false)
-            } catch (e: Exception) {
-                _isLoading.postValue(false)
-                Timber.d(e)
-                firebaseCrashlytics.recordException(e)
-            } catch (e: UnknownHostException) {
-                _isLoading.postValue(false)
-                Timber.d(e)
-                firebaseCrashlytics.recordException(e)
+            if (!previousEpisodeLink.isNullOrEmpty()) {
+                val response = safeApiCall(Dispatchers.IO) {
+                    tvMazeService.getPreviousEpisodeAsync(
+                        previousEpisodeLink.replace("/", "")
+                    ).await().asDomainModel()
+                }
+                emit(Result.Loading(false))
+                emit(response)
             }
-        }
+        }.flowOn(Dispatchers.IO)
+    }
+
+    suspend fun getNextEpisode(episodeRef: String?): Flow<Result<ShowNextEpisode>> {
+        return flow {
+            emit(Result.Loading(true))
+            val nextEpisodeLink = episodeRef?.substring(
+                episodeRef.lastIndexOf("/") + 1,
+                episodeRef.length
+            )?.replace("/", "")
+
+            if (!nextEpisodeLink.isNullOrEmpty()) {
+                val response = safeApiCall(Dispatchers.IO) {
+                    tvMazeService.getNextEpisodeAsync(
+                        nextEpisodeLink.replace("/", "")
+                    ).await().asDomainModel()
+                }
+                emit(Result.Loading(false))
+                emit(response)
+            }
+        }.flowOn(Dispatchers.IO)
     }
 
     suspend fun getShowCast(showId: Int) {

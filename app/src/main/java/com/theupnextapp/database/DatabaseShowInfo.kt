@@ -2,7 +2,6 @@ package com.theupnextapp.database
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.theupnextapp.domain.ShowInfo
 
 @Entity(tableName = "shows_info")
 data class DatabaseShowInfo constructor(
@@ -46,47 +45,3 @@ data class DatabaseShowInfo constructor(
     val previousEpisodeSummary: String?,
     val previousEpisodeUrl: String?
 )
-
-fun DatabaseShowInfo.asDomainModel(): ShowInfo {
-    return ShowInfo(
-        id = id,
-        imdbID = imdbID,
-        name = name,
-        summary = summary,
-        mediumImageUrl = mediumImageUrl,
-        originalImageUrl = originalImageUrl,
-        genres = genres.toString(),
-        language = language,
-        averageRating = averageRating,
-        airDays = airDays.toString(),
-        time = time,
-        status = status,
-        nextEpisodeLinkedId = nextEpisodeLinkedId,
-        previousEpisodeLinkedId = previousEpisodeLinkedId,
-        nextEpisodeId = nextEpisodeId,
-        nextEpisodeAirdate = nextEpisodeAirdate,
-        nextEpisodeAirstamp = nextEpisodeAirstamp,
-        nextEpisodeAirtime = nextEpisodeAirtime,
-        nextEpisodeMediumImageUrl = nextEpisodeMediumImageUrl,
-        nextEpisodeOriginalImageUrl = nextEpisodeOriginalImageUrl,
-        nextEpisodeName = nextEpisodeName,
-        nextEpisodeNumber = nextEpisodeNumber,
-        nextEpisodeRuntime = nextEpisodeRuntime,
-        nextEpisodeSeason = nextEpisodeSeason,
-        nextEpisodeSummary = nextEpisodeSummary,
-        nextEpisodeUrl = nextEpisodeUrl,
-        previousEpisodeId = previousEpisodeId,
-        previousEpisodeAirdate = previousEpisodeAirdate,
-        previousEpisodeAirstamp = previousEpisodeAirstamp,
-        previousEpisodeAirtime = previousEpisodeAirtime,
-        previousEpisodeMediumImageUrl = previousEpisodeMediumImageUrl,
-        previousEpisodeOriginalImageUrl = previousEpisodeOriginalImageUrl,
-        previousEpisodeName = previousEpisodeName,
-        previousEpisodeNumber = previousEpisodeNumber,
-        previousEpisodeRuntime = previousEpisodeRuntime,
-        previousEpisodeSeason = previousEpisodeSeason,
-        previousEpisodeSummary = previousEpisodeSummary,
-        previousEpisodeUrl = previousEpisodeUrl
-    )
-
-}

@@ -26,7 +26,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:showHidePreviousEpisodeInfo="@{viewModel.showInfo}" />
+            app:showHidePreviousEpisodeInfo="@{viewModel.showPreviousEpisode}" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/rating_score"

@@ -46,12 +46,12 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_vertical"
-                            app:showHideStringContent="@{viewModel.showInfo.originalImageUrl}" />
+                            app:showHideStringContent="@{viewModel.showSummary.originalImageUrl}" />
 
                         <androidx.appcompat.widget.AppCompatImageView
                             android:layout_width="match_parent"
                             android:layout_height="@dimen/show_backdrop_height"
-                            android:contentDescription="@{String.format(@string/show_backdrop_image, viewModel.showInfo.name)}"
+                            android:contentDescription="@{String.format(@string/show_backdrop_image, viewModel.showSummary.name)}"
                             android:scaleType="matrix"
                             android:src="@color/grey_light"
                             app:layout_constraintEnd_toEndOf="parent"
@@ -89,7 +89,7 @@
                         android:layout_marginTop="@dimen/margin_vertical_quarter"
                         android:layout_marginEnd="@dimen/margin_horizontal_double"
                         android:layout_marginBottom="@dimen/margin_vertical"
-                        android:text="@{viewModel.showInfo.status}"
+                        android:text="@{viewModel.showSummary.status}"
                         android:textAppearance="?attr/textAppearanceBody2"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
@@ -123,14 +123,14 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center_vertical"
-                                app:showHideStringContent="@{viewModel.showInfo.originalImageUrl}" />
+                                app:showHideStringContent="@{viewModel.showSummary.originalImageUrl}" />
 
                             <androidx.appcompat.widget.AppCompatImageView
                                 android:id="@+id/poster"
                                 android:layout_width="@dimen/detail_poster_width"
                                 android:layout_height="match_parent"
                                 android:layout_marginEnd="@dimen/margin_horizontal_half"
-                                android:contentDescription="@{String.format(@string/show_poster, viewModel.showInfo.name)}"
+                                android:contentDescription="@{String.format(@string/show_poster, viewModel.showSummary.name)}"
                                 android:scaleType="centerCrop"
                                 app:imageUrl="@{viewModel.showDetailArg.showImageUrl}" />
                         </FrameLayout>
@@ -156,7 +156,7 @@
                         android:layout_marginTop="@dimen/margin_vertical"
                         android:layout_marginEnd="@dimen/margin_horizontal_double"
                         android:textAppearance="?attr/textAppearanceBody2"
-                        app:fromHtml="@{viewModel.showInfo.summary}"
+                        app:fromHtml="@{viewModel.showSummary.summary}"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/poster_and_detail_layer"

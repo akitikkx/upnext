@@ -3,7 +3,7 @@ package com.theupnextapp.domain
 import android.os.Parcel
 import android.os.Parcelable
 
-data class ShowInfo(
+data class ShowDetailSummary(
     val airDays: String?,
     val averageRating: String?,
     var id: Int,
@@ -16,8 +16,10 @@ data class ShowInfo(
     val summary: String?,
     val time: String?,
     val status: String?,
+    val previousEpisodeHref: String?,
+    val nextEpisodeHref: String?,
     val nextEpisodeLinkedId: Int?,
-    val previousEpisodeLinkedId: Int?
+    val previousEpisodeLinkedId: Int?,
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readString(),
@@ -32,9 +34,12 @@ data class ShowInfo(
         parcel.readString(),
         parcel.readString(),
         parcel.readString(),
+        parcel.readString(),
+        parcel.readString(),
         parcel.readValue(Int::class.java.classLoader) as? Int,
         parcel.readValue(Int::class.java.classLoader) as? Int
-    )
+    ) {
+    }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(airDays)
@@ -49,6 +54,8 @@ data class ShowInfo(
         parcel.writeString(summary)
         parcel.writeString(time)
         parcel.writeString(status)
+        parcel.writeString(previousEpisodeHref)
+        parcel.writeString(nextEpisodeHref)
         parcel.writeValue(nextEpisodeLinkedId)
         parcel.writeValue(previousEpisodeLinkedId)
     }
@@ -57,13 +64,14 @@ data class ShowInfo(
         return 0
     }
 
-    companion object CREATOR : Parcelable.Creator<ShowInfo> {
-        override fun createFromParcel(parcel: Parcel): ShowInfo {
-            return ShowInfo(parcel)
+    companion object CREATOR : Parcelable.Creator<ShowDetailSummary> {
+        override fun createFromParcel(parcel: Parcel): ShowDetailSummary {
+            return ShowDetailSummary(parcel)
         }
 
-        override fun newArray(size: Int): Array<ShowInfo?> {
+        override fun newArray(size: Int): Array<ShowDetailSummary?> {
             return arrayOfNulls(size)
         }
     }
+
 }

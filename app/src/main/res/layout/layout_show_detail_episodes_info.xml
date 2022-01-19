@@ -27,7 +27,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:showHideNextEpisodeInfo="@{viewModel.showInfo}" />
+            app:showHideNextEpisodeInfo="@{viewModel.showNextEpisode}" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/show_detail_next_episode_season_info"
@@ -40,7 +40,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/show_detail_next_episode_heading"
-            app:nextEpisodeInfo="@{viewModel.showInfo}"
+            app:nextEpisodeInfo="@{viewModel.showNextEpisode}"
             tools:text="Next Episode Season Info" />
 
         <com.google.android.material.textview.MaterialTextView
@@ -54,7 +54,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/show_detail_next_episode_season_info"
-            app:nextAirDate="@{viewModel.showInfo}"
+            app:nextAirDate="@{viewModel.showNextEpisode}"
             tools:text="Next Episode Air Date" />
 
         <com.google.android.material.textview.MaterialTextView
@@ -65,11 +65,11 @@
             android:layout_marginTop="@dimen/margin_vertical_half"
             android:layout_marginEnd="@dimen/margin_horizontal_double"
             android:textAppearance="?attr/textAppearanceBody2"
-            app:fromHtml="@{viewModel.showInfo.nextEpisodeSummary}"
+            app:fromHtml="@{viewModel.showNextEpisode.nextEpisodeSummary}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/show_detail_next_episode_air_date"
-            app:showHideStringContent="@{viewModel.showInfo.nextEpisodeSummary}"
+            app:showHideStringContent="@{viewModel.showNextEpisode.nextEpisodeSummary}"
             tools:text="Next Episode Summary" />
 
         <com.google.android.material.textview.MaterialTextView
@@ -84,7 +84,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/show_detail_next_episode_summary"
-            app:showHidePreviousEpisodeInfo="@{viewModel.showInfo}" />
+            app:showHidePreviousEpisodeInfo="@{viewModel.showPreviousEpisode}" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/show_detail_previous_episode_season_info"
@@ -97,7 +97,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/show_detail_previous_episode_heading"
-            app:previousEpisodeInfo="@{viewModel.showInfo}"
+            app:previousEpisodeInfo="@{viewModel.showPreviousEpisode}"
             tools:text="Previous Episode Season Info" />
 
         <com.google.android.material.textview.MaterialTextView
@@ -111,7 +111,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/show_detail_previous_episode_season_info"
-            app:previousAirDate="@{viewModel.showInfo}"
+            app:previousAirDate="@{viewModel.showPreviousEpisode}"
             tools:text="Previous Episode Air date" />
 
         <com.google.android.material.textview.MaterialTextView
@@ -121,11 +121,11 @@
             android:layout_marginTop="@dimen/margin_vertical_half"
             android:layout_marginEnd="@dimen/margin_horizontal_double"
             android:textAppearance="?attr/textAppearanceBody2"
-            app:fromHtml="@{viewModel.showInfo.previousEpisodeSummary}"
+            app:fromHtml="@{viewModel.showPreviousEpisode.previousEpisodeSummary}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/show_detail_previous_episode_air_date"
-            app:showHideStringContent="@{viewModel.showInfo.previousEpisodeSummary}"
+            app:showHideStringContent="@{viewModel.showPreviousEpisode.previousEpisodeSummary}"
             tools:text="Previous Episode Summary" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

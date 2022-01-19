@@ -5,25 +5,26 @@ import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import com.theupnextapp.R
 import com.theupnextapp.common.utils.DateUtils
-import com.theupnextapp.domain.FavoriteNextEpisode
-import com.theupnextapp.domain.ShowInfo
+import com.theupnextapp.domain.ShowNextEpisode
+import com.theupnextapp.domain.ShowPreviousEpisode
 import java.text.SimpleDateFormat
-import java.util.Locale
+import java.util.*
+
 
 @BindingAdapter("showHideNextEpisodeInfo")
-fun showHideNextEpisodeInfo(view: TextView, showInfo: ShowInfo?) {
+fun showHideNextEpisodeInfo(view: TextView, showInfo: ShowNextEpisode?) {
     view.visibility =
         if (showInfo?.nextEpisodeSummary.isNullOrEmpty() && showInfo?.nextEpisodeAirstamp.isNullOrEmpty()) View.GONE else View.VISIBLE
 }
 
 @BindingAdapter("showHidePreviousEpisodeInfo")
-fun showHidePreviousEpisodeInfo(view: TextView, showInfo: ShowInfo?) {
+fun showHidePreviousEpisodeInfo(view: TextView, showInfo: ShowPreviousEpisode?) {
     view.visibility =
         if (showInfo?.previousEpisodeSummary.isNullOrEmpty() && showInfo?.previousEpisodeAirstamp.isNullOrEmpty()) View.GONE else View.VISIBLE
 }
 
 @BindingAdapter("nextEpisodeInfo")
-fun nextEpisodeInfo(view: TextView, showInfo: ShowInfo?) {
+fun nextEpisodeInfo(view: TextView, showInfo: ShowNextEpisode?) {
     if (!showInfo?.nextEpisodeSummary.isNullOrEmpty()) {
         view.text = view.resources.getString(
             R.string.show_detail_episode_season_info,
@@ -38,7 +39,7 @@ fun nextEpisodeInfo(view: TextView, showInfo: ShowInfo?) {
 }
 
 @BindingAdapter("previousEpisodeInfo")
-fun previousEpisodeInfo(view: TextView, showInfo: ShowInfo?) {
+fun previousEpisodeInfo(view: TextView, showInfo: ShowPreviousEpisode?) {
     if (!showInfo?.previousEpisodeSummary.isNullOrEmpty()) {
         view.text = view.resources.getString(
             R.string.show_detail_episode_season_info,
@@ -53,7 +54,7 @@ fun previousEpisodeInfo(view: TextView, showInfo: ShowInfo?) {
 }
 
 @BindingAdapter("nextAirDate")
-fun getNextAirDate(view: TextView, showInfo: ShowInfo?) {
+fun getNextAirDate(view: TextView, showInfo: ShowNextEpisode?) {
     if (!showInfo?.nextEpisodeAirstamp.isNullOrEmpty()) {
         val format =
             SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'+00:00'", Locale.getDefault())
@@ -101,7 +102,7 @@ fun getNextAirDate(view: TextView, airStamp: String?) {
 }
 
 @BindingAdapter("previousAirDate")
-fun getPreviousAirDate(view: TextView, showInfo: ShowInfo?) {
+fun getPreviousAirDate(view: TextView, showInfo: ShowPreviousEpisode?) {
     if (!showInfo?.previousEpisodeAirdate.isNullOrEmpty()) {
         val format =
             SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'+00:00'", Locale.getDefault())
