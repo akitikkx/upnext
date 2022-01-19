@@ -16,6 +16,7 @@ import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentShowDetailBinding
 import com.theupnextapp.domain.ShowCast
 import com.theupnextapp.domain.ShowDetailArg
+import com.theupnextapp.domain.ShowDetailSummary
 import com.theupnextapp.domain.ShowInfo
 import com.theupnextapp.domain.ShowSeason
 import com.theupnextapp.network.models.trakt.Distribution
@@ -33,7 +34,7 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
     private val showCastAdapter get() = _showCastAdapter!!
 
     private var _showSeasons: List<ShowSeason>? = null
-    private var showInfo: ShowInfo? = null
+    private var showInfo: ShowDetailSummary? = null
 
     private var _showRatingsAdapter: ShowRatingsAdapter? = null
     private val showRatingsAdapter get() = _showRatingsAdapter
@@ -101,7 +102,7 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.showInfo.observe(viewLifecycleOwner, {
+        viewModel.showSummary.observe(viewLifecycleOwner, {
             if (it != null) {
                 showInfo = it
                 _imdbID = it.imdbID

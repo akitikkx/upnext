@@ -1,11 +1,20 @@
 package com.theupnextapp.ui.showDetail
 
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
+import com.theupnextapp.domain.Result
 import com.theupnextapp.domain.ShowCast
 import com.theupnextapp.domain.ShowDetailArg
+import com.theupnextapp.domain.ShowDetailSummary
+import com.theupnextapp.domain.ShowNextEpisode
+import com.theupnextapp.domain.ShowPreviousEpisode
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.UpnextRepository
 import com.theupnextapp.ui.common.BaseTraktViewModel
@@ -15,10 +24,11 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class ShowDetailViewModel @AssistedInject constructor(
-    upnextRepository: UpnextRepository,
+    private val upnextRepository: UpnextRepository,
     private val workManager: WorkManager,
     private val traktRepository: TraktRepository,
     @Assisted show: ShowDetailArg
@@ -39,6 +49,15 @@ class ShowDetailViewModel @AssistedInject constructor(
     private val _navigateToSeasons = MutableLiveData<Boolean>()
     val navigateToSeasons: LiveData<Boolean> = _navigateToSeasons
 
+    private val _showSummary = MutableLiveData<ShowDetailSummary?>()
+    val showSummary: LiveData<ShowDetailSummary?> = _showSummary
+
+    private val _showPreviousEpisode = MutableLiveData<ShowPreviousEpisode?>()
+    val showPreviousEpisode: LiveData<ShowPreviousEpisode?> = _showPreviousEpisode
+
+    private val _showNextEpisode = MutableLiveData<ShowNextEpisode?>()
+    val showNextEpisode: LiveData<ShowNextEpisode?> = _showNextEpisode
+
     val isLoading = MediatorLiveData<Boolean>()
 
     val isFavoriteShow = MediatorLiveData<Boolean>()
@@ -46,8 +65,6 @@ class ShowDetailViewModel @AssistedInject constructor(
     private val isUpnextRepositoryLoading = upnextRepository.isLoading
 
     private val isTraktRepositoryLoading = traktRepository.isLoading
-
-    val showInfo = upnextRepository.showInfo
 
     val showCast = upnextRepository.showCast
 
@@ -60,15 +77,29 @@ class ShowDetailViewModel @AssistedInject constructor(
     private val favoriteShow = traktRepository.favoriteShow
 
     init {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch() {
             show.showId?.let {
-                upnextRepository.getShowData(it)
+                upnextRepository.getShowSummary(it).collect { result ->
+                    when (result) {
+                        is Result.Success -> {
+                            val showSummary = result.data
+                            _showSummary.value = showSummary
+                            getShowPreviousEpisode(showSummary.previousEpisodeHref)
+                            getShowNextEpisode(showSummary.nextEpisodeHref)
+                            getTraktShowRating(showSummary.imdbID)
+                            getTraktShowStats(showSummary.imdbID)
+                            checkIfShowIsTraktFavorite(showSummary.imdbID)
+                        }
+                        is Result.Loading -> {
+                            isLoading.value = result.status
+                        }
+                        else -> {}
+                    }
+
+                }
                 upnextRepository.getShowCast(it)
                 upnextRepository.getShowSeasons(it)
             }
-            traktRepository.getTraktShowRating(showInfo.value?.imdbID)
-            traktRepository.getTraktShowStats(showInfo.value?.imdbID)
-            traktRepository.checkIfShowIsFavorite(showInfo.value?.imdbID)
         }
 
         isLoading.addSource(isUpnextRepositoryLoading) { result ->
@@ -81,6 +112,56 @@ class ShowDetailViewModel @AssistedInject constructor(
 
         isFavoriteShow.addSource(favoriteShow) { result ->
             isFavoriteShow.value = result != null
+        }
+    }
+
+    private fun getShowPreviousEpisode(previousEpisodeHref: String?) {
+        viewModelScope.launch {
+            upnextRepository.getPreviousEpisode(previousEpisodeHref).collect { result ->
+                when (result) {
+                    is Result.Success -> {
+                        _showPreviousEpisode.value = result.data
+                    }
+                    is Result.Loading -> {
+                        isLoading.value = result.status
+                    }
+                    else -> {}
+                }
+            }
+        }
+    }
+
+    private fun getShowNextEpisode(nextEpisodeHref: String?) {
+        viewModelScope.launch {
+            upnextRepository.getNextEpisode(nextEpisodeHref).collect { result ->
+                when (result) {
+                    is Result.Success -> {
+                        _showNextEpisode.value = result.data
+                    }
+                    is Result.Loading -> {
+                        isLoading.value = result.status
+                    }
+                    else -> {}
+                }
+            }
+        }
+    }
+
+    private fun getTraktShowRating(imdbID: String?) {
+        viewModelScope.launch {
+            traktRepository.getTraktShowRating(imdbID)
+        }
+    }
+
+    private fun getTraktShowStats(imdbID: String?) {
+        viewModelScope.launch {
+            traktRepository.getTraktShowStats(imdbID)
+        }
+    }
+
+    private fun checkIfShowIsTraktFavorite(imdbID: String?) {
+        viewModelScope.launch {
+            traktRepository.checkIfShowIsFavorite(imdbID)
         }
     }
 
@@ -129,7 +210,10 @@ class ShowDetailViewModel @AssistedInject constructor(
                     workManager.enqueue(removeFavoriteWork.build())
                 } else {
                     val workerData = Data.Builder()
-                    workerData.putString(AddFavoriteShowWorker.ARG_IMDB_ID, showInfo.value?.imdbID)
+                    workerData.putString(
+                        AddFavoriteShowWorker.ARG_IMDB_ID,
+                        showSummary.value?.imdbID
+                    )
                     workerData.putString(AddFavoriteShowWorker.ARG_TOKEN, accessToken.access_token)
 
                     val addFavoriteWork =

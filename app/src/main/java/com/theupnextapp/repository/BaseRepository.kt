@@ -42,53 +42,6 @@ abstract class BaseRepository(
         return canProceedWithUpdate
     }
 
-    suspend fun getPreviousAndNextEpisodes(tvMazeID: Int): Pair<NetworkShowNextEpisodeResponse?, NetworkShowPreviousEpisodeResponse?> {
-        return try {
-            withContext(Dispatchers.IO) {
-                val showInfo =
-                    tvMazeService.getShowSummaryAsync(tvMazeID.toString()).await()
-
-                val previousEpisodeLink = showInfo._links?.previousepisode?.href?.substring(
-                    showInfo._links.previousepisode.href.lastIndexOf("/") + 1,
-                    showInfo._links.previousepisode.href.length
-                )?.replace("/", "")
-
-                val nextEpisodeLink = showInfo._links?.nextepisode?.href?.substring(
-                    showInfo._links.nextepisode.href.lastIndexOf("/") + 1,
-                    showInfo._links.nextepisode.href.length
-                )?.replace("/", "")
-
-                Pair(
-                    getNextEpisodeInfo(nextEpisodeLink),
-                    getPreviousEpisodeInfo(previousEpisodeLink)
-                )
-            }
-        } catch (e: Exception) {
-            Pair(null, null)
-        }
-    }
-
-    private suspend fun getNextEpisodeInfo(nextEpisodeLink: String?): NetworkShowNextEpisodeResponse? {
-        var showNextEpisode: NetworkShowNextEpisodeResponse? = null
-        if (!nextEpisodeLink.isNullOrEmpty()) {
-            showNextEpisode = tvMazeService.getNextEpisodeAsync(
-                nextEpisodeLink.replace("/", "")
-            ).await()
-        }
-        return showNextEpisode
-    }
-
-    private suspend fun getPreviousEpisodeInfo(previousEpisodeLink: String?): NetworkShowPreviousEpisodeResponse? {
-        var showPreviousEpisode: NetworkShowPreviousEpisodeResponse? = null
-        if (!previousEpisodeLink.isNullOrEmpty()) {
-            showPreviousEpisode =
-                tvMazeService.getPreviousEpisodeAsync(
-                    previousEpisodeLink.replace("/", "")
-                ).await()
-        }
-        return showPreviousEpisode
-    }
-
     suspend fun getNextEpisode(tvMazeID: Int): NetworkShowNextEpisodeResponse? {
         return try {
             withContext(Dispatchers.IO) {
@@ -105,5 +58,15 @@ abstract class BaseRepository(
         } catch (e: Exception) {
             null
         }
+    }
+
+    private suspend fun getNextEpisodeInfo(nextEpisodeLink: String?): NetworkShowNextEpisodeResponse? {
+        var showNextEpisode: NetworkShowNextEpisodeResponse? = null
+        if (!nextEpisodeLink.isNullOrEmpty()) {
+            showNextEpisode = tvMazeService.getNextEpisodeAsync(
+                nextEpisodeLink.replace("/", "")
+            ).await()
+        }
+        return showNextEpisode
     }
 }

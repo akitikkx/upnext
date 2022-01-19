@@ -24,18 +24,18 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:showHideStringContent="@{viewModel.showInfo.airDays}" />
+            app:showHideStringContent="@{viewModel.showSummary.airDays}" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/show_detail_air_days"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@{viewModel.showInfo.airDays}"
+            android:text="@{viewModel.showSummary.airDays}"
             android:textAppearance="?attr/textAppearanceBody2"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/show_detail_air_days_heading"
-            app:showHideStringContent="@{viewModel.showInfo.airDays}"
+            app:showHideStringContent="@{viewModel.showSummary.airDays}"
             tools:text="Air days" />
 
         <com.google.android.material.textview.MaterialTextView
@@ -49,18 +49,18 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/show_detail_air_days"
-            app:showHideStringContent="@{viewModel.showInfo.genres}" />
+            app:showHideStringContent="@{viewModel.showSummary.genres}" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/show_detail_genres"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@{viewModel.showInfo.genres}"
+            android:text="@{viewModel.showSummary.genres}"
             android:textAppearance="?attr/textAppearanceBody2"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/show_detail_genres_heading"
-            app:showHideStringContent="@{viewModel.showInfo.genres}"
+            app:showHideStringContent="@{viewModel.showSummary.genres}"
             tools:text="Genres" />
 
         <com.google.android.material.textview.MaterialTextView
