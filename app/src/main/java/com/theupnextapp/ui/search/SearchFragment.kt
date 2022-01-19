@@ -10,10 +10,12 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentSearchBinding
+import com.theupnextapp.domain.Result
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.ShowSearch
 import com.theupnextapp.ui.common.BaseFragment
@@ -73,8 +75,22 @@ class SearchFragment : BaseFragment(),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.searchResults.observe(viewLifecycleOwner, {
-            searchAdapter.submitList(it)
+        viewModel.searchResponse.observe(viewLifecycleOwner, {
+            when (it) {
+                is Result.Success -> searchAdapter.submitList(it.data)
+                is Result.GenericError -> {
+                    it.error?.message?.let { errorMessage ->
+                        Snackbar.make(
+                            binding.root,
+                            errorMessage, Snackbar.LENGTH_LONG
+                        )
+                    }
+                }
+                is Result.Loading -> {
+                    binding.isLoading = it.status
+                }
+                is Result.NetworkError -> {}
+            }
         })
     }
 

@@ -6,6 +6,7 @@ import com.theupnextapp.database.TvMazeDao
 import com.theupnextapp.database.UpnextDao
 import com.theupnextapp.network.TraktService
 import com.theupnextapp.network.TvMazeService
+import com.theupnextapp.repository.SearchRepository
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.UpnextRepository
 import dagger.Module
@@ -50,5 +51,11 @@ object RepositoryModule {
             traktService = traktService,
             firebaseCrashlytics = firebaseCrashlytics
         )
+    }
+
+    @Singleton
+    @Provides
+    fun provideSearchRepository(tvMazeService: TvMazeService): SearchRepository {
+        return SearchRepository(tvMazeService)
     }
 }
