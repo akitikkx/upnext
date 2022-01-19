@@ -14,7 +14,7 @@ sealed class Result<out T> {
 
     object NetworkError : Result<Nothing>()
 
-    object Loading : Result<Nothing>()
+    data class Loading(val status: Boolean) : Result<Nothing>()
 }
 
 suspend fun <T> safeApiCall(dispatcher: CoroutineDispatcher, apiCall: suspend () -> T): Result<T> {
