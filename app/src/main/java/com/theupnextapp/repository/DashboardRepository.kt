@@ -12,40 +12,35 @@ import com.theupnextapp.database.DatabaseYesterdaySchedule
 import com.theupnextapp.database.TvMazeDao
 import com.theupnextapp.database.UpnextDao
 import com.theupnextapp.database.asDomainModel
-import com.theupnextapp.domain.Result
 import com.theupnextapp.domain.ScheduleShow
-import com.theupnextapp.domain.ShowCast
-import com.theupnextapp.domain.ShowDetailSummary
-import com.theupnextapp.domain.ShowInfo
-import com.theupnextapp.domain.ShowNextEpisode
-import com.theupnextapp.domain.ShowPreviousEpisode
-import com.theupnextapp.domain.ShowSearch
-import com.theupnextapp.domain.ShowSeason
-import com.theupnextapp.domain.ShowSeasonEpisode
 import com.theupnextapp.domain.TableUpdate
-import com.theupnextapp.domain.safeApiCall
 import com.theupnextapp.network.TvMazeService
 import com.theupnextapp.network.asDatabaseModel
 import com.theupnextapp.network.models.tvmaze.NetworkTodayScheduleResponse
 import com.theupnextapp.network.models.tvmaze.NetworkTomorrowScheduleResponse
 import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowImageResponse
 import com.theupnextapp.network.models.tvmaze.NetworkYesterdayScheduleResponse
-import com.theupnextapp.network.models.tvmaze.asDomainModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
-import retrofit2.HttpException
 import timber.log.Timber
 
-class UpnextRepository constructor(
+class DashboardRepository constructor(
     private val upnextDao: UpnextDao,
     private val tvMazeDao: TvMazeDao,
     private val tvMazeService: TvMazeService,
     private val firebaseCrashlytics: FirebaseCrashlytics
 ) : BaseRepository(upnextDao = upnextDao, tvMazeService = tvMazeService) {
+
+    private val _isLoadingYesterdayShows = MutableLiveData<Boolean>()
+    val isLoadingYesterdayShows: LiveData<Boolean> = _isLoadingYesterdayShows
+
+    private val _isLoadingTodayShows = MutableLiveData<Boolean>()
+    val isLoadingTodayShows: LiveData<Boolean> = _isLoadingTodayShows
+
+    private val _isLoadingTomorrowShows = MutableLiveData<Boolean>()
+    val isLoadingTomorrowShows: LiveData<Boolean> = _isLoadingTomorrowShows
 
     val yesterdayShows: Flow<List<ScheduleShow>>
         get() = tvMazeDao.getYesterdayShows().map {
@@ -66,33 +61,6 @@ class UpnextRepository constructor(
         upnextDao.getTableLastUpdate(tableName).map {
             it?.asDomainModel()
         }
-
-    private val _showInfo = MutableLiveData<ShowInfo>()
-    val showInfo: LiveData<ShowInfo> = _showInfo
-
-    private val _showSearch = MutableLiveData<List<ShowSearch>>()
-    val showSearch: LiveData<List<ShowSearch>> = _showSearch
-
-    private val _isLoading = MutableLiveData<Boolean>()
-    val isLoading: LiveData<Boolean> = _isLoading
-
-    private val _isLoadingYesterdayShows = MutableLiveData<Boolean>()
-    val isLoadingYesterdayShows: LiveData<Boolean> = _isLoadingYesterdayShows
-
-    private val _isLoadingTodayShows = MutableLiveData<Boolean>()
-    val isLoadingTodayShows: LiveData<Boolean> = _isLoadingTodayShows
-
-    private val _isLoadingTomorrowShows = MutableLiveData<Boolean>()
-    val isLoadingTomorrowShows: LiveData<Boolean> = _isLoadingTomorrowShows
-
-    private val _showCast = MutableLiveData<List<ShowCast>>()
-    val showCast: LiveData<List<ShowCast>> = _showCast
-
-    private val _showSeasons = MutableLiveData<List<ShowSeason>>()
-    val showSeasons: LiveData<List<ShowSeason>> = _showSeasons
-
-    private val _episodes = MutableLiveData<List<ShowSeasonEpisode>>()
-    val episodes: LiveData<List<ShowSeasonEpisode>> = _episodes
 
     suspend fun refreshYesterdayShows(countryCode: String, date: String?) {
         withContext(Dispatchers.IO) {
@@ -293,106 +261,5 @@ class UpnextRepository constructor(
             }
         }
         return Pair(poster ?: fallbackPoster, heroImage ?: fallbackMedium)
-    }
-
-    suspend fun getShowSummary(showId: Int): Flow<Result<ShowDetailSummary>> {
-        return flow {
-            emit(Result.Loading(true))
-            val response =
-                safeApiCall(Dispatchers.IO) {
-                    tvMazeService.getShowSummaryAsync(showId.toString()).await().asDomainModel()
-                }
-            emit(Result.Loading(false))
-            emit(response)
-        }.flowOn(Dispatchers.IO)
-    }
-
-    suspend fun getPreviousEpisode(episodeRef: String?): Flow<Result<ShowPreviousEpisode>> {
-        return flow {
-            emit(Result.Loading(true))
-            val previousEpisodeLink = episodeRef?.substring(
-                episodeRef.lastIndexOf("/") + 1,
-                episodeRef.length
-            )?.replace("/", "")
-
-            if (!previousEpisodeLink.isNullOrEmpty()) {
-                val response = safeApiCall(Dispatchers.IO) {
-                    tvMazeService.getPreviousEpisodeAsync(
-                        previousEpisodeLink.replace("/", "")
-                    ).await().asDomainModel()
-                }
-                emit(Result.Loading(false))
-                emit(response)
-            }
-        }.flowOn(Dispatchers.IO)
-    }
-
-    suspend fun getNextEpisode(episodeRef: String?): Flow<Result<ShowNextEpisode>> {
-        return flow {
-            emit(Result.Loading(true))
-            val nextEpisodeLink = episodeRef?.substring(
-                episodeRef.lastIndexOf("/") + 1,
-                episodeRef.length
-            )?.replace("/", "")
-
-            if (!nextEpisodeLink.isNullOrEmpty()) {
-                val response = safeApiCall(Dispatchers.IO) {
-                    tvMazeService.getNextEpisodeAsync(
-                        nextEpisodeLink.replace("/", "")
-                    ).await().asDomainModel()
-                }
-                emit(Result.Loading(false))
-                emit(response)
-            }
-        }.flowOn(Dispatchers.IO)
-    }
-
-    suspend fun getShowCast(showId: Int) {
-        withContext(Dispatchers.IO) {
-            try {
-                _isLoading.postValue(true)
-                val showCast =
-                    tvMazeService.getShowCastAsync(showId.toString()).await()
-                _showCast.postValue(showCast.asDomainModel())
-                _isLoading.postValue(false)
-            } catch (e: HttpException) {
-                _isLoading.postValue(false)
-                Timber.d(e)
-                firebaseCrashlytics.recordException(e)
-            }
-        }
-    }
-
-    suspend fun getShowSeasons(showId: Int) {
-        withContext(Dispatchers.IO) {
-            try {
-                _isLoading.postValue(true)
-                val showSeasons =
-                    tvMazeService.getShowSeasonsAsync(showId.toString()).await()
-                _showSeasons.postValue(showSeasons.asDomainModel())
-                _isLoading.postValue(false)
-            } catch (e: HttpException) {
-                _isLoading.postValue(false)
-                Timber.d(e)
-                firebaseCrashlytics.recordException(e)
-            }
-        }
-    }
-
-    suspend fun getShowSeasonEpisodes(showId: Int, seasonNumber: Int) {
-        withContext(Dispatchers.IO) {
-            try {
-                _isLoading.postValue(true)
-                val seasonEpisodes =
-                    tvMazeService.getSeasonEpisodesAsync(showId.toString()).await()
-                _episodes.postValue(seasonEpisodes.filter { it.season == seasonNumber }
-                    .asDomainModel())
-                _isLoading.postValue(false)
-            } catch (e: Exception) {
-                _isLoading.postValue(false)
-                Timber.d(e)
-                firebaseCrashlytics.recordException(e)
-            }
-        }
     }
 }

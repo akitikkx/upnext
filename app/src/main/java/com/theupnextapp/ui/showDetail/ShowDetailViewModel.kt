@@ -15,8 +15,9 @@ import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.ShowDetailSummary
 import com.theupnextapp.domain.ShowNextEpisode
 import com.theupnextapp.domain.ShowPreviousEpisode
+import com.theupnextapp.domain.ShowSeason
 import com.theupnextapp.repository.TraktRepository
-import com.theupnextapp.repository.UpnextRepository
+import com.theupnextapp.repository.ShowDetailRepository
 import com.theupnextapp.ui.common.BaseTraktViewModel
 import com.theupnextapp.work.AddFavoriteShowWorker
 import com.theupnextapp.work.RemoveFavoriteShowWorker
@@ -28,7 +29,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class ShowDetailViewModel @AssistedInject constructor(
-    private val upnextRepository: UpnextRepository,
+    private val showDetailRepository: ShowDetailRepository,
     private val workManager: WorkManager,
     private val traktRepository: TraktRepository,
     @Assisted show: ShowDetailArg
@@ -62,13 +63,15 @@ class ShowDetailViewModel @AssistedInject constructor(
 
     val isFavoriteShow = MediatorLiveData<Boolean>()
 
-    private val isUpnextRepositoryLoading = upnextRepository.isLoading
+    private val isUpnextRepositoryLoading = showDetailRepository.isLoading
 
     private val isTraktRepositoryLoading = traktRepository.isLoading
 
-    val showCast = upnextRepository.showCast
+    private val _showCast = MutableLiveData<List<ShowCast>?>()
+    val showCast: LiveData<List<ShowCast>?> = _showCast
 
-    val showSeasons = upnextRepository.showSeasons
+    private val _showSeasons = MutableLiveData<List<ShowSeason>?>()
+    val showSeasons: LiveData<List<ShowSeason>?> = _showSeasons
 
     val showRating = traktRepository.traktShowRating
 
@@ -77,9 +80,25 @@ class ShowDetailViewModel @AssistedInject constructor(
     private val favoriteShow = traktRepository.favoriteShow
 
     init {
-        viewModelScope.launch() {
+        getShowSummary(show)
+
+        isLoading.addSource(isUpnextRepositoryLoading) { result ->
+            isLoading.value = result == true
+        }
+
+        isLoading.addSource(isTraktRepositoryLoading) { result ->
+            isLoading.value = result == true
+        }
+
+        isFavoriteShow.addSource(favoriteShow) { result ->
+            isFavoriteShow.value = result != null
+        }
+    }
+
+    private fun getShowSummary(show: ShowDetailArg) {
+        viewModelScope.launch {
             show.showId?.let {
-                upnextRepository.getShowSummary(it).collect { result ->
+                showDetailRepository.getShowSummary(it).collect { result ->
                     when (result) {
                         is Result.Success -> {
                             val showSummary = result.data
@@ -97,27 +116,47 @@ class ShowDetailViewModel @AssistedInject constructor(
                     }
 
                 }
-                upnextRepository.getShowCast(it)
-                upnextRepository.getShowSeasons(it)
+                getShowCast(it)
+                getShowSeasons(it)
             }
         }
+    }
 
-        isLoading.addSource(isUpnextRepositoryLoading) { result ->
-            isLoading.value = result == true
+    private fun getShowCast(showId: Int) {
+        viewModelScope.launch {
+            showDetailRepository.getShowCast(showId).collect { response ->
+                when (response) {
+                    is Result.Success -> {
+                        _showCast.value = response.data
+                    }
+                    is Result.Loading -> {
+                        isLoading.value = response.status
+                    }
+                    else -> {}
+                }
+            }
         }
+    }
 
-        isLoading.addSource(isTraktRepositoryLoading) { result ->
-            isLoading.value = result == true
-        }
-
-        isFavoriteShow.addSource(favoriteShow) { result ->
-            isFavoriteShow.value = result != null
+    private fun getShowSeasons(showId: Int) {
+        viewModelScope.launch {
+            showDetailRepository.getShowSeasons(showId).collect { result ->
+                when (result) {
+                    is Result.Success -> {
+                        _showSeasons.value = result.data
+                    }
+                    is Result.Loading -> {
+                        isLoading.value = result.status
+                    }
+                    else -> {}
+                }
+            }
         }
     }
 
     private fun getShowPreviousEpisode(previousEpisodeHref: String?) {
         viewModelScope.launch {
-            upnextRepository.getPreviousEpisode(previousEpisodeHref).collect { result ->
+            showDetailRepository.getPreviousEpisode(previousEpisodeHref).collect { result ->
                 when (result) {
                     is Result.Success -> {
                         _showPreviousEpisode.value = result.data
@@ -133,7 +172,7 @@ class ShowDetailViewModel @AssistedInject constructor(
 
     private fun getShowNextEpisode(nextEpisodeHref: String?) {
         viewModelScope.launch {
-            upnextRepository.getNextEpisode(nextEpisodeHref).collect { result ->
+            showDetailRepository.getNextEpisode(nextEpisodeHref).collect { result ->
                 when (result) {
                     is Result.Success -> {
                         _showNextEpisode.value = result.data

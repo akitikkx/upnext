@@ -64,8 +64,10 @@ class ShowSeasonEpisodesFragment : BaseFragment(),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.episodes.observe(viewLifecycleOwner, {
-            showSeasonEpisodesAdapter.submitSeasonEpisodesList(it)
+        viewModel.episodes.observe(viewLifecycleOwner, { episodes ->
+            if (episodes != null) {
+                showSeasonEpisodesAdapter.submitSeasonEpisodesList(episodes)
+            }
         })
 
         viewModel.seasonNumber.observe(viewLifecycleOwner, {

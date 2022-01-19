@@ -12,7 +12,7 @@ import kotlinx.coroutines.coroutineScope
 class RefreshFavoriteEpisodesWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParameters: WorkerParameters,
-    private val traktRepository: TraktRepository
+    private val repository: TraktRepository
 ) : BaseWorker(appContext, workerParameters) {
 
     override val contentTitle = "Refreshing your favorite's next episodes"
@@ -20,14 +20,14 @@ class RefreshFavoriteEpisodesWorker @AssistedInject constructor(
     override suspend fun doWork(): Result = coroutineScope {
         try {
             setForeground(createForegroundInfo())
-            refreshFavoriteShows(repository = traktRepository)
+            refreshFavoriteShows()
             Result.success()
         } catch (e: Exception) {
             Result.failure()
         }
     }
 
-    private suspend fun refreshFavoriteShows(repository: TraktRepository) {
+    private suspend fun refreshFavoriteShows() {
         repository.refreshFavoriteNextEpisodes()
     }
 

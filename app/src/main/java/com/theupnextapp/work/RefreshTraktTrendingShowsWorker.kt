@@ -3,7 +3,6 @@ package com.theupnextapp.work
 import android.content.Context
 import android.os.Bundle
 import androidx.hilt.work.HiltWorker
-import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.theupnextapp.repository.TraktRepository
@@ -16,7 +15,7 @@ import javax.inject.Inject
 class RefreshTraktTrendingShowsWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParameters: WorkerParameters,
-    private val traktRepository: TraktRepository
+    private val repository: TraktRepository
 ) : BaseWorker(appContext, workerParameters) {
 
     override val contentTitle: String = "Refreshing Trakt Trending shows"
@@ -27,7 +26,7 @@ class RefreshTraktTrendingShowsWorker @AssistedInject constructor(
     override suspend fun doWork(): Result = coroutineScope {
         try {
             setForeground(createForegroundInfo())
-            refreshTrendingShows(traktRepository)
+            refreshTrendingShows()
             val bundle = Bundle()
             bundle.putBoolean("Refresh shows job run", true)
             FirebaseAnalytics.getInstance(this@RefreshTraktTrendingShowsWorker.applicationContext)
@@ -38,7 +37,7 @@ class RefreshTraktTrendingShowsWorker @AssistedInject constructor(
         }
     }
 
-    private suspend fun refreshTrendingShows(repository: TraktRepository) {
+    private suspend fun refreshTrendingShows() {
         repository.refreshTraktTrendingShows()
     }
 
