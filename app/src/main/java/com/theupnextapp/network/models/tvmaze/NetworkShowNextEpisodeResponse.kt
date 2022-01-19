@@ -1,6 +1,7 @@
 package com.theupnextapp.network.models.tvmaze
 
 import com.theupnextapp.database.DatabaseFavoriteNextEpisode
+import com.theupnextapp.domain.ShowNextEpisode
 
 data class NetworkShowNextEpisodeResponse constructor(
     val _links: NetworkShowNextEpisodeLinks?,
@@ -44,5 +45,22 @@ fun NetworkShowNextEpisodeResponse.asDatabaseModel(): DatabaseFavoriteNextEpisod
         mediumImageUrl = mediumShowImageUrl,
         originalImageUrl = originalShowImageUrl,
         imdb = imdb
+    )
+}
+
+fun NetworkShowNextEpisodeResponse.asDomainModel(): ShowNextEpisode {
+    return ShowNextEpisode(
+        nextEpisodeId = id,
+        nextEpisodeUrl = url,
+        nextEpisodeSummary = summary,
+        nextEpisodeSeason = season.toString(),
+        nextEpisodeRuntime = runtime.toString(),
+        nextEpisodeNumber = number.toString(),
+        nextEpisodeName = name,
+        nextEpisodeMediumImageUrl = image?.medium,
+        nextEpisodeOriginalImageUrl = image?.original,
+        nextEpisodeAirtime = airtime,
+        nextEpisodeAirstamp = airstamp,
+        nextEpisodeAirdate = airdate,
     )
 }
