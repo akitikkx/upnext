@@ -107,7 +107,7 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
         customTabComponent.unBindCustomTabService(this)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main, menu)
         return true
     }
