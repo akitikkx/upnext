@@ -1,39 +1,33 @@
 package com.theupnextapp.ui.dashboard
 
-import android.view.View
 import android.view.ViewGroup
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.composethemeadapter.MdcTheme
 import com.theupnextapp.domain.ScheduleShow
-import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.ui.components.ListPosterCard
 
 
-class YesterdayShowsAdapter : RecyclerView.Adapter<YesterdayShowsAdapter.ComposeViewHolder>() {
+class YesterdayShowsAdapter : DashboardAdapter<ScheduleShow, YesterdayShowsAdapter.ComposeViewHolder>() {
 
-    private var yesterdayShows: List<ScheduleShow> = ArrayList()
+    override var list: List<ScheduleShow> = emptyList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ComposeViewHolder {
         return ComposeViewHolder(ComposeView(parent.context))
     }
 
-    override fun getItemCount(): Int = yesterdayShows.size
-
-    fun submitList(yesterdayShowsList: List<ScheduleShow>) {
+    override fun submitList(updateList: List<ScheduleShow>) {
         // old list is equal to the current list
-        val oldList = yesterdayShows
+        val oldList = list
         val diffResult: DiffUtil.DiffResult = DiffUtil.calculateDiff(
             YesterdayShowItemDiffCallback(
                 oldList,
-                yesterdayShowsList
+                updateList
             )
         )
-        yesterdayShows = yesterdayShowsList
+        list = updateList
         diffResult.dispatchUpdatesTo(this)
     }
 
@@ -52,53 +46,21 @@ class YesterdayShowsAdapter : RecyclerView.Adapter<YesterdayShowsAdapter.Compose
         override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
             return oldYesterdayShowsList[oldItemPosition].equals(newYesterdayShowsList[newItemPosition])
         }
-
     }
 
-    override fun onViewRecycled(holder: ComposeViewHolder) {
-        // Dispose the underlying Composition of the ComposeView
-        // when RecyclerView has recycled this ViewHolder
-        holder.composeView.disposeComposition()
-    }
+    class ComposeViewHolder(composeView: ComposeView) :
+        DashboardViewHolder<ScheduleShow>(composeView) {
 
-    @OptIn(ExperimentalMaterialApi::class)
-    override fun onBindViewHolder(holder: ComposeViewHolder, position: Int) {
-        val item = yesterdayShows[position]
-        holder.bind(item)
-    }
+        override val source: String = "yesterday"
 
-    class ComposeViewHolder(val composeView: ComposeView) : RecyclerView.ViewHolder(composeView) {
-        init {
-            // necessary to make the Compose view holder work in all scenarios
-            // https://developer.android.com/jetpack/compose/interop/compose-in-existing-ui#compose-recyclerview
-            composeView.setViewCompositionStrategy(
-                ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
-            )
-        }
-
-        @ExperimentalMaterialApi
-        fun bind(item: ScheduleShow) {
-            composeView.setContent {
-                MdcTheme {
-                    ListPosterCard(item) {
-                        navigateToShow(item, composeView)
-                    }
+        @OptIn(ExperimentalMaterialApi::class)
+        @Composable
+        override fun ComposableContainer(item: ScheduleShow) {
+            MdcTheme {
+                ListPosterCard(item) {
+                    navigateToShow(item, composeView)
                 }
             }
-        }
-
-        private fun navigateToShow(item: ScheduleShow, view: View) {
-            val direction = DashboardFragmentDirections.actionDashboardFragmentToShowDetailFragment(
-                ShowDetailArg(
-                    source = "yesterday",
-                    showId = item.id,
-                    showTitle = item.name,
-                    showImageUrl = item.originalImage,
-                    showBackgroundUrl = item.mediumImage
-                )
-            )
-
-            view.findNavController().navigate(direction)
         }
     }
 }

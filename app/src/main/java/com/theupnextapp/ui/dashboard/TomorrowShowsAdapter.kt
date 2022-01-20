@@ -1,16 +1,13 @@
 package com.theupnextapp.ui.dashboard
 
-import android.view.View
 import android.view.ViewGroup
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.composethemeadapter.MdcTheme
 import com.theupnextapp.domain.ScheduleShow
-import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.ui.components.ListPosterCard
 
 class TomorrowShowsAdapter : RecyclerView.Adapter<TomorrowShowsAdapter.ComposeViewHolder>() {
@@ -59,44 +56,24 @@ class TomorrowShowsAdapter : RecyclerView.Adapter<TomorrowShowsAdapter.ComposeVi
         holder.composeView.disposeComposition()
     }
 
-    @OptIn(ExperimentalMaterialApi::class)
     override fun onBindViewHolder(holder: ComposeViewHolder, position: Int) {
         val item = tomorrowShows[position]
         holder.bind(item)
     }
 
-    class ComposeViewHolder(val composeView: ComposeView) : RecyclerView.ViewHolder(composeView) {
-        init {
-            // necessary to make the Compose view holder work in all scenarios
-            // https://developer.android.com/jetpack/compose/interop/compose-in-existing-ui#compose-recyclerview
-            composeView.setViewCompositionStrategy(
-                ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
-            )
-        }
+    class ComposeViewHolder(composeView: ComposeView) :
+        DashboardViewHolder<ScheduleShow>(composeView) {
 
-        @ExperimentalMaterialApi
-        fun bind(item: ScheduleShow) {
-            composeView.setContent {
-                MdcTheme {
-                    ListPosterCard(item) {
-                        navigateToShow(item, composeView)
-                    }
+        override val source: String = "tomorrow"
+
+        @OptIn(ExperimentalMaterialApi::class)
+        @Composable
+        override fun ComposableContainer(item: ScheduleShow) {
+            MdcTheme {
+                ListPosterCard(item) {
+                    navigateToShow(item, composeView)
                 }
             }
-        }
-
-        private fun navigateToShow(item: ScheduleShow, view: View) {
-            val direction = DashboardFragmentDirections.actionDashboardFragmentToShowDetailFragment(
-                ShowDetailArg(
-                    source = "tomorrow",
-                    showId = item.id,
-                    showTitle = item.name,
-                    showImageUrl = item.originalImage,
-                    showBackgroundUrl = item.mediumImage
-                )
-            )
-
-            view.findNavController().navigate(direction)
         }
     }
 }
