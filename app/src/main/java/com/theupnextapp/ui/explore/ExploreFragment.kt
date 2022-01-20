@@ -5,25 +5,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentExploreBinding
-import com.theupnextapp.domain.ShowDetailArg
-import com.theupnextapp.domain.TraktMostAnticipated
-import com.theupnextapp.domain.TraktPopularShows
-import com.theupnextapp.domain.TraktTrendingShows
 import com.theupnextapp.ui.common.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ExploreFragment : BaseFragment(),
-    TrendingShowsAdapter.TrendingShowsAdapterListener,
-    PopularShowsAdapter.PopularShowsAdapterListener,
-    MostAnticipatedShowsAdapter.MostAnticipatedShowsAdapterListener {
+class ExploreFragment : BaseFragment() {
 
     private var _binding: FragmentExploreBinding? = null
     private val binding get() = _binding!!
@@ -53,11 +45,11 @@ class ExploreFragment : BaseFragment(),
 
         binding.viewModel = viewModel
 
-        _trendingShowsAdapter = TrendingShowsAdapter(this)
+        _trendingShowsAdapter = TrendingShowsAdapter()
 
-        _popularShowsAdapter = PopularShowsAdapter(this)
+        _popularShowsAdapter = PopularShowsAdapter()
 
-        _mostAnticipatedShowsAdapter = MostAnticipatedShowsAdapter(this)
+        _mostAnticipatedShowsAdapter = MostAnticipatedShowsAdapter()
 
         binding.root.findViewById<RecyclerView>(R.id.trending_shows_list).apply {
             layoutManager = LinearLayoutManager(requireContext()).apply {
@@ -123,62 +115,5 @@ class ExploreFragment : BaseFragment(),
         _trendingShowsAdapter = null
         _popularShowsAdapter = null
         _mostAnticipatedShowsAdapter = null
-    }
-
-    override fun onTrendingShowClick(view: View, traktTrending: TraktTrendingShows) {
-        val directions = ExploreFragmentDirections.actionExploreFragmentToShowDetailFragment(
-            ShowDetailArg(
-                source = "trending",
-                showId = traktTrending.tvMazeID,
-                showTitle = traktTrending.title,
-                showImageUrl = traktTrending.originalImageUrl,
-                showBackgroundUrl = traktTrending.mediumImageUrl
-            )
-        )
-        findNavController().navigate(directions, getShowDetailNavigatorExtras(view))
-
-        val analyticsBundle = Bundle()
-        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, traktTrending.id.toString())
-        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, traktTrending.title)
-        analyticsBundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "explore_show")
-        firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM, analyticsBundle)
-    }
-
-    override fun onPopularShowClick(view: View, popularShows: TraktPopularShows) {
-        val directions = ExploreFragmentDirections.actionExploreFragmentToShowDetailFragment(
-            ShowDetailArg(
-                source = "popular",
-                showId = popularShows.tvMazeID,
-                showTitle = popularShows.title,
-                showImageUrl = popularShows.originalImageUrl,
-                showBackgroundUrl = popularShows.mediumImageUrl
-            )
-        )
-        findNavController().navigate(directions, getShowDetailNavigatorExtras(view))
-
-        val analyticsBundle = Bundle()
-        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, popularShows.id.toString())
-        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, popularShows.title)
-        analyticsBundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "explore_show")
-        firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM, analyticsBundle)
-    }
-
-    override fun onMostAnticipatedShowClick(view: View, mostAnticipated: TraktMostAnticipated) {
-        val directions = ExploreFragmentDirections.actionExploreFragmentToShowDetailFragment(
-            ShowDetailArg(
-                source = "most_anticipated",
-                showId = mostAnticipated.tvMazeID,
-                showTitle = mostAnticipated.title,
-                showImageUrl = mostAnticipated.originalImageUrl,
-                showBackgroundUrl = mostAnticipated.mediumImageUrl
-            )
-        )
-        findNavController().navigate(directions, getShowDetailNavigatorExtras(view))
-
-        val analyticsBundle = Bundle()
-        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, mostAnticipated.id.toString())
-        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, mostAnticipated.title)
-        analyticsBundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "explore_show")
-        firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM, analyticsBundle)
     }
 }

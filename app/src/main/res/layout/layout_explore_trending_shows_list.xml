@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
 
@@ -39,8 +38,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/trending_shows_title"
-            app:loadingVisibility="@{viewModel.isLoadingTraktTrending}"
-            tools:listitem="@layout/trending_show_list_item" />
+            app:loadingVisibility="@{viewModel.isLoadingTraktTrending}" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

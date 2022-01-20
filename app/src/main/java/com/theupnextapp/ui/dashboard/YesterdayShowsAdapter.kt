@@ -9,8 +9,8 @@ import com.google.android.material.composethemeadapter.MdcTheme
 import com.theupnextapp.domain.ScheduleShow
 import com.theupnextapp.ui.components.ListPosterCard
 
-
-class YesterdayShowsAdapter : DashboardAdapter<ScheduleShow, YesterdayShowsAdapter.ComposeViewHolder>() {
+class YesterdayShowsAdapter :
+    DashboardAdapter<ScheduleShow, YesterdayShowsAdapter.ComposeViewHolder>() {
 
     override var list: List<ScheduleShow> = emptyList()
 
@@ -57,8 +57,11 @@ class YesterdayShowsAdapter : DashboardAdapter<ScheduleShow, YesterdayShowsAdapt
         @Composable
         override fun ComposableContainer(item: ScheduleShow) {
             MdcTheme {
-                ListPosterCard(item) {
-                    navigateToShow(item, composeView)
+                ListPosterCard(
+                    itemName = item.name,
+                    itemUrl = item.originalImage
+                ) {
+                    navigateFromDashboardToShowDetail(item, composeView)
                 }
             }
         }

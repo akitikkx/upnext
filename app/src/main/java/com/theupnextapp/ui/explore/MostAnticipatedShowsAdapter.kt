@@ -1,80 +1,54 @@
 package com.theupnextapp.ui.explore
 
-import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.LayoutRes
-import androidx.databinding.DataBindingUtil
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.ComposeView
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.RecyclerView
-import com.theupnextapp.R
-import com.theupnextapp.databinding.MostAnticipatedShowListItemBinding
+import com.google.android.material.composethemeadapter.MdcTheme
+import com.theupnextapp.domain.MostAnticipatedItemDiffCallback
 import com.theupnextapp.domain.TraktMostAnticipated
+import com.theupnextapp.ui.components.ListPosterCard
+import com.theupnextapp.ui.dashboard.DashboardAdapter
+import com.theupnextapp.ui.dashboard.DashboardViewHolder
 
-class MostAnticipatedShowsAdapter(val listener: MostAnticipatedShowsAdapterListener) :
-    RecyclerView.Adapter<MostAnticipatedShowsAdapter.ViewHolder>() {
+class MostAnticipatedShowsAdapter :
+    DashboardAdapter<TraktMostAnticipated, MostAnticipatedShowsAdapter.ComposeViewHolder>() {
 
-    private var mostAnticipatedShowsList: List<TraktMostAnticipated> = ArrayList()
+    override var list: List<TraktMostAnticipated> = emptyList()
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val withDataBinding: MostAnticipatedShowListItemBinding = DataBindingUtil.inflate(
-            LayoutInflater.from(parent.context),
-            ViewHolder.LAYOUT,
-            parent,
-            false
-        )
-        return ViewHolder(withDataBinding)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ComposeViewHolder {
+        return ComposeViewHolder(ComposeView(parent.context))
     }
 
-    override fun getItemCount(): Int = mostAnticipatedShowsList.size
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.viewDataBinding.also {
-            it.listener = listener
-
-            it.show = mostAnticipatedShowsList[position]
-        }
-    }
-
-    interface MostAnticipatedShowsAdapterListener {
-        fun onMostAnticipatedShowClick(view: View, mostAnticipated: TraktMostAnticipated)
-    }
-
-    fun submitList(anticipatedShowsList: List<TraktMostAnticipated>){
-        val oldAnticipatedShowsList = mostAnticipatedShowsList
+    override fun submitList(updateList: List<TraktMostAnticipated>){
+        val oldAnticipatedShowsList = list
         val diffResult: DiffUtil.DiffResult = DiffUtil.calculateDiff(
             MostAnticipatedItemDiffCallback(
                 oldAnticipatedShowsList,
-                anticipatedShowsList
+                updateList
             )
         )
-        mostAnticipatedShowsList = anticipatedShowsList
+        list = updateList
         diffResult.dispatchUpdatesTo(this)
     }
 
-    class MostAnticipatedItemDiffCallback(
-        private val oldAnticipatedShowsList: List<TraktMostAnticipated>,
-        private val newAnticipatedShowsList: List<TraktMostAnticipated>
-    ) : DiffUtil.Callback() {
-        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return oldAnticipatedShowsList[oldItemPosition].imdbID == newAnticipatedShowsList[newItemPosition].imdbID
-        }
+    class ComposeViewHolder(composeView: ComposeView) :
+        DashboardViewHolder<TraktMostAnticipated>(composeView) {
 
-        override fun getOldListSize(): Int = oldAnticipatedShowsList.size
+        override val source: String = "most_anticipated"
 
-        override fun getNewListSize(): Int = newAnticipatedShowsList.size
-
-        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return oldAnticipatedShowsList[oldItemPosition].equals(newAnticipatedShowsList[newItemPosition])
-        }
-
-    }
-
-    class ViewHolder(val viewDataBinding: MostAnticipatedShowListItemBinding) :
-        RecyclerView.ViewHolder(viewDataBinding.root) {
-        companion object {
-            @LayoutRes
-            val LAYOUT = R.layout.most_anticipated_show_list_item
+        @OptIn(ExperimentalMaterialApi::class)
+        @Composable
+        override fun ComposableContainer(item: TraktMostAnticipated) {
+            MdcTheme {
+                ListPosterCard(
+                    itemName = item.title,
+                    itemUrl = item.originalImageUrl
+                ) {
+                    navigateFromAnticipatedToShowDetail(item, composeView)
+                }
+            }
         }
     }
 }

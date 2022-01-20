@@ -1,80 +1,53 @@
 package com.theupnextapp.ui.explore
 
-import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.LayoutRes
-import androidx.databinding.DataBindingUtil
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.ComposeView
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.RecyclerView
-import com.theupnextapp.R
-import com.theupnextapp.databinding.TrendingShowListItemBinding
+import com.google.android.material.composethemeadapter.MdcTheme
 import com.theupnextapp.domain.TraktTrendingShows
+import com.theupnextapp.domain.TrendingShowItemDiffCallback
+import com.theupnextapp.ui.components.ListPosterCard
+import com.theupnextapp.ui.dashboard.DashboardAdapter
+import com.theupnextapp.ui.dashboard.DashboardViewHolder
 
-class TrendingShowsAdapter(val listener: TrendingShowsAdapterListener) :
-    RecyclerView.Adapter<TrendingShowsAdapter.ViewHolder>() {
+class TrendingShowsAdapter : DashboardAdapter<TraktTrendingShows, TrendingShowsAdapter.ComposeViewHolder>(){
 
-    private var trendingList: List<TraktTrendingShows> = ArrayList()
+    override var list: List<TraktTrendingShows> = emptyList()
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val withDataBinding: TrendingShowListItemBinding = DataBindingUtil.inflate(
-            LayoutInflater.from(parent.context),
-            ViewHolder.LAYOUT,
-            parent,
-            false
-        )
-        return ViewHolder(withDataBinding)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ComposeViewHolder {
+        return ComposeViewHolder(ComposeView(parent.context))
     }
 
-    override fun getItemCount(): Int = trendingList.size
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.viewDataBinding.also {
-            it.listener = listener
-
-            it.show = trendingList[position]
-        }
-    }
-
-    interface TrendingShowsAdapterListener {
-        fun onTrendingShowClick(view: View, traktTrending: TraktTrendingShows)
-    }
-
-    fun submitList(trendingShowsList: List<TraktTrendingShows>) {
-        val oldTrendingShowsList = trendingList
+    override fun submitList(updateList: List<TraktTrendingShows>) {
+        val oldItems = list
         val diffResult: DiffUtil.DiffResult = DiffUtil.calculateDiff(
             TrendingShowItemDiffCallback(
-                oldTrendingShowsList,
-                trendingShowsList
+                oldItems,
+                updateList
             )
         )
-        trendingList = trendingShowsList
+        list = updateList
         diffResult.dispatchUpdatesTo(this)
     }
 
-    class TrendingShowItemDiffCallback(
-        private val oldTrendingShowsList: List<TraktTrendingShows>,
-        private val newTrendingShowsList: List<TraktTrendingShows>
-    ) : DiffUtil.Callback() {
-        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return oldTrendingShowsList[oldItemPosition].imdbID == newTrendingShowsList[newItemPosition].imdbID
-        }
+    class ComposeViewHolder(composeView: ComposeView) :
+        DashboardViewHolder<TraktTrendingShows>(composeView) {
 
-        override fun getOldListSize(): Int = oldTrendingShowsList.size
+        override val source: String = "trending"
 
-        override fun getNewListSize(): Int = newTrendingShowsList.size
-
-        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return oldTrendingShowsList[oldItemPosition].equals(newTrendingShowsList[newItemPosition])
-        }
-
-    }
-
-    class ViewHolder(val viewDataBinding: TrendingShowListItemBinding) :
-        RecyclerView.ViewHolder(viewDataBinding.root) {
-        companion object {
-            @LayoutRes
-            val LAYOUT = R.layout.trending_show_list_item
+        @OptIn(ExperimentalMaterialApi::class)
+        @Composable
+        override fun ComposableContainer(item: TraktTrendingShows) {
+            MdcTheme {
+                ListPosterCard(
+                    itemName = item.title,
+                    itemUrl = item.originalImageUrl
+                ) {
+                    navigateFromTrendingToShowDetail(item, composeView)
+                }
+            }
         }
     }
 }

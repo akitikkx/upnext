@@ -8,6 +8,10 @@ import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.theupnextapp.domain.ScheduleShow
 import com.theupnextapp.domain.ShowDetailArg
+import com.theupnextapp.domain.TraktMostAnticipated
+import com.theupnextapp.domain.TraktPopularShows
+import com.theupnextapp.domain.TraktTrendingShows
+import com.theupnextapp.ui.explore.ExploreFragmentDirections
 
 abstract class DashboardViewHolder<T>(val composeView: ComposeView) :
     RecyclerView.ViewHolder(composeView) {
@@ -31,7 +35,7 @@ abstract class DashboardViewHolder<T>(val composeView: ComposeView) :
         }
     }
 
-    fun navigateToShow(item: ScheduleShow, view: View) {
+    fun navigateFromDashboardToShowDetail(item: ScheduleShow, view: View) {
         val direction = DashboardFragmentDirections.actionDashboardFragmentToShowDetailFragment(
             ShowDetailArg(
                 source = source,
@@ -43,5 +47,44 @@ abstract class DashboardViewHolder<T>(val composeView: ComposeView) :
         )
 
         view.findNavController().navigate(direction)
+    }
+
+    fun navigateFromTrendingToShowDetail(item: TraktTrendingShows, view: View) {
+        val directions = ExploreFragmentDirections.actionExploreFragmentToShowDetailFragment(
+            ShowDetailArg(
+                source = source,
+                showId = item.tvMazeID,
+                showTitle = item.title,
+                showImageUrl = item.originalImageUrl,
+                showBackgroundUrl = item.mediumImageUrl
+            )
+        )
+        view.findNavController().navigate(directions)
+    }
+
+    fun navigateFromPopularToShowDetail(item: TraktPopularShows, view: View) {
+        val directions = ExploreFragmentDirections.actionExploreFragmentToShowDetailFragment(
+            ShowDetailArg(
+                source = source,
+                showId = item.tvMazeID,
+                showTitle = item.title,
+                showImageUrl = item.originalImageUrl,
+                showBackgroundUrl = item.mediumImageUrl
+            )
+        )
+        view.findNavController().navigate(directions)
+    }
+
+    fun navigateFromAnticipatedToShowDetail(item: TraktMostAnticipated, view: View) {
+        val directions = ExploreFragmentDirections.actionExploreFragmentToShowDetailFragment(
+            ShowDetailArg(
+                source = source,
+                showId = item.tvMazeID,
+                showTitle = item.title,
+                showImageUrl = item.originalImageUrl,
+                showBackgroundUrl = item.mediumImageUrl
+            )
+        )
+        view.findNavController().navigate(directions)
     }
 }

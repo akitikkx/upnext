@@ -70,8 +70,11 @@ class TomorrowShowsAdapter : RecyclerView.Adapter<TomorrowShowsAdapter.ComposeVi
         @Composable
         override fun ComposableContainer(item: ScheduleShow) {
             MdcTheme {
-                ListPosterCard(item) {
-                    navigateToShow(item, composeView)
+                ListPosterCard(
+                    itemName = item.name,
+                    itemUrl = item.originalImage
+                ) {
+                    navigateFromDashboardToShowDetail(item, composeView)
                 }
             }
         }

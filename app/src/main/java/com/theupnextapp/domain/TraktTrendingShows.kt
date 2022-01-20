@@ -1,5 +1,7 @@
 package com.theupnextapp.domain
 
+import androidx.recyclerview.widget.DiffUtil
+
 data class TraktTrendingShows(
     val id: Int?,
     val title: String?,
@@ -81,4 +83,22 @@ data class TraktTrendingShows(
         result = 31 * result + (tvMazeID ?: 0)
         return result
     }
+}
+
+class TrendingShowItemDiffCallback(
+    private val oldTrendingShowsList: List<TraktTrendingShows>,
+    private val newTrendingShowsList: List<TraktTrendingShows>
+) : DiffUtil.Callback() {
+    override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+        return oldTrendingShowsList[oldItemPosition].imdbID == newTrendingShowsList[newItemPosition].imdbID
+    }
+
+    override fun getOldListSize(): Int = oldTrendingShowsList.size
+
+    override fun getNewListSize(): Int = newTrendingShowsList.size
+
+    override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+        return oldTrendingShowsList[oldItemPosition].equals(newTrendingShowsList[newItemPosition])
+    }
+
 }

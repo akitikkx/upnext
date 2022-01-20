@@ -1,80 +1,54 @@
 package com.theupnextapp.ui.explore
 
-import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.LayoutRes
-import androidx.databinding.DataBindingUtil
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.ComposeView
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.RecyclerView
-import com.theupnextapp.R
-import com.theupnextapp.databinding.PopularShowListItemBinding
+import com.google.android.material.composethemeadapter.MdcTheme
+import com.theupnextapp.domain.PopularShowItemDiffCallback
 import com.theupnextapp.domain.TraktPopularShows
+import com.theupnextapp.ui.components.ListPosterCard
+import com.theupnextapp.ui.dashboard.DashboardAdapter
+import com.theupnextapp.ui.dashboard.DashboardViewHolder
 
-class PopularShowsAdapter(val listener: PopularShowsAdapterListener) :
-    RecyclerView.Adapter<PopularShowsAdapter.ViewHolder>() {
+class PopularShowsAdapter :
+    DashboardAdapter<TraktPopularShows, PopularShowsAdapter.ComposeViewHolder>() {
 
-    private var popularList: List<TraktPopularShows> = ArrayList()
+    override var list: List<TraktPopularShows> = emptyList()
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val withDataBinding: PopularShowListItemBinding = DataBindingUtil.inflate(
-            LayoutInflater.from(parent.context),
-            ViewHolder.LAYOUT,
-            parent,
-            false
-        )
-        return ViewHolder(withDataBinding)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ComposeViewHolder {
+        return ComposeViewHolder(ComposeView(parent.context))
     }
 
-    override fun getItemCount(): Int = popularList.size
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.viewDataBinding.also {
-            it.listener = listener
-
-            it.show = popularList[position]
-        }
-    }
-
-    interface PopularShowsAdapterListener {
-        fun onPopularShowClick(view: View, popularShows: TraktPopularShows)
-    }
-
-    fun submitList(popularShowList: List<TraktPopularShows>){
-        val oldList = popularList
+    override fun submitList(updateList: List<TraktPopularShows>){
+        val oldList = list
         val diffResult: DiffUtil.DiffResult = DiffUtil.calculateDiff(
             PopularShowItemDiffCallback(
                 oldList,
-                popularShowList
+                updateList
             )
         )
-        popularList = popularShowList
+        list = updateList
         diffResult.dispatchUpdatesTo(this)
     }
 
-    class PopularShowItemDiffCallback(
-        private val oldPopularShowsList: List<TraktPopularShows>,
-        private val newPopularShowsList: List<TraktPopularShows>
-    ): DiffUtil.Callback() {
-        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return oldPopularShowsList[oldItemPosition].imdbID == newPopularShowsList[newItemPosition].imdbID
-        }
+    class ComposeViewHolder(composeView: ComposeView) :
+        DashboardViewHolder<TraktPopularShows>(composeView) {
 
-        override fun getOldListSize(): Int = oldPopularShowsList.size
+        override val source: String = "popular"
 
-        override fun getNewListSize(): Int  = newPopularShowsList.size
-
-        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return oldPopularShowsList[oldItemPosition].equals(newPopularShowsList[newItemPosition])
-        }
-
-    }
-
-    class ViewHolder(val viewDataBinding: PopularShowListItemBinding) :
-        RecyclerView.ViewHolder(viewDataBinding.root) {
-        companion object {
-            @LayoutRes
-            val LAYOUT = R.layout.popular_show_list_item
+        @OptIn(ExperimentalMaterialApi::class)
+        @Composable
+        override fun ComposableContainer(item: TraktPopularShows) {
+            MdcTheme {
+                ListPosterCard(
+                    itemName = item.title,
+                    itemUrl = item.originalImageUrl
+                ) {
+                    navigateFromPopularToShowDetail(item, composeView)
+                }
+            }
         }
     }
 }

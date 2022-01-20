@@ -1,5 +1,7 @@
 package com.theupnextapp.domain
 
+import androidx.recyclerview.widget.DiffUtil
+
 data class TraktMostAnticipated(
     val id: Int?,
     val title: String?,
@@ -82,5 +84,22 @@ data class TraktMostAnticipated(
         result = 31 * result + (tvMazeID ?: 0)
         result = 31 * result + (listCount ?: 0)
         return result
+    }
+}
+
+class MostAnticipatedItemDiffCallback(
+    private val oldList: List<TraktMostAnticipated>,
+    private val newList: List<TraktMostAnticipated>
+) : DiffUtil.Callback() {
+    override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+        return oldList[oldItemPosition].imdbID == newList[newItemPosition].imdbID
+    }
+
+    override fun getOldListSize(): Int = oldList.size
+
+    override fun getNewListSize(): Int = newList.size
+
+    override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+        return oldList[oldItemPosition].equals(newList[newItemPosition])
     }
 }
