@@ -2,7 +2,6 @@ package com.theupnextapp.ui.dashboard
 
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.LayoutRes
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
@@ -10,14 +9,11 @@ import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.composethemeadapter.MdcTheme
-import com.theupnextapp.R
-import com.theupnextapp.databinding.TodayShowListItemBinding
 import com.theupnextapp.domain.ScheduleShow
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.ui.components.ListPosterCard
 
-class TodayShowsAdapter(val listener: TodayShowsAdapterListener) :
-    RecyclerView.Adapter<TodayShowsAdapter.ComposeViewHolder>() {
+class TodayShowsAdapter : RecyclerView.Adapter<TodayShowsAdapter.ComposeViewHolder>() {
 
     private var todayShows: List<ScheduleShow> = ArrayList()
 
@@ -26,10 +22,6 @@ class TodayShowsAdapter(val listener: TodayShowsAdapterListener) :
     }
 
     override fun getItemCount(): Int = todayShows.size
-
-    interface TodayShowsAdapterListener {
-        fun onTodayShowClick(view: View, scheduleShow: ScheduleShow)
-    }
 
     fun submitList(todayShowsList: List<ScheduleShow>) {
         val oldItems = todayShows
@@ -59,14 +51,6 @@ class TodayShowsAdapter(val listener: TodayShowsAdapterListener) :
             return oldTodayShowsList[oldItemPosition].equals(newTodayShowsList[newItemPosition])
         }
 
-    }
-
-    class ViewHolder(val viewDataBinding: TodayShowListItemBinding) :
-        RecyclerView.ViewHolder(viewDataBinding.root) {
-        companion object {
-            @LayoutRes
-            val LAYOUT = R.layout.today_show_list_item
-        }
     }
 
     override fun onViewRecycled(holder: ComposeViewHolder) {

@@ -16,6 +16,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberImagePainter
 import com.theupnextapp.R
@@ -61,10 +62,41 @@ fun ListPosterCard(
                 }
                 Text(
                     text = stringResource(id = R.string.tv_maze_creative_commons_attribution_text_single),
-                    modifier = Modifier.padding(4.dp),
+                    modifier = Modifier.padding(
+                        start = 4.dp,
+                        top = 8.dp,
+                        bottom = 8.dp,
+                        end = 4.dp
+                    ),
+                    maxLines = 5,
                     style = MaterialTheme.typography.caption
                 )
             }
         }
     }
+}
+
+@ExperimentalMaterialApi
+@Preview
+@Composable
+fun ListCardPreview() {
+    ListPosterCard(mockListShow()) {}
+}
+
+fun mockListShow(): ScheduleShow {
+    return ScheduleShow(
+        id = 1,
+        originalImage = "https://static.tvmaze.com/uploads/images/original_untouched/388/970966.jpg",
+        mediumImage = "https://static.tvmaze.com/uploads/images/medium_portrait/388/970966.jpg",
+        language = "",
+        name = "The Blacklist",
+        officialSite = "",
+        premiered = "",
+        runtime = "",
+        status = "",
+        summary = "",
+        type = "",
+        updated = "",
+        url = ""
+    )
 }

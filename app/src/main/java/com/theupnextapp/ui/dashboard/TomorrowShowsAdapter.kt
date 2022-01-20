@@ -1,43 +1,27 @@
 package com.theupnextapp.ui.dashboard
 
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.LayoutRes
-import androidx.databinding.DataBindingUtil
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.theupnextapp.R
-import com.theupnextapp.databinding.TomorrowShowListItemBinding
+import com.google.android.material.composethemeadapter.MdcTheme
 import com.theupnextapp.domain.ScheduleShow
+import com.theupnextapp.domain.ShowDetailArg
+import com.theupnextapp.ui.components.ListPosterCard
 
-class TomorrowShowsAdapter(val listener: TomorrowShowsAdapterListener) :
-    RecyclerView.Adapter<TomorrowShowsAdapter.ViewHolder>() {
+class TomorrowShowsAdapter : RecyclerView.Adapter<TomorrowShowsAdapter.ComposeViewHolder>() {
 
     private var tomorrowShows: List<ScheduleShow> = ArrayList()
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val withDataBinding: TomorrowShowListItemBinding = DataBindingUtil.inflate(
-            LayoutInflater.from(parent.context),
-            ViewHolder.LAYOUT,
-            parent,
-            false
-        )
-        return ViewHolder(withDataBinding)
-    }
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.viewDataBinding.also {
-            it.show = tomorrowShows[position]
-            it.listener = listener
-        }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ComposeViewHolder {
+        return ComposeViewHolder(ComposeView(parent.context))
     }
 
     override fun getItemCount(): Int = tomorrowShows.size
-
-    interface TomorrowShowsAdapterListener {
-        fun onTomorrowShowClick(view : View, scheduleShow: ScheduleShow)
-    }
 
     fun submitList(tomorrowShowsList: List<ScheduleShow>) {
         val oldTomorrowShowsList = tomorrowShows
@@ -54,14 +38,14 @@ class TomorrowShowsAdapter(val listener: TomorrowShowsAdapterListener) :
     class TomorrowShowItemDiffCallback(
         private val oldTomorrowShowsList: List<ScheduleShow>,
         private val newTomorrowShowsList: List<ScheduleShow>
-    ): DiffUtil.Callback() {
+    ) : DiffUtil.Callback() {
         override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
             return oldTomorrowShowsList[oldItemPosition].id == newTomorrowShowsList[newItemPosition].id
         }
 
         override fun getOldListSize(): Int = oldTomorrowShowsList.size
 
-        override fun getNewListSize(): Int  = newTomorrowShowsList.size
+        override fun getNewListSize(): Int = newTomorrowShowsList.size
 
         override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
             return oldTomorrowShowsList[oldItemPosition].equals(newTomorrowShowsList[newItemPosition])
@@ -69,11 +53,50 @@ class TomorrowShowsAdapter(val listener: TomorrowShowsAdapterListener) :
 
     }
 
-    class ViewHolder(val viewDataBinding: TomorrowShowListItemBinding) :
-        RecyclerView.ViewHolder(viewDataBinding.root) {
-        companion object {
-            @LayoutRes
-            val LAYOUT = R.layout.tomorrow_show_list_item
+    override fun onViewRecycled(holder: ComposeViewHolder) {
+        // Dispose the underlying Composition of the ComposeView
+        // when RecyclerView has recycled this ViewHolder
+        holder.composeView.disposeComposition()
+    }
+
+    @OptIn(ExperimentalMaterialApi::class)
+    override fun onBindViewHolder(holder: ComposeViewHolder, position: Int) {
+        val item = tomorrowShows[position]
+        holder.bind(item)
+    }
+
+    class ComposeViewHolder(val composeView: ComposeView) : RecyclerView.ViewHolder(composeView) {
+        init {
+            // necessary to make the Compose view holder work in all scenarios
+            // https://developer.android.com/jetpack/compose/interop/compose-in-existing-ui#compose-recyclerview
+            composeView.setViewCompositionStrategy(
+                ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
+            )
+        }
+
+        @ExperimentalMaterialApi
+        fun bind(item: ScheduleShow) {
+            composeView.setContent {
+                MdcTheme {
+                    ListPosterCard(item) {
+                        navigateToShow(item, composeView)
+                    }
+                }
+            }
+        }
+
+        private fun navigateToShow(item: ScheduleShow, view: View) {
+            val direction = DashboardFragmentDirections.actionDashboardFragmentToShowDetailFragment(
+                ShowDetailArg(
+                    source = "tomorrow",
+                    showId = item.id,
+                    showTitle = item.name,
+                    showImageUrl = item.originalImage,
+                    showBackgroundUrl = item.mediumImage
+                )
+            )
+
+            view.findNavController().navigate(direction)
         }
     }
 }

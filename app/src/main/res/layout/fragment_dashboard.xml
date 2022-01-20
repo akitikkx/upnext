@@ -49,8 +49,7 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/yesterday_shows_title"
-                    app:loadingVisibility="@{viewModel.isLoadingYesterdayShows}"
-                    tools:listitem="@layout/yesterday_show_list_item" />
+                    app:loadingVisibility="@{viewModel.isLoadingYesterdayShows}" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/today_shows_title"
@@ -79,8 +78,7 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/today_shows_title"
-                    app:loadingVisibility="@{viewModel.isLoadingTodayShows}"
-                    tools:listitem="@layout/today_show_list_item" />
+                    app:loadingVisibility="@{viewModel.isLoadingTodayShows}" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/tomorrow_shows_title"
