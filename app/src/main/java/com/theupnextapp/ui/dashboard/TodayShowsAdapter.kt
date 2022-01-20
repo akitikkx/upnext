@@ -19,7 +19,7 @@ import com.theupnextapp.ui.components.ListPosterCard
 class TodayShowsAdapter(val listener: TodayShowsAdapterListener) :
     RecyclerView.Adapter<TodayShowsAdapter.ComposeViewHolder>() {
 
-    var todayShows: List<ScheduleShow> = ArrayList()
+    private var todayShows: List<ScheduleShow> = ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ComposeViewHolder {
         return ComposeViewHolder(ComposeView(parent.context))
@@ -70,6 +70,8 @@ class TodayShowsAdapter(val listener: TodayShowsAdapterListener) :
     }
 
     override fun onViewRecycled(holder: ComposeViewHolder) {
+        // Dispose the underlying Composition of the ComposeView
+        // when RecyclerView has recycled this ViewHolder
         holder.composeView.disposeComposition()
     }
 
@@ -81,6 +83,8 @@ class TodayShowsAdapter(val listener: TodayShowsAdapterListener) :
 
     class ComposeViewHolder(val composeView: ComposeView) : RecyclerView.ViewHolder(composeView) {
         init {
+            // necessary to make the Compose view holder work in all scenarios
+            // https://developer.android.com/jetpack/compose/interop/compose-in-existing-ui#compose-recyclerview
             composeView.setViewCompositionStrategy(
                 ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
             )
