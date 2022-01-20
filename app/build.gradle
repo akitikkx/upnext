@@ -87,6 +87,8 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-compose:$compose_viewmodel_version"
     // When using a MDC theme
     implementation "com.google.android.material:compose-theme-adapter:$compose_theme_adapter_version"
+    // Compose Coil
+    implementation "io.coil-kt:coil-compose:$compose_coil_version"
 
     // Coroutines for getting off the UI thread
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlin_coroutines_version"
