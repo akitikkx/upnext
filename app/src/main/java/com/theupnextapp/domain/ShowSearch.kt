@@ -1,5 +1,7 @@
 package com.theupnextapp.domain
 
+import androidx.recyclerview.widget.DiffUtil
+
 data class ShowSearch(
     val genres: String?,
     val id: Int,
@@ -83,4 +85,22 @@ data class ShowSearch(
         result = 31 * result + (updated?.hashCode() ?: 0)
         return result
     }
+}
+
+class SearchItemDiffCallback(
+    private val oldList: List<ShowSearch>,
+    private val newList: List<ShowSearch>
+) : DiffUtil.Callback() {
+    override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+        return oldList[oldItemPosition].id == newList[newItemPosition].id
+    }
+
+    override fun getOldListSize(): Int = oldList.size
+
+    override fun getNewListSize(): Int = newList.size
+
+    override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+        return oldList[oldItemPosition].equals(newList[newItemPosition])
+    }
+
 }

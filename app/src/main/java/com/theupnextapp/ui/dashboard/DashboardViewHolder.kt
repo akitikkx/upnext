@@ -8,10 +8,12 @@ import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.theupnextapp.domain.ScheduleShow
 import com.theupnextapp.domain.ShowDetailArg
+import com.theupnextapp.domain.ShowSearch
 import com.theupnextapp.domain.TraktMostAnticipated
 import com.theupnextapp.domain.TraktPopularShows
 import com.theupnextapp.domain.TraktTrendingShows
 import com.theupnextapp.ui.explore.ExploreFragmentDirections
+import com.theupnextapp.ui.search.SearchFragmentDirections
 
 abstract class DashboardViewHolder<T>(val composeView: ComposeView) :
     RecyclerView.ViewHolder(composeView) {
@@ -81,6 +83,19 @@ abstract class DashboardViewHolder<T>(val composeView: ComposeView) :
                 source = source,
                 showId = item.tvMazeID,
                 showTitle = item.title,
+                showImageUrl = item.originalImageUrl,
+                showBackgroundUrl = item.mediumImageUrl
+            )
+        )
+        view.findNavController().navigate(directions)
+    }
+
+    fun navigateFromSearchToDetail(item: ShowSearch, view: View) {
+        val directions = SearchFragmentDirections.actionSearchFragmentToShowDetailFragment(
+            ShowDetailArg(
+                source = source,
+                showId = item.id,
+                showTitle = item.name,
                 showImageUrl = item.originalImageUrl,
                 showBackgroundUrl = item.mediumImageUrl
             )

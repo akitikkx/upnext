@@ -8,9 +8,10 @@ import androidx.recyclerview.widget.DiffUtil
 import com.google.android.material.composethemeadapter.MdcTheme
 import com.theupnextapp.domain.ScheduleShow
 import com.theupnextapp.domain.ScheduleShowItemDiffCallback
-import com.theupnextapp.ui.components.ListPosterCard
+import com.theupnextapp.ui.common.ComposeAdapter
+import com.theupnextapp.ui.widgets.ListPosterCard
 
-class TodayShowsAdapter : DashboardAdapter<ScheduleShow, TodayShowsAdapter.ComposeViewHolder>() {
+class TodayShowsAdapter : ComposeAdapter<ScheduleShow, TodayShowsAdapter.ComposeViewHolder>() {
 
     override var list: List<ScheduleShow> = emptyList()
 

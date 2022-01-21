@@ -7,11 +7,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.unit.Dp
 import coil.compose.rememberImagePainter
 import com.theupnextapp.R
 
 @Composable
-fun PosterImageItem(url: String) {
+fun PosterImage(
+    url: String,
+    modifier: Modifier = Modifier,
+    height: Dp = dimensionResource(id = R.dimen.compose_shows_list_poster_height),
+) {
     Image(
         painter = rememberImagePainter(
             data = url,
@@ -20,8 +25,8 @@ fun PosterImageItem(url: String) {
             }),
         contentScale = ContentScale.Crop,
         contentDescription = null,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .height(dimensionResource(id = R.dimen.compose_shows_list_poster_height))
+            .height(height)
     )
 }

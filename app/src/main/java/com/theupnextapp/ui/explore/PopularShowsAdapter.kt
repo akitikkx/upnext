@@ -8,12 +8,12 @@ import androidx.recyclerview.widget.DiffUtil
 import com.google.android.material.composethemeadapter.MdcTheme
 import com.theupnextapp.domain.PopularShowItemDiffCallback
 import com.theupnextapp.domain.TraktPopularShows
-import com.theupnextapp.ui.components.ListPosterCard
-import com.theupnextapp.ui.dashboard.DashboardAdapter
+import com.theupnextapp.ui.widgets.ListPosterCard
+import com.theupnextapp.ui.common.ComposeAdapter
 import com.theupnextapp.ui.dashboard.DashboardViewHolder
 
 class PopularShowsAdapter :
-    DashboardAdapter<TraktPopularShows, PopularShowsAdapter.ComposeViewHolder>() {
+    ComposeAdapter<TraktPopularShows, PopularShowsAdapter.ComposeViewHolder>() {
 
     override var list: List<TraktPopularShows> = emptyList()
 

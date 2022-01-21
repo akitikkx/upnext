@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.composethemeadapter.MdcTheme
 import com.theupnextapp.domain.ScheduleShow
-import com.theupnextapp.ui.components.ListPosterCard
+import com.theupnextapp.ui.widgets.ListPosterCard
 
 class TomorrowShowsAdapter : RecyclerView.Adapter<TomorrowShowsAdapter.ComposeViewHolder>() {
 

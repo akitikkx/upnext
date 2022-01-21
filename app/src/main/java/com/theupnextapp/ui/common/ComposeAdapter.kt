@@ -1,8 +1,9 @@
-package com.theupnextapp.ui.dashboard
+package com.theupnextapp.ui.common
 
 import androidx.recyclerview.widget.RecyclerView
+import com.theupnextapp.ui.dashboard.DashboardViewHolder
 
-abstract class DashboardAdapter<T, VH: DashboardViewHolder<T>>: RecyclerView.Adapter<VH>() {
+abstract class ComposeAdapter<T, VH: DashboardViewHolder<T>>: RecyclerView.Adapter<VH>() {
 
     abstract var list: List<T>
 

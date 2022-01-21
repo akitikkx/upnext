@@ -9,9 +9,6 @@
             name="show"
             type="com.theupnextapp.domain.ShowSearch" />
 
-        <variable
-            name="listener"
-            type="com.theupnextapp.ui.search.SearchAdapter.SearchAdapterListener" />
     </data>
 
     <com.google.android.material.card.MaterialCardView
@@ -22,7 +19,6 @@
         android:layout_marginBottom="@dimen/margin_vertical_half"
         android:clickable="true"
         android:focusable="true"
-        android:onClick="@{(view) -> listener.onSearchItemClick(view, show)}"
         android:transitionName="@{@string/search_transition_name(show.id)}"
         app:cardPreventCornerOverlap="false">
 

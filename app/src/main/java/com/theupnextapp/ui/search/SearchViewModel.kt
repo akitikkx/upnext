@@ -19,21 +19,34 @@ class SearchViewModel @Inject constructor(
     private val searchRepository: SearchRepository
 ) : AndroidViewModel(application) {
 
-    private val _searchResponse = MutableLiveData<Result<List<ShowSearch>>>()
-    val searchResponse: LiveData<Result<List<ShowSearch>>> = _searchResponse
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> = _isLoading
+
+    private val _searchResponse = MutableLiveData<List<ShowSearch>>()
+    val searchResponse: LiveData<List<ShowSearch>> = _searchResponse
 
     fun onQueryTextSubmit(query: String?) {
-        viewModelScope.launch {
-            searchRepository.getShowSearchResults(query).collect {
-                _searchResponse.value = it
-            }
-        }
+        handleQuery(query)
     }
 
     fun onQueryTextChange(newText: String?) {
+        handleQuery(newText)
+    }
+
+    private fun handleQuery(query: String?) {
         viewModelScope.launch {
-            searchRepository.getShowSearchResults(newText).collect {
-                _searchResponse.value = it
+            searchRepository.getShowSearchResults(query).collect { result ->
+                when (result) {
+                    is Result.Success -> {
+                        _searchResponse.value = result.data.filter {
+                            !it.originalImageUrl.isNullOrEmpty() && !it.mediumImageUrl.isNullOrEmpty()
+                        }
+                    }
+                    is Result.Loading -> {
+                        _isLoading.value = result.status
+                    }
+                    else -> {}
+                }
             }
         }
     }

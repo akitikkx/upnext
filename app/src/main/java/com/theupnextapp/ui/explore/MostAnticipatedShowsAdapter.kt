@@ -8,12 +8,12 @@ import androidx.recyclerview.widget.DiffUtil
 import com.google.android.material.composethemeadapter.MdcTheme
 import com.theupnextapp.domain.MostAnticipatedItemDiffCallback
 import com.theupnextapp.domain.TraktMostAnticipated
-import com.theupnextapp.ui.components.ListPosterCard
-import com.theupnextapp.ui.dashboard.DashboardAdapter
+import com.theupnextapp.ui.widgets.ListPosterCard
+import com.theupnextapp.ui.common.ComposeAdapter
 import com.theupnextapp.ui.dashboard.DashboardViewHolder
 
 class MostAnticipatedShowsAdapter :
-    DashboardAdapter<TraktMostAnticipated, MostAnticipatedShowsAdapter.ComposeViewHolder>() {
+    ComposeAdapter<TraktMostAnticipated, MostAnticipatedShowsAdapter.ComposeViewHolder>() {
 
     override var list: List<TraktMostAnticipated> = emptyList()
 

@@ -7,24 +7,19 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView.OnQueryTextListener
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentSearchBinding
-import com.theupnextapp.domain.Result
-import com.theupnextapp.domain.ShowDetailArg
-import com.theupnextapp.domain.ShowSearch
 import com.theupnextapp.ui.common.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class SearchFragment : BaseFragment(),
-    OnQueryTextListener, SearchAdapter.SearchAdapterListener {
+    OnQueryTextListener {
 
     private var _binding: FragmentSearchBinding? = null
     private val binding get() = _binding!!
@@ -60,7 +55,7 @@ class SearchFragment : BaseFragment(),
         binding.search.queryHint = "Start typing the show name here..."
         binding.search.setOnQueryTextListener(this)
 
-        _searchAdapter = SearchAdapter(this)
+        _searchAdapter = SearchAdapter()
 
         binding.root.findViewById<RecyclerView>(R.id.search_list).apply {
             layoutManager = LinearLayoutManager(context).apply {
@@ -75,22 +70,12 @@ class SearchFragment : BaseFragment(),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        viewModel.isLoading.observe(viewLifecycleOwner, {
+            binding.isLoading = it
+        })
+
         viewModel.searchResponse.observe(viewLifecycleOwner, {
-            when (it) {
-                is Result.Success -> searchAdapter.submitList(it.data)
-                is Result.GenericError -> {
-                    it.error?.message?.let { errorMessage ->
-                        Snackbar.make(
-                            binding.root,
-                            errorMessage, Snackbar.LENGTH_LONG
-                        )
-                    }
-                }
-                is Result.Loading -> {
-                    binding.isLoading = it.status
-                }
-                is Result.NetworkError -> {}
-            }
+            searchAdapter.submitList(it)
         })
     }
 
@@ -114,24 +99,5 @@ class SearchFragment : BaseFragment(),
         _binding = null
         _searchAdapter = null
         (activity as MainActivity).hideKeyboard()
-    }
-
-    override fun onSearchItemClick(view: View, showSearch: ShowSearch) {
-        val directions = SearchFragmentDirections.actionSearchFragmentToShowDetailFragment(
-            ShowDetailArg(
-                source = "search",
-                showId = showSearch.id,
-                showTitle = showSearch.name,
-                showImageUrl = showSearch.originalImageUrl,
-                showBackgroundUrl = showSearch.mediumImageUrl
-            )
-        )
-        findNavController().navigate(directions, getShowDetailNavigatorExtras(view))
-
-        val analyticsBundle = Bundle()
-        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, showSearch.id.toString())
-        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, showSearch.name)
-        analyticsBundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "search_show")
-        firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM, analyticsBundle)
     }
 }
