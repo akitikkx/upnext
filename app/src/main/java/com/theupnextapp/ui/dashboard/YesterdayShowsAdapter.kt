@@ -8,15 +8,16 @@ import androidx.recyclerview.widget.DiffUtil
 import com.google.android.material.composethemeadapter.MdcTheme
 import com.theupnextapp.domain.ScheduleShow
 import com.theupnextapp.ui.common.ComposeAdapter
+import com.theupnextapp.ui.common.ComposeViewHolder
 import com.theupnextapp.ui.widgets.ListPosterCard
 
 class YesterdayShowsAdapter :
-    ComposeAdapter<ScheduleShow, YesterdayShowsAdapter.ComposeViewHolder>() {
+    ComposeAdapter<ScheduleShow, YesterdayShowsAdapter.ViewHolder>() {
 
     override var list: List<ScheduleShow> = emptyList()
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ComposeViewHolder {
-        return ComposeViewHolder(ComposeView(parent.context))
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        return ViewHolder(ComposeView(parent.context))
     }
 
     override fun submitList(updateList: List<ScheduleShow>) {
@@ -49,8 +50,8 @@ class YesterdayShowsAdapter :
         }
     }
 
-    class ComposeViewHolder(composeView: ComposeView) :
-        DashboardViewHolder<ScheduleShow>(composeView) {
+    class ViewHolder(composeView: ComposeView) :
+        ComposeViewHolder<ScheduleShow>(composeView) {
 
         override val source: String = "yesterday"
 

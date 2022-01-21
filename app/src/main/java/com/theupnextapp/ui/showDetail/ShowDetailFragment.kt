@@ -6,18 +6,19 @@ import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.composethemeadapter.MdcTheme
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentShowDetailBinding
 import com.theupnextapp.domain.ShowCast
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.ShowDetailSummary
-import com.theupnextapp.domain.ShowInfo
 import com.theupnextapp.domain.ShowSeason
 import com.theupnextapp.network.models.trakt.Distribution
 import com.theupnextapp.ui.common.BaseFragment
@@ -81,6 +82,14 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
         _showCastAdapter = ShowCastAdapter(this)
 
         _showRatingsAdapter = ShowRatingsAdapter()
+
+        binding.root.findViewById<ComposeView>(R.id.compose_container).apply {
+            setContent {
+                MdcTheme {
+                    ShowDetailScreen()
+                }
+            }
+        }
 
         binding.root.findViewById<RecyclerView>(R.id.cast_list).apply {
             layoutManager = LinearLayoutManager(requireContext()).apply {

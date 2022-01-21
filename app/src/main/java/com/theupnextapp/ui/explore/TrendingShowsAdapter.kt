@@ -10,14 +10,14 @@ import com.theupnextapp.domain.TraktTrendingShows
 import com.theupnextapp.domain.TrendingShowItemDiffCallback
 import com.theupnextapp.ui.widgets.ListPosterCard
 import com.theupnextapp.ui.common.ComposeAdapter
-import com.theupnextapp.ui.dashboard.DashboardViewHolder
+import com.theupnextapp.ui.common.ComposeViewHolder
 
-class TrendingShowsAdapter : ComposeAdapter<TraktTrendingShows, TrendingShowsAdapter.ComposeViewHolder>(){
+class TrendingShowsAdapter : ComposeAdapter<TraktTrendingShows, TrendingShowsAdapter.ViewHolder>(){
 
     override var list: List<TraktTrendingShows> = emptyList()
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ComposeViewHolder {
-        return ComposeViewHolder(ComposeView(parent.context))
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        return ViewHolder(ComposeView(parent.context))
     }
 
     override fun submitList(updateList: List<TraktTrendingShows>) {
@@ -32,8 +32,8 @@ class TrendingShowsAdapter : ComposeAdapter<TraktTrendingShows, TrendingShowsAda
         diffResult.dispatchUpdatesTo(this)
     }
 
-    class ComposeViewHolder(composeView: ComposeView) :
-        DashboardViewHolder<TraktTrendingShows>(composeView) {
+    class ViewHolder(composeView: ComposeView) :
+        ComposeViewHolder<TraktTrendingShows>(composeView) {
 
         override val source: String = "trending"
 

@@ -24,7 +24,7 @@ import com.theupnextapp.ui.components.PosterImage
 
 @ExperimentalMaterialApi
 @Composable
-fun SearchListCard(
+fun SeasonListCard(
     item: ShowSearch,
     onClick: () -> Unit
 ) {

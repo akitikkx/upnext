@@ -10,15 +10,15 @@ import com.theupnextapp.domain.MostAnticipatedItemDiffCallback
 import com.theupnextapp.domain.TraktMostAnticipated
 import com.theupnextapp.ui.widgets.ListPosterCard
 import com.theupnextapp.ui.common.ComposeAdapter
-import com.theupnextapp.ui.dashboard.DashboardViewHolder
+import com.theupnextapp.ui.common.ComposeViewHolder
 
 class MostAnticipatedShowsAdapter :
-    ComposeAdapter<TraktMostAnticipated, MostAnticipatedShowsAdapter.ComposeViewHolder>() {
+    ComposeAdapter<TraktMostAnticipated, MostAnticipatedShowsAdapter.ViewHolder>() {
 
     override var list: List<TraktMostAnticipated> = emptyList()
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ComposeViewHolder {
-        return ComposeViewHolder(ComposeView(parent.context))
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        return ViewHolder(ComposeView(parent.context))
     }
 
     override fun submitList(updateList: List<TraktMostAnticipated>){
@@ -33,8 +33,8 @@ class MostAnticipatedShowsAdapter :
         diffResult.dispatchUpdatesTo(this)
     }
 
-    class ComposeViewHolder(composeView: ComposeView) :
-        DashboardViewHolder<TraktMostAnticipated>(composeView) {
+    class ViewHolder(composeView: ComposeView) :
+        ComposeViewHolder<TraktMostAnticipated>(composeView) {
 
         override val source: String = "most_anticipated"
 

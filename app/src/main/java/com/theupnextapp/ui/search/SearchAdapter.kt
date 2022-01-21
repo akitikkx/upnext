@@ -9,16 +9,16 @@ import com.google.android.material.composethemeadapter.MdcTheme
 import com.theupnextapp.domain.SearchItemDiffCallback
 import com.theupnextapp.domain.ShowSearch
 import com.theupnextapp.ui.common.ComposeAdapter
-import com.theupnextapp.ui.widgets.SearchListItem
-import com.theupnextapp.ui.dashboard.DashboardViewHolder
+import com.theupnextapp.ui.common.ComposeViewHolder
+import com.theupnextapp.ui.widgets.SearchListCard
 
 class SearchAdapter :
-    ComposeAdapter<ShowSearch, SearchAdapter.ComposeViewHolder>() {
+    ComposeAdapter<ShowSearch, SearchAdapter.ViewHolder>() {
 
     override var list: List<ShowSearch> = emptyList()
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ComposeViewHolder {
-        return ComposeViewHolder(ComposeView(parent.context))
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        return ViewHolder(ComposeView(parent.context))
     }
 
     override fun submitList(updateList: List<ShowSearch>) {
@@ -33,8 +33,8 @@ class SearchAdapter :
         diffResult.dispatchUpdatesTo(this)
     }
 
-    class ComposeViewHolder(composeView: ComposeView) :
-        DashboardViewHolder<ShowSearch>(composeView) {
+    class ViewHolder(composeView: ComposeView) :
+        ComposeViewHolder<ShowSearch>(composeView) {
 
         override val source: String = "search"
 
@@ -42,7 +42,7 @@ class SearchAdapter :
         @Composable
         override fun ComposableContainer(item: ShowSearch) {
             MdcTheme {
-                SearchListItem(item = item) {
+                SearchListCard(item = item) {
                     navigateFromSearchToDetail(item, composeView)
                 }
             }

@@ -1,4 +1,4 @@
-package com.theupnextapp.ui.dashboard
+package com.theupnextapp.ui.common
 
 import android.view.View
 import androidx.compose.runtime.Composable
@@ -12,10 +12,11 @@ import com.theupnextapp.domain.ShowSearch
 import com.theupnextapp.domain.TraktMostAnticipated
 import com.theupnextapp.domain.TraktPopularShows
 import com.theupnextapp.domain.TraktTrendingShows
+import com.theupnextapp.ui.dashboard.DashboardFragmentDirections
 import com.theupnextapp.ui.explore.ExploreFragmentDirections
 import com.theupnextapp.ui.search.SearchFragmentDirections
 
-abstract class DashboardViewHolder<T>(val composeView: ComposeView) :
+abstract class ComposeViewHolder<T>(val composeView: ComposeView) :
     RecyclerView.ViewHolder(composeView) {
 
     init {

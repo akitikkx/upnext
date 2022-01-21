@@ -10,15 +10,15 @@ import com.theupnextapp.domain.PopularShowItemDiffCallback
 import com.theupnextapp.domain.TraktPopularShows
 import com.theupnextapp.ui.widgets.ListPosterCard
 import com.theupnextapp.ui.common.ComposeAdapter
-import com.theupnextapp.ui.dashboard.DashboardViewHolder
+import com.theupnextapp.ui.common.ComposeViewHolder
 
 class PopularShowsAdapter :
-    ComposeAdapter<TraktPopularShows, PopularShowsAdapter.ComposeViewHolder>() {
+    ComposeAdapter<TraktPopularShows, PopularShowsAdapter.ViewHolder>() {
 
     override var list: List<TraktPopularShows> = emptyList()
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ComposeViewHolder {
-        return ComposeViewHolder(ComposeView(parent.context))
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        return ViewHolder(ComposeView(parent.context))
     }
 
     override fun submitList(updateList: List<TraktPopularShows>){
@@ -33,8 +33,8 @@ class PopularShowsAdapter :
         diffResult.dispatchUpdatesTo(this)
     }
 
-    class ComposeViewHolder(composeView: ComposeView) :
-        DashboardViewHolder<TraktPopularShows>(composeView) {
+    class ViewHolder(composeView: ComposeView) :
+        ComposeViewHolder<TraktPopularShows>(composeView) {
 
         override val source: String = "popular"
 
