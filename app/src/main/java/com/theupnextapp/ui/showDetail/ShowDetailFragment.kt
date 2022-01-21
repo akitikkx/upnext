@@ -86,7 +86,14 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
         binding.root.findViewById<ComposeView>(R.id.compose_container).apply {
             setContent {
                 MdcTheme {
-                    ShowDetailScreen()
+                    ShowDetailScreen(
+                        onSeasonsClick = {
+                            viewModel.onSeasonsClick()
+                        },
+                        onCastItemClick = {
+                            viewModel.onShowCastItemClicked(it)
+                        }
+                    )
                 }
             }
         }

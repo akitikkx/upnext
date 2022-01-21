@@ -1,5 +1,7 @@
 package com.theupnextapp.ui.showDetail
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,7 +15,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
-import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -21,10 +22,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.theupnextapp.R
@@ -35,7 +36,11 @@ import com.theupnextapp.ui.components.PosterImage
 import org.jsoup.Jsoup
 
 @Composable
-fun ShowDetailScreen(viewModel: ShowDetailViewModel = hiltViewModel()) {
+fun ShowDetailScreen(
+    viewModel: ShowDetailViewModel = hiltViewModel(),
+    onSeasonsClick: () -> Unit,
+    onCastItemClick: (item: ShowCast) -> Unit
+) {
     val showSummary = viewModel.showSummary.observeAsState()
 
     val showCast = viewModel.showCast.observeAsState()
@@ -71,8 +76,15 @@ fun ShowDetailScreen(viewModel: ShowDetailViewModel = hiltViewModel()) {
                     style = MaterialTheme.typography.body2
                 )
             }
-            Buttons()
-            showCast.value?.let { ShowCastList(it) }
+            Buttons {
+                onSeasonsClick()
+            }
+
+            showCast.value?.let {
+                ShowCastList(it) { showCastItem ->
+                    onCastItemClick(showCastItem)
+                }
+            }
         }
     }
 }
@@ -137,7 +149,7 @@ fun PosterAndMetadata(showSummary: ShowDetailSummary?) {
             PosterImage(
                 url = it,
                 modifier = Modifier
-                    .width(dimensionResource(id = R.dimen.compose_detail_poster_width))
+                    .width(dimensionResource(id = R.dimen.compose_show_detail_poster_width))
                     .height(
                         dimensionResource(id = R.dimen.compose_show_detail_poster_height)
                     )
@@ -174,13 +186,23 @@ fun PosterAndMetadata(showSummary: ShowDetailSummary?) {
 }
 
 @Composable
-fun Buttons() {
+fun Buttons(
+    onSeasonsClick: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
+        Button(
+            onClick = { onSeasonsClick() },
+            modifier = Modifier.padding(4.dp)
+        ) {
+            Text(
+                text = stringResource(id = R.string.btn_show_detail_seasons)
+            )
+        }
         Button(
             onClick = {},
             modifier = Modifier.padding(4.dp)
@@ -189,30 +211,70 @@ fun Buttons() {
                 text = stringResource(id = R.string.btn_show_detail_remove_from_favorites)
             )
         }
-        Button(
-            onClick = {},
-            modifier = Modifier.padding(4.dp)
-        ) {
-            Text(
-                text = stringResource(id = R.string.btn_show_detail_seasons)
+    }
+}
+
+@Composable
+fun ShowCastList(
+    list: List<ShowCast>,
+    onClick: (item: ShowCast) -> Unit
+) {
+    LazyRow(
+        modifier = Modifier
+            .background(Color.Transparent)
+            .padding(16.dp)
+    ) {
+        items(list) {
+            ShowCast(item = it) { showCastItem ->
+                onClick(showCastItem)
+
+            }
+        }
+    }
+}
+
+@Composable
+fun ShowCast(
+    item: ShowCast,
+    onClick: (item: ShowCast) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .padding(4.dp)
+            .width(dimensionResource(id = R.dimen.compose_show_detail_poster_width))
+            .clickable { onClick(item) },
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        item.originalImageUrl?.let {
+            PosterImage(
+                url = it,
+                modifier = Modifier
+                    .width(dimensionResource(id = R.dimen.compose_show_detail_poster_width))
+                    .height(
+                        dimensionResource(id = R.dimen.compose_show_detail_poster_height)
+                    )
             )
         }
-    }
-}
-
-@Composable
-fun ShowCastList(list: List<ShowCast>) {
-    LazyRow {
-        items(list) {
-            ShowCastCard(item = it)
+        item.name?.let { name ->
+            Text(
+                text = name,
+                style = MaterialTheme.typography.body1,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.CenterHorizontally)
+            )
         }
-    }
-}
-
-@Composable
-fun ShowCastCard(item: ShowCast) {
-    Card {
-        item.name?.let { Text(text = it) }
+        item.characterName?.let { characterName ->
+            Text(
+                text = characterName,
+                style = MaterialTheme.typography.caption,
+                fontWeight = FontWeight.Thin,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.CenterHorizontally)
+            )
+        }
     }
 }
 
@@ -234,11 +296,4 @@ fun TitleAndHeadingText(
             style = MaterialTheme.typography.body2
         )
     }
-
-}
-
-@Preview
-@Composable
-fun ShowDetailScreenPreview() {
-    ShowDetailScreen()
 }
