@@ -9,6 +9,9 @@ plugins {
     id("kotlin-kapt")
 }
 
+def localProperties = new Properties()
+localProperties.load(new FileInputStream(rootProject.file("local.properties")))
+
 android {
     compileSdk 31
 
@@ -43,9 +46,9 @@ android {
         }
     }
     buildTypes.each {
-        it.buildConfigField('String', 'TRAKT_CLIENT_ID', TraktClientID)
-        it.buildConfigField('String', 'TRAKT_CLIENT_SECRET', TraktClientSecret)
-        it.buildConfigField('String', 'TRAKT_REDIRECT_URI', TraktRedirectURI)
+        it.buildConfigField('String', 'TRAKT_CLIENT_ID', localProperties.getProperty("TraktClientID"))
+        it.buildConfigField('String', 'TRAKT_CLIENT_SECRET', localProperties.get("TraktClientSecret"))
+        it.buildConfigField('String', 'TRAKT_REDIRECT_URI', localProperties.getProperty("TraktRedirectURI"))
     }
 
     buildFeatures {
