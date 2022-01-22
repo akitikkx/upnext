@@ -198,19 +198,23 @@ fun PosterAndMetadata(showSummary: ShowDetailSummary?) {
             modifier = Modifier.padding(8.dp)
         ) {
             showSummary?.airDays?.let {
-                TitleAndHeadingText(
-                    title = it, heading = stringResource(
-                        id = R.string.show_detail_air_days_heading
+                if (it.isNotEmpty()) {
+                    HeadingAndItemText(
+                        item = it, heading = stringResource(
+                            id = R.string.show_detail_air_days_heading
+                        )
                     )
-                )
+                }
             }
 
             showSummary?.genres?.let {
-                TitleAndHeadingText(
-                    title = it, heading = stringResource(
-                        id = R.string.show_detail_genres_heading
+                if (it.isNotEmpty()) {
+                    HeadingAndItemText(
+                        item = it, heading = stringResource(
+                            id = R.string.show_detail_genres_heading
+                        )
                     )
-                )
+                }
             }
 
             Text(
@@ -552,8 +556,8 @@ fun LinearProgressPreview() {
 }
 
 @Composable
-fun TitleAndHeadingText(
-    title: String,
+fun HeadingAndItemText(
+    item: String,
     heading: String
 ) {
     Column(
@@ -566,7 +570,7 @@ fun TitleAndHeadingText(
         )
 
         Text(
-            text = title,
+            text = item,
             style = MaterialTheme.typography.body2
         )
     }
