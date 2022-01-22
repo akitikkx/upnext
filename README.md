@@ -20,8 +20,8 @@ The app is currently on the Google Play Store https://play.google.com/store/apps
 Now you can add a show as a favorite, which will be synced to your Trakt account. All your favorites will be displayed on the Account screen when your Trakt account is connected. You will require a Trakt.tv account first before you can connect it on Upnext: TV Series Manager.
 
 ## Pre-requisites
-Please obtain an API key from http://www.omdbapi.com/ before launching the application. You will
-need to place this key in gradle.properties as part of the `OMDbKey` property.
+Please obtain an API key from http://trakt.tv/ before launching the application. You will
+need to place this key in local.properties as follows:
 
 ```
 TraktClientID="[your Trakt Client ID key goes here]"
