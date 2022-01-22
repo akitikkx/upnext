@@ -48,6 +48,7 @@ class DashboardFragment : BaseFragment() {
         binding.composeContainer.apply {
             // Dispose of the Composition when the view's
             // LifecycleOwner is destroyed
+            // https://developer.android.com/jetpack/compose/interop/interop-apis
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 MdcTheme {
