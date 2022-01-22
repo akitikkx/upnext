@@ -1,66 +1,57 @@
 # Upnext: TV Series Manager
+Have you ever been frustrated by your favorite series' 
+production breaks to the point where you find it difficult 
+to keep track of when the series will come back? This app aims 
+to provide you with that information about the series' next air 
+date as well as the episode's plot synopsis (if available at the 
+time).
 
-### Database Migration
+The app is currently on the Google Play Store https://play.google.com/store/apps/details?id=com.theupnextapp
 
-#### Setup of migrations
-- Ensure that the following has been added to the application build.gradle
+## FEATURES:
 
-        android {
-            ...
-            defaultConfig {
-                ...
+### Dashboard
+- A Dashboard featuring yesterday, today, and tomorrow's shows
 
-                javaCompileOptions {
-                    annotationProcessorOptions {
-                        arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
-                    }
-                }
-            }
-        
-            sourceSets {
-                androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
-            }
+### Explore
+- An Explore screen featuring Popular, Trending, and Most Anticipated Shows courtesy of Trakt
 
-- Add the following dependency:
+### Favorites
+Now you can add a show as a favorite, which will be synced to your Trakt account. All your favorites will be displayed on the Account screen when your Trakt account is connected. You will require a Trakt.tv account first before you can connect it on Upnext: TV Series Manager.
 
-        androidTestImplementation "android.arch.persistence.room:testing:$room_version"
+## Pre-requisites
+Please obtain an API key from http://www.omdbapi.com/ before launching the application. You will
+need to place this key in gradle.properties as part of the `OMDbKey` property.
 
-#### Adding a table
-- Prepare the current schema for the migration,
+```
+TraktClientID="[your Trakt Client ID key goes here]"
+TraktClientSecret="[your Trakt Client Secret key goes here]"
+TraktRedirectURI="[your Trakt redirect URI goes here]"
+```
 
-        Build > Rebuild Project 
+## MAD Score
+<img src="https://github.com/akitikkx/upnext/blob/main/screenshots/summary.png" />
 
-    this will generate a *{version_number}.json* file in *app/schemas/com.theupnextapp.database.UpnextDatabase*
-- increase the most recent version by 1
-- In *app/src/main/java/com/theupnextapp/database/Room.kt* change the version as well in the @Database section
+## License
 
-      Build > Rebuild Project
-- Now add the new table/`@Entity` in the *com.theupnextapp.database* package
-- Add the new entity to the *app/src/main/java/com/theupnextapp/database/Room.kt* @Database section
+MIT License
 
-      Build > Rebuild Project
-- Look inside *{latest_version_number}.json* for the new table's createSql and copy this
-- Create/Update *com.theupnextapp.database.DatabaseMigration.kt* and define the new migration
+Copyright (c) 2022 Ahmed Tikiwa
 
-            val MIGRATION_1_2: Migration = object : Migration(1, 2) {
-                override fun migrate(database: SupportSQLiteDatabase) {
-                    database.execSQL("CREATE TABLE IF NOT EXISTS `trakt_watchlist` (`id` INTEGER, `listed_at` TEXT, `rank` INTEGER, `title` TEXT, `imdbID` TEXT, `slug` TEXT, `tmdbID` INTEGER, `traktID` INTEGER, `tvdbID` INTEGER, `tvrageID` INTEGER, `tvMazeID` INTEGER, PRIMARY KEY(`id`))")
-                }
-            }
-- ensure that the new migration is added to the getDatabase in *Room.kt*
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-        fun getDatabase(context: Context): UpnextDatabase {
-            ...
-                    .addMigrations(MIGRATION_1_2)
-                    .build()
-                }
-            }
-            return INSTANCE
-        }
-- deploy app to device
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-#### Typography
-- All font styles are defined in *res/values/type.xml*
-- The name of the style is of the format
- `TextAppearance.Upnext.<qualifer>` e.g `TextAppearance.Upnext.Headline6` with the parent
-  matching the Material Design `TextAppearance.MaterialComponents.Headline6`
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
