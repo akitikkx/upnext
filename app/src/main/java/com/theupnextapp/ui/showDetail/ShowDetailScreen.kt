@@ -34,8 +34,11 @@ import com.theupnextapp.R
 import com.theupnextapp.domain.ShowCast
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.ShowDetailSummary
+import com.theupnextapp.domain.ShowNextEpisode
+import com.theupnextapp.domain.ShowPreviousEpisode
 import com.theupnextapp.domain.TraktShowRating
 import com.theupnextapp.network.models.trakt.Distribution
+import com.theupnextapp.ui.components.SectionHeadingText
 import com.theupnextapp.ui.components.PosterImage
 import org.jsoup.Jsoup
 
@@ -53,6 +56,10 @@ fun ShowDetailScreen(
 
     val showRating = viewModel.showRating.observeAsState()
 
+    val showPreviousEpisode = viewModel.showPreviousEpisode.observeAsState()
+
+    val showNextEpisode = viewModel.showNextEpisode.observeAsState()
+
     val scrollState = rememberScrollState()
 
     Surface(
@@ -68,10 +75,12 @@ fun ShowDetailScreen(
                 showDetailArgs = showDetailArgs.value,
                 showSummary = showSummary.value
             )
+
             PosterAndMetadata(showSummary = showSummary.value)
-            showSummary.value?.summary?.let {
+
+            showSummary.value?.summary?.let { summary ->
                 Text(
-                    text = Jsoup.parse(it).text(),
+                    text = Jsoup.parse(summary).text(),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(
@@ -82,6 +91,7 @@ fun ShowDetailScreen(
                     style = MaterialTheme.typography.body2
                 )
             }
+
             Buttons {
                 onSeasonsClick()
             }
@@ -91,6 +101,19 @@ fun ShowDetailScreen(
                     onCastItemClick(showCastItem)
                 }
             }
+
+            if (!showNextEpisode.value?.nextEpisodeSummary.isNullOrEmpty()) {
+                showNextEpisode.value?.let {
+                    NextEpisode(showNextEpisode = it)
+                }
+            }
+
+            if (!showPreviousEpisode.value?.previousEpisodeSummary.isNullOrEmpty()) {
+                showPreviousEpisode.value?.let {
+                    PreviousEpisode(showPreviousEpisode = it)
+                }
+            }
+
 
             showRating.value?.let { ratingData ->
                 TraktRatingSummary(ratingData)
@@ -107,9 +130,9 @@ fun BackdropAndTitle(showDetailArgs: ShowDetailArg?, showSummary: ShowDetailSumm
             height = dimensionResource(id = R.dimen.show_backdrop_height)
         )
     } ?: run {
-        showSummary?.originalImageUrl?.let {
+        showSummary?.originalImageUrl?.let { originalImageUrl ->
             PosterImage(
-                url = it,
+                url = originalImageUrl,
                 height = dimensionResource(id = R.dimen.show_backdrop_height)
             )
         }
@@ -133,8 +156,7 @@ fun BackdropAndTitle(showDetailArgs: ShowDetailArg?, showSummary: ShowDetailSumm
     showSummary?.status?.let { status ->
         Text(
             text = status,
-            style = MaterialTheme.typography.body2,
-            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.caption,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
@@ -213,6 +235,7 @@ fun Buttons(
                 text = stringResource(id = R.string.btn_show_detail_seasons)
             )
         }
+
         Button(
             onClick = {},
             modifier = Modifier.padding(4.dp)
@@ -229,17 +252,25 @@ fun ShowCastList(
     list: List<ShowCast>,
     onClick: (item: ShowCast) -> Unit
 ) {
-    LazyRow(
-        modifier = Modifier
-            .background(Color.Transparent)
-            .padding(16.dp)
+    Column(
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.Start
     ) {
-        items(list) {
-            ShowCast(item = it) { showCastItem ->
-                onClick(showCastItem)
+        SectionHeadingText(text = stringResource(id = R.string.show_detail_cast_list))
 
+        LazyRow(
+            modifier = Modifier
+                .background(Color.Transparent)
+                .padding(16.dp)
+        ) {
+            items(list) {
+                ShowCast(item = it) { showCastItem ->
+                    onClick(showCastItem)
+
+                }
             }
         }
+
     }
 }
 
@@ -266,6 +297,7 @@ fun ShowCast(
                     )
             )
         }
+
         item.name?.let { name ->
             Text(
                 text = name,
@@ -275,6 +307,7 @@ fun ShowCast(
                     .align(Alignment.CenterHorizontally)
             )
         }
+
         item.characterName?.let { characterName ->
             Text(
                 text = characterName,
@@ -289,33 +322,117 @@ fun ShowCast(
 }
 
 @Composable
-private fun TraktRatingSummary(ratingData: TraktShowRating) {
-    Row(
-        verticalAlignment = Alignment.Top,
-        horizontalArrangement = Arrangement.Start,
-        modifier = Modifier.padding(8.dp)
-    ) {
-        Column(
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(start = 8.dp, end = 8.dp)
-        ) {
-            Text(
-                text = stringResource(
-                    id = R.string.compose_show_detail_rating_numerator,
-                    ratingData.rating.toString()
+fun PreviousEpisode(showPreviousEpisode: ShowPreviousEpisode) {
+    Column {
+        SectionHeadingText(text = stringResource(id = R.string.show_detail_previous_episode_heading))
+
+        Text(
+            text = stringResource(
+                R.string.show_detail_episode_season_info,
+                showPreviousEpisode.previousEpisodeSeason.toString(),
+                showPreviousEpisode.previousEpisodeNumber.toString(),
+                showPreviousEpisode.previousEpisodeName.toString()
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    start = 16.dp,
+                    top = 2.dp,
+                    end = 16.dp,
+                    bottom = 4.dp
                 ),
-                style = MaterialTheme.typography.h3
-            )
-            Text(
-                text = stringResource(
-                    R.string.compose_show_detail_rating_votes,
-                    ratingData.votes.toString()
-                ),
-                style = MaterialTheme.typography.caption
-            )
+            style = MaterialTheme.typography.caption
+        )
+
+        showPreviousEpisode.previousEpisodeSummary?.let {
+            EpisodeSummary(summary = it)
         }
-        TraktRatingVisual(ratingData = ratingData)
+    }
+}
+
+@Composable
+fun NextEpisode(showNextEpisode: ShowNextEpisode) {
+    Column {
+        SectionHeadingText(text = stringResource(id = R.string.show_detail_next_episode_heading))
+
+        Text(
+            text = stringResource(
+                R.string.show_detail_episode_season_info,
+                showNextEpisode.nextEpisodeSeason.toString(),
+                showNextEpisode.nextEpisodeNumber.toString(),
+                showNextEpisode.nextEpisodeName.toString()
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    start = 16.dp,
+                    top = 2.dp,
+                    end = 16.dp,
+                    bottom = 4.dp
+                ),
+            style = MaterialTheme.typography.caption
+        )
+
+        showNextEpisode.nextEpisodeSummary?.let {
+            EpisodeSummary(summary = it)
+        }
+    }
+}
+
+@Composable
+fun EpisodeSummary(summary: String) {
+    Text(
+        text = Jsoup.parse(summary).text(),
+        modifier = Modifier
+            .padding(
+                start = 16.dp,
+                top = 4.dp,
+                end = 16.dp,
+                bottom = 8.dp
+            )
+            .fillMaxWidth(),
+        style = MaterialTheme.typography.body2
+    )
+}
+
+@Composable
+private fun TraktRatingSummary(ratingData: TraktShowRating) {
+    Column(
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.Start
+    ) {
+        SectionHeadingText(text = stringResource(id = R.string.show_detail_ratings_heading))
+
+        Row(
+            verticalAlignment = Alignment.Top,
+            horizontalArrangement = Arrangement.Start,
+            modifier = Modifier.padding(8.dp)
+        ) {
+            Column(
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.padding(start = 8.dp, end = 8.dp)
+            ) {
+                Text(
+                    text = stringResource(
+                        id = R.string.compose_show_detail_rating_numerator,
+                        ratingData.rating.toString()
+                    ),
+                    style = MaterialTheme.typography.h3
+                )
+
+                Text(
+                    text = stringResource(
+                        R.string.compose_show_detail_rating_votes,
+                        ratingData.votes.toString()
+                    ),
+                    style = MaterialTheme.typography.caption
+                )
+            }
+
+            TraktRatingVisual(ratingData = ratingData)
+        }
+
     }
 }
 
@@ -357,9 +474,10 @@ fun LinearProgress(
         modifier = Modifier
             .padding(4.dp)
             .width(30.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(text = ratingLevel)
+
         LinearProgressIndicator(
             progress = progress,
             modifier = Modifier.padding(4.dp)
@@ -441,6 +559,7 @@ fun TitleAndHeadingText(
             fontWeight = FontWeight.Bold,
             style = MaterialTheme.typography.caption
         )
+
         Text(
             text = title,
             style = MaterialTheme.typography.body2
