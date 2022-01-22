@@ -97,8 +97,10 @@ fun ShowDetailScreen(
             }
 
             showCast.value?.let {
-                ShowCastList(it) { showCastItem ->
-                    onCastItemClick(showCastItem)
+                if (it.isNotEmpty()) {
+                    ShowCastList(it) { showCastItem ->
+                        onCastItemClick(showCastItem)
+                    }
                 }
             }
 
@@ -116,7 +118,9 @@ fun ShowDetailScreen(
 
 
             showRating.value?.let { ratingData ->
-                TraktRatingSummary(ratingData)
+                if (ratingData.votes != 0) {
+                    TraktRatingSummary(ratingData)
+                }
             }
         }
     }
@@ -124,18 +128,19 @@ fun ShowDetailScreen(
 
 @Composable
 fun BackdropAndTitle(showDetailArgs: ShowDetailArg?, showSummary: ShowDetailSummary?) {
-    (showDetailArgs?.showBackgroundUrl ?: showDetailArgs?.showImageUrl)?.let {
+    val imageUrl: String? = if (!showDetailArgs?.showBackgroundUrl.isNullOrEmpty()) {
+        showDetailArgs?.showBackgroundUrl
+    } else if (!showDetailArgs?.showImageUrl.isNullOrEmpty()) {
+        showDetailArgs?.showImageUrl
+    } else {
+        showSummary?.originalImageUrl
+    }
+
+    imageUrl?.let {
         PosterImage(
             url = it,
             height = dimensionResource(id = R.dimen.show_backdrop_height)
         )
-    } ?: run {
-        showSummary?.originalImageUrl?.let { originalImageUrl ->
-            PosterImage(
-                url = originalImageUrl,
-                height = dimensionResource(id = R.dimen.show_backdrop_height)
-            )
-        }
     }
 
     showSummary?.name?.let { name ->
