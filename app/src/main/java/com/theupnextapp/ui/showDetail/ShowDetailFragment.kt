@@ -6,7 +6,7 @@ import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -14,14 +14,13 @@ import com.google.android.material.composethemeadapter.MdcTheme
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentShowDetailBinding
-import com.theupnextapp.domain.ShowCast
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.ui.common.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListener {
+class ShowDetailFragment : BaseFragment() {
 
     private var _binding: FragmentShowDetailBinding? = null
     private val binding get() = _binding!!
@@ -61,11 +60,10 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
     ): View {
         _binding = FragmentShowDetailBinding.inflate(inflater)
 
-        binding.lifecycleOwner = viewLifecycleOwner
-
-        binding.viewModel = viewModel
-
-        binding.root.findViewById<ComposeView>(R.id.compose_container).apply {
+        binding.composeContainer.apply {
+            // Dispose of the Composition when the view's
+            // LifecycleOwner is destroyed
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 MdcTheme {
                     ShowDetailScreen(
@@ -145,10 +143,6 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    override fun onShowCastClick(view: View, castItem: ShowCast) {
-        viewModel.onShowCastItemClicked(castItem)
     }
 
     companion object {

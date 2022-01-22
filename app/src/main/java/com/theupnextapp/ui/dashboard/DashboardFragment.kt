@@ -8,12 +8,15 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import androidx.navigation.findNavController
+import com.google.android.material.composethemeadapter.MdcTheme
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentDashboardBinding
+import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.ui.common.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -27,12 +30,6 @@ class DashboardFragment : BaseFragment() {
     @Inject
     lateinit var firebaseAnalytics: FirebaseAnalytics
 
-    private var yesterdayShowsAdapter: YesterdayShowsAdapter? = null
-
-    private var todayShowsAdapter: TodayShowsAdapter? = null
-
-    private var tomorrowShowsAdapter: TomorrowShowsAdapter? = null
-
     private val viewModel by viewModels<DashboardViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,6 +37,7 @@ class DashboardFragment : BaseFragment() {
         setHasOptionsMenu(true)
     }
 
+    @OptIn(ExperimentalMaterialApi::class)
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -47,35 +45,28 @@ class DashboardFragment : BaseFragment() {
     ): View {
         _binding = FragmentDashboardBinding.inflate(inflater)
 
-        binding.lifecycleOwner = viewLifecycleOwner
+        binding.composeContainer.apply {
+            // Dispose of the Composition when the view's
+            // LifecycleOwner is destroyed
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                MdcTheme {
+                    DashboardScreen {
+                        val direction =
+                            DashboardFragmentDirections.actionDashboardFragmentToShowDetailFragment(
+                                ShowDetailArg(
+                                    source = "dashboard",
+                                    showId = it.id,
+                                    showTitle = it.name,
+                                    showImageUrl = it.originalImage,
+                                    showBackgroundUrl = it.mediumImage
+                                )
+                            )
 
-        binding.viewModel = viewModel
-
-        yesterdayShowsAdapter = YesterdayShowsAdapter()
-
-        todayShowsAdapter = TodayShowsAdapter()
-
-        tomorrowShowsAdapter = TomorrowShowsAdapter()
-
-        binding.root.findViewById<RecyclerView>(R.id.yesterday_shows_list).apply {
-            layoutManager = LinearLayoutManager(requireContext()).apply {
-                orientation = LinearLayoutManager.HORIZONTAL
+                        findNavController().navigate(direction)
+                    }
+                }
             }
-            adapter = yesterdayShowsAdapter
-        }
-
-        binding.root.findViewById<RecyclerView>(R.id.today_shows_list).apply {
-            layoutManager = LinearLayoutManager(requireContext()).apply {
-                orientation = LinearLayoutManager.HORIZONTAL
-            }
-            adapter = todayShowsAdapter
-        }
-
-        binding.root.findViewById<RecyclerView>(R.id.tomorrow_shows_list).apply {
-            layoutManager = LinearLayoutManager(requireContext()).apply {
-                orientation = LinearLayoutManager.HORIZONTAL
-            }
-            adapter = tomorrowShowsAdapter
         }
 
         return binding.root
@@ -83,36 +74,6 @@ class DashboardFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        viewModel.yesterdayShowsList.observe(
-            viewLifecycleOwner,
-            { yesterdayShows ->
-                yesterdayShows.apply {
-                    if (!yesterdayShows.isNullOrEmpty()) {
-                        yesterdayShowsAdapter?.submitList(yesterdayShows)
-                    }
-                }
-            })
-
-        viewModel.todayShowsList.observe(
-            viewLifecycleOwner,
-            { todayShows ->
-                todayShows.apply {
-                    if (!todayShows.isNullOrEmpty()) {
-                        todayShowsAdapter?.submitList(todayShows)
-                    }
-                }
-            })
-
-        viewModel.tomorrowShowsList.observe(
-            viewLifecycleOwner,
-            { tomorrowShows ->
-                tomorrowShows.apply {
-                    if (!tomorrowShows.isNullOrEmpty()) {
-                        tomorrowShowsAdapter?.submitList(tomorrowShows)
-                    }
-                }
-            })
 
         viewModel.yesterdayShowsTableUpdate.observe(viewLifecycleOwner, {
             viewModel.onYesterdayShowsTableUpdateReceived(it)
@@ -135,9 +96,6 @@ class DashboardFragment : BaseFragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        yesterdayShowsAdapter = null
-        todayShowsAdapter = null
-        tomorrowShowsAdapter = null
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
