@@ -39,29 +39,35 @@ fun DashboardScreen(
             modifier = Modifier.verticalScroll(scrollState)
         ) {
             yesterdayShowsList.value?.let { list ->
-                ShowsRow(
-                    list = list,
-                    rowTitle = stringResource(id = R.string.title_yesterday_shows)
-                ) {
-                    onShowClick(it)
+                if (list.isNotEmpty()) {
+                    ShowsRow(
+                        list = list,
+                        rowTitle = stringResource(id = R.string.title_yesterday_shows)
+                    ) {
+                        onShowClick(it)
+                    }
                 }
             }
 
             todayShowsList.value?.let { list ->
-                ShowsRow(
-                    list = list,
-                    rowTitle = stringResource(id = R.string.title_today_shows)
-                ) {
-                    onShowClick(it)
+                if (list.isNotEmpty()) {
+                    ShowsRow(
+                        list = list,
+                        rowTitle = stringResource(id = R.string.title_today_shows)
+                    ) {
+                        onShowClick(it)
+                    }
                 }
             }
 
             tomorrowShowsList.value?.let { list ->
-                ShowsRow(
-                    list = list,
-                    rowTitle = stringResource(id = R.string.title_tomorrow_shows)
-                ) {
-                    onShowClick(it)
+                if (list.isNotEmpty()) {
+                    ShowsRow(
+                        list = list,
+                        rowTitle = stringResource(id = R.string.title_tomorrow_shows)
+                    ) {
+                        onShowClick(it)
+                    }
                 }
             }
         }

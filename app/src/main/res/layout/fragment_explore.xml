@@ -12,56 +12,8 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <androidx.core.widget.NestedScrollView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <include
-                    android:id="@+id/explore_trending_shows_list"
-                    layout="@layout/layout_explore_trending_shows_list"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:visibility="visible"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:loadingVisibility="@{viewModel.isLoadingTraktTrending}"
-                    app:showHideView="@{!viewModel.trendingShowsEmpty}"
-                    app:viewModel="@{viewModel}" />
-
-                <include
-                    android:id="@+id/explore_popular_shows_list"
-                    layout="@layout/layout_explore_popular_shows_list"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/explore_trending_shows_list"
-                    app:loadingVisibility="@{viewModel.isLoadingTraktPopular}"
-                    app:showHideView="@{!viewModel.popularShowsEmpty}"
-                    app:viewModel="@{viewModel}" />
-
-                <include
-                    android:id="@+id/explore_most_anticipated_shows_list"
-                    layout="@layout/layout_explore_most_anticipated_shows_list"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/explore_popular_shows_list"
-                    app:loadingVisibility="@{viewModel.isLoadingTraktMostAnticipated}"
-                    app:showHideView="@{!viewModel.mostAnticipatedShowsEmpty}"
-                    app:viewModel="@{viewModel}" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-        </androidx.core.widget.NestedScrollView>
+        android:layout_height="match_parent"
+        android:transitionGroup="true">
 
         <com.google.android.material.progressindicator.LinearProgressIndicator
             android:id="@+id/explore_progress_indicator"
@@ -74,6 +26,14 @@
             app:layout_constraintTop_toTopOf="parent"
             app:showHideView="@{viewModel.isLoading}"
             tools:visibility="visible" />
+
+        <androidx.compose.ui.platform.ComposeView
+            android:id="@+id/compose_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

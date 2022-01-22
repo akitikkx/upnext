@@ -4,12 +4,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import androidx.navigation.findNavController
+import com.google.android.material.composethemeadapter.MdcTheme
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentExploreBinding
+import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.ui.common.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -23,17 +25,9 @@ class ExploreFragment : BaseFragment() {
     @Inject
     lateinit var firebaseAnalytics: FirebaseAnalytics
 
-    private var _trendingShowsAdapter: TrendingShowsAdapter? = null
-    private val trendingShowsAdapter get() = _trendingShowsAdapter!!
-
-    private var _popularShowsAdapter: PopularShowsAdapter? = null
-    private val popularShowsAdapter get() = _popularShowsAdapter!!
-
-    private var _mostAnticipatedShowsAdapter: MostAnticipatedShowsAdapter? = null
-    private val mostAnticipatedShowsAdapter get() = _mostAnticipatedShowsAdapter!!
-
     private val viewModel by viewModels<ExploreViewModel>()
 
+    @OptIn(ExperimentalMaterialApi::class)
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -45,31 +39,51 @@ class ExploreFragment : BaseFragment() {
 
         binding.viewModel = viewModel
 
-        _trendingShowsAdapter = TrendingShowsAdapter()
+        binding.composeContainer.apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                MdcTheme {
+                    ExploreScreen(
+                        onPopularShowClick = {
+                            val directions = ExploreFragmentDirections.actionExploreFragmentToShowDetailFragment(
+                                ShowDetailArg(
+                                    source = "popular",
+                                    showId = it.tvMazeID,
+                                    showTitle = it.title,
+                                    showImageUrl = it.originalImageUrl,
+                                    showBackgroundUrl = it.mediumImageUrl
+                                )
+                            )
+                            findNavController().navigate(directions)
+                        },
+                        onTrendingShowClick = {
+                            val directions = ExploreFragmentDirections.actionExploreFragmentToShowDetailFragment(
+                                ShowDetailArg(
+                                    source = "trending",
+                                    showId = it.tvMazeID,
+                                    showTitle = it.title,
+                                    showImageUrl = it.originalImageUrl,
+                                    showBackgroundUrl = it.mediumImageUrl
+                                )
+                            )
+                            findNavController().navigate(directions)
+                        },
+                        onMostAnticipatedShowClick = {
+                            val directions = ExploreFragmentDirections.actionExploreFragmentToShowDetailFragment(
+                                ShowDetailArg(
+                                    source = "most_anticipated",
+                                    showId = it.tvMazeID,
+                                    showTitle = it.title,
+                                    showImageUrl = it.originalImageUrl,
+                                    showBackgroundUrl = it.mediumImageUrl
+                                )
+                            )
+                            findNavController().navigate(directions)
+                        }
+                    )
+                }
 
-        _popularShowsAdapter = PopularShowsAdapter()
-
-        _mostAnticipatedShowsAdapter = MostAnticipatedShowsAdapter()
-
-        binding.root.findViewById<RecyclerView>(R.id.trending_shows_list).apply {
-            layoutManager = LinearLayoutManager(requireContext()).apply {
-                orientation = LinearLayoutManager.HORIZONTAL
             }
-            adapter = trendingShowsAdapter
-        }
-
-        binding.root.findViewById<RecyclerView>(R.id.popular_shows_list).apply {
-            layoutManager = LinearLayoutManager(requireContext()).apply {
-                orientation = LinearLayoutManager.HORIZONTAL
-            }
-            adapter = popularShowsAdapter
-        }
-
-        binding.root.findViewById<RecyclerView>(R.id.most_anticipated_shows_list).apply {
-            layoutManager = LinearLayoutManager(requireContext()).apply {
-                orientation = LinearLayoutManager.HORIZONTAL
-            }
-            adapter = mostAnticipatedShowsAdapter
         }
 
         return binding.root
@@ -89,31 +103,10 @@ class ExploreFragment : BaseFragment() {
         viewModel.mostAnticipatedShowsTableUpdate.observe(viewLifecycleOwner, {
             viewModel.onMostAnticipatedShowsTableUpdateReceived(it)
         })
-
-        viewModel.trendingShows.observe(viewLifecycleOwner, {
-            if (!it.isNullOrEmpty()) {
-                trendingShowsAdapter.submitList(it)
-            }
-        })
-
-        viewModel.popularShows.observe(viewLifecycleOwner, {
-            if (!it.isNullOrEmpty()) {
-                popularShowsAdapter.submitList(it)
-            }
-        })
-
-        viewModel.mostAnticipatedShows.observe(viewLifecycleOwner, {
-            if (!it.isNullOrEmpty()) {
-                mostAnticipatedShowsAdapter.submitList(it)
-            }
-        })
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        _trendingShowsAdapter = null
-        _popularShowsAdapter = null
-        _mostAnticipatedShowsAdapter = null
     }
 }
