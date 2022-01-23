@@ -12,50 +12,8 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
+        android:transitionGroup="true"
         android:layout_height="match_parent">
-
-        <androidx.core.widget.NestedScrollView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/textview_show_seasons_episodes_title"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/margin_horizontal_double"
-                    android:layout_marginTop="@dimen/margin_vertical"
-                    android:layout_marginEnd="@dimen/margin_horizontal_double"
-                    android:text="@string/show_detail_show_seasons_title"
-                    android:textAppearance="?attr/textAppearanceHeadline6"
-                    android:textStyle="bold"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:text="Seasons" />
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/season_episodes_list"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/margin_horizontal"
-                    android:layout_marginTop="@dimen/margin_vertical"
-                    android:layout_marginEnd="@dimen/margin_horizontal"
-                    android:layout_marginBottom="@dimen/margin_vertical"
-                    android:clipToPadding="false"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/textview_show_seasons_episodes_title"
-                    app:loadingVisibility="@{viewModel.isLoading}"
-                    tools:listitem="@layout/show_season_item" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-        </androidx.core.widget.NestedScrollView>
 
         <com.google.android.material.progressindicator.LinearProgressIndicator
             android:id="@+id/show_seasons_progress_indicator"
@@ -68,6 +26,14 @@
             app:layout_constraintTop_toTopOf="parent"
             app:showHideView="@{viewModel.isLoading}"
             tools:visibility="visible" />
+
+        <androidx.compose.ui.platform.ComposeView
+            android:id="@+id/compose_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

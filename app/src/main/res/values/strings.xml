@@ -65,7 +65,9 @@
 
     <!-- Show seasons -->
     <string name="show_detail_season_count">%1$d Episodes</string>
+    <string name="compose_show_detail_season_count">%1$s Episodes</string>
     <string name="show_detail_season_and_number">Season %1$d</string>
+    <string name="compose_show_detail_season_and_number">Season %1$s</string>
     <string name="show_detail_season_premiere_date">Premiered: %1$s</string>
     <string name="show_detail_season_end_date">Ended: %1$s</string>
     <string name="show_detail_episode_and_number">Episode %1$d</string>
