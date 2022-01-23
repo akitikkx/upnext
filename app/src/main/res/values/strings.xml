@@ -72,11 +72,13 @@
     <string name="show_detail_season_end_date">Ended: %1$s</string>
     <string name="show_detail_episode_and_number">Episode %1$d</string>
     <string name="show_detail_season_and_episode_number">Season %1$d Episode %2$d</string>
+    <string name="compose_show_detail_season_and_episode_number">Season %1$s Episode %2$s</string>
     <string name="show_detail_show_seasons_title">Seasons Summary</string>
 
     <!-- Show season episodes -->
     <string name="show_detail_show_season_episodes_title">Season episodes</string>
     <string name="show_detail_show_season_episodes_title_with_number">Season %1$d episodes</string>
+    <string name="compose_show_detail_show_season_episodes_title_with_number">Season %1$s episodes</string>
     <string name="show_detail_show_season_episode_trakt_check_in">Trakt Check-in</string>
     <string name="show_detail_show_season_episode_check_in_dialog_title">Check-in to Season %1$d Episode %2$d on Trakt?</string>
     <string name="show_detail_show_season_episode_check_in_dialog_message">Checking in means you are currently watching this episode right now. Trakt will automatically set the episode to watched status once the duration of the episode has lapsed.</string>

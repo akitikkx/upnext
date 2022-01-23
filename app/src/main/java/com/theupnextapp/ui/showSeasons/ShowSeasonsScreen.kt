@@ -98,24 +98,13 @@ fun ShowSeasonCard(
                     )
                 }
 
-                if (item.episodeCount.toString().isNotEmpty()) {
-                    Text(
-                        text = stringResource(
-                            R.string.compose_show_detail_season_count,
-                            item.episodeCount.toString()
-                        ),
-                        modifier = Modifier.padding(4.dp),
-                        style = MaterialTheme.typography.caption
-                    )
-                }
-
                 if (!item.premiereDate.isNullOrEmpty()) {
                     Text(
                         text = stringResource(
                             R.string.show_detail_season_premiere_date,
                             item.premiereDate
                         ),
-                        modifier = Modifier.padding(4.dp),
+                        modifier = Modifier.padding(2.dp),
                         style = MaterialTheme.typography.caption
                     )
                 }
@@ -126,7 +115,7 @@ fun ShowSeasonCard(
                             R.string.show_detail_season_end_date,
                             item.endDate
                         ),
-                        modifier = Modifier.padding(4.dp),
+                        modifier = Modifier.padding(2.dp),
                         style = MaterialTheme.typography.caption
                     )
                 }
@@ -136,7 +125,12 @@ fun ShowSeasonCard(
                         text = stringResource(
                             R.string.tv_maze_creative_commons_attribution_text_single
                         ),
-                        modifier = Modifier.padding(4.dp),
+                        modifier = Modifier.padding(
+                            start = 2.dp,
+                            top = 4.dp,
+                            bottom = 2.dp,
+                            end = 4.dp
+                        ),
                         style = MaterialTheme.typography.caption
                     )
                 }
