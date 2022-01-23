@@ -17,6 +17,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -46,7 +47,8 @@ import org.jsoup.Jsoup
 fun ShowDetailScreen(
     viewModel: ShowDetailViewModel = hiltViewModel(),
     onSeasonsClick: () -> Unit,
-    onCastItemClick: (item: ShowCast) -> Unit
+    onCastItemClick: (item: ShowCast) -> Unit,
+    onFavoriteClick: () -> Unit
 ) {
     val showSummary = viewModel.showSummary.observeAsState()
 
@@ -59,6 +61,10 @@ fun ShowDetailScreen(
     val showPreviousEpisode = viewModel.showPreviousEpisode.observeAsState()
 
     val showNextEpisode = viewModel.showNextEpisode.observeAsState()
+
+    val isAuthorizedOnTrakt = viewModel.isAuthorizedOnTrakt.observeAsState()
+
+    val isFavorite = viewModel.isFavoriteShow.observeAsState()
 
     val scrollState = rememberScrollState()
 
@@ -92,9 +98,12 @@ fun ShowDetailScreen(
                 )
             }
 
-            Buttons {
-                onSeasonsClick()
-            }
+            Buttons(
+                isAuthorizedOnTrakt = isAuthorizedOnTrakt.value,
+                isFavorite = isFavorite.value,
+                onSeasonsClick = { onSeasonsClick() },
+                onFavoriteClick = { onFavoriteClick() }
+            )
 
             showCast.value?.let {
                 if (it.isNotEmpty()) {
@@ -228,7 +237,10 @@ fun PosterAndMetadata(showSummary: ShowDetailSummary?) {
 
 @Composable
 fun Buttons(
-    onSeasonsClick: () -> Unit
+    isAuthorizedOnTrakt: Boolean?,
+    isFavorite: Boolean?,
+    onSeasonsClick: () -> Unit,
+    onFavoriteClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -245,13 +257,40 @@ fun Buttons(
             )
         }
 
-        Button(
-            onClick = {},
-            modifier = Modifier.padding(4.dp)
+        TraktFavoriteButton(
+            isAuthorizedOnTrakt = isAuthorizedOnTrakt,
+            isFavorite = isFavorite
         ) {
-            Text(
-                text = stringResource(id = R.string.btn_show_detail_remove_from_favorites)
-            )
+            onFavoriteClick()
+        }
+    }
+}
+
+@Composable
+fun TraktFavoriteButton(
+    isAuthorizedOnTrakt: Boolean?,
+    isFavorite: Boolean?,
+    onFavoriteClick: () -> Unit
+) {
+    if (isAuthorizedOnTrakt == true) {
+        if (isFavorite == true) {
+            OutlinedButton(
+                onClick = { onFavoriteClick() },
+                modifier = Modifier.padding(4.dp)
+            ) {
+                Text(
+                    text = stringResource(id = R.string.btn_show_detail_remove_from_favorites)
+                )
+            }
+        } else {
+            Button(
+                onClick = { onFavoriteClick() },
+                modifier = Modifier.padding(4.dp)
+            ) {
+                Text(
+                    text = stringResource(id = R.string.btn_show_detail_add_to_favorites)
+                )
+            }
         }
     }
 }

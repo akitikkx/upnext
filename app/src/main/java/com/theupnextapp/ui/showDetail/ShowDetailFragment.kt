@@ -73,6 +73,9 @@ class ShowDetailFragment : BaseFragment() {
                         },
                         onCastItemClick = {
                             viewModel.onShowCastItemClicked(it)
+                        },
+                        onFavoriteClick = {
+                            viewModel.onAddRemoveFavoriteClick()
                         }
                     )
                 }
