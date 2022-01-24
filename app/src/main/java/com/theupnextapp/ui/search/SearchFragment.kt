@@ -5,27 +5,24 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.SearchView.OnQueryTextListener
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import androidx.navigation.findNavController
+import com.google.android.material.composethemeadapter.MdcTheme
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.theupnextapp.MainActivity
-import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentSearchBinding
 import com.theupnextapp.ui.common.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class SearchFragment : BaseFragment(),
-    OnQueryTextListener {
+class SearchFragment : BaseFragment() {
 
     private var _binding: FragmentSearchBinding? = null
     private val binding get() = _binding!!
-
-    private var _searchAdapter: SearchAdapter? = null
-    private val searchAdapter get() = _searchAdapter!!
 
     @Inject
     lateinit var firebaseAnalytics: FirebaseAnalytics
@@ -37,6 +34,7 @@ class SearchFragment : BaseFragment(),
         setHasOptionsMenu(true)
     }
 
+    @OptIn(ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class)
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -48,45 +46,16 @@ class SearchFragment : BaseFragment(),
 
         binding.viewModel = viewModel
 
-        binding.search.setIconifiedByDefault(true)
-        binding.search.isFocusable = true
-        binding.search.isIconified = false
-        binding.search.requestFocusFromTouch()
-        binding.search.queryHint = "Start typing the show name here..."
-        binding.search.setOnQueryTextListener(this)
-
-        _searchAdapter = SearchAdapter()
-
-        binding.root.findViewById<RecyclerView>(R.id.search_list).apply {
-            layoutManager = LinearLayoutManager(context).apply {
-                orientation = LinearLayoutManager.VERTICAL
+        binding.composeContainer.apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                MdcTheme {
+                    SearchScreen(navController = findNavController())
+                }
             }
-            adapter = searchAdapter
         }
 
         return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        viewModel.isLoading.observe(viewLifecycleOwner, {
-            binding.isLoading = it
-        })
-
-        viewModel.searchResponse.observe(viewLifecycleOwner, {
-            searchAdapter.submitList(it)
-        })
-    }
-
-    override fun onQueryTextSubmit(query: String?): Boolean {
-        viewModel.onQueryTextSubmit(query)
-        return true
-    }
-
-    override fun onQueryTextChange(newText: String?): Boolean {
-        viewModel.onQueryTextChange(newText)
-        return true
     }
 
     override fun onResume() {
@@ -97,7 +66,6 @@ class SearchFragment : BaseFragment(),
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        _searchAdapter = null
         (activity as MainActivity).hideKeyboard()
     }
 }

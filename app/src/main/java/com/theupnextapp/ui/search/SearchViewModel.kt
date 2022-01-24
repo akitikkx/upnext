@@ -29,10 +29,6 @@ class SearchViewModel @Inject constructor(
         handleQuery(query)
     }
 
-    fun onQueryTextChange(newText: String?) {
-        handleQuery(newText)
-    }
-
     private fun handleQuery(query: String?) {
         viewModelScope.launch {
             searchRepository.getShowSearchResults(query).collect { result ->
