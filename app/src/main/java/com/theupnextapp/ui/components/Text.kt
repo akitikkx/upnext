@@ -45,18 +45,18 @@ fun PosterTitleTextItem(title: String) {
 
 @Composable
 fun SectionHeadingText(
+    modifier: Modifier = Modifier,
     text: String
 ) {
     Text(
         text = text,
-        modifier = Modifier
+        modifier = modifier
             .padding(
                 start = 16.dp,
                 top = 4.dp,
                 end = 16.dp,
                 bottom = 4.dp
-            )
-            .fillMaxWidth(),
+            ),
         style = MaterialTheme.typography.h5,
         fontWeight = FontWeight.Bold
     )
@@ -65,5 +65,5 @@ fun SectionHeadingText(
 @Preview
 @Composable
 fun SectionHeadingTextPreview() {
-    SectionHeadingText("Test Heading")
+    SectionHeadingText(text = "Test Heading")
 }

@@ -36,7 +36,9 @@ class ShowSeasonsViewModel constructor(
                 showDetailRepository.getShowSeasons(it).collect { result ->
                     when (result) {
                         is Result.Success -> {
-                            _showSeasons.value = result.data
+                            _showSeasons.value = result.data.filter { showSeason ->
+                                !showSeason.premiereDate.isNullOrEmpty()
+                            }
                         }
                         is Result.Loading -> {
                             _isLoading.value = result.status

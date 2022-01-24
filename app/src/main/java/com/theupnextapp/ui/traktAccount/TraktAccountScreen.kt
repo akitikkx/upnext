@@ -2,6 +2,7 @@ package com.theupnextapp.ui.traktAccount
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
@@ -29,10 +30,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.theupnextapp.R
 import com.theupnextapp.domain.TraktUserListItem
+import com.theupnextapp.ui.components.SectionHeadingText
 import com.theupnextapp.ui.widgets.ListPosterCard
 
 @ExperimentalFoundationApi
@@ -40,7 +43,9 @@ import com.theupnextapp.ui.widgets.ListPosterCard
 @Composable
 fun TraktAccountScreen(
     viewModel: TraktAccountViewModel = hiltViewModel(),
-    onConnectToTraktClick: () -> Unit
+    onConnectToTraktClick: () -> Unit,
+    onFavoriteClick: (item: TraktUserListItem) -> Unit,
+    onLogoutClick: () -> Unit
 ) {
     val scrollState = rememberScrollState()
 
@@ -54,8 +59,18 @@ fun TraktAccountScreen(
             .scrollable(scrollState, orientation = Orientation.Vertical)
     ) {
         if (isAuthorizedOnTrakt.value == true) {
-            favoriteShowsList.value?.let {
-                FavoritesList(favoriteShows = it)
+            favoriteShowsList.value?.let { list ->
+                if (list.isEmpty()) {
+                    EmptyFavoritesList()
+                } else {
+                    FavoritesList(
+                        favoriteShows = list,
+                        onFavoriteClick = { favoriteShow ->
+                            onFavoriteClick(favoriteShow)
+                        },
+                        onLogoutClick = { onLogoutClick() }
+                    )
+                }
             }
         } else {
             ConnectToTrakt {
@@ -101,7 +116,11 @@ fun ConnectToTrakt(
 @ExperimentalMaterialApi
 @ExperimentalFoundationApi
 @Composable
-fun FavoritesList(favoriteShows: List<TraktUserListItem>) {
+fun FavoritesList(
+    favoriteShows: List<TraktUserListItem>,
+    onLogoutClick: () -> Unit,
+    onFavoriteClick: (item: TraktUserListItem) -> Unit
+) {
     val traktLogo: Painter = painterResource(id = R.drawable.ic_trakt_wide_red_white)
     Column(
         verticalArrangement = Arrangement.Top,
@@ -119,20 +138,50 @@ fun FavoritesList(favoriteShows: List<TraktUserListItem>) {
             text = stringResource(id = R.string.trakt_connection_status_disconnect),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(4.dp),
+                .padding(4.dp)
+                .clickable { onLogoutClick() },
             textAlign = TextAlign.Center,
             fontWeight = FontWeight.Bold,
-            style = MaterialTheme.typography.body1
+            style = MaterialTheme.typography.body2
         )
+
+        SectionHeadingText(
+            modifier = Modifier
+                .padding(top = 8.dp, bottom = 8.dp)
+                .align(Alignment.CenterHorizontally),
+            text = stringResource(id = R.string.title_favorites_list),
+        )
+
         LazyVerticalGrid(cells = GridCells.Fixed(3)) {
             items(favoriteShows) { favoriteShow ->
                 ListPosterCard(
                     itemName = favoriteShow.title,
                     itemUrl = favoriteShow.originalImageUrl
                 ) {
+                    onFavoriteClick(favoriteShow)
 
                 }
             }
         }
     }
+}
+
+@Composable
+fun EmptyFavoritesList() {
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(8.dp)
+    ) {
+        Text(
+            text = stringResource(id = R.string.trakt_account_favorites_empty),
+            style = MaterialTheme.typography.body2
+        )
+    }
+}
+
+@Preview
+@Composable
+fun EmptyStateFavoritesListPreview() {
+    EmptyFavoritesList()
 }

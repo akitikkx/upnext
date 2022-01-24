@@ -16,18 +16,15 @@ import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentTraktAccountBinding
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.TraktConnectionArg
-import com.theupnextapp.domain.TraktUserListItem
 import com.theupnextapp.ui.common.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class TraktAccountFragment : BaseFragment(), FavoritesAdapter.FavoritesAdapterListener {
+class TraktAccountFragment : BaseFragment() {
 
     private var _binding: FragmentTraktAccountBinding? = null
     val binding get() = _binding!!
-
-    private var favoritesAdapter: FavoritesAdapter? = null
 
     @Inject
     lateinit var traktAccountViewModelFactory: TraktAccountViewModel.TraktAccountViewModelFactory
@@ -54,6 +51,22 @@ class TraktAccountFragment : BaseFragment(), FavoritesAdapter.FavoritesAdapterLi
                     TraktAccountScreen(
                         onConnectToTraktClick = {
                             viewModel.onConnectToTraktClick()
+                        },
+                        onLogoutClick = {
+                            viewModel.onDisconnectFromTraktClick()
+                        },
+                        onFavoriteClick = {
+                            val directions =
+                                TraktAccountFragmentDirections.actionTraktAccountFragmentToShowDetailFragment(
+                                    ShowDetailArg(
+                                        source = "favorites",
+                                        showId = it.tvMazeID,
+                                        showTitle = it.title,
+                                        showImageUrl = it.originalImageUrl,
+                                        showBackgroundUrl = it.mediumImageUrl
+                                    )
+                                )
+                            findNavController().navigate(directions)
                         })
                 }
             }
@@ -94,29 +107,10 @@ class TraktAccountFragment : BaseFragment(), FavoritesAdapter.FavoritesAdapterLi
                 viewModel.onDisconnectFromTraktConfirmed()
             }
         })
-
-        viewModel.favoriteShows.observe(viewLifecycleOwner, {
-            favoritesAdapter?.submitFavoriteShowsList(it)
-        })
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        favoritesAdapter = null
-    }
-
-    override fun onFavoriteItemClick(view: View, favoriteShows: TraktUserListItem) {
-        val directions =
-            TraktAccountFragmentDirections.actionTraktAccountFragmentToShowDetailFragment(
-                ShowDetailArg(
-                    source = "most_anticipated",
-                    showId = favoriteShows.tvMazeID,
-                    showTitle = favoriteShows.title,
-                    showImageUrl = favoriteShows.originalImageUrl,
-                    showBackgroundUrl = favoriteShows.mediumImageUrl
-                )
-            )
-        findNavController().navigate(directions, getShowDetailNavigatorExtras(view))
     }
 }

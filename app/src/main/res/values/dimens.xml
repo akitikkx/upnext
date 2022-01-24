@@ -36,7 +36,7 @@
     <dimen name="show_season_episode_poster_height">160dp</dimen>
 
     <!-- Trakt Account -->
-    <dimen name="trakt_account_authorized_logo_height">30dp</dimen>
+    <dimen name="trakt_account_authorized_logo_height">50dp</dimen>
     <dimen name="trakt_account_not_authorized_logo_height">50dp</dimen>
 
     <!-- Cast Bottomsheet -->
