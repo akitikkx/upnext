@@ -1,5 +1,6 @@
 package com.theupnextapp.ui.traktAccount
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
@@ -9,8 +10,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.GridCells
+import androidx.compose.foundation.lazy.LazyVerticalGrid
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.Button
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -21,11 +27,16 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.theupnextapp.R
+import com.theupnextapp.domain.TraktUserListItem
+import com.theupnextapp.ui.widgets.ListPosterCard
 
+@ExperimentalFoundationApi
+@ExperimentalMaterialApi
 @Composable
 fun TraktAccountScreen(
     viewModel: TraktAccountViewModel = hiltViewModel(),
@@ -35,13 +46,17 @@ fun TraktAccountScreen(
 
     val isAuthorizedOnTrakt = viewModel.isAuthorizedOnTrakt.observeAsState()
 
+    val favoriteShowsList = viewModel.favoriteShows.observeAsState()
+
     Surface(
         modifier = Modifier
             .fillMaxSize()
             .scrollable(scrollState, orientation = Orientation.Vertical)
     ) {
         if (isAuthorizedOnTrakt.value == true) {
-            FavoritesList()
+            favoriteShowsList.value?.let {
+                FavoritesList(favoriteShows = it)
+            }
         } else {
             ConnectToTrakt {
                 onConnectToTraktClick()
@@ -83,7 +98,41 @@ fun ConnectToTrakt(
     }
 }
 
+@ExperimentalMaterialApi
+@ExperimentalFoundationApi
 @Composable
-fun FavoritesList() {
+fun FavoritesList(favoriteShows: List<TraktUserListItem>) {
+    val traktLogo: Painter = painterResource(id = R.drawable.ic_trakt_wide_red_white)
+    Column(
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(8.dp)
+    ) {
+        Image(
+            painter = traktLogo,
+            contentDescription = stringResource(id = R.string.trakt_logo_description),
+            modifier = Modifier
+                .height(dimensionResource(id = R.dimen.trakt_account_authorized_logo_height))
+                .fillMaxWidth()
+        )
+        Text(
+            text = stringResource(id = R.string.trakt_connection_status_disconnect),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(4.dp),
+            textAlign = TextAlign.Center,
+            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.body1
+        )
+        LazyVerticalGrid(cells = GridCells.Fixed(3)) {
+            items(favoriteShows) { favoriteShow ->
+                ListPosterCard(
+                    itemName = favoriteShow.title,
+                    itemUrl = favoriteShow.originalImageUrl
+                ) {
 
+                }
+            }
+        }
+    }
 }
