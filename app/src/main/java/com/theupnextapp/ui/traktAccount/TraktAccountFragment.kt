@@ -4,12 +4,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.google.android.flexbox.FlexDirection
-import com.google.android.flexbox.FlexboxLayoutManager
-import com.google.android.flexbox.JustifyContent
+import com.google.android.material.composethemeadapter.MdcTheme
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
@@ -19,7 +17,6 @@ import com.theupnextapp.domain.TraktConnectionArg
 import com.theupnextapp.domain.TraktUserListItem
 import com.theupnextapp.ui.common.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -47,13 +44,16 @@ class TraktAccountFragment : BaseFragment(), FavoritesAdapter.FavoritesAdapterLi
 
         binding.viewModel = viewModel
 
-        favoritesAdapter = FavoritesAdapter(this)
-        binding.layoutAuthorized.recyclerviewFavorites.apply {
-            layoutManager = FlexboxLayoutManager(requireContext()).apply {
-                flexDirection = FlexDirection.ROW
-                justifyContent = JustifyContent.FLEX_START
+        binding.composeContainer.apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                MdcTheme {
+                    TraktAccountScreen(
+                        onConnectToTraktClick = {
+                            viewModel.onConnectToTraktClick()
+                        })
+                }
             }
-            adapter = favoritesAdapter
         }
 
         if (arguments?.getParcelable<TraktConnectionArg>(MainActivity.EXTRA_TRAKT_URI) != null) {
