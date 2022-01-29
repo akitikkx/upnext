@@ -1,5 +1,6 @@
 package com.theupnextapp.ui.dashboard
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -42,44 +43,49 @@ fun DashboardScreen(
         Column(
             modifier = Modifier.verticalScroll(scrollState)
         ) {
-            if (isLoading.value == true) {
-                LinearProgressIndicator(
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .fillMaxWidth()
-                )
-            }
+            Box(modifier = Modifier.fillMaxSize()) {
 
-            yesterdayShowsList.value?.let { list ->
-                if (list.isNotEmpty()) {
-                    ShowsRow(
-                        list = list,
-                        rowTitle = stringResource(id = R.string.title_yesterday_shows)
-                    ) {
-                        onShowClick(it)
+                Column(modifier = Modifier.padding(top = 8.dp)) {
+                    yesterdayShowsList.value?.let { list ->
+                        if (list.isNotEmpty()) {
+                            ShowsRow(
+                                list = list,
+                                rowTitle = stringResource(id = R.string.title_yesterday_shows)
+                            ) {
+                                onShowClick(it)
+                            }
+                        }
+                    }
+
+                    todayShowsList.value?.let { list ->
+                        if (list.isNotEmpty()) {
+                            ShowsRow(
+                                list = list,
+                                rowTitle = stringResource(id = R.string.title_today_shows)
+                            ) {
+                                onShowClick(it)
+                            }
+                        }
+                    }
+
+                    tomorrowShowsList.value?.let { list ->
+                        if (list.isNotEmpty()) {
+                            ShowsRow(
+                                list = list,
+                                rowTitle = stringResource(id = R.string.title_tomorrow_shows)
+                            ) {
+                                onShowClick(it)
+                            }
+                        }
                     }
                 }
-            }
 
-            todayShowsList.value?.let { list ->
-                if (list.isNotEmpty()) {
-                    ShowsRow(
-                        list = list,
-                        rowTitle = stringResource(id = R.string.title_today_shows)
-                    ) {
-                        onShowClick(it)
-                    }
-                }
-            }
-
-            tomorrowShowsList.value?.let { list ->
-                if (list.isNotEmpty()) {
-                    ShowsRow(
-                        list = list,
-                        rowTitle = stringResource(id = R.string.title_tomorrow_shows)
-                    ) {
-                        onShowClick(it)
-                    }
+                if (isLoading.value == true) {
+                    LinearProgressIndicator(
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .fillMaxWidth()
+                    )
                 }
             }
         }
