@@ -1,13 +1,16 @@
 package com.theupnextapp.ui.explore
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
@@ -36,44 +39,61 @@ fun ExploreScreen(
 
     val mostAnticipatedShowsList = viewModel.mostAnticipatedShows.observeAsState()
 
+    val isLoading = viewModel.isLoading.observeAsState()
+
     val scrollState = rememberScrollState()
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier.verticalScroll(scrollState)
         ) {
-            trendingShowsList.value?.let { list ->
-                if (list.isNotEmpty())
-                    TrendingShowsRow(
-                        list = list,
-                        rowTitle = stringResource(id = R.string.explore_trending_shows_list_title)
-                    ) {
-                        onTrendingShowClick(it)
+            Box(modifier = Modifier.fillMaxSize()) {
+
+                Column(modifier = Modifier.padding(top = 8.dp)) {
+                    trendingShowsList.value?.let { list ->
+                        if (list.isNotEmpty())
+                            TrendingShowsRow(
+                                list = list,
+                                rowTitle = stringResource(id = R.string.explore_trending_shows_list_title)
+                            ) {
+                                onTrendingShowClick(it)
+                            }
                     }
+
+                    popularShowsList.value?.let { list ->
+                        if (list.isNotEmpty())
+                            PopularShowsRow(
+                                list = list,
+                                rowTitle = stringResource(id = R.string.explore_popular_shows_list_title)
+                            ) {
+                                onPopularShowClick(it)
+                            }
+                    }
+
+                    mostAnticipatedShowsList.value?.let { list ->
+                        if (list.isNotEmpty())
+                            MostAnticipatedShowsRow(
+                                list = list,
+                                rowTitle = stringResource(id = R.string.explore_most_anticipated_shows_list_title)
+                            ) {
+                                onMostAnticipatedShowClick(it)
+                            }
+                    }
+
+                }
+
+                if (isLoading.value == true) {
+                    LinearProgressIndicator(
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .fillMaxWidth()
+                    )
+                }
             }
 
-            popularShowsList.value?.let { list ->
-                if (list.isNotEmpty())
-                    PopularShowsRow(
-                        list = list,
-                        rowTitle = stringResource(id = R.string.explore_popular_shows_list_title)
-                    ) {
-                        onPopularShowClick(it)
-                    }
-            }
 
-            mostAnticipatedShowsList.value?.let { list ->
-                if (list.isNotEmpty())
-                    MostAnticipatedShowsRow(
-                        list = list,
-                        rowTitle = stringResource(id = R.string.explore_most_anticipated_shows_list_title)
-                    ) {
-                        onMostAnticipatedShowClick(it)
-                    }
-            }
         }
     }
-
 }
 
 @ExperimentalMaterialApi

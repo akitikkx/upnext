@@ -2,12 +2,14 @@ package com.theupnextapp.ui.dashboard
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
@@ -34,10 +36,20 @@ fun DashboardScreen(
 
     val scrollState = rememberScrollState()
 
+    val isLoading = viewModel.isLoading.observeAsState()
+
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier.verticalScroll(scrollState)
         ) {
+            if (isLoading.value == true) {
+                LinearProgressIndicator(
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .fillMaxWidth()
+                )
+            }
+
             yesterdayShowsList.value?.let { list ->
                 if (list.isNotEmpty()) {
                     ShowsRow(

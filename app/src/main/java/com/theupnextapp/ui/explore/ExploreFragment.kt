@@ -37,8 +37,6 @@ class ExploreFragment : BaseFragment() {
 
         binding.lifecycleOwner = viewLifecycleOwner
 
-        binding.viewModel = viewModel
-
         binding.composeContainer.apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {

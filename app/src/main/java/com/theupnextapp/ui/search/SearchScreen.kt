@@ -1,5 +1,6 @@
 package com.theupnextapp.ui.search
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -36,29 +38,43 @@ fun SearchScreen(
 ) {
     val searchResultsList = viewModel.searchResponse.observeAsState()
 
+    val isLoading = viewModel.isLoading.observeAsState()
+
     Surface {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(8.dp)
         ) {
-            SearchForm {
-                viewModel.onQueryTextSubmit(it)
-            }
+            Box(modifier = Modifier.fillMaxSize()) {
+                Column(modifier = Modifier.padding(top = 8.dp)) {
+                    SearchForm {
+                        viewModel.onQueryTextSubmit(it)
+                    }
 
-            searchResultsList.value?.let { results ->
-                SearchResultsList(list = results) {
-                    val directions =
-                        SearchFragmentDirections.actionSearchFragmentToShowDetailFragment(
-                            ShowDetailArg(
-                                source = "search",
-                                showId = it.id,
-                                showTitle = it.name,
-                                showImageUrl = it.originalImageUrl,
-                                showBackgroundUrl = it.mediumImageUrl
-                            )
-                        )
-                    navController.navigate(directions)
+                    searchResultsList.value?.let { results ->
+                        SearchResultsList(list = results) {
+                            val directions =
+                                SearchFragmentDirections.actionSearchFragmentToShowDetailFragment(
+                                    ShowDetailArg(
+                                        source = "search",
+                                        showId = it.id,
+                                        showTitle = it.name,
+                                        showImageUrl = it.originalImageUrl,
+                                        showBackgroundUrl = it.mediumImageUrl
+                                    )
+                                )
+                            navController.navigate(directions)
+                        }
+                    }
+                }
+
+                if (isLoading.value == true) {
+                    LinearProgressIndicator(
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .fillMaxWidth()
+                    )
                 }
             }
         }
