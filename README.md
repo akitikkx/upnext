@@ -19,14 +19,81 @@ The app is currently on the Google Play Store https://play.google.com/store/apps
 ### Favorites
 Now you can add a show as a favorite, which will be synced to your Trakt account. All your favorites will be displayed on the Account screen when your Trakt account is connected. You will require a Trakt.tv account first before you can connect it on Upnext: TV Series Manager.
 
+<img src="https://github.com/akitikkx/upnext/blob/main/screenshots/upnext_pre_compose.gif" />
+
 ## Pre-requisites
-Please obtain an API key from https://trakt.tv/ before launching the application. You will
-need to place this key in local.properties as follows:
+
+- Ensure that you add your `google-services.json` file to be saved in the app/ directory
+
+- Please obtain an API key from https://trakt.tv/ in order for the Trakt functionality to work. You will
+need to place this key in `local.properties` as follows:
 
 ```
 TraktClientID="[your Trakt Client ID key goes here]"
+
 TraktClientSecret="[your Trakt Client Secret key goes here]"
+
 TraktRedirectURI="[your Trakt redirect URI goes here]"
+
+In your Trakt account dashboard https://trakt.tv/oauth/applications: 
+
+- Add your new application
+- Once created and on the application view in Trakt e.g https://trakt.tv/oauth/applications/<id> you will
+  find your Client ID and Client Secret
+- When the user navigates to the Account screen while not logged in they will have the option to authorize
+  Upnext: TV Series Manager on their Trakt account. Once they click on the "Connect to Trakt" button in the app,
+  they will be redirected via Chrome Custom Tabs or Webview using OAuth. A callback URL is required by Trakt for when the
+  user has authorized Upnext. If you want to define your own, just make sure that the <data> tag in AndroidManifest.xml
+  for MainActivity is updated to reflect your chosen callback URL.
+  
+  It is currently defined as the following in AndroidManifest.xml:
+   - host = 'callback'
+   - scheme = 'theupnextapp'
+   
+  If you want to use the above as the callback, then in Trakt use "theupnextapp://callback" as your callback URL
+```
+
+## Architecture
+
+`Upnext: TV Series Manager` is an MVVM app built using Kotlin and the following libraries:
+
+- ViewModel, LiveData, Kotlin Flow
+- Jetpack Navigation
+- Jetpack Datastore
+- Room
+- Hilt
+- Data Binding
+- Chrome Custom Tabs
+- Glide
+- Firebase Analytics
+- Firebase Crashlytics
+- Firebase Core
+- Firebase Performance Monitoring
+- Jsoup
+- Kotlin Coroutines
+- AndroidX Lifecycle
+- Gson
+- Leak Canary
+- Flexbox
+- Retrofit
+- OkHttp
+- Moshi
+
+## Code and directory structure
+```
+> bindings
+> common  
+> database
+> di
+> domain
+> extensions
+> network
+> repository
+> ui
+> work
+|_ MainActivity.kt
+|_ UpnextApplication.kt
+
 ```
 
 ## MAD Score
