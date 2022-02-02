@@ -40,34 +40,30 @@ fun SearchScreen(
 
     val isLoading = viewModel.isLoading.observeAsState()
 
-    Surface {
+    Surface(modifier = Modifier.fillMaxSize()) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(8.dp)
+            modifier = Modifier.padding(8.dp)
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
-                Column(modifier = Modifier.padding(top = 8.dp)) {
-                    SearchForm {
+                SearchArea(
+                    searchResultsList = searchResultsList.value,
+                    onResultClick = {
+                        val directions =
+                            SearchFragmentDirections.actionSearchFragmentToShowDetailFragment(
+                                ShowDetailArg(
+                                    source = "search",
+                                    showId = it.id,
+                                    showTitle = it.name,
+                                    showImageUrl = it.originalImageUrl,
+                                    showBackgroundUrl = it.mediumImageUrl
+                                )
+                            )
+                        navController.navigate(directions)
+                    },
+                    onTextSubmit = {
                         viewModel.onQueryTextSubmit(it)
                     }
-
-                    searchResultsList.value?.let { results ->
-                        SearchResultsList(list = results) {
-                            val directions =
-                                SearchFragmentDirections.actionSearchFragmentToShowDetailFragment(
-                                    ShowDetailArg(
-                                        source = "search",
-                                        showId = it.id,
-                                        showTitle = it.name,
-                                        showImageUrl = it.originalImageUrl,
-                                        showBackgroundUrl = it.mediumImageUrl
-                                    )
-                                )
-                            navController.navigate(directions)
-                        }
-                    }
-                }
+                )
 
                 if (isLoading.value == true) {
                     LinearProgressIndicator(
@@ -81,6 +77,26 @@ fun SearchScreen(
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterialApi::class)
+@Composable
+fun SearchArea(
+    searchResultsList: List<ShowSearch>?,
+    onTextSubmit: (query: String) -> Unit,
+    onResultClick: (item: ShowSearch) -> Unit
+) {
+    Column(modifier = Modifier.padding(top = 8.dp)) {
+        SearchForm {
+            onTextSubmit(it)
+        }
+
+        searchResultsList?.let { results ->
+            SearchResultsList(list = results) {
+                onResultClick(it)
+            }
+        }
+    }
+}
+
 @ExperimentalComposeUiApi
 @Composable
 fun SearchForm(
@@ -88,17 +104,13 @@ fun SearchForm(
 ) {
     val searchQueryState = rememberSaveable { mutableStateOf("") }
 
-    val keyboardController = LocalSoftwareKeyboardController.current
-
     SearchInputField(
         inputLabel = stringResource(id = R.string.search_input_hint),
         valueState = searchQueryState,
         onValueChange = {
             onSearch(searchQueryState.value.trim())
-            keyboardController?.hide()
         }
     )
-
 }
 
 @Composable

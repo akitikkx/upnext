@@ -98,7 +98,7 @@ fun ShowDetailScreen(
                 )
             }
 
-            Buttons(
+            ShowDetailButtons(
                 isAuthorizedOnTrakt = isAuthorizedOnTrakt.value,
                 isFavorite = isFavorite.value,
                 onSeasonsClick = { onSeasonsClick() },
@@ -236,7 +236,7 @@ fun PosterAndMetadata(showSummary: ShowDetailSummary?) {
 }
 
 @Composable
-fun Buttons(
+fun ShowDetailButtons(
     isAuthorizedOnTrakt: Boolean?,
     isFavorite: Boolean?,
     onSeasonsClick: () -> Unit,

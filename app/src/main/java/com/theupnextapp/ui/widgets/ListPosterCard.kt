@@ -33,7 +33,8 @@ fun ListPosterCard(
         Column(modifier = Modifier.width(dimensionResource(id = R.dimen.compose_poster_frame_width))) {
             itemUrl?.let {
                 PosterImage(
-                    url = it, modifier = Modifier
+                    url = it,
+                    modifier = Modifier
                         .fillMaxWidth()
                         .height(dimensionResource(id = R.dimen.compose_shows_list_poster_height))
                 )
