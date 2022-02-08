@@ -2,7 +2,7 @@
 
 buildscript {
     ext {
-        androidx_preference_version = "1.1.1"
+        androidx_preference_version = "1.2.0"
 
         appcompat_version = "1.4.1"
 
@@ -34,11 +34,11 @@ buildscript {
 
         hilt_navigation_version = "1.0.0"
         hilt_work_version = "1.0.0"
-        hilt_version = "2.38.1"
+        hilt_version = "2.40.1"
 
         firebase_analytics_version = "20.0.2"
         firebase_core_version = "20.0.2"
-        firebase_crashlytics_version = "18.2.6"
+        firebase_crashlytics_version = "18.2.7"
         firebase_performance_monitoring_version = "20.0.4"
 
         jsoup_version = '1.14.2'
@@ -50,11 +50,11 @@ buildscript {
 
         lifecycle_version = "2.4.0"
 
-        material_version = "1.6.0-alpha01"
+        material_version = "1.6.0-alpha02"
 
         moshi_version = '1.12.0'
         
-        navigation_version = "2.3.5"
+        navigation_version = "2.5.0-alpha01"
 
         okhttp_version = '5.0.0-alpha.2'
         okhttp_logging_interceptor_version = '5.0.0-alpha.2'
@@ -77,12 +77,12 @@ buildscript {
 
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.4'
+        classpath 'com.android.tools.build:gradle:7.1.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$navigation_version"
         classpath "com.google.gms:google-services:$google_services"
         classpath 'com.google.firebase:firebase-crashlytics-gradle:2.8.1'
-        classpath 'com.google.firebase:perf-plugin:1.4.0'
+        classpath 'com.google.firebase:perf-plugin:1.4.1'
         classpath "com.google.dagger:hilt-android-gradle-plugin:$hilt_version"
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files

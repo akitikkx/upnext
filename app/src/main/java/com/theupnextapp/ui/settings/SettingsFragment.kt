@@ -21,7 +21,7 @@ class SettingsFragment : PreferenceFragmentCompat(),
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
-        preferenceScreen.sharedPreferences.registerOnSharedPreferenceChangeListener(this)
+        preferenceScreen.sharedPreferences?.registerOnSharedPreferenceChangeListener(this)
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {
@@ -42,7 +42,7 @@ class SettingsFragment : PreferenceFragmentCompat(),
     }
 
     override fun onDestroy() {
-        preferenceScreen.sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
+        preferenceScreen.sharedPreferences?.unregisterOnSharedPreferenceChangeListener(this)
         super.onDestroy()
     }
 
