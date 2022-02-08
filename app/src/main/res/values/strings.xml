@@ -86,6 +86,7 @@
     <string name="splash_screen_loading_text_recommended_shows">Fetching recommended shows…</string>
 
     <!-- Search -->
+    <string name="search_input_hint">Search for the show</string>
     <string name="search_title">Search</string>
     <string name="search_item_not_ended">%1$s (%2$s - )</string>
     <string name="search_item_ended">%1$s (%2$s)</string>
