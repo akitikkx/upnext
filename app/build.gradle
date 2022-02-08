@@ -52,8 +52,9 @@ android {
     }
 
     buildFeatures {
-        dataBinding = true
-        buildConfig = true
+        dataBinding true
+        buildConfig true
+        compose true
     }
 
     compileOptions {
@@ -65,6 +66,10 @@ android {
         jvmTarget = '1.8'
         freeCompilerArgs = ['-Xjvm-default=compatibility']
     }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion '1.2.0-alpha02'
+    }
 }
 
 dependencies {
@@ -72,6 +77,24 @@ dependencies {
     implementation "androidx.core:core-ktx:$core_ktx_version"
     implementation "androidx.constraintlayout:constraintlayout:$constraintlayout_version"
     implementation "com.google.android.material:material:$material_version"
+
+    // Compose
+    // Integration with activities
+    implementation "androidx.activity:activity-compose:$compose_activity_version"
+    // Compose Material Design
+    implementation "androidx.compose.material:material:$compose_material_version"
+    // Animations
+    implementation "androidx.compose.animation:animation:$compose_animation_version"
+    // Tooling support (Previews, etc.)
+    implementation "androidx.compose.ui:ui-tooling:$compose_ui_version"
+    // Integration with ViewModels
+    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:$compose_viewmodel_version"
+    // Compose Coil
+    implementation "io.coil-kt:coil-compose:$compose_coil_version"
+    // Hilt Navigation
+    implementation "androidx.hilt:hilt-navigation-compose:$compose_hilt_navigation_version"
+    // Compose Livedata runtime
+    implementation "androidx.compose.runtime:runtime-livedata:$compose_ui_version"
 
     // Coroutines for getting off the UI thread
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlin_coroutines_version"
