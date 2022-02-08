@@ -12,7 +12,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class TraktAccountViewModel(
-    savedStateHandle: SavedStateHandle,
     private val traktRepository: TraktRepository,
     workManager: WorkManager
 ) : BaseTraktViewModel(
@@ -86,7 +85,6 @@ class TraktAccountViewModel(
             handle: SavedStateHandle
         ): T {
             return TraktAccountViewModel(
-                handle,
                 traktRepository,
                 workManager
             ) as T
