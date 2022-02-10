@@ -28,11 +28,30 @@ Now you can add a show as a favorite, which will be synced to your Trakt account
 <img src="https://github.com/akitikkx/upnext/blob/main/screenshots/upnext_pre_compose.gif" />
 
 ## Pre-requisites
+It is important that you ensure that the below are fully setup or the project will not run.
+
+### Java version
+The project is configured to use Java 11. Please ensure that your Android Studio is set to use this and
+not the default 1.8 else the project will not build:
+
+```
+Build, Execution, Deployment > Build Tools > Gradle > Gradle JDK
+
+```
+<img src="https://github.com/akitikkx/upnext/blob/main/screenshots/upnext_java_setup.png" />
+
+### Google Services File
 
 - Ensure that you add your `google-services.json` file to be saved in the app/ directory
 
-- Please obtain an API key from https://trakt.tv/ in order for the Trakt functionality to work. You will
-need to place this key in `local.properties` as follows:
+### Trakt Setup
+
+- `local.properties` should be used to contain the relevant keys. Note that this file is added in the 
+`.gitignore` to ensure this file is never committed to the repository for security reasons as these
+  keys should only be known to you, the developer.
+
+- Please obtain an API key from https://trakt.tv/ (directions below) in order for the Trakt functionality to work. You will
+need to place this key in `local.properties` (see `local.properties.example` for a sample of how it should be) as follows:
 
 ```
 TraktClientID="[your Trakt Client ID key goes here]"
