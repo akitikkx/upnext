@@ -9,8 +9,8 @@ buildscript {
         compose_activity_version = "1.4.0"
         compose_material_version = "1.2.0-alpha02"
         compose_animation_version = "1.2.0-alpha02"
-        compose_ui_version = "1.0.5"
-        compose_viewmodel_version = "2.4.0"
+        compose_ui_version = "1.1.0"
+        compose_viewmodel_version = "2.4.1"
         compose_ui_test_version = "1.0.5"
         compose_coil_version = "1.4.0"
         compose_hilt_navigation_version = "1.0.0"
@@ -48,7 +48,7 @@ buildscript {
 
         leakcanary_version = '2.7'
 
-        lifecycle_version = "2.4.0"
+        lifecycle_version = "2.4.1"
 
         material_version = "1.6.0-alpha02"
 
@@ -77,7 +77,7 @@ buildscript {
 
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.1.0'
+        classpath 'com.android.tools.build:gradle:7.1.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$navigation_version"
         classpath "com.google.gms:google-services:$google_services"
