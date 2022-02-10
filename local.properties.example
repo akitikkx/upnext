@@ -1,0 +1,12 @@
+## This file must *NOT* be checked into Version Control Systems,
+# as it contains information specific to your local configuration.
+#
+# Location of the SDK. This is only used by Gradle.
+# For customization when using a Version Control System, please read the
+# header note.
+#Wed Nov 04 19:57:53 SAST 2020
+
+sdk.dir=path/to/Android/SDK
+TraktClientID="<YOUR CLIENT ID HERE>"
+TraktClientSecret="<YOUR CLIENT SECRET HERE>"
+TraktRedirectURI="theupnextapp://callback"
