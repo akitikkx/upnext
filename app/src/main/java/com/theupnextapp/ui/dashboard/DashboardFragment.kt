@@ -1,38 +1,54 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2022 Ahmed Tikiwa
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+ * BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
 package com.theupnextapp.ui.dashboard
 
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.composethemeadapter.MdcTheme
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentDashboardBinding
-import com.theupnextapp.domain.ScheduleShow
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.ui.common.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class DashboardFragment : BaseFragment(),
-    TodayShowsAdapter.TodayShowsAdapterListener,
-    YesterdayShowsAdapter.YesterdayShowsAdapterListener,
-    TomorrowShowsAdapter.TomorrowShowsAdapterListener {
+class DashboardFragment : BaseFragment() {
 
     private var _binding: FragmentDashboardBinding? = null
     private val binding get() = _binding!!
 
     @Inject
     lateinit var firebaseAnalytics: FirebaseAnalytics
-
-    private var yesterdayShowsAdapter: YesterdayShowsAdapter? = null
-
-    private var todayShowsAdapter: TodayShowsAdapter? = null
-
-    private var tomorrowShowsAdapter: TomorrowShowsAdapter? = null
 
     private val viewModel by viewModels<DashboardViewModel>()
 
@@ -41,6 +57,7 @@ class DashboardFragment : BaseFragment(),
         setHasOptionsMenu(true)
     }
 
+    @OptIn(ExperimentalMaterialApi::class)
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -50,82 +67,40 @@ class DashboardFragment : BaseFragment(),
 
         binding.lifecycleOwner = viewLifecycleOwner
 
-        binding.viewModel = viewModel
+        binding.composeContainer.apply {
+            setContent {
+                MdcTheme {
+                    DashboardScreen {
+                        val direction =
+                            DashboardFragmentDirections.actionDashboardFragmentToShowDetailFragment(
+                                ShowDetailArg(
+                                    source = "dashboard",
+                                    showId = it.id,
+                                    showTitle = it.name,
+                                    showImageUrl = it.originalImage,
+                                    showBackgroundUrl = it.mediumImage
+                                )
+                            )
 
-        yesterdayShowsAdapter = YesterdayShowsAdapter(this)
+                        findNavController().navigate(direction)
 
-        todayShowsAdapter = TodayShowsAdapter(this)
-
-        tomorrowShowsAdapter = TomorrowShowsAdapter(this)
-
-        binding.root.findViewById<RecyclerView>(R.id.yesterday_shows_list).apply {
-            layoutManager = LinearLayoutManager(requireContext()).apply {
-                orientation = LinearLayoutManager.HORIZONTAL
+                        val analyticsBundle = Bundle()
+                        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, it.id.toString())
+                        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, it.name)
+                        analyticsBundle.putString(
+                            FirebaseAnalytics.Param.CONTENT_TYPE,
+                            "dashboard_show"
+                        )
+                        firebaseAnalytics.logEvent(
+                            FirebaseAnalytics.Event.SELECT_ITEM,
+                            analyticsBundle
+                        )
+                    }
+                }
             }
-            adapter = yesterdayShowsAdapter
-        }
-
-        binding.root.findViewById<RecyclerView>(R.id.today_shows_list).apply {
-            layoutManager = LinearLayoutManager(requireContext()).apply {
-                orientation = LinearLayoutManager.HORIZONTAL
-            }
-            adapter = todayShowsAdapter
-        }
-
-        binding.root.findViewById<RecyclerView>(R.id.tomorrow_shows_list).apply {
-            layoutManager = LinearLayoutManager(requireContext()).apply {
-                orientation = LinearLayoutManager.HORIZONTAL
-            }
-            adapter = tomorrowShowsAdapter
         }
 
         return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        viewModel.yesterdayShowsList.observe(
-            viewLifecycleOwner,
-            { yesterdayShows ->
-                yesterdayShows.apply {
-                    if (!yesterdayShows.isNullOrEmpty()) {
-                        yesterdayShowsAdapter?.submitList(yesterdayShows)
-                    }
-                }
-            })
-
-        viewModel.todayShowsList.observe(
-            viewLifecycleOwner,
-            { todayShows ->
-                todayShows.apply {
-                    if (!todayShows.isNullOrEmpty()) {
-                        todayShowsAdapter?.submitList(todayShows)
-                    }
-                }
-            })
-
-        viewModel.tomorrowShowsList.observe(
-            viewLifecycleOwner,
-            { tomorrowShows ->
-                tomorrowShows.apply {
-                    if (!tomorrowShows.isNullOrEmpty()) {
-                        tomorrowShowsAdapter?.submitList(tomorrowShows)
-                    }
-                }
-            })
-
-        viewModel.yesterdayShowsTableUpdate.observe(viewLifecycleOwner, {
-            viewModel.onYesterdayShowsTableUpdateReceived(it)
-        })
-
-        viewModel.todayShowsTableUpdate.observe(viewLifecycleOwner, {
-            viewModel.onTodayShowsTableUpdateReceived(it)
-        })
-
-        viewModel.tomorrowShowsTableUpdate.observe(viewLifecycleOwner, {
-            viewModel.onTomorrowShowsTableUpdateReceived(it)
-        })
     }
 
     override fun onResume() {
@@ -136,9 +111,6 @@ class DashboardFragment : BaseFragment(),
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        yesterdayShowsAdapter = null
-        todayShowsAdapter = null
-        tomorrowShowsAdapter = null
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -154,63 +126,5 @@ class DashboardFragment : BaseFragment(),
             }
             else -> super.onOptionsItemSelected(item)
         }
-
-    }
-
-    override fun onYesterdayShowClick(view: View, yesterdayShow: ScheduleShow) {
-        val directions = DashboardFragmentDirections.actionDashboardFragmentToShowDetailFragment(
-            ShowDetailArg(
-                source = "yesterday",
-                showId = yesterdayShow.id,
-                showTitle = yesterdayShow.name,
-                showImageUrl = yesterdayShow.originalImage,
-                showBackgroundUrl = yesterdayShow.mediumImage
-            )
-        )
-        findNavController().navigate(directions, getShowDetailNavigatorExtras(view))
-
-        val analyticsBundle = Bundle()
-        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, yesterdayShow.id.toString())
-        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, yesterdayShow.name)
-        analyticsBundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "dashboard_show")
-        firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM, analyticsBundle)
-    }
-
-    override fun onTodayShowClick(view: View, scheduleShow: ScheduleShow) {
-        val directions = DashboardFragmentDirections.actionDashboardFragmentToShowDetailFragment(
-            ShowDetailArg(
-                source = "today",
-                showId = scheduleShow.id,
-                showTitle = scheduleShow.name,
-                showImageUrl = scheduleShow.originalImage,
-                showBackgroundUrl = scheduleShow.mediumImage
-            )
-        )
-        findNavController().navigate(directions, getShowDetailNavigatorExtras(view))
-
-        val analyticsBundle = Bundle()
-        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, scheduleShow.id.toString())
-        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, scheduleShow.name)
-        analyticsBundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "dashboard_show")
-        firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM, analyticsBundle)
-    }
-
-    override fun onTomorrowShowClick(view: View, scheduleShow: ScheduleShow) {
-        val directions = DashboardFragmentDirections.actionDashboardFragmentToShowDetailFragment(
-            ShowDetailArg(
-                source = "tomorrow",
-                showId = scheduleShow.id,
-                showTitle = scheduleShow.name,
-                showImageUrl = scheduleShow.originalImage,
-                showBackgroundUrl = scheduleShow.mediumImage
-            )
-        )
-        findNavController().navigate(directions, getShowDetailNavigatorExtras(view))
-
-        val analyticsBundle = Bundle()
-        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, scheduleShow.id.toString())
-        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, scheduleShow.name)
-        analyticsBundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "dashboard_show")
-        firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM, analyticsBundle)
     }
 }
