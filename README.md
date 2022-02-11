@@ -82,6 +82,7 @@ In your Trakt account dashboard https://trakt.tv/oauth/applications:
 
 `Upnext: TV Series Manager` is an MVVM app built using Kotlin and the following libraries:
 
+- Jetpack Compose
 - ViewModel, LiveData, Kotlin Flow
 - Jetpack Navigation
 - Jetpack Datastore
