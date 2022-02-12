@@ -6,13 +6,7 @@
 
 Each area of the app is being gradually converted to this modern UI toolkit. 
 
-The following screens are using ComposeView:
-- Search screen
-- Dashboard screen
-- Explore screen
-- Show Detail
-- Show Seasons
-- Show Seasons Episodes
+<b>All screens are using ComposeView.</b>
 
 There are quite a number of changes that need to be done in order to fully migrate `Upnext: TV Series Manager` to Jetpack Compose and, therefore, the migration will be gradual. Should you wish to help with this effort, please see the contributing guidelines and code of conduct.
 
