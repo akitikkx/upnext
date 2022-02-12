@@ -25,31 +25,27 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.google.android.flexbox.FlexDirection
-import com.google.android.flexbox.FlexboxLayoutManager
-import com.google.android.flexbox.JustifyContent
+import com.google.android.material.composethemeadapter.MdcTheme
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentTraktAccountBinding
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.TraktConnectionArg
-import com.theupnextapp.domain.TraktUserListItem
 import com.theupnextapp.ui.common.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class TraktAccountFragment : BaseFragment(), FavoritesAdapter.FavoritesAdapterListener {
+class TraktAccountFragment : BaseFragment() {
 
     private var _binding: FragmentTraktAccountBinding? = null
-    val binding get() = _binding!!
-
-    private var favoritesAdapter: FavoritesAdapter? = null
+    private val binding get() = _binding!!
 
     @Inject
     lateinit var traktAccountViewModelFactory: TraktAccountViewModel.TraktAccountViewModelFactory
@@ -58,6 +54,7 @@ class TraktAccountFragment : BaseFragment(), FavoritesAdapter.FavoritesAdapterLi
         traktAccountViewModelFactory.create(this)
     }
 
+    @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -66,15 +63,33 @@ class TraktAccountFragment : BaseFragment(), FavoritesAdapter.FavoritesAdapterLi
 
         binding.lifecycleOwner = viewLifecycleOwner
 
-        binding.viewModel = viewModel
-
-        favoritesAdapter = FavoritesAdapter(this)
-        binding.layoutAuthorized.recyclerviewFavorites.apply {
-            layoutManager = FlexboxLayoutManager(requireContext()).apply {
-                flexDirection = FlexDirection.ROW
-                justifyContent = JustifyContent.FLEX_START
+        binding.composeContainer.apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                MdcTheme {
+                    TraktAccountScreen(
+                        viewModel = viewModel,
+                        onConnectToTraktClick = {
+                            viewModel.onConnectToTraktClick()
+                        },
+                        onLogoutClick = {
+                            viewModel.onDisconnectFromTraktClick()
+                        },
+                        onFavoriteClick = {
+                            val directions =
+                                TraktAccountFragmentDirections.actionTraktAccountFragmentToShowDetailFragment(
+                                    ShowDetailArg(
+                                        source = "favorites",
+                                        showId = it.tvMazeID,
+                                        showTitle = it.title,
+                                        showImageUrl = it.originalImageUrl,
+                                        showBackgroundUrl = it.mediumImageUrl
+                                    )
+                                )
+                            findNavController().navigate(directions)
+                        })
+                }
             }
-            adapter = favoritesAdapter
         }
 
         if (arguments?.getParcelable<TraktConnectionArg>(MainActivity.EXTRA_TRAKT_URI) != null) {
@@ -89,14 +104,14 @@ class TraktAccountFragment : BaseFragment(), FavoritesAdapter.FavoritesAdapterLi
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.openCustomTab.observe(viewLifecycleOwner, {
+        viewModel.openCustomTab.observe(viewLifecycleOwner) {
             if (it) {
                 (activity as MainActivity).connectToTrakt()
                 viewModel.onCustomTabOpened()
             }
-        })
+        }
 
-        viewModel.confirmDisconnectFromTrakt.observe(viewLifecycleOwner, {
+        viewModel.confirmDisconnectFromTrakt.observe(viewLifecycleOwner) {
             if (it == true) {
                 MaterialAlertDialogBuilder(requireActivity())
                     .setTitle(resources.getString(R.string.library_disconnect_from_trakt_dialog_title))
@@ -111,30 +126,11 @@ class TraktAccountFragment : BaseFragment(), FavoritesAdapter.FavoritesAdapterLi
                     .show()
                 viewModel.onDisconnectFromTraktConfirmed()
             }
-        })
-
-        viewModel.favoriteShows.observe(viewLifecycleOwner, {
-            favoritesAdapter?.submitFavoriteShowsList(it)
-        })
+        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        favoritesAdapter = null
-    }
-
-    override fun onFavoriteItemClick(view: View, favoriteShows: TraktUserListItem) {
-        val directions =
-            TraktAccountFragmentDirections.actionTraktAccountFragmentToShowDetailFragment(
-                ShowDetailArg(
-                    source = "most_anticipated",
-                    showId = favoriteShows.tvMazeID,
-                    showTitle = favoriteShows.title,
-                    showImageUrl = favoriteShows.originalImageUrl,
-                    showBackgroundUrl = favoriteShows.mediumImageUrl
-                )
-            )
-        findNavController().navigate(directions, getShowDetailNavigatorExtras(view))
     }
 }
