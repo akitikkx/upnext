@@ -22,7 +22,9 @@
 package com.theupnextapp.ui.showSeasonEpisodes
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -30,6 +32,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -41,7 +44,6 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.theupnextapp.R
 import com.theupnextapp.common.utils.DateUtils
 import com.theupnextapp.domain.ShowSeasonEpisode
@@ -52,19 +54,33 @@ import org.jsoup.Jsoup
 @ExperimentalMaterialApi
 @Composable
 fun ShowSeasonEpisodesScreen(
-    viewModel: ShowSeasonEpisodesViewModel = hiltViewModel()
+    viewModel: ShowSeasonEpisodesViewModel
 ) {
     val seasonNumber = viewModel.seasonNumber.observeAsState()
 
     val episodeList = viewModel.episodes.observeAsState()
 
+    val isLoading = viewModel.isLoading.observeAsState()
+
     Surface {
-        seasonNumber.value?.let { season ->
-            episodeList.value?.let { episodes ->
-                ShowSeasonEpisodes(
-                    seasonNumber = season,
-                    list = episodes
-                )
+        Column {
+            Box(modifier = Modifier.fillMaxSize()) {
+                seasonNumber.value?.let { season ->
+                    episodeList.value?.let { episodes ->
+                        ShowSeasonEpisodes(
+                            seasonNumber = season,
+                            list = episodes
+                        )
+                    }
+                }
+
+                if (isLoading.value == true) {
+                    LinearProgressIndicator(
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .fillMaxWidth()
+                    )
+                }
             }
         }
     }
@@ -79,7 +95,7 @@ fun ShowSeasonEpisodes(
     Column(modifier = Modifier.fillMaxWidth()) {
         SectionHeadingText(
             text = stringResource(
-                R.string.compose_show_detail_show_season_episodes_title_with_number,
+                R.string.show_detail_show_season_episodes_title_with_number,
                 seasonNumber
             )
         )
@@ -116,6 +132,7 @@ fun ShowSeasonEpisodeCard(
                         .height(dimensionResource(id = R.dimen.show_season_episode_poster_height))
                 )
             }
+
             Column(
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.Start,
@@ -124,7 +141,7 @@ fun ShowSeasonEpisodeCard(
                 if (item.number.toString().isNotEmpty() && item.season.toString().isNotEmpty()) {
                     Text(
                         text = stringResource(
-                            R.string.compose_show_detail_season_and_episode_number,
+                            R.string.show_detail_season_and_episode_number,
                             item.season.toString(),
                             item.number.toString()
                         ),
@@ -153,7 +170,8 @@ fun ShowSeasonEpisodeCard(
                             modifier = Modifier
                                 .padding(
                                     start = 4.dp,
-                                    top = 2.dp
+                                    top = 4.dp,
+                                    bottom = 2.dp
                                 )
                                 .fillMaxWidth(),
                             style = MaterialTheme.typography.caption

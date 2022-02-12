@@ -22,8 +22,10 @@
 package com.theupnextapp.ui.showSeasons
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -32,6 +34,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -42,7 +45,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.theupnextapp.R
 import com.theupnextapp.domain.ShowSeason
 import com.theupnextapp.ui.components.PosterImage
@@ -51,15 +53,29 @@ import com.theupnextapp.ui.components.SectionHeadingText
 @ExperimentalMaterialApi
 @Composable
 fun ShowSeasonsScreen(
-    viewModel: ShowSeasonsViewModel = hiltViewModel(),
+    viewModel: ShowSeasonsViewModel,
     onSeasonClick: (item: ShowSeason) -> Unit
 ) {
     val showSeasonsList = viewModel.showSeasons.observeAsState()
 
-    Surface {
-        showSeasonsList.value?.let {
-            ShowSeasons(list = it) { showSeason ->
-                onSeasonClick(showSeason)
+    val isLoading = viewModel.isLoading.observeAsState()
+
+    Surface(modifier = Modifier.fillMaxSize()) {
+        Column {
+            Box(modifier = Modifier.fillMaxSize()) {
+                showSeasonsList.value?.let {
+                    ShowSeasons(list = it) { showSeason ->
+                        onSeasonClick(showSeason)
+                    }
+                }
+
+                if (isLoading.value == true) {
+                    LinearProgressIndicator(
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .fillMaxWidth()
+                    )
+                }
             }
         }
     }
@@ -111,7 +127,7 @@ fun ShowSeasonCard(
                 if (item.seasonNumber.toString().isNotEmpty()) {
                     Text(
                         text = stringResource(
-                            R.string.compose_show_detail_season_and_number,
+                            R.string.show_detail_season_and_number,
                             item.seasonNumber.toString()
                         ),
                         modifier = Modifier.padding(4.dp),

@@ -62,13 +62,11 @@ class ShowSeasonsFragment : BaseFragment() {
 
         binding.lifecycleOwner = viewLifecycleOwner
 
-        binding.viewModel = viewModel
-
         binding.composeContainer.apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 MdcTheme {
-                    ShowSeasonsScreen {
+                    ShowSeasonsScreen(viewModel = viewModel) {
                         val directions =
                             ShowSeasonsFragmentDirections.actionShowSeasonsFragmentToShowSeasonEpisodesFragment(
                                 ShowSeasonEpisodesArg(
