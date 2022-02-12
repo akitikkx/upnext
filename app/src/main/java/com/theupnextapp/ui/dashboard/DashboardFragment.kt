@@ -30,9 +30,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
-import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.composethemeadapter.MdcTheme
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.theupnextapp.R
@@ -66,11 +65,9 @@ class DashboardFragment : BaseFragment() {
     ): View {
         _binding = FragmentDashboardBinding.inflate(inflater)
 
+        binding.lifecycleOwner = viewLifecycleOwner
+
         binding.composeContainer.apply {
-            // Dispose of the Composition when the view's
-            // LifecycleOwner is destroyed
-            // https://developer.android.com/jetpack/compose/interop/interop-apis
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 MdcTheme {
                     DashboardScreen {
@@ -86,28 +83,24 @@ class DashboardFragment : BaseFragment() {
                             )
 
                         findNavController().navigate(direction)
+
+                        val analyticsBundle = Bundle()
+                        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, it.id.toString())
+                        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, it.name)
+                        analyticsBundle.putString(
+                            FirebaseAnalytics.Param.CONTENT_TYPE,
+                            "dashboard_show"
+                        )
+                        firebaseAnalytics.logEvent(
+                            FirebaseAnalytics.Event.SELECT_ITEM,
+                            analyticsBundle
+                        )
                     }
                 }
             }
         }
 
         return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        viewModel.yesterdayShowsTableUpdate.observe(viewLifecycleOwner, {
-            viewModel.onYesterdayShowsTableUpdateReceived(it)
-        })
-
-        viewModel.todayShowsTableUpdate.observe(viewLifecycleOwner, {
-            viewModel.onTodayShowsTableUpdateReceived(it)
-        })
-
-        viewModel.tomorrowShowsTableUpdate.observe(viewLifecycleOwner, {
-            viewModel.onTomorrowShowsTableUpdateReceived(it)
-        })
     }
 
     override fun onResume() {
@@ -133,6 +126,5 @@ class DashboardFragment : BaseFragment() {
             }
             else -> super.onOptionsItemSelected(item)
         }
-
     }
 }

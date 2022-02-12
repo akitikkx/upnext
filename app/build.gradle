@@ -58,17 +58,16 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
 
     kotlinOptions {
-        jvmTarget = '1.8'
-        freeCompilerArgs = ['-Xjvm-default=compatibility']
+        jvmTarget = JavaVersion.VERSION_11
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion '1.2.0-alpha01'
+        kotlinCompilerExtensionVersion '1.2.0-alpha02'
     }
 }
 
@@ -89,14 +88,14 @@ dependencies {
     implementation "androidx.compose.ui:ui-tooling:$compose_ui_version"
     // Integration with ViewModels
     implementation "androidx.lifecycle:lifecycle-viewmodel-compose:$compose_viewmodel_version"
-    // When using a MDC theme
-    implementation "com.google.android.material:compose-theme-adapter:$compose_theme_adapter_version"
     // Compose Coil
     implementation "io.coil-kt:coil-compose:$compose_coil_version"
     // Hilt Navigation
     implementation "androidx.hilt:hilt-navigation-compose:$compose_hilt_navigation_version"
     // Compose Livedata runtime
     implementation "androidx.compose.runtime:runtime-livedata:$compose_ui_version"
+    // When using a MDC theme
+    implementation "com.google.android.material:compose-theme-adapter:$compose_theme_adapter_version"
 
     // Coroutines for getting off the UI thread
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlin_coroutines_version"

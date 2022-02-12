@@ -1,7 +1,9 @@
 # Upnext: TV Series Manager
 
 ***
-<b>NOTE:</b> `Upnext: TV Series Manager` is being converted to the modern UI toolkit: Jetpack Compose. Feel free to check out the changes so far found in the `feature/add-compose` branch. I will be creating issues for all the changes done so far and merge them in into the `main` branch. There are quite a number of changes that need to be done in order to fully migrate `Upnext: TV Series Manager` to Jetpack Compose and, therefore, the migration will be gradual. Should you wish to help with this effort, please see the contributing guidelines and code of conduct.
+<b>NOTE:</b> `Upnext: TV Series Manager` is now using Jetpack Compose! 
+
+Each area of the app is being gradually converted to this modern UI toolkit. Currently the Search screen is now using Compose UI. There are quite a number of changes that need to be done in order to fully migrate `Upnext: TV Series Manager` to Jetpack Compose and, therefore, the migration will be gradual. Should you wish to help with this effort, please see the contributing guidelines and code of conduct.
 ***
 
 ## What is Upnext: TV Series Manager?
@@ -28,11 +30,30 @@ Now you can add a show as a favorite, which will be synced to your Trakt account
 <img src="https://github.com/akitikkx/upnext/blob/main/screenshots/upnext_pre_compose.gif" />
 
 ## Pre-requisites
+It is important that you ensure that the below are fully setup or the project will not run.
+
+### Java version
+The project is configured to use Java 11. Please ensure that your Android Studio is set to use this and
+not the default 1.8 else the project will not build:
+
+```
+Build, Execution, Deployment > Build Tools > Gradle > Gradle JDK
+
+```
+<img src="https://github.com/akitikkx/upnext/blob/main/screenshots/upnext_java_setup.png" />
+
+### Google Services File
 
 - Ensure that you add your `google-services.json` file to be saved in the app/ directory
 
-- Please obtain an API key from https://trakt.tv/ in order for the Trakt functionality to work. You will
-need to place this key in `local.properties` as follows:
+### Trakt Setup
+
+- `local.properties` should be used to contain the relevant keys. Note that this file is added in the 
+`.gitignore` to ensure this file is never committed to the repository for security reasons as these
+  keys should only be known to you, the developer.
+
+- Please obtain an API key from https://trakt.tv/ (directions below) in order for the Trakt functionality to work. You will
+need to place this key in `local.properties` (see `local.properties.example` for a sample of how it should be) as follows:
 
 ```
 TraktClientID="[your Trakt Client ID key goes here]"
@@ -63,6 +84,7 @@ In your Trakt account dashboard https://trakt.tv/oauth/applications:
 
 `Upnext: TV Series Manager` is an MVVM app built using Kotlin and the following libraries:
 
+- Jetpack Compose
 - ViewModel, LiveData, Kotlin Flow
 - Jetpack Navigation
 - Jetpack Datastore
