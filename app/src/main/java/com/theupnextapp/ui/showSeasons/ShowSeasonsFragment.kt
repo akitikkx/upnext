@@ -25,10 +25,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.composethemeadapter.MdcTheme
 import com.theupnextapp.MainActivity
 import com.theupnextapp.databinding.FragmentShowSeasonsBinding
 import com.theupnextapp.domain.ShowSeasonEpisodesArg
@@ -37,13 +39,10 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ShowSeasonsFragment : BaseFragment(), ShowSeasonsAdapter.ShowSeasonsAdapterListener {
+class ShowSeasonsFragment : BaseFragment() {
 
     private var _binding: FragmentShowSeasonsBinding? = null
     private val binding get() = _binding!!
-
-    private var _showSeasonsAdapter: ShowSeasonsAdapter? = null
-    private val showSeasonsAdapter get() = _showSeasonsAdapter!!
 
     private val args by navArgs<ShowSeasonsFragmentArgs>()
 
@@ -54,6 +53,7 @@ class ShowSeasonsFragment : BaseFragment(), ShowSeasonsAdapter.ShowSeasonsAdapte
         showSeasonsViewModelFactory.create(this, args.show)
     }
 
+    @OptIn(ExperimentalMaterialApi::class)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -62,32 +62,32 @@ class ShowSeasonsFragment : BaseFragment(), ShowSeasonsAdapter.ShowSeasonsAdapte
 
         binding.lifecycleOwner = viewLifecycleOwner
 
-        _showSeasonsAdapter = ShowSeasonsAdapter(this, args.show.showId)
-
-        binding.seasonEpisodesList.apply {
-            layoutManager = LinearLayoutManager(requireContext()).apply {
-                orientation = LinearLayoutManager.VERTICAL
+        binding.composeContainer.apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                MdcTheme {
+                    ShowSeasonsScreen(viewModel = viewModel) {
+                        val directions =
+                            ShowSeasonsFragmentDirections.actionShowSeasonsFragmentToShowSeasonEpisodesFragment(
+                                ShowSeasonEpisodesArg(
+                                    showId = args.show.showId,
+                                    seasonNumber = it.seasonNumber,
+                                    imdbID = args.show.imdbID,
+                                    isAuthorizedOnTrakt = args.show.isAuthorizedOnTrakt
+                                )
+                            )
+                        findNavController().navigate(directions)
+                    }
+                }
             }
-            adapter = showSeasonsAdapter
         }
 
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        viewModel.showSeasons.observe(viewLifecycleOwner, { showSeasons ->
-            if (showSeasons != null) {
-                showSeasonsAdapter.submitShowSeasonsList(showSeasons)
-            }
-        })
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        _showSeasonsAdapter = null
     }
 
     override fun onStart() {
@@ -98,19 +98,6 @@ class ShowSeasonsFragment : BaseFragment(), ShowSeasonsAdapter.ShowSeasonsAdapte
     override fun onStop() {
         super.onStop()
         (activity as MainActivity).showBottomNavigation()
-    }
-
-    override fun onSeasonClick(view: View, showId: Int, seasonNumber: Int) {
-        val directions =
-            ShowSeasonsFragmentDirections.actionShowSeasonsFragmentToShowSeasonEpisodesFragment(
-                ShowSeasonEpisodesArg(
-                    showId = showId,
-                    seasonNumber = seasonNumber,
-                    imdbID = args.show.imdbID,
-                    isAuthorizedOnTrakt = args.show.isAuthorizedOnTrakt
-                )
-            )
-        findNavController().navigate(directions)
     }
 
 }
