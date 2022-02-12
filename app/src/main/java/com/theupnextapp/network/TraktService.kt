@@ -1,19 +1,56 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2022 Ahmed Tikiwa
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+ * BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
 package com.theupnextapp.network
 
-import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
-import com.theupnextapp.UpnextApplication
-import com.theupnextapp.common.utils.TraktConnectionInterceptor
-import com.theupnextapp.network.models.trakt.*
+import com.theupnextapp.network.models.trakt.NetworkTraktAccessRefreshTokenRequest
+import com.theupnextapp.network.models.trakt.NetworkTraktAccessRefreshTokenResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktAccessTokenRequest
+import com.theupnextapp.network.models.trakt.NetworkTraktAccessTokenResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktAddShowToListRequest
+import com.theupnextapp.network.models.trakt.NetworkTraktAddShowToListResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktCheckInRequest
+import com.theupnextapp.network.models.trakt.NetworkTraktCheckInResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktCreateCustomListRequest
+import com.theupnextapp.network.models.trakt.NetworkTraktCreateCustomListResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktIdLookupResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktMostAnticipatedResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktPopularShowsResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktRemoveShowFromListRequest
+import com.theupnextapp.network.models.trakt.NetworkTraktRemoveShowFromListResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktRevokeAccessTokenRequest
+import com.theupnextapp.network.models.trakt.NetworkTraktRevokeAccessTokenResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktShowInfoResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktShowRatingResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktShowStatsResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktTrendingShowsResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktUserListItemResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktUserListsResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktUserSettingsResponse
 import kotlinx.coroutines.Deferred
-import okhttp3.Cache
-import okhttp3.ConnectionPool
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.*
-import java.io.File
-import java.util.concurrent.TimeUnit
+import retrofit2.http.Body
+import retrofit2.http.GET
+import retrofit2.http.Header
+import retrofit2.http.POST
+import retrofit2.http.Path
 
 interface TraktService {
     @POST(" oauth/token")
