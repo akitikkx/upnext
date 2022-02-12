@@ -57,22 +57,6 @@ fun canClickItem(view: View, isLoading: Boolean) {
     view.isFocusable = !isLoading
 }
 
-@BindingAdapter("seasonAndNumber")
-fun seasonAndNumber(view: TextView, number: Int?) {
-    view.text = view.resources.getString(
-        R.string.show_detail_season_and_number,
-        number
-    )
-}
-
-@BindingAdapter("episodeAndNumber")
-fun episodeAndNumber(view: TextView, number: Int?) {
-    view.text = view.resources.getString(
-        R.string.show_detail_episode_and_number,
-        number
-    )
-}
-
 @BindingAdapter("seasonNumber", "episodeNumber")
 fun seasonAndEpisodeNumber(view: TextView, seasonNumber: Int?, episodeNumber: Int?) {
     view.text = view.resources.getString(
@@ -81,6 +65,7 @@ fun seasonAndEpisodeNumber(view: TextView, seasonNumber: Int?, episodeNumber: In
         episodeNumber
     )
 }
+
 
 @BindingAdapter("seasonCount")
 fun seasonCount(view: TextView, number: Int?) {
