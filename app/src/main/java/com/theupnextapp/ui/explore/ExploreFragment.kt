@@ -64,39 +64,42 @@ class ExploreFragment : BaseFragment() {
                 MdcTheme {
                     ExploreScreen(
                         onPopularShowClick = {
-                            val directions = ExploreFragmentDirections.actionExploreFragmentToShowDetailFragment(
-                                ShowDetailArg(
-                                    source = "popular",
-                                    showId = it.tvMazeID,
-                                    showTitle = it.title,
-                                    showImageUrl = it.originalImageUrl,
-                                    showBackgroundUrl = it.mediumImageUrl
+                            val directions =
+                                ExploreFragmentDirections.actionExploreFragmentToShowDetailFragment(
+                                    ShowDetailArg(
+                                        source = "popular",
+                                        showId = it.tvMazeID,
+                                        showTitle = it.title,
+                                        showImageUrl = it.originalImageUrl,
+                                        showBackgroundUrl = it.mediumImageUrl
+                                    )
                                 )
-                            )
                             findNavController().navigate(directions)
                         },
                         onTrendingShowClick = {
-                            val directions = ExploreFragmentDirections.actionExploreFragmentToShowDetailFragment(
-                                ShowDetailArg(
-                                    source = "trending",
-                                    showId = it.tvMazeID,
-                                    showTitle = it.title,
-                                    showImageUrl = it.originalImageUrl,
-                                    showBackgroundUrl = it.mediumImageUrl
+                            val directions =
+                                ExploreFragmentDirections.actionExploreFragmentToShowDetailFragment(
+                                    ShowDetailArg(
+                                        source = "trending",
+                                        showId = it.tvMazeID,
+                                        showTitle = it.title,
+                                        showImageUrl = it.originalImageUrl,
+                                        showBackgroundUrl = it.mediumImageUrl
+                                    )
                                 )
-                            )
                             findNavController().navigate(directions)
                         },
                         onMostAnticipatedShowClick = {
-                            val directions = ExploreFragmentDirections.actionExploreFragmentToShowDetailFragment(
-                                ShowDetailArg(
-                                    source = "most_anticipated",
-                                    showId = it.tvMazeID,
-                                    showTitle = it.title,
-                                    showImageUrl = it.originalImageUrl,
-                                    showBackgroundUrl = it.mediumImageUrl
+                            val directions =
+                                ExploreFragmentDirections.actionExploreFragmentToShowDetailFragment(
+                                    ShowDetailArg(
+                                        source = "most_anticipated",
+                                        showId = it.tvMazeID,
+                                        showTitle = it.title,
+                                        showImageUrl = it.originalImageUrl,
+                                        showBackgroundUrl = it.mediumImageUrl
+                                    )
                                 )
-                            )
                             findNavController().navigate(directions)
                         }
                     )
@@ -111,17 +114,17 @@ class ExploreFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.popularShowsTableUpdate.observe(viewLifecycleOwner, {
+        viewModel.popularShowsTableUpdate.observe(viewLifecycleOwner) {
             viewModel.onPopularShowsTableUpdateReceived(it)
-        })
+        }
 
-        viewModel.trendingShowsTableUpdate.observe(viewLifecycleOwner, {
+        viewModel.trendingShowsTableUpdate.observe(viewLifecycleOwner) {
             viewModel.onTrendingShowsTableUpdateReceived(it)
-        })
+        }
 
-        viewModel.mostAnticipatedShowsTableUpdate.observe(viewLifecycleOwner, {
+        viewModel.mostAnticipatedShowsTableUpdate.observe(viewLifecycleOwner) {
             viewModel.onMostAnticipatedShowsTableUpdateReceived(it)
-        })
+        }
     }
 
     override fun onDestroyView() {

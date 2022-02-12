@@ -1,10 +1,18 @@
 # Upnext: TV Series Manager
 
-***
+## Jetpack Compose
+
 <b>NOTE:</b> `Upnext: TV Series Manager` is now using Jetpack Compose! 
 
-Each area of the app is being gradually converted to this modern UI toolkit. Currently the Search screen is now using Compose UI. There are quite a number of changes that need to be done in order to fully migrate `Upnext: TV Series Manager` to Jetpack Compose and, therefore, the migration will be gradual. Should you wish to help with this effort, please see the contributing guidelines and code of conduct.
-***
+Each area of the app is being gradually converted to this modern UI toolkit. 
+
+The following screens are using ComposeView:
+- Search screen
+- Dashboard screen
+- Explore screen
+
+There are quite a number of changes that need to be done in order to fully migrate `Upnext: TV Series Manager` to Jetpack Compose and, therefore, the migration will be gradual. Should you wish to help with this effort, please see the contributing guidelines and code of conduct.
+
 
 ## What is Upnext: TV Series Manager?
 Have you ever been frustrated by your favorite series' 
