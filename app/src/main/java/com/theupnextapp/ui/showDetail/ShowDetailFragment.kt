@@ -27,38 +27,24 @@ import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.composethemeadapter.MdcTheme
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentShowDetailBinding
-import com.theupnextapp.domain.ShowCast
 import com.theupnextapp.domain.ShowDetailArg
-import com.theupnextapp.domain.ShowDetailSummary
-import com.theupnextapp.domain.ShowInfo
-import com.theupnextapp.domain.ShowSeason
-import com.theupnextapp.network.models.trakt.Distribution
 import com.theupnextapp.ui.common.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListener {
+class ShowDetailFragment : BaseFragment() {
 
     private var _binding: FragmentShowDetailBinding? = null
     private val binding get() = _binding!!
-
-    private var _showCastAdapter: ShowCastAdapter? = null
-    private val showCastAdapter get() = _showCastAdapter!!
-
-    private var _showSeasons: List<ShowSeason>? = null
-    private var showInfo: ShowDetailSummary? = null
-
-    private var _showRatingsAdapter: ShowRatingsAdapter? = null
-    private val showRatingsAdapter get() = _showRatingsAdapter
 
     private var _imdbID: String? = null
 
@@ -95,26 +81,26 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
     ): View {
         _binding = FragmentShowDetailBinding.inflate(inflater)
 
-        binding.lifecycleOwner = viewLifecycleOwner
-
-        binding.viewModel = viewModel
-
-        _showCastAdapter = ShowCastAdapter(this)
-
-        _showRatingsAdapter = ShowRatingsAdapter()
-
-        binding.root.findViewById<RecyclerView>(R.id.cast_list).apply {
-            layoutManager = LinearLayoutManager(requireContext()).apply {
-                orientation = LinearLayoutManager.HORIZONTAL
+        binding.composeContainer.apply {
+            // Dispose of the Composition when the view's
+            // LifecycleOwner is destroyed
+            // https://developer.android.com/jetpack/compose/interop/interop-apis
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                MdcTheme {
+                    ShowDetailScreen(
+                        onSeasonsClick = {
+                            viewModel.onSeasonsClick()
+                        },
+                        onCastItemClick = {
+                            viewModel.onShowCastItemClicked(it)
+                        },
+                        onFavoriteClick = {
+                            viewModel.onAddRemoveFavoriteClick()
+                        }
+                    )
+                }
             }
-            adapter = showCastAdapter
-        }
-
-        binding.traktShowRatings.ratingsList.apply {
-            layoutManager = LinearLayoutManager(requireContext()).apply {
-                orientation = LinearLayoutManager.VERTICAL
-            }
-            adapter = showRatingsAdapter
         }
 
         return binding.root
@@ -123,21 +109,7 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.showSummary.observe(viewLifecycleOwner, {
-            if (it != null) {
-                showInfo = it
-                _imdbID = it.imdbID
-            }
-        })
-
-        viewModel.showCast.observe(viewLifecycleOwner, { showCast ->
-            if (!showCast.isNullOrEmpty()) {
-                viewModel.onShowCastInfoReceived(showCast)
-                showCastAdapter.submitList(showCast)
-            }
-        })
-
-        viewModel.showCastBottomSheet.observe(viewLifecycleOwner, {
+        viewModel.showCastBottomSheet.observe(viewLifecycleOwner) {
             if (it != null) {
                 val showCastBottomSheet = ShowCastBottomSheetFragment()
 
@@ -153,19 +125,13 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
                 }
                 viewModel.displayCastBottomSheetComplete()
             }
-        })
+        }
 
-        viewModel.showSeasons.observe(viewLifecycleOwner, {
-            if (it != null) {
-                _showSeasons = it
-            }
-        })
-
-        viewModel.isAuthorizedOnTrakt.observe(viewLifecycleOwner, {
+        viewModel.isAuthorizedOnTrakt.observe(viewLifecycleOwner) {
             _isAuthorizedOnTrakt = it
-        })
+        }
 
-        viewModel.navigateToSeasons.observe(viewLifecycleOwner, {
+        viewModel.navigateToSeasons.observe(viewLifecycleOwner) {
             if (it) {
                 val directions =
                     ShowDetailFragmentDirections.actionShowDetailFragmentToShowSeasonsFragment(
@@ -181,21 +147,7 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
                 findNavController().navigate(directions)
                 viewModel.onSeasonsNavigationComplete()
             }
-        })
-
-        viewModel.showRating.observe(viewLifecycleOwner, {
-            showRatingsAdapter?.setVotes(it.votes)
-
-            val distributionList = mutableListOf<Distribution>()
-            it.distribution?.forEach { (key, value) ->
-                val distribution = Distribution(
-                    score = key,
-                    value = value
-                )
-                distributionList.add(distribution)
-            }
-            showRatingsAdapter?.submitList(distributionList.asReversed())
-        })
+        }
     }
 
     override fun onResume() {
@@ -216,12 +168,6 @@ class ShowDetailFragment : BaseFragment(), ShowCastAdapter.ShowCastAdapterListen
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        _showCastAdapter = null
-        _showRatingsAdapter = null
-    }
-
-    override fun onShowCastClick(view: View, castItem: ShowCast) {
-        viewModel.onShowCastItemClicked(castItem)
     }
 
     companion object {
