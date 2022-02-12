@@ -64,20 +64,20 @@ class ShowSeasonEpisodesFragment : BaseFragment(),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.episodes.observe(viewLifecycleOwner, { episodes ->
+        viewModel.episodes.observe(viewLifecycleOwner) { episodes ->
             if (episodes != null) {
                 showSeasonEpisodesAdapter.submitSeasonEpisodesList(episodes)
             }
-        })
+        }
 
-        viewModel.seasonNumber.observe(viewLifecycleOwner, {
+        viewModel.seasonNumber.observe(viewLifecycleOwner) {
             if (it != null) {
                 binding.textviewShowSeasonEpisodesTitle.text =
                     getString(R.string.show_detail_show_season_episodes_title_with_number, it)
             }
-        })
+        }
 
-        viewModel.traktCheckInStatus.observe(viewLifecycleOwner, {
+        viewModel.traktCheckInStatus.observe(viewLifecycleOwner) {
             it.getContentIfNotHandled()?.let { checkInStatus ->
                 if (checkInStatus.season == null && checkInStatus.episode == null && !checkInStatus.message.isNullOrEmpty()) {
                     Snackbar.make(
@@ -93,9 +93,9 @@ class ShowSeasonEpisodesFragment : BaseFragment(),
                     ).show()
                 }
             }
-        })
+        }
 
-        viewModel.confirmCheckIn.observe(viewLifecycleOwner, {
+        viewModel.confirmCheckIn.observe(viewLifecycleOwner) {
             if (it != null) {
                 MaterialAlertDialogBuilder(requireActivity())
                     .setTitle(
@@ -117,7 +117,7 @@ class ShowSeasonEpisodesFragment : BaseFragment(),
                     }
                     .show()
             }
-        })
+        }
     }
 
     override fun onDestroyView() {
