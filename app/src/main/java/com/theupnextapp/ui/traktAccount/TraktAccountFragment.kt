@@ -45,7 +45,7 @@ import javax.inject.Inject
 class TraktAccountFragment : BaseFragment() {
 
     private var _binding: FragmentTraktAccountBinding? = null
-    val binding get() = _binding!!
+    private val binding get() = _binding!!
 
     @Inject
     lateinit var traktAccountViewModelFactory: TraktAccountViewModel.TraktAccountViewModelFactory
@@ -63,13 +63,12 @@ class TraktAccountFragment : BaseFragment() {
 
         binding.lifecycleOwner = viewLifecycleOwner
 
-        binding.viewModel = viewModel
-
         binding.composeContainer.apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 MdcTheme {
                     TraktAccountScreen(
+                        viewModel = viewModel,
                         onConnectToTraktClick = {
                             viewModel.onConnectToTraktClick()
                         },
@@ -105,14 +104,14 @@ class TraktAccountFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.openCustomTab.observe(viewLifecycleOwner, {
+        viewModel.openCustomTab.observe(viewLifecycleOwner) {
             if (it) {
                 (activity as MainActivity).connectToTrakt()
                 viewModel.onCustomTabOpened()
             }
-        })
+        }
 
-        viewModel.confirmDisconnectFromTrakt.observe(viewLifecycleOwner, {
+        viewModel.confirmDisconnectFromTrakt.observe(viewLifecycleOwner) {
             if (it == true) {
                 MaterialAlertDialogBuilder(requireActivity())
                     .setTitle(resources.getString(R.string.library_disconnect_from_trakt_dialog_title))
@@ -127,7 +126,7 @@ class TraktAccountFragment : BaseFragment() {
                     .show()
                 viewModel.onDisconnectFromTraktConfirmed()
             }
-        })
+        }
     }
 
     override fun onDestroyView() {

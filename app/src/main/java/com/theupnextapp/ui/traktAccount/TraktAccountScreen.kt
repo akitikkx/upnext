@@ -27,6 +27,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -38,6 +39,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.Button
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -53,7 +55,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.theupnextapp.R
 import com.theupnextapp.domain.TraktUserListItem
 import com.theupnextapp.ui.components.SectionHeadingText
@@ -63,7 +64,7 @@ import com.theupnextapp.ui.widgets.ListPosterCard
 @ExperimentalMaterialApi
 @Composable
 fun TraktAccountScreen(
-    viewModel: TraktAccountViewModel = hiltViewModel(),
+    viewModel: TraktAccountViewModel,
     onConnectToTraktClick: () -> Unit,
     onFavoriteClick: (item: TraktUserListItem) -> Unit,
     onLogoutClick: () -> Unit
@@ -74,29 +75,66 @@ fun TraktAccountScreen(
 
     val favoriteShowsList = viewModel.favoriteShows.observeAsState()
 
+    val isLoading = viewModel.isLoading.observeAsState()
+
     Surface(
         modifier = Modifier
             .fillMaxSize()
             .scrollable(scrollState, orientation = Orientation.Vertical)
     ) {
-        if (isAuthorizedOnTrakt.value == true) {
-            favoriteShowsList.value?.let { list ->
-                if (list.isEmpty()) {
-                    EmptyFavoritesList()
-                } else {
-                    FavoritesList(
-                        favoriteShows = list,
-                        onFavoriteClick = { favoriteShow ->
-                            onFavoriteClick(favoriteShow)
-                        },
-                        onLogoutClick = { onLogoutClick() }
+        Column {
+            Box(modifier = Modifier.fillMaxSize()) {
+                AccountArea(
+                    isAuthorizedOnTrakt = isAuthorizedOnTrakt.value,
+                    favoriteShowsList = favoriteShowsList.value,
+                    onConnectToTraktClick = { onConnectToTraktClick() },
+                    onFavoriteClick = { onFavoriteClick(it) },
+                    onLogoutClick = { onLogoutClick() }
+                )
+
+                if (isLoading.value == true) {
+                    LinearProgressIndicator(
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .fillMaxWidth()
                     )
                 }
             }
-        } else {
-            ConnectToTrakt {
-                onConnectToTraktClick()
+        }
+
+
+    }
+}
+
+@OptIn(
+    ExperimentalMaterialApi::class,
+    ExperimentalFoundationApi::class
+)
+@Composable
+fun AccountArea(
+    isAuthorizedOnTrakt: Boolean?,
+    favoriteShowsList: List<TraktUserListItem>?,
+    onConnectToTraktClick: () -> Unit,
+    onFavoriteClick: (item: TraktUserListItem) -> Unit,
+    onLogoutClick: () -> Unit
+) {
+    if (isAuthorizedOnTrakt == true) {
+        favoriteShowsList?.let { list ->
+            if (list.isEmpty()) {
+                EmptyFavoritesList()
+            } else {
+                FavoritesList(
+                    favoriteShows = list,
+                    onFavoriteClick = { favoriteShow ->
+                        onFavoriteClick(favoriteShow)
+                    },
+                    onLogoutClick = { onLogoutClick() }
+                )
             }
+        }
+    } else {
+        ConnectToTrakt {
+            onConnectToTraktClick()
         }
     }
 }
@@ -192,9 +230,10 @@ fun EmptyFavoritesList() {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(8.dp)
+        modifier = Modifier.fillMaxSize()
     ) {
         Text(
+            modifier = Modifier.padding(8.dp),
             text = stringResource(id = R.string.trakt_account_favorites_empty),
             style = MaterialTheme.typography.body2
         )
