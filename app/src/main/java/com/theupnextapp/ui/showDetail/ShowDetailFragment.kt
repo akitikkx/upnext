@@ -109,7 +109,7 @@ class ShowDetailFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.showCastBottomSheet.observe(viewLifecycleOwner, {
+        viewModel.showCastBottomSheet.observe(viewLifecycleOwner) {
             if (it != null) {
                 val showCastBottomSheet = ShowCastBottomSheetFragment()
 
@@ -125,13 +125,13 @@ class ShowDetailFragment : BaseFragment() {
                 }
                 viewModel.displayCastBottomSheetComplete()
             }
-        })
+        }
 
-        viewModel.isAuthorizedOnTrakt.observe(viewLifecycleOwner, {
+        viewModel.isAuthorizedOnTrakt.observe(viewLifecycleOwner) {
             _isAuthorizedOnTrakt = it
-        })
+        }
 
-        viewModel.navigateToSeasons.observe(viewLifecycleOwner, {
+        viewModel.navigateToSeasons.observe(viewLifecycleOwner) {
             if (it) {
                 val directions =
                     ShowDetailFragmentDirections.actionShowDetailFragmentToShowSeasonsFragment(
@@ -147,7 +147,7 @@ class ShowDetailFragment : BaseFragment() {
                 findNavController().navigate(directions)
                 viewModel.onSeasonsNavigationComplete()
             }
-        })
+        }
     }
 
     override fun onResume() {

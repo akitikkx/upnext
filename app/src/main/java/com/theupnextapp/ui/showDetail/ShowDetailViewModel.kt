@@ -36,9 +36,8 @@ import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.ShowDetailSummary
 import com.theupnextapp.domain.ShowNextEpisode
 import com.theupnextapp.domain.ShowPreviousEpisode
-import com.theupnextapp.domain.ShowSeason
-import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.ShowDetailRepository
+import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.ui.common.BaseTraktViewModel
 import com.theupnextapp.work.AddFavoriteShowWorker
 import com.theupnextapp.work.RemoveFavoriteShowWorker
@@ -61,9 +60,6 @@ class ShowDetailViewModel @AssistedInject constructor(
 
     private val _show = MutableLiveData(show)
     val showDetailArg: LiveData<ShowDetailArg> = _show
-
-    private val _showCastEmpty = MutableLiveData<Boolean>()
-    val showCastEmpty: LiveData<Boolean> = _showCastEmpty
 
     private val _showCastBottomSheet = MutableLiveData<ShowCast?>()
     val showCastBottomSheet: LiveData<ShowCast?> = _showCastBottomSheet
@@ -90,9 +86,6 @@ class ShowDetailViewModel @AssistedInject constructor(
 
     private val _showCast = MutableLiveData<List<ShowCast>?>()
     val showCast: LiveData<List<ShowCast>?> = _showCast
-
-    private val _showSeasons = MutableLiveData<List<ShowSeason>?>()
-    val showSeasons: LiveData<List<ShowSeason>?> = _showSeasons
 
     val showRating = traktRepository.traktShowRating
 
@@ -138,7 +131,6 @@ class ShowDetailViewModel @AssistedInject constructor(
 
                 }
                 getShowCast(it)
-                getShowSeasons(it)
             }
         }
     }
@@ -152,22 +144,6 @@ class ShowDetailViewModel @AssistedInject constructor(
                     }
                     is Result.Loading -> {
                         isLoading.value = response.status
-                    }
-                    else -> {}
-                }
-            }
-        }
-    }
-
-    private fun getShowSeasons(showId: Int) {
-        viewModelScope.launch {
-            showDetailRepository.getShowSeasons(showId).collect { result ->
-                when (result) {
-                    is Result.Success -> {
-                        _showSeasons.value = result.data
-                    }
-                    is Result.Loading -> {
-                        isLoading.value = result.status
                     }
                     else -> {}
                 }
@@ -227,10 +203,6 @@ class ShowDetailViewModel @AssistedInject constructor(
 
     fun displayCastBottomSheetComplete() {
         _showCastBottomSheet.value = null
-    }
-
-    fun onShowCastInfoReceived(showCast: List<ShowCast>) {
-        _showCastEmpty.value = showCast.isNullOrEmpty()
     }
 
     fun onShowCastItemClicked(showCast: ShowCast) {

@@ -24,6 +24,7 @@ package com.theupnextapp.ui.showDetail
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -87,70 +88,113 @@ fun ShowDetailScreen(
 
     val isFavorite = viewModel.isFavoriteShow.observeAsState()
 
-    val scrollState = rememberScrollState()
+    val isLoading = viewModel.isLoading.observeAsState()
 
     Surface(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .verticalScroll(scrollState)
-        ) {
-            BackdropAndTitle(
-                showDetailArgs = showDetailArgs.value,
-                showSummary = showSummary.value
-            )
 
-            PosterAndMetadata(showSummary = showSummary.value)
-
-            showSummary.value?.summary?.let { summary ->
-                Text(
-                    text = Jsoup.parse(summary).text(),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            start = 16.dp,
-                            top = 4.dp,
-                            end = 16.dp,
-                        ),
-                    style = MaterialTheme.typography.body2
+        Column {
+            Box(modifier = Modifier.fillMaxSize()) {
+                DetailArea(
+                    showSummary = showSummary.value,
+                    showDetailArgs = showDetailArgs.value,
+                    isAuthorizedOnTrakt = isAuthorizedOnTrakt.value,
+                    isFavorite = isFavorite.value,
+                    showCast = showCast.value,
+                    showNextEpisode = showNextEpisode.value,
+                    showPreviousEpisode = showPreviousEpisode.value,
+                    showRating = showRating.value,
+                    onSeasonsClick = { onSeasonsClick() },
+                    onCastItemClick = { onCastItemClick(it) },
+                    onFavoriteClick = { onFavoriteClick() }
                 )
-            }
 
-            ShowDetailButtons(
-                isAuthorizedOnTrakt = isAuthorizedOnTrakt.value,
-                isFavorite = isFavorite.value,
-                onSeasonsClick = { onSeasonsClick() },
-                onFavoriteClick = { onFavoriteClick() }
+                if (isLoading.value == true) {
+                    LinearProgressIndicator(
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .fillMaxWidth()
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun DetailArea(
+    showSummary: ShowDetailSummary?,
+    showDetailArgs: ShowDetailArg?,
+    isAuthorizedOnTrakt: Boolean?,
+    isFavorite: Boolean?,
+    showCast: List<ShowCast>?,
+    showRating: TraktShowRating?,
+    onSeasonsClick: () -> Unit,
+    onFavoriteClick: () -> Unit,
+    onCastItemClick: (item: ShowCast) -> Unit,
+    showNextEpisode: ShowNextEpisode?,
+    showPreviousEpisode: ShowPreviousEpisode?
+) {
+    val scrollState = rememberScrollState()
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(scrollState)
+    ) {
+        BackdropAndTitle(
+            showDetailArgs = showDetailArgs,
+            showSummary = showSummary
+        )
+
+        PosterAndMetadata(showSummary = showSummary)
+
+        showSummary?.summary?.let { summary ->
+            Text(
+                text = Jsoup.parse(summary).text(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        start = 16.dp,
+                        top = 4.dp,
+                        end = 16.dp,
+                    ),
+                style = MaterialTheme.typography.body2
             )
+        }
 
-            showCast.value?.let {
-                if (it.isNotEmpty()) {
-                    ShowCastList(it) { showCastItem ->
-                        onCastItemClick(showCastItem)
-                    }
+        ShowDetailButtons(
+            isAuthorizedOnTrakt = isAuthorizedOnTrakt,
+            isFavorite = isFavorite,
+            onSeasonsClick = { onSeasonsClick() },
+            onFavoriteClick = { onFavoriteClick() }
+        )
+
+        showCast?.let {
+            if (it.isNotEmpty()) {
+                ShowCastList(it) { showCastItem ->
+                    onCastItemClick(showCastItem)
                 }
             }
+        }
 
-            if (!showNextEpisode.value?.nextEpisodeSummary.isNullOrEmpty()) {
-                showNextEpisode.value?.let {
-                    NextEpisode(showNextEpisode = it)
-                }
+        if (!showNextEpisode?.nextEpisodeSummary.isNullOrEmpty()) {
+            showNextEpisode?.let {
+                NextEpisode(showNextEpisode = it)
             }
+        }
 
-            if (!showPreviousEpisode.value?.previousEpisodeSummary.isNullOrEmpty()) {
-                showPreviousEpisode.value?.let {
-                    PreviousEpisode(showPreviousEpisode = it)
-                }
+        if (!showPreviousEpisode?.previousEpisodeSummary.isNullOrEmpty()) {
+            showPreviousEpisode?.let {
+                PreviousEpisode(showPreviousEpisode = it)
             }
+        }
 
-
-            showRating.value?.let { ratingData ->
-                if (ratingData.votes != 0) {
-                    TraktRatingSummary(ratingData)
-                }
+        showRating?.let { ratingData ->
+            if (ratingData.votes != 0) {
+                TraktRatingSummary(ratingData)
             }
         }
     }
@@ -484,7 +528,7 @@ private fun TraktRatingSummary(ratingData: TraktShowRating) {
             ) {
                 Text(
                     text = stringResource(
-                        id = R.string.compose_show_detail_rating_numerator,
+                        id = R.string.show_detail_rating_numerator,
                         ratingData.rating.toString()
                     ),
                     style = MaterialTheme.typography.h3
@@ -492,7 +536,7 @@ private fun TraktRatingSummary(ratingData: TraktShowRating) {
 
                 Text(
                     text = stringResource(
-                        R.string.compose_show_detail_rating_votes,
+                        R.string.show_detail_rating_votes,
                         ratingData.votes.toString()
                     ),
                     style = MaterialTheme.typography.caption
