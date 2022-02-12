@@ -19,38 +19,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.theupnextapp.ui.components
+package com.theupnextapp.extensions
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.unit.Dp
-import coil.compose.rememberImagePainter
-import com.theupnextapp.R
+open class Event<out T>(private val content: T) {
 
-@Composable
-fun PosterImage(
-    url: String,
-    modifier: Modifier = Modifier,
-    height: Dp = dimensionResource(id = R.dimen.compose_shows_list_poster_height),
-) {
-    Image(
-        painter = rememberImagePainter(
-            data = url,
-            builder = {
-                crossfade(true)
-                placeholder(R.drawable.poster_placeholder)
-                error(R.drawable.poster_placeholder)
-                fallback(R.drawable.poster_placeholder)
-            }),
-        contentScale = ContentScale.Crop,
-        contentDescription = null,
-        modifier = modifier
-            .fillMaxWidth()
-            .height(height)
-    )
+    var hasBeenHandled = false
+        private set
+
+    fun getContentIfNotHandled(): T? {
+        return if (hasBeenHandled) {
+            null
+        } else {
+            hasBeenHandled = true
+            content
+        }
+    }
+
+    fun peekContent(): T = content
 }
