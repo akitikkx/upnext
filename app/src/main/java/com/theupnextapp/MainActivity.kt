@@ -99,7 +99,7 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
 
         setupActionBarWithNavController(navController, appBarConfiguration)
         bottomNavigationView?.setupWithNavController(navController)
-        bottomNavigationView?.setOnItemReselectedListener {  }
+        bottomNavigationView?.setOnItemReselectedListener { }
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -154,8 +154,10 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
         val code = intent?.data?.getQueryParameter("code")
         val traktConnectionArg = TraktConnectionArg(code)
 
-        val bundle = bundleOf(EXTRA_TRAKT_URI to traktConnectionArg)
-        navController.navigate(R.id.traktAccountFragment, bundle)
+        if (!code.isNullOrEmpty()) {
+            val bundle = bundleOf(EXTRA_TRAKT_URI to traktConnectionArg)
+            navController.navigate(R.id.traktAccountFragment, bundle)
+        }
     }
 
     fun hideBottomNavigation() {
