@@ -3,6 +3,7 @@
 ## Google Developers Dev Library
 <b>Upnext: TV Series Manager is now officially part of the <a href="https://devlibrary.withgoogle.com/products/android/repos/akitikkx-upnext" target="_blank">Google Developers Dev Library</a></b>
 
+
 ## Jetpack Compose
 
 <b>NOTE:</b> `Upnext: TV Series Manager` is now using Jetpack Compose! 
