@@ -21,16 +21,20 @@
 
 package com.theupnextapp.ui.common
 
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.theupnextapp.domain.isTraktAccessTokenValid
 import com.theupnextapp.repository.TraktRepository
-import com.theupnextapp.work.RefreshFavoriteEpisodesWorker
 import com.theupnextapp.work.RefreshFavoriteShowsWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -63,11 +67,7 @@ open class BaseTraktViewModel @Inject constructor(
                         OneTimeWorkRequest.Builder(RefreshFavoriteShowsWorker::class.java)
                     refreshFavoritesWork.setInputData(workerData.build())
 
-                    val refreshFavoriteEpisodesWork =
-                        OneTimeWorkRequest.Builder(RefreshFavoriteEpisodesWorker::class.java)
-
                     workManager.enqueue(refreshFavoritesWork.build())
-                    workManager.enqueue(refreshFavoriteEpisodesWork.build())
                 }
             }
         }

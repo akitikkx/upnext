@@ -1,5 +1,9 @@
 # Upnext: TV Series Manager
 
+## Google Developers Dev Library
+<b>Upnext: TV Series Manager is now officially part of the <a href="https://devlibrary.withgoogle.com/products/android/repos/akitikkx-upnext" target="_blank">Google Developers Dev Library</a></b>
+
+
 ## Jetpack Compose
 
 <b>NOTE:</b> `Upnext: TV Series Manager` is now using Jetpack Compose! 
@@ -32,7 +36,7 @@ The app is currently on the Google Play Store https://play.google.com/store/apps
 ### Favorites
 Now you can add a show as a favorite, which will be synced to your Trakt account. All your favorites will be displayed on the Account screen when your Trakt account is connected. You will require a Trakt.tv account first before you can connect it on Upnext: TV Series Manager.
 
-<img src="https://github.com/akitikkx/upnext/blob/main/screenshots/upnext_pre_compose.gif" />
+<img src="https://github.com/akitikkx/upnext/blob/main/screenshots/web_banner_20_feb_2022.png" />
 
 ## Pre-requisites
 It is important that you ensure that the below are fully setup or the project will not run.
