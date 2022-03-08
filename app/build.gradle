@@ -41,7 +41,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 31
         versionCode 169
-        versionName "3.3.1"
+        versionName "3.3.2"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         javaCompileOptions {
