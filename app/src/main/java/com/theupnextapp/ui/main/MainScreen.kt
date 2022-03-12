@@ -12,12 +12,14 @@
 
 package com.theupnextapp.ui.main
 
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material.ContentAlpha
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
+import androidx.compose.material.LocalContentColor
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -26,16 +28,17 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
-import com.theupnextapp.ui.navigation.BottomNavigationScreen
+import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.theupnextapp.ui.navigation.NavigationGraph
+import com.theupnextapp.ui.navigation.NavigationScreen
 
+@ExperimentalAnimationApi
 @ExperimentalMaterialApi
 @ExperimentalComposeUiApi
 @ExperimentalFoundationApi
 @Composable
 fun MainScreen() {
-    val navController = rememberNavController()
+    val navController = rememberAnimatedNavController()
 
     Scaffold(
         bottomBar = { BottomBar(navController = navController) }
@@ -47,10 +50,10 @@ fun MainScreen() {
 @Composable
 fun BottomBar(navController: NavHostController) {
     val menuItems = listOf(
-        BottomNavigationScreen.Search,
-        BottomNavigationScreen.Dashboard,
-        BottomNavigationScreen.Explore,
-        BottomNavigationScreen.TraktAccount,
+        NavigationScreen.Search,
+        NavigationScreen.Dashboard,
+        NavigationScreen.Explore,
+        NavigationScreen.TraktAccount,
     )
 
     // Observe the current backstack entry and be notified when it is changed
@@ -60,16 +63,19 @@ fun BottomBar(navController: NavHostController) {
     BottomNavigation {
         menuItems.forEach { item ->
             BottomNavigationItem(
-                label = { Text(text = item.title) },
+                label = { item.title?.let { Text(text = it) } },
                 icon = {
-                    Icon(
-                        imageVector = item.menuIcon,
-                        contentDescription = "Bottom navigation menu icon"
-                    )
+                    item.menuIcon?.let {
+                        Icon(
+                            imageVector = it,
+                            contentDescription = "Bottom navigation menu icon"
+                        )
+                    }
                 },
                 selected = currentDestination?.hierarchy?.any {
                     it.route == item.routeName
                 } == true,
+                unselectedContentColor = LocalContentColor.current.copy(alpha = ContentAlpha.disabled),
                 onClick = { navController.navigate(item.routeName) }
             )
         }

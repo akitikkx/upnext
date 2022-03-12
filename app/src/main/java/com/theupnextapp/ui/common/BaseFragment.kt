@@ -23,6 +23,7 @@ package com.theupnextapp.ui.common
 
 import android.os.Bundle
 import android.view.View
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -36,6 +37,7 @@ import com.theupnextapp.MainActivity
 import com.theupnextapp.R
 import com.theupnextapp.common.utils.NetworkConnectivityUtil
 
+@ExperimentalAnimationApi
 @ExperimentalMaterialApi
 @ExperimentalComposeUiApi
 @ExperimentalFoundationApi

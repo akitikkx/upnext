@@ -68,10 +68,14 @@ import org.jsoup.Jsoup
 @Composable
 fun ShowDetailScreen(
     viewModel: ShowDetailViewModel = hiltViewModel(),
+    showDetailArg: ShowDetailArg? = null,
     onSeasonsClick: () -> Unit,
     onCastItemClick: (item: ShowCast) -> Unit,
     onFavoriteClick: () -> Unit
 ) {
+
+    viewModel.selectedShow(showDetailArg)
+
     val showSummary = viewModel.showSummary.observeAsState()
 
     val showCast = viewModel.showCast.observeAsState()

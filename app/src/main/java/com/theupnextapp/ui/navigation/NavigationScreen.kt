@@ -19,31 +19,35 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.ui.graphics.vector.ImageVector
 
-sealed class BottomNavigationScreen (
+sealed class NavigationScreen (
     val routeName: String,
-    val title: String,
-    val menuIcon: ImageVector
+    val title: String? = null,
+    val menuIcon: ImageVector? = null
 ) {
 
-    object Search: BottomNavigationScreen(
+    object Search: NavigationScreen(
         routeName = "search",
         title = "Search",
         menuIcon = Icons.Default.Search
     )
 
-    object Dashboard: BottomNavigationScreen(
+    object Dashboard: NavigationScreen(
         routeName = "dashboard",
         title = "Dashboard",
         menuIcon = Icons.Default.Home
     )
 
-    object Explore: BottomNavigationScreen(
+    object Explore: NavigationScreen(
         routeName = "explore",
         title = "Explore",
         menuIcon = Icons.Filled.Explore
     )
 
-    object TraktAccount: BottomNavigationScreen(
+    object ShowDetail: NavigationScreen(
+        routeName = "show_detail"
+    )
+
+    object TraktAccount: NavigationScreen(
         routeName = "trakt_account",
         title = "Account",
         menuIcon = Icons.Filled.AccountBox

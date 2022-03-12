@@ -25,12 +25,14 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.provider.Browser
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.ui.ExperimentalComposeUiApi
 import com.theupnextapp.BuildConfig
 import com.theupnextapp.ui.common.BaseFragment
 
+@ExperimentalAnimationApi
 @ExperimentalFoundationApi
 @ExperimentalComposeUiApi
 @ExperimentalMaterialApi

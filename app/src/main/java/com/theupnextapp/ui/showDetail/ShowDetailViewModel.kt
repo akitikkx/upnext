@@ -44,21 +44,22 @@ import com.theupnextapp.work.RemoveFavoriteShowWorker
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class ShowDetailViewModel @AssistedInject constructor(
+@HiltViewModel
+class ShowDetailViewModel @Inject constructor(
     private val showDetailRepository: ShowDetailRepository,
     private val workManager: WorkManager,
-    private val traktRepository: TraktRepository,
-    @Assisted show: ShowDetailArg
+    private val traktRepository: TraktRepository
 ) : BaseTraktViewModel(
     traktRepository,
     workManager
 ) {
-
-    private val _show = MutableLiveData(show)
+    private val _show = MutableLiveData<ShowDetailArg>()
     val showDetailArg: LiveData<ShowDetailArg> = _show
 
     private val _showCastBottomSheet = MutableLiveData<ShowCast?>()
@@ -94,8 +95,6 @@ class ShowDetailViewModel @AssistedInject constructor(
     private val favoriteShow = traktRepository.favoriteShow
 
     init {
-        getShowSummary(show)
-
         isLoading.addSource(isUpnextRepositoryLoading) { result ->
             isLoading.value = result == true
         }
@@ -106,6 +105,13 @@ class ShowDetailViewModel @AssistedInject constructor(
 
         isFavoriteShow.addSource(favoriteShow) { result ->
             isFavoriteShow.value = result != null
+        }
+    }
+
+    fun selectedShow(show: ShowDetailArg?) {
+        show?.let {
+            _show.value = it
+            getShowSummary(it)
         }
     }
 
@@ -260,22 +266,5 @@ class ShowDetailViewModel @AssistedInject constructor(
 
     fun onSeasonsNavigationComplete() {
         _navigateToSeasons.value = false
-    }
-
-    @AssistedFactory
-    interface ShowDetailViewModelFactory {
-        fun create(show: ShowDetailArg): ShowDetailViewModel
-    }
-
-    companion object {
-        @Suppress("UNCHECKED_CAST")
-        fun provideFactory(
-            assistedFactory: ShowDetailViewModelFactory,
-            show: ShowDetailArg
-        ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return assistedFactory.create(show) as T
-            }
-        }
     }
 }

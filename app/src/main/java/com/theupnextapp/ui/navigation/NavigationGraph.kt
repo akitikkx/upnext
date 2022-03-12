@@ -12,39 +12,108 @@
 
 package com.theupnextapp.ui.navigation
 
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
+import com.google.accompanist.navigation.animation.composable
+import com.google.accompanist.navigation.animation.AnimatedNavHost
+import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.ui.dashboard.DashboardScreen
 import com.theupnextapp.ui.explore.ExploreScreen
 import com.theupnextapp.ui.search.SearchScreen
+import com.theupnextapp.ui.showDetail.ShowDetailScreen
 import com.theupnextapp.ui.traktAccount.TraktAccountScreen
 
+@ExperimentalAnimationApi
 @ExperimentalFoundationApi
 @ExperimentalComposeUiApi
 @ExperimentalMaterialApi
 @Composable
 fun NavigationGraph(navHostController: NavHostController) {
-    NavHost(
+    AnimatedNavHost(
         navController = navHostController,
-        startDestination = BottomNavigationScreen.Dashboard.routeName
+        startDestination = NavigationScreen.Dashboard.routeName
     ) {
 
-        composable(route = BottomNavigationScreen.Search.routeName) {
+        // Search Screen
+        composable(
+            route = NavigationScreen.Search.routeName,
+            enterTransition = { slideIntoContainer(AnimatedContentScope.SlideDirection.Left) },
+            exitTransition = { slideOutOfContainer(AnimatedContentScope.SlideDirection.Left) },
+            popEnterTransition = {
+                slideIntoContainer(
+                    AnimatedContentScope.SlideDirection.Right,
+                    animationSpec = tween(700)
+                )
+            },
+            popExitTransition = {
+                slideOutOfContainer(
+                    AnimatedContentScope.SlideDirection.Right,
+                    animationSpec = tween(700)
+                )
+            }
+        ) {
             SearchScreen(navController = navHostController)
         }
 
-        composable(route = BottomNavigationScreen.Dashboard.routeName) {
-            DashboardScreen() {
-
+        // Dashboard Screen
+        composable(
+            route = NavigationScreen.Dashboard.routeName,
+            enterTransition = { slideIntoContainer(AnimatedContentScope.SlideDirection.Left) },
+            exitTransition = { slideOutOfContainer(AnimatedContentScope.SlideDirection.Left) },
+            popEnterTransition = {
+                slideIntoContainer(
+                    AnimatedContentScope.SlideDirection.Right,
+                    animationSpec = tween(700)
+                )
+            },
+            popExitTransition = {
+                slideOutOfContainer(
+                    AnimatedContentScope.SlideDirection.Right,
+                    animationSpec = tween(700)
+                )
+            }
+        ) {
+            DashboardScreen {
+                navHostController.currentBackStackEntry?.savedStateHandle?.set(
+                    "show",
+                    ShowDetailArg(
+                        source = "dashboard",
+                        showId = it.id,
+                        showTitle = it.name,
+                        showImageUrl = it.originalImage,
+                        showBackgroundUrl = it.mediumImage
+                    )
+                )
+                navHostController.navigate(NavigationScreen.ShowDetail.routeName)
             }
         }
 
-        composable(route = BottomNavigationScreen.Explore.routeName) {
+        // Explore Screen
+        composable(
+            route = NavigationScreen.Explore.routeName,
+            enterTransition = { slideIntoContainer(AnimatedContentScope.SlideDirection.Left) },
+            exitTransition = { slideOutOfContainer(AnimatedContentScope.SlideDirection.Left) },
+            popEnterTransition = {
+                slideIntoContainer(
+                    AnimatedContentScope.SlideDirection.Right,
+                    animationSpec = tween(700)
+                )
+            },
+            popExitTransition = {
+                slideOutOfContainer(
+                    AnimatedContentScope.SlideDirection.Right,
+                    animationSpec = tween(700)
+                )
+            }
+        ) {
             ExploreScreen(
                 onPopularShowClick = {},
                 onMostAnticipatedShowClick = {},
@@ -52,7 +121,53 @@ fun NavigationGraph(navHostController: NavHostController) {
             )
         }
 
-        composable(route = BottomNavigationScreen.TraktAccount.routeName) {
+        // Show Detail Screen
+        composable(
+            route = NavigationScreen.ShowDetail.routeName,
+            enterTransition = { slideIntoContainer(AnimatedContentScope.SlideDirection.Left) },
+            exitTransition = { slideOutOfContainer(AnimatedContentScope.SlideDirection.Left) },
+            popEnterTransition = {
+                slideIntoContainer(
+                    AnimatedContentScope.SlideDirection.Right,
+                    animationSpec = tween(700)
+                )
+            },
+            popExitTransition = {
+                slideOutOfContainer(
+                    AnimatedContentScope.SlideDirection.Right,
+                    animationSpec = tween(700)
+                )
+            }
+        ) {
+            val selectedShow =
+                navHostController.previousBackStackEntry?.savedStateHandle?.get<ShowDetailArg>("show")
+
+            ShowDetailScreen(
+                showDetailArg = selectedShow,
+                onSeasonsClick = { },
+                onCastItemClick = {},
+                onFavoriteClick = {}
+            )
+        }
+
+        // Trakt Account Screen
+        composable(
+            route = NavigationScreen.TraktAccount.routeName,
+            enterTransition = { slideIntoContainer(AnimatedContentScope.SlideDirection.Left) },
+            exitTransition = { slideOutOfContainer(AnimatedContentScope.SlideDirection.Left) },
+            popEnterTransition = {
+                slideIntoContainer(
+                    AnimatedContentScope.SlideDirection.Right,
+                    animationSpec = tween(700)
+                )
+            },
+            popExitTransition = {
+                slideOutOfContainer(
+                    AnimatedContentScope.SlideDirection.Right,
+                    animationSpec = tween(700)
+                )
+            }
+        ) {
             TraktAccountScreen(
                 onConnectToTraktClick = {},
                 onLogoutClick = {},

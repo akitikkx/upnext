@@ -27,6 +27,7 @@ import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -43,6 +44,7 @@ import com.theupnextapp.ui.common.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
+@ExperimentalAnimationApi
 @ExperimentalMaterialApi
 @ExperimentalComposeUiApi
 @ExperimentalFoundationApi
@@ -58,15 +60,7 @@ class ShowDetailFragment : BaseFragment() {
 
     private val args by navArgs<ShowDetailFragmentArgs>()
 
-    @Inject
-    lateinit var assistedFactory: ShowDetailViewModel.ShowDetailViewModelFactory
-
-    private val viewModel by viewModels<ShowDetailViewModel> {
-        ShowDetailViewModel.provideFactory(
-            assistedFactory,
-            args.show
-        )
-    }
+    private val viewModel by viewModels<ShowDetailViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
