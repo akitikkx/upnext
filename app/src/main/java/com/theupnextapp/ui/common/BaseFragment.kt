@@ -23,6 +23,9 @@ package com.theupnextapp.ui.common
 
 import android.os.Bundle
 import android.view.View
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.FragmentNavigator
@@ -33,6 +36,9 @@ import com.theupnextapp.MainActivity
 import com.theupnextapp.R
 import com.theupnextapp.common.utils.NetworkConnectivityUtil
 
+@ExperimentalMaterialApi
+@ExperimentalComposeUiApi
+@ExperimentalFoundationApi
 open class BaseFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

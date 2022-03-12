@@ -27,6 +27,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -41,18 +42,16 @@ import com.theupnextapp.ui.common.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
+@ExperimentalMaterialApi
+@ExperimentalFoundationApi
+@ExperimentalComposeUiApi
 @AndroidEntryPoint
 class TraktAccountFragment : BaseFragment() {
 
     private var _binding: FragmentTraktAccountBinding? = null
     private val binding get() = _binding!!
 
-    @Inject
-    lateinit var traktAccountViewModelFactory: TraktAccountViewModel.TraktAccountViewModelFactory
-
-    private val viewModel by viewModels<TraktAccountViewModel> {
-        traktAccountViewModelFactory.create(this)
-    }
+    private val viewModel by viewModels<TraktAccountViewModel>()
 
     @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
     override fun onCreateView(

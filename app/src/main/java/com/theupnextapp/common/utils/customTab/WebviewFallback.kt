@@ -25,9 +25,15 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.provider.Browser
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.ui.ExperimentalComposeUiApi
 import com.theupnextapp.BuildConfig
 import com.theupnextapp.ui.common.BaseFragment
 
+@ExperimentalFoundationApi
+@ExperimentalComposeUiApi
+@ExperimentalMaterialApi
 class WebviewFallback : CustomTabFallback {
 
     override fun openUri(activity: Activity, uri: Uri) {

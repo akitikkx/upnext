@@ -29,10 +29,13 @@ import com.theupnextapp.ui.common.BaseTraktViewModel
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class TraktAccountViewModel(
+@HiltViewModel
+class TraktAccountViewModel @Inject constructor (
     private val traktRepository: TraktRepository,
     workManager: WorkManager
 ) : BaseTraktViewModel(
@@ -84,31 +87,6 @@ class TraktAccountViewModel(
             viewModelScope.launch(Dispatchers.IO) {
                 traktRepository.getTraktAccessToken(code)
             }
-        }
-    }
-
-    @AssistedFactory
-    interface TraktAccountViewModelFactory {
-        fun create(
-            owner: SavedStateRegistryOwner
-        ): Factory
-    }
-
-    class Factory @AssistedInject constructor(
-        @Assisted owner: SavedStateRegistryOwner,
-        private val traktRepository: TraktRepository,
-        private val workManager: WorkManager
-    ) : AbstractSavedStateViewModelFactory(owner, null) {
-        @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel?> create(
-            key: String,
-            modelClass: Class<T>,
-            handle: SavedStateHandle
-        ): T {
-            return TraktAccountViewModel(
-                traktRepository,
-                workManager
-            ) as T
         }
     }
 }

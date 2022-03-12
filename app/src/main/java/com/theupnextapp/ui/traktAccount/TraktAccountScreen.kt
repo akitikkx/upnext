@@ -55,6 +55,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.theupnextapp.R
 import com.theupnextapp.domain.TraktUserListItem
 import com.theupnextapp.ui.components.SectionHeadingText
@@ -64,7 +65,7 @@ import com.theupnextapp.ui.widgets.ListPosterCard
 @ExperimentalMaterialApi
 @Composable
 fun TraktAccountScreen(
-    viewModel: TraktAccountViewModel,
+    viewModel: TraktAccountViewModel = hiltViewModel(),
     onConnectToTraktClick: () -> Unit,
     onFavoriteClick: (item: TraktUserListItem) -> Unit,
     onLogoutClick: () -> Unit
