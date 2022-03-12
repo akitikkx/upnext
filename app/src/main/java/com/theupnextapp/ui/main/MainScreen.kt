@@ -12,7 +12,10 @@
 
 package com.theupnextapp.ui.main
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
@@ -23,7 +26,10 @@ import androidx.compose.material.LocalContentColor
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
@@ -40,15 +46,38 @@ import com.theupnextapp.ui.navigation.NavigationScreen
 fun MainScreen() {
     val navController = rememberAnimatedNavController()
 
+    // the bottom bar will be hidden on certain screens so we need to use
+    // a state variable to determine whether it should be visible or not
+    // and use AnimatedVisibility to handle its visibility based on this state
+    val bottomBarState = rememberSaveable { mutableStateOf(true) }
+
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+
+    when (navBackStackEntry?.destination?.route) {
+        NavigationScreen.ShowDetail.routeName -> {
+            bottomBarState.value = false
+        }
+        else -> bottomBarState.value = true
+    }
+
     Scaffold(
-        bottomBar = { BottomBar(navController = navController) }
+        bottomBar = {
+            BottomBar(
+                navController = navController,
+                bottomBarState = bottomBarState
+            )
+        }
     ) {
         NavigationGraph(navHostController = navController)
     }
 }
 
+@ExperimentalAnimationApi
 @Composable
-fun BottomBar(navController: NavHostController) {
+fun BottomBar(
+    navController: NavHostController,
+    bottomBarState: MutableState<Boolean>
+) {
     val menuItems = listOf(
         NavigationScreen.Search,
         NavigationScreen.Dashboard,
@@ -60,24 +89,31 @@ fun BottomBar(navController: NavHostController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
-    BottomNavigation {
-        menuItems.forEach { item ->
-            BottomNavigationItem(
-                label = { item.title?.let { Text(text = it) } },
-                icon = {
-                    item.menuIcon?.let {
-                        Icon(
-                            imageVector = it,
-                            contentDescription = "Bottom navigation menu icon"
-                        )
-                    }
-                },
-                selected = currentDestination?.hierarchy?.any {
-                    it.route == item.routeName
-                } == true,
-                unselectedContentColor = LocalContentColor.current.copy(alpha = ContentAlpha.disabled),
-                onClick = { navController.navigate(item.routeName) }
-            )
+    AnimatedVisibility(
+        visible = bottomBarState.value,
+        enter = slideInVertically(initialOffsetY = { it }),
+        exit = slideOutVertically(targetOffsetY = { it }),
+        content = {
+            BottomNavigation {
+                menuItems.forEach { item ->
+                    BottomNavigationItem(
+                        label = { item.title?.let { Text(text = it) } },
+                        icon = {
+                            item.menuIcon?.let {
+                                Icon(
+                                    imageVector = it,
+                                    contentDescription = "Bottom navigation menu icon"
+                                )
+                            }
+                        },
+                        selected = currentDestination?.hierarchy?.any {
+                            it.route == item.routeName
+                        } == true,
+                        unselectedContentColor = LocalContentColor.current.copy(alpha = ContentAlpha.disabled),
+                        onClick = { navController.navigate(item.routeName) }
+                    )
+                }
+            }
         }
-    }
+    )
 }
