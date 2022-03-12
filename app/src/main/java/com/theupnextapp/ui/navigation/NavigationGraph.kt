@@ -15,15 +15,13 @@ package com.theupnextapp.ui.navigation
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.navigation.NavHostController
-import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.AnimatedNavHost
+import com.google.accompanist.navigation.animation.composable
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.ui.dashboard.DashboardScreen
 import com.theupnextapp.ui.explore.ExploreScreen
@@ -60,7 +58,18 @@ fun NavigationGraph(navHostController: NavHostController) {
                 )
             }
         ) {
-            SearchScreen(navController = navHostController)
+            SearchScreen {
+                navHostController.currentBackStackEntry?.savedStateHandle?.set(
+                    "show", ShowDetailArg(
+                        source = "search",
+                        showId = it.id,
+                        showTitle = it.name,
+                        showImageUrl = it.originalImageUrl,
+                        showBackgroundUrl = it.mediumImageUrl
+                    )
+                )
+                navHostController.navigate(NavigationScreen.ShowDetail.routeName)
+            }
         }
 
         // Dashboard Screen
@@ -115,9 +124,42 @@ fun NavigationGraph(navHostController: NavHostController) {
             }
         ) {
             ExploreScreen(
-                onPopularShowClick = {},
-                onMostAnticipatedShowClick = {},
-                onTrendingShowClick = {}
+                onPopularShowClick = {
+                    navHostController.currentBackStackEntry?.savedStateHandle?.set(
+                        "show", ShowDetailArg(
+                            source = "popular",
+                            showId = it.tvMazeID,
+                            showTitle = it.title,
+                            showImageUrl = it.originalImageUrl,
+                            showBackgroundUrl = it.mediumImageUrl
+                        )
+                    )
+                    navHostController.navigate(NavigationScreen.ShowDetail.routeName)
+                },
+                onMostAnticipatedShowClick = {
+                    navHostController.currentBackStackEntry?.savedStateHandle?.set(
+                        "show", ShowDetailArg(
+                            source = "most_anticipated",
+                            showId = it.tvMazeID,
+                            showTitle = it.title,
+                            showImageUrl = it.originalImageUrl,
+                            showBackgroundUrl = it.mediumImageUrl
+                        )
+                    )
+                    navHostController.navigate(NavigationScreen.ShowDetail.routeName)
+                },
+                onTrendingShowClick = {
+                    navHostController.currentBackStackEntry?.savedStateHandle?.set(
+                        "show", ShowDetailArg(
+                            source = "trending",
+                            showId = it.tvMazeID,
+                            showTitle = it.title,
+                            showImageUrl = it.originalImageUrl,
+                            showBackgroundUrl = it.mediumImageUrl
+                        )
+                    )
+                    navHostController.navigate(NavigationScreen.ShowDetail.routeName)
+                }
             )
         }
 
@@ -169,9 +211,19 @@ fun NavigationGraph(navHostController: NavHostController) {
             }
         ) {
             TraktAccountScreen(
-                onConnectToTraktClick = {},
-                onLogoutClick = {},
-                onFavoriteClick = {}
+                onFavoriteClick = {
+                    navHostController.currentBackStackEntry?.savedStateHandle?.set(
+                        "show",
+                        ShowDetailArg(
+                            source = "favorites",
+                            showId = it.tvMazeID,
+                            showTitle = it.title,
+                            showImageUrl = it.originalImageUrl,
+                            showBackgroundUrl = it.mediumImageUrl
+                        )
+                    )
+                    navHostController.navigate(NavigationScreen.ShowDetail.routeName)
+                }
             )
         }
     }

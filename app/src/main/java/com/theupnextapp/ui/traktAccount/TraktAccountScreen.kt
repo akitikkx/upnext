@@ -66,9 +66,7 @@ import com.theupnextapp.ui.widgets.ListPosterCard
 @Composable
 fun TraktAccountScreen(
     viewModel: TraktAccountViewModel = hiltViewModel(),
-    onConnectToTraktClick: () -> Unit,
-    onFavoriteClick: (item: TraktUserListItem) -> Unit,
-    onLogoutClick: () -> Unit
+    onFavoriteClick: (item: TraktUserListItem) -> Unit
 ) {
     val scrollState = rememberScrollState()
 
@@ -88,9 +86,9 @@ fun TraktAccountScreen(
                 AccountArea(
                     isAuthorizedOnTrakt = isAuthorizedOnTrakt.value,
                     favoriteShowsList = favoriteShowsList.value,
-                    onConnectToTraktClick = { onConnectToTraktClick() },
+                    onConnectToTraktClick = { viewModel.onConnectToTraktClick() },
                     onFavoriteClick = { onFavoriteClick(it) },
-                    onLogoutClick = { onLogoutClick() }
+                    onLogoutClick = { viewModel.onDisconnectFromTraktClick() }
                 )
 
                 if (isLoading.value == true) {

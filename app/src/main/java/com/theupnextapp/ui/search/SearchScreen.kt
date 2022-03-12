@@ -54,7 +54,7 @@ import com.theupnextapp.ui.widgets.SearchListCard
 @Composable
 fun SearchScreen(
     viewModel: SearchViewModel = hiltViewModel(),
-    navController: NavController
+    onSearch: (ShowSearch) -> Unit
 ) {
     val searchResultsList = viewModel.searchResponse.observeAsState()
 
@@ -67,19 +67,7 @@ fun SearchScreen(
             Box(modifier = Modifier.fillMaxSize()) {
                 SearchArea(
                     searchResultsList = searchResultsList.value,
-                    onResultClick = {
-                        val directions =
-                            SearchFragmentDirections.actionSearchFragmentToShowDetailFragment(
-                                ShowDetailArg(
-                                    source = "search",
-                                    showId = it.id,
-                                    showTitle = it.name,
-                                    showImageUrl = it.originalImageUrl,
-                                    showBackgroundUrl = it.mediumImageUrl
-                                )
-                            )
-                        navController.navigate(directions)
-                    },
+                    onResultClick = { onSearch(it) },
                     onTextSubmit = {
                         viewModel.onQueryTextSubmit(it)
                     }

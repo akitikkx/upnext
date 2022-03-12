@@ -70,12 +70,6 @@ class TraktAccountFragment : BaseFragment() {
                 MdcTheme {
                     TraktAccountScreen(
                         viewModel = viewModel,
-                        onConnectToTraktClick = {
-                            viewModel.onConnectToTraktClick()
-                        },
-                        onLogoutClick = {
-                            viewModel.onDisconnectFromTraktClick()
-                        },
                         onFavoriteClick = {
                             val directions =
                                 TraktAccountFragmentDirections.actionTraktAccountFragmentToShowDetailFragment(

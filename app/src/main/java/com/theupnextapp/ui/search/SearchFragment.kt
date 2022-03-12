@@ -68,7 +68,9 @@ class SearchFragment : BaseFragment() {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 MdcTheme {
-                    SearchScreen(navController = findNavController())
+                    SearchScreen {
+
+                    }
                 }
             }
         }
