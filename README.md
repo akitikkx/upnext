@@ -136,6 +136,10 @@ In your Trakt account dashboard https://trakt.tv/oauth/applications:
 ## MAD Score
 <img src="https://github.com/akitikkx/upnext/blob/main/screenshots/summary.png" />
 
+## Play Store Data Safety
+The data safety form has been completed on the Play Store and accepted. Please find the CSV version 
+<a href="https://github.com/akitikkx/upnext/blob/main/dataSafety/data_safety_export.csv">here</a>
+
 ## License
 
 MIT License
