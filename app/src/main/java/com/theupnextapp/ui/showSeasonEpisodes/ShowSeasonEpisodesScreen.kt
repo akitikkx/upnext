@@ -44,9 +44,11 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.theupnextapp.R
 import com.theupnextapp.common.utils.DateUtils
 import com.theupnextapp.domain.ShowSeasonEpisode
+import com.theupnextapp.domain.ShowSeasonEpisodesArg
 import com.theupnextapp.ui.components.PosterImage
 import com.theupnextapp.ui.components.SectionHeadingText
 import org.jsoup.Jsoup
@@ -54,9 +56,10 @@ import org.jsoup.Jsoup
 @ExperimentalMaterialApi
 @Composable
 fun ShowSeasonEpisodesScreen(
-    viewModel: ShowSeasonEpisodesViewModel
+    viewModel: ShowSeasonEpisodesViewModel = hiltViewModel(),
+    showSeasonEpisodesArg: ShowSeasonEpisodesArg? = null
 ) {
-    val seasonNumber = viewModel.seasonNumber.observeAsState()
+    viewModel.selectedSeason(showSeasonEpisodesArg)
 
     val episodeList = viewModel.episodes.observeAsState()
 
@@ -65,7 +68,7 @@ fun ShowSeasonEpisodesScreen(
     Surface {
         Column {
             Box(modifier = Modifier.fillMaxSize()) {
-                seasonNumber.value?.let { season ->
+                showSeasonEpisodesArg?.seasonNumber?.let { season ->
                     episodeList.value?.let { episodes ->
                         ShowSeasonEpisodes(
                             seasonNumber = season,

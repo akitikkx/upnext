@@ -23,10 +23,12 @@ import androidx.navigation.NavHostController
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.theupnextapp.domain.ShowDetailArg
+import com.theupnextapp.domain.ShowSeasonEpisodesArg
 import com.theupnextapp.ui.dashboard.DashboardScreen
 import com.theupnextapp.ui.explore.ExploreScreen
 import com.theupnextapp.ui.search.SearchScreen
 import com.theupnextapp.ui.showDetail.ShowDetailScreen
+import com.theupnextapp.ui.showSeasonEpisodes.ShowSeasonEpisodesScreen
 import com.theupnextapp.ui.showSeasons.ShowSeasonsScreen
 import com.theupnextapp.ui.traktAccount.TraktAccountScreen
 
@@ -217,8 +219,43 @@ fun NavigationGraph(navHostController: NavHostController) {
                 navHostController.previousBackStackEntry?.savedStateHandle?.get<ShowDetailArg>("show")
 
             ShowSeasonsScreen(showDetailArg = selectedShow) {
-
+                navHostController.currentBackStackEntry?.savedStateHandle?.set("season",
+                    selectedShow?.isAuthorizedOnTrakt?.let { authorizedOnTrakt ->
+                        ShowSeasonEpisodesArg(
+                            showId = selectedShow.showId,
+                            seasonNumber = it.seasonNumber,
+                            imdbID = selectedShow.imdbID,
+                            isAuthorizedOnTrakt = authorizedOnTrakt
+                        )
+                    })
+                navHostController.navigate(NavigationScreen.ShowSeasonEpisodes.routeName)
             }
+        }
+
+        // Show Season Episodes
+        composable(
+            route = NavigationScreen.ShowSeasonEpisodes.routeName,
+            enterTransition = { slideIntoContainer(AnimatedContentScope.SlideDirection.Left) },
+            exitTransition = { slideOutOfContainer(AnimatedContentScope.SlideDirection.Left) },
+            popEnterTransition = {
+                slideIntoContainer(
+                    AnimatedContentScope.SlideDirection.Right,
+                    animationSpec = tween(700)
+                )
+            },
+            popExitTransition = {
+                slideOutOfContainer(
+                    AnimatedContentScope.SlideDirection.Right,
+                    animationSpec = tween(700)
+                )
+            }
+        ) {
+            val selectedSeason =
+                navHostController.previousBackStackEntry?.savedStateHandle?.get<ShowSeasonEpisodesArg>(
+                    "season"
+                )
+
+            ShowSeasonEpisodesScreen(showSeasonEpisodesArg = selectedSeason)
         }
 
         // Trakt Account Screen

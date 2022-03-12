@@ -55,7 +55,8 @@ fun MainScreen() {
 
     when (navBackStackEntry?.destination?.route) {
         NavigationScreen.ShowDetail.routeName,
-        NavigationScreen.ShowSeasons.routeName -> {
+        NavigationScreen.ShowSeasons.routeName,
+        NavigationScreen.ShowSeasonEpisodes.routeName -> {
             bottomBarState.value = false
         }
         else -> bottomBarState.value = true

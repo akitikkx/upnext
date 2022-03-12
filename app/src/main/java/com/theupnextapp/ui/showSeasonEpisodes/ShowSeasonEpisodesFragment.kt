@@ -52,14 +52,7 @@ class ShowSeasonEpisodesFragment : BaseFragment() {
     private var _binding: FragmentShowSeasonEpisodesBinding? = null
     private val binding get() = _binding!!
 
-    private val args by navArgs<ShowSeasonEpisodesFragmentArgs>()
-
-    @Inject
-    lateinit var showSeasonEpisodesViewModelFactory: ShowSeasonEpisodesViewModel.ShowSeasonEpisodesViewModelFactory
-
-    private val viewModel by viewModels<ShowSeasonEpisodesViewModel> {
-        showSeasonEpisodesViewModelFactory.create(this, args.showSeasonEpisode)
-    }
+    private val viewModel by viewModels<ShowSeasonEpisodesViewModel>()
 
     @OptIn(ExperimentalMaterialApi::class)
     override fun onCreateView(

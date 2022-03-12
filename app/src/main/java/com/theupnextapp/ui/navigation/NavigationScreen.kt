@@ -44,15 +44,19 @@ sealed class NavigationScreen (
     )
 
     object ShowDetail: NavigationScreen(
-        routeName = "show_detail"
+        routeName = "show-detail"
     )
 
     object ShowSeasons: NavigationScreen(
-        routeName = "show_seasons"
+        routeName = "show-seasons"
+    )
+
+    object ShowSeasonEpisodes: NavigationScreen(
+        routeName = "show-season-episodes"
     )
 
     object TraktAccount: NavigationScreen(
-        routeName = "trakt_account",
+        routeName = "trakt-account",
         title = "Account",
         menuIcon = Icons.Filled.AccountBox
     )
