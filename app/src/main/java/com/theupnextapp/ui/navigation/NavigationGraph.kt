@@ -27,6 +27,7 @@ import com.theupnextapp.ui.dashboard.DashboardScreen
 import com.theupnextapp.ui.explore.ExploreScreen
 import com.theupnextapp.ui.search.SearchScreen
 import com.theupnextapp.ui.showDetail.ShowDetailScreen
+import com.theupnextapp.ui.showSeasons.ShowSeasonsScreen
 import com.theupnextapp.ui.traktAccount.TraktAccountScreen
 
 @ExperimentalAnimationApi
@@ -186,10 +187,38 @@ fun NavigationGraph(navHostController: NavHostController) {
 
             ShowDetailScreen(
                 showDetailArg = selectedShow,
-                onSeasonsClick = { },
-                onCastItemClick = {},
-                onFavoriteClick = {}
+                onSeasonsClick = {
+                    navHostController.currentBackStackEntry?.savedStateHandle?.set("show", it)
+                    navHostController.navigate(NavigationScreen.ShowSeasons.routeName)
+                },
+                onCastItemClick = {}
             )
+        }
+
+        // Show Seasons
+        composable(
+            route = NavigationScreen.ShowSeasons.routeName,
+            enterTransition = { slideIntoContainer(AnimatedContentScope.SlideDirection.Left) },
+            exitTransition = { slideOutOfContainer(AnimatedContentScope.SlideDirection.Left) },
+            popEnterTransition = {
+                slideIntoContainer(
+                    AnimatedContentScope.SlideDirection.Right,
+                    animationSpec = tween(700)
+                )
+            },
+            popExitTransition = {
+                slideOutOfContainer(
+                    AnimatedContentScope.SlideDirection.Right,
+                    animationSpec = tween(700)
+                )
+            }
+        ) {
+            val selectedShow =
+                navHostController.previousBackStackEntry?.savedStateHandle?.get<ShowDetailArg>("show")
+
+            ShowSeasonsScreen(showDetailArg = selectedShow) {
+
+            }
         }
 
         // Trakt Account Screen

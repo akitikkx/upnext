@@ -53,12 +53,7 @@ class ShowSeasonsFragment : BaseFragment() {
 
     private val args by navArgs<ShowSeasonsFragmentArgs>()
 
-    @Inject
-    lateinit var showSeasonsViewModelFactory: ShowSeasonsViewModel.ShowSeasonsViewModelFactory
-
-    private val viewModel by viewModels<ShowSeasonsViewModel> {
-        showSeasonsViewModelFactory.create(this, args.show)
-    }
+    private val viewModel by viewModels<ShowSeasonsViewModel>()
 
     @OptIn(ExperimentalMaterialApi::class)
     override fun onCreateView(

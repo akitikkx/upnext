@@ -45,7 +45,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.theupnextapp.R
+import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.ShowSeason
 import com.theupnextapp.ui.components.PosterImage
 import com.theupnextapp.ui.components.SectionHeadingText
@@ -53,9 +55,12 @@ import com.theupnextapp.ui.components.SectionHeadingText
 @ExperimentalMaterialApi
 @Composable
 fun ShowSeasonsScreen(
-    viewModel: ShowSeasonsViewModel,
+    viewModel: ShowSeasonsViewModel = hiltViewModel(),
+    showDetailArg: ShowDetailArg? = null,
     onSeasonClick: (item: ShowSeason) -> Unit
 ) {
+    viewModel.selectedShow(showDetailArg)
+
     val showSeasonsList = viewModel.showSeasons.observeAsState()
 
     val isLoading = viewModel.isLoading.observeAsState()

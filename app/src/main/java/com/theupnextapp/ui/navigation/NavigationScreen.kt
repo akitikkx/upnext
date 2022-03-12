@@ -47,6 +47,10 @@ sealed class NavigationScreen (
         routeName = "show_detail"
     )
 
+    object ShowSeasons: NavigationScreen(
+        routeName = "show_seasons"
+    )
+
     object TraktAccount: NavigationScreen(
         routeName = "trakt_account",
         title = "Account",

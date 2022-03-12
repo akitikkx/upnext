@@ -69,9 +69,8 @@ import org.jsoup.Jsoup
 fun ShowDetailScreen(
     viewModel: ShowDetailViewModel = hiltViewModel(),
     showDetailArg: ShowDetailArg? = null,
-    onSeasonsClick: () -> Unit,
-    onCastItemClick: (item: ShowCast) -> Unit,
-    onFavoriteClick: () -> Unit
+    onSeasonsClick: (showDetailArg: ShowDetailArg?) -> Unit,
+    onCastItemClick: (item: ShowCast) -> Unit
 ) {
 
     viewModel.selectedShow(showDetailArg)
@@ -110,9 +109,9 @@ fun ShowDetailScreen(
                     showNextEpisode = showNextEpisode.value,
                     showPreviousEpisode = showPreviousEpisode.value,
                     showRating = showRating.value,
-                    onSeasonsClick = { onSeasonsClick() },
+                    onSeasonsClick = { onSeasonsClick(showDetailArgs.value) },
                     onCastItemClick = { onCastItemClick(it) },
-                    onFavoriteClick = { onFavoriteClick() }
+                    onFavoriteClick = { viewModel.onAddRemoveFavoriteClick() }
                 )
 
                 if (isLoading.value == true) {
