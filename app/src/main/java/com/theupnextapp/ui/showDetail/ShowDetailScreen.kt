@@ -318,7 +318,10 @@ fun ShowDetailButtons(
     ) {
         Button(
             onClick = { onSeasonsClick() },
-            modifier = Modifier.padding(4.dp)
+            modifier = Modifier
+                .padding(4.dp)
+                .width(150.dp)
+                .height(50.dp),
         ) {
             Text(
                 text = stringResource(id = R.string.btn_show_detail_seasons)
@@ -344,7 +347,10 @@ fun TraktFavoriteButton(
         if (isFavorite == true) {
             OutlinedButton(
                 onClick = { onFavoriteClick() },
-                modifier = Modifier.padding(4.dp)
+                modifier = Modifier
+                    .padding(4.dp)
+                    .width(150.dp)
+                    .height(50.dp),
             ) {
                 Text(
                     text = stringResource(id = R.string.btn_show_detail_remove_from_favorites)
@@ -353,7 +359,10 @@ fun TraktFavoriteButton(
         } else {
             Button(
                 onClick = { onFavoriteClick() },
-                modifier = Modifier.padding(4.dp)
+                modifier = Modifier
+                    .padding(4.dp)
+                    .width(150.dp)
+                    .height(50.dp),
             ) {
                 Text(
                     text = stringResource(id = R.string.btn_show_detail_add_to_favorites)

@@ -17,24 +17,41 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.LocalContentAlpha
 import androidx.compose.material.LocalContentColor
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import com.theupnextapp.R
 import com.theupnextapp.ui.navigation.NavigationGraph
 import com.theupnextapp.ui.navigation.NavigationScreen
 
@@ -46,6 +63,11 @@ import com.theupnextapp.ui.navigation.NavigationScreen
 fun MainScreen() {
     val navController = rememberAnimatedNavController()
 
+    // the app bar navigation icon will be hidden on certain screens so we need to use
+    // a state variable to determine whether it should be visible or not
+    // and use AnimatedVisibility to handle its visibility based on this state
+    val appBarIconState = rememberSaveable { mutableStateOf(true) }
+
     // the bottom bar will be hidden on certain screens so we need to use
     // a state variable to determine whether it should be visible or not
     // and use AnimatedVisibility to handle its visibility based on this state
@@ -53,16 +75,18 @@ fun MainScreen() {
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
 
-    when (navBackStackEntry?.destination?.route) {
-        NavigationScreen.ShowDetail.routeName,
-        NavigationScreen.ShowSeasons.routeName,
-        NavigationScreen.ShowSeasonEpisodes.routeName -> {
-            bottomBarState.value = false
-        }
-        else -> bottomBarState.value = true
-    }
+    appBarIconState.value = isChildScreen(navBackStackEntry = navBackStackEntry)
+
+    bottomBarState.value = !isChildScreen(navBackStackEntry = navBackStackEntry)
 
     Scaffold(
+        topBar = {
+            TopBar(
+                title = stringResource(id = R.string.app_name),
+                navController = navController,
+                appBarIconState = appBarIconState
+            )
+        },
         bottomBar = {
             BottomBar(
                 navController = navController,
@@ -71,6 +95,37 @@ fun MainScreen() {
         }
     ) {
         NavigationGraph(navHostController = navController)
+    }
+}
+
+@Composable
+fun TopBar(
+    title: String,
+    navController: NavHostController,
+    appBarIconState: MutableState<Boolean>
+) {
+    TopAppBar {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp)
+                .padding(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            AnimatedVisibility(visible = appBarIconState.value) {
+                CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.high) {
+                    IconButton(onClick = { navController.navigateUp() }) {
+                        Icon(Icons.Filled.ArrowBack, contentDescription = "Back arrow")
+                    }
+                }
+            }
+            CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.high) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.h6
+                )
+            }
+        }
     }
 }
 
@@ -118,4 +173,22 @@ fun BottomBar(
             }
         }
     )
+}
+
+/**
+ * Determine whether this screen is not one of the main screens found on the
+ * bottom navigation bar
+ *
+ * If it is a child screen then the bottom navigation should not be shown
+ * and the app bar should have a back arrow displayed
+ */
+fun isChildScreen(navBackStackEntry: NavBackStackEntry?): Boolean {
+    return when (navBackStackEntry?.destination?.route) {
+        NavigationScreen.ShowDetail.routeName,
+        NavigationScreen.ShowSeasons.routeName,
+        NavigationScreen.ShowSeasonEpisodes.routeName -> {
+            true
+        }
+        else -> false
+    }
 }
