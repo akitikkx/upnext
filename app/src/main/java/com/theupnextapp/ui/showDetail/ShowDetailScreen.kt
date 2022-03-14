@@ -36,14 +36,21 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.BottomSheetScaffold
+import androidx.compose.material.BottomSheetScaffoldState
+import androidx.compose.material.BottomSheetState
+import androidx.compose.material.BottomSheetValue
 import androidx.compose.material.Button
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -61,19 +68,26 @@ import com.theupnextapp.domain.ShowNextEpisode
 import com.theupnextapp.domain.ShowPreviousEpisode
 import com.theupnextapp.domain.TraktShowRating
 import com.theupnextapp.network.models.trakt.Distribution
-import com.theupnextapp.ui.components.SectionHeadingText
 import com.theupnextapp.ui.components.PosterImage
+import com.theupnextapp.ui.components.SectionHeadingText
+import kotlinx.coroutines.launch
 import org.jsoup.Jsoup
 
+@ExperimentalMaterialApi
 @Composable
 fun ShowDetailScreen(
     viewModel: ShowDetailViewModel = hiltViewModel(),
     showDetailArg: ShowDetailArg? = null,
-    onSeasonsClick: (showDetailArg: ShowDetailArg?) -> Unit,
-    onCastItemClick: (item: ShowCast) -> Unit
+    onSeasonsClick: (showDetailArg: ShowDetailArg?) -> Unit
 ) {
 
     viewModel.selectedShow(showDetailArg)
+
+    val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
+        bottomSheetState = BottomSheetState(BottomSheetValue.Collapsed)
+    )
+
+    val selectedCastMemberState = viewModel.selectedCastMember.observeAsState()
 
     val showSummary = viewModel.showSummary.observeAsState()
 
@@ -93,9 +107,18 @@ fun ShowDetailScreen(
 
     val isLoading = viewModel.isLoading.observeAsState()
 
-    Surface(
-        modifier = Modifier
-            .fillMaxSize()
+    BottomSheetScaffold(
+        scaffoldState = bottomSheetScaffoldState,
+        sheetContent = {
+            Surface(
+                Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+            ) {
+                Text(text = "Hello from sheet: ${selectedCastMemberState.value?.name}")
+            }
+        },
+        sheetPeekHeight = 0.dp
     ) {
 
         Column {
@@ -110,8 +133,11 @@ fun ShowDetailScreen(
                     showPreviousEpisode = showPreviousEpisode.value,
                     showRating = showRating.value,
                     onSeasonsClick = { onSeasonsClick(showDetailArgs.value) },
-                    onCastItemClick = { onCastItemClick(it) },
-                    onFavoriteClick = { viewModel.onAddRemoveFavoriteClick() }
+                    onCastItemClick = {
+                        viewModel.selectedCastMember(it)
+                    },
+                    onFavoriteClick = { viewModel.onAddRemoveFavoriteClick() },
+                    bottomSheetScaffoldState = bottomSheetScaffoldState
                 )
 
                 if (isLoading.value == true) {
@@ -126,6 +152,7 @@ fun ShowDetailScreen(
     }
 }
 
+@ExperimentalMaterialApi
 @Composable
 fun DetailArea(
     showSummary: ShowDetailSummary?,
@@ -138,9 +165,12 @@ fun DetailArea(
     onFavoriteClick: () -> Unit,
     onCastItemClick: (item: ShowCast) -> Unit,
     showNextEpisode: ShowNextEpisode?,
-    showPreviousEpisode: ShowPreviousEpisode?
+    showPreviousEpisode: ShowPreviousEpisode?,
+    bottomSheetScaffoldState: BottomSheetScaffoldState
 ) {
     val scrollState = rememberScrollState()
+
+    val coroutineScope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
@@ -178,6 +208,13 @@ fun DetailArea(
         showCast?.let {
             if (it.isNotEmpty()) {
                 ShowCastList(it) { showCastItem ->
+                    coroutineScope.launch {
+                        if (bottomSheetScaffoldState.bottomSheetState.isCollapsed) {
+                            bottomSheetScaffoldState.bottomSheetState.expand()
+                        } else {
+                            bottomSheetScaffoldState.bottomSheetState.collapse()
+                        }
+                    }
                     onCastItemClick(showCastItem)
                 }
             }

@@ -24,8 +24,6 @@ package com.theupnextapp.ui.showDetail
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequest
@@ -41,9 +39,6 @@ import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.ui.common.BaseTraktViewModel
 import com.theupnextapp.work.AddFavoriteShowWorker
 import com.theupnextapp.work.RemoveFavoriteShowWorker
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
@@ -88,6 +83,9 @@ class ShowDetailViewModel @Inject constructor(
     private val _showCast = MutableLiveData<List<ShowCast>?>()
     val showCast: LiveData<List<ShowCast>?> = _showCast
 
+    private val _selectedCastMember = MutableLiveData<ShowCast>()
+    val selectedCastMember: LiveData<ShowCast> = _selectedCastMember
+
     val showRating = traktRepository.traktShowRating
 
     val showStats = traktRepository.traktShowStats
@@ -113,6 +111,10 @@ class ShowDetailViewModel @Inject constructor(
             _show.value = it
             getShowSummary(it)
         }
+    }
+
+    fun selectedCastMember(showCast: ShowCast) {
+        _selectedCastMember.value = showCast
     }
 
     private fun getShowSummary(show: ShowDetailArg) {

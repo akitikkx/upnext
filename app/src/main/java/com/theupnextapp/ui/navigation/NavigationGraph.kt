@@ -192,8 +192,7 @@ fun NavigationGraph(navHostController: NavHostController) {
                 onSeasonsClick = {
                     navHostController.currentBackStackEntry?.savedStateHandle?.set("show", it)
                     navHostController.navigate(NavigationScreen.ShowSeasons.routeName)
-                },
-                onCastItemClick = {}
+                }
             )
         }
 

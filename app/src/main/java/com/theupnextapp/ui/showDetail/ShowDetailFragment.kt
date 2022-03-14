@@ -91,9 +91,6 @@ class ShowDetailFragment : BaseFragment() {
                     ShowDetailScreen(
                         onSeasonsClick = {
                             viewModel.onSeasonsClick()
-                        },
-                        onCastItemClick = {
-                            viewModel.onShowCastItemClicked(it)
                         }
                     )
                 }
@@ -106,23 +103,23 @@ class ShowDetailFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.showCastBottomSheet.observe(viewLifecycleOwner) {
-            if (it != null) {
-                val showCastBottomSheet = ShowCastBottomSheetFragment()
-
-                val args = Bundle()
-                args.putParcelable(ARG_SHOW_CAST, it)
-                showCastBottomSheet.arguments = args
-
-                activity?.supportFragmentManager?.let { fragmentManager ->
-                    showCastBottomSheet.show(
-                        fragmentManager,
-                        ShowCastBottomSheetFragment.TAG
-                    )
-                }
-                viewModel.displayCastBottomSheetComplete()
-            }
-        }
+//        viewModel.showCastBottomSheet.observe(viewLifecycleOwner) {
+//            if (it != null) {
+//                val showCastBottomSheet = ShowCastBottomSheetFragment()
+//
+//                val args = Bundle()
+//                args.putParcelable(ARG_SHOW_CAST, it)
+//                showCastBottomSheet.arguments = args
+//
+//                activity?.supportFragmentManager?.let { fragmentManager ->
+//                    showCastBottomSheet.show(
+//                        fragmentManager,
+//                        ShowCastBottomSheetFragment.TAG
+//                    )
+//                }
+//                viewModel.displayCastBottomSheetComplete()
+//            }
+//        }
 
         viewModel.isAuthorizedOnTrakt.observe(viewLifecycleOwner) {
             _isAuthorizedOnTrakt = it
