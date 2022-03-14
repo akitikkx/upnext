@@ -36,18 +36,17 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.BottomSheetScaffold
-import androidx.compose.material.BottomSheetScaffoldState
-import androidx.compose.material.BottomSheetState
-import androidx.compose.material.BottomSheetValue
 import androidx.compose.material.Button
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.material.ModalBottomSheetState
+import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
-import androidx.compose.material.rememberBottomSheetScaffoldState
+import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
@@ -83,9 +82,7 @@ fun ShowDetailScreen(
 
     viewModel.selectedShow(showDetailArg)
 
-    val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
-        bottomSheetState = BottomSheetState(BottomSheetValue.Collapsed)
-    )
+    val modalBottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
 
     val selectedCastMemberState = viewModel.selectedCastMember.observeAsState()
 
@@ -107,8 +104,8 @@ fun ShowDetailScreen(
 
     val isLoading = viewModel.isLoading.observeAsState()
 
-    BottomSheetScaffold(
-        scaffoldState = bottomSheetScaffoldState,
+    ModalBottomSheetLayout(
+        sheetState = modalBottomSheetState,
         sheetContent = {
             Surface(
                 Modifier
@@ -118,7 +115,7 @@ fun ShowDetailScreen(
                 Text(text = "Hello from sheet: ${selectedCastMemberState.value?.name}")
             }
         },
-        sheetPeekHeight = 0.dp
+        scrimColor = Color.Black.copy(alpha = 0.5f)
     ) {
 
         Column {
@@ -137,7 +134,7 @@ fun ShowDetailScreen(
                         viewModel.selectedCastMember(it)
                     },
                     onFavoriteClick = { viewModel.onAddRemoveFavoriteClick() },
-                    bottomSheetScaffoldState = bottomSheetScaffoldState
+                    modalBottomSheetState = modalBottomSheetState
                 )
 
                 if (isLoading.value == true) {
@@ -166,7 +163,7 @@ fun DetailArea(
     onCastItemClick: (item: ShowCast) -> Unit,
     showNextEpisode: ShowNextEpisode?,
     showPreviousEpisode: ShowPreviousEpisode?,
-    bottomSheetScaffoldState: BottomSheetScaffoldState
+    modalBottomSheetState: ModalBottomSheetState
 ) {
     val scrollState = rememberScrollState()
 
@@ -209,11 +206,7 @@ fun DetailArea(
             if (it.isNotEmpty()) {
                 ShowCastList(it) { showCastItem ->
                     coroutineScope.launch {
-                        if (bottomSheetScaffoldState.bottomSheetState.isCollapsed) {
-                            bottomSheetScaffoldState.bottomSheetState.expand()
-                        } else {
-                            bottomSheetScaffoldState.bottomSheetState.collapse()
-                        }
+                        modalBottomSheetState.show()
                     }
                     onCastItemClick(showCastItem)
                 }
