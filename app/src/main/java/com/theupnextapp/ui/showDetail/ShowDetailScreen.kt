@@ -115,7 +115,7 @@ fun ShowDetailScreen(
                 Text(text = "Hello from sheet: ${selectedCastMemberState.value?.name}")
             }
         },
-        scrimColor = Color.Black.copy(alpha = 0.5f)
+        scrimColor = Color.Black.copy(alpha = 0.32f)
     ) {
 
         Column {
