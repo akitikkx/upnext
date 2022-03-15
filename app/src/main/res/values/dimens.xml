@@ -62,5 +62,5 @@
 
     <!-- Cast Bottomsheet -->
     <dimen name="cast_poster_width">200dp</dimen>
-    <dimen name="cast_poster_height">210dp</dimen>
+    <dimen name="cast_poster_height">170dp</dimen>
 </resources>

@@ -27,14 +27,17 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.ExperimentalMaterialApi
@@ -52,6 +55,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -110,9 +114,8 @@ fun ShowDetailScreen(
             Surface(
                 Modifier
                     .fillMaxWidth()
-                    .height(200.dp)
             ) {
-                Text(text = "Hello from sheet: ${selectedCastMemberState.value?.name}")
+                ShowCastBottomSheetItem(showCast = selectedCastMemberState.value)
             }
         },
         scrimColor = Color.Black.copy(alpha = 0.32f)
@@ -472,6 +475,61 @@ fun ShowCast(
                     .fillMaxWidth()
                     .align(Alignment.CenterHorizontally)
             )
+        }
+    }
+}
+
+@Composable
+fun ShowCastBottomSheetItem(showCast: ShowCast?) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            showCast?.originalImageUrl?.let {
+                PosterImage(
+                    url = it,
+                    modifier = Modifier
+                        .size(dimensionResource(id = R.dimen.cast_poster_height))
+                        .clip(CircleShape),
+                )
+            }
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            showCast?.name?.let {
+                Text(text = it, style = MaterialTheme.typography.h5)
+            }
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            showCast?.characterName?.let {
+                Text(text = it, style = MaterialTheme.typography.caption)
+            }
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            showCast?.country?.let {
+                HeadingAndItemText(
+                    item = it,
+                    heading = stringResource(id = R.string.cast_info_country)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            showCast?.birthday?.let {
+                HeadingAndItemText(
+                    item = it,
+                    heading = stringResource(id = R.string.cast_info_date_of_birth)
+                )
+            }
         }
     }
 }

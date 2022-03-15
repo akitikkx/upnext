@@ -37,6 +37,7 @@ fun PosterImage(
     url: String,
     modifier: Modifier = Modifier,
     height: Dp = dimensionResource(id = R.dimen.compose_shows_list_poster_height),
+    contentScale: ContentScale = ContentScale.Crop
 ) {
     Image(
         painter = rememberImagePainter(
@@ -47,7 +48,7 @@ fun PosterImage(
                 error(R.drawable.poster_placeholder)
                 fallback(R.drawable.poster_placeholder)
             }),
-        contentScale = ContentScale.Crop,
+        contentScale = contentScale,
         contentDescription = null,
         modifier = modifier
             .fillMaxWidth()
