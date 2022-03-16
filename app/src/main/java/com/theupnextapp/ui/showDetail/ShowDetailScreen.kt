@@ -488,47 +488,56 @@ fun ShowCastBottomSheetItem(showCast: ShowCast?) {
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.CenterHorizontally
+            verticalArrangement = Arrangement.Top
         ) {
 
-            showCast?.originalImageUrl?.let {
-                PosterImage(
-                    url = it,
-                    modifier = Modifier
-                        .size(dimensionResource(id = R.dimen.cast_poster_height))
-                        .clip(CircleShape),
-                )
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                showCast?.originalImageUrl?.let {
+                    PosterImage(
+                        url = it,
+                        modifier = Modifier
+                            .size(dimensionResource(id = R.dimen.cast_poster_height))
+                            .clip(CircleShape),
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                showCast?.name?.let {
+                    Text(text = it, style = MaterialTheme.typography.h5)
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                showCast?.characterName?.let {
+                    Text(text = it, style = MaterialTheme.typography.caption)
+                }
             }
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-            showCast?.name?.let {
-                Text(text = it, style = MaterialTheme.typography.h5)
-            }
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.Start
+            ) {
+                showCast?.country?.let {
+                    HeadingAndItemText(
+                        item = it,
+                        heading = stringResource(id = R.string.cast_info_country)
+                    )
+                }
 
-            Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(4.dp))
 
-            showCast?.characterName?.let {
-                Text(text = it, style = MaterialTheme.typography.caption)
-            }
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            showCast?.country?.let {
-                HeadingAndItemText(
-                    item = it,
-                    heading = stringResource(id = R.string.cast_info_country)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            showCast?.birthday?.let {
-                HeadingAndItemText(
-                    item = it,
-                    heading = stringResource(id = R.string.cast_info_date_of_birth)
-                )
+                showCast?.birthday?.let {
+                    HeadingAndItemText(
+                        item = it,
+                        heading = stringResource(id = R.string.cast_info_date_of_birth)
+                    )
+                }
             }
         }
     }
