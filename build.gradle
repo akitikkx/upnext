@@ -55,10 +55,10 @@ buildscript {
         hilt_work_version = "1.0.0"
         hilt_version = "2.40.1"
 
-        firebase_analytics_version = "20.1.0"
-        firebase_core_version = "20.1.0"
-        firebase_crashlytics_version = "18.2.8"
-        firebase_performance_monitoring_version = "20.0.5"
+        firebase_analytics_version = "20.1.2"
+        firebase_core_version = "20.1.2"
+        firebase_crashlytics_version = "18.2.9"
+        firebase_performance_monitoring_version = "20.0.6"
 
         jsoup_version = '1.14.2'
 
@@ -73,12 +73,12 @@ buildscript {
 
         moshi_version = '1.12.0'
         
-        navigation_version = "2.4.1"
+        navigation_version = "2.4.2"
 
         okhttp_version = '5.0.0-alpha.2'
         okhttp_logging_interceptor_version = '5.0.0-alpha.2'
 
-        paging_version = "3.1.0"
+        paging_version = "3.1.1"
 
         recyclerview_version = "1.2.1"
         recyclerview_selection_version = "1.1.0"
