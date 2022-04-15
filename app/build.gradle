@@ -28,6 +28,7 @@ plugins {
     id("dagger.hilt.android.plugin")
     id("kotlin-android")
     id("kotlin-kapt")
+    id 'com.google.devtools.ksp' version "$kotlin_version-1.0.4"
 }
 
 def localProperties = new Properties()
@@ -53,6 +54,14 @@ android {
 
     sourceSets {
         androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
+    }
+
+    applicationVariants.all { variant ->
+        kotlin.sourceSets {
+            getByName(variant.name) {
+                kotlin.srcDir("build/generated/ksp/${variant.name}/kotlin")
+            }
+        }
     }
 
     buildTypes {
@@ -150,7 +159,7 @@ dependencies {
 
     // Room database
     implementation "androidx.room:room-runtime:$room_version"
-    kapt "androidx.room:room-compiler:$room_version"
+    ksp "androidx.room:room-compiler:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
 
     // Hilt Work
@@ -207,6 +216,10 @@ dependencies {
 
     // Flexbox
     implementation "com.google.android.flexbox:flexbox:$flexbox_version"
+
+    // Jetpack Compose Destinations
+    implementation "io.github.raamcosta.compose-destinations:core:$compose_destinations_version"
+    ksp "io.github.raamcosta.compose-destinations:ksp:$compose_destinations_version"
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

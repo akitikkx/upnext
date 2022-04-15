@@ -26,6 +26,7 @@ buildscript {
         appcompat_version = "1.4.1"
 
         compose_activity_version = "1.4.0"
+        compose_destinations_version = "1.4.4-beta"
         compose_material_version = "1.2.0-alpha07"
         compose_animation_version = "1.2.0-alpha07"
         compose_ui_version = "1.1.1"
