@@ -43,18 +43,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.theupnextapp.R
-import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.ShowSearch
+import com.theupnextapp.ui.destinations.ShowDetailScreenDestination
 import com.theupnextapp.ui.widgets.SearchListCard
 
 @ExperimentalMaterialApi
 @ExperimentalComposeUiApi
+@Destination
 @Composable
 fun SearchScreen(
     viewModel: SearchViewModel = hiltViewModel(),
-    navController: NavController
+    navigator: DestinationsNavigator
 ) {
     val searchResultsList = viewModel.searchResponse.observeAsState()
 
@@ -68,17 +70,15 @@ fun SearchScreen(
                 SearchArea(
                     searchResultsList = searchResultsList.value,
                     onResultClick = {
-                        val directions =
-                            SearchFragmentDirections.actionSearchFragmentToShowDetailFragment(
-                                ShowDetailArg(
-                                    source = "search",
-                                    showId = it.id,
-                                    showTitle = it.name,
-                                    showImageUrl = it.originalImageUrl,
-                                    showBackgroundUrl = it.mediumImageUrl
-                                )
+                        navigator.navigate(
+                            ShowDetailScreenDestination(
+                                source = "search",
+                                showId = it.id.toString(),
+                                showTitle = it.name,
+                                showImageUrl = it.originalImageUrl,
+                                showBackgroundUrl = it.mediumImageUrl
                             )
-                        navController.navigate(directions)
+                        )
                     },
                     onTextSubmit = {
                         viewModel.onQueryTextSubmit(it)
@@ -97,7 +97,8 @@ fun SearchScreen(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterialApi::class)
+@ExperimentalMaterialApi
+@ExperimentalComposeUiApi
 @Composable
 fun SearchArea(
     searchResultsList: List<ShowSearch>?,

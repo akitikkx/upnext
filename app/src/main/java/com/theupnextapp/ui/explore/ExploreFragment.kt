@@ -62,47 +62,47 @@ class ExploreFragment : BaseFragment() {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 MdcTheme {
-                    ExploreScreen(
-                        onPopularShowClick = {
-                            val directions =
-                                ExploreFragmentDirections.actionExploreFragmentToShowDetailFragment(
-                                    ShowDetailArg(
-                                        source = "popular",
-                                        showId = it.tvMazeID,
-                                        showTitle = it.title,
-                                        showImageUrl = it.originalImageUrl,
-                                        showBackgroundUrl = it.mediumImageUrl
-                                    )
-                                )
-                            findNavController().navigate(directions)
-                        },
-                        onTrendingShowClick = {
-                            val directions =
-                                ExploreFragmentDirections.actionExploreFragmentToShowDetailFragment(
-                                    ShowDetailArg(
-                                        source = "trending",
-                                        showId = it.tvMazeID,
-                                        showTitle = it.title,
-                                        showImageUrl = it.originalImageUrl,
-                                        showBackgroundUrl = it.mediumImageUrl
-                                    )
-                                )
-                            findNavController().navigate(directions)
-                        },
-                        onMostAnticipatedShowClick = {
-                            val directions =
-                                ExploreFragmentDirections.actionExploreFragmentToShowDetailFragment(
-                                    ShowDetailArg(
-                                        source = "most_anticipated",
-                                        showId = it.tvMazeID,
-                                        showTitle = it.title,
-                                        showImageUrl = it.originalImageUrl,
-                                        showBackgroundUrl = it.mediumImageUrl
-                                    )
-                                )
-                            findNavController().navigate(directions)
-                        }
-                    )
+//                    ExploreScreen(
+//                        onPopularShowClick = {
+//                            val directions =
+//                                ExploreFragmentDirections.actionExploreFragmentToShowDetailFragment(
+//                                    ShowDetailArg(
+//                                        source = "popular",
+//                                        showId = it.tvMazeID.toString(),
+//                                        showTitle = it.title,
+//                                        showImageUrl = it.originalImageUrl,
+//                                        showBackgroundUrl = it.mediumImageUrl
+//                                    )
+//                                )
+//                            findNavController().navigate(directions)
+//                        },
+//                        onTrendingShowClick = {
+//                            val directions =
+//                                ExploreFragmentDirections.actionExploreFragmentToShowDetailFragment(
+//                                    ShowDetailArg(
+//                                        source = "trending",
+//                                        showId = it.tvMazeID.toString(),
+//                                        showTitle = it.title,
+//                                        showImageUrl = it.originalImageUrl,
+//                                        showBackgroundUrl = it.mediumImageUrl
+//                                    )
+//                                )
+//                            findNavController().navigate(directions)
+//                        },
+//                        onMostAnticipatedShowClick = {
+//                            val directions =
+//                                ExploreFragmentDirections.actionExploreFragmentToShowDetailFragment(
+//                                    ShowDetailArg(
+//                                        source = "most_anticipated",
+//                                        showId = it.tvMazeID.toString(),
+//                                        showTitle = it.title,
+//                                        showImageUrl = it.originalImageUrl,
+//                                        showBackgroundUrl = it.mediumImageUrl
+//                                    )
+//                                )
+//                            findNavController().navigate(directions)
+//                        }
+//                    )
                 }
 
             }

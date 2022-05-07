@@ -21,12 +21,14 @@
 
 buildscript {
     ext {
+        accompanist_navigation_animation_version = "0.23.1"
+
         androidx_preference_version = "1.2.0"
 
         appcompat_version = "1.4.1"
 
         compose_activity_version = "1.4.0"
-        compose_destinations_version = "1.4.4-beta"
+        compose_destinations_version = "1.5.2-beta"
         compose_material_version = "1.2.0-alpha07"
         compose_animation_version = "1.2.0-alpha07"
         compose_ui_version = "1.1.1"

@@ -38,6 +38,7 @@ import com.theupnextapp.ui.common.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
+// TODO Remove fragment
 @AndroidEntryPoint
 class ShowSeasonsFragment : BaseFragment() {
 
@@ -46,12 +47,12 @@ class ShowSeasonsFragment : BaseFragment() {
 
     private val args by navArgs<ShowSeasonsFragmentArgs>()
 
-    @Inject
-    lateinit var showSeasonsViewModelFactory: ShowSeasonsViewModel.ShowSeasonsViewModelFactory
-
-    private val viewModel by viewModels<ShowSeasonsViewModel> {
-        showSeasonsViewModelFactory.create(this, args.show)
-    }
+//    @Inject
+//    lateinit var showSeasonsViewModelFactory: ShowSeasonsViewModel.ShowSeasonsViewModelFactory
+//
+//    private val viewModel by viewModels<ShowSeasonsViewModel> {
+//        showSeasonsViewModelFactory.create(this, args.show)
+//    }
 
     @OptIn(ExperimentalMaterialApi::class)
     override fun onCreateView(
@@ -62,25 +63,25 @@ class ShowSeasonsFragment : BaseFragment() {
 
         binding.lifecycleOwner = viewLifecycleOwner
 
-        binding.composeContainer.apply {
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setContent {
-                MdcTheme {
-                    ShowSeasonsScreen(viewModel = viewModel) {
-                        val directions =
-                            ShowSeasonsFragmentDirections.actionShowSeasonsFragmentToShowSeasonEpisodesFragment(
-                                ShowSeasonEpisodesArg(
-                                    showId = args.show.showId,
-                                    seasonNumber = it.seasonNumber,
-                                    imdbID = args.show.imdbID,
-                                    isAuthorizedOnTrakt = args.show.isAuthorizedOnTrakt
-                                )
-                            )
-                        findNavController().navigate(directions)
-                    }
-                }
-            }
-        }
+//        binding.composeContainer.apply {
+//            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+//            setContent {
+//                MdcTheme {
+//                    ShowSeasonsScreen(viewModel = viewModel) {
+//                        val directions =
+//                            ShowSeasonsFragmentDirections.actionShowSeasonsFragmentToShowSeasonEpisodesFragment(
+//                                ShowSeasonEpisodesArg(
+//                                    showId = args.show.showId?.toInt(),
+//                                    seasonNumber = it.seasonNumber,
+//                                    imdbID = args.show.imdbID,
+//                                    isAuthorizedOnTrakt = args.show.isAuthorizedOnTrakt
+//                                )
+//                            )
+//                        findNavController().navigate(directions)
+//                    }
+//                }
+//            }
+//        }
 
         return binding.root
     }

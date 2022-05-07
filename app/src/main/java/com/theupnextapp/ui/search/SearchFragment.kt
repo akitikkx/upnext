@@ -28,15 +28,13 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.navigation.fragment.findNavController
-import com.google.android.material.composethemeadapter.MdcTheme
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentSearchBinding
 import com.theupnextapp.ui.common.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 
+// TODO Remove fragment
 @AndroidEntryPoint
 class SearchFragment : BaseFragment() {
 
@@ -58,14 +56,14 @@ class SearchFragment : BaseFragment() {
 
         binding.lifecycleOwner = viewLifecycleOwner
 
-        binding.composeContainer.apply {
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setContent {
-                MdcTheme {
-                    SearchScreen(navController = findNavController())
-                }
-            }
-        }
+//        binding.composeContainer.apply {
+//            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+//            setContent {
+//                MdcTheme {
+////                    SearchScreen(navController = findNavController())
+//                }
+//            }
+//        }
 
         return binding.root
     }

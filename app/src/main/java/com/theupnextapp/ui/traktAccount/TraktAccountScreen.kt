@@ -55,19 +55,23 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.theupnextapp.R
+import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.TraktUserListItem
 import com.theupnextapp.ui.components.SectionHeadingText
+import com.theupnextapp.ui.destinations.ShowDetailScreenDestination
 import com.theupnextapp.ui.widgets.ListPosterCard
 
 @ExperimentalFoundationApi
 @ExperimentalMaterialApi
+@Destination
 @Composable
 fun TraktAccountScreen(
-    viewModel: TraktAccountViewModel,
-    onConnectToTraktClick: () -> Unit,
-    onFavoriteClick: (item: TraktUserListItem) -> Unit,
-    onLogoutClick: () -> Unit
+    viewModel: TraktAccountViewModel = hiltViewModel(),
+    navigator: DestinationsNavigator
 ) {
     val scrollState = rememberScrollState()
 
@@ -76,6 +80,12 @@ fun TraktAccountScreen(
     val favoriteShowsList = viewModel.favoriteShows.observeAsState()
 
     val isLoading = viewModel.isLoading.observeAsState()
+
+    // TODO Handle Trakt code
+
+    // TODO (Ahmed) Handle viewModel.confirmDisconnectFromTrakt
+
+    // TODO (Ahmed) Handle viewModel.openCustomTab
 
     Surface(
         modifier = Modifier
@@ -87,9 +97,21 @@ fun TraktAccountScreen(
                 AccountArea(
                     isAuthorizedOnTrakt = isAuthorizedOnTrakt.value,
                     favoriteShowsList = favoriteShowsList.value,
-                    onConnectToTraktClick = { onConnectToTraktClick() },
-                    onFavoriteClick = { onFavoriteClick(it) },
-                    onLogoutClick = { onLogoutClick() }
+                    onConnectToTraktClick = { viewModel.onConnectToTraktClick() },
+                    onFavoriteClick = {
+                        navigator.navigate(
+                            ShowDetailScreenDestination(
+                                ShowDetailArg(
+                                    source = "favorites",
+                                    showId = it.tvMazeID.toString(),
+                                    showTitle = it.title,
+                                    showImageUrl = it.originalImageUrl,
+                                    showBackgroundUrl = it.mediumImageUrl
+                                )
+                            )
+                        )
+                    },
+                    onLogoutClick = { viewModel.onDisconnectFromTraktClick() }
                 )
 
                 if (isLoading.value == true) {
@@ -106,10 +128,8 @@ fun TraktAccountScreen(
     }
 }
 
-@OptIn(
-    ExperimentalMaterialApi::class,
-    ExperimentalFoundationApi::class
-)
+@ExperimentalMaterialApi
+@ExperimentalFoundationApi
 @Composable
 fun AccountArea(
     isAuthorizedOnTrakt: Boolean?,

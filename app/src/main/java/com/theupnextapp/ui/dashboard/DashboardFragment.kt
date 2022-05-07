@@ -61,32 +61,32 @@ class DashboardFragment : BaseFragment() {
         binding.composeContainer.apply {
             setContent {
                 MdcTheme {
-                    DashboardScreen {
-                        val direction =
-                            DashboardFragmentDirections.actionDashboardFragmentToShowDetailFragment(
-                                ShowDetailArg(
-                                    source = "dashboard",
-                                    showId = it.id,
-                                    showTitle = it.name,
-                                    showImageUrl = it.originalImage,
-                                    showBackgroundUrl = it.mediumImage
-                                )
-                            )
-
-                        findNavController().navigate(direction)
-
-                        val analyticsBundle = Bundle()
-                        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, it.id.toString())
-                        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, it.name)
-                        analyticsBundle.putString(
-                            FirebaseAnalytics.Param.CONTENT_TYPE,
-                            "dashboard_show"
-                        )
-                        firebaseAnalytics.logEvent(
-                            FirebaseAnalytics.Event.SELECT_ITEM,
-                            analyticsBundle
-                        )
-                    }
+//                    DashboardScreen {
+//                        val direction =
+//                            DashboardFragmentDirections.actionDashboardFragmentToShowDetailFragment(
+//                                ShowDetailArg(
+//                                    source = "dashboard",
+//                                    showId = it.id.toString(),
+//                                    showTitle = it.name,
+//                                    showImageUrl = it.originalImage,
+//                                    showBackgroundUrl = it.mediumImage
+//                                )
+//                            )
+//
+//                        findNavController().navigate(direction)
+//
+//                        val analyticsBundle = Bundle()
+//                        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_ID, it.id.toString())
+//                        analyticsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, it.name)
+//                        analyticsBundle.putString(
+//                            FirebaseAnalytics.Param.CONTENT_TYPE,
+//                            "dashboard_show"
+//                        )
+//                        firebaseAnalytics.logEvent(
+//                            FirebaseAnalytics.Event.SELECT_ITEM,
+//                            analyticsBundle
+//                        )
+//                    }
                 }
             }
         }
