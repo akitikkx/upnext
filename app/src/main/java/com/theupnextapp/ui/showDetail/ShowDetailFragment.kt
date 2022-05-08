@@ -40,6 +40,7 @@ import com.theupnextapp.ui.common.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
+// TODO Remove fragment
 @AndroidEntryPoint
 class ShowDetailFragment : BaseFragment() {
 
@@ -52,15 +53,15 @@ class ShowDetailFragment : BaseFragment() {
 
     private val args by navArgs<ShowDetailFragmentArgs>()
 
-    @Inject
-    lateinit var assistedFactory: ShowDetailViewModel.ShowDetailViewModelFactory
+//    @Inject
+//    lateinit var assistedFactory: ShowDetailViewModel.ShowDetailViewModelFactory
 
-    private val viewModel by viewModels<ShowDetailViewModel> {
-        ShowDetailViewModel.provideFactory(
-            assistedFactory,
-            args.show
-        )
-    }
+//    private val viewModel by viewModels<ShowDetailViewModel> {
+////        ShowDetailViewModel.provideFactory(
+////            assistedFactory,
+////            args.show
+////        )
+//    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -88,17 +89,17 @@ class ShowDetailFragment : BaseFragment() {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 MdcTheme {
-                    ShowDetailScreen(
-                        onSeasonsClick = {
-                            viewModel.onSeasonsClick()
-                        },
-                        onCastItemClick = {
-                            viewModel.onShowCastItemClicked(it)
-                        },
-                        onFavoriteClick = {
-                            viewModel.onAddRemoveFavoriteClick()
-                        }
-                    )
+//                    ShowDetailScreen(
+//                        onSeasonsClick = {
+//                            viewModel.onSeasonsClick()
+//                        },
+//                        onCastItemClick = {
+//                            viewModel.onShowCastItemClicked(it)
+//                        },
+//                        onFavoriteClick = {
+//                            viewModel.onAddRemoveFavoriteClick()
+//                        }
+//                    )
                 }
             }
         }
@@ -109,50 +110,50 @@ class ShowDetailFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.showCastBottomSheet.observe(viewLifecycleOwner) {
-            if (it != null) {
-                val showCastBottomSheet = ShowCastBottomSheetFragment()
+//        viewModel.showCastBottomSheet.observe(viewLifecycleOwner) {
+//            if (it != null) {
+//                val showCastBottomSheet = ShowCastBottomSheetFragment()
+//
+//                val args = Bundle()
+//                args.putParcelable(ARG_SHOW_CAST, it)
+//                showCastBottomSheet.arguments = args
+//
+//                activity?.supportFragmentManager?.let { fragmentManager ->
+//                    showCastBottomSheet.show(
+//                        fragmentManager,
+//                        ShowCastBottomSheetFragment.TAG
+//                    )
+//                }
+//                viewModel.displayCastBottomSheetComplete()
+//            }
+//        }
+//
+//        viewModel.isAuthorizedOnTrakt.observe(viewLifecycleOwner) {
+//            _isAuthorizedOnTrakt = it
+//        }
 
-                val args = Bundle()
-                args.putParcelable(ARG_SHOW_CAST, it)
-                showCastBottomSheet.arguments = args
-
-                activity?.supportFragmentManager?.let { fragmentManager ->
-                    showCastBottomSheet.show(
-                        fragmentManager,
-                        ShowCastBottomSheetFragment.TAG
-                    )
-                }
-                viewModel.displayCastBottomSheetComplete()
-            }
-        }
-
-        viewModel.isAuthorizedOnTrakt.observe(viewLifecycleOwner) {
-            _isAuthorizedOnTrakt = it
-        }
-
-        viewModel.navigateToSeasons.observe(viewLifecycleOwner) {
-            if (it) {
-                val directions =
-                    ShowDetailFragmentDirections.actionShowDetailFragmentToShowSeasonsFragment(
-                        ShowDetailArg(
-                            showId = args.show.showId,
-                            showTitle = args.show.showTitle,
-                            showImageUrl = args.show.showImageUrl,
-                            showBackgroundUrl = args.show.showBackgroundUrl,
-                            imdbID = _imdbID,
-                            isAuthorizedOnTrakt = _isAuthorizedOnTrakt
-                        )
-                    )
-                findNavController().navigate(directions)
-                viewModel.onSeasonsNavigationComplete()
-            }
-        }
+//        viewModel.navigateToSeasons.observe(viewLifecycleOwner) {
+//            if (it) {
+//                val directions =
+//                    ShowDetailFragmentDirections.actionShowDetailFragmentToShowSeasonsFragment(
+//                        ShowDetailArg(
+//                            showId = args.show.showId,
+//                            showTitle = args.show.showTitle,
+//                            showImageUrl = args.show.showImageUrl,
+//                            showBackgroundUrl = args.show.showBackgroundUrl,
+//                            imdbID = _imdbID,
+//                            isAuthorizedOnTrakt = _isAuthorizedOnTrakt
+//                        )
+//                    )
+//                findNavController().navigate(directions)
+//                viewModel.onSeasonsNavigationComplete()
+//            }
+//        }
     }
 
     override fun onResume() {
         super.onResume()
-        (activity as AppCompatActivity).supportActionBar?.title = args.show.showTitle
+//        (activity as AppCompatActivity).supportActionBar?.title = args.show.showTitle
     }
 
     override fun onStart() {

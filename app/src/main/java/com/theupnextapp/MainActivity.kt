@@ -32,6 +32,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.browser.customtabs.CustomTabColorSchemeParams
@@ -41,11 +42,9 @@ import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.onNavDestinationSelected
-import androidx.navigation.ui.setupActionBarWithNavController
-import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.composethemeadapter.MdcTheme
 import com.google.android.material.snackbar.Snackbar
 import com.theupnextapp.common.utils.FeedBackStatus
 import com.theupnextapp.common.utils.Feedback
@@ -53,6 +52,7 @@ import com.theupnextapp.common.utils.customTab.CustomTabComponent
 import com.theupnextapp.common.utils.customTab.TabConnectionCallback
 import com.theupnextapp.common.utils.customTab.WebviewFallback
 import com.theupnextapp.domain.TraktConnectionArg
+import com.theupnextapp.ui.main.MainScreen
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -78,28 +78,14 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
 
-        _toolbar = findViewById(R.id.toolbar)
-        _bottomNavigationView = findViewById(R.id.bottom_navigation)
-        _container = findViewById(R.id.container)
+        setContent {
+            MdcTheme {
+                MainScreen()
+            }
+        }
 
         customTabComponent.setConnectionCallback(this)
-
-        setSupportActionBar(toolbar)
-
-        val appBarConfiguration = AppBarConfiguration
-            .Builder(
-                R.id.searchFragment,
-                R.id.dashboardFragment,
-                R.id.exploreFragment,
-                R.id.traktAccountFragment
-            )
-            .build()
-
-        setupActionBarWithNavController(navController, appBarConfiguration)
-        bottomNavigationView?.setupWithNavController(navController)
-        bottomNavigationView?.setOnItemReselectedListener { }
     }
 
     override fun onSupportNavigateUp(): Boolean {

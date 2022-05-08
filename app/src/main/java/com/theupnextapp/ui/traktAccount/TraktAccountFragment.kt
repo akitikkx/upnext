@@ -41,18 +41,19 @@ import com.theupnextapp.ui.common.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
+// TODO Remove fragment
 @AndroidEntryPoint
 class TraktAccountFragment : BaseFragment() {
 
     private var _binding: FragmentTraktAccountBinding? = null
     private val binding get() = _binding!!
 
-    @Inject
-    lateinit var traktAccountViewModelFactory: TraktAccountViewModel.TraktAccountViewModelFactory
-
-    private val viewModel by viewModels<TraktAccountViewModel> {
-        traktAccountViewModelFactory.create(this)
-    }
+//    @Inject
+//    lateinit var traktAccountViewModelFactory: TraktAccountViewModel.TraktAccountViewModelFactory
+//
+//    private val viewModel by viewModels<TraktAccountViewModel> {
+//        traktAccountViewModelFactory.create(this)
+//    }
 
     @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
     override fun onCreateView(
@@ -63,40 +64,40 @@ class TraktAccountFragment : BaseFragment() {
 
         binding.lifecycleOwner = viewLifecycleOwner
 
-        binding.composeContainer.apply {
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setContent {
-                MdcTheme {
-                    TraktAccountScreen(
-                        viewModel = viewModel,
-                        onConnectToTraktClick = {
-                            viewModel.onConnectToTraktClick()
-                        },
-                        onLogoutClick = {
-                            viewModel.onDisconnectFromTraktClick()
-                        },
-                        onFavoriteClick = {
-                            val directions =
-                                TraktAccountFragmentDirections.actionTraktAccountFragmentToShowDetailFragment(
-                                    ShowDetailArg(
-                                        source = "favorites",
-                                        showId = it.tvMazeID,
-                                        showTitle = it.title,
-                                        showImageUrl = it.originalImageUrl,
-                                        showBackgroundUrl = it.mediumImageUrl
-                                    )
-                                )
-                            findNavController().navigate(directions)
-                        })
-                }
-            }
-        }
+//        binding.composeContainer.apply {
+//            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+//            setContent {
+//                MdcTheme {
+//                    TraktAccountScreen(
+//                        viewModel = viewModel,
+//                        onConnectToTraktClick = {
+//                            viewModel.onConnectToTraktClick()
+//                        },
+//                        onLogoutClick = {
+//                            viewModel.onDisconnectFromTraktClick()
+//                        },
+//                        onFavoriteClick = {
+//                            val directions =
+//                                TraktAccountFragmentDirections.actionTraktAccountFragmentToShowDetailFragment(
+//                                    ShowDetailArg(
+//                                        source = "favorites",
+//                                        showId = it.tvMazeID.toString(),
+//                                        showTitle = it.title,
+//                                        showImageUrl = it.originalImageUrl,
+//                                        showBackgroundUrl = it.mediumImageUrl
+//                                    )
+//                                )
+//                            findNavController().navigate(directions)
+//                        })
+//                }
+//            }
+//        }
 
-        if (arguments?.getParcelable<TraktConnectionArg>(MainActivity.EXTRA_TRAKT_URI) != null) {
-            val connectionArg =
-                arguments?.getParcelable<TraktConnectionArg>(MainActivity.EXTRA_TRAKT_URI)
-            viewModel.onCodeReceived(connectionArg?.code)
-        }
+//        if (arguments?.getParcelable<TraktConnectionArg>(MainActivity.EXTRA_TRAKT_URI) != null) {
+//            val connectionArg =
+//                arguments?.getParcelable<TraktConnectionArg>(MainActivity.EXTRA_TRAKT_URI)
+//            viewModel.onCodeReceived(connectionArg?.code)
+//        }
 
         return binding.root
     }
@@ -104,29 +105,29 @@ class TraktAccountFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.openCustomTab.observe(viewLifecycleOwner) {
-            if (it) {
-                (activity as MainActivity).connectToTrakt()
-                viewModel.onCustomTabOpened()
-            }
-        }
+//        viewModel.openCustomTab.observe(viewLifecycleOwner) {
+//            if (it) {
+//                (activity as MainActivity).connectToTrakt()
+//                viewModel.onCustomTabOpened()
+//            }
+//        }
 
-        viewModel.confirmDisconnectFromTrakt.observe(viewLifecycleOwner) {
-            if (it == true) {
-                MaterialAlertDialogBuilder(requireActivity())
-                    .setTitle(resources.getString(R.string.library_disconnect_from_trakt_dialog_title))
-                    .setMessage(resources.getString(R.string.disconnect_from_trakt_dialog_message))
-                    .setNegativeButton(resources.getString(R.string.library_disconnect_from_trakt_dialog_negative)) { dialog, _ ->
-                        dialog.dismiss()
-                    }
-                    .setPositiveButton(resources.getString(R.string.library_disconnect_from_trakt_dialog_positive)) { dialog, _ ->
-                        viewModel.onDisconnectConfirm()
-                        dialog.dismiss()
-                    }
-                    .show()
-                viewModel.onDisconnectFromTraktConfirmed()
-            }
-        }
+//        viewModel.confirmDisconnectFromTrakt.observe(viewLifecycleOwner) {
+//            if (it == true) {
+//                MaterialAlertDialogBuilder(requireActivity())
+//                    .setTitle(resources.getString(R.string.library_disconnect_from_trakt_dialog_title))
+//                    .setMessage(resources.getString(R.string.disconnect_from_trakt_dialog_message))
+//                    .setNegativeButton(resources.getString(R.string.library_disconnect_from_trakt_dialog_negative)) { dialog, _ ->
+//                        dialog.dismiss()
+//                    }
+//                    .setPositiveButton(resources.getString(R.string.library_disconnect_from_trakt_dialog_positive)) { dialog, _ ->
+//                        viewModel.onDisconnectConfirm()
+//                        dialog.dismiss()
+//                    }
+//                    .show()
+//                viewModel.onDisconnectFromTraktConfirmed()
+//            }
+//        }
     }
 
     override fun onDestroyView() {
