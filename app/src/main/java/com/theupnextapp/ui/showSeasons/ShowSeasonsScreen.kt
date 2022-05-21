@@ -87,7 +87,9 @@ fun ShowSeasons(list: List<ShowSeason>, onClick: (item: ShowSeason) -> Unit) {
     Column(modifier = Modifier.fillMaxWidth()) {
         SectionHeadingText(text = stringResource(id = R.string.title_seasons))
         LazyColumn(modifier = Modifier.padding(8.dp)) {
-            items(list) { showSeason ->
+            items(list, key = { showSeason ->
+                showSeason.id.toString()
+            }) { showSeason ->
                 ShowSeasonCard(item = showSeason) {
                     onClick(showSeason)
                 }

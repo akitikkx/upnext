@@ -97,7 +97,8 @@ fun SearchScreen(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterialApi::class)
+@ExperimentalComposeUiApi
+@ExperimentalMaterialApi
 @Composable
 fun SearchArea(
     searchResultsList: List<ShowSearch>?,
@@ -161,9 +162,9 @@ fun SearchResultsList(
     onClick: (item: ShowSearch) -> Unit
 ) {
     LazyColumn {
-        items(list) {
-            SearchListCard(item = it) {
-                onClick(it)
+        items(list, key = { result -> result.id }) { result ->
+            SearchListCard(item = result) {
+                onClick(result)
             }
         }
     }

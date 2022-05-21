@@ -106,10 +106,9 @@ fun TraktAccountScreen(
     }
 }
 
-@OptIn(
-    ExperimentalMaterialApi::class,
-    ExperimentalFoundationApi::class
-)
+
+@ExperimentalMaterialApi
+@ExperimentalFoundationApi
 @Composable
 fun AccountArea(
     isAuthorizedOnTrakt: Boolean?,
@@ -212,7 +211,9 @@ fun FavoritesList(
         )
 
         LazyVerticalGrid(columns = GridCells.Fixed(3)) {
-            items(favoriteShows) { favoriteShow ->
+            items(
+                favoriteShows,
+                key = { favoriteShow -> favoriteShow.id.toString() }) { favoriteShow ->
                 ListPosterCard(
                     itemName = favoriteShow.title,
                     itemUrl = favoriteShow.originalImageUrl
@@ -233,7 +234,10 @@ fun EmptyFavoritesList() {
         modifier = Modifier.fillMaxSize()
     ) {
         Text(
-            modifier = Modifier.padding(8.dp),
+            modifier = Modifier
+                .padding(16.dp)
+                .align(Alignment.CenterHorizontally)
+                .fillMaxWidth(0.7f),
             text = stringResource(id = R.string.trakt_account_favorites_empty),
             style = MaterialTheme.typography.body2
         )

@@ -34,14 +34,14 @@ def localProperties = new Properties()
 localProperties.load(new FileInputStream(rootProject.file("local.properties")))
 
 android {
-    compileSdk 31
+    compileSdk 32
 
     defaultConfig {
         applicationId "com.theupnextapp"
-        minSdkVersion 21
-        targetSdkVersion 31
-        versionCode 171
-        versionName "3.3.3"
+        minSdkVersion 22
+        targetSdkVersion 32
+        versionCode 172
+        versionName "3.3.4"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         javaCompileOptions {
@@ -57,13 +57,8 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
-
-        debug {
-            applicationIdSuffix ".debug"
-            debuggable true
         }
     }
     buildTypes.each {
@@ -90,6 +85,7 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion '1.2.0-alpha02'
     }
+    namespace 'com.theupnextapp'
 }
 
 dependencies {
