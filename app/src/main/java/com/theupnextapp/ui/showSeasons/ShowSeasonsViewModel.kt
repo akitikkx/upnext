@@ -53,8 +53,8 @@ class ShowSeasonsViewModel constructor(
     init {
         savedStateHandle.set(SHOW_ID, show.showId)
         viewModelScope.launch {
-            savedStateHandle.get<Int>(SHOW_ID)?.let {
-                showDetailRepository.getShowSeasons(it).collect { result ->
+            savedStateHandle.get<String>(SHOW_ID)?.let {
+                showDetailRepository.getShowSeasons(it.toInt()).collect { result ->
                     when (result) {
                         is Result.Success -> {
                             _showSeasons.value = result.data
@@ -87,7 +87,7 @@ class ShowSeasonsViewModel constructor(
         private val repository: ShowDetailRepository,
         @Assisted private val showDetailArg: ShowDetailArg
     ) : AbstractSavedStateViewModelFactory(owner, null) {
-        override fun <T : ViewModel?> create(
+        override fun <T : ViewModel> create(
             key: String,
             modelClass: Class<T>,
             handle: SavedStateHandle

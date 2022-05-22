@@ -37,6 +37,7 @@ import com.theupnextapp.ui.common.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
+@ExperimentalMaterialApi
 @AndroidEntryPoint
 class ExploreFragment : BaseFragment() {
 
@@ -48,7 +49,6 @@ class ExploreFragment : BaseFragment() {
 
     private val viewModel by viewModels<ExploreViewModel>()
 
-    @OptIn(ExperimentalMaterialApi::class)
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -68,7 +68,7 @@ class ExploreFragment : BaseFragment() {
                                 ExploreFragmentDirections.actionExploreFragmentToShowDetailFragment(
                                     ShowDetailArg(
                                         source = "popular",
-                                        showId = it.tvMazeID,
+                                        showId = it.tvMazeID.toString(),
                                         showTitle = it.title,
                                         showImageUrl = it.originalImageUrl,
                                         showBackgroundUrl = it.mediumImageUrl
@@ -81,7 +81,7 @@ class ExploreFragment : BaseFragment() {
                                 ExploreFragmentDirections.actionExploreFragmentToShowDetailFragment(
                                     ShowDetailArg(
                                         source = "trending",
-                                        showId = it.tvMazeID,
+                                        showId = it.tvMazeID.toString(),
                                         showTitle = it.title,
                                         showImageUrl = it.originalImageUrl,
                                         showBackgroundUrl = it.mediumImageUrl
@@ -94,7 +94,7 @@ class ExploreFragment : BaseFragment() {
                                 ExploreFragmentDirections.actionExploreFragmentToShowDetailFragment(
                                     ShowDetailArg(
                                         source = "most_anticipated",
-                                        showId = it.tvMazeID,
+                                        showId = it.tvMazeID.toString(),
                                         showTitle = it.title,
                                         showImageUrl = it.originalImageUrl,
                                         showBackgroundUrl = it.mediumImageUrl
