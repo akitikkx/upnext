@@ -162,9 +162,9 @@ fun SearchResultsList(
     onClick: (item: ShowSearch) -> Unit
 ) {
     LazyColumn {
-        items(list) {
-            SearchListCard(item = it) {
-                onClick(it)
+        items(list, key = { result -> result.id }) { result ->
+            SearchListCard(item = result) {
+                onClick(result)
             }
         }
     }

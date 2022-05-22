@@ -28,15 +28,14 @@ import android.view.ViewGroup
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
-import androidx.navigation.findNavController
 import com.google.android.material.composethemeadapter.MdcTheme
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.theupnextapp.databinding.FragmentExploreBinding
-import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.ui.common.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
+@ExperimentalMaterialApi
 @AndroidEntryPoint
 class ExploreFragment : BaseFragment() {
 
@@ -48,7 +47,6 @@ class ExploreFragment : BaseFragment() {
 
     private val viewModel by viewModels<ExploreViewModel>()
 
-    @OptIn(ExperimentalMaterialApi::class)
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

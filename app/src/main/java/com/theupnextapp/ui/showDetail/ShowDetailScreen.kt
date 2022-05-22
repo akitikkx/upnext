@@ -397,7 +397,7 @@ fun ShowCastList(
                 .background(Color.Transparent)
                 .padding(16.dp)
         ) {
-            items(list) {
+            items(list, key = { showCastItem -> showCastItem.id.toString() }) {
                 ShowCast(item = it) { showCastItem ->
                     onClick(showCastItem)
 

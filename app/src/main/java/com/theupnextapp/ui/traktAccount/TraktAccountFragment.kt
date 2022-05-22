@@ -27,21 +27,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
-import com.google.android.material.composethemeadapter.MdcTheme
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.theupnextapp.MainActivity
-import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentTraktAccountBinding
-import com.theupnextapp.domain.ShowDetailArg
-import com.theupnextapp.domain.TraktConnectionArg
 import com.theupnextapp.ui.common.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 // TODO Remove fragment
+@ExperimentalFoundationApi
+@ExperimentalMaterialApi
 @AndroidEntryPoint
 class TraktAccountFragment : BaseFragment() {
 
@@ -55,7 +47,6 @@ class TraktAccountFragment : BaseFragment() {
 //        traktAccountViewModelFactory.create(this)
 //    }
 
-    @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?

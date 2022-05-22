@@ -26,19 +26,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.google.android.material.composethemeadapter.MdcTheme
 import com.theupnextapp.MainActivity
 import com.theupnextapp.databinding.FragmentShowSeasonsBinding
-import com.theupnextapp.domain.ShowSeasonEpisodesArg
 import com.theupnextapp.ui.common.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 // TODO Remove fragment
+@ExperimentalMaterialApi
 @AndroidEntryPoint
 class ShowSeasonsFragment : BaseFragment() {
 
@@ -54,7 +49,6 @@ class ShowSeasonsFragment : BaseFragment() {
 //        showSeasonsViewModelFactory.create(this, args.show)
 //    }
 
-    @OptIn(ExperimentalMaterialApi::class)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?

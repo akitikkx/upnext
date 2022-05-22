@@ -149,7 +149,7 @@ fun ShowsRow(
         SectionHeadingText(text = rowTitle)
 
         LazyRow(modifier = Modifier.padding(8.dp)) {
-            items(list) { show ->
+            items(list, key = { show -> show.id }) { show ->
                 ListPosterCard(
                     itemName = show.name,
                     itemUrl = show.originalImage

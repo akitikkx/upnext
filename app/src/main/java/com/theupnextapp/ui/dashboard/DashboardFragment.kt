@@ -22,16 +22,15 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
 import com.google.android.material.composethemeadapter.MdcTheme
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentDashboardBinding
-import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.ui.common.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
+@ExperimentalMaterialApi
 @AndroidEntryPoint
 class DashboardFragment : BaseFragment() {
 
@@ -48,7 +47,6 @@ class DashboardFragment : BaseFragment() {
         setHasOptionsMenu(true)
     }
 
-    @OptIn(ExperimentalMaterialApi::class)
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
