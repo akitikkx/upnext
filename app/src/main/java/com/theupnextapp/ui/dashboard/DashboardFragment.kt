@@ -32,6 +32,7 @@ import com.theupnextapp.ui.common.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
+@ExperimentalMaterialApi
 @AndroidEntryPoint
 class DashboardFragment : BaseFragment() {
 
@@ -48,7 +49,6 @@ class DashboardFragment : BaseFragment() {
         setHasOptionsMenu(true)
     }
 
-    @OptIn(ExperimentalMaterialApi::class)
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -66,7 +66,7 @@ class DashboardFragment : BaseFragment() {
                             DashboardFragmentDirections.actionDashboardFragmentToShowDetailFragment(
                                 ShowDetailArg(
                                     source = "dashboard",
-                                    showId = it.id,
+                                    showId = it.id.toString(),
                                     showTitle = it.name,
                                     showImageUrl = it.originalImage,
                                     showBackgroundUrl = it.mediumImage

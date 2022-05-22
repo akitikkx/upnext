@@ -72,7 +72,7 @@ fun SearchScreen(
                             SearchFragmentDirections.actionSearchFragmentToShowDetailFragment(
                                 ShowDetailArg(
                                     source = "search",
-                                    showId = it.id,
+                                    showId = it.id.toString(),
                                     showTitle = it.name,
                                     showImageUrl = it.originalImageUrl,
                                     showBackgroundUrl = it.mediumImageUrl

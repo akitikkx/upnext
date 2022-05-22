@@ -112,7 +112,7 @@ class ShowDetailViewModel @AssistedInject constructor(
     private fun getShowSummary(show: ShowDetailArg) {
         viewModelScope.launch {
             show.showId?.let {
-                showDetailRepository.getShowSummary(it).collect { result ->
+                showDetailRepository.getShowSummary(it.toInt()).collect { result ->
                     when (result) {
                         is Result.Success -> {
                             val showSummary = result.data
@@ -130,7 +130,7 @@ class ShowDetailViewModel @AssistedInject constructor(
                     }
 
                 }
-                getShowCast(it)
+                getShowCast(it.toInt())
             }
         }
     }

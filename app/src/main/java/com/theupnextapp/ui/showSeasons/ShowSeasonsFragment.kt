@@ -38,6 +38,7 @@ import com.theupnextapp.ui.common.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
+@ExperimentalMaterialApi
 @AndroidEntryPoint
 class ShowSeasonsFragment : BaseFragment() {
 
@@ -53,7 +54,6 @@ class ShowSeasonsFragment : BaseFragment() {
         showSeasonsViewModelFactory.create(this, args.show)
     }
 
-    @OptIn(ExperimentalMaterialApi::class)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -70,7 +70,7 @@ class ShowSeasonsFragment : BaseFragment() {
                         val directions =
                             ShowSeasonsFragmentDirections.actionShowSeasonsFragmentToShowSeasonEpisodesFragment(
                                 ShowSeasonEpisodesArg(
-                                    showId = args.show.showId,
+                                    showId = args.show.showId?.toInt(),
                                     seasonNumber = it.seasonNumber,
                                     imdbID = args.show.imdbID,
                                     isAuthorizedOnTrakt = args.show.isAuthorizedOnTrakt

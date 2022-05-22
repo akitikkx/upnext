@@ -41,6 +41,8 @@ import com.theupnextapp.ui.common.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
+@ExperimentalFoundationApi
+@ExperimentalMaterialApi
 @AndroidEntryPoint
 class TraktAccountFragment : BaseFragment() {
 
@@ -54,7 +56,6 @@ class TraktAccountFragment : BaseFragment() {
         traktAccountViewModelFactory.create(this)
     }
 
-    @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -80,7 +81,7 @@ class TraktAccountFragment : BaseFragment() {
                                 TraktAccountFragmentDirections.actionTraktAccountFragmentToShowDetailFragment(
                                     ShowDetailArg(
                                         source = "favorites",
-                                        showId = it.tvMazeID,
+                                        showId = it.tvMazeID.toString(),
                                         showTitle = it.title,
                                         showImageUrl = it.originalImageUrl,
                                         showBackgroundUrl = it.mediumImageUrl
