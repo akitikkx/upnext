@@ -23,21 +23,21 @@ buildscript {
     ext {
         androidx_preference_version = "1.2.0"
 
-        appcompat_version = "1.4.1"
+        appcompat_version = "1.4.2"
 
         compose_activity_version = "1.4.0"
-        compose_material_version = "1.2.0-beta01"
-        compose_animation_version = "1.2.0-beta01"
+        compose_material_version = "1.2.0-rc01"
+        compose_animation_version = "1.2.0-rc01"
         compose_ui_version = "1.1.1"
         compose_viewmodel_version = "2.4.1"
         compose_ui_test_version = "1.1.1"
         compose_coil_version = "1.4.0"
         compose_hilt_navigation_version = "1.0.0"
-        compose_theme_adapter_version = "1.1.9"
+        compose_theme_adapter_version = "1.1.11"
 
-        constraintlayout_version = "2.1.3"
+        constraintlayout_version = "2.1.4"
 
-        core_ktx_version = "1.7.0"
+        core_ktx_version = "1.8.0"
 
         custom_tabs_version = "1.4.0"
 
@@ -53,12 +53,12 @@ buildscript {
 
         hilt_navigation_version = "1.0.0"
         hilt_work_version = "1.0.0"
-        hilt_version = "2.40.1"
+        hilt_version = "2.41"
 
         firebase_analytics_version = "21.0.0"
         firebase_core_version = "21.0.0"
-        firebase_crashlytics_version = "18.2.10"
-        firebase_performance_monitoring_version = "20.0.6"
+        firebase_crashlytics_version = "18.2.11"
+        firebase_performance_monitoring_version = "20.1.0"
 
         jsoup_version = '1.14.2'
 
@@ -69,7 +69,7 @@ buildscript {
 
         lifecycle_version = "2.4.1"
 
-        material_version = "1.7.0-alpha01"
+        material_version = "1.7.0-alpha02"
 
         moshi_version = '1.12.0'
         
@@ -96,11 +96,11 @@ buildscript {
 
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.2.0'
+        classpath 'com.android.tools.build:gradle:7.2.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$navigation_version"
         classpath "com.google.gms:google-services:$google_services"
-        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.8.1'
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.0'
         classpath 'com.google.firebase:perf-plugin:1.4.1'
         classpath "com.google.dagger:hilt-android-gradle-plugin:$hilt_version"
         // NOTE: Do not place your application dependencies here; they belong
