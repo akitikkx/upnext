@@ -99,7 +99,8 @@ dependencies {
     // Integration with activities
     implementation "androidx.activity:activity-compose:$compose_activity_version"
     // Compose Material Design
-    implementation "androidx.compose.material:material:$compose_material_version"
+    implementation "androidx.compose.material3:material3:$compose_material_version"
+    implementation "androidx.compose.material3:material3-window-size-class:$compose_material_version"
     // Animations
     implementation "androidx.compose.animation:animation:$compose_animation_version"
     // Tooling support (Previews, etc.)

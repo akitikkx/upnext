@@ -28,11 +28,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.LinearProgressIndicator
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.livedata.observeAsState
@@ -49,7 +49,7 @@ import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.ShowSearch
 import com.theupnextapp.ui.widgets.SearchListCard
 
-@ExperimentalMaterialApi
+@ExperimentalMaterial3Api
 @ExperimentalComposeUiApi
 @Composable
 fun SearchScreen(
@@ -98,7 +98,7 @@ fun SearchScreen(
 }
 
 @ExperimentalComposeUiApi
-@ExperimentalMaterialApi
+@ExperimentalMaterial3Api
 @Composable
 fun SearchArea(
     searchResultsList: List<ShowSearch>?,
@@ -155,7 +155,7 @@ fun SearchInputField(
     )
 }
 
-@ExperimentalMaterialApi
+@ExperimentalMaterial3Api
 @Composable
 fun SearchResultsList(
     list: List<ShowSearch>,

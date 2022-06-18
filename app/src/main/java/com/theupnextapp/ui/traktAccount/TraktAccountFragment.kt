@@ -26,7 +26,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -42,7 +42,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @ExperimentalFoundationApi
-@ExperimentalMaterialApi
+@ExperimentalMaterial3Api
 @AndroidEntryPoint
 class TraktAccountFragment : BaseFragment() {
 
