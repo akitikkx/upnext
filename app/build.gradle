@@ -113,8 +113,6 @@ dependencies {
     implementation "androidx.hilt:hilt-navigation-compose:$compose_hilt_navigation_version"
     // Compose Livedata runtime
     implementation "androidx.compose.runtime:runtime-livedata:$compose_ui_version"
-    // When using a MDC theme
-    implementation "com.google.android.material:compose-theme-adapter:$compose_theme_adapter_version"
 
     // Coroutines for getting off the UI thread
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlin_coroutines_version"

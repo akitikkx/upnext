@@ -44,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.theupnextapp.R
 import com.theupnextapp.domain.ShowSeason
@@ -132,7 +133,8 @@ fun ShowSeasonCard(
                             item.seasonNumber.toString()
                         ),
                         modifier = Modifier.padding(4.dp),
-                        style = MaterialTheme.typography.headlineMedium
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Bold
                     )
                 }
 
@@ -143,7 +145,7 @@ fun ShowSeasonCard(
                             item.premiereDate
                         ),
                         modifier = Modifier.padding(2.dp),
-                        style = MaterialTheme.typography.labelMedium
+                        style = MaterialTheme.typography.bodyMedium
                     )
                 }
 
@@ -154,7 +156,7 @@ fun ShowSeasonCard(
                             item.endDate
                         ),
                         modifier = Modifier.padding(2.dp),
-                        style = MaterialTheme.typography.labelMedium
+                        style = MaterialTheme.typography.bodyMedium
                     )
                 }
 
@@ -169,7 +171,7 @@ fun ShowSeasonCard(
                             bottom = 2.dp,
                             end = 4.dp
                         ),
-                        style = MaterialTheme.typography.labelMedium
+                        style = MaterialTheme.typography.bodyMedium
                     )
                 }
             }

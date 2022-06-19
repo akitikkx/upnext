@@ -33,7 +33,6 @@ buildscript {
         compose_ui_test_version = "1.1.1"
         compose_coil_version = "1.4.0"
         compose_hilt_navigation_version = "1.0.0"
-        compose_theme_adapter_version = "1.1.11"
 
         constraintlayout_version = "2.1.4"
 

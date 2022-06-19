@@ -37,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.theupnextapp.R
 import com.theupnextapp.common.utils.models.getNameAndReleaseYearResource
@@ -77,12 +78,13 @@ fun SearchListCard(
                         item.premiered?.substring(0, 4).toString()
                     ),
                     modifier = Modifier.padding(4.dp),
-                    style = MaterialTheme.typography.headlineLarge
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Bold
                 )
                 Text(
                     text = item.status.toString(),
                     modifier = Modifier.padding(4.dp),
-                    style = MaterialTheme.typography.labelMedium
+                    style = MaterialTheme.typography.bodySmall
                 )
             }
         }

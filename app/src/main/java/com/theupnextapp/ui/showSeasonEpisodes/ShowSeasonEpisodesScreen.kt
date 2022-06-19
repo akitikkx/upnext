@@ -145,7 +145,8 @@ fun ShowSeasonEpisodeCard(
                             item.number.toString()
                         ),
                         modifier = Modifier.padding(4.dp),
-                        style = MaterialTheme.typography.headlineMedium
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Bold
                     )
                 }
 
@@ -156,7 +157,7 @@ fun ShowSeasonEpisodeCard(
                             modifier = Modifier
                                 .padding(start = 4.dp)
                                 .fillMaxWidth(),
-                            style = MaterialTheme.typography.labelMedium,
+                            style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -173,7 +174,7 @@ fun ShowSeasonEpisodeCard(
                                     bottom = 2.dp
                                 )
                                 .fillMaxWidth(),
-                            style = MaterialTheme.typography.labelMedium
+                            style = MaterialTheme.typography.bodySmall
                         )
                     }
                 }
@@ -188,7 +189,7 @@ fun ShowSeasonEpisodeCard(
                         modifier = Modifier
                             .padding(4.dp)
                             .fillMaxWidth(),
-                        style = MaterialTheme.typography.labelMedium
+                        style = MaterialTheme.typography.bodySmall
                     )
                 }
             }

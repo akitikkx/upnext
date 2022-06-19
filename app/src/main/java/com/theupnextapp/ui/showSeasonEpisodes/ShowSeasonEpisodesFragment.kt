@@ -29,13 +29,13 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
-import com.google.android.material.composethemeadapter.MdcTheme
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentShowSeasonEpisodesBinding
 import com.theupnextapp.ui.common.BaseFragment
+import com.theupnextapp.ui.theme.UpnextTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -66,7 +66,7 @@ class ShowSeasonEpisodesFragment : BaseFragment() {
         binding.composeContainer.apply {
             setContent {
                 setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-                MdcTheme {
+                UpnextTheme {
                     ShowSeasonEpisodesScreen(viewModel = viewModel)
                 }
             }

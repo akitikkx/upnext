@@ -670,12 +670,12 @@ fun HeadingAndItemText(
         Text(
             text = heading.uppercase(),
             fontWeight = FontWeight.Bold,
-            style = MaterialTheme.typography.labelMedium
+            style = MaterialTheme.typography.bodyMedium
         )
 
         Text(
             text = item,
-            style = MaterialTheme.typography.bodyMedium
+            style = MaterialTheme.typography.bodySmall
         )
     }
 }
