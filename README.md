@@ -36,7 +36,7 @@ The app is currently on the Google Play Store https://play.google.com/store/apps
 ### Favorites
 Now you can add a show as a favorite, which will be synced to your Trakt account. All your favorites will be displayed on the Account screen when your Trakt account is connected. You will require a Trakt.tv account first before you can connect it on Upnext: TV Series Manager.
 
-<img src="https://github.com/akitikkx/upnext/blob/main/screenshots/web_banner_20_feb_2022.png" />
+<img src="https://user-images.githubusercontent.com/2282990/174495754-59605527-04b8-4f60-8d4d-10a2fa672907.png" />
 
 ## Pre-requisites
 It is important that you ensure that the below are fully setup or the project will not run.
