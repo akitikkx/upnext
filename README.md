@@ -49,7 +49,8 @@ not the default 1.8 else the project will not build:
 Build, Execution, Deployment > Build Tools > Gradle > Gradle JDK
 
 ```
-<img src="https://github.com/akitikkx/upnext/blob/main/screenshots/upnext_java_setup.png" />
+
+<img src="https://user-images.githubusercontent.com/2282990/174495050-5df0fbbb-a358-4e01-969f-347e8420eacf.png" /> 
 
 ### Google Services File
 
@@ -134,7 +135,7 @@ In your Trakt account dashboard https://trakt.tv/oauth/applications:
 ```
 
 ## MAD Score
-<img src="https://github.com/akitikkx/upnext/blob/main/screenshots/summary.png" />
+<img src="https://user-images.githubusercontent.com/2282990/174495157-ca436808-3ec6-4d2c-a338-936c21c00ecf.png" />
 
 ## Play Store Data Safety
 The data safety form has been completed on the Play Store and accepted. Please find the CSV version 
