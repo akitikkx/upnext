@@ -37,12 +37,12 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material.Button
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.LinearProgressIndicator
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -61,7 +61,7 @@ import com.theupnextapp.ui.components.SectionHeadingText
 import com.theupnextapp.ui.widgets.ListPosterCard
 
 @ExperimentalFoundationApi
-@ExperimentalMaterialApi
+@ExperimentalMaterial3Api
 @Composable
 fun TraktAccountScreen(
     viewModel: TraktAccountViewModel,
@@ -107,7 +107,7 @@ fun TraktAccountScreen(
 }
 
 
-@ExperimentalMaterialApi
+@ExperimentalMaterial3Api
 @ExperimentalFoundationApi
 @Composable
 fun AccountArea(
@@ -171,7 +171,7 @@ fun ConnectToTrakt(
     }
 }
 
-@ExperimentalMaterialApi
+@ExperimentalMaterial3Api
 @ExperimentalFoundationApi
 @Composable
 fun FavoritesList(
@@ -200,7 +200,7 @@ fun FavoritesList(
                 .clickable { onLogoutClick() },
             textAlign = TextAlign.Center,
             fontWeight = FontWeight.Bold,
-            style = MaterialTheme.typography.body2
+            style = MaterialTheme.typography.bodyMedium
         )
 
         SectionHeadingText(
@@ -239,7 +239,7 @@ fun EmptyFavoritesList() {
                 .align(Alignment.CenterHorizontally)
                 .fillMaxWidth(0.7f),
             text = stringResource(id = R.string.trakt_account_favorites_empty),
-            style = MaterialTheme.typography.body2
+            style = MaterialTheme.typography.bodyMedium
         )
     }
 }

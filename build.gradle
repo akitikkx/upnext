@@ -26,14 +26,13 @@ buildscript {
         appcompat_version = "1.4.2"
 
         compose_activity_version = "1.4.0"
-        compose_material_version = "1.2.0-rc01"
+        compose_material_version = "1.0.0-alpha13"
         compose_animation_version = "1.2.0-rc01"
         compose_ui_version = "1.1.1"
         compose_viewmodel_version = "2.4.1"
         compose_ui_test_version = "1.1.1"
         compose_coil_version = "1.4.0"
         compose_hilt_navigation_version = "1.0.0"
-        compose_theme_adapter_version = "1.1.11"
 
         constraintlayout_version = "2.1.4"
 

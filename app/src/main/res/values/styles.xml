@@ -21,10 +21,10 @@
 
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="ThemeOverlay.Upnext.Toolbar.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light" />
+    <style name="ThemeOverlay.Upnext.Toolbar.PopupOverlay" parent="ThemeOverlay.Material3.Light" />
 
     <!-- Bottom Sheet -->
-    <style name="ThemeOverlay.Upnext.BottomSheetDialog" parent="Theme.MaterialComponents.BottomSheetDialog">
+    <style name="ThemeOverlay.Upnext.BottomSheetDialog" parent="Theme.Material3.DayNight.BottomSheetDialog">
         <item name="android:windowIsFloating">false</item>
         <item name="bottomSheetStyle">@style/Widget.Upnext.BottomSheet.Modal</item>
         <item name="android:navigationBarColor">?attr/colorSurface</item>
@@ -37,7 +37,7 @@
         <item name="shapeAppearanceOverlay">?attr/shapeAppearanceLargeComponent</item>
     </style>
 
-    <style name="Widget.Upnext.Toolbar.Surface" parent="@style/Widget.MaterialComponents.Toolbar.Surface">
+    <style name="Widget.Upnext.Toolbar.Surface" parent="@style/Widget.Material3.Toolbar.Surface">
         <item name="titleTextAppearance">@style/TextAppearance.Widget.Upnext.Toolbar.Title</item>
     </style>
 

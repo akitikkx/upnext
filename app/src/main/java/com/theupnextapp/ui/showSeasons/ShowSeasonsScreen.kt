@@ -32,25 +32,26 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Card
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.LinearProgressIndicator
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.theupnextapp.R
 import com.theupnextapp.domain.ShowSeason
 import com.theupnextapp.ui.components.PosterImage
 import com.theupnextapp.ui.components.SectionHeadingText
 
-@ExperimentalMaterialApi
+@ExperimentalMaterial3Api
 @Composable
 fun ShowSeasonsScreen(
     viewModel: ShowSeasonsViewModel,
@@ -81,7 +82,7 @@ fun ShowSeasonsScreen(
     }
 }
 
-@ExperimentalMaterialApi
+@ExperimentalMaterial3Api
 @Composable
 fun ShowSeasons(list: List<ShowSeason>, onClick: (item: ShowSeason) -> Unit) {
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -98,14 +99,13 @@ fun ShowSeasons(list: List<ShowSeason>, onClick: (item: ShowSeason) -> Unit) {
     }
 }
 
-@ExperimentalMaterialApi
+@ExperimentalMaterial3Api
 @Composable
 fun ShowSeasonCard(
     item: ShowSeason,
     onClick: () -> Unit
 ) {
     Card(
-        elevation = 4.dp,
         shape = MaterialTheme.shapes.large,
         modifier = Modifier
             .fillMaxWidth()
@@ -133,7 +133,8 @@ fun ShowSeasonCard(
                             item.seasonNumber.toString()
                         ),
                         modifier = Modifier.padding(4.dp),
-                        style = MaterialTheme.typography.h6
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Bold
                     )
                 }
 
@@ -144,7 +145,7 @@ fun ShowSeasonCard(
                             item.premiereDate
                         ),
                         modifier = Modifier.padding(2.dp),
-                        style = MaterialTheme.typography.caption
+                        style = MaterialTheme.typography.bodyMedium
                     )
                 }
 
@@ -155,7 +156,7 @@ fun ShowSeasonCard(
                             item.endDate
                         ),
                         modifier = Modifier.padding(2.dp),
-                        style = MaterialTheme.typography.caption
+                        style = MaterialTheme.typography.bodyMedium
                     )
                 }
 
@@ -170,7 +171,7 @@ fun ShowSeasonCard(
                             bottom = 2.dp,
                             end = 4.dp
                         ),
-                        style = MaterialTheme.typography.caption
+                        style = MaterialTheme.typography.bodyMedium
                     )
                 }
             }

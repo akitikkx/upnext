@@ -45,9 +45,6 @@
         <item name="showSeasonTraktCollectedTagStrokeColor">@color/purple_200</item>
         <item name="favoritesEpisodeOverlayColor">@color/orange_500</item>
 
-        <!-- Material Shape Attributes -->
-        <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.Upnext.LargeComponent
-        </item>
         <item name="shapeAppearanceShowCast">@style/ShapeAppearance.Upnext.Image.Circle</item>
 
         <!-- Material Components -->
@@ -74,11 +71,9 @@
         <item name="bottomNavigationInactive">
             @style/TextAppearance.Upnext.BottomNavigation.TextInactive
         </item>
-
-        <item name="materialButtonStyle">@style/Widget.Upnext.Button</item>
     </style>
 
-    <style name="Base.Theme.MaterialTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Base.Theme.MaterialTheme" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="android:windowBackground">?android:colorBackground</item>
         <item name="android:windowLightStatusBar" tools:ignore="NewApi">true</item>
         <item name="android:statusBarColor">?attr/colorSurface</item>
@@ -89,11 +84,6 @@
         <item name="android:navigationBarDividerColor" tools:ignore="NewApi">
             ?attr/colorControlHighlight
         </item>
-    </style>
-
-    <style name="Widget.Upnext.Button" parent="Widget.MaterialComponents.Button">
-        <item name="shapeAppearance">@style/ShapeAppearance.Upnext.SmallComponent</item>
-        <item name="android:padding">16dp</item>
     </style>
 
 </resources>
