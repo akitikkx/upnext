@@ -41,8 +41,8 @@ android {
         applicationId "com.theupnextapp"
         minSdkVersion 22
         targetSdkVersion 32
-        versionCode 174
-        versionName "3.3.6"
+        versionCode 176
+        versionName "3.4.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         javaCompileOptions {
