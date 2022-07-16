@@ -531,7 +531,7 @@ private fun TraktRatingSummary(ratingData: TraktShowRating) {
                         id = R.string.show_detail_rating_numerator,
                         ratingData.rating.toString()
                     ),
-                    style = MaterialTheme.typography.headlineSmall
+                    style = MaterialTheme.typography.headlineLarge
                 )
 
                 Text(

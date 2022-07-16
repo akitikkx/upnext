@@ -32,6 +32,7 @@ import com.theupnextapp.ui.theme.UpnextTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
+@Deprecated("Will be removed once Jetpack Navigation work has been completed")
 @ExperimentalMaterial3Api
 @AndroidEntryPoint
 class DashboardFragment : BaseFragment() {
@@ -104,10 +105,17 @@ class DashboardFragment : BaseFragment() {
         _binding = null
     }
 
+    @Deprecated(
+        "Deprecated in Java", ReplaceWith(
+            "inflater.inflate(R.menu.dashboard_menu, menu)",
+            "com.theupnextapp.R"
+        )
+    )
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.dashboard_menu, menu)
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.menu_refresh -> {

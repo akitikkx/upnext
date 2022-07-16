@@ -44,6 +44,7 @@ import javax.inject.Inject
 @ExperimentalFoundationApi
 @ExperimentalMaterial3Api
 @AndroidEntryPoint
+@Deprecated("Will be removed once Jetpack Navigation work has been completed")
 class TraktAccountFragment : BaseFragment() {
 
     private var _binding: FragmentTraktAccountBinding? = null

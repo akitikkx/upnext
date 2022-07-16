@@ -40,6 +40,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @ExperimentalMaterial3Api
 @ExperimentalComposeUiApi
 @AndroidEntryPoint
+@Deprecated("Will be removed once Jetpack Navigation work has been completed")
 class SearchFragment : BaseFragment() {
 
     private var _binding: FragmentSearchBinding? = null

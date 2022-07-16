@@ -40,6 +40,7 @@ import com.theupnextapp.ui.theme.UpnextTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
+@Deprecated("Will be removed once Jetpack Navigation work has been completed")
 @AndroidEntryPoint
 class ShowDetailFragment : BaseFragment() {
 
@@ -67,6 +68,7 @@ class ShowDetailFragment : BaseFragment() {
         setHasOptionsMenu(true)
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onPrepareOptionsMenu(menu: Menu) {
         val settingsItem = menu.findItem(R.id.menu_settings)
         if (settingsItem != null) {

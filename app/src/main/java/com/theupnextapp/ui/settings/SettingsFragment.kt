@@ -31,6 +31,7 @@ import androidx.preference.PreferenceFragmentCompat
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
 
+@Deprecated("Will be removed once Jetpack Navigation work has been completed")
 class SettingsFragment : PreferenceFragmentCompat(),
     SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -45,6 +46,7 @@ class SettingsFragment : PreferenceFragmentCompat(),
         preferenceScreen.sharedPreferences?.registerOnSharedPreferenceChangeListener(this)
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onPrepareOptionsMenu(menu: Menu) {
         val settingsItem = menu.findItem(R.id.menu_settings)
         if (settingsItem != null) {
