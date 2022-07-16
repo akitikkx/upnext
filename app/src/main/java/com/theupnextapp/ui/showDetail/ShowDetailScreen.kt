@@ -291,11 +291,13 @@ fun PosterAndMetadata(showSummary: ShowDetailSummary?) {
                 }
             }
 
-            Text(
-                text = stringResource(id = R.string.tv_maze_creative_commons_attribution_text_multiple),
-                style = MaterialTheme.typography.labelMedium,
-                modifier = Modifier.padding(8.dp)
-            )
+            if (!showSummary?.originalImageUrl.isNullOrEmpty()) {
+                Text(
+                    text = stringResource(id = R.string.tv_maze_creative_commons_attribution_text_multiple),
+                    style = MaterialTheme.typography.labelMedium,
+                    modifier = Modifier.padding(8.dp)
+                )
+            }
         }
     }
 }
