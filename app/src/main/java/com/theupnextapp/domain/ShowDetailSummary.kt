@@ -96,3 +96,24 @@ data class ShowDetailSummary(
     }
 
 }
+
+fun emptyShowData(): ShowDetailSummary {
+    return ShowDetailSummary(
+        airDays = null,
+        averageRating = null,
+        id = -1,
+        imdbID = null,
+        genres = null,
+        language = null,
+        mediumImageUrl = null,
+        name = null,
+        originalImageUrl = null,
+        summary = "No show data has been currently provided for this show.",
+        time = null,
+        status = null,
+        previousEpisodeHref = null,
+        nextEpisodeHref = null,
+        nextEpisodeLinkedId = null,
+        previousEpisodeLinkedId = null
+    )
+}
