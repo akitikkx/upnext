@@ -40,6 +40,7 @@ import javax.inject.Inject
 
 @ExperimentalMaterial3Api
 @AndroidEntryPoint
+@Deprecated("Will be removed once Jetpack Navigation work has been completed")
 class ShowSeasonsFragment : BaseFragment() {
 
     private var _binding: FragmentShowSeasonsBinding? = null

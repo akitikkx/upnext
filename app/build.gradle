@@ -41,8 +41,8 @@ android {
         applicationId "com.theupnextapp"
         minSdkVersion 22
         targetSdkVersion 32
-        versionCode 176
-        versionName "3.4.0"
+        versionCode 177
+        versionName "3.4.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         javaCompileOptions {
@@ -84,7 +84,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion '1.2.0-alpha02'
+        kotlinCompilerExtensionVersion '1.2.0-rc02'
     }
     namespace 'com.theupnextapp'
 }

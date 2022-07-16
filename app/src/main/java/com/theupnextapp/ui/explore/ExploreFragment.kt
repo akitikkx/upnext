@@ -39,6 +39,7 @@ import javax.inject.Inject
 
 @ExperimentalMaterial3Api
 @AndroidEntryPoint
+@Deprecated("Will be removed once Jetpack Navigation work has been completed")
 class ExploreFragment : BaseFragment() {
 
     private var _binding: FragmentExploreBinding? = null
