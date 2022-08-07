@@ -118,6 +118,7 @@ fun SearchArea(
     }
 }
 
+@ExperimentalMaterial3Api
 @ExperimentalComposeUiApi
 @Composable
 fun SearchForm(
@@ -134,6 +135,7 @@ fun SearchForm(
     )
 }
 
+@ExperimentalMaterial3Api
 @Composable
 fun SearchInputField(
     modifier: Modifier = Modifier,
