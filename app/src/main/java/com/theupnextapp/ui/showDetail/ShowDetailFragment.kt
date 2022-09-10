@@ -23,7 +23,6 @@ package com.theupnextapp.ui.showDetail
 
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
@@ -32,7 +31,6 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.theupnextapp.MainActivity
-import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentShowDetailBinding
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.ui.common.BaseFragment
@@ -61,19 +59,6 @@ class ShowDetailFragment : BaseFragment() {
             assistedFactory,
             args.show
         )
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
-    @Deprecated("Deprecated in Java")
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        val settingsItem = menu.findItem(R.id.menu_settings)
-        if (settingsItem != null) {
-            settingsItem.isVisible = false
-        }
     }
 
     override fun onCreateView(

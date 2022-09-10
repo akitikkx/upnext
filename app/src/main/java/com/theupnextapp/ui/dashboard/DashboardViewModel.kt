@@ -161,29 +161,4 @@ class DashboardViewModel @Inject constructor(
             workManager.enqueue(OneTimeWorkRequest.from(RefreshTomorrowShowsWorker::class.java))
         }
     }
-
-    fun onRefreshShowsClick() {
-        requestShowsUpdate()
-    }
-
-    private fun requestShowsUpdate() {
-        viewModelScope.launch(Dispatchers.IO) {
-            dashboardRepository.refreshYesterdayShows(
-                DEFAULT_COUNTRY_CODE,
-                DateUtils.yesterdayDate()
-            )
-            dashboardRepository.refreshTodayShows(
-                DEFAULT_COUNTRY_CODE,
-                DateUtils.currentDate()
-            )
-            dashboardRepository.refreshTomorrowShows(
-                DEFAULT_COUNTRY_CODE,
-                DateUtils.tomorrowDate()
-            )
-        }
-    }
-
-    companion object {
-        const val DEFAULT_COUNTRY_CODE = "US"
-    }
 }
