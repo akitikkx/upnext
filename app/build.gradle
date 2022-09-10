@@ -28,20 +28,21 @@ plugins {
     id("dagger.hilt.android.plugin")
     id("kotlin-android")
     id("kotlin-kapt")
+    id("kotlin-parcelize")
 }
 
 def localProperties = new Properties()
 localProperties.load(new FileInputStream(rootProject.file("local.properties")))
 
 android {
-    compileSdk 31
+    compileSdk 33
 
     defaultConfig {
         applicationId "com.theupnextapp"
-        minSdkVersion 21
-        targetSdkVersion 31
-        versionCode 169
-        versionName "3.3.1"
+        minSdkVersion 22
+        targetSdkVersion 33
+        versionCode 179
+        versionName "3.4.3"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         javaCompileOptions {
@@ -59,11 +60,6 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
-
-        debug {
-            applicationIdSuffix ".debug"
-            debuggable true
         }
     }
     buildTypes.each {
@@ -88,8 +84,9 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion '1.2.0-alpha02'
+        kotlinCompilerExtensionVersion '1.2.0-rc02'
     }
+    namespace 'com.theupnextapp'
 }
 
 dependencies {
@@ -102,7 +99,8 @@ dependencies {
     // Integration with activities
     implementation "androidx.activity:activity-compose:$compose_activity_version"
     // Compose Material Design
-    implementation "androidx.compose.material:material:$compose_material_version"
+    implementation "androidx.compose.material3:material3:$compose_material_version"
+    implementation "androidx.compose.material3:material3-window-size-class:$compose_material_version"
     // Animations
     implementation "androidx.compose.animation:animation:$compose_animation_version"
     // Tooling support (Previews, etc.)
@@ -115,8 +113,6 @@ dependencies {
     implementation "androidx.hilt:hilt-navigation-compose:$compose_hilt_navigation_version"
     // Compose Livedata runtime
     implementation "androidx.compose.runtime:runtime-livedata:$compose_ui_version"
-    // When using a MDC theme
-    implementation "com.google.android.material:compose-theme-adapter:$compose_theme_adapter_version"
 
     // Coroutines for getting off the UI thread
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlin_coroutines_version"

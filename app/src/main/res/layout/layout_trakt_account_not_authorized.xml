@@ -65,7 +65,7 @@
             app:layout_constraintTop_toBottomOf="@id/trakt_logo"
             app:showHideView="@{!viewModel.isAuthorizedOnTrakt}" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             style="?materialButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

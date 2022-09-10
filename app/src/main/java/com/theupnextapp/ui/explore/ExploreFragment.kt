@@ -25,19 +25,21 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
-import com.google.android.material.composethemeadapter.MdcTheme
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.theupnextapp.databinding.FragmentExploreBinding
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.ui.common.BaseFragment
+import com.theupnextapp.ui.theme.UpnextTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
+@ExperimentalMaterial3Api
 @AndroidEntryPoint
+@Deprecated("Will be removed once Jetpack Navigation work has been completed")
 class ExploreFragment : BaseFragment() {
 
     private var _binding: FragmentExploreBinding? = null
@@ -48,7 +50,6 @@ class ExploreFragment : BaseFragment() {
 
     private val viewModel by viewModels<ExploreViewModel>()
 
-    @OptIn(ExperimentalMaterialApi::class)
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -61,14 +62,14 @@ class ExploreFragment : BaseFragment() {
         binding.composeContainer.apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
-                MdcTheme {
+                UpnextTheme {
                     ExploreScreen(
                         onPopularShowClick = {
                             val directions =
                                 ExploreFragmentDirections.actionExploreFragmentToShowDetailFragment(
                                     ShowDetailArg(
                                         source = "popular",
-                                        showId = it.tvMazeID,
+                                        showId = it.tvMazeID.toString(),
                                         showTitle = it.title,
                                         showImageUrl = it.originalImageUrl,
                                         showBackgroundUrl = it.mediumImageUrl
@@ -81,7 +82,7 @@ class ExploreFragment : BaseFragment() {
                                 ExploreFragmentDirections.actionExploreFragmentToShowDetailFragment(
                                     ShowDetailArg(
                                         source = "trending",
-                                        showId = it.tvMazeID,
+                                        showId = it.tvMazeID.toString(),
                                         showTitle = it.title,
                                         showImageUrl = it.originalImageUrl,
                                         showBackgroundUrl = it.mediumImageUrl
@@ -94,7 +95,7 @@ class ExploreFragment : BaseFragment() {
                                 ExploreFragmentDirections.actionExploreFragmentToShowDetailFragment(
                                     ShowDetailArg(
                                         source = "most_anticipated",
-                                        showId = it.tvMazeID,
+                                        showId = it.tvMazeID.toString(),
                                         showTitle = it.title,
                                         showImageUrl = it.originalImageUrl,
                                         showBackgroundUrl = it.mediumImageUrl

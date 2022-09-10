@@ -30,9 +30,9 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.LinearProgressIndicator
-import androidx.compose.material.Surface
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
@@ -46,7 +46,7 @@ import com.theupnextapp.domain.TraktTrendingShows
 import com.theupnextapp.ui.components.SectionHeadingText
 import com.theupnextapp.ui.widgets.ListPosterCard
 
-@ExperimentalMaterialApi
+@ExperimentalMaterial3Api
 @Composable
 fun ExploreScreen(
     viewModel: ExploreViewModel = hiltViewModel(),
@@ -117,7 +117,7 @@ fun ExploreScreen(
     }
 }
 
-@ExperimentalMaterialApi
+@ExperimentalMaterial3Api
 @Composable
 fun TrendingShowsRow(
     list: List<TraktTrendingShows>,
@@ -128,7 +128,7 @@ fun TrendingShowsRow(
         SectionHeadingText(text = rowTitle)
 
         LazyRow(modifier = Modifier.padding(8.dp)) {
-            items(list) { show ->
+            items(list, key = { show -> show.id.toString() }) { show ->
                 ListPosterCard(
                     itemName = show.title,
                     itemUrl = show.originalImageUrl
@@ -140,7 +140,7 @@ fun TrendingShowsRow(
     }
 }
 
-@ExperimentalMaterialApi
+@ExperimentalMaterial3Api
 @Composable
 fun PopularShowsRow(
     list: List<TraktPopularShows>,
@@ -151,7 +151,7 @@ fun PopularShowsRow(
         SectionHeadingText(text = rowTitle)
 
         LazyRow(modifier = Modifier.padding(8.dp)) {
-            items(list) { show ->
+            items(list, key = { show -> show.id.toString() }) { show ->
                 ListPosterCard(
                     itemName = show.title,
                     itemUrl = show.originalImageUrl
@@ -163,7 +163,7 @@ fun PopularShowsRow(
     }
 }
 
-@ExperimentalMaterialApi
+@ExperimentalMaterial3Api
 @Composable
 fun MostAnticipatedShowsRow(
     list: List<TraktMostAnticipated>,
@@ -174,7 +174,7 @@ fun MostAnticipatedShowsRow(
         SectionHeadingText(text = rowTitle)
 
         LazyRow(modifier = Modifier.padding(8.dp)) {
-            items(list) { show ->
+            items(list, key = { show -> show.id.toString() }) { show ->
                 ListPosterCard(
                     itemName = show.title,
                     itemUrl = show.originalImageUrl

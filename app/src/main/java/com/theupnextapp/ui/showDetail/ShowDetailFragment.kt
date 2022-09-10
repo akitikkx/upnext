@@ -31,15 +31,16 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.google.android.material.composethemeadapter.MdcTheme
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentShowDetailBinding
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.ui.common.BaseFragment
+import com.theupnextapp.ui.theme.UpnextTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
+@Deprecated("Will be removed once Jetpack Navigation work has been completed")
 @AndroidEntryPoint
 class ShowDetailFragment : BaseFragment() {
 
@@ -67,6 +68,7 @@ class ShowDetailFragment : BaseFragment() {
         setHasOptionsMenu(true)
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onPrepareOptionsMenu(menu: Menu) {
         val settingsItem = menu.findItem(R.id.menu_settings)
         if (settingsItem != null) {
@@ -87,7 +89,7 @@ class ShowDetailFragment : BaseFragment() {
             // https://developer.android.com/jetpack/compose/interop/interop-apis
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
-                MdcTheme {
+                UpnextTheme {
                     ShowDetailScreen(
                         onSeasonsClick = {
                             viewModel.onSeasonsClick()

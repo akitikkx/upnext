@@ -26,18 +26,21 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.navigation.fragment.findNavController
-import com.google.android.material.composethemeadapter.MdcTheme
 import com.theupnextapp.MainActivity
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentSearchBinding
 import com.theupnextapp.ui.common.BaseFragment
+import com.theupnextapp.ui.theme.UpnextTheme
 import dagger.hilt.android.AndroidEntryPoint
 
+@ExperimentalMaterial3Api
+@ExperimentalComposeUiApi
 @AndroidEntryPoint
+@Deprecated("Will be removed once Jetpack Navigation work has been completed")
 class SearchFragment : BaseFragment() {
 
     private var _binding: FragmentSearchBinding? = null
@@ -48,7 +51,6 @@ class SearchFragment : BaseFragment() {
         setHasOptionsMenu(true)
     }
 
-    @OptIn(ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class)
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -61,7 +63,7 @@ class SearchFragment : BaseFragment() {
         binding.composeContainer.apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
-                MdcTheme {
+                UpnextTheme {
                     SearchScreen(navController = findNavController())
                 }
             }

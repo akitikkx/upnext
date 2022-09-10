@@ -25,20 +25,22 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.google.android.material.composethemeadapter.MdcTheme
 import com.theupnextapp.MainActivity
 import com.theupnextapp.databinding.FragmentShowSeasonsBinding
 import com.theupnextapp.domain.ShowSeasonEpisodesArg
 import com.theupnextapp.ui.common.BaseFragment
+import com.theupnextapp.ui.theme.UpnextTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
+@ExperimentalMaterial3Api
 @AndroidEntryPoint
+@Deprecated("Will be removed once Jetpack Navigation work has been completed")
 class ShowSeasonsFragment : BaseFragment() {
 
     private var _binding: FragmentShowSeasonsBinding? = null
@@ -53,7 +55,6 @@ class ShowSeasonsFragment : BaseFragment() {
         showSeasonsViewModelFactory.create(this, args.show)
     }
 
-    @OptIn(ExperimentalMaterialApi::class)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -65,12 +66,12 @@ class ShowSeasonsFragment : BaseFragment() {
         binding.composeContainer.apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
-                MdcTheme {
+                UpnextTheme {
                     ShowSeasonsScreen(viewModel = viewModel) {
                         val directions =
                             ShowSeasonsFragmentDirections.actionShowSeasonsFragmentToShowSeasonEpisodesFragment(
                                 ShowSeasonEpisodesArg(
-                                    showId = args.show.showId,
+                                    showId = args.show.showId?.toInt(),
                                     seasonNumber = it.seasonNumber,
                                     imdbID = args.show.imdbID,
                                     isAuthorizedOnTrakt = args.show.isAuthorizedOnTrakt

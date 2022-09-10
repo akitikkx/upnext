@@ -22,12 +22,12 @@
 
 <resources>
 
-    <style name="ShapeAppearance.Upnext.SmallComponent" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+    <style name="ShapeAppearance.Upnext.SmallComponent" parent="ShapeAppearance.Material3.SmallComponent">
         <item name="cornerFamily">rounded</item>
         <item name="cornerRadius">32dp</item>
     </style>
 
-    <style name="ShapeAppearance.Upnext.LargeComponent" parent="ShapeAppearance.MaterialComponents.LargeComponent">
+    <style name="ShapeAppearance.Upnext.LargeComponent" parent="ShapeAppearance.Material3.LargeComponent">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSizeTopLeft">12dp</item>
         <item name="cornerSizeTopRight">12dp</item>

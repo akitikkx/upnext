@@ -36,6 +36,7 @@ import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.ShowDetailSummary
 import com.theupnextapp.domain.ShowNextEpisode
 import com.theupnextapp.domain.ShowPreviousEpisode
+import com.theupnextapp.domain.emptyShowData
 import com.theupnextapp.repository.ShowDetailRepository
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.ui.common.BaseTraktViewModel
@@ -45,7 +46,6 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class ShowDetailViewModel @AssistedInject constructor(
@@ -112,25 +112,28 @@ class ShowDetailViewModel @AssistedInject constructor(
     private fun getShowSummary(show: ShowDetailArg) {
         viewModelScope.launch {
             show.showId?.let {
-                showDetailRepository.getShowSummary(it).collect { result ->
-                    when (result) {
-                        is Result.Success -> {
-                            val showSummary = result.data
-                            _showSummary.value = showSummary
-                            getShowPreviousEpisode(showSummary.previousEpisodeHref)
-                            getShowNextEpisode(showSummary.nextEpisodeHref)
-                            getTraktShowRating(showSummary.imdbID)
-                            getTraktShowStats(showSummary.imdbID)
-                            checkIfShowIsTraktFavorite(showSummary.imdbID)
+                if (it.isNotEmpty()) {
+                    showDetailRepository.getShowSummary(it.toInt()).collect { result ->
+                        when (result) {
+                            is Result.Success -> {
+                                val showSummary = result.data
+                                _showSummary.value = showSummary
+                                getShowPreviousEpisode(showSummary.previousEpisodeHref)
+                                getShowNextEpisode(showSummary.nextEpisodeHref)
+                                getTraktShowRating(showSummary.imdbID)
+                                getTraktShowStats(showSummary.imdbID)
+                                checkIfShowIsTraktFavorite(showSummary.imdbID)
+                            }
+                            is Result.Loading -> {
+                                isLoading.value = result.status
+                            }
+                            else -> {}
                         }
-                        is Result.Loading -> {
-                            isLoading.value = result.status
-                        }
-                        else -> {}
                     }
-
+                    getShowCast(it.toInt())
+                } else {
+                    _showSummary.value = emptyShowData()
                 }
-                getShowCast(it)
             }
         }
     }

@@ -28,29 +28,29 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.Card
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.theupnextapp.R
 import com.theupnextapp.common.utils.models.getNameAndReleaseYearResource
 import com.theupnextapp.domain.ShowSearch
 import com.theupnextapp.ui.components.PosterImage
 
-@ExperimentalMaterialApi
+@ExperimentalMaterial3Api
 @Composable
 fun SearchListCard(
     item: ShowSearch,
     onClick: () -> Unit
 ) {
     Card(
-        elevation = 4.dp,
         shape = MaterialTheme.shapes.large,
         modifier = Modifier
             .fillMaxWidth()
@@ -78,12 +78,13 @@ fun SearchListCard(
                         item.premiered?.substring(0, 4).toString()
                     ),
                     modifier = Modifier.padding(4.dp),
-                    style = MaterialTheme.typography.h6
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Bold
                 )
                 Text(
                     text = item.status.toString(),
                     modifier = Modifier.padding(4.dp),
-                    style = MaterialTheme.typography.caption
+                    style = MaterialTheme.typography.bodySmall
                 )
             }
         }

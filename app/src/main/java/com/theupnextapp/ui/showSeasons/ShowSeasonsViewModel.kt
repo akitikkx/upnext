@@ -35,7 +35,6 @@ import com.theupnextapp.repository.ShowDetailRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class ShowSeasonsViewModel constructor(
@@ -51,18 +50,20 @@ class ShowSeasonsViewModel constructor(
     val showSeasons: LiveData<List<ShowSeason>?> = _showSeasons
 
     init {
-        savedStateHandle.set(SHOW_ID, show.showId)
+        savedStateHandle[SHOW_ID] = show.showId
         viewModelScope.launch {
-            savedStateHandle.get<Int>(SHOW_ID)?.let {
-                showDetailRepository.getShowSeasons(it).collect { result ->
-                    when (result) {
-                        is Result.Success -> {
-                            _showSeasons.value = result.data
+            savedStateHandle.get<String>(SHOW_ID)?.let {
+                if (it.isNotEmpty()) {
+                    showDetailRepository.getShowSeasons(it.toInt()).collect { result ->
+                        when (result) {
+                            is Result.Success -> {
+                                _showSeasons.value = result.data
+                            }
+                            is Result.Loading -> {
+                                _isLoading.value = result.status
+                            }
+                            else -> {}
                         }
-                        is Result.Loading -> {
-                            _isLoading.value = result.status
-                        }
-                        else -> {}
                     }
                 }
             }
@@ -87,12 +88,16 @@ class ShowSeasonsViewModel constructor(
         private val repository: ShowDetailRepository,
         @Assisted private val showDetailArg: ShowDetailArg
     ) : AbstractSavedStateViewModelFactory(owner, null) {
-        override fun <T : ViewModel?> create(
+        override fun <T : ViewModel> create(
             key: String,
             modelClass: Class<T>,
             handle: SavedStateHandle
         ): T {
-            return ShowSeasonsViewModel(handle, repository, showDetailArg) as T
+            return ShowSeasonsViewModel(
+                handle,
+                repository,
+                showDetailArg
+            ) as T
         }
     }
 }

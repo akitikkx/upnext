@@ -36,7 +36,7 @@ The app is currently on the Google Play Store https://play.google.com/store/apps
 ### Favorites
 Now you can add a show as a favorite, which will be synced to your Trakt account. All your favorites will be displayed on the Account screen when your Trakt account is connected. You will require a Trakt.tv account first before you can connect it on Upnext: TV Series Manager.
 
-<img src="https://github.com/akitikkx/upnext/blob/main/screenshots/web_banner_20_feb_2022.png" />
+<img src="https://user-images.githubusercontent.com/2282990/174495754-59605527-04b8-4f60-8d4d-10a2fa672907.png" />
 
 ## Pre-requisites
 It is important that you ensure that the below are fully setup or the project will not run.
@@ -49,7 +49,8 @@ not the default 1.8 else the project will not build:
 Build, Execution, Deployment > Build Tools > Gradle > Gradle JDK
 
 ```
-<img src="https://github.com/akitikkx/upnext/blob/main/screenshots/upnext_java_setup.png" />
+
+<img src="https://user-images.githubusercontent.com/2282990/174495050-5df0fbbb-a358-4e01-969f-347e8420eacf.png" /> 
 
 ### Google Services File
 
@@ -134,7 +135,11 @@ In your Trakt account dashboard https://trakt.tv/oauth/applications:
 ```
 
 ## MAD Score
-<img src="https://github.com/akitikkx/upnext/blob/main/screenshots/summary.png" />
+<img src="https://user-images.githubusercontent.com/2282990/174495157-ca436808-3ec6-4d2c-a338-936c21c00ecf.png" />
+
+## Play Store Data Safety
+The data safety form has been completed on the Play Store and accepted. Please find the CSV version 
+<a href="https://github.com/akitikkx/upnext/blob/main/dataSafety/data_safety_export.csv">here</a>
 
 ## License
 

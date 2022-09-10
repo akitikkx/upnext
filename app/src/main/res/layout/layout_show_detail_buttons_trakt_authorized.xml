@@ -36,7 +36,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_add_to_favorites"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -55,7 +55,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:showHideView="@{!viewModel.isFavoriteShow}" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_remove_from_favorites"
             style="?materialButtonOutlinedStyle"
             android:layout_width="0dp"
@@ -76,7 +76,7 @@
             app:showHideView="@{viewModel.isFavoriteShow}"
             tools:visibility="visible" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_show_seasons"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
