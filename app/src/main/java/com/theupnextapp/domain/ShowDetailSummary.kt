@@ -94,7 +94,6 @@ data class ShowDetailSummary(
             return arrayOfNulls(size)
         }
     }
-
 }
 
 fun emptyShowData(): ShowDetailSummary {

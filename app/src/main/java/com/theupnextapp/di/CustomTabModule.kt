@@ -34,5 +34,5 @@ class CustomTabModule {
 
     @Provides
     @Singleton
-    fun provideCustomTabComponent() : CustomTabComponent = CustomTabComponent()
+    fun provideCustomTabComponent(): CustomTabComponent = CustomTabComponent()
 }

@@ -29,8 +29,7 @@ import com.theupnextapp.common.utils.DateUtils
 import com.theupnextapp.domain.ShowNextEpisode
 import com.theupnextapp.domain.ShowPreviousEpisode
 import java.text.SimpleDateFormat
-import java.util.*
-
+import java.util.Locale
 
 @BindingAdapter("showHideNextEpisodeInfo")
 fun showHideNextEpisodeInfo(view: TextView, showInfo: ShowNextEpisode?) {

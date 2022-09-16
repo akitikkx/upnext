@@ -104,7 +104,7 @@ val MIGRATION_22_23: Migration = object : Migration(22, 23) {
     }
 }
 
-val MIGRATION_23_24: Migration = object: Migration(23, 24) {
+val MIGRATION_23_24: Migration = object : Migration(23, 24) {
     override fun migrate(database: SupportSQLiteDatabase) {
         database.execSQL("CREATE TABLE IF NOT EXISTS trakt_access (id INTEGER NOT NULL, access_token TEXT, created_at INTEGER, expires_in INTEGER, refresh_token TEXT, scope TEXT, token_type TEXT, PRIMARY KEY(id))")
     }

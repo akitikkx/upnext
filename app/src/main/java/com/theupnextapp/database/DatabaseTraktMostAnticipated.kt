@@ -42,7 +42,7 @@ data class DatabaseTraktMostAnticipated(
     val list_count: Int?
 )
 
-fun List<DatabaseTraktMostAnticipated>.asDomainModel() : List<TraktMostAnticipated> {
+fun List<DatabaseTraktMostAnticipated>.asDomainModel(): List<TraktMostAnticipated> {
     return map {
         TraktMostAnticipated(
             id = it.traktID,

@@ -46,7 +46,8 @@ fun PosterImage(
                 placeholder(R.drawable.poster_placeholder)
                 error(R.drawable.poster_placeholder)
                 fallback(R.drawable.poster_placeholder)
-            }),
+            }
+        ),
         contentScale = ContentScale.Crop,
         contentDescription = null,
         modifier = modifier

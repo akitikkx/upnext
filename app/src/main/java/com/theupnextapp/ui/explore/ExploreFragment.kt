@@ -105,7 +105,6 @@ class ExploreFragment : BaseFragment() {
                         }
                     )
                 }
-
             }
         }
 

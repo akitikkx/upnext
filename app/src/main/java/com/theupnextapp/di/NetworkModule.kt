@@ -51,9 +51,11 @@ object NetworkModule {
     fun provideNetworkClient(@ApplicationContext context: Context): OkHttpClient {
         return OkHttpClient().newBuilder()
             .cache(Cache(context.cacheDir, (5 * 1024 * 1024).toLong()))
-            .addInterceptor(HttpLoggingInterceptor().apply {
-                level = HttpLoggingInterceptor.Level.BODY
-            })
+            .addInterceptor(
+                HttpLoggingInterceptor().apply {
+                    level = HttpLoggingInterceptor.Level.BODY
+                }
+            )
             .addInterceptor { chain ->
                 var request = chain.request()
                 request =

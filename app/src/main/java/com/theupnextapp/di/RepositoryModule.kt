@@ -29,8 +29,8 @@ import com.theupnextapp.network.TraktService
 import com.theupnextapp.network.TvMazeService
 import com.theupnextapp.repository.DashboardRepository
 import com.theupnextapp.repository.SearchRepository
-import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.ShowDetailRepository
+import com.theupnextapp.repository.TraktRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

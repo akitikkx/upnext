@@ -58,7 +58,8 @@ class TraktAccountFragment : BaseFragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentTraktAccountBinding.inflate(inflater)
@@ -89,7 +90,8 @@ class TraktAccountFragment : BaseFragment() {
                                     )
                                 )
                             findNavController().navigate(directions)
-                        })
+                        }
+                    )
                 }
             }
         }

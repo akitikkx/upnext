@@ -100,7 +100,6 @@ fun ExploreScreen(
                                 onMostAnticipatedShowClick(it)
                             }
                     }
-
                 }
 
                 if (isLoading.value == true) {
@@ -111,8 +110,6 @@ fun ExploreScreen(
                     )
                 }
             }
-
-
         }
     }
 }

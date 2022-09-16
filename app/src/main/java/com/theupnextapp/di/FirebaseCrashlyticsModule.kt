@@ -34,7 +34,7 @@ class FirebaseCrashlyticsModule {
 
     @Singleton
     @Provides
-    fun provideFirebaseCrashlytics() : FirebaseCrashlytics {
+    fun provideFirebaseCrashlytics(): FirebaseCrashlytics {
         return FirebaseCrashlytics.getInstance()
     }
 }

@@ -56,7 +56,8 @@ class ShowSeasonsFragment : BaseFragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentShowSeasonsBinding.inflate(inflater)
@@ -100,5 +101,4 @@ class ShowSeasonsFragment : BaseFragment() {
         super.onStop()
         (activity as MainActivity).showBottomNavigation()
     }
-
 }

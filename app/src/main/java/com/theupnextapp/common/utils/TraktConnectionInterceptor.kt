@@ -22,7 +22,8 @@
 package com.theupnextapp.common.utils
 
 import com.theupnextapp.BuildConfig
-import okhttp3.*
+import okhttp3.Interceptor
+import okhttp3.Response
 
 class TraktConnectionInterceptor : Interceptor {
 
@@ -35,5 +36,4 @@ class TraktConnectionInterceptor : Interceptor {
             .build()
         return chain.proceed(request)
     }
-
 }

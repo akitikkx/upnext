@@ -22,7 +22,11 @@
 package com.theupnextapp.ui.showDetail
 
 import android.app.Application
-import androidx.lifecycle.*
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import com.theupnextapp.domain.ShowCast
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory

@@ -196,7 +196,8 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
                     view = it,
                     type = FeedBackStatus.NO_CONNECTION,
                     duration = Snackbar.LENGTH_INDEFINITE,
-                    listener = { showNetworkSettings() })
+                    listener = { showNetworkSettings() }
+                )
             }
         } else {
             container?.let {

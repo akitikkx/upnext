@@ -61,8 +61,8 @@ import com.theupnextapp.domain.ShowNextEpisode
 import com.theupnextapp.domain.ShowPreviousEpisode
 import com.theupnextapp.domain.TraktShowRating
 import com.theupnextapp.network.models.trakt.Distribution
-import com.theupnextapp.ui.components.SectionHeadingText
 import com.theupnextapp.ui.components.PosterImage
+import com.theupnextapp.ui.components.SectionHeadingText
 import org.jsoup.Jsoup
 
 @Composable
@@ -274,7 +274,8 @@ fun PosterAndMetadata(showSummary: ShowDetailSummary?) {
             showSummary?.airDays?.let {
                 if (it.isNotEmpty()) {
                     HeadingAndItemText(
-                        item = it, heading = stringResource(
+                        item = it,
+                        heading = stringResource(
                             id = R.string.show_detail_air_days_heading
                         )
                     )
@@ -284,7 +285,8 @@ fun PosterAndMetadata(showSummary: ShowDetailSummary?) {
             showSummary?.genres?.let {
                 if (it.isNotEmpty()) {
                     HeadingAndItemText(
-                        item = it, heading = stringResource(
+                        item = it,
+                        heading = stringResource(
                             id = R.string.show_detail_genres_heading
                         )
                     )
@@ -381,11 +383,9 @@ fun ShowCastList(
             items(list, key = { showCastItem -> showCastItem.id.toString() }) {
                 ShowCast(item = it) { showCastItem ->
                     onClick(showCastItem)
-
                 }
             }
         }
-
     }
 }
 
@@ -547,7 +547,6 @@ private fun TraktRatingSummary(ratingData: TraktShowRating) {
 
             TraktRatingVisual(ratingData = ratingData)
         }
-
     }
 }
 
