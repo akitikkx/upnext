@@ -795,7 +795,6 @@ class TraktRepository constructor(
                                 last_updated = System.currentTimeMillis()
                             )
                         )
-
                     }
                     _isLoadingTraktPopular.postValue(false)
                 }
@@ -856,7 +855,6 @@ class TraktRepository constructor(
                                 last_updated = System.currentTimeMillis()
                             )
                         )
-
                     }
                     _isLoadingTraktMostAnticipated.postValue(false)
                 }

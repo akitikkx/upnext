@@ -43,5 +43,4 @@ object SnackBarUtil {
         }
         snackBar.show()
     }
-
 }

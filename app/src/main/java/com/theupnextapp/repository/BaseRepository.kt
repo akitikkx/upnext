@@ -25,7 +25,6 @@ import com.theupnextapp.common.utils.DateUtils
 import com.theupnextapp.database.UpnextDao
 import com.theupnextapp.network.TvMazeService
 import com.theupnextapp.network.models.tvmaze.NetworkShowNextEpisodeResponse
-import com.theupnextapp.network.models.tvmaze.NetworkShowPreviousEpisodeResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 

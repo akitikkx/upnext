@@ -24,7 +24,6 @@ package com.theupnextapp.work
 import android.content.Context
 import android.os.Bundle
 import androidx.hilt.work.HiltWorker
-import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.theupnextapp.repository.TraktRepository

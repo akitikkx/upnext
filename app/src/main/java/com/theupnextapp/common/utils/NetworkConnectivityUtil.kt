@@ -23,7 +23,10 @@ package com.theupnextapp.common.utils
 
 import android.app.Application
 import android.content.Context
-import android.net.*
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkInfo
+import android.net.NetworkRequest
 import android.os.Build
 import androidx.annotation.RequiresPermission
 import androidx.lifecycle.LiveData
@@ -54,7 +57,7 @@ class NetworkConnectivityUtil constructor(private val connectivityManager: Conne
     override fun onActive() {
         super.onActive()
 
-        val activeNetwork: NetworkInfo?  = connectivityManager.activeNetworkInfo
+        val activeNetwork: NetworkInfo? = connectivityManager.activeNetworkInfo
         postValue(activeNetwork?.isConnectedOrConnecting == true)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {

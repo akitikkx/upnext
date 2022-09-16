@@ -23,7 +23,22 @@ package com.theupnextapp.di
 
 import android.content.Context
 import androidx.room.Room
-import com.theupnextapp.database.*
+import com.theupnextapp.database.MIGRATION_14_15
+import com.theupnextapp.database.MIGRATION_15_16
+import com.theupnextapp.database.MIGRATION_16_17
+import com.theupnextapp.database.MIGRATION_17_18
+import com.theupnextapp.database.MIGRATION_18_19
+import com.theupnextapp.database.MIGRATION_19_20
+import com.theupnextapp.database.MIGRATION_20_21
+import com.theupnextapp.database.MIGRATION_21_22
+import com.theupnextapp.database.MIGRATION_22_23
+import com.theupnextapp.database.MIGRATION_23_24
+import com.theupnextapp.database.MIGRATION_24_25
+import com.theupnextapp.database.MIGRATION_25_26
+import com.theupnextapp.database.TraktDao
+import com.theupnextapp.database.TvMazeDao
+import com.theupnextapp.database.UpnextDao
+import com.theupnextapp.database.UpnextDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

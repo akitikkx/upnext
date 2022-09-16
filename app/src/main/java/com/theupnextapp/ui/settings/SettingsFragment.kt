@@ -32,7 +32,8 @@ import com.theupnextapp.MainActivity
 import com.theupnextapp.R
 
 @Deprecated("Will be removed once Jetpack Navigation work has been completed")
-class SettingsFragment : PreferenceFragmentCompat(),
+class SettingsFragment :
+    PreferenceFragmentCompat(),
     SharedPreferences.OnSharedPreferenceChangeListener {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -94,5 +95,4 @@ class SettingsFragment : PreferenceFragmentCompat(),
             }
         }
     }
-
 }

@@ -33,4 +33,4 @@ data class ShowDetailArg(
     val showBackgroundUrl: String?,
     val imdbID: String? = null,
     val isAuthorizedOnTrakt: Boolean = false
-): Parcelable
+) : Parcelable

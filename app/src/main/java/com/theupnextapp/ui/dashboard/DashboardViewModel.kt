@@ -24,7 +24,6 @@ package com.theupnextapp.ui.dashboard
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
-import androidx.lifecycle.viewModelScope
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.theupnextapp.common.utils.DateUtils
@@ -36,8 +35,6 @@ import com.theupnextapp.work.RefreshTodayShowsWorker
 import com.theupnextapp.work.RefreshTomorrowShowsWorker
 import com.theupnextapp.work.RefreshYesterdayShowsWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -96,7 +93,6 @@ class DashboardViewModel @Inject constructor(
             value = it
         }
     }
-
 
     fun onYesterdayShowsTableUpdateReceived(tableUpdate: TableUpdate?) {
         val diffInMinutes =

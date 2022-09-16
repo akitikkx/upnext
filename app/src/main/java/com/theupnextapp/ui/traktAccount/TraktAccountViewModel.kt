@@ -21,7 +21,14 @@
 
 package com.theupnextapp.ui.traktAccount
 
-import androidx.lifecycle.*
+import androidx.lifecycle.AbstractSavedStateViewModelFactory
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.work.WorkManager
 import com.theupnextapp.repository.TraktRepository

@@ -32,7 +32,7 @@ import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import com.theupnextapp.R
 
-abstract class BaseWorker (
+abstract class BaseWorker(
     appContext: Context,
     workerParameters: WorkerParameters,
 ) : CoroutineWorker(appContext, workerParameters) {
@@ -72,5 +72,4 @@ abstract class BaseWorker (
     companion object {
         const val CHANNEL_ID = "ShowsUpdate"
     }
-
 }
