@@ -13,6 +13,9 @@
 package com.theupnextapp.ui.main
 
 import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
@@ -25,6 +28,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -32,7 +37,6 @@ import com.ramcosta.composedestinations.spec.Direction
 import com.ramcosta.composedestinations.spec.DirectionDestinationSpec
 import com.theupnextapp.R
 import com.theupnextapp.ui.destinations.DashboardScreenDestination
-import com.theupnextapp.ui.destinations.Destination
 import com.theupnextapp.ui.destinations.ExploreScreenDestination
 import com.theupnextapp.ui.destinations.SearchScreenDestination
 import com.theupnextapp.ui.destinations.TraktAccountScreenDestination
@@ -60,24 +64,54 @@ enum class BottomBarDestination(
 @ExperimentalFoundationApi
 @Composable
 fun BottomBar(
-    currentDestination: Destination,
+    currentDestination: com.theupnextapp.ui.destinations.Destination,
     onBottomBarItemClick: (Direction) -> Unit
 ) {
-    BottomAppBar {
-        BottomBarDestination.values().forEach { destination ->
-            NavigationBarItem(
-                icon = {
-                    Icon(
-                        imageVector = destination.icon,
-                        contentDescription = stringResource(id = destination.label)
+    val bottomBarState = rememberSaveable { mutableStateOf(true) }
+
+    bottomBarState.value = isMainScreen(destination = currentDestination)
+
+    AnimatedVisibility(
+        visible = bottomBarState.value,
+        enter = slideInVertically(initialOffsetY = { it }),
+        exit = slideOutVertically(targetOffsetY = { it }),
+        content = {
+            BottomAppBar {
+                BottomBarDestination.values().forEach { destination ->
+                    NavigationBarItem(
+                        icon = {
+                            Icon(
+                                imageVector = destination.icon,
+                                contentDescription = stringResource(id = destination.label)
+                            )
+                        },
+                        label = {
+                            Text(stringResource(id = destination.label))
+                        },
+                        selected = currentDestination == destination.direction,
+                        onClick = { onBottomBarItemClick(destination.direction) }
                     )
-                },
-                label = {
-                    Text(stringResource(id = destination.label))
-                },
-                selected = currentDestination == destination.direction,
-                onClick = { onBottomBarItemClick(destination.direction) }
-            )
+                }
+            }
         }
+    )
+}
+
+/**
+ * Determine whether this screen is one of the main screens found on the
+ * bottom navigation bar
+ *
+ * If it is a child screen then the bottom navigation should not be shown
+ * and the app bar should have a back arrow displayed
+ */
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
+@ExperimentalMaterial3Api
+fun isMainScreen(destination: com.theupnextapp.ui.destinations.Destination?): Boolean {
+    return when (destination?.route) {
+        SearchScreenDestination.route,
+        DashboardScreenDestination.route,
+        ExploreScreenDestination.route,
+        TraktAccountScreenDestination.route -> true
+        else -> false
     }
 }
