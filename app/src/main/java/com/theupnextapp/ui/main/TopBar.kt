@@ -44,10 +44,12 @@ fun TopBar(
 
     TopAppBar(
         title = {
-            Text(
-                text = stringResource(id = R.string.app_name),
-                style = MaterialTheme.typography.headlineSmall
-            )
+            AnimatedVisibility(visible = !appBarIconState.value) {
+                Text(
+                    text = stringResource(id = R.string.app_name),
+                    style = MaterialTheme.typography.headlineSmall
+                )
+            }
         },
         navigationIcon = {
             NavigationIcon(appBarIconState = appBarIconState) {
