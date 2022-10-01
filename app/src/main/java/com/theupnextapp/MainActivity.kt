@@ -37,6 +37,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
@@ -44,7 +48,6 @@ import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.composethemeadapter.MdcTheme
 import com.google.android.material.snackbar.Snackbar
 import com.theupnextapp.common.utils.FeedBackStatus
 import com.theupnextapp.common.utils.Feedback
@@ -53,6 +56,7 @@ import com.theupnextapp.common.utils.customTab.TabConnectionCallback
 import com.theupnextapp.common.utils.customTab.WebviewFallback
 import com.theupnextapp.domain.TraktConnectionArg
 import com.theupnextapp.ui.main.MainScreen
+import com.theupnextapp.ui.theme.UpnextTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -76,11 +80,15 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
     @Inject
     lateinit var customTabComponent: CustomTabComponent
 
+    @ExperimentalAnimationApi
+    @ExperimentalFoundationApi
+    @ExperimentalComposeUiApi
+    @ExperimentalMaterial3Api
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
-            MdcTheme {
+            UpnextTheme {
                 MainScreen()
             }
         }
@@ -182,7 +190,8 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
                     view = it,
                     type = FeedBackStatus.NO_CONNECTION,
                     duration = Snackbar.LENGTH_INDEFINITE,
-                    listener = { showNetworkSettings() })
+                    listener = { showNetworkSettings() }
+                )
             }
         } else {
             container?.let {

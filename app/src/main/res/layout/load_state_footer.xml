@@ -52,7 +52,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/progress_bar_load_state" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/button_load_state_retry"
             style="?materialButtonOutlinedStyle"
             android:layout_width="wrap_content"

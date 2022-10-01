@@ -30,12 +30,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Card
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.LinearProgressIndicator
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -54,7 +54,7 @@ import com.theupnextapp.ui.components.PosterImage
 import com.theupnextapp.ui.components.SectionHeadingText
 import org.jsoup.Jsoup
 
-@ExperimentalMaterialApi
+@ExperimentalMaterial3Api
 @Destination(navArgsDelegate = ShowSeasonEpisodesArg::class)
 @Composable
 fun ShowSeasonEpisodesScreen(
@@ -93,7 +93,7 @@ fun ShowSeasonEpisodesScreen(
     }
 }
 
-@ExperimentalMaterialApi
+@ExperimentalMaterial3Api
 @Destination
 @Composable
 fun ShowSeasonEpisodes(
@@ -112,17 +112,15 @@ fun ShowSeasonEpisodes(
                 ShowSeasonEpisodeCard(item = it)
             }
         }
-
     }
 }
 
-@ExperimentalMaterialApi
+@ExperimentalMaterial3Api
 @Composable
 fun ShowSeasonEpisodeCard(
     item: ShowSeasonEpisode
 ) {
     Card(
-        elevation = 4.dp,
         shape = MaterialTheme.shapes.large,
         modifier = Modifier
             .fillMaxWidth()
@@ -154,7 +152,8 @@ fun ShowSeasonEpisodeCard(
                             item.number.toString()
                         ),
                         modifier = Modifier.padding(4.dp),
-                        style = MaterialTheme.typography.h6
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Bold
                     )
                 }
 
@@ -165,7 +164,7 @@ fun ShowSeasonEpisodeCard(
                             modifier = Modifier
                                 .padding(start = 4.dp)
                                 .fillMaxWidth(),
-                            style = MaterialTheme.typography.caption,
+                            style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -182,7 +181,7 @@ fun ShowSeasonEpisodeCard(
                                     bottom = 2.dp
                                 )
                                 .fillMaxWidth(),
-                            style = MaterialTheme.typography.caption
+                            style = MaterialTheme.typography.bodySmall
                         )
                     }
                 }
@@ -197,7 +196,7 @@ fun ShowSeasonEpisodeCard(
                         modifier = Modifier
                             .padding(4.dp)
                             .fillMaxWidth(),
-                        style = MaterialTheme.typography.caption
+                        style = MaterialTheme.typography.bodySmall
                     )
                 }
             }

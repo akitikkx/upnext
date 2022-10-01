@@ -128,7 +128,6 @@ class DashboardRepository constructor(
                                 last_updated = System.currentTimeMillis()
                             )
                         )
-
                     }
                     _isLoadingYesterdayShows.postValue(false)
                 }
@@ -181,7 +180,6 @@ class DashboardRepository constructor(
                                 last_updated = System.currentTimeMillis()
                             )
                         )
-
                     }
                     _isLoadingTodayShows.postValue(false)
                 }
@@ -235,7 +233,6 @@ class DashboardRepository constructor(
                                 last_updated = System.currentTimeMillis()
                             )
                         )
-
                     }
                     _isLoadingTomorrowShows.postValue(false)
                 }

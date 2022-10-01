@@ -23,9 +23,10 @@ package com.theupnextapp.common.utils
 
 import com.theupnextapp.common.utils.models.TimeDifferenceForDisplay
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 import java.util.concurrent.TimeUnit
-
 
 object DateUtils {
 

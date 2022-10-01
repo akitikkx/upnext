@@ -34,7 +34,6 @@ import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowImageResponse
 import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupResponse
 import com.theupnextapp.network.models.tvmaze.NetworkYesterdayScheduleResponse
 import kotlinx.coroutines.Deferred
-import okhttp3.OkHttpClient
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -44,17 +43,20 @@ import javax.inject.Singleton
 interface TvMazeService {
     @GET("schedule")
     fun getYesterdayScheduleAsync(
-        @Query("country") countryCode: String, @Query("date") date: String?
+        @Query("country") countryCode: String,
+        @Query("date") date: String?
     ): Deferred<List<NetworkYesterdayScheduleResponse>>
 
     @GET("schedule")
     fun getTodayScheduleAsync(
-        @Query("country") countryCode: String, @Query("date") date: String?
+        @Query("country") countryCode: String,
+        @Query("date") date: String?
     ): Deferred<List<NetworkTodayScheduleResponse>>
 
     @GET("schedule")
     fun getTomorrowScheduleAsync(
-        @Query("country") countryCode: String, @Query("date") date: String?
+        @Query("country") countryCode: String,
+        @Query("date") date: String?
     ): Deferred<List<NetworkTomorrowScheduleResponse>>
 
     @GET("lookup/shows")

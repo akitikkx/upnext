@@ -13,35 +13,26 @@
 package com.theupnextapp.ui.main
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.ContentAlpha
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.LocalContentAlpha
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavBackStackEntry
 import com.theupnextapp.R
 import com.theupnextapp.ui.destinations.ShowDetailScreenDestination
-import com.theupnextapp.ui.destinations.ShowSeasonEpisodesDestination
+import com.theupnextapp.ui.destinations.ShowSeasonEpisodesScreenDestination
 import com.theupnextapp.ui.destinations.ShowSeasonsScreenDestination
 
-@ExperimentalMaterialApi
+@ExperimentalMaterial3Api
 @Composable
 fun TopBar(
     navBackStackEntry: NavBackStackEntry?,
@@ -51,27 +42,29 @@ fun TopBar(
 
     appBarIconState.value = isChildScreen(navBackStackEntry = navBackStackEntry)
 
-    TopAppBar {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp)
-                .padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            AnimatedVisibility(visible = appBarIconState.value) {
-                CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.high) {
-                    IconButton(onClick = { onArrowClick() }) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = "Back arrow")
-                    }
-                }
+    TopAppBar(
+        title = {
+            Text(
+                text = stringResource(id = R.string.app_name),
+                style = MaterialTheme.typography.headlineSmall
+            )
+        },
+        navigationIcon = {
+            NavigationIcon(appBarIconState = appBarIconState) {
+                onArrowClick()
             }
-            CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.high) {
-                Text(
-                    text = stringResource(id = R.string.app_name),
-                    style = MaterialTheme.typography.h6
-                )
-            }
+        }
+    )
+}
+
+@Composable
+fun NavigationIcon(
+    appBarIconState: State<Boolean>,
+    onArrowClick: () -> Unit
+) {
+    AnimatedVisibility(visible = appBarIconState.value) {
+        IconButton(onClick = { onArrowClick() }) {
+            Icon(Icons.Filled.ArrowBack, contentDescription = "Back arrow")
         }
     }
 }
@@ -83,12 +76,12 @@ fun TopBar(
  * If it is a child screen then the bottom navigation should not be shown
  * and the app bar should have a back arrow displayed
  */
-@ExperimentalMaterialApi
+@ExperimentalMaterial3Api
 fun isChildScreen(navBackStackEntry: NavBackStackEntry?): Boolean {
     return when (navBackStackEntry?.destination?.route) {
         ShowDetailScreenDestination.route,
         ShowSeasonsScreenDestination.route,
-        ShowSeasonEpisodesDestination.route -> true
+        ShowSeasonEpisodesScreenDestination.route -> true
         else -> false
     }
 }

@@ -181,5 +181,4 @@ class UpnextApplication : Application(), Configuration.Provider {
         val context: Context?
             get() = application
     }
-
 }

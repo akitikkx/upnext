@@ -26,15 +26,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material3.ExperimentalMaterial3Api
 import com.theupnextapp.databinding.FragmentTraktAccountBinding
 import com.theupnextapp.ui.common.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 
-// TODO Remove fragment
 @ExperimentalFoundationApi
-@ExperimentalMaterialApi
+@ExperimentalMaterial3Api
 @AndroidEntryPoint
+@Deprecated("Will be removed once Jetpack Navigation work has been completed")
 class TraktAccountFragment : BaseFragment() {
 
     private var _binding: FragmentTraktAccountBinding? = null
@@ -48,7 +48,8 @@ class TraktAccountFragment : BaseFragment() {
 //    }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentTraktAccountBinding.inflate(inflater)
@@ -58,7 +59,7 @@ class TraktAccountFragment : BaseFragment() {
 //        binding.composeContainer.apply {
 //            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
 //            setContent {
-//                MdcTheme {
+//                UpnextTheme {
 //                    TraktAccountScreen(
 //                        viewModel = viewModel,
 //                        onConnectToTraktClick = {
@@ -79,7 +80,8 @@ class TraktAccountFragment : BaseFragment() {
 //                                    )
 //                                )
 //                            findNavController().navigate(directions)
-//                        })
+//                        }
+//                    )
 //                }
 //            }
 //        }

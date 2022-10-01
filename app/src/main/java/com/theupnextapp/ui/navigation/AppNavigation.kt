@@ -14,35 +14,33 @@ package com.theupnextapp.ui.navigation
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import com.ramcosta.composedestinations.DestinationsNavHost
-import com.ramcosta.composedestinations.manualcomposablecalls.ManualComposableCallsBuilder
-import com.ramcosta.composedestinations.manualcomposablecalls.animatedComposable
-import com.ramcosta.composedestinations.manualcomposablecalls.composable
 import com.ramcosta.composedestinations.rememberNavHostEngine
 import com.theupnextapp.ui.NavGraphs
-import com.theupnextapp.ui.dashboard.DashboardScreen
-import com.theupnextapp.ui.destinations.DashboardScreenDestination
-import com.theupnextapp.ui.destinations.ExploreScreenDestination
-import com.theupnextapp.ui.destinations.ShowDetailScreenDestination
-import com.theupnextapp.ui.explore.ExploreScreen
-import com.theupnextapp.ui.showDetail.ShowDetailScreen
 
-@ExperimentalMaterialApi
+@ExperimentalMaterial3Api
 @ExperimentalComposeUiApi
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
 @Composable
-fun AppNavigation(navHostController: NavHostController) {
+fun AppNavigation(
+    navHostController: NavHostController,
+    contentPadding: PaddingValues
+) {
 
     val navHostEngine = rememberNavHostEngine()
 
     DestinationsNavHost(
         engine = navHostEngine,
         navGraph = NavGraphs.root,
-        navController = navHostController
+        navController = navHostController,
+        modifier = Modifier.padding(contentPadding)
     )
 }

@@ -23,24 +23,15 @@ package com.theupnextapp.ui.showDetail
 
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.google.android.material.composethemeadapter.MdcTheme
 import com.theupnextapp.MainActivity
-import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentShowDetailBinding
-import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.ui.common.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
-// TODO Remove fragment
+@Deprecated("Will be removed once Jetpack Navigation work has been completed")
 @AndroidEntryPoint
 class ShowDetailFragment : BaseFragment() {
 
@@ -57,23 +48,11 @@ class ShowDetailFragment : BaseFragment() {
 //    lateinit var assistedFactory: ShowDetailViewModel.ShowDetailViewModelFactory
 
 //    private val viewModel by viewModels<ShowDetailViewModel> {
-////        ShowDetailViewModel.provideFactory(
-////            assistedFactory,
-////            args.show
-////        )
+// //        ShowDetailViewModel.provideFactory(
+// //            assistedFactory,
+// //            args.show
+// //        )
 //    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        val settingsItem = menu.findItem(R.id.menu_settings)
-        if (settingsItem != null) {
-            settingsItem.isVisible = false
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -82,13 +61,13 @@ class ShowDetailFragment : BaseFragment() {
     ): View {
         _binding = FragmentShowDetailBinding.inflate(inflater)
 
-        binding.composeContainer.apply {
-            // Dispose of the Composition when the view's
-            // LifecycleOwner is destroyed
-            // https://developer.android.com/jetpack/compose/interop/interop-apis
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setContent {
-                MdcTheme {
+//        binding.composeContainer.apply {
+//            // Dispose of the Composition when the view's
+//            // LifecycleOwner is destroyed
+//            // https://developer.android.com/jetpack/compose/interop/interop-apis
+//            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+//            setContent {
+//                UpnextTheme {
 //                    ShowDetailScreen(
 //                        onSeasonsClick = {
 //                            viewModel.onSeasonsClick()
@@ -100,9 +79,9 @@ class ShowDetailFragment : BaseFragment() {
 //                            viewModel.onAddRemoveFavoriteClick()
 //                        }
 //                    )
-                }
-            }
-        }
+//                }
+//            }
+//        }
 
         return binding.root
     }

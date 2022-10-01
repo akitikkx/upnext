@@ -30,9 +30,9 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.LinearProgressIndicator
-import androidx.compose.material.Surface
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
@@ -49,7 +49,7 @@ import com.theupnextapp.ui.components.SectionHeadingText
 import com.theupnextapp.ui.destinations.ShowDetailScreenDestination
 import com.theupnextapp.ui.widgets.ListPosterCard
 
-@ExperimentalMaterialApi
+@ExperimentalMaterial3Api
 @Destination
 @Composable
 fun ExploreScreen(
@@ -79,13 +79,15 @@ fun ExploreScreen(
                                 list = list,
                                 rowTitle = stringResource(id = R.string.explore_trending_shows_list_title)
                             ) {
-                                navigator.navigate(ShowDetailScreenDestination(
-                                    source = "trending",
-                                    showId = it.tvMazeID.toString(),
-                                    showTitle = it.title,
-                                    showImageUrl = it.originalImageUrl,
-                                    showBackgroundUrl = it.mediumImageUrl
-                                ))
+                                navigator.navigate(
+                                    ShowDetailScreenDestination(
+                                        source = "trending",
+                                        showId = it.tvMazeID.toString(),
+                                        showTitle = it.title,
+                                        showImageUrl = it.originalImageUrl,
+                                        showBackgroundUrl = it.mediumImageUrl
+                                    )
+                                )
                             }
                     }
 
@@ -124,7 +126,6 @@ fun ExploreScreen(
                                 )
                             }
                     }
-
                 }
 
                 if (isLoading.value == true) {
@@ -135,13 +136,11 @@ fun ExploreScreen(
                     )
                 }
             }
-
-
         }
     }
 }
 
-@ExperimentalMaterialApi
+@ExperimentalMaterial3Api
 @Composable
 fun TrendingShowsRow(
     list: List<TraktTrendingShows>,
@@ -164,7 +163,7 @@ fun TrendingShowsRow(
     }
 }
 
-@ExperimentalMaterialApi
+@ExperimentalMaterial3Api
 @Composable
 fun PopularShowsRow(
     list: List<TraktPopularShows>,
@@ -187,7 +186,7 @@ fun PopularShowsRow(
     }
 }
 
-@ExperimentalMaterialApi
+@ExperimentalMaterial3Api
 @Composable
 fun MostAnticipatedShowsRow(
     list: List<TraktMostAnticipated>,

@@ -41,7 +41,7 @@ data class DatabaseTraktTrendingShows(
     val tvMazeID: Int?
 )
 
-fun List<DatabaseTraktTrendingShows>.asDomainModel() : List<TraktTrendingShows> {
+fun List<DatabaseTraktTrendingShows>.asDomainModel(): List<TraktTrendingShows> {
     return map {
         TraktTrendingShows(
             id = it.traktID,

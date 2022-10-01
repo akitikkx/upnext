@@ -25,14 +25,15 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.navigation.fragment.navArgs
 import com.theupnextapp.databinding.FragmentShowSeasonEpisodesBinding
 import com.theupnextapp.ui.common.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 
-// TODO Remove fragment
+@ExperimentalMaterial3Api
 @AndroidEntryPoint
+@Deprecated("Will be removed once Jetpack Navigation work has been completed")
 class ShowSeasonEpisodesFragment : BaseFragment() {
 
     private var _binding: FragmentShowSeasonEpisodesBinding? = null
@@ -40,9 +41,16 @@ class ShowSeasonEpisodesFragment : BaseFragment() {
 
     private val args by navArgs<ShowSeasonEpisodesFragmentArgs>()
 
-    @OptIn(ExperimentalMaterialApi::class)
+//    @Inject
+//    lateinit var showSeasonEpisodesViewModelFactory: ShowSeasonEpisodesViewModel.ShowSeasonEpisodesViewModelFactory
+
+//    private val viewModel by viewModels<ShowSeasonEpisodesViewModel> {
+//        showSeasonEpisodesViewModelFactory.create(this, args.showSeasonEpisode)
+//    }
+
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentShowSeasonEpisodesBinding.inflate(inflater)
@@ -52,7 +60,7 @@ class ShowSeasonEpisodesFragment : BaseFragment() {
 //        binding.composeContainer.apply {
 //            setContent {
 //                setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-//                MdcTheme {
+//                UpnextTheme {
 //                    ShowSeasonEpisodesScreen(viewModel = viewModel)
 //                }
 //            }

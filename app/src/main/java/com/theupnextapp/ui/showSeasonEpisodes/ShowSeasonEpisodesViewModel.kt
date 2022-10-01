@@ -23,7 +23,6 @@ package com.theupnextapp.ui.showSeasonEpisodes
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkManager
 import com.theupnextapp.domain.Result
@@ -38,7 +37,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ShowSeasonEpisodesViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
     private val showDetailRepository: ShowDetailRepository,
     private val traktRepository: TraktRepository,
     workManager: WorkManager
@@ -63,16 +61,13 @@ class ShowSeasonEpisodesViewModel @Inject constructor(
 
     fun selectedSeason(showSeasonEpisodesArg: ShowSeasonEpisodesArg?) {
         showSeasonEpisodesArg?.let { selectedSeason ->
-            savedStateHandle.set(SEASON_NUMBER, selectedSeason.seasonNumber)
-            savedStateHandle.set(SHOW_ID, selectedSeason.showId)
-
             _seasonNumber.value = selectedSeason.seasonNumber
 
-            viewModelScope.launch {
-                savedStateHandle.get<Int>(SEASON_NUMBER)?.let { seasonNumber ->
-                    savedStateHandle.get<Int>(SHOW_ID)?.let { showId ->
+            selectedSeason.showId?.let { season ->
+                selectedSeason.seasonNumber?.let { seasonNumber ->
+                    viewModelScope.launch {
                         showDetailRepository.getShowSeasonEpisodes(
-                            showId = showId,
+                            showId = season,
                             seasonNumber = seasonNumber
                         ).collect { result ->
                             when (result) {

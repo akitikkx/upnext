@@ -22,8 +22,8 @@
 package com.theupnextapp.ui.components
 
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -43,7 +43,7 @@ fun PosterAttributionItem() {
             end = 4.dp
         ),
         maxLines = 5,
-        style = MaterialTheme.typography.caption
+        style = MaterialTheme.typography.labelMedium
     )
 }
 
@@ -52,7 +52,7 @@ fun PosterTitleTextItem(title: String) {
     Text(
         text = title,
         fontWeight = FontWeight.Bold,
-        style = MaterialTheme.typography.caption,
+        style = MaterialTheme.typography.labelMedium,
         maxLines = 1,
         modifier = Modifier.padding(
             start = 4.dp,
@@ -77,7 +77,7 @@ fun SectionHeadingText(
                 end = 16.dp,
                 bottom = 4.dp
             ),
-        style = MaterialTheme.typography.h5,
+        style = MaterialTheme.typography.headlineMedium,
         fontWeight = FontWeight.Bold
     )
 }

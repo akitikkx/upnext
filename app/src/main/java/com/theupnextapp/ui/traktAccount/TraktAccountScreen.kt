@@ -33,16 +33,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material.Button
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.LinearProgressIndicator
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -66,7 +66,7 @@ import com.theupnextapp.ui.destinations.ShowDetailScreenDestination
 import com.theupnextapp.ui.widgets.ListPosterCard
 
 @ExperimentalFoundationApi
-@ExperimentalMaterialApi
+@ExperimentalMaterial3Api
 @Destination
 @Composable
 fun TraktAccountScreen(
@@ -123,12 +123,10 @@ fun TraktAccountScreen(
                 }
             }
         }
-
-
     }
 }
 
-@ExperimentalMaterialApi
+@ExperimentalMaterial3Api
 @ExperimentalFoundationApi
 @Composable
 fun AccountArea(
@@ -192,7 +190,7 @@ fun ConnectToTrakt(
     }
 }
 
-@ExperimentalMaterialApi
+@ExperimentalMaterial3Api
 @ExperimentalFoundationApi
 @Composable
 fun FavoritesList(
@@ -221,7 +219,7 @@ fun FavoritesList(
                 .clickable { onLogoutClick() },
             textAlign = TextAlign.Center,
             fontWeight = FontWeight.Bold,
-            style = MaterialTheme.typography.body2
+            style = MaterialTheme.typography.bodyMedium
         )
 
         SectionHeadingText(
@@ -232,15 +230,12 @@ fun FavoritesList(
         )
 
         LazyVerticalGrid(columns = GridCells.Fixed(3)) {
-            items(
-                favoriteShows,
-                key = { favoriteShow -> favoriteShow.id.toString() }) { favoriteShow ->
+            items(favoriteShows) { favoriteShow ->
                 ListPosterCard(
                     itemName = favoriteShow.title,
                     itemUrl = favoriteShow.originalImageUrl
                 ) {
                     onFavoriteClick(favoriteShow)
-
                 }
             }
         }
@@ -260,7 +255,7 @@ fun EmptyFavoritesList() {
                 .align(Alignment.CenterHorizontally)
                 .fillMaxWidth(0.7f),
             text = stringResource(id = R.string.trakt_account_favorites_empty),
-            style = MaterialTheme.typography.body2
+            style = MaterialTheme.typography.bodyMedium
         )
     }
 }

@@ -14,9 +14,8 @@ package com.theupnextapp.ui.main
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Scaffold
-import androidx.compose.material.ScaffoldState
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -24,19 +23,16 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.theupnextapp.ui.NavGraphs
+import com.theupnextapp.ui.appDestination
 import com.theupnextapp.ui.destinations.Destination
-import com.theupnextapp.ui.navDestination
-import com.theupnextapp.ui.startDestination
+import com.theupnextapp.ui.startAppDestination
 
-@OptIn(
-    ExperimentalMaterialApi::class,
-    ExperimentalComposeUiApi::class,
-    ExperimentalFoundationApi::class
-)
+@ExperimentalMaterial3Api
+@ExperimentalComposeUiApi
+@ExperimentalFoundationApi
 @Composable
 fun MainScaffold(
     navHostController: NavHostController,
-    scaffoldState: ScaffoldState,
     topBar: @Composable (NavBackStackEntry?) -> Unit,
     bottomBar: @Composable (Destination) -> Unit,
     content: @Composable (PaddingValues) -> Unit
@@ -44,13 +40,11 @@ fun MainScaffold(
 
     val currentBackStackEntryAsState by navHostController.currentBackStackEntryAsState()
     val destination =
-        currentBackStackEntryAsState?.navDestination ?: NavGraphs.root.startRoute.startDestination
+        currentBackStackEntryAsState?.appDestination() ?: NavGraphs.root.startRoute.startAppDestination
 
     Scaffold(
-        scaffoldState = scaffoldState,
         topBar = { topBar(currentBackStackEntryAsState) },
         bottomBar = { bottomBar(destination) },
         content = content
     )
-
 }

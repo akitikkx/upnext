@@ -25,18 +25,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.fragment.app.viewModels
-import com.google.android.material.composethemeadapter.MdcTheme
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.theupnextapp.databinding.FragmentExploreBinding
 import com.theupnextapp.ui.common.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
-@ExperimentalMaterialApi
+@ExperimentalMaterial3Api
 @AndroidEntryPoint
+@Deprecated("Will be removed once Jetpack Navigation work has been completed")
 class ExploreFragment : BaseFragment() {
 
     private var _binding: FragmentExploreBinding? = null
@@ -56,10 +55,10 @@ class ExploreFragment : BaseFragment() {
 
         binding.lifecycleOwner = viewLifecycleOwner
 
-        binding.composeContainer.apply {
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setContent {
-                MdcTheme {
+//        binding.composeContainer.apply {
+//            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+//            setContent {
+//                UpnextTheme {
 //                    ExploreScreen(
 //                        onPopularShowClick = {
 //                            val directions =
@@ -101,10 +100,9 @@ class ExploreFragment : BaseFragment() {
 //                            findNavController().navigate(directions)
 //                        }
 //                    )
-                }
-
-            }
-        }
+//                }
+//            }
+//        }
 
         return binding.root
     }

@@ -35,7 +35,7 @@ class FirebaseAnalyticsModule {
 
     @Singleton
     @Provides
-    fun provideFirebaseAnalytics(application: Application) : FirebaseAnalytics {
+    fun provideFirebaseAnalytics(application: Application): FirebaseAnalytics {
         return FirebaseAnalytics.getInstance(application)
     }
 }

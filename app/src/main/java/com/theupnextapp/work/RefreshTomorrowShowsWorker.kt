@@ -31,7 +31,8 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.coroutineScope
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Calendar
+import java.util.Locale
 
 @HiltWorker
 class RefreshTomorrowShowsWorker @AssistedInject constructor(

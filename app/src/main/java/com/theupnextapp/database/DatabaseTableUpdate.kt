@@ -33,7 +33,7 @@ data class DatabaseTableUpdate(
     val last_updated: Long
 )
 
-fun DatabaseTableUpdate.asDomainModel() : TableUpdate {
+fun DatabaseTableUpdate.asDomainModel(): TableUpdate {
     return TableUpdate(
         id = id,
         tableName = table_name,

@@ -14,16 +14,16 @@ package com.theupnextapp.ui.main
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.material.BottomNavigation
-import androidx.compose.material.BottomNavigationItem
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -37,7 +37,7 @@ import com.theupnextapp.ui.destinations.ExploreScreenDestination
 import com.theupnextapp.ui.destinations.SearchScreenDestination
 import com.theupnextapp.ui.destinations.TraktAccountScreenDestination
 
-@ExperimentalMaterialApi
+@ExperimentalMaterial3Api
 @ExperimentalComposeUiApi
 @ExperimentalFoundationApi
 enum class BottomBarDestination(
@@ -55,7 +55,7 @@ enum class BottomBarDestination(
     )
 }
 
-@ExperimentalMaterialApi
+@ExperimentalMaterial3Api
 @ExperimentalComposeUiApi
 @ExperimentalFoundationApi
 @Composable
@@ -63,9 +63,9 @@ fun BottomBar(
     currentDestination: Destination,
     onBottomBarItemClick: (Direction) -> Unit
 ) {
-    BottomNavigation {
+    BottomAppBar {
         BottomBarDestination.values().forEach { destination ->
-            BottomNavigationItem(
+            NavigationBarItem(
                 icon = {
                     Icon(
                         imageVector = destination.icon,
@@ -80,5 +80,4 @@ fun BottomBar(
             )
         }
     }
-
 }

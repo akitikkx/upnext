@@ -14,26 +14,23 @@ package com.theupnextapp.ui.main
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.rememberScaffoldState
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.ramcosta.composedestinations.navigation.navigateTo
 import com.theupnextapp.ui.navigation.AppNavigation
 
-@OptIn(
-    ExperimentalAnimationApi::class, ExperimentalFoundationApi::class,
-    ExperimentalComposeUiApi::class, ExperimentalMaterialApi::class
-)
+@ExperimentalAnimationApi
+@ExperimentalFoundationApi
+@ExperimentalComposeUiApi
+@ExperimentalMaterial3Api
 @Composable
 fun MainScreen() {
-    val scaffoldState = rememberScaffoldState()
     val navController = rememberAnimatedNavController()
 
     MainScaffold(
         navHostController = navController,
-        scaffoldState = scaffoldState,
         topBar = { navBackStackEntry ->
             TopBar(
                 navBackStackEntry = navBackStackEntry
@@ -52,6 +49,9 @@ fun MainScreen() {
             )
         }
     ) {
-        AppNavigation(navHostController = navController)
+        AppNavigation(
+            navHostController = navController,
+            contentPadding = it
+        )
     }
 }

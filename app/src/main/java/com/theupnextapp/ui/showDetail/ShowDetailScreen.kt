@@ -36,13 +36,13 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Button
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.LinearProgressIndicator
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.OutlinedButton
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -69,7 +69,7 @@ import com.theupnextapp.ui.components.SectionHeadingText
 import com.theupnextapp.ui.destinations.ShowSeasonsScreenDestination
 import org.jsoup.Jsoup
 
-@ExperimentalMaterialApi
+@ExperimentalMaterial3Api
 @Destination(navArgsDelegate = ShowDetailArg::class)
 @Composable
 fun ShowDetailScreen(
@@ -182,7 +182,7 @@ fun DetailArea(
                         top = 4.dp,
                         end = 16.dp,
                     ),
-                style = MaterialTheme.typography.body2
+                style = MaterialTheme.typography.bodyMedium
             )
         }
 
@@ -241,7 +241,7 @@ fun BackdropAndTitle(showDetailArgs: ShowDetailArg?, showSummary: ShowDetailSumm
     showSummary?.name?.let { name ->
         Text(
             text = name,
-            style = MaterialTheme.typography.h5,
+            style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             modifier = Modifier
                 .fillMaxWidth()
@@ -256,7 +256,7 @@ fun BackdropAndTitle(showDetailArgs: ShowDetailArg?, showSummary: ShowDetailSumm
     showSummary?.status?.let { status ->
         Text(
             text = status,
-            style = MaterialTheme.typography.caption,
+            style = MaterialTheme.typography.labelMedium,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
@@ -295,7 +295,8 @@ fun PosterAndMetadata(showSummary: ShowDetailSummary?) {
             showSummary?.airDays?.let {
                 if (it.isNotEmpty()) {
                     HeadingAndItemText(
-                        item = it, heading = stringResource(
+                        item = it,
+                        heading = stringResource(
                             id = R.string.show_detail_air_days_heading
                         )
                     )
@@ -305,18 +306,21 @@ fun PosterAndMetadata(showSummary: ShowDetailSummary?) {
             showSummary?.genres?.let {
                 if (it.isNotEmpty()) {
                     HeadingAndItemText(
-                        item = it, heading = stringResource(
+                        item = it,
+                        heading = stringResource(
                             id = R.string.show_detail_genres_heading
                         )
                     )
                 }
             }
 
-            Text(
-                text = stringResource(id = R.string.tv_maze_creative_commons_attribution_text_multiple),
-                style = MaterialTheme.typography.caption,
-                modifier = Modifier.padding(8.dp)
-            )
+            if (!showSummary?.originalImageUrl.isNullOrEmpty()) {
+                Text(
+                    text = stringResource(id = R.string.tv_maze_creative_commons_attribution_text_multiple),
+                    style = MaterialTheme.typography.labelMedium,
+                    modifier = Modifier.padding(8.dp)
+                )
+            }
         }
     }
 }
@@ -400,11 +404,9 @@ fun ShowCastList(
             items(list, key = { showCastItem -> showCastItem.id.toString() }) {
                 ShowCast(item = it) { showCastItem ->
                     onClick(showCastItem)
-
                 }
             }
         }
-
     }
 }
 
@@ -435,7 +437,7 @@ fun ShowCast(
         item.name?.let { name ->
             Text(
                 text = name,
-                style = MaterialTheme.typography.body1,
+                style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.CenterHorizontally)
@@ -445,7 +447,7 @@ fun ShowCast(
         item.characterName?.let { characterName ->
             Text(
                 text = characterName,
-                style = MaterialTheme.typography.caption,
+                style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.Thin,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -475,7 +477,7 @@ fun PreviousEpisode(showPreviousEpisode: ShowPreviousEpisode) {
                     end = 16.dp,
                     bottom = 4.dp
                 ),
-            style = MaterialTheme.typography.caption
+            style = MaterialTheme.typography.labelMedium
         )
 
         showPreviousEpisode.previousEpisodeSummary?.let {
@@ -504,7 +506,7 @@ fun NextEpisode(showNextEpisode: ShowNextEpisode) {
                     end = 16.dp,
                     bottom = 4.dp
                 ),
-            style = MaterialTheme.typography.caption
+            style = MaterialTheme.typography.labelMedium
         )
 
         showNextEpisode.nextEpisodeSummary?.let {
@@ -525,7 +527,7 @@ fun EpisodeSummary(summary: String) {
                 bottom = 8.dp
             )
             .fillMaxWidth(),
-        style = MaterialTheme.typography.body2
+        style = MaterialTheme.typography.bodyMedium
     )
 }
 
@@ -552,7 +554,7 @@ private fun TraktRatingSummary(ratingData: TraktShowRating) {
                         id = R.string.show_detail_rating_numerator,
                         ratingData.rating.toString()
                     ),
-                    style = MaterialTheme.typography.h3
+                    style = MaterialTheme.typography.headlineLarge
                 )
 
                 Text(
@@ -560,13 +562,12 @@ private fun TraktRatingSummary(ratingData: TraktShowRating) {
                         R.string.show_detail_rating_votes,
                         ratingData.votes.toString()
                     ),
-                    style = MaterialTheme.typography.caption
+                    style = MaterialTheme.typography.labelMedium
                 )
             }
 
             TraktRatingVisual(ratingData = ratingData)
         }
-
     }
 }
 
@@ -628,8 +629,8 @@ fun LinearProgressPreview() {
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(8.dp)
         ) {
-            Text(text = "7.0", style = MaterialTheme.typography.h4)
-            Text(text = "618 votes", style = MaterialTheme.typography.caption)
+            Text(text = "7.0", style = MaterialTheme.typography.headlineSmall)
+            Text(text = "618 votes", style = MaterialTheme.typography.labelMedium)
         }
 
         Column(
@@ -691,12 +692,12 @@ fun HeadingAndItemText(
         Text(
             text = heading.uppercase(),
             fontWeight = FontWeight.Bold,
-            style = MaterialTheme.typography.caption
+            style = MaterialTheme.typography.bodyMedium
         )
 
         Text(
             text = item,
-            style = MaterialTheme.typography.body2
+            style = MaterialTheme.typography.bodySmall
         )
     }
 }

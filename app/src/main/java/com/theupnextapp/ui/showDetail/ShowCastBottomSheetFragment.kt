@@ -32,6 +32,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
+@Deprecated("Will be removed once Jetpack Navigation work has been completed")
 class ShowCastBottomSheetFragment : BottomSheetDialogFragment() {
 
     private var _binding: FragmentShowCastBottomSheetBinding? = null

@@ -14,15 +14,10 @@ package com.theupnextapp.ui.dashboard
 
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.fragment.app.viewModels
-import com.google.android.material.composethemeadapter.MdcTheme
+import androidx.compose.material3.ExperimentalMaterial3Api
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.theupnextapp.R
 import com.theupnextapp.databinding.FragmentDashboardBinding
@@ -30,7 +25,8 @@ import com.theupnextapp.ui.common.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
-@ExperimentalMaterialApi
+@Deprecated("Will be removed once Jetpack Navigation work has been completed")
+@ExperimentalMaterial3Api
 @AndroidEntryPoint
 class DashboardFragment : BaseFragment() {
 
@@ -39,13 +35,6 @@ class DashboardFragment : BaseFragment() {
 
     @Inject
     lateinit var firebaseAnalytics: FirebaseAnalytics
-
-    private val viewModel by viewModels<DashboardViewModel>()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -56,9 +45,9 @@ class DashboardFragment : BaseFragment() {
 
         binding.lifecycleOwner = viewLifecycleOwner
 
-        binding.composeContainer.apply {
-            setContent {
-                MdcTheme {
+//        binding.composeContainer.apply {
+//            setContent {
+//                UpnextTheme {
 //                    DashboardScreen {
 //                        val direction =
 //                            DashboardFragmentDirections.actionDashboardFragmentToShowDetailFragment(
@@ -85,9 +74,9 @@ class DashboardFragment : BaseFragment() {
 //                            analyticsBundle
 //                        )
 //                    }
-                }
-            }
-        }
+//                }
+//            }
+//        }
 
         return binding.root
     }
@@ -100,20 +89,5 @@ class DashboardFragment : BaseFragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.dashboard_menu, menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.menu_refresh -> {
-                viewModel.onRefreshShowsClick()
-                firebaseAnalytics.logEvent("dashboard_refresh_shows_click", null)
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
     }
 }
