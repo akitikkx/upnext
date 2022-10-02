@@ -88,7 +88,7 @@ fun BottomBar(
                         label = {
                             Text(stringResource(id = destination.label))
                         },
-                        selected = destination.direction.route in currentDestination.baseRoute,
+                        selected = destination.direction.route.startsWith(currentDestination.baseRoute),
                         onClick = { onBottomBarItemClick(destination.direction) }
                     )
                 }
