@@ -21,6 +21,10 @@
 
 package com.theupnextapp.ui.traktAccount
 
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -48,6 +52,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -55,9 +60,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.theupnextapp.BuildConfig
 import com.theupnextapp.R
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.TraktUserListItem
@@ -71,7 +78,8 @@ import com.theupnextapp.ui.widgets.ListPosterCard
 @Composable
 fun TraktAccountScreen(
     viewModel: TraktAccountViewModel = hiltViewModel(),
-    navigator: DestinationsNavigator
+    navigator: DestinationsNavigator,
+    code: String? = null
 ) {
     val scrollState = rememberScrollState()
 
@@ -81,11 +89,11 @@ fun TraktAccountScreen(
 
     val isLoading = viewModel.isLoading.observeAsState()
 
-    // TODO Handle Trakt code
+    val context = LocalContext.current
 
-    // TODO (Ahmed) Handle viewModel.confirmDisconnectFromTrakt
-
-    // TODO (Ahmed) Handle viewModel.openCustomTab
+    if (!code.isNullOrEmpty()) {
+        viewModel.onCodeReceived(code)
+    }
 
     Surface(
         modifier = Modifier
@@ -97,7 +105,7 @@ fun TraktAccountScreen(
                 AccountArea(
                     isAuthorizedOnTrakt = isAuthorizedOnTrakt.value,
                     favoriteShowsList = favoriteShowsList.value,
-                    onConnectToTraktClick = { viewModel.onConnectToTraktClick() },
+                    onConnectToTraktClick = { openCustomTab(context = context) },
                     onFavoriteClick = {
                         navigator.navigate(
                             ShowDetailScreenDestination(
@@ -123,6 +131,28 @@ fun TraktAccountScreen(
                 }
             }
         }
+    }
+}
+
+fun openCustomTab(context: Context) {
+    val packageName = "com.android.chrome"
+
+    val traktUrl = "https://trakt.tv/oauth/authorize?response_type=code&client_id=${BuildConfig.TRAKT_CLIENT_ID}&redirect_uri=${BuildConfig.TRAKT_REDIRECT_URI}"
+
+    val activity = (context as? Activity)
+
+    val builder = CustomTabsIntent.Builder()
+    builder.setShowTitle(true)
+    builder.setInstantAppsEnabled(true)
+
+    val customBuilder = builder.build()
+
+    if (packageName != null) {
+        customBuilder.intent.setPackage(packageName)
+        customBuilder.launchUrl(context, traktUrl.toUri())
+    } else {
+        val intent = Intent(Intent.ACTION_VIEW, traktUrl.toUri())
+        activity?.startActivity(intent)
     }
 }
 

@@ -27,7 +27,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -35,15 +34,16 @@ import android.view.inputmethod.InputMethodManager
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.browser.customtabs.CustomTabColorSchemeParams
-import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.ContextCompat
-import androidx.core.os.bundleOf
+import androidx.core.util.Consumer
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
@@ -53,8 +53,6 @@ import com.theupnextapp.common.utils.FeedBackStatus
 import com.theupnextapp.common.utils.Feedback
 import com.theupnextapp.common.utils.customTab.CustomTabComponent
 import com.theupnextapp.common.utils.customTab.TabConnectionCallback
-import com.theupnextapp.common.utils.customTab.WebviewFallback
-import com.theupnextapp.domain.TraktConnectionArg
 import com.theupnextapp.ui.main.MainScreen
 import com.theupnextapp.ui.theme.UpnextTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -88,8 +86,19 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
         super.onCreate(savedInstanceState)
 
         setContent {
+            val dataString: MutableState<String?> = rememberSaveable { mutableStateOf("") }
+
+            DisposableEffect(Unit) {
+                val listener = Consumer<Intent> {
+                    val code = it.data?.getQueryParameter("code")
+                    dataString.value = code
+                }
+                addOnNewIntentListener(listener)
+                onDispose { removeOnNewIntentListener(listener) }
+            }
+
             UpnextTheme {
-                MainScreen()
+                MainScreen(dataString)
             }
         }
 
@@ -143,16 +152,18 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
         customTabComponent.mayLaunchUrl(null, null, null)
     }
 
-    override fun onNewIntent(intent: Intent?) {
-        super.onNewIntent(intent)
-        val code = intent?.data?.getQueryParameter("code")
-        val traktConnectionArg = TraktConnectionArg(code)
-
-        if (!code.isNullOrEmpty()) {
-            val bundle = bundleOf(EXTRA_TRAKT_URI to traktConnectionArg)
-            navController.navigate(R.id.traktAccountFragment, bundle)
-        }
-    }
+//    @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+//    override fun onNewIntent(intent: Intent?) {
+//        super.onNewIntent(intent)
+//        val code = intent?.data?.getQueryParameter("code")
+//        val traktConnectionArg = TraktConnectionArg(code)
+//
+//        if (!code.isNullOrEmpty()) {
+//            val bundle = bundleOf(EXTRA_TRAKT_URI to traktConnectionArg)
+//            DestinationsNavigator.navigate(TraktAccountScreenDestination())
+//            navController.navigate("theupnextapp://callback?code=$code")
+//        }
+//    }
 
     fun hideBottomNavigation() {
         if (bottomNavigationView != null) {
@@ -220,28 +231,28 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
         }
     }
 
-    fun connectToTrakt() {
-        val typedValue = TypedValue()
-        theme.resolveAttribute(R.attr.colorPrimaryDark, typedValue, true)
-        val toolbarColor = ContextCompat.getColor(this, typedValue.resourceId)
-
-        val customTabsIntent = CustomTabsIntent.Builder(customTabComponent.getSession())
-            .setStartAnimations(this, R.anim.slide_in_right, R.anim.slide_out_left)
-            .setExitAnimations(this, R.anim.slide_in_left, R.anim.slide_out_right)
-            .setDefaultColorSchemeParams(
-                CustomTabColorSchemeParams.Builder()
-                    .setToolbarColor(toolbarColor)
-                    .build()
-            )
-            .build()
-
-        customTabComponent.openCustomTab(
-            this,
-            customTabsIntent,
-            Uri.parse(TRAKT_AUTH_URL),
-            WebviewFallback()
-        )
-    }
+//    fun connectToTrakt() {
+//        val typedValue = TypedValue()
+//        theme.resolveAttribute(R.attr.colorPrimaryDark, typedValue, true)
+//        val toolbarColor = ContextCompat.getColor(this, typedValue.resourceId)
+//
+//        val customTabsIntent = CustomTabsIntent.Builder(customTabComponent.getSession())
+//            .setStartAnimations(this, R.anim.slide_in_right, R.anim.slide_out_left)
+//            .setExitAnimations(this, R.anim.slide_in_left, R.anim.slide_out_right)
+//            .setDefaultColorSchemeParams(
+//                CustomTabColorSchemeParams.Builder()
+//                    .setToolbarColor(toolbarColor)
+//                    .build()
+//            )
+//            .build()
+//
+//        customTabComponent.openCustomTab(
+//            this,
+//            customTabsIntent,
+//            Uri.parse(TRAKT_AUTH_URL),
+//            WebviewFallback()
+//        )
+//    }
 
     fun hideKeyboard() {
         val view = this.currentFocus

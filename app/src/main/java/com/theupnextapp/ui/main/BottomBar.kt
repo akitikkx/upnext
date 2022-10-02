@@ -34,9 +34,9 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import com.ramcosta.composedestinations.spec.Direction
-import com.ramcosta.composedestinations.spec.DirectionDestinationSpec
 import com.theupnextapp.R
 import com.theupnextapp.ui.destinations.DashboardScreenDestination
+import com.theupnextapp.ui.destinations.Destination
 import com.theupnextapp.ui.destinations.ExploreScreenDestination
 import com.theupnextapp.ui.destinations.SearchScreenDestination
 import com.theupnextapp.ui.destinations.TraktAccountScreenDestination
@@ -45,7 +45,7 @@ import com.theupnextapp.ui.destinations.TraktAccountScreenDestination
 @ExperimentalComposeUiApi
 @ExperimentalFoundationApi
 enum class BottomBarDestination(
-    val direction: DirectionDestinationSpec,
+    val direction: Direction,
     val icon: ImageVector,
     @StringRes val label: Int
 ) {
@@ -53,7 +53,7 @@ enum class BottomBarDestination(
     Dashboard(DashboardScreenDestination, Icons.Default.Home, R.string.bottom_nav_title_dashboard),
     Explore(ExploreScreenDestination, Icons.Filled.Explore, R.string.bottom_nav_title_explore),
     TraktAccount(
-        TraktAccountScreenDestination,
+        TraktAccountScreenDestination(),
         Icons.Filled.AccountBox,
         R.string.bottom_nav_title_account
     )
@@ -64,7 +64,7 @@ enum class BottomBarDestination(
 @ExperimentalFoundationApi
 @Composable
 fun BottomBar(
-    currentDestination: com.theupnextapp.ui.destinations.Destination,
+    currentDestination: Destination,
     onBottomBarItemClick: (Direction) -> Unit
 ) {
     val bottomBarState = rememberSaveable { mutableStateOf(true) }
@@ -88,7 +88,7 @@ fun BottomBar(
                         label = {
                             Text(stringResource(id = destination.label))
                         },
-                        selected = currentDestination == destination.direction,
+                        selected = destination.direction.route in currentDestination.baseRoute,
                         onClick = { onBottomBarItemClick(destination.direction) }
                     )
                 }
@@ -106,7 +106,7 @@ fun BottomBar(
  */
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
 @ExperimentalMaterial3Api
-fun isMainScreen(destination: com.theupnextapp.ui.destinations.Destination?): Boolean {
+fun isMainScreen(destination: Destination?): Boolean {
     return when (destination?.route) {
         SearchScreenDestination.route,
         DashboardScreenDestination.route,

@@ -16,9 +16,11 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.ExperimentalComposeUiApi
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.ramcosta.composedestinations.navigation.navigateTo
+import com.theupnextapp.ui.destinations.TraktAccountScreenDestination
 import com.theupnextapp.ui.navigation.AppNavigation
 
 @ExperimentalAnimationApi
@@ -26,8 +28,14 @@ import com.theupnextapp.ui.navigation.AppNavigation
 @ExperimentalComposeUiApi
 @ExperimentalMaterial3Api
 @Composable
-fun MainScreen() {
+fun MainScreen(
+    valueState: MutableState<String?>,
+) {
     val navController = rememberAnimatedNavController()
+
+    if (!valueState.value.isNullOrEmpty()) {
+        navController.navigate(TraktAccountScreenDestination(code = valueState.value).route)
+    }
 
     MainScaffold(
         navHostController = navController,
