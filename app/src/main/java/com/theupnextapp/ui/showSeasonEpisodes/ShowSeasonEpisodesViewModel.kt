@@ -38,7 +38,6 @@ import com.theupnextapp.ui.common.BaseTraktViewModel
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class ShowSeasonEpisodesViewModel(
@@ -92,11 +91,6 @@ class ShowSeasonEpisodesViewModel(
         }
     }
 
-    fun onCheckInClick(showSeasonEpisode: ShowSeasonEpisode, imdbID: String?) {
-        showSeasonEpisode.imdbID = imdbID
-        _confirmCheckIn.value = showSeasonEpisode
-    }
-
     fun onCheckInConfirm(showSeasonEpisode: ShowSeasonEpisode) {
         viewModelScope.launch {
             traktRepository.checkInToShow(showSeasonEpisode, traktAccessToken.value?.access_token)
@@ -129,7 +123,7 @@ class ShowSeasonEpisodesViewModel(
         @Assisted private val showSeasonEpisodesArg: ShowSeasonEpisodesArg
     ) : AbstractSavedStateViewModelFactory(owner, null) {
         @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel?> create(
+        override fun <T : ViewModel> create(
             key: String,
             modelClass: Class<T>,
             handle: SavedStateHandle
