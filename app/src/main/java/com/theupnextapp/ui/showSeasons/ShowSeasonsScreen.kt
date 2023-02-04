@@ -46,17 +46,27 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.theupnextapp.R
+import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.ShowSeason
+import com.theupnextapp.domain.ShowSeasonEpisodesArg
 import com.theupnextapp.ui.components.PosterImage
 import com.theupnextapp.ui.components.SectionHeadingText
+import com.theupnextapp.ui.destinations.ShowSeasonEpisodesScreenDestination
 
 @ExperimentalMaterial3Api
+@Destination(navArgsDelegate = ShowDetailArg::class)
 @Composable
 fun ShowSeasonsScreen(
-    viewModel: ShowSeasonsViewModel,
-    onSeasonClick: (item: ShowSeason) -> Unit
+    viewModel: ShowSeasonsViewModel = hiltViewModel(),
+    showDetailArg: ShowDetailArg?,
+    navigator: DestinationsNavigator
 ) {
+    viewModel.setSelectedShow(showDetailArg)
+
     val showSeasonsList = viewModel.showSeasons.observeAsState()
 
     val isLoading = viewModel.isLoading.observeAsState()
@@ -66,7 +76,16 @@ fun ShowSeasonsScreen(
             Box(modifier = Modifier.fillMaxSize()) {
                 showSeasonsList.value?.let {
                     ShowSeasons(list = it) { showSeason ->
-                        onSeasonClick(showSeason)
+                        navigator.navigate(
+                            ShowSeasonEpisodesScreenDestination(
+                                ShowSeasonEpisodesArg(
+                                    showId = showDetailArg?.showId?.toInt(),
+                                    seasonNumber = showSeason.seasonNumber,
+                                    imdbID = showDetailArg?.imdbID,
+                                    isAuthorizedOnTrakt = showDetailArg?.isAuthorizedOnTrakt
+                                )
+                            )
+                        )
                     }
                 }
 

@@ -39,16 +39,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.theupnextapp.R
 import com.theupnextapp.domain.ScheduleShow
 import com.theupnextapp.ui.components.SectionHeadingText
+import com.theupnextapp.ui.destinations.ShowDetailScreenDestination
 import com.theupnextapp.ui.widgets.ListPosterCard
 
 @ExperimentalMaterial3Api
+@RootNavGraph(start = true)
+@Destination
 @Composable
 fun DashboardScreen(
     viewModel: DashboardViewModel = hiltViewModel(),
-    onShowClick: (item: ScheduleShow) -> Unit
+    navigator: DestinationsNavigator
 ) {
     val yesterdayShowsList = viewModel.yesterdayShowsList.observeAsState()
 
@@ -73,7 +79,15 @@ fun DashboardScreen(
                                 list = list,
                                 rowTitle = stringResource(id = R.string.title_yesterday_shows)
                             ) {
-                                onShowClick(it)
+                                navigator.navigate(
+                                    ShowDetailScreenDestination(
+                                        source = "dashboard",
+                                        showId = it.id.toString(),
+                                        showTitle = it.name,
+                                        showImageUrl = it.originalImage,
+                                        showBackgroundUrl = it.mediumImage
+                                    )
+                                )
                             }
                         }
                     }
@@ -84,7 +98,15 @@ fun DashboardScreen(
                                 list = list,
                                 rowTitle = stringResource(id = R.string.title_today_shows)
                             ) {
-                                onShowClick(it)
+                                navigator.navigate(
+                                    ShowDetailScreenDestination(
+                                        source = "dashboard",
+                                        showId = it.id.toString(),
+                                        showTitle = it.name,
+                                        showImageUrl = it.originalImage,
+                                        showBackgroundUrl = it.mediumImage
+                                    )
+                                )
                             }
                         }
                     }
@@ -95,7 +117,15 @@ fun DashboardScreen(
                                 list = list,
                                 rowTitle = stringResource(id = R.string.title_tomorrow_shows)
                             ) {
-                                onShowClick(it)
+                                navigator.navigate(
+                                    ShowDetailScreenDestination(
+                                        source = "dashboard",
+                                        showId = it.id.toString(),
+                                        showTitle = it.name,
+                                        showImageUrl = it.originalImage,
+                                        showBackgroundUrl = it.mediumImage
+                                    )
+                                )
                             }
                         }
                     }

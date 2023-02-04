@@ -21,10 +21,6 @@
 
 package com.theupnextapp.domain
 
-import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
-
-@Parcelize
 data class ShowDetailArg(
     val source: String? = null,
     val showId: String?,
@@ -32,5 +28,5 @@ data class ShowDetailArg(
     val showImageUrl: String?,
     val showBackgroundUrl: String?,
     val imdbID: String? = null,
-    val isAuthorizedOnTrakt: Boolean = false
-) : Parcelable
+    val isAuthorizedOnTrakt: Boolean? = false
+)

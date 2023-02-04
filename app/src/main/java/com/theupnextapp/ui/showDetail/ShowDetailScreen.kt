@@ -37,6 +37,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -53,6 +54,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.theupnextapp.R
 import com.theupnextapp.domain.ShowCast
 import com.theupnextapp.domain.ShowDetailArg
@@ -63,20 +66,23 @@ import com.theupnextapp.domain.TraktShowRating
 import com.theupnextapp.network.models.trakt.Distribution
 import com.theupnextapp.ui.components.PosterImage
 import com.theupnextapp.ui.components.SectionHeadingText
+import com.theupnextapp.ui.destinations.ShowSeasonsScreenDestination
 import org.jsoup.Jsoup
 
+@ExperimentalMaterial3Api
+@Destination(navArgsDelegate = ShowDetailArg::class)
 @Composable
 fun ShowDetailScreen(
     viewModel: ShowDetailViewModel = hiltViewModel(),
-    onSeasonsClick: () -> Unit,
-    onCastItemClick: (item: ShowCast) -> Unit,
-    onFavoriteClick: () -> Unit
+    showDetailArgs: ShowDetailArg?,
+    navigator: DestinationsNavigator
 ) {
+
+    viewModel.selectedShow(showDetailArgs)
+
     val showSummary = viewModel.showSummary.observeAsState()
 
     val showCast = viewModel.showCast.observeAsState()
-
-    val showDetailArgs = viewModel.showDetailArg.observeAsState()
 
     val showRating = viewModel.showRating.observeAsState()
 
@@ -99,16 +105,31 @@ fun ShowDetailScreen(
             Box(modifier = Modifier.fillMaxSize()) {
                 DetailArea(
                     showSummary = showSummary.value,
-                    showDetailArgs = showDetailArgs.value,
+                    showDetailArgs = showDetailArgs,
                     isAuthorizedOnTrakt = isAuthorizedOnTrakt.value,
                     isFavorite = isFavorite.value,
                     showCast = showCast.value,
                     showNextEpisode = showNextEpisode.value,
                     showPreviousEpisode = showPreviousEpisode.value,
                     showRating = showRating.value,
-                    onSeasonsClick = { onSeasonsClick() },
-                    onCastItemClick = { onCastItemClick(it) },
-                    onFavoriteClick = { onFavoriteClick() }
+                    onSeasonsClick = {
+                        navigator.navigate(
+                            ShowSeasonsScreenDestination(
+                                ShowDetailArg(
+                                    showId = showDetailArgs?.showId,
+                                    showTitle = showDetailArgs?.showTitle,
+                                    showImageUrl = showDetailArgs?.showImageUrl,
+                                    showBackgroundUrl = showDetailArgs?.showBackgroundUrl,
+                                    imdbID = showDetailArgs?.imdbID,
+                                    isAuthorizedOnTrakt = isAuthorizedOnTrakt.value
+                                )
+                            )
+                        )
+                    },
+                    onCastItemClick = {
+                        // TODO trigger bottom sheet
+                    },
+                    onFavoriteClick = { viewModel.onAddRemoveFavoriteClick() }
                 )
 
                 if (isLoading.value == true) {

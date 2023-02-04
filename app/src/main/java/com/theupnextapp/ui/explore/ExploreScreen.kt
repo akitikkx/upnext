@@ -39,20 +39,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.theupnextapp.R
 import com.theupnextapp.domain.TraktMostAnticipated
 import com.theupnextapp.domain.TraktPopularShows
 import com.theupnextapp.domain.TraktTrendingShows
 import com.theupnextapp.ui.components.SectionHeadingText
+import com.theupnextapp.ui.destinations.ShowDetailScreenDestination
 import com.theupnextapp.ui.widgets.ListPosterCard
 
 @ExperimentalMaterial3Api
+@Destination
 @Composable
 fun ExploreScreen(
     viewModel: ExploreViewModel = hiltViewModel(),
-    onPopularShowClick: (item: TraktPopularShows) -> Unit,
-    onTrendingShowClick: (item: TraktTrendingShows) -> Unit,
-    onMostAnticipatedShowClick: (item: TraktMostAnticipated) -> Unit,
+    navigator: DestinationsNavigator
 ) {
     val popularShowsList = viewModel.popularShows.observeAsState()
 
@@ -77,7 +79,15 @@ fun ExploreScreen(
                                 list = list,
                                 rowTitle = stringResource(id = R.string.explore_trending_shows_list_title)
                             ) {
-                                onTrendingShowClick(it)
+                                navigator.navigate(
+                                    ShowDetailScreenDestination(
+                                        source = "trending",
+                                        showId = it.tvMazeID.toString(),
+                                        showTitle = it.title,
+                                        showImageUrl = it.originalImageUrl,
+                                        showBackgroundUrl = it.mediumImageUrl
+                                    )
+                                )
                             }
                     }
 
@@ -87,7 +97,15 @@ fun ExploreScreen(
                                 list = list,
                                 rowTitle = stringResource(id = R.string.explore_popular_shows_list_title)
                             ) {
-                                onPopularShowClick(it)
+                                navigator.navigate(
+                                    ShowDetailScreenDestination(
+                                        source = "popular",
+                                        showId = it.tvMazeID.toString(),
+                                        showTitle = it.title,
+                                        showImageUrl = it.originalImageUrl,
+                                        showBackgroundUrl = it.mediumImageUrl
+                                    )
+                                )
                             }
                     }
 
@@ -97,7 +115,15 @@ fun ExploreScreen(
                                 list = list,
                                 rowTitle = stringResource(id = R.string.explore_most_anticipated_shows_list_title)
                             ) {
-                                onMostAnticipatedShowClick(it)
+                                navigator.navigate(
+                                    ShowDetailScreenDestination(
+                                        source = "most_anticipated",
+                                        showId = it.tvMazeID.toString(),
+                                        showTitle = it.title,
+                                        showImageUrl = it.originalImageUrl,
+                                        showBackgroundUrl = it.mediumImageUrl
+                                    )
+                                )
                             }
                     }
                 }
