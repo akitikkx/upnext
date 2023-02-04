@@ -52,7 +52,7 @@ buildscript {
 
         gradle_version = '7.3.1'
 
-        google_services = '4.3.10'
+        google_services = '4.3.14'
 
         gson_version = "2.9.0"
 
