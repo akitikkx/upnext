@@ -21,19 +21,15 @@
 
 package com.theupnextapp
 
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.Menu
-import android.view.MenuItem
 import android.view.View
-import android.view.inputmethod.InputMethodManager
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -46,7 +42,6 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.util.Consumer
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
-import androidx.navigation.ui.onNavDestinationSelected
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
 import com.theupnextapp.common.utils.FeedBackStatus
@@ -66,9 +61,6 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
 
     private var _bottomNavigationView: BottomNavigationView? = null
     private val bottomNavigationView get() = _bottomNavigationView
-
-    private var _toolbar: Toolbar? = null
-    private val toolbar get() = _toolbar
 
     private var _container: ConstraintLayout? = null
     private val container get() = _container
@@ -109,18 +101,6 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
         return navController.navigateUp() || super.onSupportNavigateUp()
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.menu_settings -> {
-                navController.navigate(R.id.settingsFragment)
-                true
-            }
-            else -> item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(
-                item
-            )
-        }
-    }
-
     override fun onStart() {
         super.onStart()
         customTabComponent.bindCustomService(this)
@@ -139,7 +119,6 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
     override fun onDestroy() {
         super.onDestroy()
         _bottomNavigationView = null
-        _toolbar = null
         _container = null
         customTabComponent.setConnectionCallback(null)
     }
@@ -151,19 +130,6 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
     override fun onTabDisconnected() {
         customTabComponent.mayLaunchUrl(null, null, null)
     }
-
-//    @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
-//    override fun onNewIntent(intent: Intent?) {
-//        super.onNewIntent(intent)
-//        val code = intent?.data?.getQueryParameter("code")
-//        val traktConnectionArg = TraktConnectionArg(code)
-//
-//        if (!code.isNullOrEmpty()) {
-//            val bundle = bundleOf(EXTRA_TRAKT_URI to traktConnectionArg)
-//            DestinationsNavigator.navigate(TraktAccountScreenDestination())
-//            navController.navigate("theupnextapp://callback?code=$code")
-//        }
-//    }
 
     fun hideBottomNavigation() {
         if (bottomNavigationView != null) {
@@ -178,18 +144,6 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
             if (bottomNavigationView?.visibility == View.GONE) {
                 bottomNavigationView?.visibility = View.VISIBLE
             }
-        }
-    }
-
-    fun hideToolbar() {
-        if (toolbar?.visibility == View.VISIBLE) {
-            toolbar?.visibility = View.GONE
-        }
-    }
-
-    fun showToolbar() {
-        if (toolbar?.visibility == View.GONE) {
-            toolbar?.visibility = View.VISIBLE
         }
     }
 
@@ -231,42 +185,9 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
         }
     }
 
-//    fun connectToTrakt() {
-//        val typedValue = TypedValue()
-//        theme.resolveAttribute(R.attr.colorPrimaryDark, typedValue, true)
-//        val toolbarColor = ContextCompat.getColor(this, typedValue.resourceId)
-//
-//        val customTabsIntent = CustomTabsIntent.Builder(customTabComponent.getSession())
-//            .setStartAnimations(this, R.anim.slide_in_right, R.anim.slide_out_left)
-//            .setExitAnimations(this, R.anim.slide_in_left, R.anim.slide_out_right)
-//            .setDefaultColorSchemeParams(
-//                CustomTabColorSchemeParams.Builder()
-//                    .setToolbarColor(toolbarColor)
-//                    .build()
-//            )
-//            .build()
-//
-//        customTabComponent.openCustomTab(
-//            this,
-//            customTabsIntent,
-//            Uri.parse(TRAKT_AUTH_URL),
-//            WebviewFallback()
-//        )
-//    }
-
-    fun hideKeyboard() {
-        val view = this.currentFocus
-        if (view != null) {
-            val inputMethodManager: InputMethodManager =
-                getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
-        }
-    }
-
     companion object {
         const val TRAKT_AUTH_URL =
             "https://trakt.tv/oauth/authorize?response_type=code&client_id=${BuildConfig.TRAKT_CLIENT_ID}&redirect_uri=${BuildConfig.TRAKT_REDIRECT_URI}"
         const val REQUEST_CODE_INTERNET = 10
-        const val EXTRA_TRAKT_URI = "extra_trakt_uri"
     }
 }

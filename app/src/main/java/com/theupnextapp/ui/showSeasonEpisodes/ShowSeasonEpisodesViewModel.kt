@@ -38,7 +38,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ShowSeasonEpisodesViewModel @Inject constructor(
     private val showDetailRepository: ShowDetailRepository,
-    private val traktRepository: TraktRepository,
+    traktRepository: TraktRepository,
     workManager: WorkManager
 ) : BaseTraktViewModel(
     traktRepository,
@@ -51,13 +51,8 @@ class ShowSeasonEpisodesViewModel @Inject constructor(
     private val _episodes = MutableLiveData<List<ShowSeasonEpisode>?>()
     val episodes: LiveData<List<ShowSeasonEpisode>?> = _episodes
 
-    val traktCheckInStatus = traktRepository.traktCheckInStatus
-
     private val _seasonNumber = MutableLiveData<Int?>()
     val seasonNumber: LiveData<Int?> = _seasonNumber
-
-    private val _confirmCheckIn = MutableLiveData<ShowSeasonEpisode?>()
-    val confirmCheckIn: LiveData<ShowSeasonEpisode?> = _confirmCheckIn
 
     fun selectedSeason(showSeasonEpisodesArg: ShowSeasonEpisodesArg?) {
         showSeasonEpisodesArg?.let { selectedSeason ->
@@ -84,21 +79,5 @@ class ShowSeasonEpisodesViewModel @Inject constructor(
                 }
             }
         }
-    }
-
-    fun onCheckInConfirm(showSeasonEpisode: ShowSeasonEpisode) {
-        viewModelScope.launch {
-            traktRepository.checkInToShow(showSeasonEpisode, traktAccessToken.value?.access_token)
-            onCheckInComplete()
-        }
-    }
-
-    private fun onCheckInComplete() {
-        _confirmCheckIn.value = null
-    }
-
-    companion object {
-        const val SHOW_ID = "showId"
-        const val SEASON_NUMBER = "seasonNumber"
     }
 }
