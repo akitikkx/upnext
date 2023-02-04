@@ -86,11 +86,6 @@ class ShowSeasonEpisodesViewModel @Inject constructor(
         }
     }
 
-    fun onCheckInClick(showSeasonEpisode: ShowSeasonEpisode, imdbID: String?) {
-        showSeasonEpisode.imdbID = imdbID
-        _confirmCheckIn.value = showSeasonEpisode
-    }
-
     fun onCheckInConfirm(showSeasonEpisode: ShowSeasonEpisode) {
         viewModelScope.launch {
             traktRepository.checkInToShow(showSeasonEpisode, traktAccessToken.value?.access_token)
