@@ -590,7 +590,7 @@ fun TraktRatingVisual(ratingData: TraktShowRating) {
     ) {
         distributionList.asReversed().forEach { distribution ->
             val progressValue =
-                (distribution.value.toFloat() / (ratingData.votes?.toFloat() ?: 0f)) * 100.0f
+                (distribution.value.toFloat() / (ratingData.votes?.toFloat() ?: 0f))
 
             LinearProgress(
                 ratingLevel = distribution.score,
@@ -608,7 +608,7 @@ fun LinearProgress(
     Row(
         modifier = Modifier
             .padding(4.dp)
-            .width(30.dp),
+            .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(text = ratingLevel)
@@ -623,7 +623,7 @@ fun LinearProgress(
 @Preview
 @Composable
 fun LinearProgressPreview() {
-    Row {
+    Row(modifier = Modifier.fillMaxWidth()) {
         Column(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -635,11 +635,11 @@ fun LinearProgressPreview() {
 
         Column(
             verticalArrangement = Arrangement.SpaceEvenly,
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.Start
         ) {
             LinearProgress(
                 ratingLevel = "10",
-                progress = 0.43f,
+                progress = 0.63f,
             )
             LinearProgress(
                 ratingLevel = "9",
