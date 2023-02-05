@@ -50,7 +50,7 @@ buildscript {
 
         glide_version = '4.12.0'
 
-        gradle_version = '7.3.1'
+        gradle_version = '7.4.1'
 
         google_services = '4.3.14'
 
