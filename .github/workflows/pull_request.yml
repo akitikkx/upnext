@@ -23,7 +23,10 @@ jobs:
       - name: Create a copy of the local.properties from the example
         run: |
           cp "${GITHUB_WORKSPACE}/local.properties.example" "${GITHUB_WORKSPACE}/local.properties"
-          chmod u+x "${GITHUB_WORKSPACE}/local.properties"      
+          chmod u+x "${GITHUB_WORKSPACE}/local.properties"
+      - name: Create google-services.json file
+        run: |
+          cp "${GITHUB_WORKSPACE}/app/google-services.json"
       - name: Update the gradle wrapper permissions
         run: chmod +x ./gradlew
       - name: Restore cache
@@ -45,4 +48,7 @@ jobs:
           path: '**/build/reports/tests/'
       - name: Remove generated local.properties file
         run: |
-          rm "${GITHUB_WORKSPACE}/local.properties"          
+          rm "${GITHUB_WORKSPACE}/local.properties"
+      - name: Remove generated google-services.json file
+        run: |
+          rm "${GITHUB_WORKSPACE}/app/google-services.json"
