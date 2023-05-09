@@ -1,0 +1,41 @@
+name: Pull Request
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test:
+    name: Running tests
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up Java 11
+        uses: actions/setup-java@1
+        with:
+          java-version: 11
+      - name: Print Java version
+        run: javac -version
+      - name: Update the gradle wrapper permissions
+        run: chmod +x ./gradlew
+      - name: Restore cache
+        uses: actions/cache@v2
+        with:
+          path:
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      - name: Execute tests
+        run: ./gradlew testDebugUnitTest --continue
+      - name: Upload Test Results
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: unit-test-report
+          path: '**/build/reports/tests/'
