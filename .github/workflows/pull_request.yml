@@ -19,7 +19,7 @@ jobs:
           java-version: 11
       - name: Print Java version
         run: javac -version
-      - name: Create a copy of the local.properties from the example
+      - name: Create a copy of the local.properties from the example file
         run: |
           cp "${GITHUB_WORKSPACE}/local.properties.example" "${GITHUB_WORKSPACE}/local.properties"
           chmod u+x "${GITHUB_WORKSPACE}/local.properties"
