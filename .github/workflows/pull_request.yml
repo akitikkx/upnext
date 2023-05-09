@@ -25,7 +25,7 @@ jobs:
           chmod u+x "${GITHUB_WORKSPACE}/local.properties"
       - name: Create google-services.json file
         run: |
-          cat "${GITHUB_WORKSPACE}/app/google-services.json"
+          cat /home/runner/work/<Project-Name>/<Project-Name>/app/google-services.json | base64
       - name: Update the gradle wrapper permissions
         run: chmod +x ./gradlew
       - name: Restore cache
@@ -50,4 +50,4 @@ jobs:
           rm "${GITHUB_WORKSPACE}/local.properties"
       - name: Remove generated google-services.json file
         run: |
-          rm "${GITHUB_WORKSPACE}/app/google-services.json"
+          rm /home/runner/work/<Project-Name>/<Project-Name>/app/google-services.json
