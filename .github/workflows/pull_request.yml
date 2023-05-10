@@ -24,8 +24,9 @@ jobs:
           cp "${GITHUB_WORKSPACE}/local.properties.example" "${GITHUB_WORKSPACE}/local.properties"
           chmod u+x "${GITHUB_WORKSPACE}/local.properties"
       - name: Create and configure google-services.json file
-        run: | 
-          touch ./app/google-services.json && echo $GOOGLE_SERVICES_JSON | base64 -d > ./app/google-services.json
+        env:
+          GOOGLE_SERVICES: ${{ secrets.GOOGLE_SERVICES }}
+        run: echo $GOOGLE_SERVICES > app/google-services.json
       - name: Update the gradle wrapper permissions
         run: chmod +x ./gradlew
       - name: Restore cache
