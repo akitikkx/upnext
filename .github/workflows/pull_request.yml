@@ -52,3 +52,28 @@ jobs:
       - name: Remove generated google-services.json file
         run: |
           rm ./app/google-services.json
+
+  build:
+    name: Assemble Debug
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Restore cache
+        uses: actions/cache@v2
+        with:
+          path:
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      - name: Update the gradle wrapper permissions
+        run: chmod +x ./gradlew
+      - name: Assemble debug
+        run: ./gradlew assembleDebug
+      - name: Upload generated APK
+        uses: actions/upload-artifact@v2
+        with:
+          name: upnext-debug
+          path: app/build/outputs/apk/debug/**.apk
