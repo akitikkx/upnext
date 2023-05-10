@@ -84,7 +84,7 @@ buildscript {
         
         navigation_version = "2.5.3"
 
-        okhttp_version = '5.0.0-alpha.2'
+        okhttp_version = '5.0.0-alpha.11'
         okhttp_logging_interceptor_version = '5.0.0-alpha.11'
 
         paging_version = "3.1.1"
