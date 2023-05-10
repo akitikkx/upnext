@@ -68,6 +68,14 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
+      - name: Create a copy of the local.properties from the example file
+        run: |
+          cp "${GITHUB_WORKSPACE}/local.properties.example" "${GITHUB_WORKSPACE}/local.properties"
+          chmod u+x "${GITHUB_WORKSPACE}/local.properties"
+      - name: Create and configure google-services.json file
+        env:
+          GOOGLE_SERVICES: ${{ secrets.GOOGLE_SERVICES }}
+        run: echo $GOOGLE_SERVICES > app/google-services.json
       - name: Update the gradle wrapper permissions
         run: chmod +x ./gradlew
       - name: Assemble debug
@@ -77,3 +85,9 @@ jobs:
         with:
           name: upnext-debug
           path: app/build/outputs/apk/debug/**.apk
+      - name: Remove generated local.properties file
+        run: |
+          rm "${GITHUB_WORKSPACE}/local.properties"
+      - name: Remove generated google-services.json file
+        run: |
+          rm ./app/google-services.json
