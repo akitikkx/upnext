@@ -64,7 +64,7 @@ buildscript {
         firebase_core_version = "21.1.1"
         firebase_crashlytics_version = "18.3.3"
         firebase_crashlytics_gradle_version = "2.9.1"
-        firebase_performance_monitoring_version = "20.3.1"
+        firebase_performance_monitoring_version = "20.3.2"
         firebase_performance_monitoring_gradle_version = "1.4.2"
 
         jsoup_version = '1.14.2'
