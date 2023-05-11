@@ -67,7 +67,7 @@ buildscript {
         firebase_performance_monitoring_version = "20.3.2"
         firebase_performance_monitoring_gradle_version = "1.4.2"
 
-        jsoup_version = '1.14.2'
+        jsoup_version = '1.16.1'
 
         kotlin_version = '1.8.0'
         kotlin_coroutines_version = "1.5.1"
