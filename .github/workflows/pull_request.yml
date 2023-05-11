@@ -30,7 +30,7 @@ jobs:
       - name: Update the gradle wrapper permissions
         run: chmod +x ./gradlew
       - name: Restore cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path:
             ~/.gradle/caches
@@ -60,7 +60,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Restore cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path:
             ~/.gradle/caches
