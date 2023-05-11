@@ -48,7 +48,7 @@ buildscript {
 
         flexbox_version = "3.0.0"
 
-        glide_version = '4.12.0'
+        glide_version = '4.15.1'
 
         gradle_version = '7.4.2'
 
