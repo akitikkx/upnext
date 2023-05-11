@@ -25,7 +25,7 @@ buildscript {
 
         androidx_preference_version = "1.2.0"
 
-        appcompat_version = "1.7.0-alpha01"
+        appcompat_version = "1.7.0-alpha02"
 
         compose_activity_version = "1.7.1"
         compose_destinations_version = "1.8.33-beta"
