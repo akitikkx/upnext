@@ -70,7 +70,7 @@ buildscript {
         jsoup_version = '1.16.1'
 
         kotlin_version = '1.8.0'
-        kotlin_coroutines_version = "1.5.1"
+        kotlin_coroutines_version = "1.7.0"
 
         ktlint_version = "11.0.0"
 
