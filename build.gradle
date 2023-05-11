@@ -78,7 +78,7 @@ buildscript {
 
         lifecycle_version = "2.5.1"
 
-        material_version = "1.9.0-alpha01"
+        material_version = "1.9.0"
 
         moshi_version = '1.12.0'
         
