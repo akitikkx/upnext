@@ -42,7 +42,7 @@ buildscript {
 
         core_ktx_version = "1.9.0"
 
-        custom_tabs_version = "1.4.0"
+        custom_tabs_version = "1.5.0"
 
         datastore_version = "1.0.0"
 
