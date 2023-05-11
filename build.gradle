@@ -34,7 +34,7 @@ buildscript {
         compose_animation_version = "1.4.3"
         compose_ui_version = "1.4.3"
         compose_ui_test_version = "1.4.3"
-        compose_viewmodel_version = "2.5.1"
+        compose_viewmodel_version = "2.6.1"
         compose_coil_version = "1.4.0"
         compose_hilt_navigation_version = "1.0.0"
 
