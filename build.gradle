@@ -75,7 +75,7 @@ buildscript {
 
         ksp_version = '1.8.21-1.0.11'
 
-        ktlint_version = "11.0.0"
+        ktlint_version = "11.3.2"
 
         leakcanary_version = '2.10'
 
