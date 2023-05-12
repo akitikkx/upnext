@@ -71,7 +71,7 @@ buildscript {
 
         kotlin_compiler_extension_version = "1.4.7"
         kotlin_version = '1.8.21'
-        kotlin_coroutines_version = "1.7.0"
+        kotlin_coroutines_version = "1.7.1"
 
         ksp_version = '1.8.21-1.0.11'
 
