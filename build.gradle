@@ -83,7 +83,7 @@ buildscript {
 
         material_version = "1.9.0"
 
-        moshi_version = '1.14.0'
+        moshi_version = '1.15.0'
         
         navigation_version = "2.5.3"
 
