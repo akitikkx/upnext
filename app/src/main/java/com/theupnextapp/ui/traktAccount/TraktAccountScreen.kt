@@ -41,6 +41,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
@@ -87,6 +88,8 @@ fun TraktAccountScreen(
 
     val favoriteShowsList = viewModel.favoriteShows.observeAsState()
 
+    val confirmDisconnectFromTrakt = viewModel.confirmDisconnectFromTrakt.observeAsState()
+
     val isLoading = viewModel.isLoading.observeAsState()
 
     val context = LocalContext.current
@@ -129,15 +132,55 @@ fun TraktAccountScreen(
                             .fillMaxWidth()
                     )
                 }
+
+                if (confirmDisconnectFromTrakt.value == true) {
+                    DisconnectTraktDialog(
+                        onDismissed = { viewModel.onDisconnectFromTraktRefused() },
+                        onConfirmed = { viewModel.onDisconnectConfirm() }
+                    )
+                }
             }
         }
     }
 }
 
+@Composable
+private fun DisconnectTraktDialog(
+    onDismissed: () -> Unit,
+    onConfirmed: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = { onDismissed() },
+        title = {
+            Text(
+                text = stringResource(id = R.string.disconnect_from_trakt_dialog_title)
+            )
+        },
+        text = {
+            Text(
+                text = stringResource(id = R.string.disconnect_from_trakt_dialog_message)
+            )
+        },
+        confirmButton = {
+            Button(onClick = { onConfirmed() }) {
+                Text(text = stringResource(id = R.string.disconnect_from_trakt_dialog_confirm))
+            }
+        },
+        dismissButton = {
+            Button(onClick = { onDismissed() }) {
+                Text(text = stringResource(id = R.string.disconnect_from_trakt_dialog_cancel))
+            }
+        }
+    )
+}
+
 fun openCustomTab(context: Context) {
     val packageName = "com.android.chrome"
 
-    val traktUrl = "https://trakt.tv/oauth/authorize?response_type=code&client_id=${BuildConfig.TRAKT_CLIENT_ID}&redirect_uri=${BuildConfig.TRAKT_REDIRECT_URI}"
+    val traktUrl =
+        "https://trakt.tv/oauth/authorize?response_type=code&client_id=" +
+                "${BuildConfig.TRAKT_CLIENT_ID}&redirect_uri=" +
+                BuildConfig.TRAKT_REDIRECT_URI
 
     val activity = (context as? Activity)
 
