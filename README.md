@@ -42,7 +42,7 @@ Now you can add a show as a favorite, which will be synced to your Trakt account
 It is important that you ensure that the below are fully setup or the project will not run.
 
 ### Java version
-The project is configured to use Java 11. Please ensure that your Android Studio is set to use this and
+The project is configured to use Java 17. Please ensure that your Android Studio is set to use this and
 not the default 1.8 else the project will not build:
 
 ```
