@@ -37,6 +37,8 @@ def localProperties = new Properties()
 localProperties.load(new FileInputStream(rootProject.file("local.properties")))
 
 android {
+    namespace = "com.theupnextapp"
+
     compileSdk 33
 
     defaultConfig {
@@ -91,10 +93,13 @@ android {
         jvmTarget = JavaVersion.VERSION_11
     }
 
+    kotlin {
+        jvmToolchain(11)
+    }
+
     composeOptions {
         kotlinCompilerExtensionVersion "$kotlin_compiler_extension_version"
     }
-    namespace 'com.theupnextapp'
 
     ksp {
         arg("compose-destinations.generateNavGraphs", "true")
