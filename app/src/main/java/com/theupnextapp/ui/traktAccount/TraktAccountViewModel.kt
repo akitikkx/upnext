@@ -67,7 +67,7 @@ class TraktAccountViewModel @Inject constructor(
         _confirmDisconnectFromTrakt.postValue(true)
     }
 
-    fun onDisconnectFromTraktConfirmed() {
+    fun onDisconnectFromTraktRefused() {
         _confirmDisconnectFromTrakt.postValue(false)
     }
 
@@ -76,6 +76,7 @@ class TraktAccountViewModel @Inject constructor(
             traktRepository.clearFavorites()
             revokeTraktAccessToken()
         }
+        _confirmDisconnectFromTrakt.postValue(false)
     }
 
     fun onCustomTabOpened() {

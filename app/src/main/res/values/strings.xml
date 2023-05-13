@@ -129,8 +129,11 @@
     <string name="connect_to_trakt_button">Connect to Trakt</string>
     <string name="trakt_connection_status_connected">Connection status: Connected</string>
     <string name="trakt_connection_status_disconnect">Logout</string>
-    <string name="disconnect_from_trakt_dialog_message">Are you sure you want to disconnect your Trakt account from
+    <string name="disconnect_from_trakt_dialog_title">Disconnect  Trakt account?</string>
+    <string name="disconnect_from_trakt_dialog_message">Continue with disconnecting your Trakt account from
         Upnext: TV Series Manager? You will need to reconnect your Trakt account for the data to be synchronized again.</string>
+    <string name="disconnect_from_trakt_dialog_confirm">Logout</string>
+    <string name="disconnect_from_trakt_dialog_cancel">Cancel</string>
     <string name="favorite_title_and_release_year">%1$s (%2$s)</string>
     <string name="favorite_title_no_year">%1$s</string>
     <string name="trakt_account_favorites_empty">You currently have no favorite shows. Search for your favorite show and click \'Add Favorite\' so it can appear here.</string>
