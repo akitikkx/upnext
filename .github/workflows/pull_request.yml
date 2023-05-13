@@ -17,6 +17,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: 17
+          distribution: 'zulu'
       - name: Print Java version
         run: javac -version
       - name: Create a copy of the local.properties from the example file
@@ -63,6 +64,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: 17
+          distribution: 'zulu'
       - name: Print Java version
         run: javac -version
       - name: Restore cache
