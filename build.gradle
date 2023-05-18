@@ -77,7 +77,7 @@ buildscript {
 
         ktlint_version = "11.3.2"
 
-        leakcanary_version = '2.10'
+        leakcanary_version = '2.11'
 
         lifecycle_version = "2.6.1"
 
