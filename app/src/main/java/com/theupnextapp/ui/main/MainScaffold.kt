@@ -19,6 +19,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -40,11 +43,15 @@ fun MainScaffold(
 
     val currentBackStackEntryAsState by navHostController.currentBackStackEntryAsState()
     val destination =
-        currentBackStackEntryAsState?.appDestination() ?: NavGraphs.root.startRoute.startAppDestination
+        currentBackStackEntryAsState?.appDestination()
+            ?: NavGraphs.root.startRoute.startAppDestination
 
     Scaffold(
         topBar = { topBar(currentBackStackEntryAsState) },
         bottomBar = { bottomBar(destination) },
+        modifier = Modifier.semantics {
+            testTagsAsResourceId = true
+        },
         content = content
     )
 }

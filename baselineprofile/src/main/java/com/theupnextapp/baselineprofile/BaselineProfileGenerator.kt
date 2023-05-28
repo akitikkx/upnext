@@ -14,9 +14,13 @@ package com.theupnextapp.baselineprofile
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.benchmark.macro.junit4.BaselineProfileRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.uiautomator.By
+import androidx.test.uiautomator.Direction
+import androidx.test.uiautomator.Until
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -31,7 +35,7 @@ import org.junit.runner.RunWith
  * You can run the generator with the Generate Baseline Profile run configuration,
  * or directly with `generateBaselineProfile` Gradle task:
  * ```
- * ./gradlew :Upnext_4.app:generateReleaseBaselineProfile -Pandroid.testInstrumentationRunnerArguments.androidx.benchmark.enabledRules=BaselineProfile
+ * ./gradlew :app:generateReleaseBaselineProfile -Pandroid.testInstrumentationRunnerArguments.androidx.benchmark.enabledRules=BaselineProfile
  * ```
  * The run configuration runs the Gradle task and applies filtering to run only the generators.
  *
@@ -60,14 +64,36 @@ class BaselineProfileGenerator {
             pressHome()
             startActivityAndWait()
 
-            // TODO Write more interactions to optimize advanced journeys of your app.
-            // For example:
-            // 1. Wait until the content is asynchronously loaded
-            // 2. Scroll the feed content
-            // 3. Navigate to detail screen
+            waitForAsyncContent()
+
+            scrollDashboardListJourney()
+
+            goToShowDetailJourney()
 
             // Check UiAutomator documentation for more information how to interact with the app.
             // https://d.android.com/training/testing/other-components/ui-automator
         }
     }
+}
+
+fun MacrobenchmarkScope.waitForAsyncContent() {
+    device.wait(Until.hasObject(By.res("dashboard_list")), 10_000)
+    val dashboardContent = device.findObject(By.res("dashboard_list"))
+    dashboardContent.wait(Until.hasObject(By.res("show_item")), 15_000)
+}
+
+fun MacrobenchmarkScope.scrollDashboardListJourney() {
+    val dashboardList = device.findObject(By.res("dashboard_list"))
+    dashboardList.setGestureMargin(device.displayWidth / 5)
+    dashboardList.fling(Direction.DOWN)
+    dashboardList.fling(Direction.UP)
+    device.waitForIdle()
+}
+
+fun MacrobenchmarkScope.goToShowDetailJourney() {
+    val dashboardList = device.findObject(By.res("dashboard_list"))
+    val showItems = dashboardList.findObjects(By.res("show_item"))
+    val index = (iteration ?: 0) % showItems.size
+    showItems[index].click()
+    device.wait(Until.gone(By.res("dashboard_list")), 5_000)
 }

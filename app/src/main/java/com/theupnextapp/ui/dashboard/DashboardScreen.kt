@@ -36,6 +36,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -68,10 +69,11 @@ fun DashboardScreen(
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
-            modifier = Modifier.verticalScroll(scrollState)
+            modifier = Modifier
+                .verticalScroll(scrollState)
+                .testTag("dashboard_list")
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
-
                 Column(modifier = Modifier.padding(top = 8.dp)) {
                     yesterdayShowsList.value?.let { list ->
                         if (list.isNotEmpty()) {
@@ -148,16 +150,18 @@ fun DashboardScreen(
 fun ShowsRow(
     list: List<ScheduleShow>,
     rowTitle: String,
+    modifier: Modifier = Modifier,
     onClick: (item: ScheduleShow) -> Unit
 ) {
-    Column {
+    Column(modifier = modifier) {
         SectionHeadingText(text = rowTitle)
 
         LazyRow(modifier = Modifier.padding(8.dp)) {
             items(list, key = { show -> show.id }) { show ->
                 ListPosterCard(
                     itemName = show.name,
-                    itemUrl = show.originalImage
+                    itemUrl = show.originalImage,
+                    modifier = Modifier.testTag("show_item")
                 ) {
                     onClick(show)
                 }
