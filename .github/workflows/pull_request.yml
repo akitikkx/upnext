@@ -39,6 +39,8 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
+      - name: Setup the Android SDK
+        uses: android-actions/setup-android@v2
       - name: Execute tests
         run: ./gradlew testDebugUnitTest --continue
       - name: Upload Test Results
@@ -86,6 +88,8 @@ jobs:
         run: echo $GOOGLE_SERVICES > app/google-services.json
       - name: Update the gradle wrapper permissions
         run: chmod +x ./gradlew
+      - name: Setup the Android SDK
+        uses: android-actions/setup-android@v2
       - name: Assemble debug
         run: ./gradlew assembleDebug
       - name: Upload generated APK
