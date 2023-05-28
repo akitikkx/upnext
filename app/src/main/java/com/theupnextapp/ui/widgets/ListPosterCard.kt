@@ -43,11 +43,12 @@ import com.theupnextapp.ui.components.PosterTitleTextItem
 fun ListPosterCard(
     itemName: String?,
     itemUrl: String?,
+    modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
     Card(
         shape = MaterialTheme.shapes.large,
-        modifier = Modifier.padding(4.dp),
+        modifier = modifier.padding(4.dp),
         onClick = onClick
     ) {
         Column(modifier = Modifier.width(dimensionResource(id = R.dimen.compose_poster_frame_width))) {

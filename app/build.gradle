@@ -31,6 +31,7 @@ plugins {
     id 'com.google.devtools.ksp' version "$ksp_version"
     id("kotlin-parcelize")
     id "org.jlleitschuh.gradle.ktlint" version "$ktlint_version"
+    id 'androidx.baselineprofile'
 }
 
 def localProperties = new Properties()
@@ -229,6 +230,10 @@ dependencies {
 
     // Accompanist Navigation Animation
     implementation "com.google.accompanist:accompanist-navigation-animation:$accompanist_navigation_animation_version"
+
+    // Baseline Profiles
+    implementation 'androidx.profileinstaller:profileinstaller:1.3.0'
+    baselineProfile project(path: ':baselineprofile')
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
