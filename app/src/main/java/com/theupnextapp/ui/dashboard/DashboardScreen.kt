@@ -21,6 +21,7 @@
 
 package com.theupnextapp.ui.dashboard
 
+import androidx.activity.compose.ReportDrawnWhen
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -142,6 +143,12 @@ fun DashboardScreen(
                 }
             }
         }
+    }
+
+    ReportDrawnWhen {
+        !yesterdayShowsList.value.isNullOrEmpty() ||
+                !tomorrowShowsList.value.isNullOrEmpty() ||
+                !todayShowsList.value.isNullOrEmpty()
     }
 }
 
