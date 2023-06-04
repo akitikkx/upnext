@@ -108,7 +108,7 @@ fun ShowSeasonEpisodes(
             )
         )
         LazyColumn(Modifier.padding(8.dp)) {
-            items(list, key = { episode -> episode.id.toString() }) {
+            items(list) {
                 ShowSeasonEpisodeCard(item = it)
             }
         }

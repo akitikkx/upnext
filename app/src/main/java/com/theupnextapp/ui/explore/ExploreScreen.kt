@@ -151,7 +151,7 @@ fun TrendingShowsRow(
         SectionHeadingText(text = rowTitle)
 
         LazyRow(modifier = Modifier.padding(8.dp)) {
-            items(list, key = { show -> show.id.toString() }) { show ->
+            items(list) { show ->
                 ListPosterCard(
                     itemName = show.title,
                     itemUrl = show.originalImageUrl
@@ -174,7 +174,7 @@ fun PopularShowsRow(
         SectionHeadingText(text = rowTitle)
 
         LazyRow(modifier = Modifier.padding(8.dp)) {
-            items(list, key = { show -> show.id.toString() }) { show ->
+            items(list) { show ->
                 ListPosterCard(
                     itemName = show.title,
                     itemUrl = show.originalImageUrl
@@ -197,7 +197,7 @@ fun MostAnticipatedShowsRow(
         SectionHeadingText(text = rowTitle)
 
         LazyRow(modifier = Modifier.padding(8.dp)) {
-            items(list, key = { show -> show.id.toString() }) { show ->
+            items(list) { show ->
                 ListPosterCard(
                     itemName = show.title,
                     itemUrl = show.originalImageUrl
