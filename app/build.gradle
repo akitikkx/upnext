@@ -47,8 +47,8 @@ android {
         applicationId "com.theupnextapp"
         minSdkVersion 22
         targetSdkVersion 33
-        versionCode 188
-        versionName "3.5.7"
+        versionCode 189
+        versionName "3.5.8"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         ksp {
@@ -70,7 +70,7 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
