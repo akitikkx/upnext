@@ -47,8 +47,8 @@ android {
         applicationId "com.theupnextapp"
         minSdkVersion 22
         targetSdkVersion 33
-        versionCode 188
-        versionName "3.5.7"
+        versionCode 190
+        versionName "3.5.9"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         ksp {
@@ -70,7 +70,7 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -105,6 +105,10 @@ android {
 
     ksp {
         arg("compose-destinations.generateNavGraphs", "true")
+    }
+
+    hilt {
+        enableAggregatingTask = true
     }
 }
 
