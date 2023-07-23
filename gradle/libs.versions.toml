@@ -19,8 +19,7 @@ browser = "1.5.0"
 coilCompose = "2.4.0"
 constraintlayout = "2.1.4"
 composeDestinations = "1.9.50"
-daggerHiltAndroid = "2.47"
-daggerHiltGradle = "2.46.1"
+daggerHilt = "2.47"
 datastorePreferences = "1.0.0"
 firebaseAnalyticsKtx = "21.3.0"
 firebaseCore = "21.1.1"
@@ -93,8 +92,8 @@ firebase-core = { module = "com.google.firebase:firebase-core", version.ref = "f
 firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics", version.ref = "firebaseCrashlytics" }
 firebase-perf = { module = "com.google.firebase:firebase-perf", version.ref = "firebasePerf" }
 flexbox = { module = "com.google.android.flexbox:flexbox", version.ref = "flexbox" }
-dagger-hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "daggerHiltAndroid" }
-dagger-hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "daggerHiltAndroid" }
+dagger-hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "daggerHilt" }
+dagger-hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "daggerHilt" }
 jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 junit = { module = "junit:junit", version.ref = "junit" }
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesAndroid" }
@@ -132,7 +131,7 @@ android-test = { id = "com.android.test", version.ref = "androidGradlePlugin" }
 firebase-crashlytics-gradle = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlyticsGradle" }
 firebase-perf-gradle = { id = "com.google.firebase.firebase-perf", version.ref = "firebasePerfGradlePlugin" }
 gms = { id = "com.google.gms.google-services", version.ref = "gmsPlugin" }
-hilt-gradle = { id = "com.google.dagger.hilt.android", version.ref = "daggerHiltGradle" }
+hilt-gradle = { id = "com.google.dagger.hilt.android", version.ref = "daggerHilt" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
