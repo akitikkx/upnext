@@ -45,10 +45,10 @@ android {
 
     defaultConfig {
         applicationId "com.theupnextapp"
-        minSdkVersion 22
+        minSdkVersion 24
         targetSdkVersion 34
-        versionCode 190
-        versionName "3.5.9"
+        versionCode 191
+        versionName "3.6.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         ksp {
