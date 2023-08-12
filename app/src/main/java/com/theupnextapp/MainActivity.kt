@@ -33,6 +33,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -49,6 +52,7 @@ import com.theupnextapp.common.utils.Feedback
 import com.theupnextapp.common.utils.customTab.CustomTabComponent
 import com.theupnextapp.common.utils.customTab.TabConnectionCallback
 import com.theupnextapp.ui.main.MainScreen
+import com.theupnextapp.ui.main.MediumScreen
 import com.theupnextapp.ui.theme.UpnextTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -74,6 +78,7 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
     @ExperimentalFoundationApi
     @ExperimentalComposeUiApi
     @ExperimentalMaterial3Api
+    @ExperimentalMaterial3WindowSizeClassApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -90,7 +95,11 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
             }
 
             UpnextTheme {
-                MainScreen(dataString)
+                when(calculateWindowSizeClass(activity = this).widthSizeClass) {
+                    WindowWidthSizeClass.Compact -> { MainScreen(dataString)}
+                    WindowWidthSizeClass.Medium -> { MediumScreen(dataString)}
+                    WindowWidthSizeClass.Expanded -> { MainScreen(dataString)}
+                }
             }
         }
 
