@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -160,10 +161,15 @@ fun ShowsRow(
     modifier: Modifier = Modifier,
     onClick: (item: ScheduleShow) -> Unit
 ) {
+    val state = rememberLazyListState()
+
     Column(modifier = modifier) {
         SectionHeadingText(text = rowTitle)
 
-        LazyRow(modifier = Modifier.padding(8.dp)) {
+        LazyRow(
+            state = state,
+            modifier = Modifier.padding(8.dp)
+        ) {
             items(list) { show ->
                 ListPosterCard(
                     itemName = show.name,

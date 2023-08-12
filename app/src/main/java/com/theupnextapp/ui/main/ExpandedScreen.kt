@@ -12,6 +12,58 @@
 
 package com.theupnextapp.ui.main
 
-fun ExpandedScreen() {
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import com.ramcosta.composedestinations.navigation.navigate
+import com.theupnextapp.ui.NavGraphs
+import com.theupnextapp.ui.appDestination
+import com.theupnextapp.ui.destinations.TraktAccountScreenDestination
+import com.theupnextapp.ui.navigation.AppNavigation
+import com.theupnextapp.ui.startAppDestination
 
+@ExperimentalMaterial3Api
+@ExperimentalComposeUiApi
+@ExperimentalFoundationApi
+@ExperimentalAnimationApi
+@Composable
+fun ExpandedScreen(
+    valueState: MutableState<String?>,
+) {
+    val navController = rememberNavController()
+
+    if (!valueState.value.isNullOrEmpty()) {
+        navController.navigate(TraktAccountScreenDestination(code = valueState.value).route)
+    }
+
+    val currentBackStackEntryAsState by navController.currentBackStackEntryAsState()
+    val destination =
+        currentBackStackEntryAsState?.appDestination()
+            ?: NavGraphs.root.startRoute.startAppDestination
+
+    Row(modifier = Modifier.fillMaxSize()) {
+        NavRail(
+            currentDestination = destination,
+            onNavRailItemClick = {
+                navController.navigate(it) {
+                    launchSingleTop = true
+                }
+            }
+        )
+
+        AppNavigation(
+            navHostController = navController,
+            contentPadding = PaddingValues()
+        )
+    }
 }

@@ -51,6 +51,7 @@ import com.theupnextapp.common.utils.FeedBackStatus
 import com.theupnextapp.common.utils.Feedback
 import com.theupnextapp.common.utils.customTab.CustomTabComponent
 import com.theupnextapp.common.utils.customTab.TabConnectionCallback
+import com.theupnextapp.ui.main.ExpandedScreen
 import com.theupnextapp.ui.main.MainScreen
 import com.theupnextapp.ui.main.MediumScreen
 import com.theupnextapp.ui.theme.UpnextTheme
@@ -98,7 +99,7 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
                 when(calculateWindowSizeClass(activity = this).widthSizeClass) {
                     WindowWidthSizeClass.Compact -> { MainScreen(dataString)}
                     WindowWidthSizeClass.Medium -> { MediumScreen(dataString)}
-                    WindowWidthSizeClass.Expanded -> { MainScreen(dataString)}
+                    WindowWidthSizeClass.Expanded -> { ExpandedScreen(dataString) }
                 }
             }
         }
