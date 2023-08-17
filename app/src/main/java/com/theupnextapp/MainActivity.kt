@@ -23,63 +23,38 @@ package com.theupnextapp
 
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
 import android.view.Menu
-import android.view.View
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.util.Consumer
-import androidx.navigation.NavController
-import androidx.navigation.findNavController
-import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.snackbar.Snackbar
-import com.theupnextapp.common.utils.FeedBackStatus
-import com.theupnextapp.common.utils.Feedback
 import com.theupnextapp.common.utils.customTab.CustomTabComponent
 import com.theupnextapp.common.utils.customTab.TabConnectionCallback
-import com.theupnextapp.ui.main.ExpandedScreen
 import com.theupnextapp.ui.main.MainScreen
-import com.theupnextapp.ui.main.MediumScreen
 import com.theupnextapp.ui.theme.UpnextTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
-
+@ExperimentalAnimationApi
+@ExperimentalFoundationApi
+@ExperimentalComposeUiApi
+@ExperimentalMaterial3Api
+@ExperimentalMaterial3WindowSizeClassApi
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), TabConnectionCallback {
-
-    private val navController: NavController
-        get() = findNavController(R.id.nav_host_fragment)
-
-    private var _bottomNavigationView: BottomNavigationView? = null
-    private val bottomNavigationView get() = _bottomNavigationView
-
-    private var _container: ConstraintLayout? = null
-    private val container get() = _container
-
-    private lateinit var snackbar: Snackbar
 
     @Inject
     lateinit var customTabComponent: CustomTabComponent
 
-    @ExperimentalAnimationApi
-    @ExperimentalFoundationApi
-    @ExperimentalComposeUiApi
-    @ExperimentalMaterial3Api
-    @ExperimentalMaterial3WindowSizeClassApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -96,19 +71,14 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
             }
 
             UpnextTheme {
-                when(calculateWindowSizeClass(activity = this).widthSizeClass) {
-                    WindowWidthSizeClass.Compact -> { MainScreen(dataString)}
-                    WindowWidthSizeClass.Medium -> { MediumScreen(dataString)}
-                    WindowWidthSizeClass.Expanded -> { ExpandedScreen(dataString) }
-                }
+                MainScreen(
+                    widthSizeClass = calculateWindowSizeClass(activity = this).widthSizeClass,
+                    valueState = dataString
+                )
             }
         }
 
         customTabComponent.setConnectionCallback(this)
-    }
-
-    override fun onSupportNavigateUp(): Boolean {
-        return navController.navigateUp() || super.onSupportNavigateUp()
     }
 
     override fun onStart() {
@@ -128,8 +98,6 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
 
     override fun onDestroy() {
         super.onDestroy()
-        _bottomNavigationView = null
-        _container = null
         customTabComponent.setConnectionCallback(null)
     }
 
@@ -139,60 +107,6 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
 
     override fun onTabDisconnected() {
         customTabComponent.mayLaunchUrl(null, null, null)
-    }
-
-    fun hideBottomNavigation() {
-        if (bottomNavigationView != null) {
-            if (bottomNavigationView?.visibility == View.VISIBLE) {
-                bottomNavigationView?.visibility = View.GONE
-            }
-        }
-    }
-
-    fun showBottomNavigation() {
-        if (bottomNavigationView != null) {
-            if (bottomNavigationView?.visibility == View.GONE) {
-                bottomNavigationView?.visibility = View.VISIBLE
-            }
-        }
-    }
-
-    fun displayConnectionErrorMessage() {
-        // Network settings dialog only available from Q and above
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            container?.let {
-                Feedback(this).showSnackBar(
-                    view = it,
-                    type = FeedBackStatus.NO_CONNECTION,
-                    duration = Snackbar.LENGTH_INDEFINITE,
-                    listener = { showNetworkSettings() }
-                )
-            }
-        } else {
-            container?.let {
-                Feedback(this).showSnackBar(
-                    view = it,
-                    type = FeedBackStatus.NO_CONNECTION,
-                    duration = Snackbar.LENGTH_INDEFINITE,
-                    listener = null
-                )
-            }
-        }
-    }
-
-    fun hideConnectionErrorMessage() {
-        if (::snackbar.isInitialized) {
-            if (snackbar.isShown) {
-                snackbar.dismiss()
-            }
-        }
-    }
-
-    private fun showNetworkSettings() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val intent = Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY)
-            startActivityForResult(intent, REQUEST_CODE_INTERNET)
-        }
     }
 
     companion object {

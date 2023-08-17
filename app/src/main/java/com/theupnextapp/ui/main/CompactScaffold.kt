@@ -34,7 +34,7 @@ import com.theupnextapp.ui.startAppDestination
 @ExperimentalComposeUiApi
 @ExperimentalFoundationApi
 @Composable
-fun MainScaffold(
+fun CompactScaffold(
     navHostController: NavHostController,
     topBar: @Composable (NavBackStackEntry?) -> Unit,
     bottomBar: @Composable (Destination) -> Unit,

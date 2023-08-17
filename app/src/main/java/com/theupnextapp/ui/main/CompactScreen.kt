@@ -15,25 +15,51 @@ package com.theupnextapp.ui.main
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.ExperimentalComposeUiApi
+import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import com.ramcosta.composedestinations.navigation.navigateTo
+import com.theupnextapp.ui.destinations.TraktAccountScreenDestination
+import com.theupnextapp.ui.navigation.AppNavigation
 
 @ExperimentalAnimationApi
 @ExperimentalFoundationApi
 @ExperimentalComposeUiApi
 @ExperimentalMaterial3Api
-@ExperimentalMaterial3WindowSizeClassApi
 @Composable
-fun MainScreen(
-    widthSizeClass: WindowWidthSizeClass,
-    valueState: MutableState<String?>
+fun CompactScreen(
+    valueState: MutableState<String?>,
 ) {
-    when(widthSizeClass) {
-        WindowWidthSizeClass.Compact -> { CompactScreen(valueState)}
-        WindowWidthSizeClass.Medium -> { MediumScreen(valueState)}
-        WindowWidthSizeClass.Expanded -> { ExpandedScreen(valueState) }
+    val navController = rememberAnimatedNavController()
+
+    if (!valueState.value.isNullOrEmpty()) {
+        navController.navigate(TraktAccountScreenDestination(code = valueState.value).route)
+    }
+
+    CompactScaffold(
+        navHostController = navController,
+        topBar = { navBackStackEntry ->
+            TopBar(
+                navBackStackEntry = navBackStackEntry
+            ) {
+                navController.navigateUp()
+            }
+        },
+        bottomBar = { destination ->
+            BottomBar(
+                currentDestination = destination,
+                onBottomBarItemClick = {
+                    navController.navigateTo(it) {
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+    ) {
+        AppNavigation(
+            navHostController = navController,
+            contentPadding = it
+        )
     }
 }
