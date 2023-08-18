@@ -13,45 +13,40 @@
 package com.theupnextapp.ui.main
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.testTagsAsResourceId
-import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.currentBackStackEntryAsState
-import com.theupnextapp.ui.NavGraphs
-import com.theupnextapp.ui.appDestination
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
+import com.ramcosta.composedestinations.spec.Direction
 import com.theupnextapp.ui.destinations.Destination
-import com.theupnextapp.ui.startAppDestination
 
 @ExperimentalMaterial3Api
 @ExperimentalComposeUiApi
 @ExperimentalFoundationApi
 @Composable
-fun MainScaffold(
-    navHostController: NavHostController,
-    topBar: @Composable (NavBackStackEntry?) -> Unit,
-    bottomBar: @Composable (Destination) -> Unit,
-    content: @Composable (PaddingValues) -> Unit
+fun NavRail(
+    currentDestination: Destination,
+    onNavRailItemClick: (Direction) -> Unit
 ) {
-
-    val currentBackStackEntryAsState by navHostController.currentBackStackEntryAsState()
-    val destination =
-        currentBackStackEntryAsState?.appDestination()
-            ?: NavGraphs.root.startRoute.startAppDestination
-
-    Scaffold(
-        topBar = { topBar(currentBackStackEntryAsState) },
-        bottomBar = { bottomBar(destination) },
-        modifier = Modifier.semantics {
-            testTagsAsResourceId = true
-        },
-        content = content
-    )
+    NavigationRail(
+        modifier = Modifier.testTag("navigation_rail")
+    ) {
+        BottomBarDestination.values().forEach { destination ->
+            NavigationRailItem(
+                selected = destination.direction.route.startsWith(currentDestination.baseRoute),
+                onClick = { onNavRailItemClick(destination.direction) },
+                icon = {
+                    Icon(
+                        imageVector = destination.icon,
+                        contentDescription = stringResource(id = destination.label)
+                    )
+                }
+            )
+        }
+    }
 }

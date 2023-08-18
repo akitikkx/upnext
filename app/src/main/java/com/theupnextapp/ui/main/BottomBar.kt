@@ -31,7 +31,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import com.ramcosta.composedestinations.spec.Direction
 import com.theupnextapp.R
@@ -76,7 +78,9 @@ fun BottomBar(
         enter = slideInVertically(initialOffsetY = { it }),
         exit = slideOutVertically(targetOffsetY = { it }),
         content = {
-            BottomAppBar {
+            BottomAppBar(
+                modifier = Modifier.testTag("bottom_app_bar")
+            ) {
                 BottomBarDestination.values().forEach { destination ->
                     NavigationBarItem(
                         icon = {

@@ -47,9 +47,9 @@ android {
         applicationId "com.theupnextapp"
         minSdkVersion 24
         targetSdkVersion 34
-        versionCode 191
-        versionName "3.6.0"
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        versionCode 192
+        versionName "3.6.1"
+        testInstrumentationRunner "com.theupnextapp.CustomTestRunner"
 
         ksp {
             arg("room.schemaLocation", "$projectDir/schemas".toString())
@@ -187,11 +187,6 @@ dependencies {
     // Logging
     implementation libs.timber
 
-    // Navigation
-    implementation libs.android.hilt.navigation.fragment
-    implementation libs.navigation.fragment.ktx
-    implementation libs.navigation.ui.ktx
-
     // Gson
     implementation libs.converter.gson
 
@@ -240,8 +235,20 @@ dependencies {
     implementation libs.profileinstaller
     baselineProfile project(path: ':baselineprofile')
 
+    // Test harness
+    implementation libs.test.harness
+    debugImplementation(libs.androidx.ui.test.manifest)
+
     testImplementation libs.junit
     androidTestImplementation libs.androidx.test.ext.junit
     androidTestImplementation libs.androidx.test.espresso.core
     androidTestImplementation libs.androidx.ui.test.junit4
+
+    // Hilt testing
+    androidTestImplementation libs.hilt.android.testing
+    kaptAndroidTest libs.hilt.android.compiler
+    androidTestAnnotationProcessor libs.dagger.hilt.compiler
+
+    // Workmanager testing
+    androidTestImplementation libs.androidx.work.testing
 }

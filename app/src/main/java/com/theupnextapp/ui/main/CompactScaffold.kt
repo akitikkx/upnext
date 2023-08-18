@@ -12,28 +12,46 @@
 
 package com.theupnextapp.ui.main
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
+import com.theupnextapp.ui.NavGraphs
+import com.theupnextapp.ui.appDestination
+import com.theupnextapp.ui.destinations.Destination
+import com.theupnextapp.ui.startAppDestination
 
-@ExperimentalAnimationApi
-@ExperimentalFoundationApi
-@ExperimentalComposeUiApi
 @ExperimentalMaterial3Api
-@ExperimentalMaterial3WindowSizeClassApi
+@ExperimentalComposeUiApi
+@ExperimentalFoundationApi
 @Composable
-fun MainScreen(
-    widthSizeClass: WindowWidthSizeClass,
-    valueState: MutableState<String?>
+fun CompactScaffold(
+    navHostController: NavHostController,
+    topBar: @Composable (NavBackStackEntry?) -> Unit,
+    bottomBar: @Composable (Destination) -> Unit,
+    content: @Composable (PaddingValues) -> Unit
 ) {
-    when(widthSizeClass) {
-        WindowWidthSizeClass.Compact -> { CompactScreen(valueState)}
-        WindowWidthSizeClass.Medium -> { MediumScreen(valueState)}
-        WindowWidthSizeClass.Expanded -> { ExpandedScreen(valueState) }
-    }
+
+    val currentBackStackEntryAsState by navHostController.currentBackStackEntryAsState()
+    val destination =
+        currentBackStackEntryAsState?.appDestination()
+            ?: NavGraphs.root.startRoute.startAppDestination
+
+    Scaffold(
+        topBar = { topBar(currentBackStackEntryAsState) },
+        bottomBar = { bottomBar(destination) },
+        modifier = Modifier.semantics {
+            testTagsAsResourceId = true
+        },
+        content = content
+    )
 }

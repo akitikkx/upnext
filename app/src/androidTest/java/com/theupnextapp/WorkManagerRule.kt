@@ -10,30 +10,34 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.theupnextapp.ui.main
+package com.theupnextapp
 
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.ui.ExperimentalComposeUiApi
+import android.util.Log
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.work.Configuration
+import androidx.work.impl.utils.SynchronousExecutor
+import androidx.work.testing.WorkManagerTestInitHelper
+import org.junit.rules.TestRule
+import org.junit.runner.Description
+import org.junit.runners.model.Statement
 
-@ExperimentalAnimationApi
-@ExperimentalFoundationApi
-@ExperimentalComposeUiApi
-@ExperimentalMaterial3Api
-@ExperimentalMaterial3WindowSizeClassApi
-@Composable
-fun MainScreen(
-    widthSizeClass: WindowWidthSizeClass,
-    valueState: MutableState<String?>
-) {
-    when(widthSizeClass) {
-        WindowWidthSizeClass.Compact -> { CompactScreen(valueState)}
-        WindowWidthSizeClass.Medium -> { MediumScreen(valueState)}
-        WindowWidthSizeClass.Expanded -> { ExpandedScreen(valueState) }
+class WorkManagerRule : TestRule {
+
+    override fun apply(base: Statement?, description: Description?): Statement {
+        return object : Statement() {
+            override fun evaluate() {
+                val context = InstrumentationRegistry.getInstrumentation().targetContext
+                val config = Configuration.Builder()
+                    .setMinimumLoggingLevel(Log.DEBUG)
+                    .setExecutor(SynchronousExecutor())
+                    .build()
+                WorkManagerTestInitHelper.initializeTestWorkManager(context, config)
+                try {
+                    base?.evaluate()
+                } finally {
+                    Log.d("WorkManagerRule", "$this")
+                }
+            }
+        }
     }
 }
