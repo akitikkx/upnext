@@ -29,15 +29,22 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.theupnextapp.R
+import com.theupnextapp.common.utils.getWindowSizeClass
 import com.theupnextapp.ui.components.PosterAttributionItem
 import com.theupnextapp.ui.components.PosterImage
 import com.theupnextapp.ui.components.PosterTitleTextItem
+import com.theupnextapp.ui.widgets.ListPosterCardConfig.listPosterHeight
 
+@ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
 @Composable
 fun ListPosterCard(
@@ -57,7 +64,7 @@ fun ListPosterCard(
                     url = it,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(dimensionResource(id = R.dimen.compose_shows_list_poster_height))
+                        .height(listPosterHeight)
                 )
             }
             Column(
@@ -72,4 +79,27 @@ fun ListPosterCard(
             }
         }
     }
+}
+
+@ExperimentalMaterial3WindowSizeClassApi
+object ListPosterCardConfig {
+    val listPosterHeight: Dp
+        @Composable get() {
+            return when (getWindowSizeClass()?.widthSizeClass) {
+                WindowWidthSizeClass.Compact -> 180.dp
+                else -> 238.dp
+            }
+        }
+}
+
+@ExperimentalMaterial3WindowSizeClassApi
+@ExperimentalMaterial3Api
+@Preview
+@Composable
+fun ListPosterCardPreview() {
+    ListPosterCard(
+        itemName = "List Poster",
+        itemUrl = "https://www.theupnextapp.com",
+        onClick = {}
+    )
 }
