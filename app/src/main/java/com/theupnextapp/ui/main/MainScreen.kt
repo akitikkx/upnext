@@ -38,12 +38,16 @@ fun MainScreen(
 ) {
     val navController = rememberNavController()
 
-    val currentBackStackEntryAsState: Destination? = navController.appCurrentDestinationAsState().value
+    val currentBackStackEntryAsState: Destination? =
+        navController.appCurrentDestinationAsState().value
     val currentDestination = currentBackStackEntryAsState ?: NavGraphs.root.startAppDestination
 
     when (widthSizeClass) {
         WindowWidthSizeClass.Compact -> {
-            CompactScreen(valueState)
+            CompactScreen(
+                navController = navController,
+                valueState = valueState
+            )
         }
 
         WindowWidthSizeClass.Medium -> {
@@ -55,7 +59,11 @@ fun MainScreen(
         }
 
         WindowWidthSizeClass.Expanded -> {
-            ExpandedScreen(valueState)
+            ExpandedScreen(
+                navController = navController,
+                currentDestination = currentDestination,
+                valueState = valueState
+            )
         }
     }
 }
