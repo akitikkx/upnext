@@ -34,7 +34,8 @@ import com.theupnextapp.ui.startAppDestination
 @Composable
 fun MainScreen(
     widthSizeClass: WindowWidthSizeClass,
-    valueState: MutableState<String?>
+    valueState: MutableState<String?>,
+    onTraktAuthCompleted: () -> Unit,
 ) {
     val navController = rememberNavController()
 
@@ -46,8 +47,10 @@ fun MainScreen(
         WindowWidthSizeClass.Compact -> {
             CompactScreen(
                 navController = navController,
-                valueState = valueState
-            )
+                valueState = valueState,
+            ) {
+                onTraktAuthCompleted()
+            }
         }
 
         WindowWidthSizeClass.Medium -> {
@@ -55,7 +58,9 @@ fun MainScreen(
                 valueState = valueState,
                 destination = currentDestination,
                 navController = navController
-            )
+            ) {
+                onTraktAuthCompleted()
+            }
         }
 
         WindowWidthSizeClass.Expanded -> {
@@ -63,7 +68,9 @@ fun MainScreen(
                 navController = navController,
                 currentDestination = currentDestination,
                 valueState = valueState
-            )
+            ) {
+                onTraktAuthCompleted()
+            }
         }
     }
 }

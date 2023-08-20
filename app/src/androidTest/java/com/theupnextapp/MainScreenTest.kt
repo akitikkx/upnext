@@ -53,7 +53,10 @@ class MainScreenTest {
             val dataString: MutableState<String?> = rememberSaveable { mutableStateOf("") }
 
             TestHarness(size = DpSize(200.dp, 600.dp)) {
-                MainScreen(widthSizeClass = WindowWidthSizeClass.Compact, valueState = dataString)
+                MainScreen(
+                    widthSizeClass = WindowWidthSizeClass.Compact,
+                    valueState = dataString,
+                    onTraktAuthCompleted = {})
             }
         }
         composeTestRule.onNodeWithTag("bottom_app_bar").assertExists()
@@ -65,7 +68,10 @@ class MainScreenTest {
             val dataString: MutableState<String?> = rememberSaveable { mutableStateOf("") }
 
             TestHarness(size = DpSize(600.dp, 480.dp)) {
-                MainScreen(widthSizeClass = WindowWidthSizeClass.Medium, valueState = dataString)
+                MainScreen(
+                    widthSizeClass = WindowWidthSizeClass.Medium,
+                    valueState = dataString,
+                    onTraktAuthCompleted = {})
 
             }
         }
@@ -78,7 +84,10 @@ class MainScreenTest {
             val dataString: MutableState<String?> = rememberSaveable { mutableStateOf("") }
 
             TestHarness(size = DpSize(840.dp, 480.dp)) {
-                MainScreen(widthSizeClass = WindowWidthSizeClass.Expanded, valueState = dataString)
+                MainScreen(
+                    widthSizeClass = WindowWidthSizeClass.Expanded,
+                    valueState = dataString,
+                    onTraktAuthCompleted = {})
 
             }
         }

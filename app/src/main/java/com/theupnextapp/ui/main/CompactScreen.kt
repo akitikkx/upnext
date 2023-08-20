@@ -31,9 +31,11 @@ import com.theupnextapp.ui.navigation.AppNavigation
 fun CompactScreen(
     navController: NavHostController,
     valueState: MutableState<String?>,
+    onTraktAuthCompleted: () -> Unit,
 ) {
     if (!valueState.value.isNullOrEmpty()) {
         navController.navigate(TraktAccountScreenDestination(code = valueState.value).route)
+        onTraktAuthCompleted()
     }
 
     CompactScaffold(
