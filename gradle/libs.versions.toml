@@ -17,6 +17,7 @@ appcompat = "1.7.0-alpha03"
 baselineProfile = "1.2.0-beta03"
 browser = "1.6.0"
 coilCompose = "2.4.0"
+chuckerVersion = "4.0.0"
 constraintlayout = "2.1.4"
 composeDestinations = "1.9.52"
 daggerHilt = "2.47"
@@ -85,6 +86,8 @@ appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat"
 browser = { module = "androidx.browser:browser", version.ref = "browser" }
 glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
 glide-compiler = { group = "com.github.bumptech.glide", name = "compiler", version.ref = "glide" }
+chucker-debug = { module = "com.github.chuckerteam.chucker:library", version.ref ="chuckerVersion" }
+chucker-release = { module = "com.github.chuckerteam.chucker:library-no-op", version.ref ="chuckerVersion" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayout" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
@@ -131,8 +134,7 @@ timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 test-harness = { module = "com.google.accompanist:accompanist-testharness", version.ref = "testHarness" }
 work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
 
-chucker-debug =  "com.github.chuckerteam.chucker:library:4.0.0"
-chucker-release =  "com.github.chuckerteam.chucker:library-no-op:4.0.0"
+
 
 
 
