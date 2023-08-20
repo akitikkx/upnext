@@ -20,6 +20,11 @@ import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.navigation.compose.rememberNavController
+import com.theupnextapp.ui.NavGraphs
+import com.theupnextapp.ui.appCurrentDestinationAsState
+import com.theupnextapp.ui.destinations.Destination
+import com.theupnextapp.ui.startAppDestination
 
 @ExperimentalAnimationApi
 @ExperimentalFoundationApi
@@ -31,9 +36,26 @@ fun MainScreen(
     widthSizeClass: WindowWidthSizeClass,
     valueState: MutableState<String?>
 ) {
-    when(widthSizeClass) {
-        WindowWidthSizeClass.Compact -> { CompactScreen(valueState)}
-        WindowWidthSizeClass.Medium -> { MediumScreen(valueState)}
-        WindowWidthSizeClass.Expanded -> { ExpandedScreen(valueState) }
+    val navController = rememberNavController()
+
+    val currentBackStackEntryAsState: Destination? = navController.appCurrentDestinationAsState().value
+    val currentDestination = currentBackStackEntryAsState ?: NavGraphs.root.startAppDestination
+
+    when (widthSizeClass) {
+        WindowWidthSizeClass.Compact -> {
+            CompactScreen(valueState)
+        }
+
+        WindowWidthSizeClass.Medium -> {
+            MediumScreen(
+                valueState = valueState,
+                destination = currentDestination,
+                navController = navController
+            )
+        }
+
+        WindowWidthSizeClass.Expanded -> {
+            ExpandedScreen(valueState)
+        }
     }
 }
