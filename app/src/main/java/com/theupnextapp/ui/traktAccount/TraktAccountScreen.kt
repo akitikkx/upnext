@@ -94,7 +94,7 @@ fun TraktAccountScreen(
 
     val context = LocalContext.current
 
-    if (!code.isNullOrEmpty()) {
+    if (!code.isNullOrEmpty() && isAuthorizedOnTrakt.value == false) {
         viewModel.onCodeReceived(code)
     }
 

@@ -38,9 +38,11 @@ fun MediumScreen(
     navController: NavHostController,
     destination: Destination,
     valueState: MutableState<String?>,
+    onTraktAuthCompleted: () -> Unit,
 ) {
     if (!valueState.value.isNullOrEmpty()) {
         navController.navigate(TraktAccountScreenDestination(code = valueState.value).route)
+        onTraktAuthCompleted()
     }
 
     Row(modifier = Modifier.fillMaxSize()) {
