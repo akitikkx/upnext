@@ -22,7 +22,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import com.ramcosta.composedestinations.DestinationsNavHost
-import com.ramcosta.composedestinations.rememberNavHostEngine
 import com.theupnextapp.ui.NavGraphs
 
 @ExperimentalMaterial3Api
@@ -35,10 +34,7 @@ fun AppNavigation(
     contentPadding: PaddingValues
 ) {
 
-    val navHostEngine = rememberNavHostEngine()
-
     DestinationsNavHost(
-        engine = navHostEngine,
         navGraph = NavGraphs.root,
         navController = navHostController,
         modifier = Modifier.padding(contentPadding)
