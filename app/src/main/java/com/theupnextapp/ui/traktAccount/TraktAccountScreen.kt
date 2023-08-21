@@ -48,6 +48,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -73,6 +74,7 @@ import com.theupnextapp.ui.components.SectionHeadingText
 import com.theupnextapp.ui.destinations.ShowDetailScreenDestination
 import com.theupnextapp.ui.widgets.ListPosterCard
 
+@ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalFoundationApi
 @ExperimentalMaterial3Api
 @Destination
@@ -199,6 +201,7 @@ fun openCustomTab(context: Context) {
     }
 }
 
+@ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
 @ExperimentalFoundationApi
 @Composable
@@ -263,6 +266,7 @@ fun ConnectToTrakt(
     }
 }
 
+@ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
 @ExperimentalFoundationApi
 @Composable

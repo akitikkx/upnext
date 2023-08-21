@@ -27,6 +27,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -42,7 +43,7 @@ import com.theupnextapp.ui.destinations.Destination
 import com.theupnextapp.ui.destinations.ExploreScreenDestination
 import com.theupnextapp.ui.destinations.SearchScreenDestination
 import com.theupnextapp.ui.destinations.TraktAccountScreenDestination
-
+@ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
 @ExperimentalComposeUiApi
 @ExperimentalFoundationApi
@@ -60,7 +61,7 @@ enum class BottomBarDestination(
         R.string.bottom_nav_title_account
     )
 }
-
+@ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
 @ExperimentalComposeUiApi
 @ExperimentalFoundationApi
@@ -108,7 +109,9 @@ fun BottomBar(
  * If it is a child screen then the bottom navigation should not be shown
  * and the app bar should have a back arrow displayed
  */
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
+@ExperimentalMaterial3WindowSizeClassApi
+@ExperimentalComposeUiApi
+@ExperimentalFoundationApi
 @ExperimentalMaterial3Api
 fun isMainScreen(destination: Destination?): Boolean {
     return when (destination?.route) {
