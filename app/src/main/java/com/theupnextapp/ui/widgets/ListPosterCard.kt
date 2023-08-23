@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.theupnextapp.R
 import com.theupnextapp.common.utils.getWindowSizeClass
+import com.theupnextapp.extensions.ReferenceDevices
 import com.theupnextapp.ui.components.PosterAttributionItem
 import com.theupnextapp.ui.components.PosterImage
 import com.theupnextapp.ui.components.PosterTitleTextItem
@@ -94,7 +95,7 @@ object ListPosterCardConfig {
 
 @ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
-@Preview
+@ReferenceDevices
 @Composable
 fun ListPosterCardPreview() {
     ListPosterCard(
