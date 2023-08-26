@@ -14,15 +14,18 @@ package com.theupnextapp.ui.main
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import com.ramcosta.composedestinations.navigation.navigate
 import com.ramcosta.composedestinations.navigation.popUpTo
@@ -38,6 +41,7 @@ import com.theupnextapp.ui.navigation.AppNavigation
 @Composable
 fun ExpandedScreen(
     navController: NavHostController,
+    navBackStackEntry: NavBackStackEntry?,
     currentDestination: Destination,
     valueState: MutableState<String?>,
     onTraktAuthCompleted: () -> Unit,
@@ -62,9 +66,15 @@ fun ExpandedScreen(
             }
         )
 
-        AppNavigation(
-            navHostController = navController,
-            contentPadding = PaddingValues()
-        )
+        Column(modifier = Modifier.fillMaxWidth()) {
+            TopBar(navBackStackEntry = navBackStackEntry) {
+                navController.navigateUp()
+            }
+
+            AppNavigation(
+                navHostController = navController,
+                contentPadding = PaddingValues()
+            )
+        }
     }
 }
