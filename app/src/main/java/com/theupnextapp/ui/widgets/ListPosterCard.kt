@@ -56,10 +56,12 @@ fun ListPosterCard(
 ) {
     Card(
         shape = MaterialTheme.shapes.large,
-        modifier = modifier.padding(4.dp),
+        modifier = modifier
+            .width(dimensionResource(id = R.dimen.compose_poster_frame_width))
+            .padding(4.dp),
         onClick = onClick
     ) {
-        Column(modifier = Modifier.width(dimensionResource(id = R.dimen.compose_poster_frame_width))) {
+        Column {
             itemUrl?.let {
                 PosterImage(
                     url = it,
