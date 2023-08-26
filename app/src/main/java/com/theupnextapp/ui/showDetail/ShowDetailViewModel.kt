@@ -119,8 +119,8 @@ class ShowDetailViewModel @Inject constructor(
 
     private fun getShowSummary(show: ShowDetailArg) {
         viewModelScope.launch {
-            show.showId?.takeIf { it.isNotEmpty() }.let { showId ->
-                if (!showId.isNullOrEmpty()) {
+            show.showId?.let { showId ->
+                if (showId.isNotEmpty() && showId != "null") {
                     showDetailRepository.getShowSummary(showId.toInt()).collect { result ->
                         when (result) {
                             is Result.Success -> {

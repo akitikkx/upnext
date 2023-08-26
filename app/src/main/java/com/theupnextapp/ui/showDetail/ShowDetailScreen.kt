@@ -178,12 +178,14 @@ fun DetailArea(
             widthSizeClass = getWindowSizeClass()?.widthSizeClass
         )
 
-        ShowDetailButtons(
-            isAuthorizedOnTrakt = isAuthorizedOnTrakt,
-            isFavorite = isFavorite,
-            onSeasonsClick = { onSeasonsClick() },
-            onFavoriteClick = { onFavoriteClick() }
-        )
+        if (showSummary?.id != -1) {
+            ShowDetailButtons(
+                isAuthorizedOnTrakt = isAuthorizedOnTrakt,
+                isFavorite = isFavorite,
+                onSeasonsClick = { onSeasonsClick() },
+                onFavoriteClick = { onFavoriteClick() }
+            )
+        }
 
         showCast?.let {
             if (it.isNotEmpty()) {
