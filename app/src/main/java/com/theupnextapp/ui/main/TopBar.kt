@@ -21,6 +21,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -32,6 +33,7 @@ import com.theupnextapp.ui.destinations.ShowDetailScreenDestination
 import com.theupnextapp.ui.destinations.ShowSeasonEpisodesScreenDestination
 import com.theupnextapp.ui.destinations.ShowSeasonsScreenDestination
 
+@ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
 @Composable
 fun TopBar(
@@ -78,6 +80,7 @@ fun NavigationIcon(
  * If it is a child screen then the bottom navigation should not be shown
  * and the app bar should have a back arrow displayed
  */
+@ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
 fun isChildScreen(navBackStackEntry: NavBackStackEntry?): Boolean {
     return when (navBackStackEntry?.destination?.route) {

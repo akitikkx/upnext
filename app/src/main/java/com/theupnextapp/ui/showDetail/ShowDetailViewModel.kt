@@ -28,6 +28,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.theupnextapp.domain.Result
 import com.theupnextapp.domain.ShowCast
 import com.theupnextapp.domain.ShowDetailArg
@@ -49,7 +50,8 @@ import javax.inject.Inject
 class ShowDetailViewModel @Inject constructor(
     private val showDetailRepository: ShowDetailRepository,
     private val workManager: WorkManager,
-    private val traktRepository: TraktRepository
+    private val traktRepository: TraktRepository,
+    private val firebaseCrashlytics: FirebaseCrashlytics
 ) : BaseTraktViewModel(
     traktRepository,
     workManager
@@ -107,15 +109,19 @@ class ShowDetailViewModel @Inject constructor(
     fun selectedShow(show: ShowDetailArg?) {
         show?.let {
             _show.value = it
-            getShowSummary(it)
+            try {
+                getShowSummary(it)
+            } catch (exception: Exception) {
+                firebaseCrashlytics.recordException(exception)
+            }
         }
     }
 
     private fun getShowSummary(show: ShowDetailArg) {
         viewModelScope.launch {
-            show.showId?.let {
-                if (!it.isNullOrEmpty()) {
-                    showDetailRepository.getShowSummary(it.toInt()).collect { result ->
+            show.showId?.takeIf { it.isNotEmpty() }.let { showId ->
+                if (!showId.isNullOrEmpty()) {
+                    showDetailRepository.getShowSummary(showId.toInt()).collect { result ->
                         when (result) {
                             is Result.Success -> {
                                 val showSummary = result.data
@@ -126,13 +132,15 @@ class ShowDetailViewModel @Inject constructor(
                                 getTraktShowStats(showSummary.imdbID)
                                 checkIfShowIsTraktFavorite(showSummary.imdbID)
                             }
+
                             is Result.Loading -> {
                                 isLoading.value = result.status
                             }
+
                             else -> {}
                         }
                     }
-                    getShowCast(it.toInt())
+                    getShowCast(showId.toInt())
                 } else {
                     _showSummary.value = emptyShowData()
                 }
@@ -147,9 +155,11 @@ class ShowDetailViewModel @Inject constructor(
                     is Result.Success -> {
                         _showCast.value = response.data
                     }
+
                     is Result.Loading -> {
                         isLoading.value = response.status
                     }
+
                     else -> {}
                 }
             }
@@ -163,9 +173,11 @@ class ShowDetailViewModel @Inject constructor(
                     is Result.Success -> {
                         _showPreviousEpisode.value = result.data
                     }
+
                     is Result.Loading -> {
                         isLoading.value = result.status
                     }
+
                     else -> {}
                 }
             }
@@ -179,9 +191,11 @@ class ShowDetailViewModel @Inject constructor(
                     is Result.Success -> {
                         _showNextEpisode.value = result.data
                     }
+
                     is Result.Loading -> {
                         isLoading.value = result.status
                     }
+
                     else -> {}
                 }
             }
