@@ -14,14 +14,18 @@ package com.theupnextapp.ui.main
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import com.ramcosta.composedestinations.navigation.navigate
 import com.ramcosta.composedestinations.navigation.popUpTo
@@ -29,6 +33,7 @@ import com.theupnextapp.ui.destinations.Destination
 import com.theupnextapp.ui.destinations.TraktAccountScreenDestination
 import com.theupnextapp.ui.navigation.AppNavigation
 
+@ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
 @ExperimentalComposeUiApi
 @ExperimentalFoundationApi
@@ -36,6 +41,7 @@ import com.theupnextapp.ui.navigation.AppNavigation
 @Composable
 fun MediumScreen(
     navController: NavHostController,
+    navBackStackEntry: NavBackStackEntry?,
     destination: Destination,
     valueState: MutableState<String?>,
     onTraktAuthCompleted: () -> Unit,
@@ -60,9 +66,15 @@ fun MediumScreen(
             }
         )
 
-        AppNavigation(
-            navHostController = navController,
-            contentPadding = PaddingValues()
-        )
+        Column(modifier = Modifier.fillMaxWidth()) {
+            TopBar(navBackStackEntry = navBackStackEntry) {
+                navController.navigateUp()
+            }
+
+            AppNavigation(
+                navHostController = navController,
+                contentPadding = PaddingValues()
+            )
+        }
     }
 }

@@ -19,7 +19,9 @@ import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSiz
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.theupnextapp.ui.NavGraphs
 import com.theupnextapp.ui.appCurrentDestinationAsState
@@ -39,6 +41,8 @@ fun MainScreen(
 ) {
     val navController = rememberNavController()
 
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+
     val currentBackStackEntryAsState: Destination? =
         navController.appCurrentDestinationAsState().value
     val currentDestination = currentBackStackEntryAsState ?: NavGraphs.root.startAppDestination
@@ -56,6 +60,7 @@ fun MainScreen(
         WindowWidthSizeClass.Medium -> {
             MediumScreen(
                 valueState = valueState,
+                navBackStackEntry = navBackStackEntry,
                 destination = currentDestination,
                 navController = navController
             ) {
@@ -66,6 +71,7 @@ fun MainScreen(
         WindowWidthSizeClass.Expanded -> {
             ExpandedScreen(
                 navController = navController,
+                navBackStackEntry = navBackStackEntry,
                 currentDestination = currentDestination,
                 valueState = valueState
             ) {

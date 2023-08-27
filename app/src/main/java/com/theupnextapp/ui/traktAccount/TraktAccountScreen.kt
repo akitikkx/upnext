@@ -27,7 +27,6 @@ import android.content.Intent
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
@@ -37,17 +36,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -57,9 +53,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -67,12 +61,12 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.theupnextapp.BuildConfig
 import com.theupnextapp.R
+import com.theupnextapp.common.utils.getWindowSizeClass
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.TraktUserListItem
-import com.theupnextapp.ui.components.SectionHeadingText
 import com.theupnextapp.ui.destinations.ShowDetailScreenDestination
-import com.theupnextapp.ui.widgets.ListPosterCard
 
+@ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalFoundationApi
 @ExperimentalMaterial3Api
 @Destination
@@ -199,6 +193,7 @@ fun openCustomTab(context: Context) {
     }
 }
 
+@ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
 @ExperimentalFoundationApi
 @Composable
@@ -216,6 +211,7 @@ fun AccountArea(
             } else {
                 FavoritesList(
                     favoriteShows = list,
+                    widthSizeClass = getWindowSizeClass()?.widthSizeClass,
                     onFavoriteClick = { favoriteShow ->
                         onFavoriteClick(favoriteShow)
                     },
@@ -261,80 +257,4 @@ fun ConnectToTrakt(
             Text(text = stringResource(id = R.string.connect_to_trakt_button))
         }
     }
-}
-
-@ExperimentalMaterial3Api
-@ExperimentalFoundationApi
-@Composable
-fun FavoritesList(
-    favoriteShows: List<TraktUserListItem>,
-    onLogoutClick: () -> Unit,
-    onFavoriteClick: (item: TraktUserListItem) -> Unit
-) {
-    val traktLogo: Painter = painterResource(id = R.drawable.ic_trakt_wide_red_white)
-    Column(
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(8.dp)
-    ) {
-        Image(
-            painter = traktLogo,
-            contentDescription = stringResource(id = R.string.trakt_logo_description),
-            modifier = Modifier
-                .height(dimensionResource(id = R.dimen.trakt_account_authorized_logo_height))
-                .fillMaxWidth()
-        )
-        Text(
-            text = stringResource(id = R.string.trakt_connection_status_disconnect),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(4.dp)
-                .clickable { onLogoutClick() },
-            textAlign = TextAlign.Center,
-            fontWeight = FontWeight.Bold,
-            style = MaterialTheme.typography.bodyMedium
-        )
-
-        SectionHeadingText(
-            modifier = Modifier
-                .padding(top = 8.dp, bottom = 8.dp)
-                .align(Alignment.CenterHorizontally),
-            text = stringResource(id = R.string.title_favorites_list),
-        )
-
-        LazyVerticalGrid(columns = GridCells.Fixed(3)) {
-            items(favoriteShows) { favoriteShow ->
-                ListPosterCard(
-                    itemName = favoriteShow.title,
-                    itemUrl = favoriteShow.originalImageUrl
-                ) {
-                    onFavoriteClick(favoriteShow)
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun EmptyFavoritesList() {
-    Column(
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxSize()
-    ) {
-        Text(
-            modifier = Modifier
-                .padding(16.dp)
-                .align(Alignment.CenterHorizontally)
-                .fillMaxWidth(0.7f),
-            text = stringResource(id = R.string.trakt_account_favorites_empty),
-            style = MaterialTheme.typography.bodyMedium
-        )
-    }
-}
-
-@Preview
-@Composable
-fun EmptyStateFavoritesListPreview() {
-    EmptyFavoritesList()
 }
