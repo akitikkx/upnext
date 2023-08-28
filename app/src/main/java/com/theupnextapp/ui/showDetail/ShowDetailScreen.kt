@@ -36,13 +36,12 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -52,11 +51,13 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.theupnextapp.R
+import com.theupnextapp.common.utils.getWindowSizeClass
 import com.theupnextapp.domain.ShowCast
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.ShowDetailSummary
@@ -69,6 +70,7 @@ import com.theupnextapp.ui.components.SectionHeadingText
 import com.theupnextapp.ui.destinations.ShowSeasonsScreenDestination
 import org.jsoup.Jsoup
 
+@ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
 @Destination(navArgsDelegate = ShowDetailArg::class)
 @Composable
@@ -144,6 +146,7 @@ fun ShowDetailScreen(
     }
 }
 
+@ExperimentalMaterial3WindowSizeClassApi
 @Composable
 fun DetailArea(
     showSummary: ShowDetailSummary?,
@@ -170,28 +173,19 @@ fun DetailArea(
             showSummary = showSummary
         )
 
-        PosterAndMetadata(showSummary = showSummary)
+        SynopsisArea(
+            showSummary = showSummary,
+            widthSizeClass = getWindowSizeClass()?.widthSizeClass
+        )
 
-        showSummary?.summary?.let { summary ->
-            Text(
-                text = Jsoup.parse(summary).text(),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        start = 16.dp,
-                        top = 4.dp,
-                        end = 16.dp,
-                    ),
-                style = MaterialTheme.typography.bodyMedium
+        if (showSummary?.id != -1) {
+            ShowDetailButtons(
+                isAuthorizedOnTrakt = isAuthorizedOnTrakt,
+                isFavorite = isFavorite,
+                onSeasonsClick = { onSeasonsClick() },
+                onFavoriteClick = { onFavoriteClick() }
             )
         }
-
-        ShowDetailButtons(
-            isAuthorizedOnTrakt = isAuthorizedOnTrakt,
-            isFavorite = isFavorite,
-            onSeasonsClick = { onSeasonsClick() },
-            onFavoriteClick = { onFavoriteClick() }
-        )
 
         showCast?.let {
             if (it.isNotEmpty()) {
@@ -319,66 +313,6 @@ fun PosterAndMetadata(showSummary: ShowDetailSummary?) {
                     text = stringResource(id = R.string.tv_maze_creative_commons_attribution_text_multiple),
                     style = MaterialTheme.typography.labelMedium,
                     modifier = Modifier.padding(8.dp)
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun ShowDetailButtons(
-    isAuthorizedOnTrakt: Boolean?,
-    isFavorite: Boolean?,
-    onSeasonsClick: () -> Unit,
-    onFavoriteClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly
-    ) {
-        Button(
-            onClick = { onSeasonsClick() },
-            modifier = Modifier.padding(4.dp)
-        ) {
-            Text(
-                text = stringResource(id = R.string.btn_show_detail_seasons)
-            )
-        }
-
-        TraktFavoriteButton(
-            isAuthorizedOnTrakt = isAuthorizedOnTrakt,
-            isFavorite = isFavorite
-        ) {
-            onFavoriteClick()
-        }
-    }
-}
-
-@Composable
-fun TraktFavoriteButton(
-    isAuthorizedOnTrakt: Boolean?,
-    isFavorite: Boolean?,
-    onFavoriteClick: () -> Unit
-) {
-    if (isAuthorizedOnTrakt == true) {
-        if (isFavorite == true) {
-            OutlinedButton(
-                onClick = { onFavoriteClick() },
-                modifier = Modifier.padding(4.dp)
-            ) {
-                Text(
-                    text = stringResource(id = R.string.btn_show_detail_remove_from_favorites)
-                )
-            }
-        } else {
-            Button(
-                onClick = { onFavoriteClick() },
-                modifier = Modifier.padding(4.dp)
-            ) {
-                Text(
-                    text = stringResource(id = R.string.btn_show_detail_add_to_favorites)
                 )
             }
         }
@@ -700,4 +634,37 @@ fun HeadingAndItemText(
             style = MaterialTheme.typography.bodySmall
         )
     }
+}
+
+internal class ShowDetailSummaryPreviewProvider : PreviewParameterProvider<ShowDetailSummary> {
+    override val values: Sequence<ShowDetailSummary>
+        get() = sequenceOf(
+            ShowDetailSummary(
+                airDays = "Sunday",
+                averageRating = "",
+                id = (0..1000).random(),
+                imdbID = "tt0903747",
+                genres = "Drama, Crime, Thriller",
+                language = "English",
+                mediumImageUrl = "https://static.tvmaze.com/uploads/images/medium_portrait/0/2400.jpg",
+                name = "Breaking Bad",
+                originalImageUrl = "https://static.tvmaze.com/uploads/images/original_untouched/0/2400.jpg",
+                summary = "<p><b>Breaking Bad</b> follows protagonist Walter White, a chemistry " +
+                        "teacher who lives in New Mexico with his wife and teenage son who has " +
+                        "cerebral palsy. White is diagnosed with Stage III cancer and given a " +
+                        "prognosis of two years left to live. With a new sense of fearlessness " +
+                        "based on his medical prognosis, and a desire to secure his family's " +
+                        "financial security, White chooses to enter a dangerous world of drugs " +
+                        "and crime and ascends to power in this world. The series explores how a " +
+                        "fatal diagnosis such as White's releases a typical man from the daily " +
+                        "concerns and constraints of normal society and follows his " +
+                        "transformation from mild family man to a kingpin of the drug trade.</p>",
+                time = "",
+                status = "Ended",
+                previousEpisodeHref = "",
+                nextEpisodeHref = "",
+                nextEpisodeLinkedId = 1,
+                previousEpisodeLinkedId = 2,
+            )
+        )
 }

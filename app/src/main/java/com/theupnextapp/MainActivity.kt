@@ -67,14 +67,19 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
                     dataString.value = code
                 }
                 addOnNewIntentListener(listener)
-                onDispose { removeOnNewIntentListener(listener) }
+                onDispose {
+                    removeOnNewIntentListener(listener)
+                    dataString.value = null
+                }
             }
 
             UpnextTheme {
                 MainScreen(
                     widthSizeClass = calculateWindowSizeClass(activity = this).widthSizeClass,
                     valueState = dataString
-                )
+                ) {
+                    dataString.value = null
+                }
             }
         }
 

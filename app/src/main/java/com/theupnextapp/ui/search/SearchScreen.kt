@@ -33,6 +33,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.livedata.observeAsState
@@ -50,6 +51,7 @@ import com.theupnextapp.domain.ShowSearch
 import com.theupnextapp.ui.destinations.ShowDetailScreenDestination
 import com.theupnextapp.ui.widgets.SearchListCard
 
+@ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
 @ExperimentalComposeUiApi
 @Destination

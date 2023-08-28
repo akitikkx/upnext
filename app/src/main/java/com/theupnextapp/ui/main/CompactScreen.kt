@@ -15,26 +15,28 @@ package com.theupnextapp.ui.main
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.ExperimentalComposeUiApi
-import com.google.accompanist.navigation.animation.rememberAnimatedNavController
-import com.ramcosta.composedestinations.navigation.navigateTo
+import androidx.navigation.NavHostController
+import com.ramcosta.composedestinations.navigation.navigate
 import com.theupnextapp.ui.destinations.TraktAccountScreenDestination
 import com.theupnextapp.ui.navigation.AppNavigation
-
+@ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalAnimationApi
 @ExperimentalFoundationApi
 @ExperimentalComposeUiApi
 @ExperimentalMaterial3Api
 @Composable
 fun CompactScreen(
+    navController: NavHostController,
     valueState: MutableState<String?>,
+    onTraktAuthCompleted: () -> Unit,
 ) {
-    val navController = rememberAnimatedNavController()
-
     if (!valueState.value.isNullOrEmpty()) {
         navController.navigate(TraktAccountScreenDestination(code = valueState.value).route)
+        onTraktAuthCompleted()
     }
 
     CompactScaffold(
@@ -50,7 +52,7 @@ fun CompactScreen(
             BottomBar(
                 currentDestination = destination,
                 onBottomBarItemClick = {
-                    navController.navigateTo(it) {
+                    navController.navigate(it) {
                         launchSingleTop = true
                     }
                 }

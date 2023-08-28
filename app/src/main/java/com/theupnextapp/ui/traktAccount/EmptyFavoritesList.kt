@@ -10,34 +10,46 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.theupnextapp.ui.navigation
+package com.theupnextapp.ui.traktAccount
 
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavHostController
-import com.ramcosta.composedestinations.DestinationsNavHost
-import com.theupnextapp.ui.NavGraphs
-@ExperimentalMaterial3WindowSizeClassApi
-@ExperimentalMaterial3Api
-@ExperimentalComposeUiApi
-@ExperimentalFoundationApi
-@ExperimentalAnimationApi
-@Composable
-fun AppNavigation(
-    navHostController: NavHostController,
-    contentPadding: PaddingValues
-) {
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import com.theupnextapp.R
+import com.theupnextapp.extensions.ReferenceDevices
 
-    DestinationsNavHost(
-        navGraph = NavGraphs.root,
-        navController = navHostController,
-        modifier = Modifier.padding(contentPadding)
-    )
+@Composable
+fun EmptyFavoritesList(
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier
+                .align(Alignment.Center)
+                .fillMaxWidth()
+                .padding(16.dp)
+            ,
+            text = stringResource(id = R.string.trakt_account_favorites_empty)
+        )
+    }
+}
+
+@ReferenceDevices()
+@Composable
+fun EmptyStateFavoritesListPreview() {
+    EmptyFavoritesList()
 }

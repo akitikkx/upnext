@@ -10,34 +10,21 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.theupnextapp.ui.navigation
+package com.theupnextapp.common.utils
 
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.Modifier
-import androidx.navigation.NavHostController
-import com.ramcosta.composedestinations.DestinationsNavHost
-import com.theupnextapp.ui.NavGraphs
-@ExperimentalMaterial3WindowSizeClassApi
-@ExperimentalMaterial3Api
-@ExperimentalComposeUiApi
-@ExperimentalFoundationApi
-@ExperimentalAnimationApi
-@Composable
-fun AppNavigation(
-    navHostController: NavHostController,
-    contentPadding: PaddingValues
-) {
+import androidx.compose.ui.platform.LocalContext
+import com.theupnextapp.extensions.getActivity
 
-    DestinationsNavHost(
-        navGraph = NavGraphs.root,
-        navController = navHostController,
-        modifier = Modifier.padding(contentPadding)
-    )
+@ExperimentalMaterial3WindowSizeClassApi
+@Composable
+fun getWindowSizeClass(): WindowSizeClass? {
+    val context = LocalContext.current
+
+    return context.getActivity()?.let {
+        calculateWindowSizeClass(activity = it)
+    }
 }

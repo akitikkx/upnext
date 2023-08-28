@@ -10,34 +10,48 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.theupnextapp.ui.navigation
+package com.theupnextapp.ui.showDetail
 
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavHostController
-import com.ramcosta.composedestinations.DestinationsNavHost
-import com.theupnextapp.ui.NavGraphs
-@ExperimentalMaterial3WindowSizeClassApi
-@ExperimentalMaterial3Api
-@ExperimentalComposeUiApi
-@ExperimentalFoundationApi
-@ExperimentalAnimationApi
-@Composable
-fun AppNavigation(
-    navHostController: NavHostController,
-    contentPadding: PaddingValues
-) {
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import com.theupnextapp.R
 
-    DestinationsNavHost(
-        navGraph = NavGraphs.root,
-        navController = navHostController,
-        modifier = Modifier.padding(contentPadding)
-    )
+@Composable
+fun ShowDetailButtons(
+    isAuthorizedOnTrakt: Boolean?,
+    isFavorite: Boolean?,
+    modifier: Modifier = Modifier,
+    onSeasonsClick: () -> Unit,
+    onFavoriteClick: () -> Unit
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        Button(
+            onClick = { onSeasonsClick() },
+            modifier = Modifier.padding(4.dp)
+        ) {
+            Text(
+                text = stringResource(id = R.string.btn_show_detail_seasons)
+            )
+        }
+
+        TraktFavoriteButton(
+            isAuthorizedOnTrakt = isAuthorizedOnTrakt,
+            isFavorite = isFavorite
+        ) {
+            onFavoriteClick()
+        }
+    }
 }

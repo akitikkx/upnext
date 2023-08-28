@@ -14,6 +14,7 @@ package com.theupnextapp.baselineprofile
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.benchmark.macro.ExperimentalBaselineProfilesApi
 import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.benchmark.macro.junit4.BaselineProfileRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -44,6 +45,7 @@ import org.junit.runner.RunWith
  *
  * After you run the generator, you can verify the improvements running the [StartupBenchmarks] benchmark.
  **/
+@ExperimentalBaselineProfilesApi
 @RunWith(AndroidJUnit4::class)
 @RequiresApi(Build.VERSION_CODES.P)
 @LargeTest
@@ -55,7 +57,7 @@ class BaselineProfileGenerator {
 
     @Test
     fun generate() {
-        rule.collect(packageName = "com.theupnextapp") {
+        rule.collectBaselineProfile(packageName = "com.theupnextapp") {
             // This block defines the app's critical user journey. Here we are interested in
             // optimizing for app startup. But you can also navigate and scroll
             // through your most important UI.

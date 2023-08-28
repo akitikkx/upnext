@@ -38,7 +38,7 @@
     <dimen name="poster_frame_width">110dp</dimen>
     <dimen name="shows_list_poster_height">160dp</dimen>
     <dimen name="compose_poster_frame_width">140dp</dimen>
-    <dimen name="compose_shows_list_poster_height">180dp</dimen>
+    <dimen name="compose_shows_list_poster_height">238dp</dimen>
 
     <!-- Show Detail -->
     <dimen name="show_detail_poster_height">180dp</dimen>

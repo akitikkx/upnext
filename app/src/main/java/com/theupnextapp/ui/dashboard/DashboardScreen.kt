@@ -35,11 +35,14 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Surface
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
@@ -47,10 +50,12 @@ import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.theupnextapp.R
 import com.theupnextapp.domain.ScheduleShow
+import com.theupnextapp.extensions.ReferenceDevices
 import com.theupnextapp.ui.components.SectionHeadingText
 import com.theupnextapp.ui.destinations.ShowDetailScreenDestination
 import com.theupnextapp.ui.widgets.ListPosterCard
 
+@ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
 @RootNavGraph(start = true)
 @Destination
@@ -153,6 +158,7 @@ fun DashboardScreen(
     }
 }
 
+@ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
 @Composable
 fun ShowsRow(
@@ -181,4 +187,39 @@ fun ShowsRow(
             }
         }
     }
+}
+
+@ExperimentalMaterial3WindowSizeClassApi
+@ExperimentalMaterial3Api
+@ReferenceDevices
+@Composable
+private fun ShowsRowPreview(@PreviewParameter(ShowsRowPreviewProvider::class) shows: List<ScheduleShow>) {
+    ShowsRow(
+        list = shows,
+        rowTitle = "Test Shows",
+        onClick = {}
+    )
+}
+
+internal class ShowsRowPreviewProvider : PreviewParameterProvider<List<ScheduleShow>> {
+    override val values: Sequence<List<ScheduleShow>>
+        get() = sequenceOf(
+            MutableList(10) { index ->
+                ScheduleShow(
+                    id = index,
+                    originalImage = "",
+                    mediumImage = "",
+                    language = "",
+                    name = "",
+                    officialSite = "",
+                    premiered = "",
+                    runtime = "",
+                    status = "",
+                    summary = "",
+                    type = "",
+                    updated = "",
+                    url = ""
+                )
+            }
+        )
 }

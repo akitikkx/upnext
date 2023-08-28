@@ -14,56 +14,67 @@ package com.theupnextapp.ui.main
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavHostController
 import com.ramcosta.composedestinations.navigation.navigate
-import com.theupnextapp.ui.NavGraphs
-import com.theupnextapp.ui.appDestination
+import com.ramcosta.composedestinations.navigation.popUpTo
+import com.theupnextapp.ui.destinations.Destination
 import com.theupnextapp.ui.destinations.TraktAccountScreenDestination
 import com.theupnextapp.ui.navigation.AppNavigation
-import com.theupnextapp.ui.startAppDestination
 
+@ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
 @ExperimentalComposeUiApi
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
 @Composable
 fun MediumScreen(
+    navController: NavHostController,
+    navBackStackEntry: NavBackStackEntry?,
+    destination: Destination,
     valueState: MutableState<String?>,
+    onTraktAuthCompleted: () -> Unit,
 ) {
-    val navController = rememberNavController()
-
     if (!valueState.value.isNullOrEmpty()) {
         navController.navigate(TraktAccountScreenDestination(code = valueState.value).route)
+        onTraktAuthCompleted()
     }
-
-    val currentBackStackEntryAsState by navController.currentBackStackEntryAsState()
-    val destination =
-        currentBackStackEntryAsState?.appDestination()
-            ?: NavGraphs.root.startRoute.startAppDestination
 
     Row(modifier = Modifier.fillMaxSize()) {
         NavRail(
             currentDestination = destination,
             onNavRailItemClick = {
                 navController.navigate(it) {
+                    popUpTo(destination) {
+                        saveState = true
+                        inclusive = true
+                    }
                     launchSingleTop = true
+                    restoreState = true
                 }
             }
         )
 
-        AppNavigation(
-            navHostController = navController,
-            contentPadding = PaddingValues()
-        )
+        Column(modifier = Modifier.fillMaxWidth()) {
+            TopBar(navBackStackEntry = navBackStackEntry) {
+                navController.navigateUp()
+            }
+
+            AppNavigation(
+                navHostController = navController,
+                contentPadding = PaddingValues()
+            )
+        }
     }
 }

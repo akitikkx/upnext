@@ -10,34 +10,33 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.theupnextapp.ui.navigation
+package com.theupnextapp.ui.showDetail
 
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavHostController
-import com.ramcosta.composedestinations.DestinationsNavHost
-import com.theupnextapp.ui.NavGraphs
-@ExperimentalMaterial3WindowSizeClassApi
-@ExperimentalMaterial3Api
-@ExperimentalComposeUiApi
-@ExperimentalFoundationApi
-@ExperimentalAnimationApi
-@Composable
-fun AppNavigation(
-    navHostController: NavHostController,
-    contentPadding: PaddingValues
-) {
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import com.theupnextapp.domain.ShowDetailSummary
+import com.theupnextapp.extensions.ReferenceDevices
+import org.jsoup.Jsoup
 
-    DestinationsNavHost(
-        navGraph = NavGraphs.root,
-        navController = navHostController,
-        modifier = Modifier.padding(contentPadding)
-    )
+@Composable
+fun ShowSynopsis(
+    showSummary: ShowDetailSummary?,
+    modifier: Modifier = Modifier
+) {
+    showSummary?.summary?.let { summary ->
+        Text(
+            text = Jsoup.parse(summary).text(),
+            modifier = modifier,
+            style = MaterialTheme.typography.bodyMedium
+        )
+    }
+}
+
+@ReferenceDevices
+@Composable
+fun ShowSynopsisPreview(@PreviewParameter(ShowDetailSummaryPreviewProvider::class) showSummary: ShowDetailSummary?) {
+    ShowSynopsis(showSummary = showSummary)
 }
