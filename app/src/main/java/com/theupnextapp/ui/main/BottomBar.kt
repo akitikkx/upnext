@@ -52,8 +52,8 @@ enum class BottomBarDestination(
     val icon: ImageVector,
     @StringRes val label: Int
 ) {
-    SearchScreen(SearchScreenDestination, Icons.Default.Search, R.string.bottom_nav_title_search),
     Dashboard(DashboardScreenDestination, Icons.Default.Home, R.string.bottom_nav_title_dashboard),
+    SearchScreen(SearchScreenDestination, Icons.Default.Search, R.string.bottom_nav_title_search),
     Explore(ExploreScreenDestination, Icons.Filled.Explore, R.string.bottom_nav_title_explore),
     TraktAccount(
         TraktAccountScreenDestination(),
