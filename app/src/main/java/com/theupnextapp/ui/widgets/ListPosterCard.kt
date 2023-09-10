@@ -99,7 +99,7 @@ object ListPosterCardConfig {
     val listPosterHeight: Dp
         @Composable get() {
             return when (getWindowSizeClass()?.widthSizeClass) {
-                WindowWidthSizeClass.Compact -> 180.dp
+                WindowWidthSizeClass.Compact -> 170.dp
                 WindowWidthSizeClass.Medium -> 175.dp
                 else -> 200.dp
             }
