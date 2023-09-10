@@ -79,7 +79,7 @@ class MainScreenTest {
     }
 
     @Test
-    fun expandedDevice_verifyNavigationRailIsPresent() {
+    fun expandedDevice_verifyNavigationDrawerIsPresent() {
         composeTestRule.activity.setContent {
             val dataString: MutableState<String?> = rememberSaveable { mutableStateOf("") }
 
@@ -91,6 +91,6 @@ class MainScreenTest {
 
             }
         }
-        composeTestRule.onNodeWithTag("navigation_rail").assertExists()
+        composeTestRule.onNodeWithTag("navigation_drawer").assertExists()
     }
 }

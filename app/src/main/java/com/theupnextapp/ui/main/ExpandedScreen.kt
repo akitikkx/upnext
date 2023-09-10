@@ -32,6 +32,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavBackStackEntry
@@ -61,6 +62,7 @@ fun ExpandedScreen(
     }
 
     PermanentNavigationDrawer(
+        modifier = Modifier.testTag("navigation_drawer"),
         drawerContent = {
             PermanentDrawerSheet(modifier = Modifier.width(240.dp)) {
                 Spacer(Modifier.height(16.dp))
