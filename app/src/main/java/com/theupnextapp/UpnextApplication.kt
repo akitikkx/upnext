@@ -126,7 +126,7 @@ class UpnextApplication : Application(), Configuration.Provider {
 
                     workManager.enqueueUniquePeriodicWork(
                         RefreshFavoriteShowsWorker.WORK_NAME,
-                        ExistingPeriodicWorkPolicy.REPLACE,
+                        ExistingPeriodicWorkPolicy.UPDATE,
                         refreshFavoriteShowsRequest
                     )
                 }
@@ -145,7 +145,7 @@ class UpnextApplication : Application(), Configuration.Provider {
 
         workManager.enqueueUniquePeriodicWork(
             RefreshTraktExploreWorker.WORK_NAME,
-            ExistingPeriodicWorkPolicy.REPLACE,
+            ExistingPeriodicWorkPolicy.UPDATE,
             refreshExploreShowsRequest
         )
     }
@@ -161,7 +161,7 @@ class UpnextApplication : Application(), Configuration.Provider {
 
         workManager.enqueueUniquePeriodicWork(
             RefreshDashboardShowsWorker.WORK_NAME,
-            ExistingPeriodicWorkPolicy.REPLACE,
+            ExistingPeriodicWorkPolicy.UPDATE,
             refreshDashboardShowsRequest
         )
     }
