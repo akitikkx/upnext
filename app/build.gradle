@@ -248,7 +248,7 @@ dependencies {
 
     // Hilt testing
     androidTestImplementation libs.hilt.android.testing
-    kaptAndroidTest libs.hilt.android.compiler
+    kspAndroidTest libs.hilt.android.compiler
     androidTestAnnotationProcessor libs.dagger.hilt.compiler
 
     // Workmanager testing
