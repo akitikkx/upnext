@@ -56,8 +56,8 @@ fun FavoritesList(
 ) {
     val columns: GridCells = when(widthSizeClass) {
         WindowWidthSizeClass.Compact -> GridCells.Fixed(3)
-        WindowWidthSizeClass.Medium -> GridCells.Fixed(3)
-        else -> GridCells.Adaptive(minSize = dimensionResource(id = R.dimen.compose_poster_frame_width))
+        WindowWidthSizeClass.Medium -> GridCells.Fixed(4)
+        else -> GridCells.Adaptive(minSize = 140.dp)
     }
 
     val traktLogo: Painter = painterResource(id = R.drawable.ic_trakt_wide_red_white)

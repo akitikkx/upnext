@@ -33,17 +33,15 @@ import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSiz
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.theupnextapp.R
 import com.theupnextapp.common.utils.getWindowSizeClass
 import com.theupnextapp.extensions.ReferenceDevices
 import com.theupnextapp.ui.components.PosterAttributionItem
 import com.theupnextapp.ui.components.PosterImage
 import com.theupnextapp.ui.components.PosterTitleTextItem
 import com.theupnextapp.ui.widgets.ListPosterCardConfig.listPosterHeight
+import com.theupnextapp.ui.widgets.ListPosterCardConfig.listPosterWidth
 
 @ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
@@ -57,7 +55,7 @@ fun ListPosterCard(
     Card(
         shape = MaterialTheme.shapes.large,
         modifier = modifier
-            .width(dimensionResource(id = R.dimen.compose_poster_frame_width))
+            .width(listPosterWidth)
             .padding(4.dp),
         onClick = onClick
     ) {
@@ -86,11 +84,21 @@ fun ListPosterCard(
 
 @ExperimentalMaterial3WindowSizeClassApi
 object ListPosterCardConfig {
+    val listPosterWidth: Dp
+        @Composable get() {
+            return when (getWindowSizeClass()?.widthSizeClass) {
+                WindowWidthSizeClass.Compact -> 140.dp
+                WindowWidthSizeClass.Medium -> 140.dp
+                else -> 140.dp
+            }
+        }
+
     val listPosterHeight: Dp
         @Composable get() {
             return when (getWindowSizeClass()?.widthSizeClass) {
-                WindowWidthSizeClass.Compact -> 180.dp
-                else -> 238.dp
+                WindowWidthSizeClass.Compact -> 170.dp
+                WindowWidthSizeClass.Medium -> 175.dp
+                else -> 200.dp
             }
         }
 }
