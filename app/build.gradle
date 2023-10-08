@@ -175,7 +175,7 @@ dependencies {
 
     // Hilt Work
     implementation libs.android.hilt.work
-    kapt libs.android.hilt.work.compiler
+    ksp libs.android.hilt.work.compiler
     implementation libs.work.runtime.ktx
 
     // Hilt
@@ -249,7 +249,7 @@ dependencies {
     // Hilt testing
     androidTestImplementation libs.hilt.android.testing
     kspAndroidTest libs.hilt.android.compiler
-    androidTestAnnotationProcessor libs.dagger.hilt.compiler
+    androidTestAnnotationProcessor libs.hilt.android.compiler
 
     // Workmanager testing
     androidTestImplementation libs.androidx.work.testing
