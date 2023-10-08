@@ -234,6 +234,9 @@ dependencies {
     implementation libs.profileinstaller
     baselineProfile project(path: ':baselineprofile')
 
+    debugImplementation libs.chucker.debug
+    releaseImplementation libs.chucker.release
+
     // Test harness
     implementation libs.test.harness
     debugImplementation(libs.androidx.ui.test.manifest)

@@ -22,6 +22,9 @@
 package com.theupnextapp.di
 
 import android.content.Context
+import com.chuckerteam.chucker.api.ChuckerCollector
+import com.chuckerteam.chucker.api.ChuckerInterceptor
+import com.chuckerteam.chucker.api.RetentionManager
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.theupnextapp.common.utils.TraktConnectionInterceptor
 import com.theupnextapp.network.TraktNetwork
@@ -63,6 +66,21 @@ object NetworkModule {
                         .build()
                 chain.proceed(request)
             }
+            .addInterceptor(
+                ChuckerInterceptor.Builder(context)
+                    .collector(
+                        ChuckerCollector(
+                            context = context,
+                            showNotification = true,
+                            retentionPeriod = RetentionManager.Period.ONE_HOUR
+                        )
+                    )
+                    .maxContentLength(250_000L)
+                    .redactHeaders("Auth-Token", "Bearer")
+                    .alwaysReadResponseBody(true)
+                    .createShortcut(true)
+                    .build()
+            )
             .connectTimeout(30, TimeUnit.SECONDS)
             .retryOnConnectionFailure(true)
             .readTimeout(30, TimeUnit.SECONDS)
