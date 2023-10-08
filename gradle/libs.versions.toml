@@ -32,9 +32,10 @@ firebasePerfGradlePlugin = "1.4.2"
 flexbox = "3.0.0"
 glide = "4.16.0"
 gmsPlugin = "4.3.15"
-hiltAndroidCompiler = "2.47"
-hiltAndroidTesting = "2.44"
-hiltWork = "1.0.0"
+hiltAndroidCompiler = "2.48.1"
+hiltCompiler = "1.1.0-alpha01"
+hiltAndroidTesting = "2.48.1"
+hiltWork = "1.1.0-alpha01"
 jsoup = "1.16.1"
 junit = "4.13.2"
 ktlint = "11.5.1"
@@ -68,7 +69,7 @@ activity-compose = { module = "androidx.activity:activity-compose", version.ref 
 android-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "ktx" }
 android-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "androidxHiltNavigation" }
 android-hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "hiltWork" }
-android-hilt-work-compiler = { group = "androidx.hilt", name = "hilt-compiler", version.ref = "hiltWork" }
+android-hilt-work-compiler = { group = "androidx.hilt", name = "hilt-compiler", version.ref = "hiltCompiler" }
 android-material = { group = "com.google.android.material", name = "material", version.ref = "androidMaterial" }
 android-material3 = { module = "androidx.compose.material3:material3", version.ref = "androidMaterial3" }
 android-recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "androidRecyclerview" }
