@@ -59,7 +59,7 @@ room = "2.5.2"
 runtimeLivedata = "1.5.0"
 testHarness = "0.33.0-alpha"
 timber = "5.0.1"
-uiTestManifest = "1.5.0"
+uiTestManifest = "1.5.3"
 workRuntimeKtx = "2.8.1"
 workTesting = "2.8.1"
 
