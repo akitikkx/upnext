@@ -24,6 +24,7 @@ package com.theupnextapp.work
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
@@ -53,7 +54,11 @@ abstract class BaseWorker(
             createNotificationChannel()
         }
 
-        return ForegroundInfo(1, notification.build())
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            ForegroundInfo(1, notification.build(), FOREGROUND_SERVICE_TYPE_DATA_SYNC)
+        } else {
+            ForegroundInfo(1, notification.build())
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
