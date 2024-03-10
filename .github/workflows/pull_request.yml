@@ -45,7 +45,7 @@ jobs:
         run: ./gradlew testDebugUnitTest --continue
       - name: Upload Test Results
         if: ${{ failure() }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: unit-test-report
           path: '**/build/reports/tests/'
@@ -93,7 +93,7 @@ jobs:
       - name: Assemble debug
         run: ./gradlew assembleDebug
       - name: Upload generated APK
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: upnext-debug
           path: app/build/outputs/apk/debug/**.apk
