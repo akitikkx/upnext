@@ -68,8 +68,8 @@ class UpnextApplication : Application(), Configuration.Provider {
         setupTheme()
     }
 
-    override fun getWorkManagerConfiguration() =
-        Configuration.Builder()
+    override val workManagerConfiguration: Configuration
+        get() = Configuration.Builder()
             .setWorkerFactory(workerFactory)
             .build()
 
@@ -126,7 +126,7 @@ class UpnextApplication : Application(), Configuration.Provider {
 
                     workManager.enqueueUniquePeriodicWork(
                         RefreshFavoriteShowsWorker.WORK_NAME,
-                        ExistingPeriodicWorkPolicy.UPDATE,
+                        ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
                         refreshFavoriteShowsRequest
                     )
                 }
@@ -145,7 +145,7 @@ class UpnextApplication : Application(), Configuration.Provider {
 
         workManager.enqueueUniquePeriodicWork(
             RefreshTraktExploreWorker.WORK_NAME,
-            ExistingPeriodicWorkPolicy.UPDATE,
+            ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
             refreshExploreShowsRequest
         )
     }
@@ -161,7 +161,7 @@ class UpnextApplication : Application(), Configuration.Provider {
 
         workManager.enqueueUniquePeriodicWork(
             RefreshDashboardShowsWorker.WORK_NAME,
-            ExistingPeriodicWorkPolicy.UPDATE,
+            ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
             refreshDashboardShowsRequest
         )
     }

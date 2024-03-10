@@ -60,7 +60,7 @@ runtimeLivedata = "1.6.3"
 testHarness = "0.33.0-alpha"
 timber = "5.0.1"
 uiTestManifest = "1.6.3"
-workRuntimeKtx = "2.8.1"
+workRuntimeKtx = "2.9.0"
 workTesting = "2.9.0"
 
 [libraries]
