@@ -251,6 +251,9 @@ dependencies {
     kspAndroidTest libs.hilt.android.compiler
     androidTestAnnotationProcessor libs.hilt.android.compiler
 
+    // Vertex AI
+    implementation libs.google.generative.ai.client
+
     // Workmanager testing
     androidTestImplementation libs.androidx.work.testing
 }
