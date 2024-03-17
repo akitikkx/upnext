@@ -30,7 +30,8 @@ fun ShowDetailButtons(
     isFavorite: Boolean?,
     modifier: Modifier = Modifier,
     onSeasonsClick: () -> Unit,
-    onFavoriteClick: () -> Unit
+    onFavoriteClick: () -> Unit,
+    onTriviaClick: () -> Unit
 ) {
     Row(
         modifier = modifier
@@ -53,5 +54,15 @@ fun ShowDetailButtons(
         ) {
             onFavoriteClick()
         }
+
+        Button(
+            onClick = { onTriviaClick() },
+            modifier = Modifier.padding(4.dp)
+        ) {
+            Text(
+                text = "Trivia"
+            )
+        }
+
     }
 }

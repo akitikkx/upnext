@@ -10,22 +10,37 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.theupnextapp.ui.trivia
+package com.theupnextapp.repository
 
-import com.theupnextapp.domain.TriviaQuestion
+import com.google.firebase.firestore.FirebaseFirestore
+import com.theupnextapp.domain.Result
 import com.theupnextapp.network.models.gemini.NetworkGeminiTriviaRequest
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.tasks.await
 
-sealed interface TriviaScreenUiState {
+class VertexAIRepository (
+    private val firebaseFirestore: FirebaseFirestore
+) {
 
-    data object Initial : TriviaScreenUiState
+    suspend fun getTrivia(): Flow<Result<NetworkGeminiTriviaRequest?>> {
+        return flow {
+            val document = firebaseFirestore.collection("generate")
+                .document("instruction")
 
-    data object Loading : TriviaScreenUiState
+            document.set(NetworkGeminiTriviaRequest("10 random TV shows")).await()
+            emit(Result.Loading(true))
+            delay(20000L)
 
-    data class Success(
-        val trivia: NetworkGeminiTriviaRequest?
-    ) : TriviaScreenUiState
+            val collections = firebaseFirestore.collection("generate").get().await()
+            val response = collections.documents.firstOrNull()
+                ?.toObject(NetworkGeminiTriviaRequest::class.java)
 
-    data class Error(
-        val errorMessage: String
-    ) : TriviaScreenUiState
+            emit(Result.Success(response))
+
+        }.flowOn(Dispatchers.IO)
+    }
 }

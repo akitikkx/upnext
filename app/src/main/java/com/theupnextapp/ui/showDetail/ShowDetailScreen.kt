@@ -68,6 +68,7 @@ import com.theupnextapp.network.models.trakt.Distribution
 import com.theupnextapp.ui.components.PosterImage
 import com.theupnextapp.ui.components.SectionHeadingText
 import com.theupnextapp.ui.destinations.ShowSeasonsScreenDestination
+import com.theupnextapp.ui.destinations.TriviaScreenDestination
 import org.jsoup.Jsoup
 
 @ExperimentalMaterial3WindowSizeClassApi
@@ -131,7 +132,8 @@ fun ShowDetailScreen(
                     onCastItemClick = {
                         // TODO trigger bottom sheet
                     },
-                    onFavoriteClick = { viewModel.onAddRemoveFavoriteClick() }
+                    onFavoriteClick = { viewModel.onAddRemoveFavoriteClick() },
+                    onTriviaClick = { navigator.navigate(TriviaScreenDestination) }
                 )
 
                 if (isLoading.value == true) {
@@ -158,6 +160,7 @@ fun DetailArea(
     onSeasonsClick: () -> Unit,
     onFavoriteClick: () -> Unit,
     onCastItemClick: (item: ShowCast) -> Unit,
+    onTriviaClick: () -> Unit,
     showNextEpisode: ShowNextEpisode?,
     showPreviousEpisode: ShowPreviousEpisode?
 ) {
@@ -183,7 +186,8 @@ fun DetailArea(
                 isAuthorizedOnTrakt = isAuthorizedOnTrakt,
                 isFavorite = isFavorite,
                 onSeasonsClick = { onSeasonsClick() },
-                onFavoriteClick = { onFavoriteClick() }
+                onFavoriteClick = { onFavoriteClick() },
+                onTriviaClick = { onTriviaClick() }
             )
         }
 

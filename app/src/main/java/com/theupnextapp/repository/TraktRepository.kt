@@ -87,7 +87,7 @@ import timber.log.Timber
 import java.io.IOException
 import javax.net.ssl.SSLHandshakeException
 
-class TraktRepository constructor(
+class TraktRepository(
     private val upnextDao: UpnextDao,
     private val traktDao: TraktDao,
     private val tvMazeService: TvMazeService,

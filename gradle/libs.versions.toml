@@ -25,8 +25,8 @@ datastorePreferences = "1.0.0"
 firebaseAnalyticsKtx = "21.5.1"
 firebaseCore = "21.1.1"
 firebaseCrashlytics = "18.6.2"
-firebaseCrashlyticsPlugin = "18.3.7"
 firebaseCrashlyticsGradle = "2.9.9"
+firebaseFirestore = "24.10.3"
 firebasePerf = "20.5.2"
 firebasePerfGradlePlugin = "1.4.2"
 flexbox = "3.0.0"
@@ -99,6 +99,7 @@ datastore-preferences = { module = "androidx.datastore:datastore-preferences", v
 firebase-analytics-ktx = { module = "com.google.firebase:firebase-analytics-ktx", version.ref = "firebaseAnalyticsKtx" }
 firebase-core = { module = "com.google.firebase:firebase-core", version.ref = "firebaseCore" }
 firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics", version.ref = "firebaseCrashlytics" }
+firebase-firestore = { module = "com.google.firebase:firebase-firestore", version.ref = "firebaseFirestore" }
 firebase-perf = { module = "com.google.firebase:firebase-perf", version.ref = "firebasePerf" }
 flexbox = { module = "com.google.android.flexbox:flexbox", version.ref = "flexbox" }
 google-generative-ai-client = { module = "com.google.ai.client.generativeai:generativeai", version.ref = "googleGenAiClient"}

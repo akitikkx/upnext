@@ -10,22 +10,24 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.theupnextapp.ui.trivia
+package com.theupnextapp.network.models.gemini
 
-import com.theupnextapp.domain.TriviaQuestion
-import com.theupnextapp.network.models.gemini.NetworkGeminiTriviaRequest
+import java.util.Date
 
-sealed interface TriviaScreenUiState {
+data class NetworkGeminiTriviaRequest(
+    val instruction: String,
+    val image: String? = null,
+    val output: String? = null,
+    val status: NetworkGeminiTriviaRequestStatus? = null
+) {
+    data class NetworkGeminiTriviaRequestStatus(
+        val completeTime: Date? = null,
+        val startTime: Date? = null,
+        val state: String? = null,
+        val updateTime: Date? = null
+    ) {
+        constructor() : this(null, null, null, null)
+    }
 
-    data object Initial : TriviaScreenUiState
-
-    data object Loading : TriviaScreenUiState
-
-    data class Success(
-        val trivia: NetworkGeminiTriviaRequest?
-    ) : TriviaScreenUiState
-
-    data class Error(
-        val errorMessage: String
-    ) : TriviaScreenUiState
+    constructor() : this("", "", "")
 }

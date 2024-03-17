@@ -12,6 +12,8 @@
 
 package com.theupnextapp.network.models.gemini
 
-data class GeminiTriviaResponse(
-    val trivia: List<TriviaResponse>
+data class NetworkGeminiTriviaResponseQuestion(
+    val answer: String,
+    val choices: List<String>,
+    val question: String
 )

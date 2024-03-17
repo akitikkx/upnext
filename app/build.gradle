@@ -194,6 +194,9 @@ dependencies {
 
     implementation libs.firebase.core
 
+    // Firebase Firestore
+    implementation libs.firebase.firestore
+
     // Firebase Analytics (Kotlin)
     implementation libs.firebase.analytics.ktx
 

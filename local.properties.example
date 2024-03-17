@@ -10,3 +10,5 @@ sdk.dir=path/to/Android/SDK
 TraktClientID="<YOUR CLIENT ID HERE>"
 TraktClientSecret="<YOUR CLIENT SECRET HERE>"
 TraktRedirectURI="theupnextapp://callback"
+GeminiAccessToken = "<ACCESS TOKEN HERE>"
+GeminiProjectID = "<PROJECT ID HERE>"
