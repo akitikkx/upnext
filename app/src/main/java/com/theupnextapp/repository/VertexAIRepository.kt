@@ -14,7 +14,7 @@ package com.theupnextapp.repository
 
 import com.google.firebase.firestore.FirebaseFirestore
 import com.theupnextapp.domain.Result
-import com.theupnextapp.network.models.gemini.NetworkGeminiTriviaRequest
+import com.theupnextapp.network.models.gemini.GeminiMultimodalRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
@@ -24,19 +24,21 @@ class VertexAIRepository(
     private val firebaseFirestore: FirebaseFirestore
 ) {
 
-    suspend fun getTrivia(): Flow<Result<NetworkGeminiTriviaRequest?>> {
-        val document = firebaseFirestore.collection("generate")
-            .document("instruction")
+    suspend fun getTrivia(instruction: String): Flow<Result<GeminiMultimodalRequest?>> {
+        val document = firebaseFirestore.collection(COLLECTION_PATH)
+            .document(DOCUMENT_PATH)
 
-        document.set(NetworkGeminiTriviaRequest("10 random TV shows")).await()
+        // Execute the GenAI query by uploading a document with the instruction
+        document.set(GeminiMultimodalRequest(instruction)).await()
 
         return firebaseFirestore
-            .collection("generate")
+            .collection(COLLECTION_PATH)
             .getFirestoreDataAsFlow { querySnapshot ->
-
                 when(querySnapshot) {
+                    // TODO Convert the GeminiMultimodalRequest.output json string to
+                    //  a usable object
                     is Result.Success -> Result.Success(querySnapshot.data?.documents?.lastOrNull()
-                        ?.toObject(NetworkGeminiTriviaRequest::class.java))
+                        ?.toObject(GeminiMultimodalRequest::class.java))
 
                     is Result.GenericError -> Result.GenericError(error = querySnapshot.error)
                     is Result.Loading -> Result.Loading(true)
@@ -45,5 +47,9 @@ class VertexAIRepository(
             }.flowOn(Dispatchers.IO)
     }
 
+    companion object {
+        const val COLLECTION_PATH = "generate"
+        const val DOCUMENT_PATH = "instruction"
+    }
 
 }

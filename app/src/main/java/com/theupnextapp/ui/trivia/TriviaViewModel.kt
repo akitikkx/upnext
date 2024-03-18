@@ -37,13 +37,11 @@ class TriviaViewModel @Inject constructor(
     }
 
     private fun getTrivia() {
-        val prompt = "Can you generate a trivia quiz from the show suits? The response " +
-                "should contain both the questions and answers in multiple choice and in " +
-                "a structured json format"
+        val prompt = "10 random TV shows"
 
         viewModelScope.launch {
             try {
-                vertexAIRepository.getTrivia().collect { result ->
+                vertexAIRepository.getTrivia(prompt).collect { result ->
                     when (result) {
                         is Result.Loading -> _uiState.value = TriviaScreenUiState.Loading
                         is Result.Success -> _uiState.value = TriviaScreenUiState.Success(result.data)

@@ -14,19 +14,24 @@ package com.theupnextapp.network.models.gemini
 
 import java.util.Date
 
-data class NetworkGeminiTriviaRequest(
+data class GeminiMultimodalRequest(
     val instruction: String,
     val image: String? = null,
     val output: String? = null,
-    val status: NetworkGeminiTriviaRequestStatus? = null
+    val status: RequestStatus? = null
 ) {
-    data class NetworkGeminiTriviaRequestStatus(
+    data class RequestStatus(
         val completeTime: Date? = null,
         val startTime: Date? = null,
         val state: String? = null,
         val updateTime: Date? = null
     ) {
         constructor() : this(null, null, null, null)
+
+        enum class State(val value: String) {
+            COMPLETED("COMPLETED"),
+            PROCESSING("PROCESSING")
+        }
     }
 
     constructor() : this("", "", "")

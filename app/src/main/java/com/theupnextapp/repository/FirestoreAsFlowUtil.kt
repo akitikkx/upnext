@@ -16,6 +16,9 @@ import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.QuerySnapshot
 import com.theupnextapp.domain.ErrorResponse
 import com.theupnextapp.domain.Result
+import com.theupnextapp.network.models.gemini.GeminiMultimodalRequest
+import com.theupnextapp.network.models.gemini.GeminiMultimodalRequest.RequestStatus.State.PROCESSING
+import com.theupnextapp.network.models.gemini.GeminiMultimodalRequest.RequestStatus.State.COMPLETED
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -26,8 +29,8 @@ import timber.log.Timber
 fun CollectionReference.getQuerySnapshotAsFlow(): Flow<Result<QuerySnapshot?>> {
     return callbackFlow {
         trySend(Result.Loading(true))
+
         val listener = addSnapshotListener { querySnapshot, error ->
-            trySend(Result.Loading(true))
             if (error != null) {
                 cancel(
                     message = "Error retrieving snapshot data at $path",
@@ -36,7 +39,15 @@ fun CollectionReference.getQuerySnapshotAsFlow(): Flow<Result<QuerySnapshot?>> {
                 trySend(Result.GenericError(error = ErrorResponse(message = error.message ?: "")))
                 return@addSnapshotListener
             }
-            trySend(Result.Success(querySnapshot))
+
+            // Check the status of the document, if the query is still being
+            // processed by the GenAI model, it is not yet complete
+            if (isDocumentProcessing(querySnapshot)) {
+                trySend(Result.Loading(true))
+            } else if (isDocumentCompleted(querySnapshot)) {
+                trySend(Result.Success(querySnapshot))
+            }
+
         }
         awaitClose {
             Timber.d("The query snapshot listener is being closed at $path")
@@ -49,4 +60,18 @@ fun <T> CollectionReference.getFirestoreDataAsFlow(mapper: (Result<QuerySnapshot
     return getQuerySnapshotAsFlow().map { querySnapshot ->
         return@map mapper(querySnapshot)
     }
+}
+
+private fun isDocumentCompleted(querySnapshot: QuerySnapshot?): Boolean {
+    val document = querySnapshot?.toNetworkGeminiMultimodalRequest()
+    return (document?.status?.state == COMPLETED.name)
+}
+
+private fun isDocumentProcessing(querySnapshot: QuerySnapshot?): Boolean {
+    val document = querySnapshot?.toNetworkGeminiMultimodalRequest()
+    return (document?.status?.state == PROCESSING.name)
+}
+
+fun QuerySnapshot.toNetworkGeminiMultimodalRequest(): GeminiMultimodalRequest? {
+    return documents.lastOrNull()?.toObject(GeminiMultimodalRequest::class.java)
 }
