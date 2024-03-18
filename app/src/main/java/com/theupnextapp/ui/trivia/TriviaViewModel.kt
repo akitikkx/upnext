@@ -14,7 +14,6 @@ package com.theupnextapp.ui.trivia
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.ai.client.generativeai.GenerativeModel
 import com.theupnextapp.domain.Result
 import com.theupnextapp.repository.VertexAIRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -45,7 +44,11 @@ class TriviaViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 vertexAIRepository.getTrivia().collect { result ->
-                    _uiState.value = TriviaScreenUiState.Success(result)
+                    when (result) {
+                        is Result.Loading -> _uiState.value = TriviaScreenUiState.Loading
+                        is Result.Success -> _uiState.value = TriviaScreenUiState.Success(result.data)
+                        else -> _uiState.value = TriviaScreenUiState.Error(result.toString())
+                    }
                 }
 
             } catch (e: Exception) {

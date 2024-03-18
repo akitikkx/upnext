@@ -23,17 +23,20 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.map
 import timber.log.Timber
 
-fun CollectionReference.getQuerySnapshotAsFlow(): Flow<QuerySnapshot?> {
+fun CollectionReference.getQuerySnapshotAsFlow(): Flow<Result<QuerySnapshot?>> {
     return callbackFlow {
+        trySend(Result.Loading(true))
         val listener = addSnapshotListener { querySnapshot, error ->
+            trySend(Result.Loading(true))
             if (error != null) {
                 cancel(
                     message = "Error retrieving snapshot data at $path",
                     cause = error
                 )
+                trySend(Result.GenericError(error = ErrorResponse(message = error.message ?: "")))
                 return@addSnapshotListener
             }
-            trySend(querySnapshot)
+            trySend(Result.Success(querySnapshot))
         }
         awaitClose {
             Timber.d("The query snapshot listener is being closed at $path")
@@ -42,7 +45,7 @@ fun CollectionReference.getQuerySnapshotAsFlow(): Flow<QuerySnapshot?> {
     }
 }
 
-fun <T> CollectionReference.getFirestoreDataAsFlow(mapper: (QuerySnapshot?) -> T): Flow<T> {
+fun <T> CollectionReference.getFirestoreDataAsFlow(mapper: (Result<QuerySnapshot?>) -> T): Flow<T> {
     return getQuerySnapshotAsFlow().map { querySnapshot ->
         return@map mapper(querySnapshot)
     }

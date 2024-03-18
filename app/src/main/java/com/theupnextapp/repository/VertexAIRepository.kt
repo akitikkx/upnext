@@ -13,6 +13,7 @@
 package com.theupnextapp.repository
 
 import com.google.firebase.firestore.FirebaseFirestore
+import com.theupnextapp.domain.Result
 import com.theupnextapp.network.models.gemini.NetworkGeminiTriviaRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -23,7 +24,7 @@ class VertexAIRepository(
     private val firebaseFirestore: FirebaseFirestore
 ) {
 
-    suspend fun getTrivia(): Flow<NetworkGeminiTriviaRequest?> {
+    suspend fun getTrivia(): Flow<Result<NetworkGeminiTriviaRequest?>> {
         val document = firebaseFirestore.collection("generate")
             .document("instruction")
 
@@ -32,8 +33,15 @@ class VertexAIRepository(
         return firebaseFirestore
             .collection("generate")
             .getFirestoreDataAsFlow { querySnapshot ->
-                querySnapshot?.documents?.lastOrNull()
-                    ?.toObject(NetworkGeminiTriviaRequest::class.java)
+
+                when(querySnapshot) {
+                    is Result.Success -> Result.Success(querySnapshot.data?.documents?.lastOrNull()
+                        ?.toObject(NetworkGeminiTriviaRequest::class.java))
+
+                    is Result.GenericError -> Result.GenericError(error = querySnapshot.error)
+                    is Result.Loading -> Result.Loading(true)
+                    Result.NetworkError -> Result.NetworkError
+                }
             }.flowOn(Dispatchers.IO)
     }
 
