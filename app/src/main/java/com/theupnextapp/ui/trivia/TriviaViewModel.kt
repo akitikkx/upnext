@@ -45,27 +45,11 @@ class TriviaViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 vertexAIRepository.getTrivia().collect { result ->
-                    when (result) {
-                        is Result.Loading -> _uiState.value = TriviaScreenUiState.Loading
-                        is Result.Success -> _uiState.value = TriviaScreenUiState.Success(result.data)
-                        else -> _uiState.value = TriviaScreenUiState.Error(result.toString())
-                    }
+                    _uiState.value = TriviaScreenUiState.Success(result)
                 }
 
-
-//                vertexAIRepository.getTriviaFromImage(prompt = prompt).collect { result ->
-//                    when(result){
-//                        is Result.Success -> {
-//                            _uiState.value = TriviaScreenUiState.Success(result.data)
-//                        }
-//                        else -> {
-//                            _uiState.value = TriviaScreenUiState.Error(result.toString())
-//                        }
-//                    }
-//                }
-
             } catch (e: Exception) {
-//                _uiState.value = TriviaScreenUiState.Error(e.localizedMessage ?: "")
+                _uiState.value = TriviaScreenUiState.Error(e.localizedMessage ?: "")
             }
         }
     }

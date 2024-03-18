@@ -12,30 +12,38 @@
 
 package com.theupnextapp.repository
 
-import com.google.firebase.firestore.FirebaseFirestore
-import com.theupnextapp.network.models.gemini.NetworkGeminiTriviaRequest
-import kotlinx.coroutines.Dispatchers
+import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.QuerySnapshot
+import com.theupnextapp.domain.ErrorResponse
+import com.theupnextapp.domain.Result
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.map
+import timber.log.Timber
 
-class VertexAIRepository(
-    private val firebaseFirestore: FirebaseFirestore
-) {
-
-    suspend fun getTrivia(): Flow<NetworkGeminiTriviaRequest?> {
-        val document = firebaseFirestore.collection("generate")
-            .document("instruction")
-
-        document.set(NetworkGeminiTriviaRequest("10 random TV shows")).await()
-
-        return firebaseFirestore
-            .collection("generate")
-            .getFirestoreDataAsFlow { querySnapshot ->
-                querySnapshot?.documents?.lastOrNull()
-                    ?.toObject(NetworkGeminiTriviaRequest::class.java)
-            }.flowOn(Dispatchers.IO)
+fun CollectionReference.getQuerySnapshotAsFlow(): Flow<QuerySnapshot?> {
+    return callbackFlow {
+        val listener = addSnapshotListener { querySnapshot, error ->
+            if (error != null) {
+                cancel(
+                    message = "Error retrieving snapshot data at $path",
+                    cause = error
+                )
+                return@addSnapshotListener
+            }
+            trySend(querySnapshot)
+        }
+        awaitClose {
+            Timber.d("The query snapshot listener is being closed at $path")
+            listener.remove()
+        }
     }
+}
 
-
+fun <T> CollectionReference.getFirestoreDataAsFlow(mapper: (QuerySnapshot?) -> T): Flow<T> {
+    return getQuerySnapshotAsFlow().map { querySnapshot ->
+        return@map mapper(querySnapshot)
+    }
 }
