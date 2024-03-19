@@ -13,7 +13,7 @@
 package com.theupnextapp.network.models.gemini
 
 data class NetworkGeminiTriviaResponseQuestion(
-    val answer: String,
+    val question: String,
     val choices: List<String>,
-    val question: String
+    val answer: String,
 )
