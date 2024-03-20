@@ -14,6 +14,7 @@ package com.theupnextapp.repository
 
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.gson.Gson
+import com.theupnextapp.domain.ErrorResponse
 import com.theupnextapp.domain.Result
 import com.theupnextapp.network.models.gemini.GeminiMultimodalRequest
 import com.theupnextapp.network.models.gemini.NetworkGeminiTriviaResponse
@@ -51,11 +52,20 @@ class VertexAIRepository(
 
                         val jsonObj = output?.let { JSONObject(it.replace("json\n", "")) }
 
-                        val networkGeminiTriviaResponse = gson.fromJson(
-                            jsonObj?.toString(),
-                            NetworkGeminiTriviaResponse::class.java
-                        )
-                        Result.Success(networkGeminiTriviaResponse)
+                        try {
+                            val networkGeminiTriviaResponse = gson.fromJson(
+                                jsonObj?.toString(),
+                                NetworkGeminiTriviaResponse::class.java
+                            )
+                            Result.Success(networkGeminiTriviaResponse)
+                        } catch (e: Exception) {
+                            Result.GenericError(
+                                error = ErrorResponse(
+                                    message =
+                                    "Error: ${e.message} | Stacktrace: ${e.stackTraceToString()}"
+                                )
+                            )
+                        }
                     }
 
                     is Result.GenericError -> Result.GenericError(error = querySnapshot.error)

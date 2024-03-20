@@ -37,7 +37,7 @@ class TriviaViewModel @Inject constructor(
     }
 
     private fun getTrivia() {
-        val prompt = "10 random TV shows"
+        val prompt = "5 random TV shows"
 
         viewModelScope.launch {
             try {
