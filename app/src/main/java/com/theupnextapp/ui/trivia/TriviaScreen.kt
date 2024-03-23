@@ -12,21 +12,33 @@
 
 package com.theupnextapp.ui.trivia
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
+import com.theupnextapp.domain.TriviaQuestion
+import com.theupnextapp.extensions.ReferenceDevices
 
 @Destination
 @Composable
@@ -70,4 +82,109 @@ fun TriviaScreen(
             )
         }
     }
+}
+
+@Composable
+fun TriviaScreenPager() {
+
+}
+
+@Composable
+fun TriviaQuestion(
+    triviaQuestion: TriviaQuestion,
+    modifier: Modifier = Modifier
+) {
+    Surface(modifier = modifier.fillMaxSize()) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Spacer(Modifier.height(8.dp))
+
+            Text(
+                text = triviaQuestion.show,
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(Modifier.height(8.dp))
+
+            Text(
+                text = triviaQuestion.question,
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.displaySmall,
+                fontWeight = FontWeight.Normal,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(Modifier.height(16.dp))
+
+            TriviaButtons(choices = triviaQuestion.choices)
+        }
+    }
+}
+
+@Composable
+fun TriviaButtons(
+    choices: List<String>,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier) {
+        choices.forEach {
+            TriviaButton(choiceText = it, onButtonClick = {})
+        }
+    }
+}
+
+@Composable
+fun TriviaButton(
+    choiceText: String,
+    modifier: Modifier = Modifier,
+    onButtonClick: () -> Unit
+) {
+    OutlinedButton(
+        onClick = { onButtonClick() },
+        modifier = modifier
+            .padding(8.dp)
+            .fillMaxWidth()
+    ) {
+        Text(
+            text = choiceText,
+            modifier = Modifier.padding(8.dp)
+        )
+    }
+}
+
+
+@ReferenceDevices
+@Composable
+fun TriviaQuestionPreview() {
+    TriviaQuestion(
+        triviaQuestion = TriviaQuestion(
+            show = "Stranger Things",
+            imageUrl = "",
+            question = "What is the name of the alternate dimension in Stranger Things?",
+            choices = listOf(
+                "The Upside Down",
+                "The Netherworld",
+                "The Shadow Realm",
+                "The Void"
+            ),
+            answer = "The Upside Down"
+        )
+    )
+}
+
+@Preview
+@Composable
+fun TriviaQuestionButtonPreview() {
+    TriviaButton(
+        choiceText = "This is an option",
+        modifier = Modifier.fillMaxWidth(),
+        onButtonClick = {})
 }

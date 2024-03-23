@@ -13,7 +13,9 @@
 package com.theupnextapp.domain
 
 data class TriviaQuestion(
-    val answers: List<String>,
-    val correctAnswer: String,
-    val question: String
+    val show: String,
+    val imageUrl: String,
+    val question: String,
+    val choices: List<String>,
+    val answer: String,
 )
