@@ -26,6 +26,7 @@ sealed interface TriviaScreenUiState {
         val currentQuestion: TriviaQuestion?,
         val nextQuestion: TriviaQuestion?,
         val correctAnswers: Int = 0,
+        val selectedAnswer: String? = null,
         val showEndOfQuiz: Boolean = false
     ) : TriviaScreenUiState
 

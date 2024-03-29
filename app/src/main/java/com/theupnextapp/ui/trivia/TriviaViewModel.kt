@@ -101,7 +101,8 @@ class TriviaViewModel @Inject constructor(
             questions = _questions.value,
             currentQuestion = _currentQuestion.value,
             nextQuestion = _nextQuestion.value,
-            correctAnswers = _correctAnswers.value
+            correctAnswers = _correctAnswers.value,
+            selectedAnswer = answer
         )
     }
 

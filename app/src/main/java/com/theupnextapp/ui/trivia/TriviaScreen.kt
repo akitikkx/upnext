@@ -12,6 +12,12 @@
 
 package com.theupnextapp.ui.trivia
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.repeatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -21,9 +27,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,6 +38,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -39,6 +47,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.theupnextapp.domain.TriviaQuestion
 import com.theupnextapp.extensions.ReferenceDevices
+import com.theupnextapp.ui.trivia.TriviaScreenConfig.answerButtonBgColor
+import com.theupnextapp.ui.trivia.TriviaScreenConfig.defaultButtonBgColor
+import com.theupnextapp.ui.trivia.TriviaScreenConfig.errorButtonBgColor
 
 @Destination
 @Composable
@@ -74,7 +85,10 @@ fun TriviaScreen(
                 )
 
                 (triviaUiState as TriviaScreenUiState.Success).currentQuestion?.let { question ->
-                    TriviaQuestion(triviaQuestion = question) { answer ->
+                    TriviaQuestion(
+                        triviaQuestion = question,
+                        selectedChoice = (triviaUiState as TriviaScreenUiState.Success).selectedAnswer
+                    ) { answer ->
                         viewModel.onQuestionAnswered(answer)
                     }
                 }
@@ -95,6 +109,7 @@ fun TriviaScreen(
 fun TriviaQuestion(
     triviaQuestion: TriviaQuestion,
     modifier: Modifier = Modifier,
+    selectedChoice: String? = null,
     onChoiceSelected: (String) -> Unit
 ) {
     Surface(modifier = modifier.fillMaxSize()) {
@@ -127,11 +142,10 @@ fun TriviaQuestion(
 
             Spacer(Modifier.height(16.dp))
 
-            // TODO If a question has been answered make the buttons no longer clickable.
-            //  Check the isAnswered state variable to display
-            //  the unanswered vs answered button choices
-
-            TriviaButtons(choices = triviaQuestion.choices) { answer ->
+            TriviaButtons(
+                question = triviaQuestion,
+                selectedChoice = selectedChoice
+            ) { answer ->
                 onChoiceSelected(answer)
             }
         }
@@ -140,29 +154,84 @@ fun TriviaQuestion(
 
 @Composable
 fun TriviaButtons(
-    choices: List<String>,
+    question: TriviaQuestion,
     modifier: Modifier = Modifier,
+    selectedChoice: String? = null,
     onChoiceSelected: (String) -> Unit
 ) {
     Column(modifier = modifier) {
-        choices.forEach { choiceText ->
-            TriviaButton(choiceText = choiceText, onChoiceSelected = { answer ->
-                onChoiceSelected(answer)
-            })
+        if (!question.hasAnswered) {
+            question.choices.forEach { choiceText ->
+                ChoiceButton(
+                    choiceText = choiceText,
+                    onChoiceSelected = { answer ->
+                        onChoiceSelected(answer)
+                    }
+                )
+            }
+        } else {
+            question.choices.forEach { choiceText ->
+                ResultButton(
+                    buttonText = choiceText,
+                    answer = question.answer,
+                    selectedChoice = selectedChoice
+                )
+            }
         }
     }
 }
 
 @Composable
-fun TriviaButton(
+fun ResultButton(
+    buttonText: String,
+    answer: String,
+    selectedChoice: String?,
+    modifier: Modifier = Modifier
+) {
+    val buttonBackground =
+        if ((selectedChoice != answer) && (buttonText == selectedChoice)) {
+            ButtonDefaults.buttonColors(
+                contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                containerColor = getAnimatedErrorState(hasAnswered = selectedChoice.isNotEmpty()).value
+            )
+        } else if (buttonText == answer) {
+            ButtonDefaults.buttonColors(
+                contentColor = MaterialTheme.colorScheme.onBackground,
+                containerColor = getAnimatedAnsweredState(hasAnswered = !selectedChoice.isNullOrEmpty()).value
+            )
+        } else {
+            ButtonDefaults.buttonColors(
+                contentColor = MaterialTheme.colorScheme.onSurface,
+                containerColor = getAnimatedDefaultState(hasAnswered = !selectedChoice.isNullOrEmpty()).value
+            )
+        }
+
+    Button(
+        colors = buttonBackground,
+        onClick = {},
+        modifier = modifier
+            .padding(8.dp)
+            .fillMaxWidth()
+    ) {
+        Text(
+            text = buttonText,
+            modifier = Modifier.padding(8.dp)
+        )
+    }
+}
+
+@Composable
+fun ChoiceButton(
     choiceText: String,
     modifier: Modifier = Modifier,
     onChoiceSelected: (String) -> Unit
 ) {
-    OutlinedButton(
-        onClick = {
-            onChoiceSelected(choiceText)
-        },
+    Button(
+        colors = ButtonDefaults.buttonColors(
+            contentColor = MaterialTheme.colorScheme.onSurface,
+            containerColor = MaterialTheme.colorScheme.surfaceContainer
+        ),
+        onClick = { onChoiceSelected(choiceText) },
         modifier = modifier
             .padding(8.dp)
             .fillMaxWidth()
@@ -174,6 +243,41 @@ fun TriviaButton(
     }
 }
 
+@Composable
+private fun getAnimatedErrorState(hasAnswered: Boolean) = animateColorAsState(
+    targetValue = if (hasAnswered) errorButtonBgColor else defaultButtonBgColor,
+    label = "Animated Error Background Color",
+    animationSpec = repeatable(
+        iterations = 3,
+        animation = tween(durationMillis = 20000),
+        repeatMode = RepeatMode.Reverse
+    )
+)
+
+@Composable
+private fun getAnimatedAnsweredState(hasAnswered: Boolean) = animateColorAsState(
+    targetValue = if (hasAnswered) answerButtonBgColor else defaultButtonBgColor,
+    label = "Animated Default Background Color",
+    animationSpec = tween(5000, 4000, LinearOutSlowInEasing)
+)
+
+@Composable
+private fun getAnimatedDefaultState(hasAnswered: Boolean) = animateColorAsState(
+    targetValue = if (hasAnswered) defaultButtonBgColor else defaultButtonBgColor,
+    label = "Animated Default Background Color",
+    animationSpec = tween(5000, 0, LinearEasing)
+)
+
+object TriviaScreenConfig {
+    val errorButtonBgColor: Color
+        @Composable get() = MaterialTheme.colorScheme.errorContainer
+
+    val defaultButtonBgColor: Color
+        @Composable get() = MaterialTheme.colorScheme.surfaceContainer
+
+    val answerButtonBgColor: Color
+        @Composable get() = MaterialTheme.colorScheme.inversePrimary
+}
 
 @ReferenceDevices
 @Composable
@@ -198,7 +302,7 @@ fun TriviaQuestionPreview() {
 @Preview
 @Composable
 fun TriviaQuestionButtonPreview() {
-    TriviaButton(
+    ChoiceButton(
         choiceText = "This is an option",
         modifier = Modifier.fillMaxWidth(),
         onChoiceSelected = {})
