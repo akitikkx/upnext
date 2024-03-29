@@ -117,15 +117,15 @@ class TriviaViewModel @Inject constructor(
             _currentQuestion.value = _nextQuestion.value
             determineNextQuestion()
             _nextQuestion.value = _nextQuestion.value
-        } else {
-            _uiState.value = TriviaScreenUiState.Success(
-                questions = _questions.value,
-                currentQuestion = _currentQuestion.value,
-                nextQuestion = null,
-                correctAnswers = _correctAnswers.value,
-                showEndOfQuiz = true
-            )
         }
+
+        _uiState.value = TriviaScreenUiState.Success(
+            questions = _questions.value,
+            currentQuestion = _currentQuestion.value,
+            nextQuestion = _nextQuestion.value,
+            correctAnswers = _correctAnswers.value,
+            showEndOfQuiz = _isAtEnd.value
+        )
     }
 
     private fun determineNextQuestion() {
@@ -145,6 +145,7 @@ class TriviaViewModel @Inject constructor(
                 _nextQuestion.value = nextQuestion
             } else {
                 _isAtEnd.value = true
+                _nextQuestion.value = null
             }
         }
     }
