@@ -12,6 +12,8 @@
 
 package com.theupnextapp.network.models.gemini
 
+import com.theupnextapp.domain.TriviaQuestion
+
 data class NetworkGeminiTriviaResponseQuestion(
     val show: String,
     val imageUrl: String,
@@ -19,3 +21,15 @@ data class NetworkGeminiTriviaResponseQuestion(
     val choices: List<String>,
     val answer: String,
 )
+
+fun List<NetworkGeminiTriviaResponseQuestion>.toTriviaQuestions(): List<TriviaQuestion> {
+    return map {
+        TriviaQuestion(
+            show = it.show,
+            imageUrl = it.imageUrl,
+            question = it.question,
+            choices = it.choices,
+            answer = it.answer
+        )
+    }
+}

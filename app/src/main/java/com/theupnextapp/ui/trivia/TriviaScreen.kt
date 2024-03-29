@@ -66,11 +66,18 @@ fun TriviaScreen(
                     .padding(8.dp)
                     .verticalScroll(scrollState)
             ) {
+
                 Text(
-                    text = (triviaUiState as TriviaScreenUiState.Success).questions?.triviaQuiz.toString(),
+                    text = "Correct answers: ${(triviaUiState as TriviaScreenUiState.Success).correctAnswers}",
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.padding(all = 16.dp)
                 )
+
+                (triviaUiState as TriviaScreenUiState.Success).currentQuestion?.let { question ->
+                    TriviaQuestion(triviaQuestion = question) { answer ->
+                        viewModel.onQuestionAnswered(answer)
+                    }
+                }
             }
         }
 
@@ -85,14 +92,10 @@ fun TriviaScreen(
 }
 
 @Composable
-fun TriviaScreenPager() {
-
-}
-
-@Composable
 fun TriviaQuestion(
     triviaQuestion: TriviaQuestion,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onChoiceSelected: (String) -> Unit
 ) {
     Surface(modifier = modifier.fillMaxSize()) {
         Column(
@@ -124,7 +127,13 @@ fun TriviaQuestion(
 
             Spacer(Modifier.height(16.dp))
 
-            TriviaButtons(choices = triviaQuestion.choices)
+            // TODO If a question has been answered make the buttons no longer clickable.
+            //  Check the isAnswered state variable to display
+            //  the unanswered vs answered button choices
+
+            TriviaButtons(choices = triviaQuestion.choices) { answer ->
+                onChoiceSelected(answer)
+            }
         }
     }
 }
@@ -132,11 +141,14 @@ fun TriviaQuestion(
 @Composable
 fun TriviaButtons(
     choices: List<String>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onChoiceSelected: (String) -> Unit
 ) {
     Column(modifier = modifier) {
-        choices.forEach {
-            TriviaButton(choiceText = it, onButtonClick = {})
+        choices.forEach { choiceText ->
+            TriviaButton(choiceText = choiceText, onChoiceSelected = { answer ->
+                onChoiceSelected(answer)
+            })
         }
     }
 }
@@ -145,10 +157,12 @@ fun TriviaButtons(
 fun TriviaButton(
     choiceText: String,
     modifier: Modifier = Modifier,
-    onButtonClick: () -> Unit
+    onChoiceSelected: (String) -> Unit
 ) {
     OutlinedButton(
-        onClick = { onButtonClick() },
+        onClick = {
+            onChoiceSelected(choiceText)
+        },
         modifier = modifier
             .padding(8.dp)
             .fillMaxWidth()
@@ -175,8 +189,9 @@ fun TriviaQuestionPreview() {
                 "The Shadow Realm",
                 "The Void"
             ),
-            answer = "The Upside Down"
-        )
+            answer = "The Upside Down",
+        ),
+        onChoiceSelected = {}
     )
 }
 
@@ -186,5 +201,5 @@ fun TriviaQuestionButtonPreview() {
     TriviaButton(
         choiceText = "This is an option",
         modifier = Modifier.fillMaxWidth(),
-        onButtonClick = {})
+        onChoiceSelected = {})
 }

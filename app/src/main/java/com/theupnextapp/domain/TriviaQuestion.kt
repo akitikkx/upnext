@@ -18,4 +18,6 @@ data class TriviaQuestion(
     val question: String,
     val choices: List<String>,
     val answer: String,
+    val hasAnswered: Boolean = false,
+    val hasAnsweredCorrect: Boolean = false,
 )

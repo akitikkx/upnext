@@ -12,7 +12,7 @@
 
 package com.theupnextapp.ui.trivia
 
-import com.theupnextapp.network.models.gemini.NetworkGeminiTriviaResponse
+import com.theupnextapp.domain.TriviaQuestion
 
 sealed interface TriviaScreenUiState {
 
@@ -21,7 +21,12 @@ sealed interface TriviaScreenUiState {
     data object Loading : TriviaScreenUiState
 
     data class Success(
-        val questions: NetworkGeminiTriviaResponse?
+        val questions: List<TriviaQuestion>?,
+        val previousQuestion: TriviaQuestion? = null,
+        val currentQuestion: TriviaQuestion?,
+        val nextQuestion: TriviaQuestion?,
+        val correctAnswers: Int = 0,
+        val showEndOfQuiz: Boolean = false
     ) : TriviaScreenUiState
 
     data class Error(
