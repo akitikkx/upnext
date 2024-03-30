@@ -43,11 +43,12 @@ internal object TriviaScreenConfig {
         )
     )
 
+    // TODO Ensure that the color is green for the correct answer
     @Composable
     fun getAnimatedAnsweredState(hasAnswered: Boolean) = animateColorAsState(
         targetValue = if (hasAnswered) answerButtonBgColor else defaultButtonBgColor,
         label = "Animated Default Background Color",
-        animationSpec = tween(5000, 0, LinearOutSlowInEasing)
+        animationSpec = tween(500, 0, LinearOutSlowInEasing)
     )
 
     @Composable

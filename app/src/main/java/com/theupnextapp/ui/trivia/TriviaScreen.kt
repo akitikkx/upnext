@@ -27,7 +27,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,6 +40,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.ramcosta.composedestinations.annotation.Destination
 import com.theupnextapp.domain.TriviaQuestion
 import com.theupnextapp.extensions.ReferenceDevices
@@ -65,17 +68,15 @@ fun TriviaScreen(
             is TriviaScreenUiState.Initial -> {}
 
             is TriviaScreenUiState.Loading -> {
-                LinearProgressIndicator(
-                    modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .padding(8.dp)
-                        .fillMaxWidth()
-                )
+                Loading(modifier = Modifier.align(Alignment.Center))
             }
 
             is TriviaScreenUiState.Success -> {
                 if ((triviaUiState as TriviaScreenUiState.Success).showEndOfQuiz) {
-                    TriviaComplete(correctAnswers = (triviaUiState as TriviaScreenUiState.Success).correctAnswers)
+                    TriviaComplete(
+                        correctAnswers = (triviaUiState as TriviaScreenUiState.Success).correctAnswers,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
                 } else {
                     (triviaUiState as TriviaScreenUiState.Success).currentQuestion?.let { question ->
                         TriviaQuestion(
@@ -216,12 +217,86 @@ fun ChoiceButton(
 }
 
 @Composable
+fun Loading(
+    modifier: Modifier = Modifier
+) {
+    val composition by rememberLottieComposition(LottieCompositionSpec.Asset("animation/trivia_loading1711807763787.json"))
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = modifier.padding(8.dp)
+    ) {
+
+        LottieAnimation(
+            composition = composition,
+            iterations = 10,
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // TODO Extract to string resource
+        Text(
+            text = "Please wait while Gemini is preparing the quiz questions",
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Normal,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .padding(4.dp)
+                .align(Alignment.CenterHorizontally),
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        CircularProgressIndicator()
+    }
+}
+
+@Composable
 fun TriviaComplete(
     correctAnswers: Int,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier.fillMaxSize()) {
-        Text(text = "Well done! You had $correctAnswers correct answers")
+
+    // TODO switch between the success and sad animation if no questions are answered correctly
+    val composition by rememberLottieComposition(LottieCompositionSpec.Asset("animation/trivia_celebration1711806163916.json"))
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = modifier.padding(16.dp)
+    ) {
+
+        LottieAnimation(
+            composition = composition,
+            iterations = 10
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // TODO use the correctAnswers count to formulate the right message
+
+        // TODO Extract to string resource
+        Text(
+            text = "Well done!",
+            style = MaterialTheme.typography.displayMedium,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier
+                .padding(4.dp)
+                .align(Alignment.CenterHorizontally),
+        )
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        // TODO Extract to string resource
+        Text(
+            text = "You had $correctAnswers correct answers",
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.displaySmall,
+            modifier = Modifier
+                .padding(8.dp)
+                .align(Alignment.CenterHorizontally),
+        )
     }
 }
 
@@ -273,4 +348,19 @@ fun TriviaQuestionButtonPreview() {
         selectedChoice = "This is the answer",
         modifier = Modifier.fillMaxWidth(),
         onChoiceSelected = {})
+}
+
+@ReferenceDevices
+@Composable
+fun TriviaCompletePreview() {
+    Box(
+        modifier = Modifier
+            .padding(8.dp)
+            .fillMaxSize()
+    ) {
+        TriviaComplete(
+            correctAnswers = 5,
+            modifier = Modifier.align(Alignment.Center)
+        )
+    }
 }
