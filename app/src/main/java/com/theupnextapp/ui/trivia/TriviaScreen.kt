@@ -13,11 +13,6 @@
 package com.theupnextapp.ui.trivia
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.repeatable
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Arrangement
@@ -40,7 +35,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -49,9 +43,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.theupnextapp.domain.TriviaQuestion
 import com.theupnextapp.extensions.ReferenceDevices
-import com.theupnextapp.ui.trivia.TriviaScreenConfig.answerButtonBgColor
-import com.theupnextapp.ui.trivia.TriviaScreenConfig.defaultButtonBgColor
-import com.theupnextapp.ui.trivia.TriviaScreenConfig.errorButtonBgColor
+import com.theupnextapp.ui.trivia.TriviaScreenConfig.getAnimatedAnsweredState
+import com.theupnextapp.ui.trivia.TriviaScreenConfig.getAnimatedDefaultState
 
 @Destination
 @Composable
@@ -194,7 +187,7 @@ fun ChoiceButton(
         if ((selectedChoice != answer) && (buttonText == selectedChoice)) {
             ButtonDefaults.buttonColors(
                 contentColor = MaterialTheme.colorScheme.onErrorContainer,
-                containerColor = getAnimatedErrorState(hasAnswered = selectedChoice.isNotEmpty()).value
+                containerColor = TriviaScreenConfig.getAnimatedErrorState(hasAnswered = selectedChoice.isNotEmpty()).value
             )
         } else if (buttonText == answer && !selectedChoice.isNullOrEmpty()) {
             ButtonDefaults.buttonColors(
@@ -249,42 +242,6 @@ fun NextButton(
             modifier = Modifier.padding(8.dp)
         )
     }
-}
-
-@Composable
-private fun getAnimatedErrorState(hasAnswered: Boolean) = animateColorAsState(
-    targetValue = if (hasAnswered) errorButtonBgColor else defaultButtonBgColor,
-    label = "Animated Error Background Color",
-    animationSpec = repeatable(
-        iterations = 3,
-        animation = tween(durationMillis = 200),
-        repeatMode = RepeatMode.Reverse
-    )
-)
-
-@Composable
-private fun getAnimatedAnsweredState(hasAnswered: Boolean) = animateColorAsState(
-    targetValue = if (hasAnswered) answerButtonBgColor else defaultButtonBgColor,
-    label = "Animated Default Background Color",
-    animationSpec = tween(5000, 0, LinearOutSlowInEasing)
-)
-
-@Composable
-private fun getAnimatedDefaultState(hasAnswered: Boolean) = animateColorAsState(
-    targetValue = if (hasAnswered) defaultButtonBgColor else defaultButtonBgColor,
-    label = "Animated Default Background Color",
-    animationSpec = tween(5000, 0, LinearOutSlowInEasing)
-)
-
-object TriviaScreenConfig {
-    val errorButtonBgColor: Color
-        @Composable get() = MaterialTheme.colorScheme.errorContainer
-
-    val defaultButtonBgColor: Color
-        @Composable get() = MaterialTheme.colorScheme.surfaceContainer
-
-    val answerButtonBgColor: Color
-        @Composable get() = MaterialTheme.colorScheme.inversePrimary
 }
 
 @ReferenceDevices

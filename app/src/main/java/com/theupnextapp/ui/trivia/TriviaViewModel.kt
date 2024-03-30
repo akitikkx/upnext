@@ -115,7 +115,6 @@ class TriviaViewModel @Inject constructor(
             _previousQuestion.value = _currentQuestion.value
             // The current question becomes the next question already defined in _nextQuestion
             _currentQuestion.value = _nextQuestion.value
-            determineNextQuestion()
             _nextQuestion.value = _nextQuestion.value
         }
 
