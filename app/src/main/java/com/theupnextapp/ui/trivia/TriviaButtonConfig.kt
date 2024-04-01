@@ -32,13 +32,13 @@ internal object TriviaButtonConfig {
 
     val getCorrectChoiceColors
         @Composable get() = ButtonDefaults.buttonColors(
-            contentColor = MaterialTheme.colorScheme.onTertiary,
+            contentColor = MaterialTheme.colorScheme.onSurface,
             containerColor = answerButtonBgColor
         )
 
     val getErrorChoiceColors
         @Composable get() = ButtonDefaults.buttonColors(
-            contentColor = MaterialTheme.colorScheme.onTertiary,
+            contentColor = MaterialTheme.colorScheme.onSurface,
             containerColor = errorButtonBgColor
         )
     val getDefaultChoiceColors

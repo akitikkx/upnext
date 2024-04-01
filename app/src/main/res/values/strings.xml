@@ -251,6 +251,8 @@
 
     <!-- Trivia Screen -->
     <string name="trivia_loading_screen_prompt">Please wait while Gemini is preparing the quiz questions</string>
+    <string name="trivia_confirmation_heading_congratulate">Well done!</string>
+    <string name="trivia_confirmation_heading_encourage">Oh no!</string>
     <string name="trivia_confirmation_correct_answer_count">You had %1$d correct %2$s</string>
     <string name="trivia_confirmation_correct_answer_count_singular">answer</string>
     <string name="trivia_confirmation_correct_answer_count_many">answers</string>

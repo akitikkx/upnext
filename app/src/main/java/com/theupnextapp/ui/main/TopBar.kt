@@ -32,6 +32,7 @@ import com.theupnextapp.R
 import com.theupnextapp.ui.destinations.ShowDetailScreenDestination
 import com.theupnextapp.ui.destinations.ShowSeasonEpisodesScreenDestination
 import com.theupnextapp.ui.destinations.ShowSeasonsScreenDestination
+import com.theupnextapp.ui.destinations.TriviaScreenDestination
 
 @ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
@@ -86,7 +87,8 @@ fun isChildScreen(navBackStackEntry: NavBackStackEntry?): Boolean {
     return when (navBackStackEntry?.destination?.route) {
         ShowDetailScreenDestination.route,
         ShowSeasonsScreenDestination.route,
-        ShowSeasonEpisodesScreenDestination.route -> true
+        ShowSeasonEpisodesScreenDestination.route,
+        TriviaScreenDestination.route -> true
         else -> false
     }
 }

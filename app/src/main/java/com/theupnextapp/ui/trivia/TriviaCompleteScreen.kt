@@ -40,9 +40,8 @@ fun TriviaCompleteScreen(
     correctAnswers: Int,
     modifier: Modifier = Modifier
 ) {
-
-    // TODO switch between the success and sad animation if no questions are answered correctly
-    val composition by rememberLottieComposition(LottieCompositionSpec.Asset("animation/trivia_celebration1711806163916.json"))
+    val compositionCongratulate by rememberLottieComposition(LottieCompositionSpec.Asset("animation/trivia_celebration1711806163916.json"))
+    val compositionEncourage by rememberLottieComposition(LottieCompositionSpec.Asset("animation/trivia_sad1711989856335.json"))
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -51,16 +50,22 @@ fun TriviaCompleteScreen(
     ) {
 
         LottieAnimation(
-            composition = composition,
+            composition = if (correctAnswers == 0) {
+                compositionEncourage
+            } else {
+                compositionCongratulate
+            },
             iterations = 10
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // TODO use the correctAnswers count to formulate the right message
-
         Text(
-            text = "Well done!",
+            text = if (correctAnswers == 0) {
+                stringResource(id = R.string.trivia_confirmation_heading_encourage)
+            } else {
+                stringResource(id = R.string.trivia_confirmation_heading_congratulate)
+            },
             style = MaterialTheme.typography.displayMedium,
             fontWeight = FontWeight.Bold,
             modifier = Modifier
