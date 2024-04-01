@@ -249,6 +249,12 @@
         A watchlist is intended for shows you want to watch
     to 100%. In other words you want to watch all the episodes for the series that have aired to date.</string>
 
+    <!-- Trivia Screen -->
+    <string name="trivia_loading_screen_prompt">Please wait while Gemini is preparing the quiz questions</string>
+    <string name="trivia_confirmation_correct_answer_count">You had %1$d correct %2$s</string>
+    <string name="trivia_confirmation_correct_answer_count_singular">answer</string>
+    <string name="trivia_confirmation_correct_answer_count_many">answers</string>
+
     <!-- Transition names -->
     <string name="dashboard_yesterday_transition_name">dashboard_yesterday_%1$s</string>
     <string name="dashboard_today_transition_name">dashboard_today_%1$s</string>
