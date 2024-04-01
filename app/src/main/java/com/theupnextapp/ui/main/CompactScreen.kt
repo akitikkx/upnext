@@ -15,14 +15,20 @@ package com.theupnextapp.ui.main
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavHostController
 import com.ramcosta.composedestinations.navigation.navigate
+import com.theupnextapp.R
 import com.theupnextapp.ui.destinations.TraktAccountScreenDestination
+import com.theupnextapp.ui.destinations.TriviaScreenDestination
 import com.theupnextapp.ui.navigation.AppNavigation
+
 @ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalAnimationApi
 @ExperimentalFoundationApi
@@ -57,6 +63,20 @@ fun CompactScreen(
                     }
                 }
             )
+        },
+        triviaFab = {
+            if (navController.currentBackStackEntry?.destination?.route != TriviaScreenDestination.route) {
+                FloatingActionButton(onClick = {
+                    navController.navigate(TriviaScreenDestination) {
+                        launchSingleTop = true
+                    }
+                }) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_quiz),
+                        contentDescription = null
+                    )
+                }
+            }
         }
     ) {
         AppNavigation(

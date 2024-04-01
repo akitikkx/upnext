@@ -30,6 +30,7 @@ import com.theupnextapp.ui.NavGraphs
 import com.theupnextapp.ui.appDestination
 import com.theupnextapp.ui.destinations.Destination
 import com.theupnextapp.ui.startAppDestination
+
 @ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
 @ExperimentalComposeUiApi
@@ -39,6 +40,7 @@ fun CompactScaffold(
     navHostController: NavHostController,
     topBar: @Composable (NavBackStackEntry?) -> Unit,
     bottomBar: @Composable (Destination) -> Unit,
+    triviaFab: @Composable () -> Unit,
     content: @Composable (PaddingValues) -> Unit
 ) {
 
@@ -50,6 +52,7 @@ fun CompactScaffold(
     Scaffold(
         topBar = { topBar(currentBackStackEntryAsState) },
         bottomBar = { bottomBar(destination) },
+        floatingActionButton = { triviaFab() },
         modifier = Modifier.semantics {
             testTagsAsResourceId = true
         },
