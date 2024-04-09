@@ -20,21 +20,20 @@ import com.theupnextapp.network.models.gemini.GeminiMultimodalRequest
 import com.theupnextapp.network.models.gemini.NetworkGeminiTriviaResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.tasks.await
 import org.json.JSONObject
-import timber.log.Timber
 
 class VertexAIRepository(
     private val firebaseFirestore: FirebaseFirestore
 ) {
 
     suspend fun getTrivia(instruction: String): Flow<Result<NetworkGeminiTriviaResponse?>> {
+        // used convert the json response from Firebase into a data object
+        val gson = Gson()
+
         val document = firebaseFirestore.collection(COLLECTION_PATH)
             .document(DOCUMENT_PATH)
-
-        val gson = Gson()
 
         // Execute the GenAI query by uploading a document with the instruction
         document.set(GeminiMultimodalRequest(instruction)).await()
@@ -43,8 +42,6 @@ class VertexAIRepository(
             .collection(COLLECTION_PATH)
             .getFirestoreDataAsFlow { querySnapshot ->
                 when (querySnapshot) {
-                    // TODO Convert the GeminiMultimodalRequest.output json string to
-                    //  a usable object
                     is Result.Success -> {
                         val response = querySnapshot.data?.documents?.lastOrNull()
                             ?.toObject(GeminiMultimodalRequest::class.java)
@@ -70,12 +67,9 @@ class VertexAIRepository(
 
                     is Result.GenericError -> Result.GenericError(error = querySnapshot.error)
                     is Result.Loading -> Result.Loading(true)
-                    Result.NetworkError -> Result.NetworkError
+                    is Result.NetworkError -> Result.NetworkError
                 }
             }.flowOn(Dispatchers.IO)
-            .catch {
-                Timber.d(it.message)
-            }
     }
 
     companion object {
