@@ -76,7 +76,9 @@ class TriviaViewModel @Inject constructor(
                 }
 
             } catch (e: Exception) {
-                _uiState.value = TriviaScreenUiState.Error(e.localizedMessage ?: "")
+                _uiState.value = TriviaScreenUiState.Error(
+                    e.localizedMessage ?: "An expected error occurred. Please try again"
+                )
             }
         }
     }
@@ -88,9 +90,9 @@ class TriviaViewModel @Inject constructor(
             _correctAnswers.value = _correctAnswers.value.plus(1)
 
             _currentQuestion.value = _currentQuestion.value?.copy(
-                    hasAnswered = true,
-                    hasAnsweredCorrect = true
-                )
+                hasAnswered = true,
+                hasAnsweredCorrect = true
+            )
         } else {
             _currentQuestion.value = _currentQuestion.value?.copy(
                 hasAnswered = true
