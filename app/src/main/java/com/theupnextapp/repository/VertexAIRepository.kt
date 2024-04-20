@@ -16,8 +16,10 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.gson.Gson
 import com.theupnextapp.domain.ErrorResponse
 import com.theupnextapp.domain.Result
+import com.theupnextapp.domain.TriviaQuestion
 import com.theupnextapp.network.models.gemini.GeminiMultimodalRequest
 import com.theupnextapp.network.models.gemini.NetworkGeminiTriviaResponse
+import com.theupnextapp.network.models.gemini.toTriviaQuestions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
@@ -28,7 +30,7 @@ class VertexAIRepository(
     private val firebaseFirestore: FirebaseFirestore
 ) {
 
-    suspend fun getTrivia(instruction: String): Flow<Result<NetworkGeminiTriviaResponse?>> {
+    suspend fun getTrivia(instruction: String): Flow<Result<List<TriviaQuestion>?>> {
         // used convert the json response from Firebase into a data object
         val gson = Gson()
 
@@ -54,7 +56,7 @@ class VertexAIRepository(
                                 jsonObj?.toString(),
                                 NetworkGeminiTriviaResponse::class.java
                             )
-                            Result.Success(networkGeminiTriviaResponse)
+                            Result.Success(networkGeminiTriviaResponse.triviaQuiz.toTriviaQuestions())
                         } catch (e: Exception) {
                             Result.GenericError(
                                 error = ErrorResponse(

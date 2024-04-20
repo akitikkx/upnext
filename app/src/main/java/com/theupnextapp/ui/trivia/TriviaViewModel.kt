@@ -16,7 +16,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.theupnextapp.domain.Result
 import com.theupnextapp.domain.TriviaQuestion
-import com.theupnextapp.network.models.gemini.toTriviaQuestions
 import com.theupnextapp.repository.VertexAIRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -59,7 +58,7 @@ class TriviaViewModel @Inject constructor(
                     when (result) {
                         is Result.Loading -> _uiState.value = TriviaScreenUiState.Loading
                         is Result.Success -> {
-                            _questions.value = result.data?.triviaQuiz?.toTriviaQuestions()
+                            _questions.value = result.data
                             _currentQuestion.value = _questions.value?.firstOrNull()
                             determineNextQuestion()
 
