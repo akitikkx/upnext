@@ -147,6 +147,8 @@ class TriviaViewModel @Inject constructor(
                 _isAtEnd.value = true
                 _nextQuestion.value = null
             }
+        } else {
+            return
         }
     }
 }
