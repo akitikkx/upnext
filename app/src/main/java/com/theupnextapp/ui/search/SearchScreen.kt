@@ -21,6 +21,7 @@
 
 package com.theupnextapp.ui.search
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -113,8 +114,10 @@ fun SearchArea(
         }
 
         searchResultsList?.let { results ->
-            SearchResultsList(list = results) {
-                onResultClick(it)
+            AnimatedVisibility(visible = results.isNotEmpty()) {
+                SearchResultsList(list = results) {
+                    onResultClick(it)
+                }
             }
         }
     }
