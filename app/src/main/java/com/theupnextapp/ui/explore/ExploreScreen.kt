@@ -21,6 +21,7 @@
 
 package com.theupnextapp.ui.explore
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -49,6 +50,7 @@ import com.theupnextapp.domain.TraktTrendingShows
 import com.theupnextapp.ui.components.SectionHeadingText
 import com.theupnextapp.ui.destinations.ShowDetailScreenDestination
 import com.theupnextapp.ui.widgets.ListPosterCard
+
 @ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
 @Destination
@@ -75,7 +77,7 @@ fun ExploreScreen(
 
                 Column(modifier = Modifier.padding(top = 8.dp)) {
                     trendingShowsList.value?.let { list ->
-                        if (list.isNotEmpty())
+                        AnimatedVisibility(visible = list.isNotEmpty()) {
                             TrendingShowsRow(
                                 list = list,
                                 rowTitle = stringResource(id = R.string.explore_trending_shows_list_title)
@@ -90,10 +92,11 @@ fun ExploreScreen(
                                     )
                                 )
                             }
+                        }
                     }
 
                     popularShowsList.value?.let { list ->
-                        if (list.isNotEmpty())
+                        AnimatedVisibility(visible = list.isNotEmpty()) {
                             PopularShowsRow(
                                 list = list,
                                 rowTitle = stringResource(id = R.string.explore_popular_shows_list_title)
@@ -108,10 +111,11 @@ fun ExploreScreen(
                                     )
                                 )
                             }
+                        }
                     }
 
                     mostAnticipatedShowsList.value?.let { list ->
-                        if (list.isNotEmpty())
+                        AnimatedVisibility(visible = list.isNotEmpty()) {
                             MostAnticipatedShowsRow(
                                 list = list,
                                 rowTitle = stringResource(id = R.string.explore_most_anticipated_shows_list_title)
@@ -126,6 +130,7 @@ fun ExploreScreen(
                                     )
                                 )
                             }
+                        }
                     }
                 }
 

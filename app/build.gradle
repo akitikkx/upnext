@@ -230,6 +230,9 @@ dependencies {
     // Accompanist Navigation Animation
     implementation libs.accompanist.navigation.animation
 
+    // Firebase App Check Play Integrity
+    implementation libs.firebase.app.check.play.integrity
+
     // Baseline Profiles
     implementation libs.profileinstaller
     baselineProfile project(path: ':baselineprofile')

@@ -38,6 +38,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.core.util.Consumer
+import com.google.firebase.Firebase
+import com.google.firebase.appcheck.appCheck
+import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderFactory
+import com.google.firebase.initialize
 import com.theupnextapp.common.utils.customTab.CustomTabComponent
 import com.theupnextapp.common.utils.customTab.TabConnectionCallback
 import com.theupnextapp.ui.main.MainScreen
@@ -84,6 +88,7 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
         }
 
         customTabComponent.setConnectionCallback(this)
+        initAppCheck()
     }
 
     override fun onStart() {
@@ -112,6 +117,13 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
 
     override fun onTabDisconnected() {
         customTabComponent.mayLaunchUrl(null, null, null)
+    }
+
+    private fun initAppCheck() {
+        Firebase.initialize(this)
+        Firebase.appCheck.installAppCheckProviderFactory(
+            PlayIntegrityAppCheckProviderFactory.getInstance()
+        )
     }
 
     companion object {

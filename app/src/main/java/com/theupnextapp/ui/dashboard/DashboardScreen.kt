@@ -22,6 +22,7 @@
 package com.theupnextapp.ui.dashboard
 
 import androidx.activity.compose.ReportDrawnWhen
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -83,7 +84,7 @@ fun DashboardScreen(
             Box(modifier = Modifier.fillMaxSize()) {
                 Column(modifier = Modifier.padding(top = 8.dp)) {
                     yesterdayShowsList.value?.let { list ->
-                        if (list.isNotEmpty()) {
+                        AnimatedVisibility(visible = list.isNotEmpty()) {
                             ShowsRow(
                                 list = list,
                                 rowTitle = stringResource(id = R.string.title_yesterday_shows)
@@ -102,7 +103,7 @@ fun DashboardScreen(
                     }
 
                     todayShowsList.value?.let { list ->
-                        if (list.isNotEmpty()) {
+                        AnimatedVisibility(visible = list.isNotEmpty()) {
                             ShowsRow(
                                 list = list,
                                 rowTitle = stringResource(id = R.string.title_today_shows)
@@ -121,7 +122,7 @@ fun DashboardScreen(
                     }
 
                     tomorrowShowsList.value?.let { list ->
-                        if (list.isNotEmpty()) {
+                        AnimatedVisibility(visible = list.isNotEmpty()) {
                             ShowsRow(
                                 list = list,
                                 rowTitle = stringResource(id = R.string.title_tomorrow_shows)
