@@ -23,6 +23,7 @@ composeDestinations = "1.10.2"
 daggerHilt = "2.51.1"
 datastorePreferences = "1.0.0"
 firebaseAnalyticsKtx = "21.5.1"
+firebaseAppCheckPlayIntegrity = "17.1.2"
 firebaseCore = "21.1.1"
 firebaseCrashlytics = "18.6.4"
 firebaseCrashlyticsPlugin = "18.3.7"
@@ -86,8 +87,8 @@ appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat"
 browser = { module = "androidx.browser:browser", version.ref = "browser" }
 glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
 glide-compiler = { group = "com.github.bumptech.glide", name = "compiler", version.ref = "glide" }
-chucker-debug = { module = "com.github.chuckerteam.chucker:library", version.ref ="chuckerVersion" }
-chucker-release = { module = "com.github.chuckerteam.chucker:library-no-op", version.ref ="chuckerVersion" }
+chucker-debug = { module = "com.github.chuckerteam.chucker:library", version.ref = "chuckerVersion" }
+chucker-release = { module = "com.github.chuckerteam.chucker:library-no-op", version.ref = "chuckerVersion" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayout" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
@@ -96,6 +97,7 @@ compose-destinations-core = { module = "io.github.raamcosta.compose-destinations
 compose-destinations-compiler = { module = "io.github.raamcosta.compose-destinations:ksp", version.ref = "composeDestinations" }
 datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
 firebase-analytics-ktx = { module = "com.google.firebase:firebase-analytics-ktx", version.ref = "firebaseAnalyticsKtx" }
+firebase-app-check-play-integrity = { module = "com.google.firebase:firebase-appcheck-playintegrity", version.ref = "firebaseAppCheckPlayIntegrity" }
 firebase-core = { module = "com.google.firebase:firebase-core", version.ref = "firebaseCore" }
 firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics", version.ref = "firebaseCrashlytics" }
 firebase-perf = { module = "com.google.firebase:firebase-perf", version.ref = "firebasePerf" }
