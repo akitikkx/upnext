@@ -39,10 +39,9 @@ hiltWork = "1.2.0"
 jsoup = "1.17.2"
 junit = "4.13.2"
 ktlint = "12.1.0"
-kotlin = "1.9.23"
-kotlin-compiler = "1.5.12"
+kotlin = "2.0.0"
 kotlinxCoroutinesAndroid = "1.8.0"
-ksp = "1.9.23-1.0.20"
+ksp = "2.0.0-1.0.21"
 ktx = "1.12.0"
 leakcanaryAndroid = "2.13"
 legacySupportV4 = "1.0.0"
@@ -146,6 +145,7 @@ firebase-perf-gradle = { id = "com.google.firebase.firebase-perf", version.ref =
 gms = { id = "com.google.gms.google-services", version.ref = "gmsPlugin" }
 hilt-gradle = { id = "com.google.dagger.hilt.android", version.ref = "daggerHilt" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
 baseline-profiles = { id = "androidx.baselineprofile", version.ref = "baselineProfile" }
