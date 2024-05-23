@@ -32,3 +32,5 @@ Thumbs.db
 .gradle
 build/
 signing.properties
+
+.kotlin
