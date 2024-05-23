@@ -14,6 +14,8 @@ package com.theupnextapp.ui.trivia
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.Firebase
+import com.google.firebase.vertexai.vertexAI
 import com.theupnextapp.domain.Result
 import com.theupnextapp.domain.TriviaQuestion
 import com.theupnextapp.repository.VertexAIRepository
@@ -45,11 +47,25 @@ class TriviaViewModel @Inject constructor(
         MutableStateFlow(TriviaScreenUiState.Initial)
     val uiState: StateFlow<TriviaScreenUiState> = _uiState.asStateFlow()
 
+    val generativeModel = Firebase.vertexAI.generativeModel("gemini-1.5-pro-preview-0409")
+
     init {
-        getTrivia()
+        getTriviaFromVertex()
     }
 
-    private fun getTrivia() {
+    private fun getTriviaFromVertex() {
+        val prompt = "Write a story about a magic backpack"
+        var response = ""
+
+        viewModelScope.launch {
+            generativeModel.generateContentStream(prompt).collect { chunk ->
+                print(chunk.text)
+                response += chunk.text
+            }
+        }
+    }
+
+    private fun getTriviaFromFirebase() {
         val prompt = "5 random TV shows"
 
         viewModelScope.launch {

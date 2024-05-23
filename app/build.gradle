@@ -237,6 +237,9 @@ dependencies {
     // Lottie Android
     implementation libs.lottie.compose.android
 
+    // Firebase Vertex AI
+    implementation libs.firebase.vertex.ai
+
     // Baseline Profiles
     implementation libs.profileinstaller
     baselineProfile project(path: ':baselineprofile')
