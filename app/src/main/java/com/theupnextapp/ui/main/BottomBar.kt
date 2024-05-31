@@ -36,13 +36,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.navigation.NavDestination
+import com.ramcosta.composedestinations.generated.destinations.DashboardScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.ExploreScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.SearchScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.TraktAccountScreenDestination
 import com.ramcosta.composedestinations.spec.Direction
 import com.theupnextapp.R
-import com.theupnextapp.ui.destinations.DashboardScreenDestination
-import com.theupnextapp.ui.destinations.Destination
-import com.theupnextapp.ui.destinations.ExploreScreenDestination
-import com.theupnextapp.ui.destinations.SearchScreenDestination
-import com.theupnextapp.ui.destinations.TraktAccountScreenDestination
+
 @ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
 @ExperimentalComposeUiApi
@@ -67,7 +68,7 @@ enum class BottomBarDestination(
 @ExperimentalFoundationApi
 @Composable
 fun BottomBar(
-    currentDestination: Destination,
+    currentDestination: NavDestination?,
     onBottomBarItemClick: (Direction) -> Unit
 ) {
     val bottomBarState = rememberSaveable { mutableStateOf(true) }
@@ -82,7 +83,7 @@ fun BottomBar(
             BottomAppBar(
                 modifier = Modifier.testTag("bottom_app_bar")
             ) {
-                BottomBarDestination.values().forEach { destination ->
+                BottomBarDestination.entries.forEach { destination ->
                     NavigationBarItem(
                         icon = {
                             Icon(
@@ -93,7 +94,7 @@ fun BottomBar(
                         label = {
                             Text(stringResource(id = destination.label))
                         },
-                        selected = destination.direction.route.startsWith(currentDestination.baseRoute),
+                        selected = currentDestination?.route?.contains(destination.direction.route) == true,
                         onClick = { onBottomBarItemClick(destination.direction) }
                     )
                 }
@@ -113,7 +114,7 @@ fun BottomBar(
 @ExperimentalComposeUiApi
 @ExperimentalFoundationApi
 @ExperimentalMaterial3Api
-fun isMainScreen(destination: Destination?): Boolean {
+fun isMainScreen(destination: NavDestination?): Boolean {
     return when (destination?.route) {
         SearchScreenDestination.route,
         DashboardScreenDestination.route,

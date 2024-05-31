@@ -46,6 +46,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
 import com.theupnextapp.R
 import com.theupnextapp.common.utils.DateUtils
 import com.theupnextapp.domain.ShowSeasonEpisode
@@ -55,7 +56,7 @@ import com.theupnextapp.ui.components.SectionHeadingText
 import org.jsoup.Jsoup
 
 @ExperimentalMaterial3Api
-@Destination(navArgsDelegate = ShowSeasonEpisodesArg::class)
+@Destination<RootGraph>(navArgs = ShowSeasonEpisodesArg::class)
 @Composable
 fun ShowSeasonEpisodesScreen(
     viewModel: ShowSeasonEpisodesViewModel = hiltViewModel(),
@@ -94,7 +95,7 @@ fun ShowSeasonEpisodesScreen(
 }
 
 @ExperimentalMaterial3Api
-@Destination
+@Destination<RootGraph>
 @Composable
 fun ShowSeasonEpisodes(
     seasonNumber: Int,

@@ -26,11 +26,10 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavDestination
 import androidx.navigation.NavHostController
-import com.ramcosta.composedestinations.navigation.navigate
-import com.ramcosta.composedestinations.navigation.popUpTo
-import com.theupnextapp.ui.destinations.Destination
-import com.theupnextapp.ui.destinations.TraktAccountScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.TraktAccountScreenDestination
+import com.ramcosta.composedestinations.utils.rememberDestinationsNavigator
 import com.theupnextapp.ui.navigation.AppNavigation
 
 @ExperimentalMaterial3WindowSizeClassApi
@@ -42,12 +41,14 @@ import com.theupnextapp.ui.navigation.AppNavigation
 fun MediumScreen(
     navController: NavHostController,
     navBackStackEntry: NavBackStackEntry?,
-    destination: Destination,
+    destination: NavDestination?,
     valueState: MutableState<String?>,
     onTraktAuthCompleted: () -> Unit,
 ) {
+    val navigator = navController.rememberDestinationsNavigator()
+
     if (!valueState.value.isNullOrEmpty()) {
-        navController.navigate(TraktAccountScreenDestination(code = valueState.value).route)
+        navigator.navigate(TraktAccountScreenDestination(code = valueState.value))
         onTraktAuthCompleted()
     }
 
@@ -55,11 +56,13 @@ fun MediumScreen(
         NavRail(
             currentDestination = destination,
             onNavRailItemClick = {
-                navController.navigate(it) {
-                    popUpTo(destination) {
-                        saveState = true
-                        inclusive = true
-                    }
+                navigator.navigate(it) {
+//                    if (destination != null) {
+//                        popUpTo(destination) {
+//                            saveState = true
+//                            inclusive = true
+//                        }
+//                    }
                     launchSingleTop = true
                     restoreState = true
                 }

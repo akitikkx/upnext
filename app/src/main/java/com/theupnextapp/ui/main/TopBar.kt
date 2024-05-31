@@ -28,10 +28,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavBackStackEntry
+import com.ramcosta.composedestinations.generated.destinations.ShowDetailScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.ShowSeasonEpisodesScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.ShowSeasonsScreenDestination
 import com.theupnextapp.R
-import com.theupnextapp.ui.destinations.ShowDetailScreenDestination
-import com.theupnextapp.ui.destinations.ShowSeasonEpisodesScreenDestination
-import com.theupnextapp.ui.destinations.ShowSeasonsScreenDestination
 
 @ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api

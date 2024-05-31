@@ -48,6 +48,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.destinations.ShowSeasonEpisodesScreenDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.theupnextapp.R
 import com.theupnextapp.domain.ShowDetailArg
@@ -55,10 +57,9 @@ import com.theupnextapp.domain.ShowSeason
 import com.theupnextapp.domain.ShowSeasonEpisodesArg
 import com.theupnextapp.ui.components.PosterImage
 import com.theupnextapp.ui.components.SectionHeadingText
-import com.theupnextapp.ui.destinations.ShowSeasonEpisodesScreenDestination
 
 @ExperimentalMaterial3Api
-@Destination(navArgsDelegate = ShowDetailArg::class)
+@Destination<RootGraph>(navArgs = ShowDetailArg::class)
 @Composable
 fun ShowSeasonsScreen(
     viewModel: ShowSeasonsViewModel = hiltViewModel(),

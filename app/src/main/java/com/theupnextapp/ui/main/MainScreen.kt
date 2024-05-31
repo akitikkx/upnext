@@ -23,10 +23,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.theupnextapp.ui.NavGraphs
-import com.theupnextapp.ui.appCurrentDestinationAsState
-import com.theupnextapp.ui.destinations.Destination
-import com.theupnextapp.ui.startAppDestination
 
 @ExperimentalAnimationApi
 @ExperimentalFoundationApi
@@ -43,9 +39,8 @@ fun MainScreen(
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
 
-    val currentBackStackEntryAsState: Destination? =
-        navController.appCurrentDestinationAsState().value
-    val currentDestination = currentBackStackEntryAsState ?: NavGraphs.root.startAppDestination
+    val currentBackStackEntryAsState by navController.currentBackStackEntryAsState()
+    val currentDestination = currentBackStackEntryAsState?.destination
 
     when (widthSizeClass) {
         WindowWidthSizeClass.Compact -> {

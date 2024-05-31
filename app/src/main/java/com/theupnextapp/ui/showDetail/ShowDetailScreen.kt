@@ -21,6 +21,7 @@
 
 package com.theupnextapp.ui.showDetail
 
+import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -55,6 +56,8 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.destinations.ShowSeasonsScreenDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.theupnextapp.R
 import com.theupnextapp.common.utils.getWindowSizeClass
@@ -67,12 +70,11 @@ import com.theupnextapp.domain.TraktShowRating
 import com.theupnextapp.network.models.trakt.Distribution
 import com.theupnextapp.ui.components.PosterImage
 import com.theupnextapp.ui.components.SectionHeadingText
-import com.theupnextapp.ui.destinations.ShowSeasonsScreenDestination
 import org.jsoup.Jsoup
 
 @ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
-@Destination(navArgsDelegate = ShowDetailArg::class)
+@Destination<RootGraph>(navArgs = ShowDetailArg::class)
 @Composable
 fun ShowDetailScreen(
     viewModel: ShowDetailViewModel = hiltViewModel(),

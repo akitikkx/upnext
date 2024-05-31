@@ -23,8 +23,8 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.navigation.NavDestination
 import com.ramcosta.composedestinations.spec.Direction
-import com.theupnextapp.ui.destinations.Destination
 
 @ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
@@ -32,15 +32,15 @@ import com.theupnextapp.ui.destinations.Destination
 @ExperimentalFoundationApi
 @Composable
 fun NavRail(
-    currentDestination: Destination,
+    currentDestination: NavDestination?,
     onNavRailItemClick: (Direction) -> Unit
 ) {
     NavigationRail(
         modifier = Modifier.testTag("navigation_rail")
     ) {
-        BottomBarDestination.values().forEach { destination ->
+        BottomBarDestination.entries.forEach { destination ->
             NavigationRailItem(
-                selected = destination.direction.route.startsWith(currentDestination.baseRoute),
+                selected = currentDestination?.route?.contains(destination.direction.route) == true,
                 onClick = { onNavRailItemClick(destination.direction) },
                 icon = {
                     Icon(
