@@ -21,6 +21,9 @@
 
 package com.theupnextapp.ui.components
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
@@ -34,9 +37,11 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.theupnextapp.R
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun PosterImage(
+fun SharedTransitionScope.PosterImage(
     url: String,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     modifier: Modifier = Modifier,
     height: Dp = dimensionResource(id = R.dimen.compose_shows_list_poster_height),
 ) {
@@ -51,6 +56,10 @@ fun PosterImage(
         contentDescription = null,
         contentScale = ContentScale.Crop,
         modifier = modifier
+            .sharedElement(
+                state = rememberSharedContentState(key = "poster-list-to-detail"),
+                animatedVisibilityScope = animatedVisibilityScope
+            )
             .fillMaxWidth()
             .height(height)
     )

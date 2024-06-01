@@ -21,6 +21,9 @@
 
 package com.theupnextapp.ui.showSeasons
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -58,12 +61,14 @@ import com.theupnextapp.domain.ShowSeasonEpisodesArg
 import com.theupnextapp.ui.components.PosterImage
 import com.theupnextapp.ui.components.SectionHeadingText
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @ExperimentalMaterial3Api
 @Destination<RootGraph>(navArgs = ShowDetailArg::class)
 @Composable
-fun ShowSeasonsScreen(
+fun SharedTransitionScope.ShowSeasonsScreen(
     viewModel: ShowSeasonsViewModel = hiltViewModel(),
     showDetailArg: ShowDetailArg?,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     navigator: DestinationsNavigator
 ) {
     viewModel.setSelectedShow(showDetailArg)
@@ -76,7 +81,10 @@ fun ShowSeasonsScreen(
         Column {
             Box(modifier = Modifier.fillMaxSize()) {
                 showSeasonsList.value?.let {
-                    ShowSeasons(list = it) { showSeason ->
+                    ShowSeasons(
+                        list = it,
+                        animatedVisibilityScope = animatedVisibilityScope
+                    ) { showSeason ->
                         navigator.navigate(
                             ShowSeasonEpisodesScreenDestination(
                                 ShowSeasonEpisodesArg(
@@ -102,14 +110,23 @@ fun ShowSeasonsScreen(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @ExperimentalMaterial3Api
 @Composable
-fun ShowSeasons(list: List<ShowSeason>, onClick: (item: ShowSeason) -> Unit) {
+fun SharedTransitionScope.ShowSeasons(
+    list: List<ShowSeason>,
+    animatedVisibilityScope: AnimatedVisibilityScope,
+    onClick: (item: ShowSeason) -> Unit
+) {
     Column(modifier = Modifier.fillMaxWidth()) {
         SectionHeadingText(text = stringResource(id = R.string.title_seasons))
+
         LazyColumn(modifier = Modifier.padding(8.dp)) {
             items(list) { showSeason ->
-                ShowSeasonCard(item = showSeason) {
+                ShowSeasonCard(
+                    item = showSeason,
+                    animatedVisibilityScope = animatedVisibilityScope
+                ) {
                     onClick(showSeason)
                 }
             }
@@ -117,10 +134,12 @@ fun ShowSeasons(list: List<ShowSeason>, onClick: (item: ShowSeason) -> Unit) {
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @ExperimentalMaterial3Api
 @Composable
-fun ShowSeasonCard(
+fun SharedTransitionScope.ShowSeasonCard(
     item: ShowSeason,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     onClick: () -> Unit
 ) {
     Card(
@@ -134,6 +153,7 @@ fun ShowSeasonCard(
             item.originalImageUrl?.let { url ->
                 PosterImage(
                     url = url,
+                    animatedVisibilityScope = animatedVisibilityScope,
                     modifier = Modifier
                         .width(dimensionResource(id = R.dimen.compose_search_poster_width))
                         .height(dimensionResource(id = R.dimen.compose_search_poster_height))

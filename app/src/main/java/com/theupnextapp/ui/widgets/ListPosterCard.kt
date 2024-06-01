@@ -21,6 +21,9 @@
 
 package com.theupnextapp.ui.widgets
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -43,13 +46,15 @@ import com.theupnextapp.ui.components.PosterTitleTextItem
 import com.theupnextapp.ui.widgets.ListPosterCardConfig.listPosterHeight
 import com.theupnextapp.ui.widgets.ListPosterCardConfig.listPosterWidth
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
 @Composable
-fun ListPosterCard(
+fun SharedTransitionScope.ListPosterCard(
     itemName: String?,
     itemUrl: String?,
     modifier: Modifier = Modifier,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     onClick: () -> Unit
 ) {
     Card(
@@ -63,6 +68,7 @@ fun ListPosterCard(
             itemUrl?.let {
                 PosterImage(
                     url = it,
+                    animatedVisibilityScope = animatedVisibilityScope,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(listPosterHeight)
@@ -103,14 +109,16 @@ object ListPosterCardConfig {
         }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
 @ReferenceDevices
 @Composable
-fun ListPosterCardPreview() {
+fun SharedTransitionScope.ListPosterCardPreview() {
     ListPosterCard(
         itemName = "List Poster",
         itemUrl = "https://www.theupnextapp.com",
+        animatedVisibilityScope = this as AnimatedVisibilityScope,
         onClick = {}
     )
 }

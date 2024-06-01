@@ -21,6 +21,9 @@
 
 package com.theupnextapp.ui.search
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -52,14 +55,16 @@ import com.theupnextapp.R
 import com.theupnextapp.domain.ShowSearch
 import com.theupnextapp.ui.widgets.SearchListCard
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
 @ExperimentalComposeUiApi
 @Destination<RootGraph>
 @Composable
-fun SearchScreen(
+fun SharedTransitionScope.SearchScreen(
     viewModel: SearchViewModel = hiltViewModel(),
-    navigator: DestinationsNavigator
+    navigator: DestinationsNavigator,
+    animatedVisibilityScope: AnimatedVisibilityScope
 ) {
     val searchResultsList = viewModel.searchResponse.observeAsState()
 
@@ -72,6 +77,7 @@ fun SearchScreen(
             Box(modifier = Modifier.fillMaxSize()) {
                 SearchArea(
                     searchResultsList = searchResultsList.value,
+                    animatedVisibilityScope = animatedVisibilityScope,
                     onResultClick = {
                         navigator.navigate(
                             ShowDetailScreenDestination(
@@ -100,11 +106,13 @@ fun SearchScreen(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @ExperimentalComposeUiApi
 @ExperimentalMaterial3Api
 @Composable
-fun SearchArea(
+fun SharedTransitionScope.SearchArea(
     searchResultsList: List<ShowSearch>?,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     onTextSubmit: (query: String) -> Unit,
     onResultClick: (item: ShowSearch) -> Unit
 ) {
@@ -114,7 +122,10 @@ fun SearchArea(
         }
 
         searchResultsList?.let { results ->
-            SearchResultsList(list = results) {
+            SearchResultsList(
+                list = results,
+                animatedVisibilityScope = animatedVisibilityScope
+            ) {
                 onResultClick(it)
             }
         }
@@ -160,15 +171,20 @@ fun SearchInputField(
     )
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @ExperimentalMaterial3Api
 @Composable
-fun SearchResultsList(
+fun SharedTransitionScope.SearchResultsList(
     list: List<ShowSearch>,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     onClick: (item: ShowSearch) -> Unit
 ) {
     LazyColumn {
         items(list) { result ->
-            SearchListCard(item = result) {
+            SearchListCard(
+                item = result,
+                animatedVisibilityScope = animatedVisibilityScope
+            ) {
                 onClick(result)
             }
         }

@@ -12,6 +12,9 @@
 
 package com.theupnextapp.ui.showDetail
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -33,31 +36,37 @@ import com.theupnextapp.ui.components.PosterImage
 import com.theupnextapp.ui.showDetail.SynopsisAreaConfig.posterHeight
 import com.theupnextapp.ui.showDetail.SynopsisAreaConfig.posterWidth
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @ExperimentalMaterial3WindowSizeClassApi
 @Composable
-fun SynopsisArea(
+fun SharedTransitionScope.SynopsisArea(
     showSummary: ShowDetailSummary?,
     widthSizeClass: WindowWidthSizeClass?,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     modifier: Modifier = Modifier
 ) {
     when (widthSizeClass) {
         WindowWidthSizeClass.Compact,
         WindowWidthSizeClass.Medium -> SynopsisAreaCompact(
             showSummary = showSummary,
+            animatedVisibilityScope = animatedVisibilityScope,
             modifier = modifier
         )
 
         else -> SynopsisAreaExpanded(
             showSummary = showSummary,
+            animatedVisibilityScope = animatedVisibilityScope,
             modifier = modifier
         )
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @ExperimentalMaterial3WindowSizeClassApi
 @Composable
-private fun SynopsisAreaCompact(
+private fun SharedTransitionScope.SynopsisAreaCompact(
     showSummary: ShowDetailSummary?,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
@@ -69,7 +78,12 @@ private fun SynopsisAreaCompact(
             showSummary?.originalImageUrl?.let {
                 PosterImage(
                     url = it,
+                    animatedVisibilityScope = animatedVisibilityScope,
                     modifier = Modifier
+                        .sharedElement(
+                            state = rememberSharedContentState(key = "poster-list-to-detail"),
+                            animatedVisibilityScope = animatedVisibilityScope
+                        )
                         .width(posterWidth)
                         .height(posterHeight)
                 )
@@ -89,10 +103,12 @@ private fun SynopsisAreaCompact(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @ExperimentalMaterial3WindowSizeClassApi
 @Composable
-private fun SynopsisAreaExpanded(
+private fun SharedTransitionScope.SynopsisAreaExpanded(
     showSummary: ShowDetailSummary?,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -103,7 +119,12 @@ private fun SynopsisAreaExpanded(
         showSummary?.originalImageUrl?.let {
             PosterImage(
                 url = it,
+               animatedVisibilityScope = animatedVisibilityScope,
                 modifier = Modifier
+                    .sharedElement(
+                        state = rememberSharedContentState(key = "poster-list-to-detail"),
+                        animatedVisibilityScope = animatedVisibilityScope
+                    )
                     .width(posterWidth)
                     .height(posterHeight)
             )
@@ -149,18 +170,34 @@ object SynopsisAreaConfig {
 
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Preview(name = "phone", device = Devices.PHONE, showBackground = true)
 @ExperimentalMaterial3WindowSizeClassApi
 @Composable
-fun SynopsisAreaCompactPreview(@PreviewParameter(ShowDetailSummaryPreviewProvider::class) showDetailSummary: ShowDetailSummary) {
-    SynopsisAreaCompact(showSummary = showDetailSummary)
+fun SharedTransitionScope.SynopsisAreaCompactPreview(
+    @PreviewParameter(
+        ShowDetailSummaryPreviewProvider::class
+    ) showDetailSummary: ShowDetailSummary
+) {
+    SynopsisAreaCompact(
+        showSummary = showDetailSummary,
+        animatedVisibilityScope = this as AnimatedVisibilityScope
+    )
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Preview(name = "foldable", device = Devices.FOLDABLE, showBackground = true)
 @Preview(name = "custom", device = "spec:width=1280dp,height=800dp,dpi=480", showBackground = true)
 @Preview("desktop", device = "id:desktop_medium", showBackground = true)
 @ExperimentalMaterial3WindowSizeClassApi
 @Composable
-fun SynopsisAreaExpandedPreview(@PreviewParameter(ShowDetailSummaryPreviewProvider::class) showDetailSummary: ShowDetailSummary) {
-    SynopsisAreaExpanded(showSummary = showDetailSummary)
+fun SharedTransitionScope.SynopsisAreaExpandedPreview(
+    @PreviewParameter(
+        ShowDetailSummaryPreviewProvider::class
+    ) showDetailSummary: ShowDetailSummary
+) {
+    SynopsisAreaExpanded(
+        showSummary = showDetailSummary,
+        animatedVisibilityScope = this as AnimatedVisibilityScope
+    )
 }

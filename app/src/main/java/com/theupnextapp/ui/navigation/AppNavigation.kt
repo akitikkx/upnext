@@ -13,6 +13,8 @@
 package com.theupnextapp.ui.navigation
 
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
@@ -24,7 +26,9 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.generated.NavGraphs
+import com.ramcosta.composedestinations.navigation.dependency
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
 @ExperimentalComposeUiApi
@@ -35,9 +39,14 @@ fun AppNavigation(
     navHostController: NavHostController,
     contentPadding: PaddingValues
 ) {
-    DestinationsNavHost(
-        navGraph = NavGraphs.root,
-        navController = navHostController,
-        modifier = Modifier.padding(contentPadding),
-    )
+    SharedTransitionLayout {
+        DestinationsNavHost(
+            navGraph = NavGraphs.root,
+            navController = navHostController,
+            modifier = Modifier.padding(contentPadding),
+            dependenciesContainerBuilder = {
+                dependency(this@SharedTransitionLayout)
+            }
+        )
+    }
 }

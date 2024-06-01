@@ -22,6 +22,9 @@
 package com.theupnextapp.ui.dashboard
 
 import androidx.activity.compose.ReportDrawnWhen
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -55,13 +58,15 @@ import com.theupnextapp.extensions.ReferenceDevices
 import com.theupnextapp.ui.components.SectionHeadingText
 import com.theupnextapp.ui.widgets.ListPosterCard
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
 @Destination<RootGraph>(start = true)
 @Composable
-fun DashboardScreen(
+fun SharedTransitionScope.DashboardScreen(
     viewModel: DashboardViewModel = hiltViewModel(),
-    navigator: DestinationsNavigator
+    navigator: DestinationsNavigator,
+    animatedVisibilityScope: AnimatedVisibilityScope
 ) {
     val yesterdayShowsList = viewModel.yesterdayShowsList.observeAsState()
 
@@ -85,7 +90,8 @@ fun DashboardScreen(
                         if (list.isNotEmpty()) {
                             ShowsRow(
                                 list = list,
-                                rowTitle = stringResource(id = R.string.title_yesterday_shows)
+                                rowTitle = stringResource(id = R.string.title_yesterday_shows),
+                                animatedVisibilityScope = animatedVisibilityScope
                             ) {
                                 navigator.navigate(
                                     ShowDetailScreenDestination(
@@ -104,7 +110,8 @@ fun DashboardScreen(
                         if (list.isNotEmpty()) {
                             ShowsRow(
                                 list = list,
-                                rowTitle = stringResource(id = R.string.title_today_shows)
+                                rowTitle = stringResource(id = R.string.title_today_shows),
+                                animatedVisibilityScope = animatedVisibilityScope
                             ) {
                                 navigator.navigate(
                                     ShowDetailScreenDestination(
@@ -123,7 +130,8 @@ fun DashboardScreen(
                         if (list.isNotEmpty()) {
                             ShowsRow(
                                 list = list,
-                                rowTitle = stringResource(id = R.string.title_tomorrow_shows)
+                                rowTitle = stringResource(id = R.string.title_tomorrow_shows),
+                                animatedVisibilityScope = animatedVisibilityScope
                             ) {
                                 navigator.navigate(
                                     ShowDetailScreenDestination(
@@ -157,13 +165,15 @@ fun DashboardScreen(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
 @Composable
-fun ShowsRow(
+fun SharedTransitionScope.ShowsRow(
     list: List<ScheduleShow>,
     rowTitle: String,
     modifier: Modifier = Modifier,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     onClick: (item: ScheduleShow) -> Unit
 ) {
     val state = rememberLazyListState()
@@ -179,6 +189,7 @@ fun ShowsRow(
                 ListPosterCard(
                     itemName = show.name,
                     itemUrl = show.originalImage,
+                    animatedVisibilityScope = animatedVisibilityScope,
                     modifier = Modifier.testTag("show_item")
                 ) {
                     onClick(show)
@@ -188,14 +199,16 @@ fun ShowsRow(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
 @ReferenceDevices
 @Composable
-private fun ShowsRowPreview(@PreviewParameter(ShowsRowPreviewProvider::class) shows: List<ScheduleShow>) {
+private fun SharedTransitionScope.ShowsRowPreview(@PreviewParameter(ShowsRowPreviewProvider::class) shows: List<ScheduleShow>) {
     ShowsRow(
         list = shows,
         rowTitle = "Test Shows",
+        animatedVisibilityScope = this as AnimatedVisibilityScope,
         onClick = {}
     )
 }

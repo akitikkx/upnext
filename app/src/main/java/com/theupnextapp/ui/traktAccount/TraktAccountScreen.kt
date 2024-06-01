@@ -25,6 +25,9 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import androidx.browser.customtabs.CustomTabsIntent
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.Orientation
@@ -67,14 +70,16 @@ import com.theupnextapp.common.utils.getWindowSizeClass
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.TraktUserListItem
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalFoundationApi
 @ExperimentalMaterial3Api
 @Destination<RootGraph>
 @Composable
-fun TraktAccountScreen(
+fun SharedTransitionScope.TraktAccountScreen(
     viewModel: TraktAccountViewModel = hiltViewModel(),
     navigator: DestinationsNavigator,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     code: String? = null
 ) {
     val scrollState = rememberScrollState()
@@ -103,6 +108,7 @@ fun TraktAccountScreen(
                 AccountArea(
                     isAuthorizedOnTrakt = isAuthorizedOnTrakt.value,
                     favoriteShowsList = favoriteShowsList.value,
+                    animatedVisibilityScope = animatedVisibilityScope,
                     onConnectToTraktClick = { openCustomTab(context = context) },
                     onFavoriteClick = {
                         navigator.navigate(
@@ -194,13 +200,15 @@ fun openCustomTab(context: Context) {
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
 @ExperimentalFoundationApi
 @Composable
-fun AccountArea(
+fun SharedTransitionScope.AccountArea(
     isAuthorizedOnTrakt: Boolean?,
     favoriteShowsList: List<TraktUserListItem>?,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     onConnectToTraktClick: () -> Unit,
     onFavoriteClick: (item: TraktUserListItem) -> Unit,
     onLogoutClick: () -> Unit
@@ -213,6 +221,7 @@ fun AccountArea(
                 FavoritesList(
                     favoriteShows = list,
                     widthSizeClass = getWindowSizeClass()?.widthSizeClass,
+                    animatedVisibilityScope = animatedVisibilityScope,
                     onFavoriteClick = { favoriteShow ->
                         onFavoriteClick(favoriteShow)
                     },

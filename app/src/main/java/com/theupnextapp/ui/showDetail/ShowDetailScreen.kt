@@ -21,7 +21,9 @@
 
 package com.theupnextapp.ui.showDetail
 
+import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -72,14 +74,16 @@ import com.theupnextapp.ui.components.PosterImage
 import com.theupnextapp.ui.components.SectionHeadingText
 import org.jsoup.Jsoup
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
 @Destination<RootGraph>(navArgs = ShowDetailArg::class)
 @Composable
-fun ShowDetailScreen(
+fun SharedTransitionScope.ShowDetailScreen(
     viewModel: ShowDetailViewModel = hiltViewModel(),
     showDetailArgs: ShowDetailArg?,
-    navigator: DestinationsNavigator
+    navigator: DestinationsNavigator,
+    animatedVisibilityScope: AnimatedVisibilityScope
 ) {
 
     viewModel.selectedShow(showDetailArgs)
@@ -116,6 +120,7 @@ fun ShowDetailScreen(
                     showNextEpisode = showNextEpisode.value,
                     showPreviousEpisode = showPreviousEpisode.value,
                     showRating = showRating.value,
+                    animatedVisibilityScope = animatedVisibilityScope,
                     onSeasonsClick = {
                         navigator.navigate(
                             ShowSeasonsScreenDestination(
@@ -148,15 +153,17 @@ fun ShowDetailScreen(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @ExperimentalMaterial3WindowSizeClassApi
 @Composable
-fun DetailArea(
+fun SharedTransitionScope.DetailArea(
     showSummary: ShowDetailSummary?,
     showDetailArgs: ShowDetailArg?,
     isAuthorizedOnTrakt: Boolean?,
     isFavorite: Boolean?,
     showCast: List<ShowCast>?,
     showRating: TraktShowRating?,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     onSeasonsClick: () -> Unit,
     onFavoriteClick: () -> Unit,
     onCastItemClick: (item: ShowCast) -> Unit,
@@ -172,12 +179,14 @@ fun DetailArea(
     ) {
         BackdropAndTitle(
             showDetailArgs = showDetailArgs,
+            animatedVisibilityScope = animatedVisibilityScope,
             showSummary = showSummary
         )
 
         SynopsisArea(
             showSummary = showSummary,
-            widthSizeClass = getWindowSizeClass()?.widthSizeClass
+            widthSizeClass = getWindowSizeClass()?.widthSizeClass,
+            animatedVisibilityScope = animatedVisibilityScope
         )
 
         if (showSummary?.id != -1) {
@@ -191,7 +200,10 @@ fun DetailArea(
 
         showCast?.let {
             if (it.isNotEmpty()) {
-                ShowCastList(it) { showCastItem ->
+                ShowCastList(
+                    list = it,
+                    animatedVisibilityScope = animatedVisibilityScope
+                ) { showCastItem ->
                     onCastItemClick(showCastItem)
                 }
             }
@@ -217,9 +229,11 @@ fun DetailArea(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun ShowCastList(
+fun SharedTransitionScope.ShowCastList(
     list: List<ShowCast>,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     onClick: (item: ShowCast) -> Unit
 ) {
     Column(
@@ -234,7 +248,10 @@ fun ShowCastList(
                 .padding(16.dp)
         ) {
             items(list) {
-                ShowCast(item = it) { showCastItem ->
+                ShowCast(
+                    item = it,
+                    animatedVisibilityScope = animatedVisibilityScope
+                ) { showCastItem ->
                     onClick(showCastItem)
                 }
             }
@@ -242,9 +259,11 @@ fun ShowCastList(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun ShowCast(
+fun SharedTransitionScope.ShowCast(
     item: ShowCast,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     onClick: (item: ShowCast) -> Unit
 ) {
     Column(
@@ -258,6 +277,7 @@ fun ShowCast(
         item.originalImageUrl?.let {
             PosterImage(
                 url = it,
+                animatedVisibilityScope = animatedVisibilityScope,
                 modifier = Modifier
                     .width(dimensionResource(id = R.dimen.compose_show_detail_poster_width))
                     .height(

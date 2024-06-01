@@ -21,6 +21,9 @@
 
 package com.theupnextapp.ui.widgets
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -44,10 +47,12 @@ import com.theupnextapp.common.utils.models.getNameAndReleaseYearResource
 import com.theupnextapp.domain.ShowSearch
 import com.theupnextapp.ui.components.PosterImage
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @ExperimentalMaterial3Api
 @Composable
-fun SearchListCard(
+fun SharedTransitionScope.SearchListCard(
     item: ShowSearch,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     onClick: () -> Unit
 ) {
     Card(
@@ -61,6 +66,7 @@ fun SearchListCard(
             item.originalImageUrl?.let { url ->
                 PosterImage(
                     url = url,
+                    animatedVisibilityScope = animatedVisibilityScope,
                     modifier = Modifier
                         .width(dimensionResource(id = R.dimen.compose_search_poster_width))
                         .height(dimensionResource(id = R.dimen.compose_search_poster_height))

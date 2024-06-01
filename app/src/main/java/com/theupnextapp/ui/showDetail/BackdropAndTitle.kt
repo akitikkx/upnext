@@ -12,6 +12,9 @@
 
 package com.theupnextapp.ui.showDetail
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -29,11 +32,13 @@ import com.theupnextapp.domain.ShowDetailSummary
 import com.theupnextapp.ui.components.PosterImage
 import com.theupnextapp.ui.showDetail.BackdropAndTitleConfig.backdropHeight
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @ExperimentalMaterial3WindowSizeClassApi
 @Composable
-fun BackdropAndTitle(
+fun SharedTransitionScope.BackdropAndTitle(
     showDetailArgs: ShowDetailArg?,
     showSummary: ShowDetailSummary?,
+    animatedVisibilityScope: AnimatedVisibilityScope,
 ) {
     val imageUrl: String? = if (!showDetailArgs?.showBackgroundUrl.isNullOrEmpty()) {
         showDetailArgs?.showBackgroundUrl
@@ -46,7 +51,8 @@ fun BackdropAndTitle(
     imageUrl?.let {
         PosterImage(
             url = it,
-            height = backdropHeight
+            height = backdropHeight,
+            animatedVisibilityScope = animatedVisibilityScope
         )
     }
 

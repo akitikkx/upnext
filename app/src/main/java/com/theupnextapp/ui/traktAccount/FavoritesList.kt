@@ -12,6 +12,9 @@
 
 package com.theupnextapp.ui.traktAccount
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -44,13 +47,15 @@ import com.theupnextapp.extensions.ReferenceDevices
 import com.theupnextapp.ui.components.SectionHeadingText
 import com.theupnextapp.ui.widgets.ListPosterCard
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
 @ExperimentalFoundationApi
 @Composable
-fun FavoritesList(
+fun SharedTransitionScope.FavoritesList(
     favoriteShows: List<TraktUserListItem>,
     widthSizeClass: WindowWidthSizeClass?,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     onLogoutClick: () -> Unit,
     onFavoriteClick: (item: TraktUserListItem) -> Unit
 ) {
@@ -95,7 +100,8 @@ fun FavoritesList(
             items(favoriteShows) { favoriteShow ->
                 ListPosterCard(
                     itemName = favoriteShow.title,
-                    itemUrl = favoriteShow.originalImageUrl
+                    itemUrl = favoriteShow.originalImageUrl,
+                    animatedVisibilityScope = animatedVisibilityScope
                 ) {
                     onFavoriteClick(favoriteShow)
                 }

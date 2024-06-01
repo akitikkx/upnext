@@ -21,6 +21,9 @@
 
 package com.theupnextapp.ui.showSeasonEpisodes
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -55,12 +58,14 @@ import com.theupnextapp.ui.components.PosterImage
 import com.theupnextapp.ui.components.SectionHeadingText
 import org.jsoup.Jsoup
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @ExperimentalMaterial3Api
 @Destination<RootGraph>(navArgs = ShowSeasonEpisodesArg::class)
 @Composable
-fun ShowSeasonEpisodesScreen(
+fun SharedTransitionScope.ShowSeasonEpisodesScreen(
     viewModel: ShowSeasonEpisodesViewModel = hiltViewModel(),
-    showSeasonEpisodesArg: ShowSeasonEpisodesArg?
+    showSeasonEpisodesArg: ShowSeasonEpisodesArg?,
+    animatedVisibilityScope: AnimatedVisibilityScope
 ) {
     viewModel.selectedSeason(showSeasonEpisodesArg)
 
@@ -77,7 +82,8 @@ fun ShowSeasonEpisodesScreen(
                     episodeList.value?.let { episodes ->
                         ShowSeasonEpisodes(
                             seasonNumber = season,
-                            list = episodes
+                            list = episodes,
+                            animatedVisibilityScope = animatedVisibilityScope
                         )
                     }
                 }
@@ -94,12 +100,14 @@ fun ShowSeasonEpisodesScreen(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @ExperimentalMaterial3Api
 @Destination<RootGraph>
 @Composable
-fun ShowSeasonEpisodes(
+fun SharedTransitionScope.ShowSeasonEpisodes(
     seasonNumber: Int,
-    list: List<ShowSeasonEpisode>
+    list: List<ShowSeasonEpisode>,
+    animatedVisibilityScope: AnimatedVisibilityScope
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         SectionHeadingText(
@@ -110,16 +118,21 @@ fun ShowSeasonEpisodes(
         )
         LazyColumn(Modifier.padding(8.dp)) {
             items(list) {
-                ShowSeasonEpisodeCard(item = it)
+                ShowSeasonEpisodeCard(
+                    item = it,
+                    animatedVisibilityScope = animatedVisibilityScope
+                )
             }
         }
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @ExperimentalMaterial3Api
 @Composable
-fun ShowSeasonEpisodeCard(
-    item: ShowSeasonEpisode
+fun SharedTransitionScope.ShowSeasonEpisodeCard(
+    item: ShowSeasonEpisode,
+    animatedVisibilityScope: AnimatedVisibilityScope
 ) {
     Card(
         shape = MaterialTheme.shapes.large,
@@ -134,6 +147,7 @@ fun ShowSeasonEpisodeCard(
             item.originalImageUrl?.let { url ->
                 PosterImage(
                     url = url,
+                    animatedVisibilityScope = animatedVisibilityScope,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(dimensionResource(id = R.dimen.show_season_episode_poster_height))
