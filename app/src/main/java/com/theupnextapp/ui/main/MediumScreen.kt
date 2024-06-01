@@ -26,9 +26,9 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavDestination
 import androidx.navigation.NavHostController
 import com.ramcosta.composedestinations.generated.destinations.TraktAccountScreenDestination
+import com.ramcosta.composedestinations.spec.Route
 import com.ramcosta.composedestinations.utils.rememberDestinationsNavigator
 import com.theupnextapp.ui.navigation.AppNavigation
 
@@ -41,7 +41,7 @@ import com.theupnextapp.ui.navigation.AppNavigation
 fun MediumScreen(
     navController: NavHostController,
     navBackStackEntry: NavBackStackEntry?,
-    destination: NavDestination?,
+    destination: Route?,
     valueState: MutableState<String?>,
     onTraktAuthCompleted: () -> Unit,
 ) {
@@ -57,12 +57,12 @@ fun MediumScreen(
             currentDestination = destination,
             onNavRailItemClick = {
                 navigator.navigate(it) {
-//                    if (destination != null) {
-//                        popUpTo(destination) {
-//                            saveState = true
-//                            inclusive = true
-//                        }
-//                    }
+                    if (destination != null) {
+                        popUpTo(destination) {
+                            saveState = true
+                            inclusive = true
+                        }
+                    }
                     launchSingleTop = true
                     restoreState = true
                 }

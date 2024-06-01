@@ -36,9 +36,9 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavDestination
 import androidx.navigation.NavHostController
 import com.ramcosta.composedestinations.generated.destinations.TraktAccountScreenDestination
+import com.ramcosta.composedestinations.spec.Route
 import com.ramcosta.composedestinations.utils.rememberDestinationsNavigator
 import com.theupnextapp.ui.navigation.AppNavigation
 
@@ -51,7 +51,7 @@ import com.theupnextapp.ui.navigation.AppNavigation
 fun ExpandedScreen(
     navController: NavHostController,
     navBackStackEntry: NavBackStackEntry?,
-    currentDestination: NavDestination?,
+    currentDestination: Route?,
     valueState: MutableState<String?>,
     onTraktAuthCompleted: () -> Unit,
 ) {
@@ -81,12 +81,12 @@ fun ExpandedScreen(
                         selected = currentDestination?.route?.contains(destination.direction.route) == true,
                         onClick = {
                             navigator.navigate(destination.direction) {
-//                                if (currentDestination != null) {
-//                                    popUpTo(currentDestination) {
-//                                        saveState = true
-//                                        inclusive = true
-//                                    }
-//                                }
+                                if (currentDestination != null) {
+                                    popUpTo(currentDestination) {
+                                        saveState = true
+                                        inclusive = true
+                                    }
+                                }
                                 launchSingleTop = true
                                 restoreState = true
                             }

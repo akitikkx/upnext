@@ -23,8 +23,8 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.navigation.NavDestination
 import com.ramcosta.composedestinations.spec.Direction
+import com.ramcosta.composedestinations.spec.Route
 
 @ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
@@ -32,7 +32,7 @@ import com.ramcosta.composedestinations.spec.Direction
 @ExperimentalFoundationApi
 @Composable
 fun NavRail(
-    currentDestination: NavDestination?,
+    currentDestination: Route?,
     onNavRailItemClick: (Direction) -> Unit
 ) {
     NavigationRail(

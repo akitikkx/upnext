@@ -23,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.ramcosta.composedestinations.utils.route
 
 @ExperimentalAnimationApi
 @ExperimentalFoundationApi
@@ -40,7 +41,7 @@ fun MainScreen(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
 
     val currentBackStackEntryAsState by navController.currentBackStackEntryAsState()
-    val currentDestination = currentBackStackEntryAsState?.destination
+    val currentDestination = currentBackStackEntryAsState?.route()
 
     when (widthSizeClass) {
         WindowWidthSizeClass.Compact -> {
