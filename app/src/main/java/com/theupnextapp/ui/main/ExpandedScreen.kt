@@ -37,10 +37,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
-import com.ramcosta.composedestinations.navigation.navigate
-import com.ramcosta.composedestinations.navigation.popUpTo
-import com.theupnextapp.ui.destinations.Destination
-import com.theupnextapp.ui.destinations.TraktAccountScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.TraktAccountScreenDestination
+import com.ramcosta.composedestinations.spec.Route
+import com.ramcosta.composedestinations.utils.rememberDestinationsNavigator
 import com.theupnextapp.ui.navigation.AppNavigation
 
 @ExperimentalMaterial3WindowSizeClassApi
@@ -52,12 +51,14 @@ import com.theupnextapp.ui.navigation.AppNavigation
 fun ExpandedScreen(
     navController: NavHostController,
     navBackStackEntry: NavBackStackEntry?,
-    currentDestination: Destination,
+    currentDestination: Route?,
     valueState: MutableState<String?>,
     onTraktAuthCompleted: () -> Unit,
 ) {
+    val navigator = navController.rememberDestinationsNavigator()
+
     if (!valueState.value.isNullOrEmpty()) {
-        navController.navigate(TraktAccountScreenDestination(code = valueState.value).route)
+        navigator.navigate(TraktAccountScreenDestination(code = valueState.value))
         onTraktAuthCompleted()
     }
 
@@ -66,7 +67,7 @@ fun ExpandedScreen(
         drawerContent = {
             PermanentDrawerSheet(modifier = Modifier.width(240.dp)) {
                 Spacer(Modifier.height(16.dp))
-                BottomBarDestination.values().forEach { destination ->
+                BottomBarDestination.entries.forEach { destination ->
                     NavigationDrawerItem(
                         icon = {
                             Icon(
@@ -77,12 +78,14 @@ fun ExpandedScreen(
                         label = {
                             Text(stringResource(id = destination.label))
                         },
-                        selected = destination.direction.route.startsWith(currentDestination.baseRoute),
+                        selected = currentDestination?.route?.contains(destination.direction.route) == true,
                         onClick = {
-                            navController.navigate(destination.direction) {
-                                popUpTo(currentDestination) {
-                                    saveState = true
-                                    inclusive = true
+                            navigator.navigate(destination.direction) {
+                                if (currentDestination != null) {
+                                    popUpTo(currentDestination) {
+                                        saveState = true
+                                        inclusive = true
+                                    }
                                 }
                                 launchSingleTop = true
                                 restoreState = true

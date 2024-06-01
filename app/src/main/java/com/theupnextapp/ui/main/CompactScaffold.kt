@@ -24,28 +24,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavHostController
+import androidx.navigation.NavController
+import androidx.navigation.NavDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.theupnextapp.ui.NavGraphs
-import com.theupnextapp.ui.appDestination
-import com.theupnextapp.ui.destinations.Destination
-import com.theupnextapp.ui.startAppDestination
+
 @ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
 @ExperimentalComposeUiApi
 @ExperimentalFoundationApi
 @Composable
 fun CompactScaffold(
-    navHostController: NavHostController,
+    navController: NavController,
     topBar: @Composable (NavBackStackEntry?) -> Unit,
-    bottomBar: @Composable (Destination) -> Unit,
+    bottomBar: @Composable (NavDestination?) -> Unit,
     content: @Composable (PaddingValues) -> Unit
 ) {
 
-    val currentBackStackEntryAsState by navHostController.currentBackStackEntryAsState()
-    val destination =
-        currentBackStackEntryAsState?.appDestination()
-            ?: NavGraphs.root.startRoute.startAppDestination
+    val currentBackStackEntryAsState by navController.currentBackStackEntryAsState()
+    val destination = currentBackStackEntryAsState?.destination
 
     Scaffold(
         topBar = { topBar(currentBackStackEntryAsState) },
