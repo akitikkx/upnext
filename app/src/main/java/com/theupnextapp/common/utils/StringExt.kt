@@ -10,8 +10,14 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.theupnextapp.network.models.gemini
+package com.theupnextapp.common.utils
 
-data class NetworkGeminiTriviaResponseTriviaQuiz(
-    val questions: List<NetworkGeminiTriviaResponseQuestion>
-)
+/**
+ * Cleans up a JSON string by removing potential surrounding characters,
+ * the "json" prefix, and trailing non-alphanumeric/non-whitespace characters.
+ *
+ * @return The cleaned-up JSON string.
+ */
+fun String.cleanUpJsonString(): String =
+    trim('`', '\'').removePrefix("json")
+        .trimEnd { !it.isLetterOrDigit() && !it.isWhitespace() }

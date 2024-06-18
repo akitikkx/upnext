@@ -12,6 +12,9 @@
 
 package com.theupnextapp.network.models.gemini
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class NetworkGeminiTriviaResponse(
     val triviaQuiz: List<NetworkGeminiTriviaResponseQuestion>
 )

@@ -16,12 +16,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.ai.client.generativeai.GenerativeModel
 import com.theupnextapp.BuildConfig
+import com.theupnextapp.common.utils.cleanUpJsonString
 import com.theupnextapp.domain.TriviaQuestion
+import com.theupnextapp.network.models.gemini.NetworkGeminiTriviaResponse
+import com.theupnextapp.network.models.gemini.toTriviaQuestions
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 @HiltViewModel
@@ -44,58 +48,61 @@ class TriviaViewModel @Inject constructor() : ViewModel() {
     val uiState: StateFlow<TriviaScreenUiState> = _uiState.asStateFlow()
 
     private val generativeModel = GenerativeModel(
-        modelName = "gemini-1.5-pro",
+        modelName = GEMINI_MODEL,
         apiKey = BuildConfig.GEMINI_ACCESS_TOKEN
     )
 
     init {
         getTriviaFromGemini()
+
+        // TODO - Base questions on a selected show
+        // TODO - Use remote config to set the number of questions
+        // TODO - Use remote config to toggle the quiz on or off
     }
 
     private fun getTriviaFromGemini() {
-        val prompt = "Write a story about a magic backpack"
-        var response = ""
+        val prompt = TRIVIA_PROMPT
 
         viewModelScope.launch {
-            generativeModel.generateContentStream(prompt).collect { chunk ->
-                print(chunk.text)
-                response += chunk.text
+            _uiState.value = TriviaScreenUiState.Loading
+            try {
+                val response = generativeModel.generateContent(prompt)
+
+                val questions = parseGeminiResponse(response.text)
+
+                if (questions.isNotEmpty()) {
+                    _questions.value = questions
+                    _currentQuestion.value = questions.firstOrNull()
+                    determineNextQuestion()
+
+                    _uiState.value = TriviaScreenUiState.Success(
+                        questions = questions,
+                        currentQuestion = _currentQuestion.value,
+                        nextQuestion = _nextQuestion.value,
+                        correctAnswers = _correctAnswers.value
+                    )
+                } else {
+                    _uiState.value = TriviaScreenUiState.Error("No questions found")
+                }
+            } catch (e: Exception) {
+                _uiState.value = TriviaScreenUiState.Error(
+                    e.localizedMessage ?: "An expected error occurred. Please try again"
+                )
             }
         }
     }
 
-//    private fun getTriviaFromFirebase() {
-//        val prompt = "5 random TV shows"
-//
-//        viewModelScope.launch {
-//            try {
-//                vertexAIRepository.getTrivia(prompt).collect { result ->
-//                    when (result) {
-//                        is Result.Loading -> _uiState.value = TriviaScreenUiState.Loading
-//                        is Result.Success -> {
-//                            _questions.value = result.data
-//                            _currentQuestion.value = _questions.value?.firstOrNull()
-//                            determineNextQuestion()
-//
-//                            _uiState.value = TriviaScreenUiState.Success(
-//                                questions = _questions.value,
-//                                currentQuestion = _currentQuestion.value,
-//                                nextQuestion = _nextQuestion.value,
-//                                correctAnswers = _correctAnswers.value
-//                            )
-//                        }
-//
-//                        else -> _uiState.value = TriviaScreenUiState.Error(result.toString())
-//                    }
-//                }
-//
-//            } catch (e: Exception) {
-//                _uiState.value = TriviaScreenUiState.Error(
-//                    e.localizedMessage ?: "An expected error occurred. Please try again"
-//                )
-//            }
-//        }
-//    }
+    private fun parseGeminiResponse(response: String?): List<TriviaQuestion> {
+        val processedString = response?.cleanUpJsonString()
+
+        if (processedString != null) {
+            val decodedString =
+                Json.decodeFromString<NetworkGeminiTriviaResponse>(processedString)
+            return decodedString.triviaQuiz.toTriviaQuestions()
+        } else {
+            return emptyList()
+        }
+    }
 
     fun onQuestionAnswered(answer: String) {
         val correctAnswer = _currentQuestion.value?.answer
@@ -165,5 +172,20 @@ class TriviaViewModel @Inject constructor() : ViewModel() {
         } else {
             return
         }
+    }
+
+    companion object {
+        const val GEMINI_MODEL = "gemini-1.5-flash"
+
+        const val TRIVIA_PROMPT = "Generate a trivia quiz for 5 very recent and popular TV shows. " +
+                "The response needs to be a JSON object that contains " +
+                "the questions and answers for each show in multiple-choice " +
+                "as well as a publicly accessible URL of the show's poster " +
+                "image. The JSON object should be valid and can be " +
+                "correctly parsed (ensure all brackets of the JSON output " +
+                "are closed correctly) and ensure the JSON matches the " +
+                "following JSON structure { \"triviaQuiz\": [ { \"show\": " +
+                "String, \"imageUrl\": String, \"question\": " +
+                "String, \"choices\": [\"\"], \"answer\": String } ] }"
     }
 }

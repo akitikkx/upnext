@@ -13,7 +13,9 @@
 package com.theupnextapp.network.models.gemini
 
 import com.theupnextapp.domain.TriviaQuestion
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class NetworkGeminiTriviaResponseQuestion(
     val show: String,
     val imageUrl: String,
