@@ -23,7 +23,8 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import com.ramcosta.composedestinations.DestinationsNavHost
-import com.theupnextapp.ui.NavGraphs
+import com.ramcosta.composedestinations.generated.NavGraphs
+
 @ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
 @ExperimentalComposeUiApi
@@ -34,10 +35,9 @@ fun AppNavigation(
     navHostController: NavHostController,
     contentPadding: PaddingValues
 ) {
-
     DestinationsNavHost(
         navGraph = NavGraphs.root,
         navController = navHostController,
-        modifier = Modifier.padding(contentPadding)
+        modifier = Modifier.padding(contentPadding),
     )
 }

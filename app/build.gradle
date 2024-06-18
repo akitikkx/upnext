@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+
 /*
  * MIT License
  *
@@ -22,6 +24,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose.compiler)
     alias(libs.plugins.ksp)
     alias(libs.plugins.ktlint)
     alias(libs.plugins.gms)
@@ -46,8 +49,8 @@ android {
         applicationId "com.theupnextapp"
         minSdkVersion 24
         targetSdkVersion 34
-        versionCode 202
-        versionName "3.6.11"
+        versionCode 203
+        versionName "3.7.0"
         testInstrumentationRunner "com.theupnextapp.CustomTestRunner"
 
         ksp {
@@ -77,6 +80,7 @@ android {
         it.buildConfigField('String', 'TRAKT_CLIENT_ID', localProperties.getProperty("TraktClientID"))
         it.buildConfigField('String', 'TRAKT_CLIENT_SECRET', localProperties.get("TraktClientSecret"))
         it.buildConfigField('String', 'TRAKT_REDIRECT_URI', localProperties.getProperty("TraktRedirectURI"))
+        it.buildConfigField('String', 'GEMINI_ACCESS_TOKEN', localProperties.getProperty("GeminiAccessToken"))
     }
 
     buildFeatures {
@@ -96,10 +100,11 @@ android {
 
     kotlin {
         jvmToolchain(17)
-    }
 
-    composeOptions {
-        kotlinCompilerExtensionVersion libs.versions.kotlin.compiler.get()
+        compilerOptions {
+            languageVersion.set(KotlinVersion.KOTLIN_1_9)
+            apiVersion.set(KotlinVersion.KOTLIN_1_9)
+        }
     }
 
     ksp {
@@ -158,7 +163,6 @@ dependencies {
     // Glide for images
     implementation libs.glide
     implementation libs.legacy.support.v4
-    testImplementation 'junit:junit:4.12'
     ksp libs.glide.compiler
 
     // ViewModel and LiveData (arch components)
@@ -194,9 +198,6 @@ dependencies {
     implementation libs.jsoup
 
     implementation libs.firebase.core
-
-    // Firebase Firestore
-    implementation libs.firebase.firestore
 
     // Firebase Analytics (Kotlin)
     implementation libs.firebase.analytics.ktx
@@ -237,8 +238,8 @@ dependencies {
     // Lottie Android
     implementation libs.lottie.compose.android
 
-    // Firebase Vertex AI
-    implementation libs.firebase.vertex.ai
+    // Google AI Gemini
+    implementation libs.geminiGenAi
 
     // Baseline Profiles
     implementation libs.profileinstaller

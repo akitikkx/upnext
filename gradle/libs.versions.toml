@@ -1,37 +1,36 @@
 [versions]
 accompanistNavigationAnimation = "0.34.0"
-activityCompose = "1.8.2"
+activityCompose = "1.9.0"
 androidMaterial = "1.11.0"
 androidMaterial3 = "1.2.1"
 androidRecyclerview = "1.3.2"
-androidGradlePlugin = "8.3.2"
+androidGradlePlugin = "8.4.1"
 androidxHiltNavigation = "1.2.0"
 androidxBenchmarkJunit4 = "1.2.4"
 androidxRecyclerviewSelection = "1.1.0"
 androidxTestEspressoCore = "3.5.1"
 androidxTestJunit = "1.1.5"
 androidxTestUiAutomator = "2.3.0"
-androidxUiTooling = "1.6.6"
-animation = "1.6.6"
+androidxUiTooling = "1.6.7"
+animation = "1.6.7"
 appcompat = "1.6.1"
 baselineProfile = "1.2.4"
 browser = "1.8.0"
 coilCompose = "2.6.0"
 chuckerVersion = "4.0.0"
 constraintlayout = "2.1.4"
-composeDestinations = "1.10.2"
+composeDestinations = "2.1.0-beta09"
 daggerHilt = "2.51.1"
-datastorePreferences = "1.0.0"
-firebaseAnalyticsKtx = "21.5.1"
+datastorePreferences = "1.1.1"
+firebaseAnalyticsKtx = "21.6.2"
 firebaseCore = "21.1.1"
 firebaseCrashlytics = "18.6.4"
 firebaseCrashlyticsPlugin = "18.3.7"
 firebaseCrashlyticsGradle = "2.9.9"
-firebaseFirestore = "24.10.3"
 firebasePerf = "20.5.2"
 firebasePerfGradlePlugin = "1.4.2"
-firebaseVertexAi = "16.0.0-beta01"
 flexbox = "3.0.0"
+geminiGenAi = "0.7.0"
 glide = "4.16.0"
 gmsPlugin = "4.4.1"
 hiltAndroidCompiler = "2.51.1"
@@ -41,17 +40,16 @@ hiltWork = "1.2.0"
 jsoup = "1.17.2"
 junit = "4.13.2"
 ktlint = "12.1.0"
-kotlin = "1.9.23"
-kotlin-compiler = "1.5.12"
+kotlin = "2.0.0"
 kotlinxCoroutinesAndroid = "1.8.0"
-ksp = "1.9.23-1.0.20"
-ktx = "1.12.0"
-leakcanaryAndroid = "2.13"
+ksp = "2.0.0-1.0.21"
+ktx = "1.13.1"
+leakcanaryAndroid = "2.14"
 legacySupportV4 = "1.0.0"
 lifecycleViewmodelCompose = "2.7.0"
 lottieComposeAndroid = "6.4.0"
-okhttp = "5.0.0-alpha.12"
-materialIconsExtended = "1.6.6"
+okhttp = "5.0.0-alpha.14"
+materialIconsExtended = "1.6.7"
 moshi = "1.15.1"
 pagingRuntimeKtx = "3.2.1"
 preferenceKtx = "1.2.1"
@@ -59,7 +57,7 @@ profileinstaller = "1.3.1"
 retrofit = "2.11.0"
 retrofit2KotlinCoroutinesAdapter = "0.9.2"
 room = "2.6.1"
-runtimeLivedata = "1.6.6"
+runtimeLivedata = "1.6.7"
 testHarness = "0.34.0"
 timber = "5.0.1"
 uiTestManifest = "1.6.6"
@@ -87,6 +85,7 @@ androidx-work-testing = { module = "androidx.work:work-testing", version.ref = "
 animation = { module = "androidx.compose.animation:animation", version.ref = "animation" }
 appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
 browser = { module = "androidx.browser:browser", version.ref = "browser" }
+geminiGenAi = { module = "com.google.ai.client.generativeai:generativeai", version.ref = "geminiGenAi" }
 glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
 glide-compiler = { group = "com.github.bumptech.glide", name = "compiler", version.ref = "glide" }
 chucker-debug = { module = "com.github.chuckerteam.chucker:library", version.ref = "chuckerVersion" }
@@ -101,9 +100,7 @@ datastore-preferences = { module = "androidx.datastore:datastore-preferences", v
 firebase-analytics-ktx = { module = "com.google.firebase:firebase-analytics-ktx", version.ref = "firebaseAnalyticsKtx" }
 firebase-core = { module = "com.google.firebase:firebase-core", version.ref = "firebaseCore" }
 firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics", version.ref = "firebaseCrashlytics" }
-firebase-firestore = { module = "com.google.firebase:firebase-firestore", version.ref = "firebaseFirestore" }
 firebase-perf = { module = "com.google.firebase:firebase-perf", version.ref = "firebasePerf" }
-firebase-vertex-ai = { module = "com.google.firebase:firebase-vertexai", version.ref = "firebaseVertexAi" }
 flexbox = { module = "com.google.android.flexbox:flexbox", version.ref = "flexbox" }
 dagger-hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "daggerHilt" }
 dagger-hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "daggerHilt" }
@@ -152,6 +149,7 @@ firebase-perf-gradle = { id = "com.google.firebase.firebase-perf", version.ref =
 gms = { id = "com.google.gms.google-services", version.ref = "gmsPlugin" }
 hilt-gradle = { id = "com.google.dagger.hilt.android", version.ref = "daggerHilt" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
 baseline-profiles = { id = "androidx.baselineprofile", version.ref = "baselineProfile" }

@@ -14,11 +14,9 @@ package com.theupnextapp.ui.trivia
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.Firebase
-import com.google.firebase.vertexai.vertexAI
-import com.theupnextapp.domain.Result
+import com.google.ai.client.generativeai.GenerativeModel
+import com.theupnextapp.BuildConfig
 import com.theupnextapp.domain.TriviaQuestion
-import com.theupnextapp.repository.VertexAIRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -27,9 +25,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class TriviaViewModel @Inject constructor(
-    private val vertexAIRepository: VertexAIRepository
-) : ViewModel() {
+class TriviaViewModel @Inject constructor() : ViewModel() {
 
     private val _questions: MutableStateFlow<List<TriviaQuestion>?> = MutableStateFlow(null)
 
@@ -47,13 +43,16 @@ class TriviaViewModel @Inject constructor(
         MutableStateFlow(TriviaScreenUiState.Initial)
     val uiState: StateFlow<TriviaScreenUiState> = _uiState.asStateFlow()
 
-    val generativeModel = Firebase.vertexAI.generativeModel("gemini-1.5-pro-preview-0409")
+    private val generativeModel = GenerativeModel(
+        modelName = "gemini-1.5-pro",
+        apiKey = BuildConfig.GEMINI_ACCESS_TOKEN
+    )
 
     init {
-        getTriviaFromVertex()
+        getTriviaFromGemini()
     }
 
-    private fun getTriviaFromVertex() {
+    private fun getTriviaFromGemini() {
         val prompt = "Write a story about a magic backpack"
         var response = ""
 
@@ -65,38 +64,38 @@ class TriviaViewModel @Inject constructor(
         }
     }
 
-    private fun getTriviaFromFirebase() {
-        val prompt = "5 random TV shows"
-
-        viewModelScope.launch {
-            try {
-                vertexAIRepository.getTrivia(prompt).collect { result ->
-                    when (result) {
-                        is Result.Loading -> _uiState.value = TriviaScreenUiState.Loading
-                        is Result.Success -> {
-                            _questions.value = result.data
-                            _currentQuestion.value = _questions.value?.firstOrNull()
-                            determineNextQuestion()
-
-                            _uiState.value = TriviaScreenUiState.Success(
-                                questions = _questions.value,
-                                currentQuestion = _currentQuestion.value,
-                                nextQuestion = _nextQuestion.value,
-                                correctAnswers = _correctAnswers.value
-                            )
-                        }
-
-                        else -> _uiState.value = TriviaScreenUiState.Error(result.toString())
-                    }
-                }
-
-            } catch (e: Exception) {
-                _uiState.value = TriviaScreenUiState.Error(
-                    e.localizedMessage ?: "An expected error occurred. Please try again"
-                )
-            }
-        }
-    }
+//    private fun getTriviaFromFirebase() {
+//        val prompt = "5 random TV shows"
+//
+//        viewModelScope.launch {
+//            try {
+//                vertexAIRepository.getTrivia(prompt).collect { result ->
+//                    when (result) {
+//                        is Result.Loading -> _uiState.value = TriviaScreenUiState.Loading
+//                        is Result.Success -> {
+//                            _questions.value = result.data
+//                            _currentQuestion.value = _questions.value?.firstOrNull()
+//                            determineNextQuestion()
+//
+//                            _uiState.value = TriviaScreenUiState.Success(
+//                                questions = _questions.value,
+//                                currentQuestion = _currentQuestion.value,
+//                                nextQuestion = _nextQuestion.value,
+//                                correctAnswers = _correctAnswers.value
+//                            )
+//                        }
+//
+//                        else -> _uiState.value = TriviaScreenUiState.Error(result.toString())
+//                    }
+//                }
+//
+//            } catch (e: Exception) {
+//                _uiState.value = TriviaScreenUiState.Error(
+//                    e.localizedMessage ?: "An expected error occurred. Please try again"
+//                )
+//            }
+//        }
+//    }
 
     fun onQuestionAnswered(answer: String) {
         val correctAnswer = _currentQuestion.value?.answer

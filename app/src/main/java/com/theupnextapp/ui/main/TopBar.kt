@@ -28,11 +28,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavBackStackEntry
+import com.ramcosta.composedestinations.generated.destinations.ShowDetailScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.ShowSeasonEpisodesScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.ShowSeasonsScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.TriviaScreenDestination
 import com.theupnextapp.R
-import com.theupnextapp.ui.destinations.ShowDetailScreenDestination
-import com.theupnextapp.ui.destinations.ShowSeasonEpisodesScreenDestination
-import com.theupnextapp.ui.destinations.ShowSeasonsScreenDestination
-import com.theupnextapp.ui.destinations.TriviaScreenDestination
 
 @ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
@@ -87,7 +87,7 @@ fun isChildScreen(navBackStackEntry: NavBackStackEntry?): Boolean {
     return when (navBackStackEntry?.destination?.route) {
         ShowDetailScreenDestination.route,
         ShowSeasonsScreenDestination.route,
-        ShowSeasonEpisodesScreenDestination.route,
+        ShowSeasonEpisodesScreenDestination.route -> true
         TriviaScreenDestination.route -> true
         else -> false
     }

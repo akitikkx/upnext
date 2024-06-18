@@ -22,7 +22,6 @@
 package com.theupnextapp.di
 
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.google.firebase.firestore.FirebaseFirestore
 import com.theupnextapp.database.TraktDao
 import com.theupnextapp.database.TvMazeDao
 import com.theupnextapp.database.UpnextDao
@@ -32,7 +31,6 @@ import com.theupnextapp.repository.DashboardRepository
 import com.theupnextapp.repository.SearchRepository
 import com.theupnextapp.repository.ShowDetailRepository
 import com.theupnextapp.repository.TraktRepository
-import com.theupnextapp.repository.VertexAIRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -95,11 +93,5 @@ object RepositoryModule {
             tvMazeService = tvMazeService,
             firebaseCrashlytics = firebaseCrashlytics
         )
-    }
-
-    @Singleton
-    @Provides
-    fun provideVertexAIRepository(firebaseFirestore: FirebaseFirestore): VertexAIRepository {
-        return VertexAIRepository(firebaseFirestore)
     }
 }

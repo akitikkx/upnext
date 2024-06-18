@@ -38,10 +38,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
 import com.theupnextapp.domain.TriviaQuestion
 import com.theupnextapp.extensions.ReferenceDevices
 
-@Destination
+@Destination<RootGraph>
 @Composable
 fun TriviaScreen(
     viewModel: TriviaViewModel = hiltViewModel()
