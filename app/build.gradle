@@ -242,6 +242,9 @@ dependencies {
     // Google AI Gemini
     implementation libs.geminiGenAi
 
+    // Firebase Vertex AI
+    implementation libs.firebase.vertex.ai
+
     implementation libs.kotlinx.serialization.json
 
     // Baseline Profiles

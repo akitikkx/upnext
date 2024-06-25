@@ -29,8 +29,9 @@ firebaseCrashlyticsPlugin = "18.3.7"
 firebaseCrashlyticsGradle = "2.9.9"
 firebasePerf = "20.5.2"
 firebasePerfGradlePlugin = "1.4.2"
+firebaseVertexAi = "16.0.0-beta02"
 flexbox = "3.0.0"
-geminiGenAi = "0.7.0"
+geminiGenAi = "0.8.0"
 glide = "4.16.0"
 gmsPlugin = "4.4.1"
 hiltAndroidCompiler = "2.51.1"
@@ -102,6 +103,7 @@ firebase-analytics-ktx = { module = "com.google.firebase:firebase-analytics-ktx"
 firebase-core = { module = "com.google.firebase:firebase-core", version.ref = "firebaseCore" }
 firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics", version.ref = "firebaseCrashlytics" }
 firebase-perf = { module = "com.google.firebase:firebase-perf", version.ref = "firebasePerf" }
+firebase-vertex-ai = { module = "com.google.firebase:firebase-vertexai", version.ref = "firebaseVertexAi" }
 flexbox = { module = "com.google.android.flexbox:flexbox", version.ref = "flexbox" }
 dagger-hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "daggerHilt" }
 dagger-hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "daggerHilt" }

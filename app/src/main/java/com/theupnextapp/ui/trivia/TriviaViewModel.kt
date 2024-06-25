@@ -14,8 +14,8 @@ package com.theupnextapp.ui.trivia
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.ai.client.generativeai.GenerativeModel
-import com.theupnextapp.BuildConfig
+import com.google.firebase.Firebase
+import com.google.firebase.vertexai.vertexAI
 import com.theupnextapp.common.utils.cleanUpJsonString
 import com.theupnextapp.domain.TriviaQuestion
 import com.theupnextapp.network.models.gemini.NetworkGeminiTriviaResponse
@@ -47,9 +47,9 @@ class TriviaViewModel @Inject constructor() : ViewModel() {
         MutableStateFlow(TriviaScreenUiState.Initial)
     val uiState: StateFlow<TriviaScreenUiState> = _uiState.asStateFlow()
 
-    private val generativeModel = GenerativeModel(
-        modelName = GEMINI_MODEL,
-        apiKey = BuildConfig.GEMINI_ACCESS_TOKEN
+    // TODO Put this behind a feature flag to switch between Google AI and Firebase
+    private val generativeModel = Firebase.vertexAI.generativeModel(
+        modelName = GEMINI_MODEL
     )
 
     init {
@@ -177,15 +177,16 @@ class TriviaViewModel @Inject constructor() : ViewModel() {
     companion object {
         const val GEMINI_MODEL = "gemini-1.5-flash"
 
-        const val TRIVIA_PROMPT = "Generate a trivia quiz for 5 very recent and popular TV shows. " +
-                "The response needs to be a JSON object that contains " +
-                "the questions and answers for each show in multiple-choice " +
-                "as well as a publicly accessible URL of the show's poster " +
-                "image. The JSON object should be valid and can be " +
-                "correctly parsed (ensure all brackets of the JSON output " +
-                "are closed correctly) and ensure the JSON matches the " +
-                "following JSON structure { \"triviaQuiz\": [ { \"show\": " +
-                "String, \"imageUrl\": String, \"question\": " +
-                "String, \"choices\": [\"\"], \"answer\": String } ] }"
+        const val TRIVIA_PROMPT =
+            "Generate a trivia quiz for 5 very recent and popular TV shows. " +
+                    "The response needs to be a JSON object that contains " +
+                    "the questions and answers for each show in multiple-choice " +
+                    "as well as a publicly accessible URL of the show's poster " +
+                    "image. The JSON object should be valid and can be " +
+                    "correctly parsed (ensure all brackets of the JSON output " +
+                    "are closed correctly) and ensure the JSON matches the " +
+                    "following JSON structure { \"triviaQuiz\": [ { \"show\": " +
+                    "String, \"imageUrl\": String, \"question\": " +
+                    "String, \"choices\": [\"\"], \"answer\": String } ] }"
     }
 }
