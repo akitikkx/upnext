@@ -14,16 +14,23 @@ package com.theupnextapp.ui.main
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.ramcosta.composedestinations.generated.destinations.TraktAccountScreenDestination
+import com.ramcosta.composedestinations.utils.rememberDestinationsNavigator
 import com.ramcosta.composedestinations.utils.route
+import com.theupnextapp.ui.navigation.AppNavigation
 
 @ExperimentalAnimationApi
 @ExperimentalFoundationApi
@@ -32,47 +39,46 @@ import com.ramcosta.composedestinations.utils.route
 @ExperimentalMaterial3WindowSizeClassApi
 @Composable
 fun MainScreen(
-    widthSizeClass: WindowWidthSizeClass,
     valueState: MutableState<String?>,
     onTraktAuthCompleted: () -> Unit,
 ) {
     val navController = rememberNavController()
 
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val navigator = navController.rememberDestinationsNavigator()
 
     val currentBackStackEntryAsState by navController.currentBackStackEntryAsState()
     val currentDestination = currentBackStackEntryAsState?.route()
 
-    when (widthSizeClass) {
-        WindowWidthSizeClass.Compact -> {
-            CompactScreen(
-                navController = navController,
-                valueState = valueState,
-            ) {
-                onTraktAuthCompleted()
-            }
-        }
-
-        WindowWidthSizeClass.Medium -> {
-            MediumScreen(
-                valueState = valueState,
-                navBackStackEntry = navBackStackEntry,
-                destination = currentDestination,
-                navController = navController
-            ) {
-                onTraktAuthCompleted()
-            }
-        }
-
-        WindowWidthSizeClass.Expanded -> {
-            ExpandedScreen(
-                navController = navController,
-                navBackStackEntry = navBackStackEntry,
-                currentDestination = currentDestination,
-                valueState = valueState
-            ) {
-                onTraktAuthCompleted()
-            }
-        }
+    if (!valueState.value.isNullOrEmpty()) {
+        navigator.navigate(TraktAccountScreenDestination(code = valueState.value))
+        onTraktAuthCompleted()
     }
+
+    NavigationSuiteScaffold(
+        navigationSuiteItems = {
+            BottomBarDestination.entries.forEach {
+                item(
+                    icon = {
+                        Icon(
+                            it.icon,
+                            contentDescription = stringResource(it.label)
+                        )
+                    },
+                    label = { Text(stringResource(it.label)) },
+                    selected = currentDestination?.route?.contains(it.direction.route) == true,
+                    onClick = {
+                        navigator.navigate(it.direction) {
+                            launchSingleTop = true
+                        }
+                    }
+                )
+            }
+        },
+        content = {
+            AppNavigation(
+                navHostController = navController,
+                contentPadding = PaddingValues()
+            )
+        }
+    )
 }
