@@ -12,16 +12,10 @@
 
 package com.theupnextapp.ui.main
 
-import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBox
-import androidx.compose.material.icons.filled.Explore
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -33,7 +27,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination
@@ -42,26 +35,7 @@ import com.ramcosta.composedestinations.generated.destinations.ExploreScreenDest
 import com.ramcosta.composedestinations.generated.destinations.SearchScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.TraktAccountScreenDestination
 import com.ramcosta.composedestinations.spec.Direction
-import com.theupnextapp.R
 
-@ExperimentalMaterial3WindowSizeClassApi
-@ExperimentalMaterial3Api
-@ExperimentalComposeUiApi
-@ExperimentalFoundationApi
-enum class BottomBarDestination(
-    val direction: Direction,
-    val icon: ImageVector,
-    @StringRes val label: Int
-) {
-    Dashboard(DashboardScreenDestination, Icons.Default.Home, R.string.bottom_nav_title_dashboard),
-    SearchScreen(SearchScreenDestination, Icons.Default.Search, R.string.bottom_nav_title_search),
-    Explore(ExploreScreenDestination, Icons.Filled.Explore, R.string.bottom_nav_title_explore),
-    TraktAccount(
-        TraktAccountScreenDestination(),
-        Icons.Filled.AccountBox,
-        R.string.bottom_nav_title_account
-    )
-}
 @ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
 @ExperimentalComposeUiApi
@@ -83,7 +57,7 @@ fun BottomBar(
             BottomAppBar(
                 modifier = Modifier.testTag("bottom_app_bar")
             ) {
-                BottomBarDestination.entries.forEach { destination ->
+                NavigationDestination.entries.forEach { destination ->
                     NavigationBarItem(
                         icon = {
                             Icon(
