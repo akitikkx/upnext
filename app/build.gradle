@@ -120,7 +120,8 @@ dependencies {
     implementation libs.android.ktx
     implementation libs.constraintlayout
     implementation libs.android.material
-    implementation libs.android.material3.adaptive.navigation
+    implementation libs.android.material3.adaptive.layout
+    implementation libs.android.material3.adaptive.navigation.suite
 
     // Compose
     // Integration with activities

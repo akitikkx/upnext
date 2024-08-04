@@ -18,8 +18,12 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -39,6 +43,7 @@ import com.theupnextapp.ui.navigation.AppNavigation
 @ExperimentalMaterial3WindowSizeClassApi
 @Composable
 fun MainScreen(
+    widthSizeClass: WindowWidthSizeClass,
     valueState: MutableState<String?>,
     onTraktAuthCompleted: () -> Unit,
 ) {
@@ -52,6 +57,15 @@ fun MainScreen(
     if (!valueState.value.isNullOrEmpty()) {
         navigator.navigate(TraktAccountScreenDestination(code = valueState.value))
         onTraktAuthCompleted()
+    }
+
+    val adaptiveInfo = currentWindowAdaptiveInfo()
+    val customNavType = with(adaptiveInfo) {
+        if(windowSizeClass.windowWidthSizeClass == androidx.window.core.layout.WindowWidthSizeClass.EXPANDED) {
+            NavigationSuiteType.NavigationDrawer
+        } else {
+            NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(adaptiveInfo)
+        }
     }
 
     NavigationSuiteScaffold(
@@ -74,6 +88,7 @@ fun MainScreen(
                 )
             }
         },
+        layoutType = customNavType,
         content = {
             AppNavigation(
                 navHostController = navController,

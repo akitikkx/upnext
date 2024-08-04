@@ -3,6 +3,7 @@ accompanistNavigationAnimation = "0.34.0"
 activityCompose = "1.9.1"
 androidMaterial = "1.12.0"
 androidMaterial3 = "1.2.1"
+androidMaterial3Adaptive = "1.0.0-beta04"
 androidMaterial3AdaptiveNavigation = "1.0.0-alpha07"
 androidRecyclerview = "1.3.2"
 androidGradlePlugin = "8.5.1"
@@ -72,7 +73,8 @@ android-hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "hiltWor
 android-hilt-work-compiler = { group = "androidx.hilt", name = "hilt-compiler", version.ref = "hiltCompiler" }
 android-material = { group = "com.google.android.material", name = "material", version.ref = "androidMaterial" }
 android-material3 = { module = "androidx.compose.material3:material3", version.ref = "androidMaterial3" }
-android-material3-adaptive-navigation = { module = "androidx.compose.material3:material3-adaptive-navigation-suite", version.ref = "androidMaterial3AdaptiveNavigation" }
+android-material3-adaptive-layout = { module = "androidx.compose.material3.adaptive:adaptive-layout", version.ref = "androidMaterial3Adaptive" }
+android-material3-adaptive-navigation-suite = { module = "androidx.compose.material3:material3-adaptive-navigation-suite", version.ref = "androidMaterial3AdaptiveNavigation" }
 android-recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "androidRecyclerview" }
 androidx-benchmark-macrobenchmark-junit4 = { module = "androidx.benchmark:benchmark-macro-junit4", version.ref = "androidxBenchmarkJunit4" }
 androidx-test-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "androidxTestEspressoCore" }
