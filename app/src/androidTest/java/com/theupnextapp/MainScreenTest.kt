@@ -5,7 +5,6 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -54,7 +53,6 @@ class MainScreenTest {
 
             TestHarness(size = DpSize(200.dp, 600.dp)) {
                 MainScreen(
-                    widthSizeClass = WindowWidthSizeClass.Compact,
                     valueState = dataString,
                     onTraktAuthCompleted = {})
             }
@@ -69,7 +67,6 @@ class MainScreenTest {
 
             TestHarness(size = DpSize(600.dp, 480.dp)) {
                 MainScreen(
-                    widthSizeClass = WindowWidthSizeClass.Medium,
                     valueState = dataString,
                     onTraktAuthCompleted = {})
 
@@ -85,7 +82,6 @@ class MainScreenTest {
 
             TestHarness(size = DpSize(840.dp, 480.dp)) {
                 MainScreen(
-                    widthSizeClass = WindowWidthSizeClass.Expanded,
                     valueState = dataString,
                     onTraktAuthCompleted = {})
 

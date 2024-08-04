@@ -23,7 +23,6 @@ import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffo
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -31,6 +30,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.window.core.layout.WindowWidthSizeClass.Companion.EXPANDED
 import com.ramcosta.composedestinations.generated.destinations.TraktAccountScreenDestination
 import com.ramcosta.composedestinations.utils.rememberDestinationsNavigator
 import com.ramcosta.composedestinations.utils.route
@@ -43,7 +43,6 @@ import com.theupnextapp.ui.navigation.AppNavigation
 @ExperimentalMaterial3WindowSizeClassApi
 @Composable
 fun MainScreen(
-    widthSizeClass: WindowWidthSizeClass,
     valueState: MutableState<String?>,
     onTraktAuthCompleted: () -> Unit,
 ) {
@@ -61,7 +60,7 @@ fun MainScreen(
 
     val adaptiveInfo = currentWindowAdaptiveInfo()
     val customNavType = with(adaptiveInfo) {
-        if(windowSizeClass.windowWidthSizeClass == androidx.window.core.layout.WindowWidthSizeClass.EXPANDED) {
+        if(windowSizeClass.windowWidthSizeClass == EXPANDED) {
             NavigationSuiteType.NavigationDrawer
         } else {
             NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(adaptiveInfo)
@@ -70,7 +69,7 @@ fun MainScreen(
 
     NavigationSuiteScaffold(
         navigationSuiteItems = {
-            BottomBarDestination.entries.forEach {
+            NavigationDestination.entries.forEach {
                 item(
                     icon = {
                         Icon(
