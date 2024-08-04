@@ -12,43 +12,39 @@
 
 package com.theupnextapp.ui.main
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBox
+import androidx.compose.material.icons.filled.Explore
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationRail
-import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.graphics.vector.ImageVector
+import com.ramcosta.composedestinations.generated.destinations.DashboardScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.ExploreScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.SearchScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.TraktAccountScreenDestination
 import com.ramcosta.composedestinations.spec.Direction
-import com.ramcosta.composedestinations.spec.Route
+import com.theupnextapp.R
 
 @ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
 @ExperimentalComposeUiApi
 @ExperimentalFoundationApi
-@Composable
-fun NavRail(
-    currentDestination: Route?,
-    onNavRailItemClick: (Direction) -> Unit
+enum class NavigationDestination(
+    val direction: Direction,
+    val icon: ImageVector,
+    @StringRes val label: Int
 ) {
-    NavigationRail(
-        modifier = Modifier.testTag("navigation_rail")
-    ) {
-        BottomBarDestination.entries.forEach { destination ->
-            NavigationRailItem(
-                selected = currentDestination?.route?.contains(destination.direction.route) == true,
-                onClick = { onNavRailItemClick(destination.direction) },
-                icon = {
-                    Icon(
-                        imageVector = destination.icon,
-                        contentDescription = stringResource(id = destination.label)
-                    )
-                }
-            )
-        }
-    }
+    Dashboard(DashboardScreenDestination, Icons.Default.Home, R.string.nav_title_dashboard),
+    SearchScreen(SearchScreenDestination, Icons.Default.Search, R.string.nav_title_search),
+    Explore(ExploreScreenDestination, Icons.Filled.Explore, R.string.nav_title_explore),
+    TraktAccount(
+        TraktAccountScreenDestination(),
+        Icons.Filled.AccountBox,
+        R.string.nav_title_account
+    )
 }
