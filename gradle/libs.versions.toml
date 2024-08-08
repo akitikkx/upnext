@@ -62,7 +62,7 @@ testHarness = "0.34.0"
 timber = "5.0.1"
 uiTestManifest = "1.6.8"
 workRuntimeKtx = "2.9.0"
-workTesting = "2.9.0"
+workTesting = "2.9.1"
 
 [libraries]
 accompanist-navigation-animation = { module = "com.google.accompanist:accompanist-navigation-animation", version.ref = "accompanistNavigationAnimation" }
