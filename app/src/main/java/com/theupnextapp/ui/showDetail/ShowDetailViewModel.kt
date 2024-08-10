@@ -62,11 +62,7 @@ class ShowDetailViewModel @Inject constructor(
     private val _show = MutableSharedFlow<ShowDetailArg>()
     val show: SharedFlow<ShowDetailArg> = _show
 
-    private val _showCastBottomSheet = MutableSharedFlow<ShowCast?>()
-    val showCastBottomSheet: SharedFlow<ShowCast?> = _showCastBottomSheet
-
     private val _navigateToSeasons = MutableSharedFlow<Unit>()
-    val navigateToSeasons: SharedFlow<Unit> = _navigateToSeasons
 
     private val _showSummary = MutableStateFlow<ShowDetailSummary?>(null)
     val showSummary: StateFlow<ShowDetailSummary?> = _showSummary
@@ -83,11 +79,7 @@ class ShowDetailViewModel @Inject constructor(
     private val _isFavoriteShow = MutableStateFlow(false)
     val isFavoriteShow: StateFlow<Boolean> = _isFavoriteShow
 
-    private val isUpnextRepositoryLoading = showDetailRepository.isLoading
-
-    private val isTraktRepositoryLoading = traktRepository.isLoading
-
-    private val _showCast = MutableStateFlow<List<ShowCast>?>()
+    private val _showCast = MutableStateFlow<List<ShowCast>?>(null)
     val showCast: StateFlow<List<ShowCast>?> = _showCast
 
     val showRating = traktRepository.traktShowRating
@@ -123,7 +115,7 @@ class ShowDetailViewModel @Inject constructor(
         when (result) {
             is Result.Success -> {
                 stateFlow.value = result.data
-                onSuccess(result) // Call onSuccess only for Result.Success
+                onSuccess(result)
                 _isLoading.value = false
             }
             is Result.Loading -> _isLoading.value = result.isLoading
@@ -262,12 +254,6 @@ class ShowDetailViewModel @Inject constructor(
                     workManager.enqueue(addFavoriteWork.build())
                 }
             }
-        }
-    }
-
-    fun onSeasonsNavigationComplete() {
-        viewModelScope.launch {
-            _navigateToSeasons.emit(Unit)
         }
     }
 }

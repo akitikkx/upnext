@@ -49,7 +49,6 @@ import com.theupnextapp.domain.TraktShowStats
 import com.theupnextapp.domain.TraktTrendingShows
 import com.theupnextapp.domain.TraktUserListItem
 import com.theupnextapp.domain.areVariablesEmpty
-import com.theupnextapp.extensions.Event
 import com.theupnextapp.network.TraktService
 import com.theupnextapp.network.TvMazeService
 import com.theupnextapp.network.models.trakt.NetworkTraktAccessRefreshTokenRequest
@@ -69,25 +68,23 @@ import com.theupnextapp.network.models.trakt.NetworkTraktRemoveShowFromListReque
 import com.theupnextapp.network.models.trakt.NetworkTraktRemoveShowFromListRequestShow
 import com.theupnextapp.network.models.trakt.NetworkTraktRemoveShowFromListRequestShowIds
 import com.theupnextapp.network.models.trakt.NetworkTraktRevokeAccessTokenRequest
-import com.theupnextapp.network.models.trakt.NetworkTraktTrendingShowsResponseItem
 import com.theupnextapp.network.models.trakt.NetworkTraktUserListItemResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktUserListItemResponseItem
 import com.theupnextapp.network.models.trakt.NetworkTraktUserListsResponse
 import com.theupnextapp.network.models.trakt.asDatabaseModel
 import com.theupnextapp.network.models.trakt.asDomainModel
-import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowImageResponse
-import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupResponse
 import com.theupnextapp.network.models.tvmaze.asDatabaseModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
-import retrofit2.HttpException
 import timber.log.Timber
-import java.io.IOException
-import javax.net.ssl.SSLHandshakeException
 
-class TraktRepository constructor(
+class TraktRepository(
     private val upnextDao: UpnextDao,
     private val traktDao: TraktDao,
     private val tvMazeService: TvMazeService,
@@ -100,40 +97,28 @@ class TraktRepository constructor(
             it?.asDomainModel()
         }
 
-    val traktPopularShows: Flow<List<TraktPopularShows>>
-        get() = traktDao.getTraktPopular().map {
-            it.asDomainModel()
-        }
+    val traktPopularShows: Flow<List<TraktPopularShows>> =
+        traktDao.getTraktPopular().map { it.asDomainModel() }
 
-    val traktTrendingShows: Flow<List<TraktTrendingShows>>
-        get() = traktDao.getTraktTrending().map {
-            it.asDomainModel()
-        }
+    val traktTrendingShows: Flow<List<TraktTrendingShows>> =
+        traktDao.getTraktTrending().map { it.asDomainModel() }
 
-    val traktMostAnticipatedShows: Flow<List<TraktMostAnticipated>>
-        get() = traktDao.getTraktMostAnticipated().map {
-            it.asDomainModel()
-        }
+    val traktMostAnticipatedShows: Flow<List<TraktMostAnticipated>> =
+        traktDao.getTraktMostAnticipated().map { it.asDomainModel() }
 
-    val traktFavoriteShows: Flow<List<TraktUserListItem>>
-        get() = traktDao.getFavoriteShows().map {
-            it.asDomainModel()
-        }
+    val traktFavoriteShows: Flow<List<TraktUserListItem>> =
+        traktDao.getFavoriteShows().map { it.asDomainModel() }
 
-    val favoriteShowEpisodes: Flow<List<FavoriteNextEpisode>>
-        get() = traktDao.getFavoriteEpisodes().map {
-            it.asDomainModel()
-        }
+    val favoriteShowEpisodes: Flow<List<FavoriteNextEpisode>> =
+        traktDao.getFavoriteEpisodes().map { it.asDomainModel() }
 
-    val traktAccessToken: Flow<TraktAccessToken?>
-        get() = traktDao.getTraktAccessData().map {
-            it?.asDomainModel()
-        }
+    val traktAccessToken: Flow<TraktAccessToken?> =
+        traktDao.getTraktAccessData().map { it?.asDomainModel() }
 
     fun getTraktAccessTokenRaw(): DatabaseTraktAccess? = traktDao.getTraktAccessDataRaw()
 
-    private val _isLoading = MutableLiveData<Boolean>()
-    val isLoading: LiveData<Boolean> = _isLoading
+    private val _isLoading = MutableStateFlow<Boolean>(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
 
     private val _isLoadingTraktTrending = MutableLiveData<Boolean>()
     val isLoadingTraktTrending: LiveData<Boolean> = _isLoadingTraktTrending
@@ -144,109 +129,96 @@ class TraktRepository constructor(
     private val _isLoadingTraktMostAnticipated = MutableLiveData<Boolean>()
     val isLoadingTraktMostAnticipated: LiveData<Boolean> = _isLoadingTraktMostAnticipated
 
-    private val _traktShowRating = MutableLiveData<TraktShowRating>()
-    val traktShowRating: LiveData<TraktShowRating> = _traktShowRating
+    private val _traktShowRating = MutableStateFlow<TraktShowRating?>(null)
+    val traktShowRating: StateFlow<TraktShowRating?> = _traktShowRating
 
-    private val _traktShowStats = MutableLiveData<TraktShowStats>()
-    val traktShowStats: LiveData<TraktShowStats> = _traktShowStats
+    private val _traktShowStats = MutableStateFlow<TraktShowStats?>(null)
+    val traktShowStats: StateFlow<TraktShowStats?> = _traktShowStats
 
-    private val _favoriteShow = MutableLiveData<TraktUserListItem>()
-    val favoriteShow: LiveData<TraktUserListItem> = _favoriteShow
+    private val _favoriteShow = MutableStateFlow<TraktUserListItem?>(null)
+    val favoriteShow: StateFlow<TraktUserListItem?> = _favoriteShow
 
-    private val _traktCheckInStatus = MutableLiveData<Event<TraktCheckInStatus>>()
-    val traktCheckInStatus: LiveData<Event<TraktCheckInStatus>> = _traktCheckInStatus
+    private val _traktCheckInStatus = MutableSharedFlow<TraktCheckInStatus>()
+    val traktCheckInStatus: SharedFlow<TraktCheckInStatus> = _traktCheckInStatus
+
+    private suspend fun <T> makeTraktCall(request: suspend () -> T): T? {
+        return try {
+            _isLoading.value = true
+            val result = request.invoke()
+            _isLoading.value = false
+            result
+        } catch (e: Exception) {
+            _isLoading.value = false
+            Timber.d(e)
+            firebaseCrashlytics.recordException(e)
+            null
+        }
+    }
 
     suspend fun getTraktAccessToken(code: String?) {
         if (code.isNullOrEmpty()) {
-            logTraktException("Could not get the access token due to a null code")
+            reportTraktError("Could not get the access token due to a null code")
             return
         }
 
-        withContext(Dispatchers.IO) {
-            try {
-                _isLoading.postValue(true)
-                val traktAccessTokenRequest =
-                    NetworkTraktAccessTokenRequest(
-                        code = code,
-                        client_id = BuildConfig.TRAKT_CLIENT_ID,
-                        client_secret = BuildConfig.TRAKT_CLIENT_SECRET,
-                        redirect_uri = BuildConfig.TRAKT_REDIRECT_URI,
-                        grant_type = "authorization_code"
-                    )
-
-                val accessTokenResponse =
-                    traktService.getAccessTokenAsync(traktAccessTokenRequest).await()
-                traktDao.deleteTraktAccessData()
-                traktDao.insertAllTraktAccessData(accessTokenResponse.asDatabaseModel())
-                _isLoading.postValue(false)
-            } catch (e: Exception) {
-                _isLoading.postValue(false)
-                Timber.d(e)
-                firebaseCrashlytics.recordException(e)
-            }
+        makeTraktCall {
+            val traktAccessTokenRequest = NetworkTraktAccessTokenRequest(
+                code = code,
+                client_id = BuildConfig.TRAKT_CLIENT_ID,
+                client_secret = BuildConfig.TRAKT_CLIENT_SECRET,
+                redirect_uri = BuildConfig.TRAKT_REDIRECT_URI,
+                grant_type = "authorization_code"
+            )
+            val accessTokenResponse =
+                traktService.getAccessTokenAsync(traktAccessTokenRequest).await()
+            traktDao.deleteTraktAccessData()
+            traktDao.insertAllTraktAccessData(accessTokenResponse.asDatabaseModel())
         }
     }
 
     suspend fun revokeTraktAccessToken(traktAccessToken: TraktAccessToken) {
         if (traktAccessToken.areVariablesEmpty()) return
 
-        withContext(Dispatchers.IO) {
-            try {
-                _isLoading.postValue(true)
-                val revokeRequest = traktAccessToken.access_token?.let {
-                    NetworkTraktRevokeAccessTokenRequest(
-                        client_id = BuildConfig.TRAKT_CLIENT_ID,
-                        client_secret = BuildConfig.TRAKT_CLIENT_SECRET,
-                        token = it
-                    )
-                }
-                revokeRequest?.let { traktService.revokeAccessTokenAsync(it).await() }
-                traktDao.deleteTraktAccessData()
-                _isLoading.postValue(false)
-            } catch (e: Exception) {
-                _isLoading.postValue(false)
-                Timber.d(e)
-                firebaseCrashlytics.recordException(e)
+        makeTraktCall {
+            val revokeRequest = traktAccessToken.access_token?.let {
+                NetworkTraktRevokeAccessTokenRequest(
+                    client_id = BuildConfig.TRAKT_CLIENT_ID,
+                    client_secret = BuildConfig.TRAKT_CLIENT_SECRET,
+                    token = it
+                )
             }
+            revokeRequest?.let { traktService.revokeAccessTokenAsync(it).await() }
+            traktDao.deleteTraktAccessData()
         }
     }
 
     suspend fun getTraktAccessRefreshToken(refreshToken: String?) {
         if (refreshToken.isNullOrEmpty()) {
-            logTraktException("Could not get the access refresh token due to a null refresh token")
+            reportTraktError("Could not get the access refresh token due to a null refresh token")
             return
         }
 
-        withContext(Dispatchers.IO) {
-            try {
-                _isLoading.postValue(true)
+        makeTraktCall {
+            val traktAccessTokenRequest =
+                NetworkTraktAccessRefreshTokenRequest(
+                    refresh_token = refreshToken,
+                    client_id = BuildConfig.TRAKT_CLIENT_ID,
+                    client_secret = BuildConfig.TRAKT_CLIENT_SECRET,
+                    redirect_uri = BuildConfig.TRAKT_REDIRECT_URI,
+                    grant_type = "refresh_token"
+                )
 
-                val traktAccessTokenRequest =
-                    NetworkTraktAccessRefreshTokenRequest(
-                        refresh_token = refreshToken,
-                        client_id = BuildConfig.TRAKT_CLIENT_ID,
-                        client_secret = BuildConfig.TRAKT_CLIENT_SECRET,
-                        redirect_uri = BuildConfig.TRAKT_REDIRECT_URI,
-                        grant_type = "refresh_token"
-                    )
-
-                val accessTokenResponse =
-                    traktService.getAccessRefreshTokenAsync(traktAccessTokenRequest)
-                        .await()
-                traktDao.deleteTraktAccessData()
-                traktDao.insertAllTraktAccessData(accessTokenResponse.asDatabaseModel())
-                _isLoading.postValue(false)
-            } catch (e: Exception) {
-                _isLoading.postValue(false)
-                Timber.d(e)
-                firebaseCrashlytics.recordException(e)
-            }
+            val accessTokenResponse =
+                traktService.getAccessRefreshTokenAsync(traktAccessTokenRequest)
+                    .await()
+            traktDao.deleteTraktAccessData()
+            traktDao.insertAllTraktAccessData(accessTokenResponse.asDatabaseModel())
         }
     }
 
     suspend fun refreshFavoriteShows(forceRefresh: Boolean = false, token: String?) {
         if (token.isNullOrEmpty()) {
-            logTraktException("Could not get the favorite shows due to a null access token")
+            reportTraktError("Could not get the favorite shows due to a null access token")
             return
         }
 
@@ -255,52 +227,39 @@ class TraktRepository constructor(
                 intervalMinutes = TableUpdateInterval.TRAKT_FAVORITE_SHOWS.intervalMins
             )
         ) {
-            withContext(Dispatchers.IO) {
-                try {
-                    _isLoading.postValue(true)
-                    var hasFavoritesList = false
-                    var favoritesListId: String? = null
+            makeTraktCall {
+                val userSettings =
+                    traktService.getUserSettingsAsync(token = "Bearer $token").await()
+                val userSlug = userSettings.user?.ids?.slug
 
-                    val userSettings =
-                        traktService.getUserSettingsAsync(token = "Bearer $token").await()
-                    if (!userSettings.user?.ids?.slug.isNullOrEmpty()) {
-                        val userSlug = userSettings.user?.ids?.slug
-                        val userCustomLists = getUserSettings(userSlug, token)
+                if (!userSlug.isNullOrEmpty()) {
+                    val favoritesListId = getOrCreateFavoritesListId(userSlug, token)
 
-                        if (!userCustomLists.isNullOrEmpty()) {
-                            for (listItem in userCustomLists) {
-                                if (listItem.name == FAVORITES_LIST_NAME) {
-                                    hasFavoritesList = true
-                                    favoritesListId = listItem.ids?.slug
-                                }
-                            }
-                        }
-                        if (!hasFavoritesList) {
-                            val createCustomListResponse = createCustomList(userSlug, token)
-                            if (createCustomListResponse?.ids?.trakt != null) {
-                                favoritesListId = createCustomListResponse.ids.slug
-                            }
-                        }
-                        if (!favoritesListId.isNullOrEmpty()) {
-                            val customListItemsResponse =
-                                userSlug?.let { slug ->
-                                    traktService.getCustomListItemsAsync(
-                                        token = "Bearer $token",
-                                        userSlug = slug,
-                                        traktId = favoritesListId
-                                    ).await()
-                                }
-                            handleTraktUserListItemsResponse(customListItemsResponse)
-                        }
+                    if (!favoritesListId.isNullOrEmpty()) {
+                        val customListItemsResponse = traktService.getCustomListItemsAsync(
+                            token = "Bearer $token",
+                            userSlug = userSlug,
+                            traktId = favoritesListId
+                        ).await()
+                        handleTraktUserListItemsResponse(customListItemsResponse)
                     }
-                    _isLoading.postValue(false)
-                } catch (e: Exception) {
-                    _isLoading.postValue(false)
-                    Timber.d(e)
-                    firebaseCrashlytics.recordException(e)
                 }
             }
         }
+    }
+
+    private suspend fun getOrCreateFavoritesListId(userSlug: String?, token: String?): String? {
+        if (userSlug == null || token == null) return null
+
+        var favoritesListId: String?
+        val userCustomLists = getUserSettings(userSlug, token)
+        favoritesListId = userCustomLists?.find { it.name == FAVORITES_LIST_NAME }?.ids?.slug
+
+        if (favoritesListId == null) {
+            val createCustomListResponse = createCustomList(userSlug, token)
+            favoritesListId = createCustomListResponse?.ids?.slug
+        }
+        return favoritesListId
     }
 
     private suspend fun handleTraktUserListItemsResponse(customListItemsResponse: NetworkTraktUserListItemResponse?) {
@@ -346,7 +305,7 @@ class TraktRepository constructor(
 
         withContext(Dispatchers.IO) {
             val show = traktDao.getFavoriteShow(imdbID)
-            _favoriteShow.postValue(show?.asDomainModel())
+            _favoriteShow.emit(show?.asDomainModel())
         }
     }
 
@@ -355,73 +314,48 @@ class TraktRepository constructor(
      */
     suspend fun addShowToList(imdbID: String?, token: String?) {
         if (imdbID.isNullOrEmpty()) {
-            logTraktException("Could add the show to the favorites due to a null traktID")
+            reportTraktError("Could add the show to the favorites due to a null traktID")
             return
         }
-        withContext(Dispatchers.IO) {
-            try {
-                _isLoading.postValue(true)
-                var hasFavoritesList = false
-                var favoritesListId: String? = null
 
-                val userSettings =
-                    traktService.getUserSettingsAsync(token = "Bearer $token").await()
-                if (!userSettings.user?.ids?.slug.isNullOrEmpty()) {
-                    val userSlug = userSettings.user?.ids?.slug
-                    val userCustomLists = getUserSettings(userSlug, token)
+        makeTraktCall {
+            val userSettings = traktService.getUserSettingsAsync(token = "Bearer $token").await()
+            val userSlug = userSettings.user?.ids?.slug
 
-                    if (!userCustomLists.isNullOrEmpty()) {
-                        for (listItem in userCustomLists) {
-                            if (listItem.name == FAVORITES_LIST_NAME) {
-                                hasFavoritesList = true
-                                favoritesListId = listItem.ids?.slug
-                            }
-                        }
-                    }
-                    if (!hasFavoritesList) {
-                        val createCustomListResponse = createCustomList(userSlug, token)
-                        if (createCustomListResponse?.ids?.trakt != null) {
-                            favoritesListId = createCustomListResponse.ids.slug
-                        }
-                    }
-                    if (!favoritesListId.isNullOrEmpty()) {
-                        val showInfoResponse =
-                            traktService.getShowInfoAsync(imdbID).await()
-                        if (showInfoResponse.ids?.trakt != null) {
-                            val addShowToListRequest = NetworkTraktAddShowToListRequest(
-                                shows = listOf(
-                                    NetworkTraktAddShowToListRequestShow(
-                                        ids = NetworkTraktAddShowToListRequestShowIds(trakt = showInfoResponse.ids.trakt)
-                                    )
+            if (!userSlug.isNullOrEmpty()) {
+                val favoritesListId = getOrCreateFavoritesListId(userSlug, token)
+
+                if (!favoritesListId.isNullOrEmpty()) {
+                    val showInfoResponse = traktService.getShowInfoAsync(imdbID).await()
+                    val traktId = showInfoResponse.ids?.trakt
+
+                    if (traktId != null) {
+                        val addShowToListRequest = NetworkTraktAddShowToListRequest(
+                            shows = listOf(
+                                NetworkTraktAddShowToListRequestShow(
+                                    ids = NetworkTraktAddShowToListRequestShowIds(trakt = traktId)
                                 )
                             )
-                            val addToListResponse = userSlug?.let {
-                                traktService.addShowToCustomListAsync(
-                                    userSlug = it,
-                                    traktId = favoritesListId,
-                                    token = "Bearer $token",
-                                    networkTraktAddShowToListRequest = addShowToListRequest
-                                ).await()
-                            }
+                        )
 
-                            if (addToListResponse?.added?.shows == 1) {
-                                val customListItemsResponse =
-                                    traktService.getCustomListItemsAsync(
-                                        token = "Bearer $token",
-                                        userSlug = userSlug,
-                                        traktId = favoritesListId
-                                    ).await()
-                                handleTraktUserListItemsResponse(customListItemsResponse)
-                                checkIfShowIsFavorite(imdbID)
-                            }
+                        val addToListResponse = traktService.addShowToCustomListAsync(
+                            userSlug = userSlug,
+                            traktId = favoritesListId,
+                            token = "Bearer $token",
+                            networkTraktAddShowToListRequest = addShowToListRequest
+                        ).await()
+
+                        if (addToListResponse.added.shows == 1) {
+                            val customListItemsResponse = traktService.getCustomListItemsAsync(
+                                token = "Bearer $token",
+                                userSlug = userSlug,
+                                traktId = favoritesListId
+                            ).await()
+                            handleTraktUserListItemsResponse(customListItemsResponse)
+                            checkIfShowIsFavorite(imdbID)
                         }
                     }
                 }
-                _isLoading.postValue(false)
-            } catch (e: Exception) {
-                _isLoading.postValue(false)
-                Timber.d(e)
-                firebaseCrashlytics.recordException(e)
             }
         }
     }
@@ -431,72 +365,65 @@ class TraktRepository constructor(
      */
     suspend fun removeShowFromList(traktId: Int?, imdbID: String?, token: String?) {
         if (traktId == null || imdbID.isNullOrEmpty()) {
-            logTraktException("Could remove the show from the favorites due to either a null traktID or imdbID: $imdbID, traktID: $traktId")
+            reportTraktError("Could remove the show from the favorites due to either a null traktID or imdbID: $imdbID, traktID: $traktId")
             return
         }
-        withContext(Dispatchers.IO) {
-            try {
-                _isLoading.postValue(true)
-                var hasFavoritesList = false
-                var favoritesListId: String? = null
+        makeTraktCall {
+            var hasFavoritesList = false
+            var favoritesListId: String? = null
 
-                val userSettings =
-                    traktService.getUserSettingsAsync(token = "Bearer $token").await()
-                if (!userSettings.user?.ids?.slug.isNullOrEmpty()) {
-                    val userSlug = userSettings.user?.ids?.slug
-                    val userCustomLists = getUserSettings(userSlug, token)
+            val userSettings =
+                traktService.getUserSettingsAsync(token = "Bearer $token").await()
+            if (!userSettings.user?.ids?.slug.isNullOrEmpty()) {
+                val userSlug = userSettings.user?.ids?.slug
+                val userCustomLists = getUserSettings(userSlug, token)
 
-                    if (!userCustomLists.isNullOrEmpty()) {
-                        for (listItem in userCustomLists) {
-                            if (listItem.name == FAVORITES_LIST_NAME) {
-                                hasFavoritesList = true
-                                favoritesListId = listItem.ids?.slug
-                            }
-                        }
-                    }
-                    if (!hasFavoritesList) {
-                        val createCustomListResponse = createCustomList(userSlug, token)
-                        if (createCustomListResponse?.ids?.trakt != null) {
-                            favoritesListId = createCustomListResponse.ids.slug
-                        }
-                    }
-                    if (!favoritesListId.isNullOrEmpty()) {
-                        val removeShowFromListRequest = NetworkTraktRemoveShowFromListRequest(
-                            shows = listOf(
-                                NetworkTraktRemoveShowFromListRequestShow(
-                                    ids = NetworkTraktRemoveShowFromListRequestShowIds(trakt = traktId)
-                                )
-                            )
-                        )
-                        val removeFromListResponse = userSlug?.let {
-                            traktService.removeShowFromCustomListAsync(
-                                userSlug = it,
-                                traktId = favoritesListId,
-                                token = "Bearer $token",
-                                networkTraktRemoveShowFromListRequest = removeShowFromListRequest
-                            ).await()
-                        }
-
-                        if (removeFromListResponse?.deleted?.shows == 1) {
-                            traktDao.deleteFavoriteEpisode(imdbID)
-
-                            val customListItemsResponse =
-                                traktService.getCustomListItemsAsync(
-                                    token = "Bearer $token",
-                                    userSlug = userSlug,
-                                    traktId = favoritesListId
-                                ).await()
-                            handleTraktUserListItemsResponse(customListItemsResponse)
-                            checkIfShowIsFavorite(imdbID)
+                if (!userCustomLists.isNullOrEmpty()) {
+                    for (listItem in userCustomLists) {
+                        if (listItem.name == FAVORITES_LIST_NAME) {
+                            hasFavoritesList = true
+                            favoritesListId = listItem.ids?.slug
                         }
                     }
                 }
-                _isLoading.postValue(false)
-            } catch (e: Exception) {
-                _isLoading.postValue(false)
-                Timber.d(e)
-                firebaseCrashlytics.recordException(e)
+                if (!hasFavoritesList) {
+                    val createCustomListResponse = createCustomList(userSlug, token)
+                    if (createCustomListResponse?.ids?.trakt != null) {
+                        favoritesListId = createCustomListResponse.ids.slug
+                    }
+                }
+                if (!favoritesListId.isNullOrEmpty()) {
+                    val removeShowFromListRequest = NetworkTraktRemoveShowFromListRequest(
+                        shows = listOf(
+                            NetworkTraktRemoveShowFromListRequestShow(
+                                ids = NetworkTraktRemoveShowFromListRequestShowIds(trakt = traktId)
+                            )
+                        )
+                    )
+                    val removeFromListResponse = userSlug?.let {
+                        traktService.removeShowFromCustomListAsync(
+                            userSlug = it,
+                            traktId = favoritesListId,
+                            token = "Bearer $token",
+                            networkTraktRemoveShowFromListRequest = removeShowFromListRequest
+                        ).await()
+                    }
+
+                    if (removeFromListResponse?.deleted?.shows == 1) {
+                        traktDao.deleteFavoriteEpisode(imdbID)
+
+                        val customListItemsResponse =
+                            traktService.getCustomListItemsAsync(
+                                token = "Bearer $token",
+                                userSlug = userSlug,
+                                traktId = favoritesListId
+                            ).await()
+                        handleTraktUserListItemsResponse(customListItemsResponse)
+                        checkIfShowIsFavorite(imdbID)
+                    }
+                }
             }
+
         }
     }
 
@@ -506,50 +433,45 @@ class TraktRepository constructor(
                 intervalMinutes = TableUpdateInterval.TRAKT_FAVORITE_EPISODES.intervalMins
             )
         ) {
-            withContext(Dispatchers.IO) {
-                try {
-                    val episodesList = mutableListOf<DatabaseFavoriteNextEpisode>()
-                    val favoriteShows = traktDao.getFavoriteShowsRaw()
-                    if (!favoriteShows.isNullOrEmpty()) {
-                        for (item in favoriteShows) {
-                            val nextEpisode = item.tvMazeID?.let { getNextEpisode(it) }
+            makeTraktCall {
+                val episodesList = mutableListOf<DatabaseFavoriteNextEpisode>()
+                val favoriteShows = traktDao.getFavoriteShowsRaw()
+                if (favoriteShows.isNotEmpty()) {
+                    for (item in favoriteShows) {
+                        val nextEpisode = item.tvMazeID?.let { getNextEpisode(it) }
 
-                            val (id, poster, heroImage) = getImages(item.imdbID)
+                        val (id, poster, heroImage) = getImages(item.imdbID)
 
-                            nextEpisode?.originalShowImageUrl = poster
-                            nextEpisode?.mediumShowImageUrl = heroImage
-                            nextEpisode?.tvMazeID = id
+                        nextEpisode?.originalShowImageUrl = poster
+                        nextEpisode?.mediumShowImageUrl = heroImage
+                        nextEpisode?.tvMazeID = id
 
-                            nextEpisode?.asDatabaseModel()?.let { episodesList.add(it) }
-                        }
-                        if (episodesList.isNotEmpty()) {
-                            traktDao.deleteAllFavoriteEpisodes()
-                            traktDao.insertAllFavoriteNextEpisodes(*episodesList.toTypedArray())
-
-                            for (episode in episodesList) {
-                                val showRecord = episode.tvMazeID?.let { tvMazeId ->
-                                    traktDao.getFavoriteShowRaw(
-                                        tvMazeId
-                                    )
-                                }
-                                showRecord?.airStamp = episode.airStamp
-                                showRecord?.let { traktDao.updateFavoriteEpisode(it) }
-                            }
-
-                            upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_TRENDING.tableName)
-                            upnextDao.insertTableUpdateLog(
-                                DatabaseTableUpdate(
-                                    table_name = DatabaseTables.TABLE_FAVORITE_EPISODES.tableName,
-                                    last_updated = System.currentTimeMillis()
-                                )
-                            )
-                        }
+                        nextEpisode?.asDatabaseModel()?.let { episodesList.add(it) }
                     }
-                } catch (e: Exception) {
-                    _isLoading.postValue(false)
-                    Timber.d(e)
-                    firebaseCrashlytics.recordException(e)
+                    if (episodesList.isNotEmpty()) {
+                        traktDao.deleteAllFavoriteEpisodes()
+                        traktDao.insertAllFavoriteNextEpisodes(*episodesList.toTypedArray())
+
+                        for (episode in episodesList) {
+                            val showRecord = episode.tvMazeID?.let { tvMazeId ->
+                                traktDao.getFavoriteShowRaw(
+                                    tvMazeId
+                                )
+                            }
+                            showRecord?.airStamp = episode.airStamp
+                            showRecord?.let { traktDao.updateFavoriteEpisode(it) }
+                        }
+
+                        upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_TRENDING.tableName)
+                        upnextDao.insertTableUpdateLog(
+                            DatabaseTableUpdate(
+                                table_name = DatabaseTables.TABLE_FAVORITE_EPISODES.tableName,
+                                last_updated = System.currentTimeMillis()
+                            )
+                        )
+                    }
                 }
+
             }
         }
     }
@@ -584,127 +506,61 @@ class TraktRepository constructor(
 
     suspend fun getTraktShowRating(imdbID: String?) {
         if (imdbID.isNullOrEmpty()) {
-            logTraktException("Could not get the show rating due to a null imdb ID")
+            reportTraktError("Could not get the show rating due to a null imdb ID")
             return
         }
 
-        withContext(Dispatchers.IO) {
-            try {
-                _isLoading.postValue(true)
-                val showRatingResponse = traktService.getShowRatingsAsync(
-                    id = imdbID
-                ).await()
-                _traktShowRating.postValue(showRatingResponse.asDomainModel())
-                _isLoading.postValue(false)
-            } catch (e: Exception) {
-                _isLoading.postValue(false)
-                Timber.d(e)
-                firebaseCrashlytics.recordException(e)
-            } catch (e: HttpException) {
-                _isLoading.postValue(false)
-                Timber.d(e)
-                firebaseCrashlytics.recordException(e)
-            } catch (e: SSLHandshakeException) {
-                _isLoading.postValue(false)
-                Timber.d(e)
-                firebaseCrashlytics.recordException(e)
-            } catch (e: IOException) {
-                _isLoading.postValue(false)
-                Timber.d(e)
-                firebaseCrashlytics.recordException(e)
-            }
+        makeTraktCall {
+            val showRatingResponse = traktService.getShowRatingsAsync(id = imdbID).await()
+            _traktShowRating.value = showRatingResponse.asDomainModel()
         }
     }
 
     suspend fun getTraktShowStats(imdbID: String?) {
         if (imdbID.isNullOrEmpty()) {
-            logTraktException("Could not get the show stats due to a null imdb ID")
+            reportTraktError("Could not get the show stats due to a null imdb ID")
             return
         }
 
-        withContext(Dispatchers.IO) {
-            try {
-                _isLoading.postValue(true)
-                val showStatsResponse = traktService.getShowStatsAsync(
-                    id = imdbID
-                ).await()
-                _traktShowStats.postValue(showStatsResponse.asDomainModel())
-                _isLoading.postValue(false)
-            } catch (e: Exception) {
-                _isLoading.postValue(false)
-                Timber.d(e)
-                firebaseCrashlytics.recordException(e)
-            } catch (e: HttpException) {
-                _isLoading.postValue(false)
-                Timber.d(e)
-                firebaseCrashlytics.recordException(e)
-            } catch (e: SSLHandshakeException) {
-                _isLoading.postValue(false)
-                Timber.d(e)
-                firebaseCrashlytics.recordException(e)
-            } catch (e: IOException) {
-                _isLoading.postValue(false)
-                Timber.d(e)
-                firebaseCrashlytics.recordException(e)
-            }
+        makeTraktCall {
+            val showStatsResponse = traktService.getShowStatsAsync(
+                id = imdbID
+            ).await()
+            _traktShowStats.emit(showStatsResponse.asDomainModel())
         }
     }
 
-    suspend fun refreshTraktTrendingShows() {
-        withContext(Dispatchers.IO) {
-            try {
-                if (canProceedWithUpdate(
-                        tableName = DatabaseTables.TABLE_TRAKT_TRENDING.tableName,
-                        intervalMinutes = TableUpdateInterval.TRAKT_TRENDING_ITEMS.intervalMins
-                    )
-                ) {
-                    _isLoadingTraktTrending.postValue(true)
-                    val shows: MutableList<DatabaseTraktTrendingShows> = mutableListOf()
+    suspend fun refreshTraktTrendingShows(forceRefresh: Boolean = false) {
+        if (forceRefresh || canProceedWithUpdate(
+                tableName = DatabaseTables.TABLE_TRAKT_TRENDING.tableName,
+                intervalMinutes = TableUpdateInterval.TRAKT_TRENDING_ITEMS.intervalMins
+            )
+        ) {
+            makeTraktCall {
+                val shows = mutableListOf<DatabaseTraktTrendingShows>()
+                val trendingShowsResponse = traktService.getTrendingShowsAsync().await()
 
-                    val trendingShowsResponse =
-                        traktService.getTrendingShowsAsync().await()
+                if (trendingShowsResponse.isNotEmpty()) {
+                    for (item in trendingShowsResponse) {
+                        val (id, poster, heroImage) = getImages(item.show.ids.imdb)
 
-                    if (!trendingShowsResponse.isEmpty()) {
-                        for (item in trendingShowsResponse) {
-                            val trendingItem: NetworkTraktTrendingShowsResponseItem = item
+                        item.show.originalImageUrl = poster
+                        item.show.mediumImageUrl = heroImage
+                        item.show.ids.tvMazeID = id
 
-                            val (id, poster, heroImage) = getImages(trendingItem.show.ids.imdb)
-
-                            trendingItem.show.originalImageUrl = poster
-                            trendingItem.show.mediumImageUrl = heroImage
-                            trendingItem.show.ids.tvMazeID = id
-
-                            shows.add(trendingItem.asDatabaseModel())
-                        }
-
-                        upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_TRENDING.tableName)
-                        traktDao.deleteAllTraktTrending()
-                        traktDao.insertAllTraktTrending(*shows.toTypedArray())
-                        upnextDao.insertTableUpdateLog(
-                            DatabaseTableUpdate(
-                                table_name = DatabaseTables.TABLE_TRAKT_TRENDING.tableName,
-                                last_updated = System.currentTimeMillis()
-                            )
-                        )
+                        shows.add(item.asDatabaseModel())
                     }
-                    _isLoadingTraktTrending.postValue(false)
+
+                    upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_TRENDING.tableName)
+                    traktDao.deleteAllTraktTrending()
+                    traktDao.insertAllTraktTrending(*shows.toTypedArray())
+                    upnextDao.insertTableUpdateLog(
+                        DatabaseTableUpdate(
+                            table_name = DatabaseTables.TABLE_TRAKT_TRENDING.tableName,
+                            last_updated = System.currentTimeMillis()
+                        )
+                    )
                 }
-            } catch (e: Exception) {
-                _isLoadingTraktTrending.postValue(false)
-                Timber.d(e)
-                firebaseCrashlytics.recordException(e)
-            } catch (e: HttpException) {
-                _isLoadingTraktTrending.postValue(false)
-                Timber.d(e)
-                firebaseCrashlytics.recordException(e)
-            } catch (e: SSLHandshakeException) {
-                _isLoadingTraktTrending.postValue(false)
-                Timber.d(e)
-                firebaseCrashlytics.recordException(e)
-            } catch (e: IOException) {
-                _isLoadingTraktTrending.postValue(false)
-                Timber.d(e)
-                firebaseCrashlytics.recordException(e)
             }
         }
     }
@@ -712,242 +568,158 @@ class TraktRepository constructor(
     /**
      * Get the images for the given ImdbID
      */
-    private suspend fun getImages(
-        imdbID: String?
-    ): Triple<Int?, String?, String?> {
-        var tvMazeSearch: NetworkTvMazeShowLookupResponse? = null
+    private suspend fun getImages(imdbID: String?): Triple<Int?, String?, String?> {
+        return makeTraktCall {
+            val tvMazeSearch = imdbID?.let { tvMazeService.getShowLookupAsync(it).await() }
 
-        // perform a TvMaze search for the Trakt item using the Trakt title
-        try {
-            tvMazeSearch = imdbID?.let {
-                tvMazeService.getShowLookupAsync(it).await()
+            val fallbackPoster = tvMazeSearch?.image?.original
+            val fallbackMedium = tvMazeSearch?.image?.medium
+            var poster: String? = null
+            var heroImage: String? = null
+
+            val showImagesResponse = tvMazeSearch?.id?.toString()?.let {
+                tvMazeService.getShowImagesAsync(it).await()
             }
-        } catch (e: Exception) {
-            Timber.d(e)
-            firebaseCrashlytics.recordException(e)
-        }
 
-        val fallbackPoster = tvMazeSearch?.image?.original
-        val fallbackMedium = tvMazeSearch?.image?.medium
-        var poster: String? = ""
-        var heroImage: String? = ""
-
-        var showImagesResponse: NetworkTvMazeShowImageResponse? = null
-        try {
-            showImagesResponse =
-                tvMazeService.getShowImagesAsync(tvMazeSearch?.id.toString())
-                    .await()
-        } catch (e: Exception) {
-            Timber.d(e)
-            firebaseCrashlytics.recordException(e)
-        }
-
-        showImagesResponse.let { response ->
-            if (!response.isNullOrEmpty()) {
-                for (image in response) {
-                    if (image.type == "poster") {
-                        poster = image.resolutions.original.url
-                    }
-
-                    if (image.type == "background") {
-                        heroImage = image.resolutions.original.url
-                    }
-                }
+            showImagesResponse?.let { response ->
+                poster = response.find { it.type == "poster" }?.resolutions?.original?.url
+                heroImage = response.find { it.type == "background" }?.resolutions?.original?.url
             }
-        }
-        return Triple(tvMazeSearch?.id, poster ?: fallbackPoster, heroImage ?: fallbackMedium)
+
+            Triple(tvMazeSearch?.id, poster ?: fallbackPoster, heroImage ?: fallbackMedium)
+        } ?: Triple(null, null, null) // Return Triple with nulls if makeTraktCall returns null
     }
 
     suspend fun refreshTraktPopularShows() {
-        withContext(Dispatchers.IO) {
-            try {
-                if (canProceedWithUpdate(
-                        tableName = DatabaseTables.TABLE_TRAKT_POPULAR.tableName,
-                        intervalMinutes = TableUpdateInterval.TRAKT_POPULAR_ITEMS.intervalMins
-                    )
-                ) {
-                    _isLoadingTraktPopular.postValue(true)
-                    val shows: MutableList<DatabaseTraktPopularShows> = mutableListOf()
+        makeTraktCall {
+            if (canProceedWithUpdate(
+                    tableName = DatabaseTables.TABLE_TRAKT_POPULAR.tableName,
+                    intervalMinutes = TableUpdateInterval.TRAKT_POPULAR_ITEMS.intervalMins
+                )
+            ) {
+                val shows: MutableList<DatabaseTraktPopularShows> = mutableListOf()
 
-                    val popularShowsResponse = traktService.getPopularShowsAsync().await()
+                val popularShowsResponse = traktService.getPopularShowsAsync().await()
 
-                    if (!popularShowsResponse.isEmpty()) {
-                        for (item in popularShowsResponse) {
-                            val popularItem: NetworkTraktPopularShowsResponseItem = item
+                if (!popularShowsResponse.isEmpty()) {
+                    for (item in popularShowsResponse) {
+                        val popularItem: NetworkTraktPopularShowsResponseItem = item
 
-                            val (id, poster, heroImage) = getImages(popularItem.ids.imdb)
+                        val (id, poster, heroImage) = getImages(popularItem.ids.imdb)
 
-                            popularItem.originalImageUrl =
-                                poster
-                            popularItem.mediumImageUrl =
-                                heroImage
-                            popularItem.ids.tvMazeID = id
+                        popularItem.originalImageUrl =
+                            poster
+                        popularItem.mediumImageUrl =
+                            heroImage
+                        popularItem.ids.tvMazeID = id
 
-                            shows.add(popularItem.asDatabaseModel())
-                        }
-
-                        upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_POPULAR.tableName)
-                        traktDao.deleteAllTraktPopular()
-                        traktDao.insertAllTraktPopular(*shows.toTypedArray())
-                        upnextDao.insertTableUpdateLog(
-                            DatabaseTableUpdate(
-                                table_name = DatabaseTables.TABLE_TRAKT_POPULAR.tableName,
-                                last_updated = System.currentTimeMillis()
-                            )
-                        )
+                        shows.add(popularItem.asDatabaseModel())
                     }
-                    _isLoadingTraktPopular.postValue(false)
+
+                    upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_POPULAR.tableName)
+                    traktDao.deleteAllTraktPopular()
+                    traktDao.insertAllTraktPopular(*shows.toTypedArray())
+                    upnextDao.insertTableUpdateLog(
+                        DatabaseTableUpdate(
+                            table_name = DatabaseTables.TABLE_TRAKT_POPULAR.tableName,
+                            last_updated = System.currentTimeMillis()
+                        )
+                    )
                 }
-            } catch (e: Exception) {
-                _isLoadingTraktPopular.postValue(false)
-                Timber.d(e)
-                firebaseCrashlytics.recordException(e)
-            } catch (e: HttpException) {
-                _isLoadingTraktPopular.postValue(false)
-                Timber.d(e)
-                firebaseCrashlytics.recordException(e)
-            } catch (e: SSLHandshakeException) {
-                _isLoadingTraktPopular.postValue(false)
-                Timber.d(e)
-                firebaseCrashlytics.recordException(e)
-            } catch (e: IOException) {
-                _isLoadingTraktPopular.postValue(false)
-                Timber.d(e)
-                firebaseCrashlytics.recordException(e)
             }
         }
     }
 
     suspend fun refreshTraktMostAnticipatedShows() {
-        withContext(Dispatchers.IO) {
-            try {
-                if (canProceedWithUpdate(
-                        tableName = DatabaseTables.TABLE_TRAKT_MOST_ANTICIPATED.tableName,
-                        intervalMinutes = TableUpdateInterval.TRAKT_MOST_ANTICIPATED_ITEMS.intervalMins
-                    )
-                ) {
-                    _isLoadingTraktMostAnticipated.postValue(true)
-                    val shows: MutableList<DatabaseTraktMostAnticipated> = mutableListOf()
+        makeTraktCall {
 
-                    val mostAnticipatedShowsResponse =
-                        traktService.getMostAnticipatedShowsAsync().await()
+            if (canProceedWithUpdate(
+                    tableName = DatabaseTables.TABLE_TRAKT_MOST_ANTICIPATED.tableName,
+                    intervalMinutes = TableUpdateInterval.TRAKT_MOST_ANTICIPATED_ITEMS.intervalMins
+                )
+            ) {
+                val shows: MutableList<DatabaseTraktMostAnticipated> = mutableListOf()
 
-                    if (!mostAnticipatedShowsResponse.isEmpty()) {
-                        for (item in mostAnticipatedShowsResponse) {
-                            val mostAnticipatedItem: NetworkTraktMostAnticipatedResponseItem = item
+                val mostAnticipatedShowsResponse =
+                    traktService.getMostAnticipatedShowsAsync().await()
 
-                            val (id, poster, heroImage) = getImages(mostAnticipatedItem.show.ids.imdb)
+                if (!mostAnticipatedShowsResponse.isEmpty()) {
+                    for (item in mostAnticipatedShowsResponse) {
+                        val mostAnticipatedItem: NetworkTraktMostAnticipatedResponseItem = item
 
-                            mostAnticipatedItem.show.originalImageUrl =
-                                poster
-                            mostAnticipatedItem.show.mediumImageUrl =
-                                heroImage
-                            mostAnticipatedItem.show.ids.tvMazeID = id
-                            shows.add(mostAnticipatedItem.asDatabaseModel())
-                        }
+                        val (id, poster, heroImage) = getImages(mostAnticipatedItem.show.ids.imdb)
 
-                        upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_MOST_ANTICIPATED.tableName)
-                        traktDao.deleteAllTraktMostAnticipated()
-                        traktDao.insertAllTraktMostAnticipated(*shows.toTypedArray())
-                        upnextDao.insertTableUpdateLog(
-                            DatabaseTableUpdate(
-                                table_name = DatabaseTables.TABLE_TRAKT_MOST_ANTICIPATED.tableName,
-                                last_updated = System.currentTimeMillis()
-                            )
-                        )
+                        mostAnticipatedItem.show.originalImageUrl =
+                            poster
+                        mostAnticipatedItem.show.mediumImageUrl =
+                            heroImage
+                        mostAnticipatedItem.show.ids.tvMazeID = id
+                        shows.add(mostAnticipatedItem.asDatabaseModel())
                     }
-                    _isLoadingTraktMostAnticipated.postValue(false)
+
+                    upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TRAKT_MOST_ANTICIPATED.tableName)
+                    traktDao.deleteAllTraktMostAnticipated()
+                    traktDao.insertAllTraktMostAnticipated(*shows.toTypedArray())
+                    upnextDao.insertTableUpdateLog(
+                        DatabaseTableUpdate(
+                            table_name = DatabaseTables.TABLE_TRAKT_MOST_ANTICIPATED.tableName,
+                            last_updated = System.currentTimeMillis()
+                        )
+                    )
                 }
-            } catch (e: Exception) {
-                _isLoadingTraktMostAnticipated.postValue(false)
-                Timber.d(e)
-                firebaseCrashlytics.recordException(e)
-            } catch (e: HttpException) {
-                _isLoadingTraktMostAnticipated.postValue(false)
-                Timber.d(e)
-                firebaseCrashlytics.recordException(e)
-            } catch (e: SSLHandshakeException) {
-                _isLoadingTraktMostAnticipated.postValue(false)
-                Timber.d(e)
-                firebaseCrashlytics.recordException(e)
-            } catch (e: IOException) {
-                _isLoadingTraktMostAnticipated.postValue(false)
-                Timber.d(e)
-                firebaseCrashlytics.recordException(e)
             }
         }
     }
 
     suspend fun checkInToShow(showSeasonEpisode: ShowSeasonEpisode, token: String?) {
         if (showSeasonEpisode.imdbID.isNullOrEmpty()) {
-            logTraktException("Could not check-in to the episode due to a null imdb ID")
+            reportTraktError("Could not check-in to the episode due to a null imdb ID")
             return
         }
 
-        withContext(Dispatchers.IO) {
-            try {
-                _isLoading.postValue(true)
-                val showLookupResponse =
-                    showSeasonEpisode.imdbID?.let {
-                        traktService.idLookupAsync(idType = "imdb", id = it)
-                            .await()
-                    }
-                if (!showLookupResponse.isNullOrEmpty()) {
-                    val showLookup = showLookupResponse.firstOrNull()
-                    if (showLookup != null) {
-                        val checkInRequest = NetworkTraktCheckInRequest(
-                            show = NetworkTraktCheckInRequestShow(
-                                ids = NetworkTraktCheckInRequestShowIds(
-                                    trakt = showLookup.show?.ids?.trakt
-                                ),
-                                title = showLookup.show?.title,
-                                year = showLookup.show?.year
-                            ),
-                            episode = NetworkTraktCheckInRequestEpisode(
-                                season = showSeasonEpisode.season,
-                                number = showSeasonEpisode.number
-                            )
+        makeTraktCall {
+            val showLookupResponse = showSeasonEpisode.imdbID?.let {
+                traktService.idLookupAsync(idType = "imdb", id = it).await()
+            }
+
+            if (!showLookupResponse.isNullOrEmpty()) {
+                val showLookup = showLookupResponse.firstOrNull()
+                if (showLookup != null) {
+                    val checkInRequest = NetworkTraktCheckInRequest(
+                        show = NetworkTraktCheckInRequestShow(
+                            ids = NetworkTraktCheckInRequestShowIds(trakt = showLookup.show?.ids?.trakt),
+                            title = showLookup.show?.title,
+                            year = showLookup.show?.year
+                        ),
+                        episode = NetworkTraktCheckInRequestEpisode(
+                            season = showSeasonEpisode.season,
+                            number = showSeasonEpisode.number
                         )
-                        val checkInResponse =
-                            traktService.checkInAsync(
-                                token = "Bearer $token",
-                                networkTraktCheckInRequest = checkInRequest
-                            ).await()
-                        _traktCheckInStatus.postValue(Event(checkInResponse.asDomainModel()))
-                    }
+                    )
+
+                    val checkInResponse = traktService.checkInAsync(
+                        token = "Bearer $token",
+                        networkTraktCheckInRequest = checkInRequest
+                    ).await()
+
+                    _traktCheckInStatus.emit(checkInResponse.asDomainModel())
                 }
-                _isLoading.postValue(false)
-            } catch (e: HttpException) {
-                if (e.code() == HTTP_409) {
-                    _traktCheckInStatus.postValue(Event(TraktCheckInStatus(message = "A check-in is already in progress on Trakt. Check-ins for an episode at a time")))
-                }
-                _isLoading.postValue(false)
-                Timber.d(e)
-                firebaseCrashlytics.recordException(e)
-            } catch (e: Exception) {
-                _isLoading.postValue(false)
-                Timber.d(e)
-                firebaseCrashlytics.recordException(e)
-            } catch (e: SSLHandshakeException) {
-                _isLoading.postValue(false)
-                Timber.d(e)
-                firebaseCrashlytics.recordException(e)
-            } catch (e: IOException) {
-                _isLoading.postValue(false)
-                Timber.d(e)
-                firebaseCrashlytics.recordException(e)
             }
         }
     }
 
-    private fun logTraktException(message: String) {
+    private fun reportTraktError(message: String) {
         Timber.d(Throwable(message = message))
         firebaseCrashlytics
             .recordException(Throwable(message = "TraktRepository: $message"))
     }
 
+    sealed class LoadingState {
+        data object Idle : LoadingState()
+        data object Active : LoadingState()
+    }
+
     companion object {
         const val FAVORITES_LIST_NAME = "Upnext Favorites"
-        const val HTTP_409 = 409
     }
 }
