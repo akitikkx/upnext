@@ -44,6 +44,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -84,21 +85,21 @@ fun ShowDetailScreen(
 
     viewModel.selectedShow(showDetailArgs)
 
-    val showSummary = viewModel.showSummary.observeAsState()
+    val showSummary = viewModel.showSummary.collectAsState()
 
-    val showCast = viewModel.showCast.observeAsState()
+    val showCast = viewModel.showCast.collectAsState()
 
     val showRating = viewModel.showRating.observeAsState()
 
-    val showPreviousEpisode = viewModel.showPreviousEpisode.observeAsState()
+    val showPreviousEpisode = viewModel.showPreviousEpisode.collectAsState()
 
-    val showNextEpisode = viewModel.showNextEpisode.observeAsState()
+    val showNextEpisode = viewModel.showNextEpisode.collectAsState()
 
     val isAuthorizedOnTrakt = viewModel.isAuthorizedOnTrakt.observeAsState()
 
-    val isFavorite = viewModel.isFavoriteShow.observeAsState()
+    val isFavorite = viewModel.isFavoriteShow.collectAsState()
 
-    val isLoading = viewModel.isLoading.observeAsState()
+    val isLoading = viewModel.isLoading.collectAsState()
 
     Surface(
         modifier = Modifier

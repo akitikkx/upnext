@@ -21,9 +21,6 @@
 
 package com.theupnextapp.ui.showDetail
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequest
@@ -43,6 +40,11 @@ import com.theupnextapp.work.AddFavoriteShowWorker
 import com.theupnextapp.work.RemoveFavoriteShowWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -57,34 +59,36 @@ class ShowDetailViewModel @Inject constructor(
     workManager
 ) {
 
-    private val _show = MutableLiveData<ShowDetailArg>()
-    val showDetailArg: LiveData<ShowDetailArg> = _show
+    private val _show = MutableSharedFlow<ShowDetailArg>()
+    val show: SharedFlow<ShowDetailArg> = _show
 
-    private val _showCastBottomSheet = MutableLiveData<ShowCast?>()
-    val showCastBottomSheet: LiveData<ShowCast?> = _showCastBottomSheet
+    private val _showCastBottomSheet = MutableSharedFlow<ShowCast?>()
+    val showCastBottomSheet: SharedFlow<ShowCast?> = _showCastBottomSheet
 
-    private val _navigateToSeasons = MutableLiveData<Boolean>()
-    val navigateToSeasons: LiveData<Boolean> = _navigateToSeasons
+    private val _navigateToSeasons = MutableSharedFlow<Unit>()
+    val navigateToSeasons: SharedFlow<Unit> = _navigateToSeasons
 
-    private val _showSummary = MutableLiveData<ShowDetailSummary?>()
-    val showSummary: LiveData<ShowDetailSummary?> = _showSummary
+    private val _showSummary = MutableStateFlow<ShowDetailSummary?>(null)
+    val showSummary: StateFlow<ShowDetailSummary?> = _showSummary
 
-    private val _showPreviousEpisode = MutableLiveData<ShowPreviousEpisode?>()
-    val showPreviousEpisode: LiveData<ShowPreviousEpisode?> = _showPreviousEpisode
+    private val _showPreviousEpisode = MutableStateFlow<ShowPreviousEpisode?>(null)
+    val showPreviousEpisode: StateFlow<ShowPreviousEpisode?> = _showPreviousEpisode
 
-    private val _showNextEpisode = MutableLiveData<ShowNextEpisode?>()
-    val showNextEpisode: LiveData<ShowNextEpisode?> = _showNextEpisode
+    private val _showNextEpisode = MutableStateFlow<ShowNextEpisode?>(null)
+    val showNextEpisode: StateFlow<ShowNextEpisode?> = _showNextEpisode
 
-    val isLoading = MediatorLiveData<Boolean>()
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
 
-    val isFavoriteShow = MediatorLiveData<Boolean>()
+    private val _isFavoriteShow = MutableStateFlow(false)
+    val isFavoriteShow: StateFlow<Boolean> = _isFavoriteShow
 
     private val isUpnextRepositoryLoading = showDetailRepository.isLoading
 
     private val isTraktRepositoryLoading = traktRepository.isLoading
 
-    private val _showCast = MutableLiveData<List<ShowCast>?>()
-    val showCast: LiveData<List<ShowCast>?> = _showCast
+    private val _showCast = MutableStateFlow<List<ShowCast>?>()
+    val showCast: StateFlow<List<ShowCast>?> = _showCast
 
     val showRating = traktRepository.traktShowRating
 
@@ -93,26 +97,49 @@ class ShowDetailViewModel @Inject constructor(
     private val favoriteShow = traktRepository.favoriteShow
 
     init {
-        isLoading.addSource(isUpnextRepositoryLoading) { result ->
-            isLoading.value = result == true
+        viewModelScope.launch {
+            combine(
+                showDetailRepository.isLoading,
+                traktRepository.isLoading
+            ) { upNextLoading, traktLoading ->
+                upNextLoading || traktLoading
+            }.collect {
+                _isLoading.value = it
+            }
         }
 
-        isLoading.addSource(isTraktRepositoryLoading) { result ->
-            isLoading.value = result == true
+        viewModelScope.launch {
+            traktRepository.favoriteShow.collect {
+                _isFavoriteShow.value = it != null
+            }
         }
+    }
 
-        isFavoriteShow.addSource(favoriteShow) { result ->
-            isFavoriteShow.value = result != null
+    private fun <T> handleResult(
+        result: Result<T>,
+        stateFlow: MutableStateFlow<T?>,
+        onSuccess: (Result.Success<T>) -> Unit = {}
+    ) {
+        when (result) {
+            is Result.Success -> {
+                stateFlow.value = result.data
+                onSuccess(result) // Call onSuccess only for Result.Success
+                _isLoading.value = false
+            }
+            is Result.Loading -> _isLoading.value = result.isLoading
+            is Result.UnknownError -> {
+            firebaseCrashlytics.recordException(result.exception)
+            _isLoading.value = false
+        }
+            else -> _isLoading.value = false
         }
     }
 
     fun selectedShow(show: ShowDetailArg?) {
         show?.let {
-            _show.value = it
-            try {
+            viewModelScope.launch {
+                _show.emit(it)
                 getShowSummary(it)
-            } catch (exception: Exception) {
-                firebaseCrashlytics.recordException(exception)
             }
         }
     }
@@ -122,22 +149,16 @@ class ShowDetailViewModel @Inject constructor(
             show.showId?.let { showId ->
                 if (showId.isNotEmpty() && showId != "null") {
                     showDetailRepository.getShowSummary(showId.toInt()).collect { result ->
-                        when (result) {
-                            is Result.Success -> {
-                                val showSummary = result.data
-                                _showSummary.value = showSummary
-                                getShowPreviousEpisode(showSummary.previousEpisodeHref)
-                                getShowNextEpisode(showSummary.nextEpisodeHref)
-                                getTraktShowRating(showSummary.imdbID)
-                                getTraktShowStats(showSummary.imdbID)
-                                checkIfShowIsTraktFavorite(showSummary.imdbID)
+                        handleResult(result, _showSummary) {
+                            // Perform actions when Result.Success is received
+                            val showSummary = it.data
+                            getShowPreviousEpisode(showSummary.previousEpisodeHref)
+                            getShowNextEpisode(showSummary.nextEpisodeHref)
+                            showSummary.imdbID?.let { imdbId ->
+                                getTraktShowRating(imdbId)
+                                getTraktShowStats(imdbId)
+                                checkIfShowIsTraktFavorite(imdbId)
                             }
-
-                            is Result.Loading -> {
-                                isLoading.value = result.status
-                            }
-
-                            else -> {}
                         }
                     }
                     getShowCast(showId.toInt())
@@ -150,35 +171,17 @@ class ShowDetailViewModel @Inject constructor(
 
     private fun getShowCast(showId: Int) {
         viewModelScope.launch {
-            showDetailRepository.getShowCast(showId).collect { response ->
-                when (response) {
-                    is Result.Success -> {
-                        _showCast.value = response.data
-                    }
-
-                    is Result.Loading -> {
-                        isLoading.value = response.status
-                    }
-
-                    else -> {}
-                }
+            showDetailRepository.getShowCast(showId).collect { result ->
+                handleResult(result, _showCast)
             }
         }
     }
 
     private fun getShowPreviousEpisode(previousEpisodeHref: String?) {
         viewModelScope.launch {
-            showDetailRepository.getPreviousEpisode(previousEpisodeHref).collect { result ->
-                when (result) {
-                    is Result.Success -> {
-                        _showPreviousEpisode.value = result.data
-                    }
-
-                    is Result.Loading -> {
-                        isLoading.value = result.status
-                    }
-
-                    else -> {}
+            if (!previousEpisodeHref.isNullOrEmpty()) {
+                showDetailRepository.getPreviousEpisode(previousEpisodeHref).collect { result ->
+                    handleResult(result, _showPreviousEpisode)
                 }
             }
         }
@@ -186,18 +189,9 @@ class ShowDetailViewModel @Inject constructor(
 
     private fun getShowNextEpisode(nextEpisodeHref: String?) {
         viewModelScope.launch {
-            showDetailRepository.getNextEpisode(nextEpisodeHref).collect { result ->
-                when (result) {
-                    is Result.Success -> {
-                        _showNextEpisode.value = result.data
-                    }
-
-                    is Result.Loading -> {
-                        isLoading.value = result.status
-                    }
-
-                    else -> {}
-                }
+            if (!nextEpisodeHref.isNullOrEmpty()) {
+                showDetailRepository.getNextEpisode(nextEpisodeHref).collect { result ->
+                    handleResult(result, _showNextEpisode)}
             }
         }
     }
@@ -220,16 +214,10 @@ class ShowDetailViewModel @Inject constructor(
         }
     }
 
-    fun displayCastBottomSheetComplete() {
-        _showCastBottomSheet.value = null
-    }
-
-    fun onShowCastItemClicked(showCast: ShowCast) {
-        _showCastBottomSheet.value = showCast
-    }
-
     fun onSeasonsClick() {
-        _navigateToSeasons.value = true
+        viewModelScope.launch {
+            _navigateToSeasons.emit(Unit)
+        }
     }
 
     fun onAddRemoveFavoriteClick() {
@@ -278,6 +266,8 @@ class ShowDetailViewModel @Inject constructor(
     }
 
     fun onSeasonsNavigationComplete() {
-        _navigateToSeasons.value = false
+        viewModelScope.launch {
+            _navigateToSeasons.emit(Unit)
+        }
     }
 }

@@ -27,42 +27,41 @@ import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 import java.io.IOException
 
+private val moshi = Moshi.Builder().build()
+
 sealed class Result<out T> {
     data class Success<out T>(val data: T) : Result<T>()
-
-    data class GenericError(val code: Int? = null, val error: ErrorResponse? = null) :
-        Result<Nothing>()
-
-    object NetworkError : Result<Nothing>()
-
-    data class Loading(val status: Boolean) : Result<Nothing>()
+    data class ApiError(val code: Int, val errorResponse: ErrorResponse?) : Result<Nothing>()
+    data class ParseError(val exception: Exception) : Result<Nothing>()
+    data class UnknownError(val exception: Throwable) : Result<Nothing>()
+    data class Loading(val isLoading: Boolean) : Result<Nothing>()
+    data object NetworkError : Result<Nothing>()
 }
 
 suspend fun <T> safeApiCall(dispatcher: CoroutineDispatcher, apiCall: suspend () -> T): Result<T> {
     return withContext(dispatcher) {
         try {
-            Result.Success(apiCall.invoke())
+            Result.Success(apiCall())
         } catch (throwable: Throwable) {
             when (throwable) {
                 is IOException -> Result.NetworkError
                 is HttpException -> {
                     val errorCode = throwable.code()
-                    val errorResponse = parseException(throwable)
-                    Result.GenericError(errorCode, errorResponse)
+                    val errorResponse = try {
+                        parseException(throwable)
+                    } catch (e: Exception) {
+                        return@withContext Result.ParseError(e)
+                    }
+                    Result.ApiError(errorCode, errorResponse)
                 }
-                else -> Result.GenericError(null, null)
+                else -> Result.UnknownError(throwable)
             }
         }
     }
 }
 
 private fun parseException(throwable: HttpException): ErrorResponse? {
-    return try {
-        throwable.response()?.errorBody()?.source()?.let {
-            val moshiAdapter = Moshi.Builder().build().adapter(ErrorResponse::class.java)
-            moshiAdapter.fromJson(it)
-        }
-    } catch (exception: Exception) {
-        null
+    return throwable.response()?.errorBody()?.source()?.let {
+        moshi.adapter(ErrorResponse::class.java).fromJson(it)
     }
 }
