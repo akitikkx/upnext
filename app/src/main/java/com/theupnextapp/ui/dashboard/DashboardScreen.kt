@@ -21,6 +21,7 @@
 
 package com.theupnextapp.ui.dashboard
 
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.ReportDrawnWhen
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,6 +36,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Surface
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.material3.adaptive.layout.AnimatedPane
+import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffold
+import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
+import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
@@ -47,21 +53,65 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
-import com.ramcosta.composedestinations.generated.destinations.ShowDetailScreenDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.theupnextapp.R
 import com.theupnextapp.domain.ScheduleShow
+import com.theupnextapp.domain.asShowDetailArg
 import com.theupnextapp.extensions.ReferenceDevices
 import com.theupnextapp.ui.components.SectionHeadingText
+import com.theupnextapp.ui.showDetail.ShowDetailScreen
 import com.theupnextapp.ui.widgets.ListPosterCard
 
+@ExperimentalMaterial3AdaptiveApi
 @ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
 @Destination<RootGraph>(start = true)
 @Composable
 fun DashboardScreen(
-    viewModel: DashboardViewModel = hiltViewModel(),
     navigator: DestinationsNavigator
+) {
+    val threePaneScaffoldNavigator = rememberListDetailPaneScaffoldNavigator<ScheduleShow>()
+
+    BackHandler(threePaneScaffoldNavigator.canNavigateBack()) {
+        threePaneScaffoldNavigator.navigateBack()
+    }
+
+    ListDetailPaneScaffold(
+        directive = threePaneScaffoldNavigator.scaffoldDirective,
+        value = threePaneScaffoldNavigator.scaffoldValue,
+        modifier = Modifier.padding(16.dp),
+        listPane = {
+            AnimatedPane {
+                DashboardScreen(
+                    onClick = { item ->
+                        threePaneScaffoldNavigator.navigateTo(
+                            ListDetailPaneScaffoldRole.Detail,
+                            (item)
+                        )
+                    }
+                )
+            }
+        },
+        detailPane = {
+            AnimatedPane {
+                threePaneScaffoldNavigator.currentDestination?.content?.let { scheduleShow ->
+                    ShowDetailScreen(
+                        showDetailArgs = scheduleShow.asShowDetailArg(),
+                        navigator = navigator
+                    )
+                }
+            }
+        }
+    )
+}
+
+
+@ExperimentalMaterial3WindowSizeClassApi
+@ExperimentalMaterial3Api
+@Composable
+fun DashboardScreen(
+    viewModel: DashboardViewModel = hiltViewModel(),
+    onClick: (item: ScheduleShow) -> Unit
 ) {
     val yesterdayShowsList = viewModel.yesterdayShowsList.observeAsState()
 
@@ -86,17 +136,7 @@ fun DashboardScreen(
                             ShowsRow(
                                 list = list,
                                 rowTitle = stringResource(id = R.string.title_yesterday_shows)
-                            ) {
-                                navigator.navigate(
-                                    ShowDetailScreenDestination(
-                                        source = "dashboard",
-                                        showId = it.id.toString(),
-                                        showTitle = it.name,
-                                        showImageUrl = it.originalImage,
-                                        showBackgroundUrl = it.mediumImage
-                                    )
-                                )
-                            }
+                            ) { onClick(it) }
                         }
                     }
 
@@ -105,17 +145,7 @@ fun DashboardScreen(
                             ShowsRow(
                                 list = list,
                                 rowTitle = stringResource(id = R.string.title_today_shows)
-                            ) {
-                                navigator.navigate(
-                                    ShowDetailScreenDestination(
-                                        source = "dashboard",
-                                        showId = it.id.toString(),
-                                        showTitle = it.name,
-                                        showImageUrl = it.originalImage,
-                                        showBackgroundUrl = it.mediumImage
-                                    )
-                                )
-                            }
+                            ) { onClick(it) }
                         }
                     }
 
@@ -124,17 +154,7 @@ fun DashboardScreen(
                             ShowsRow(
                                 list = list,
                                 rowTitle = stringResource(id = R.string.title_tomorrow_shows)
-                            ) {
-                                navigator.navigate(
-                                    ShowDetailScreenDestination(
-                                        source = "dashboard",
-                                        showId = it.id.toString(),
-                                        showTitle = it.name,
-                                        showImageUrl = it.originalImage,
-                                        showBackgroundUrl = it.mediumImage
-                                    )
-                                )
-                            }
+                            ) { onClick(it) }
                         }
                     }
                 }

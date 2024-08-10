@@ -18,10 +18,8 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
-import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
-import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -30,7 +28,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.window.core.layout.WindowWidthSizeClass.Companion.EXPANDED
 import com.ramcosta.composedestinations.generated.destinations.TraktAccountScreenDestination
 import com.ramcosta.composedestinations.utils.rememberDestinationsNavigator
 import com.ramcosta.composedestinations.utils.route
@@ -41,6 +38,7 @@ import com.theupnextapp.ui.navigation.AppNavigation
 @ExperimentalComposeUiApi
 @ExperimentalMaterial3Api
 @ExperimentalMaterial3WindowSizeClassApi
+@ExperimentalMaterial3AdaptiveApi
 @Composable
 fun MainScreen(
     valueState: MutableState<String?>,
@@ -56,15 +54,6 @@ fun MainScreen(
     if (!valueState.value.isNullOrEmpty()) {
         navigator.navigate(TraktAccountScreenDestination(code = valueState.value))
         onTraktAuthCompleted()
-    }
-
-    val adaptiveInfo = currentWindowAdaptiveInfo()
-    val customNavType = with(adaptiveInfo) {
-        if(windowSizeClass.windowWidthSizeClass == EXPANDED) {
-            NavigationSuiteType.NavigationDrawer
-        } else {
-            NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(adaptiveInfo)
-        }
     }
 
     NavigationSuiteScaffold(
@@ -87,7 +76,6 @@ fun MainScreen(
                 )
             }
         },
-        layoutType = customNavType,
         content = {
             AppNavigation(
                 navHostController = navController,
