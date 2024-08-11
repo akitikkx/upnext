@@ -21,16 +21,16 @@
 
 package com.theupnextapp.ui.traktAccount
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkManager
+import com.theupnextapp.domain.TraktUserListItem
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.ui.common.BaseTraktViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -43,50 +43,50 @@ class TraktAccountViewModel @Inject constructor(
     workManager
 ) {
 
-    val isLoading = traktRepository.isLoading
+    val isLoading: Flow<Boolean> = traktRepository.isLoading
 
-    val favoriteShows = traktRepository.traktFavoriteShows.asLiveData()
+    val favoriteShows: Flow<List<TraktUserListItem>> = traktRepository.traktFavoriteShows
 
-    private val _openCustomTab = MutableLiveData<Boolean>()
-    val openCustomTab: LiveData<Boolean> = _openCustomTab
+    private val _openCustomTab = MutableSharedFlow<Boolean>()
+    val openCustomTab = _openCustomTab.asSharedFlow()
 
-    private val _confirmDisconnectFromTrakt = MutableLiveData<Boolean>()
-    val confirmDisconnectFromTrakt: LiveData<Boolean> = _confirmDisconnectFromTrakt
+    private val _confirmDisconnectFromTrakt = MutableSharedFlow<Boolean>()
+    val confirmDisconnectFromTrakt = _confirmDisconnectFromTrakt.asSharedFlow()
 
-    val favoriteShowsEmpty = MediatorLiveData<Boolean>().apply {
-        addSource(favoriteShows) {
-            value = it.isNullOrEmpty() == true
+    fun onConnectToTraktClick() {
+        viewModelScope.launch {
+            _openCustomTab.emit(true)
+        }
+    }fun onDisconnectFromTraktClick() {
+        viewModelScope.launch {
+            _confirmDisconnectFromTrakt.emit(true)
         }
     }
 
-    fun onConnectToTraktClick() {
-        _openCustomTab.postValue(true)
-    }
-
-    fun onDisconnectFromTraktClick() {
-        _confirmDisconnectFromTrakt.postValue(true)
-    }
-
     fun onDisconnectFromTraktRefused() {
-        _confirmDisconnectFromTrakt.postValue(false)
+        viewModelScope.launch {
+            _confirmDisconnectFromTrakt.emit(false)
+        }
     }
 
     fun onDisconnectConfirm() {
         viewModelScope.launch(Dispatchers.IO) {
             traktRepository.clearFavorites()
             revokeTraktAccessToken()
+            _confirmDisconnectFromTrakt.emit(false)
         }
-        _confirmDisconnectFromTrakt.postValue(false)
     }
 
     fun onCustomTabOpened() {
-        _openCustomTab.postValue(false)
+        viewModelScope.launch {
+            _openCustomTab.emit(false)
+        }
     }
 
     fun onCodeReceived(code: String?) {
-        if (!code.isNullOrEmpty()) {
+        code?.let {
             viewModelScope.launch(Dispatchers.IO) {
-                traktRepository.getTraktAccessToken(code)
+                traktRepository.getTraktAccessToken(it)
             }
         }
     }

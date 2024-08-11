@@ -36,6 +36,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -46,7 +47,7 @@ class ShowDetailRepository(
 ) : BaseRepository(upnextDao = upnextDao, tvMazeService = tvMazeService) {
 
     private val _isLoading = MutableStateFlow(false) // Add isLoading back
-    val isLoading: StateFlow<Boolean> = _isLoading
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
     private suspend fun <T> makeNetworkCall(block: suspend () -> Result<T>): Flow<Result<T>> =
         flow {

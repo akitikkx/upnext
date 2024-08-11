@@ -25,6 +25,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
+import androidx.work.workDataOf
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.theupnextapp.domain.Result
 import com.theupnextapp.domain.ShowCast
@@ -32,11 +33,14 @@ import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.ShowDetailSummary
 import com.theupnextapp.domain.ShowNextEpisode
 import com.theupnextapp.domain.ShowPreviousEpisode
+import com.theupnextapp.domain.TraktAccessToken
+import com.theupnextapp.domain.TraktUserListItem
 import com.theupnextapp.domain.emptyShowData
 import com.theupnextapp.repository.ShowDetailRepository
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.ui.common.BaseTraktViewModel
 import com.theupnextapp.work.AddFavoriteShowWorker
+import com.theupnextapp.work.BaseWorker
 import com.theupnextapp.work.RemoveFavoriteShowWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -64,7 +68,7 @@ class ShowDetailViewModel @Inject constructor(
 
     private val _navigateToSeasons = MutableSharedFlow<Unit>()
 
-    private val _showSummary = MutableStateFlow<ShowDetailSummary?>(null)
+    internal val _showSummary = MutableStateFlow<ShowDetailSummary?>(null)
     val showSummary: StateFlow<ShowDetailSummary?> = _showSummary
 
     private val _showPreviousEpisode = MutableStateFlow<ShowPreviousEpisode?>(null)
@@ -86,7 +90,7 @@ class ShowDetailViewModel @Inject constructor(
 
     val showStats = traktRepository.traktShowStats
 
-    private val favoriteShow = traktRepository.favoriteShow
+    val favoriteShow = traktRepository.favoriteShow
 
     init {
         viewModelScope.launch {
@@ -118,11 +122,13 @@ class ShowDetailViewModel @Inject constructor(
                 onSuccess(result)
                 _isLoading.value = false
             }
+
             is Result.Loading -> _isLoading.value = result.isLoading
             is Result.UnknownError -> {
-            firebaseCrashlytics.recordException(result.exception)
-            _isLoading.value = false
-        }
+                firebaseCrashlytics.recordException(result.exception)
+                _isLoading.value = false
+            }
+
             else -> _isLoading.value = false
         }
     }
@@ -183,7 +189,8 @@ class ShowDetailViewModel @Inject constructor(
         viewModelScope.launch {
             if (!nextEpisodeHref.isNullOrEmpty()) {
                 showDetailRepository.getNextEpisode(nextEpisodeHref).collect { result ->
-                    handleResult(result, _showNextEpisode)}
+                    handleResult(result, _showNextEpisode)
+                }
             }
         }
     }
@@ -214,46 +221,62 @@ class ShowDetailViewModel @Inject constructor(
 
     fun onAddRemoveFavoriteClick() {
         viewModelScope.launch(Dispatchers.IO) {
-            val accessToken = traktAccessToken.value
-            if (accessToken != null) {
-                if (favoriteShow.value != null) {
-                    val traktUserListItem = favoriteShow.value
-                    val workerData = Data.Builder()
-                    traktUserListItem?.traktID?.let {
-                        workerData.putInt(
-                            RemoveFavoriteShowWorker.ARG_TRAKT_ID,
-                            it
-                        )
+            traktAccessToken.collect { accessToken ->
+                if (accessToken != null) {
+                    when (favoriteShow.value) {
+                        null -> addFavoriteShow(accessToken, showSummary.value)
+                        else -> removeFavoriteShow(accessToken, favoriteShow.value)
                     }
-                    workerData.putString(
-                        RemoveFavoriteShowWorker.ARG_IMDB_ID,
-                        traktUserListItem?.imdbID
-                    )
-                    workerData.putString(
-                        RemoveFavoriteShowWorker.ARG_TOKEN,
-                        accessToken.access_token
-                    )
-
-                    val removeFavoriteWork =
-                        OneTimeWorkRequest.Builder(RemoveFavoriteShowWorker::class.java)
-                    removeFavoriteWork.setInputData(workerData.build())
-
-                    workManager.enqueue(removeFavoriteWork.build())
                 } else {
-                    val workerData = Data.Builder()
-                    workerData.putString(
-                        AddFavoriteShowWorker.ARG_IMDB_ID,
-                        showSummary.value?.imdbID
-                    )
-                    workerData.putString(AddFavoriteShowWorker.ARG_TOKEN, accessToken.access_token)
-
-                    val addFavoriteWork =
-                        OneTimeWorkRequest.Builder(AddFavoriteShowWorker::class.java)
-                    addFavoriteWork.setInputData(workerData.build())
-
-                    workManager.enqueue(addFavoriteWork.build())
+                    handleAccessTokenError()
                 }
             }
         }
+    }
+
+    private fun addFavoriteShow(accessToken: TraktAccessToken, showSummary: ShowDetailSummary?) {
+        showSummary?.imdbID?.let { imdbId ->
+            val workerData = workDataOf(
+                AddFavoriteShowWorker.ARG_IMDB_ID to imdbId,
+                AddFavoriteShowWorker.ARG_TOKEN to accessToken.access_token
+            )
+            enqueueWorker<AddFavoriteShowWorker>(workerData)
+        } ?: handleShowSummaryError() // Handle the case where showSummary or imdbID is null
+    }
+
+    private fun removeFavoriteShow(
+        accessToken: TraktAccessToken,
+        showToRemove: TraktUserListItem?
+    ) {
+        showToRemove?.let { show ->
+            val workerData = workDataOf(
+                RemoveFavoriteShowWorker.ARG_TRAKT_ID to show.traktID,
+                RemoveFavoriteShowWorker.ARG_IMDB_ID to show.imdbID,
+                RemoveFavoriteShowWorker.ARG_TOKEN to accessToken.access_token
+            )
+            enqueueWorker<RemoveFavoriteShowWorker>(workerData)
+        } ?: handleShowToRemoveError() // Handle the case where showToRemove is null
+    }
+
+    internal inline fun <reified T : BaseWorker> enqueueWorker(workerData: Data) {
+        val workRequest = OneTimeWorkRequest.Builder(T::class.java)
+            .setInputData(workerData)
+            .build()
+        workManager.enqueue(workRequest)
+    }
+
+    private fun handleAccessTokenError() {
+        // Log the error for debugging
+        FirebaseCrashlytics.getInstance().recordException(Throwable("Access token is null"))
+    }
+
+    private fun handleShowSummaryError() {
+        FirebaseCrashlytics.getInstance()
+            .recordException(Throwable("Show summary or IMDB ID is null"))
+    }
+
+    private fun handleShowToRemoveError() {
+        // Log the error for debugging
+        FirebaseCrashlytics.getInstance().recordException(Throwable("Show to remove is null"))
     }
 }

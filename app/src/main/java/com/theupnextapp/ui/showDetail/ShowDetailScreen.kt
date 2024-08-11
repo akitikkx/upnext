@@ -89,13 +89,13 @@ fun ShowDetailScreen(
 
     val showCast = viewModel.showCast.collectAsState()
 
-    val showRating = viewModel.showRating.observeAsState()
+    val showRating = viewModel.showRating.collectAsState()
 
     val showPreviousEpisode = viewModel.showPreviousEpisode.collectAsState()
 
     val showNextEpisode = viewModel.showNextEpisode.collectAsState()
 
-    val isAuthorizedOnTrakt = viewModel.isAuthorizedOnTrakt.observeAsState()
+    val isAuthorizedOnTrakt = viewModel.isAuthorizedOnTrakt.collectAsState()
 
     val isFavorite = viewModel.isFavoriteShow.collectAsState()
 

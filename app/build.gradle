@@ -248,6 +248,9 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
     testImplementation libs.junit
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.androidx.core.testing)
     androidTestImplementation libs.androidx.test.ext.junit
     androidTestImplementation libs.androidx.test.espresso.core
     androidTestImplementation libs.androidx.ui.test.junit4

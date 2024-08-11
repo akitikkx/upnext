@@ -70,7 +70,7 @@ class ShowSeasonEpisodesViewModel @Inject constructor(
                                     _episodes.value = result.data
                                 }
                                 is Result.Loading -> {
-                                    _isLoading.value = result.status
+                                    _isLoading.value = result.isLoading
                                 }
                                 else -> {}
                             }

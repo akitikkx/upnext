@@ -21,6 +21,7 @@
 
 package com.theupnextapp.domain
 
+import com.theupnextapp.database.DatabaseTraktAccess
 import java.util.concurrent.TimeUnit
 
 data class TraktAccessToken(
@@ -51,4 +52,16 @@ fun TraktAccessToken.isTraktAccessTokenValid(): Boolean {
         }
     }
     return isValid
+}
+
+fun TraktAccessToken.asDatabaseModel(): DatabaseTraktAccess {
+    return DatabaseTraktAccess(
+        access_token = this.access_token,
+        refresh_token = this.refresh_token,
+        created_at = this.created_at,
+        expires_in = this.expires_in,
+        token_type = this.token_type,
+        scope = this.scope,
+        id = 1
+    )
 }

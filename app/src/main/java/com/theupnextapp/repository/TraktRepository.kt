@@ -74,13 +74,19 @@ import com.theupnextapp.network.models.trakt.NetworkTraktUserListsResponse
 import com.theupnextapp.network.models.trakt.asDatabaseModel
 import com.theupnextapp.network.models.trakt.asDomainModel
 import com.theupnextapp.network.models.tvmaze.asDatabaseModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
@@ -91,6 +97,8 @@ class TraktRepository(
     private val traktService: TraktService,
     private val firebaseCrashlytics: FirebaseCrashlytics
 ) : BaseRepository(upnextDao = upnextDao, tvMazeService = tvMazeService) {
+
+    private val repositoryScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     fun tableUpdate(tableName: String): Flow<TableUpdate?> =
         upnextDao.getTableLastUpdate(tableName).map {
@@ -112,13 +120,18 @@ class TraktRepository(
     val favoriteShowEpisodes: Flow<List<FavoriteNextEpisode>> =
         traktDao.getFavoriteEpisodes().map { it.asDomainModel() }
 
-    val traktAccessToken: Flow<TraktAccessToken?> =
-        traktDao.getTraktAccessData().map { it?.asDomainModel() }
+    val traktAccessToken: StateFlow<TraktAccessToken?> = traktDao.getTraktAccessData()
+        .map { it.asDomainModel() }
+        .stateIn(
+            scope = repositoryScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = null
+        )
 
     fun getTraktAccessTokenRaw(): DatabaseTraktAccess? = traktDao.getTraktAccessDataRaw()
 
-    private val _isLoading = MutableStateFlow<Boolean>(false)
-    val isLoading: StateFlow<Boolean> = _isLoading
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
     private val _isLoadingTraktTrending = MutableLiveData<Boolean>()
     val isLoadingTraktTrending: LiveData<Boolean> = _isLoadingTraktTrending
@@ -136,7 +149,7 @@ class TraktRepository(
     val traktShowStats: StateFlow<TraktShowStats?> = _traktShowStats
 
     private val _favoriteShow = MutableStateFlow<TraktUserListItem?>(null)
-    val favoriteShow: StateFlow<TraktUserListItem?> = _favoriteShow
+    val favoriteShow: StateFlow<TraktUserListItem?> = _favoriteShow.asStateFlow()
 
     private val _traktCheckInStatus = MutableSharedFlow<TraktCheckInStatus>()
     val traktCheckInStatus: SharedFlow<TraktCheckInStatus> = _traktCheckInStatus
@@ -179,15 +192,16 @@ class TraktRepository(
     suspend fun revokeTraktAccessToken(traktAccessToken: TraktAccessToken) {
         if (traktAccessToken.areVariablesEmpty()) return
 
+        if (traktAccessToken.access_token.isNullOrEmpty()) return
+
         makeTraktCall {
-            val revokeRequest = traktAccessToken.access_token?.let {
-                NetworkTraktRevokeAccessTokenRequest(
+            val revokeRequest = NetworkTraktRevokeAccessTokenRequest(
                     client_id = BuildConfig.TRAKT_CLIENT_ID,
                     client_secret = BuildConfig.TRAKT_CLIENT_SECRET,
-                    token = it
+                    token = traktAccessToken.access_token
                 )
-            }
-            revokeRequest?.let { traktService.revokeAccessTokenAsync(it).await() }
+
+            revokeRequest.let { traktService.revokeAccessTokenAsync(it).await() }
             traktDao.deleteTraktAccessData()
         }
     }

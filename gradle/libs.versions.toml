@@ -22,6 +22,7 @@ coilCompose = "2.7.0"
 chuckerVersion = "4.0.0"
 constraintlayout = "2.1.4"
 composeDestinations = "2.1.0-beta11"
+coreTesting = "2.2.0"
 daggerHilt = "2.52"
 datastorePreferences = "1.1.1"
 firebaseAnalyticsKtx = "22.0.2"
@@ -40,6 +41,7 @@ hiltAndroidTesting = "2.52"
 hiltWork = "1.2.0"
 jsoup = "1.18.1"
 junit = "4.13.2"
+kotlinxCoroutinesTest = "1.6.4"
 ktlint = "12.1.1"
 kotlin = "2.0.10"
 kotlinxCoroutinesAndroid = "1.8.1"
@@ -48,6 +50,7 @@ ktx = "1.13.1"
 leakcanaryAndroid = "2.14"
 legacySupportV4 = "1.0.0"
 lifecycleViewmodelCompose = "2.8.4"
+mockitoCore = "5.2.0"
 okhttp = "5.0.0-alpha.14"
 materialIconsExtended = "1.6.8"
 moshi = "1.15.1"
@@ -77,6 +80,7 @@ android-material3-adaptive-layout = { module = "androidx.compose.material3.adapt
 android-material3-adaptive-navigation-suite = { module = "androidx.compose.material3:material3-adaptive-navigation-suite", version.ref = "androidMaterial3AdaptiveNavigation" }
 android-recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "androidRecyclerview" }
 androidx-benchmark-macrobenchmark-junit4 = { module = "androidx.benchmark:benchmark-macro-junit4", version.ref = "androidxBenchmarkJunit4" }
+androidx-core-testing = { module = "androidx.arch.core:core-testing", version.ref = "coreTesting" }
 androidx-test-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "androidxTestEspressoCore" }
 androidx-test-ext-junit = { module = "androidx.test.ext:junit", version.ref = "androidxTestJunit" }
 androidx-test-uiautomator = { module = "androidx.test.uiautomator:uiautomator", version.ref = "androidxTestUiAutomator" }
@@ -111,12 +115,14 @@ jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 junit = { module = "junit:junit", version.ref = "junit" }
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesAndroid" }
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
 leakcanary-android = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanaryAndroid" }
 legacy-support-v4 = { module = "androidx.legacy:legacy-support-v4", version.ref = "legacySupportV4" }
 lifecycle-common-java8 = { module = "androidx.lifecycle:lifecycle-common-java8", version.ref = "lifecycleViewmodelCompose" }
 lifecycle-livedata-ktx = { module = "androidx.lifecycle:lifecycle-livedata-ktx", version.ref = "lifecycleViewmodelCompose" }
 lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleViewmodelCompose" }
 lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelCompose" }
+mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockitoCore" }
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
 logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
 material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
@@ -136,9 +142,6 @@ moshi-kotlin = { module = "com.squareup.moshi:moshi-kotlin", version.ref = "mosh
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 test-harness = { module = "com.google.accompanist:accompanist-testharness", version.ref = "testHarness" }
 work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
-
-
-
 
 
 [plugins]

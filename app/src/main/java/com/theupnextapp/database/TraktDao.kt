@@ -76,8 +76,8 @@ interface TraktDao {
     @Query("delete from trakt_access")
     fun deleteTraktAccessData()
 
-    @Query("select * from trakt_access")
-    fun getTraktAccessData(): Flow<DatabaseTraktAccess?>
+    @Query("SELECT * FROM trakt_access UNION SELECT '' AS access_token, '' AS refresh_token, 0 AS created_at, 0 AS expires_in, ''AS token_type, '' AS scope, 0 AS id WHERE NOT EXISTS (SELECT * FROM trakt_access)")
+    fun getTraktAccessData(): Flow<DatabaseTraktAccess>
 
     @Query("select * from trakt_access")
     fun getTraktAccessDataRaw(): DatabaseTraktAccess?

@@ -45,7 +45,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
@@ -79,17 +79,17 @@ fun TraktAccountScreen(
 ) {
     val scrollState = rememberScrollState()
 
-    val isAuthorizedOnTrakt = viewModel.isAuthorizedOnTrakt.observeAsState()
+    val isAuthorizedOnTrakt = viewModel.isAuthorizedOnTrakt.collectAsState()
 
-    val favoriteShowsList = viewModel.favoriteShows.observeAsState()
+    val favoriteShowsList = viewModel.favoriteShows.collectAsState(null)
 
-    val confirmDisconnectFromTrakt = viewModel.confirmDisconnectFromTrakt.observeAsState()
+    val confirmDisconnectFromTrakt = viewModel.confirmDisconnectFromTrakt.collectAsState(false)
 
-    val isLoading = viewModel.isLoading.observeAsState()
+    val isLoading = viewModel.isLoading.collectAsState(null)
 
     val context = LocalContext.current
 
-    if (!code.isNullOrEmpty() && isAuthorizedOnTrakt.value == false) {
+    if (!code.isNullOrEmpty() && !isAuthorizedOnTrakt.value) {
         viewModel.onCodeReceived(code)
     }
 

@@ -60,7 +60,7 @@ class SearchViewModel @Inject constructor(
                         }
                     }
                     is Result.Loading -> {
-                        _isLoading.value = result.status
+                        _isLoading.value = result.isLoading
                     }
                     else -> {}
                 }

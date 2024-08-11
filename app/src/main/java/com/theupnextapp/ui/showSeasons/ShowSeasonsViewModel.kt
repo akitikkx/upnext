@@ -57,7 +57,7 @@ class ShowSeasonsViewModel @Inject constructor(
                                 _showSeasons.value = result.data
                             }
                             is Result.Loading -> {
-                                _isLoading.value = result.status
+                                _isLoading.value = result.isLoading
                             }
                             else -> {}
                         }
