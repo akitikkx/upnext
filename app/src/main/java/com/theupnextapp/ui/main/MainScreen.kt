@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.runtime.Composable
@@ -38,7 +37,6 @@ import com.theupnextapp.ui.navigation.AppNavigation
 @ExperimentalComposeUiApi
 @ExperimentalMaterial3Api
 @ExperimentalMaterial3WindowSizeClassApi
-@ExperimentalMaterial3AdaptiveApi
 @Composable
 fun MainScreen(
     valueState: MutableState<String?>,
