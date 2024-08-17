@@ -79,7 +79,7 @@ fun DashboardScreen(
     ListDetailPaneScaffold(
         directive = threePaneScaffoldNavigator.scaffoldDirective,
         value = threePaneScaffoldNavigator.scaffoldValue,
-        modifier = Modifier.padding(16.dp),
+        modifier = Modifier.padding(8.dp),
         listPane = {
             AnimatedPane {
                 DashboardScreen(
