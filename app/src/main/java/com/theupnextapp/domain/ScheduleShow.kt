@@ -21,6 +21,10 @@
 
 package com.theupnextapp.domain
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
 data class ScheduleShow(
     val id: Int,
     val originalImage: String?,
@@ -35,7 +39,7 @@ data class ScheduleShow(
     val type: String?,
     val updated: String?,
     val url: String?
-) {
+): Parcelable {
     override fun equals(other: Any?): Boolean {
         if (javaClass != other?.javaClass) {
             return false
@@ -114,4 +118,14 @@ data class ScheduleShow(
         result = 31 * result + (url?.hashCode() ?: 0)
         return result
     }
+}
+
+fun ScheduleShow.asShowDetailArg() : ShowDetailArg {
+    return ShowDetailArg(
+        source = "dashboard",
+        showId = id.toString(),
+        showTitle = name,
+        showImageUrl = originalImage,
+        showBackgroundUrl = mediumImage
+    )
 }
