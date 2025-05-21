@@ -24,6 +24,8 @@ package com.theupnextapp.ui.traktAccount
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.widget.Toast
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -170,7 +172,7 @@ private fun DisconnectTraktDialog(
 }
 
 fun openCustomTab(context: Context) {
-    val packageName = "com.android.chrome"
+    val packageName = "com.android.chrome" // This is the specific package causing the issue
 
     val traktUrl =
         "https://trakt.tv/oauth/authorize?response_type=code&client_id=" +
@@ -185,12 +187,26 @@ fun openCustomTab(context: Context) {
 
     val customBuilder = builder.build()
 
-    if (packageName != null) {
+    // Check if Chrome is available
+    val chromePackageInfo = try {
+        context.packageManager.getPackageInfo(packageName, 0)
+    } catch (e: PackageManager.NameNotFoundException) {
+        null
+    }
+
+    if (chromePackageInfo != null) {
+        // If Chrome is found
         customBuilder.intent.setPackage(packageName)
         customBuilder.launchUrl(context, traktUrl.toUri())
     } else {
+        // Fallback to any browser if Chrome is not found
         val intent = Intent(Intent.ACTION_VIEW, traktUrl.toUri())
-        activity?.startActivity(intent)
+        // Ensure there's an activity to handle this intent to prevent another crash
+        if (intent.resolveActivity(context.packageManager) != null) {
+            activity?.startActivity(intent)
+        } else {
+            Toast.makeText(context, "No browser found", Toast.LENGTH_SHORT).show()
+        }
     }
 }
 
