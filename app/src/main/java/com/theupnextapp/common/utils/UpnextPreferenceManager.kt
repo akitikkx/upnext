@@ -24,9 +24,10 @@ package com.theupnextapp.common.utils
 import android.app.Application
 import androidx.preference.PreferenceManager
 import com.theupnextapp.R
+import javax.inject.Inject
 
 @Deprecated(message = "SharedPreferences no longer recommended")
-class UpnextPreferenceManager(val application: Application) {
+class UpnextPreferenceManager @Inject constructor(val application: Application) {
 
     fun getSelectedTheme(): String? {
         val preferences = PreferenceManager.getDefaultSharedPreferences(application)

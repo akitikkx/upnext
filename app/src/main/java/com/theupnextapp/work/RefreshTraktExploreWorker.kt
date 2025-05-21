@@ -26,45 +26,84 @@ import android.os.Bundle
 import androidx.hilt.work.HiltWorker
 import androidx.work.WorkerParameters
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 import com.theupnextapp.repository.TraktRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.coroutineScope
-import javax.inject.Inject
+import timber.log.Timber
 
 @HiltWorker
 class RefreshTraktExploreWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParameters: WorkerParameters,
-    private val repository: TraktRepository
-) : BaseWorker(appContext, workerParameters) {
+    private val traktRepository: TraktRepository
+) : BaseWorker(appContext, workerParameters) { // Assuming BaseWorker is already refactored
 
-    override val contentTitle: String = "Refreshing Trakt Explore shows"
+    override val notificationId: Int = NOTIFICATION_ID // Unique ID for this worker
+    override val contentTitleText: String = "Refreshing Trakt Explore shows"
 
-    @Inject
-    lateinit var firebaseAnalytics: FirebaseAnalytics
+    private val firebaseAnalytics: FirebaseAnalytics by lazy { Firebase.analytics }
 
     override suspend fun doWork(): Result = coroutineScope {
-        try {
-            setForeground(createForegroundInfo())
+        Timber
+            .tag(TAG)
+            .d("Starting ${WORK_NAME}.")
+        return@coroutineScope try {
             refreshShows()
-            val bundle = Bundle()
-            bundle.putBoolean("Refresh shows job run", true)
-            FirebaseAnalytics.getInstance(this@RefreshTraktExploreWorker.applicationContext)
-                .logEvent("RefreshTraktExploreWorker", bundle)
+
+            val successBundle = Bundle().apply {
+                putBoolean("job_successful", true)
+                putString("job_name", WORK_NAME)
+            }
+            firebaseAnalytics.logEvent(
+                "background_job_completed",
+                successBundle
+            )
+
+            Timber
+                .tag(TAG)
+                .i("${WORK_NAME} completed successfully.")
             Result.success()
         } catch (e: Exception) {
+            Timber
+                .tag(TAG)
+                .e(e, "${WORK_NAME} failed.")
+
+            // Log failure to Firebase Analytics
+            val failureBundle = Bundle().apply {
+                putBoolean("job_successful", false)
+                putString("job_name", WORK_NAME)
+                putString("error_message", e.message ?: "Unknown error")
+                putString("error_type", e.javaClass.simpleName)
+            }
+            firebaseAnalytics.logEvent(
+                "background_job_failed",
+                failureBundle
+            )
+
             Result.failure()
         }
     }
 
     private suspend fun refreshShows() {
-        repository.refreshTraktPopularShows()
-        repository.refreshTraktTrendingShows()
-        repository.refreshTraktMostAnticipatedShows()
+        Timber
+            .tag(TAG)
+            .d("Refreshing Trakt popular, trending, and anticipated shows.")
+        traktRepository.refreshTraktPopularShows()
+        traktRepository.refreshTraktTrendingShows()
+        traktRepository.refreshTraktMostAnticipatedShows()
+        Timber
+            .tag(TAG)
+            .d("Finished refreshing Trakt shows from repository.")
     }
 
     companion object {
-        const val WORK_NAME = "RefreshTraktExploreWorker"
+        private const val TAG = "RefreshTraktExploreWrkr"
+        const val WORK_NAME =
+            "RefreshTraktExploreWorker"
+
+        private const val NOTIFICATION_ID = 1002
     }
 }

@@ -43,12 +43,12 @@ localProperties.load(new FileInputStream(rootProject.file("local.properties")))
 android {
     namespace = "com.theupnextapp"
 
-    compileSdk 34
+    compileSdk 36
 
     defaultConfig {
         applicationId "com.theupnextapp"
         minSdkVersion 24
-        targetSdkVersion 34
+        targetSdkVersion 36
         versionCode 205
         versionName "3.8.1"
         testInstrumentationRunner "com.theupnextapp.CustomTestRunner"

@@ -36,6 +36,10 @@
     <string name="title_trakt_account">Trakt Account</string>
     <string name="title_favorites_list">Your Favorite Shows</string>
 
+    <!-- Notification channels -->
+    <string name="notification_channel_name">App Updates</string>
+    <string name="notification_channel_description">Notifications for app data updates and background tasks.</string>
+
     <!-- Bottom navigation -->
     <string name="nav_title_search">Search</string>
     <string name="nav_title_dashboard">Dashboard</string>

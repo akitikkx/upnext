@@ -22,12 +22,18 @@
 package com.theupnextapp
 
 import android.app.Application
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
+import android.os.Build
+import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
+import androidx.work.Constraints
 import androidx.work.Data
 import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.theupnextapp.common.utils.UpnextPreferenceManager
@@ -35,26 +41,23 @@ import com.theupnextapp.common.utils.models.TableUpdateInterval
 import com.theupnextapp.database.asDomainModel
 import com.theupnextapp.domain.isTraktAccessTokenValid
 import com.theupnextapp.repository.TraktRepository
+import com.theupnextapp.work.BaseWorker
 import com.theupnextapp.work.RefreshDashboardShowsWorker
 import com.theupnextapp.work.RefreshFavoriteShowsWorker
 import com.theupnextapp.work.RefreshTraktExploreWorker
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltAndroidApp
 class UpnextApplication : Application(), Configuration.Provider {
 
-    init {
-        application = this
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-    }
-
-    private val applicationScope = CoroutineScope(Dispatchers.Default)
+    private val applicationScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
     @Inject
     lateinit var workerFactory: HiltWorkerFactory
@@ -62,123 +65,151 @@ class UpnextApplication : Application(), Configuration.Provider {
     @Inject
     lateinit var traktRepository: TraktRepository
 
+    @Inject
+    lateinit var preferenceManager: UpnextPreferenceManager
+
     override fun onCreate() {
         super.onCreate()
-        delayedInit()
         setupTheme()
+        createNotificationChannels()
+        initializeBackgroundTasks()
     }
 
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
             .setWorkerFactory(workerFactory)
+            .setMinimumLoggingLevel(if (BuildConfig.DEBUG) Log.DEBUG else Log.INFO)
             .build()
 
-    private fun delayedInit() {
-        applicationScope.launch {
-            launchBackgroundTasks()
-        }
-    }
-
     private fun setupTheme() {
-        when (UpnextPreferenceManager(this).getSelectedTheme()) {
-            resources.getString(R.string.dark_mode_follow_system) -> AppCompatDelegate.setDefaultNightMode(
+        val selectedTheme = preferenceManager.getSelectedTheme()
+        val nightMode = when (selectedTheme) {
+            getString(R.string.dark_mode_follow_system) ->
                 AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-            )
-            resources.getString(R.string.dark_mode_no) -> AppCompatDelegate.setDefaultNightMode(
-                AppCompatDelegate.MODE_NIGHT_NO
-            )
-            resources.getString(R.string.dark_mode_yes) -> AppCompatDelegate.setDefaultNightMode(
-                AppCompatDelegate.MODE_NIGHT_YES
-            )
-            resources.getString(R.string.dark_mode_auto_battery) -> AppCompatDelegate.setDefaultNightMode(
+
+            getString(R.string.dark_mode_no) -> AppCompatDelegate.MODE_NIGHT_NO
+            getString(R.string.dark_mode_yes) -> AppCompatDelegate.MODE_NIGHT_YES
+            getString(R.string.dark_mode_auto_battery) ->
                 AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY
-            )
-            else -> AppCompatDelegate.setDefaultNightMode(
-                AppCompatDelegate.MODE_NIGHT_YES
-            )
+
+            else -> {
+                Timber
+                    .tag("UpnextApplication")
+                    .w(
+                        message = "Unknown theme preference: $selectedTheme. " +
+                                "Defaulting to MODE_NIGHT_YES."
+                    )
+                AppCompatDelegate.MODE_NIGHT_YES // Default theme
+            }
         }
+        AppCompatDelegate.setDefaultNightMode(nightMode)
     }
 
-    private fun launchBackgroundTasks() {
-        val workManager = WorkManager.getInstance(this)
+    private fun createNotificationChannels() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val notificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        setupFavoritesWorker(workManager)
-
-        setupDashboardWorker(workManager)
-
-        setupTraktExploreWorker(workManager)
-    }
-
-    private fun setupFavoritesWorker(workManager: WorkManager) {
-        runBlocking(Dispatchers.IO) {
-            val traktAccessToken = traktRepository.getTraktAccessTokenRaw()?.asDomainModel()
-            if (traktAccessToken != null) {
-                if (!traktAccessToken.access_token.isNullOrEmpty() && traktAccessToken.isTraktAccessTokenValid()) {
-                    val workerData = Data.Builder().putString(
-                        RefreshFavoriteShowsWorker.ARG_TOKEN,
-                        traktAccessToken.access_token
-                    )
-                    val refreshFavoriteShowsRequest =
-                        PeriodicWorkRequestBuilder<RefreshFavoriteShowsWorker>(
-                            TableUpdateInterval.TRAKT_FAVORITE_SHOWS.intervalMins,
-                            TimeUnit.MINUTES
-                        ).setInputData(workerData.build()).build()
-
-                    workManager.enqueueUniquePeriodicWork(
-                        RefreshFavoriteShowsWorker.WORK_NAME,
-                        ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
-                        refreshFavoriteShowsRequest
-                    )
+            val channelId = BaseWorker.NOTIFICATION_CHANNEL_ID
+            if (notificationManager.getNotificationChannel(channelId) == null) {
+                val channelName = getString(R.string.notification_channel_name)
+                val channelDescription = getString(R.string.notification_channel_description)
+                val importance = NotificationManager.IMPORTANCE_DEFAULT
+                val channel = NotificationChannel(channelId, channelName, importance).apply {
+                    description = channelDescription
                 }
+                notificationManager.createNotificationChannel(channel)
+                Timber
+                    .tag("UpnextApplication")
+                    .d("Notification channel '$channelId' created.")
             }
         }
     }
 
-    /**
-     * Setup the worker for updating the explore shows
-     */
+    private fun initializeBackgroundTasks() {
+        applicationScope.launch {
+            val workManager = WorkManager.getInstance(applicationContext)
+            setupFavoriteShowsWorker(workManager)
+            setupDashboardWorker(workManager)
+            setupTraktExploreWorker(workManager)
+        }
+    }
+
+    private fun setupFavoriteShowsWorker(workManager: WorkManager) {
+        val traktAccessToken = try {
+            traktRepository.getTraktAccessTokenRaw()?.asDomainModel()
+        } catch (e: Exception) {
+            Timber
+                .tag("UpnextApplication")
+                .e(
+                    t = e,
+                    message = "Error fetching Trakt token for worker setup"
+                )
+            null
+        }
+
+        if (traktAccessToken?.access_token?.isNotEmpty() == true && traktAccessToken.isTraktAccessTokenValid()) {
+            val workerData = Data.Builder()
+                .putString(RefreshFavoriteShowsWorker.ARG_TOKEN, traktAccessToken.access_token)
+                .build()
+
+            val refreshFavoriteShowsRequest =
+                PeriodicWorkRequestBuilder<RefreshFavoriteShowsWorker>(
+                    TableUpdateInterval.TRAKT_FAVORITE_SHOWS.intervalMins,
+                    TimeUnit.MINUTES
+                )
+                    .setInputData(workerData)
+                    // Optionally add constraints
+                    .setConstraints(
+                        Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
+                    )
+                    .build()
+
+            workManager.enqueueUniquePeriodicWork(
+                RefreshFavoriteShowsWorker.WORK_NAME,
+                ExistingPeriodicWorkPolicy.KEEP, // Or CANCEL_AND_REENQUEUE if new params are critical
+                refreshFavoriteShowsRequest
+            )
+            Timber.tag("UpnextApplication").d("Enqueued ${RefreshFavoriteShowsWorker.WORK_NAME}")
+        } else {
+            Timber
+                .tag("UpnextApplication")
+                .i("Skipping favorite shows worker setup: Invalid or missing Trakt token.")
+            workManager.cancelUniqueWork(RefreshFavoriteShowsWorker.WORK_NAME)
+        }
+    }
+
     private fun setupTraktExploreWorker(workManager: WorkManager) {
-        val refreshExploreShowsRequest = PeriodicWorkRequestBuilder<RefreshTraktExploreWorker>(
-            TableUpdateInterval.TRAKT_TRENDING_ITEMS.intervalMins,
-            TimeUnit.MINUTES
-        ).build()
+        val refreshExploreShowsRequest =
+            PeriodicWorkRequestBuilder<RefreshTraktExploreWorker>(
+                TableUpdateInterval.TRAKT_TRENDING_ITEMS.intervalMins,
+                TimeUnit.MINUTES
+            ).build()
 
         workManager.enqueueUniquePeriodicWork(
             RefreshTraktExploreWorker.WORK_NAME,
-            ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
+            ExistingPeriodicWorkPolicy.KEEP, // Consider policy: KEEP or REPLACE/CANCEL_AND_REENQUEUE
             refreshExploreShowsRequest
         )
+        Timber
+            .tag(tag = "UpnextApplication")
+            .d("Enqueued ${RefreshTraktExploreWorker.WORK_NAME}")
     }
 
-    /**
-     * Setup the worker for updating the dashboard shows
-     */
     private fun setupDashboardWorker(workManager: WorkManager) {
-        val refreshDashboardShowsRequest = PeriodicWorkRequestBuilder<RefreshDashboardShowsWorker>(
-            TableUpdateInterval.DASHBOARD_ITEMS.intervalMins,
-            TimeUnit.MINUTES
-        ).build()
+        val refreshDashboardShowsRequest =
+            PeriodicWorkRequestBuilder<RefreshDashboardShowsWorker>(
+                TableUpdateInterval.DASHBOARD_ITEMS.intervalMins,
+                TimeUnit.MINUTES
+            ).build()
 
         workManager.enqueueUniquePeriodicWork(
             RefreshDashboardShowsWorker.WORK_NAME,
-            ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
+            ExistingPeriodicWorkPolicy.KEEP, // Consider policy
             refreshDashboardShowsRequest
         )
-    }
-
-    companion object {
-        private var application: UpnextApplication? = null
-
-        @get:Synchronized
-        val instance: UpnextApplication?
-            get() {
-                if (application == null) {
-                    application = UpnextApplication()
-                }
-                return application
-            }
-
-        val context: Context?
-            get() = application
+        Timber
+            .tag(tag = "UpnextApplication")
+            .d(message = "Enqueued ${RefreshDashboardShowsWorker.WORK_NAME}")
     }
 }
