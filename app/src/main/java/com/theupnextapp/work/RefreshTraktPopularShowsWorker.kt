@@ -26,43 +26,83 @@ import android.os.Bundle
 import androidx.hilt.work.HiltWorker
 import androidx.work.WorkerParameters
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 import com.theupnextapp.repository.TraktRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.coroutineScope
-import javax.inject.Inject
+import timber.log.Timber
 
+/**
+ * A [androidx.work.Worker] that fetches popular shows from Trakt.tv and stores them
+ * in the local database.
+ * This worker is scheduled to run periodically using [androidx.work.PeriodicWorkRequest].
+ * It extends [BaseWorker] to handle common worker functionalities like showing notifications.
+ *
+ * @param appContext The application context.
+ * @param workerParameters Parameters for the worker.
+ * @param traktRepository The repository for accessing Trakt.tv data.
+ */
 @HiltWorker
 class RefreshTraktPopularShowsWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParameters: WorkerParameters,
-    private val repository: TraktRepository
+    private val traktRepository: TraktRepository
 ) : BaseWorker(appContext, workerParameters) {
 
-    override val contentTitle: String = "Refreshing Trakt Popular shows"
+    override val notificationId: Int = NOTIFICATION_ID
+    override val contentTitleText: String = "Refreshing Trakt Popular shows"
 
-    @Inject
-    lateinit var firebaseAnalytics: FirebaseAnalytics
+    private val firebaseAnalytics: FirebaseAnalytics by lazy { Firebase.analytics }
 
     override suspend fun doWork(): Result = coroutineScope {
-        try {
-            setForeground(createForegroundInfo())
+        Timber.d("${WORK_NAME}: Starting worker.")
+        return@coroutineScope try {
+            Timber.d("${WORK_NAME}: Refreshing Trakt popular shows.")
             refreshPopularShows()
-            val bundle = Bundle()
-            bundle.putBoolean("Refresh shows job run", true)
-            FirebaseAnalytics.getInstance(this@RefreshTraktPopularShowsWorker.applicationContext)
-                .logEvent("RefreshTraktPopularShowsWorker", bundle)
+
+            logSuccessToFirebase()
+            Timber.i("${WORK_NAME}: Worker completed successfully.")
             Result.success()
         } catch (e: Exception) {
+            Timber.e(e, "${WORK_NAME}: Worker failed.")
+            logFailureToFirebase(
+                errorType = e.javaClass.simpleName,
+                errorMessage = e.message ?: "Unknown error while refreshing Trakt popular shows."
+            )
             Result.failure()
         }
     }
 
     private suspend fun refreshPopularShows() {
-        repository.refreshTraktPopularShows()
+        traktRepository.refreshTraktPopularShows()
+        Timber.d(
+            "${WORK_NAME}: Finished refreshing Trakt " +
+                    "popular shows from repository."
+        )
+    }
+
+    private fun logSuccessToFirebase() {
+        val bundle = Bundle().apply {
+            putBoolean("job_successful", true)
+            putString("job_name", WORK_NAME)
+        }
+        firebaseAnalytics.logEvent("background_job_completed", bundle)
+    }
+
+    private fun logFailureToFirebase(errorType: String, errorMessage: String) {
+        val bundle = Bundle().apply {
+            putBoolean("job_successful", false)
+            putString("job_name", WORK_NAME)
+            putString("error_type", errorType)
+            putString("error_message", errorMessage)
+        }
+        firebaseAnalytics.logEvent("background_job_failed", bundle)
     }
 
     companion object {
         const val WORK_NAME = "RefreshTraktPopularShowsWorker"
+        private const val NOTIFICATION_ID = 1007
     }
 }

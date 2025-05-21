@@ -26,43 +26,79 @@ import android.os.Bundle
 import androidx.hilt.work.HiltWorker
 import androidx.work.WorkerParameters
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 import com.theupnextapp.repository.TraktRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.coroutineScope
-import javax.inject.Inject
+import timber.log.Timber
 
+/**
+ * This worker runs daily to refresh the Trakt Most Anticipated shows.
+ * The results will be stored in the local database.
+ * The data is then displayed on the Trakt Most Anticipated section of the Trakt tab.
+ */
 @HiltWorker
 class RefreshTraktAnticipatedShowsWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParameters: WorkerParameters,
-    private val repository: TraktRepository
+    private val traktRepository: TraktRepository
 ) : BaseWorker(appContext, workerParameters) {
 
-    override val contentTitle: String = "Refreshing Trakt Most Anticipated"
+    override val notificationId: Int = NOTIFICATION_ID
+    override val contentTitleText: String = "Refreshing Trakt Most Anticipated"
 
-    @Inject
-    lateinit var firebaseAnalytics: FirebaseAnalytics
+    private val firebaseAnalytics: FirebaseAnalytics by lazy { Firebase.analytics }
 
     override suspend fun doWork(): Result = coroutineScope {
-        try {
-            setForeground(createForegroundInfo())
+        Timber.d("${WORK_NAME}: Starting worker.")
+        return@coroutineScope try {
+            Timber.d("${WORK_NAME}: Refreshing Trakt most anticipated shows.")
             refreshAnticipatedShows()
-            val bundle = Bundle()
-            bundle.putBoolean("Refresh shows job run", true)
-            FirebaseAnalytics.getInstance(this@RefreshTraktAnticipatedShowsWorker.applicationContext)
-                .logEvent("RefreshTraktAnticipatedShowsWorker", bundle)
+
+            logSuccessToFirebase()
+            Timber.i("${WORK_NAME}: Worker completed successfully.")
             Result.success()
         } catch (e: Exception) {
+            Timber.e(e, "${WORK_NAME}: Worker failed.")
+            logFailureToFirebase(
+                errorType = e.javaClass.simpleName,
+                errorMessage = e.message
+                    ?: "Unknown error while refreshing Trakt most anticipated shows."
+            )
             Result.failure()
         }
     }
 
     private suspend fun refreshAnticipatedShows() {
-        repository.refreshTraktMostAnticipatedShows()
+        traktRepository.refreshTraktMostAnticipatedShows()
+        Timber.d(
+            "${WORK_NAME}: Finished refreshing Trakt most " +
+                    "anticipated shows from repository."
+        )
+    }
+
+    private fun logSuccessToFirebase() {
+        val bundle = Bundle().apply {
+            putBoolean("job_successful", true)
+            putString("job_name", WORK_NAME)
+        }
+        firebaseAnalytics.logEvent("background_job_completed", bundle)
+    }
+
+    private fun logFailureToFirebase(errorType: String, errorMessage: String) {
+        val bundle = Bundle().apply {
+            putBoolean("job_successful", false)
+            putString("job_name", WORK_NAME)
+            putString("error_type", errorType)
+            putString("error_message", errorMessage)
+        }
+        firebaseAnalytics.logEvent("background_job_failed", bundle)
     }
 
     companion object {
         const val WORK_NAME = "RefreshTraktAnticipatedShowsWorker"
+        private const val NOTIFICATION_ID = 1006
     }
 }

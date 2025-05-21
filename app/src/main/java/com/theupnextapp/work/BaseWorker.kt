@@ -24,59 +24,94 @@ package com.theupnextapp.work
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
-import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SHORT_SERVICE
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import com.theupnextapp.R
+import timber.log.Timber
 
 abstract class BaseWorker(
+    private val
     appContext: Context,
     workerParameters: WorkerParameters,
 ) : CoroutineWorker(appContext, workerParameters) {
 
-    abstract val contentTitle: String
+    abstract val notificationId: Int
+    abstract val contentTitleText: String
 
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    protected fun createForegroundInfo(): ForegroundInfo {
-        val notification = NotificationCompat.Builder(
-            applicationContext, CHANNEL_ID
+    override suspend fun getForegroundInfo(): ForegroundInfo {
+        ensureNotificationChannelCreated()
+        return createForegroundInfo(
+            notificationId = notificationId,
+            channelId = NOTIFICATION_CHANNEL_ID,
+            contentText = contentTitleText,
+            smallIconRes = R.drawable.ic_baseline_arrow_circle_down_24 // TODO: Replace with your app's icon
         )
-            .setContentTitle(contentTitle)
-            .setTicker(contentTitle)
-            .setSmallIcon(R.drawable.ic_baseline_arrow_circle_down_24)
-            .setOngoing(true)
-            .setSilent(true)
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            createNotificationChannel()
-        }
-
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            ForegroundInfo(1, notification.build(), FOREGROUND_SERVICE_TYPE_SHORT_SERVICE)
-        } else {
-            ForegroundInfo(1, notification.build())
-        }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    protected fun createNotificationChannel() {
-        val notificationManager =
-            applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val channel = NotificationChannel(
-            CHANNEL_ID,
-            applicationContext.getString(R.string.app_name),
-            NotificationManager.IMPORTANCE_HIGH
+    private fun createForegroundInfo(
+        notificationId: Int,
+        channelId: String,
+        contentText: String,
+        smallIconRes: Int
+    ): ForegroundInfo {
+        val notification = NotificationCompat.Builder(appContext, channelId)
+            .setContentTitle(contentText)
+            .setSmallIcon(smallIconRes)
+            .setOngoing(true)
+            .setSilent(true)
+            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
+            .build()
+
+        return ForegroundInfo(notificationId, notification)
+    }
+
+    protected fun buildForegroundInfo(): ForegroundInfo {
+        ensureNotificationChannelCreated()
+        return createForegroundInfo(
+            notificationId = notificationId,
+            channelId = NOTIFICATION_CHANNEL_ID,
+            contentText = contentTitleText,
+            smallIconRes = R.drawable.ic_baseline_arrow_circle_down_24
         )
-        channel.description = applicationContext.getString(R.string.app_name) + " Notifications"
-        notificationManager.createNotificationChannel(channel)
+    }
+
+
+    private fun ensureNotificationChannelCreated() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val notificationManager =
+                appContext.getSystemService(Context.NOTIFICATION_SERVICE)
+                        as? NotificationManager
+            if (notificationManager == null) {
+                Timber.tag(TAG).e("NotificationManager not available.")
+                return
+            }
+
+            if (notificationManager.getNotificationChannel(NOTIFICATION_CHANNEL_ID)
+                == null
+            ) {
+                val channelName =
+                    appContext.getString(R.string.notification_channel_name)
+                val channelDescription =
+                    appContext.getString(R.string.notification_channel_description)
+                val importance = NotificationManager.IMPORTANCE_DEFAULT
+
+                val channel =
+                    NotificationChannel(NOTIFICATION_CHANNEL_ID, channelName, importance).apply {
+                        description = channelDescription
+                    }
+                notificationManager.createNotificationChannel(channel)
+                Timber.tag(TAG).d(
+                    message = "Notification channel '$NOTIFICATION_CHANNEL_ID' created."
+                )
+            }
+        }
     }
 
     companion object {
-        const val CHANNEL_ID = "ShowsUpdate"
+        private const val TAG = "BaseWorker"
+        const val NOTIFICATION_CHANNEL_ID = "AppUpdatesChannel"
     }
 }
