@@ -25,6 +25,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.widget.Toast
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -193,17 +194,18 @@ fun openCustomTab(context: Context) {
         null
     }
 
-    if (chromePackageInfo != null) { // If Chrome is found
+    if (chromePackageInfo != null) {
+        // If Chrome is found
         customBuilder.intent.setPackage(packageName)
         customBuilder.launchUrl(context, traktUrl.toUri())
-    } else { // Fallback to any browser if Chrome is not found
+    } else {
+        // Fallback to any browser if Chrome is not found
         val intent = Intent(Intent.ACTION_VIEW, traktUrl.toUri())
         // Ensure there's an activity to handle this intent to prevent another crash
         if (intent.resolveActivity(context.packageManager) != null) {
             activity?.startActivity(intent)
         } else {
-            // Handle the case where no browser is available at all
-            // (e.g., show a toast message to the user)
+            Toast.makeText(context, "No browser found", Toast.LENGTH_SHORT).show()
         }
     }
 }
