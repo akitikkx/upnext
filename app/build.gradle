@@ -113,6 +113,10 @@ android {
     hilt {
         enableAggregatingTask = true
     }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
 }
 
 dependencies {
@@ -249,14 +253,19 @@ dependencies {
 
     testImplementation libs.junit
     androidTestImplementation libs.androidx.test.ext.junit
-    androidTestImplementation libs.androidx.test.espresso.core
     androidTestImplementation libs.androidx.ui.test.junit4
+
+    // Mockito for mocking dependencies (highly recommended)
+    testImplementation libs.mockito.core
+    testImplementation libs.mockito.kotlin
+
+    testImplementation libs.kotlinx.coroutines.test
 
     // Hilt testing
     androidTestImplementation libs.hilt.android.testing
     kspAndroidTest libs.hilt.android.compiler
     androidTestAnnotationProcessor libs.hilt.android.compiler
 
-    // Workmanager testing
+    // WorkManager testing
     androidTestImplementation libs.androidx.work.testing
 }
