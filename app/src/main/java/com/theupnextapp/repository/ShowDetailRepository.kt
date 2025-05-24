@@ -43,7 +43,7 @@ import kotlinx.coroutines.flow.flowOn
 
 class ShowDetailRepository(
     upnextDao: UpnextDao,
-    private val tvMazeService: TvMazeService,
+    tvMazeService: TvMazeService,
     private val firebaseCrashlytics: FirebaseCrashlytics
 ) : BaseRepository(upnextDao = upnextDao, tvMazeService = tvMazeService) {
 

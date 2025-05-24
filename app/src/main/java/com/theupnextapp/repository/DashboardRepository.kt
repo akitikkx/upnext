@@ -47,10 +47,10 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
-class DashboardRepository constructor(
-    private val upnextDao: UpnextDao,
+class DashboardRepository(
+    upnextDao: UpnextDao,
+    tvMazeService: TvMazeService,
     private val tvMazeDao: TvMazeDao,
-    private val tvMazeService: TvMazeService,
     private val firebaseCrashlytics: FirebaseCrashlytics
 ) : BaseRepository(upnextDao = upnextDao, tvMazeService = tvMazeService) {
 
