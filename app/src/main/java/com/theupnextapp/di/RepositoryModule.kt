@@ -31,6 +31,7 @@ import com.theupnextapp.repository.DashboardRepository
 import com.theupnextapp.repository.SearchRepository
 import com.theupnextapp.repository.ShowDetailRepository
 import com.theupnextapp.repository.TraktRepository
+import com.theupnextapp.repository.TraktRepositoryImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -64,7 +65,7 @@ object RepositoryModule {
         traktService: TraktService,
         firebaseCrashlytics: FirebaseCrashlytics
     ): TraktRepository {
-        return TraktRepository(
+        return TraktRepositoryImpl(
             upnextDao = upnextDao,
             traktDao = traktDao,
             tvMazeService = tvMazeService,

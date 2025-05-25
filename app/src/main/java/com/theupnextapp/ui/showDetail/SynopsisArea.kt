@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import com.theupnextapp.common.utils.getWindowSizeClass
 import com.theupnextapp.domain.ShowDetailSummary
 import com.theupnextapp.ui.components.PosterImage
+import com.theupnextapp.ui.previewdata.ShowDetailSummaryProvider
 import com.theupnextapp.ui.showDetail.SynopsisAreaConfig.posterHeight
 import com.theupnextapp.ui.showDetail.SynopsisAreaConfig.posterWidth
 
@@ -152,7 +153,10 @@ object SynopsisAreaConfig {
 @Preview(name = "phone", device = Devices.PHONE, showBackground = true)
 @ExperimentalMaterial3WindowSizeClassApi
 @Composable
-fun SynopsisAreaCompactPreview(@PreviewParameter(ShowDetailSummaryPreviewProvider::class) showDetailSummary: ShowDetailSummary) {
+fun SynopsisAreaCompactPreview(
+    @PreviewParameter(ShowDetailSummaryProvider::class)
+    showDetailSummary: ShowDetailSummary
+) {
     SynopsisAreaCompact(showSummary = showDetailSummary)
 }
 
@@ -161,6 +165,9 @@ fun SynopsisAreaCompactPreview(@PreviewParameter(ShowDetailSummaryPreviewProvide
 @Preview("desktop", device = "id:desktop_medium", showBackground = true)
 @ExperimentalMaterial3WindowSizeClassApi
 @Composable
-fun SynopsisAreaExpandedPreview(@PreviewParameter(ShowDetailSummaryPreviewProvider::class) showDetailSummary: ShowDetailSummary) {
+fun SynopsisAreaExpandedPreview(
+    @PreviewParameter(ShowDetailSummaryProvider::class)
+    showDetailSummary: ShowDetailSummary
+) {
     SynopsisAreaExpanded(showSummary = showDetailSummary)
 }

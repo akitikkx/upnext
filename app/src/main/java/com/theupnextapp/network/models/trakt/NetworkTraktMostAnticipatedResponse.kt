@@ -47,19 +47,18 @@ data class NetworkTraktMostAnticipatedResponseItemIds(
     var tvMazeID: Int?
 )
 
-fun NetworkTraktMostAnticipatedResponseItem.asDatabaseModel(): DatabaseTraktMostAnticipated {
+fun NetworkTraktMostAnticipatedResponseItemShow.asDatabaseModel(): DatabaseTraktMostAnticipated {
     return DatabaseTraktMostAnticipated(
-        id = show.ids.trakt,
-        title = show.title,
-        year = show.year.toString(),
-        medium_image_url = show.mediumImageUrl,
-        original_image_url = show.originalImageUrl,
-        imdbID = show.ids.imdb,
-        slug = show.ids.slug,
-        tmdbID = show.ids.tmdb,
-        traktID = show.ids.trakt,
-        tvdbID = show.ids.tvdb,
-        tvMazeID = show.ids.tvMazeID,
-        list_count = list_count
+        id = ids.trakt,
+        title = title,
+        year = year.toString(),
+        medium_image_url = mediumImageUrl,
+        original_image_url = originalImageUrl,
+        imdbID = ids.imdb,
+        slug = ids.slug,
+        tmdbID = ids.tmdb,
+        traktID = ids.trakt,
+        tvdbID = ids.tvdb,
+        tvMazeID = ids.tvMazeID,
     )
 }

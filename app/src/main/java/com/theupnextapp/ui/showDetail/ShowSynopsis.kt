@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import com.theupnextapp.domain.ShowDetailSummary
 import com.theupnextapp.extensions.ReferenceDevices
+import com.theupnextapp.ui.previewdata.ShowDetailSummaryProvider
 import org.jsoup.Jsoup
 
 @Composable
@@ -37,6 +38,9 @@ fun ShowSynopsis(
 
 @ReferenceDevices
 @Composable
-fun ShowSynopsisPreview(@PreviewParameter(ShowDetailSummaryPreviewProvider::class) showSummary: ShowDetailSummary?) {
+fun ShowSynopsisPreview(
+    @PreviewParameter(ShowDetailSummaryProvider::class)
+    showSummary: ShowDetailSummary?
+) {
     ShowSynopsis(showSummary = showSummary)
 }

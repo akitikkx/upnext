@@ -25,99 +25,203 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 val MIGRATION_1_2: Migration = object : Migration(1, 2) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        database.execSQL("CREATE TABLE IF NOT EXISTS trakt_watchlist (id INTEGER, listed_at TEXT, rank INTEGER, title TEXT, imdbID TEXT, slug TEXT, tmdbID INTEGER, traktID INTEGER, tvdbID INTEGER, tvrageID INTEGER, tvMazeID INTEGER, PRIMARY KEY(id))")
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS trakt_watchlist (id INTEGER, listed_at TEXT, rank INTEGER, title TEXT, imdbID TEXT, slug TEXT, tmdbID INTEGER, traktID INTEGER, tvdbID INTEGER, tvrageID INTEGER, tvMazeID INTEGER, PRIMARY KEY(id))")
     }
 }
 
 val MIGRATION_2_3: Migration = object : Migration(2, 3) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        database.execSQL("CREATE TABLE IF NOT EXISTS trakt_watchlist (id INTEGER NOT NULL, listed_at TEXT, rank INTEGER, title TEXT, mediumImageUrl TEXT, originalImageUrl TEXT, imdbID TEXT, slug TEXT, tmdbID INTEGER, traktID INTEGER, tvdbID INTEGER, tvrageID INTEGER, tvMazeID INTEGER, PRIMARY KEY(id))")
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS trakt_watchlist (id INTEGER NOT NULL, listed_at TEXT, rank INTEGER, title TEXT, mediumImageUrl TEXT, originalImageUrl TEXT, imdbID TEXT, slug TEXT, tmdbID INTEGER, traktID INTEGER, tvdbID INTEGER, tvrageID INTEGER, tvMazeID INTEGER, PRIMARY KEY(id))")
     }
 }
 
 val MIGRATION_3_4: Migration = object : Migration(3, 4) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        database.execSQL("CREATE TABLE IF NOT EXISTS trakt_watchlist (id INTEGER NOT NULL, listed_at TEXT, rank INTEGER, title TEXT, mediumImageUrl TEXT, originalImageUrl TEXT, imdbID TEXT, slug TEXT, tmdbID INTEGER, traktID INTEGER, tvdbID INTEGER, tvrageID INTEGER, tvMazeID INTEGER, PRIMARY KEY(id))")
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS trakt_watchlist (id INTEGER NOT NULL, listed_at TEXT, rank INTEGER, title TEXT, mediumImageUrl TEXT, originalImageUrl TEXT, imdbID TEXT, slug TEXT, tmdbID INTEGER, traktID INTEGER, tvdbID INTEGER, tvrageID INTEGER, tvMazeID INTEGER, PRIMARY KEY(id))")
     }
 }
 
 val MIGRATION_14_15: Migration = object : Migration(14, 15) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        database.execSQL("CREATE TABLE IF NOT EXISTS trakt_popular(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, title TEXT, year TEXT, medium_image_url TEXT, original_image_url TEXT, imdbID TEXT, slug TEXT, tmdbID INTEGER, traktID INTEGER, tvdbID INTEGER, tvMazeID INTEGER)")
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS trakt_popular(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, title TEXT, year TEXT, medium_image_url TEXT, original_image_url TEXT, imdbID TEXT, slug TEXT, tmdbID INTEGER, traktID INTEGER, tvdbID INTEGER, tvMazeID INTEGER)")
     }
 }
 
 val MIGRATION_15_16: Migration = object : Migration(15, 16) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        database.execSQL("CREATE TABLE IF NOT EXISTS trakt_trending(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, title TEXT, year TEXT, medium_image_url TEXT, original_image_url TEXT, imdbID TEXT, slug TEXT, tmdbID INTEGER, traktID INTEGER, tvdbID INTEGER, tvMazeID INTEGER)")
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS trakt_trending(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, title TEXT, year TEXT, medium_image_url TEXT, original_image_url TEXT, imdbID TEXT, slug TEXT, tmdbID INTEGER, traktID INTEGER, tvdbID INTEGER, tvMazeID INTEGER)")
     }
 }
 
 val MIGRATION_16_17: Migration = object : Migration(16, 17) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        database.execSQL("CREATE TABLE IF NOT EXISTS trakt_most_anticipated(id INTEGER, title TEXT, year TEXT, medium_image_url TEXT, original_image_url TEXT, imdbID TEXT, slug TEXT, tmdbID INTEGER, traktID INTEGER, tvdbID INTEGER, tvMazeID INTEGER, list_count INTEGER, PRIMARY KEY(id))")
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS trakt_most_anticipated(id INTEGER, title TEXT, year TEXT, medium_image_url TEXT, original_image_url TEXT, imdbID TEXT, slug TEXT, tmdbID INTEGER, traktID INTEGER, tvdbID INTEGER, tvMazeID INTEGER, list_count INTEGER, PRIMARY KEY(id))")
     }
 }
 
 val MIGRATION_17_18: Migration = object : Migration(17, 18) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        database.execSQL("CREATE TABLE IF NOT EXISTS trakt_most_anticipated (id INTEGER, title TEXT, year TEXT, medium_image_url TEXT, original_image_url TEXT, imdbID TEXT, slug TEXT, tmdbID INTEGER, traktID INTEGER, tvdbID INTEGER, tvMazeID INTEGER, list_count INTEGER, PRIMARY KEY(id))")
-        database.execSQL("CREATE TABLE IF NOT EXISTS trakt_trending (id INTEGER NOT NULL, title TEXT, year TEXT, medium_image_url TEXT, original_image_url TEXT, imdbID TEXT, slug TEXT, tmdbID INTEGER, traktID INTEGER, tvdbID INTEGER, tvMazeID INTEGER, PRIMARY KEY(id))")
-        database.execSQL("CREATE TABLE IF NOT EXISTS trakt_popular (id INTEGER NOT NULL, title TEXT, year TEXT, medium_image_url TEXT, original_image_url TEXT, imdbID TEXT, slug TEXT, tmdbID INTEGER, traktID INTEGER, tvdbID INTEGER, tvMazeID INTEGER, PRIMARY KEY(id))")
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS trakt_most_anticipated (id INTEGER, title TEXT, year TEXT, medium_image_url TEXT, original_image_url TEXT, imdbID TEXT, slug TEXT, tmdbID INTEGER, traktID INTEGER, tvdbID INTEGER, tvMazeID INTEGER, list_count INTEGER, PRIMARY KEY(id))")
+        db.execSQL("CREATE TABLE IF NOT EXISTS trakt_trending (id INTEGER NOT NULL, title TEXT, year TEXT, medium_image_url TEXT, original_image_url TEXT, imdbID TEXT, slug TEXT, tmdbID INTEGER, traktID INTEGER, tvdbID INTEGER, tvMazeID INTEGER, PRIMARY KEY(id))")
+        db.execSQL("CREATE TABLE IF NOT EXISTS trakt_popular (id INTEGER NOT NULL, title TEXT, year TEXT, medium_image_url TEXT, original_image_url TEXT, imdbID TEXT, slug TEXT, tmdbID INTEGER, traktID INTEGER, tvdbID INTEGER, tvMazeID INTEGER, PRIMARY KEY(id))")
     }
 }
 
 val MIGRATION_18_19: Migration = object : Migration(18, 19) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        database.execSQL("DROP TABLE IF EXISTS new_shows")
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("DROP TABLE IF EXISTS new_shows")
     }
 }
 
 val MIGRATION_19_20: Migration = object : Migration(19, 20) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        database.execSQL("DROP TABLE IF EXISTS trakt_collection")
-        database.execSQL("DROP TABLE IF EXISTS trakt_collection_seasons")
-        database.execSQL("DROP TABLE IF EXISTS trakt_collection_episodes")
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("DROP TABLE IF EXISTS trakt_collection")
+        db.execSQL("DROP TABLE IF EXISTS trakt_collection_seasons")
+        db.execSQL("DROP TABLE IF EXISTS trakt_collection_episodes")
     }
 }
 
 val MIGRATION_20_21: Migration = object : Migration(20, 21) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        database.execSQL("DROP TABLE IF EXISTS trakt_watchlist")
-        database.execSQL("DROP TABLE IF EXISTS trakt_history")
-        database.execSQL("DROP TABLE IF EXISTS trakt_recommendations")
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("DROP TABLE IF EXISTS trakt_watchlist")
+        db.execSQL("DROP TABLE IF EXISTS trakt_history")
+        db.execSQL("DROP TABLE IF EXISTS trakt_recommendations")
     }
 }
 
 val MIGRATION_21_22: Migration = object : Migration(21, 22) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        database.execSQL("ALTER TABLE schedule_yesterday ADD COLUMN mediumImage TEXT DEFAULT NULL")
-        database.execSQL("ALTER TABLE schedule_today ADD COLUMN mediumImage TEXT DEFAULT NULL")
-        database.execSQL("ALTER TABLE schedule_tomorrow ADD COLUMN mediumImage TEXT DEFAULT NULL")
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE schedule_yesterday ADD COLUMN mediumImage TEXT DEFAULT NULL")
+        db.execSQL("ALTER TABLE schedule_today ADD COLUMN mediumImage TEXT DEFAULT NULL")
+        db.execSQL("ALTER TABLE schedule_tomorrow ADD COLUMN mediumImage TEXT DEFAULT NULL")
     }
 }
 
 val MIGRATION_22_23: Migration = object : Migration(22, 23) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        database.execSQL("CREATE TABLE IF NOT EXISTS favorite_shows (id INTEGER, title TEXT, year TEXT, mediumImageUrl TEXT, originalImageUrl TEXT, imdbID TEXT, slug TEXT, tmdbID INTEGER, traktID INTEGER, tvdbID INTEGER, tvMazeID INTEGER, PRIMARY KEY(id))")
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS favorite_shows (id INTEGER, title TEXT, year TEXT, mediumImageUrl TEXT, originalImageUrl TEXT, imdbID TEXT, slug TEXT, tmdbID INTEGER, traktID INTEGER, tvdbID INTEGER, tvMazeID INTEGER, PRIMARY KEY(id))")
     }
 }
 
 val MIGRATION_23_24: Migration = object : Migration(23, 24) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        database.execSQL("CREATE TABLE IF NOT EXISTS trakt_access (id INTEGER NOT NULL, access_token TEXT, created_at INTEGER, expires_in INTEGER, refresh_token TEXT, scope TEXT, token_type TEXT, PRIMARY KEY(id))")
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS trakt_access (id INTEGER NOT NULL, access_token TEXT, created_at INTEGER, expires_in INTEGER, refresh_token TEXT, scope TEXT, token_type TEXT, PRIMARY KEY(id))")
     }
 }
 
 val MIGRATION_24_25: Migration = object : Migration(24, 25) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        database.execSQL("CREATE TABLE IF NOT EXISTS favorite_next_episodes (tvMazeID INTEGER, number INTEGER, season INTEGER, title TEXT, airStamp TEXT, mediumImageUrl TEXT, originalImageUrl TEXT, imdb TEXT, PRIMARY KEY(tvMazeID))")
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS favorite_next_episodes (tvMazeID INTEGER, number INTEGER, season INTEGER, title TEXT, airStamp TEXT, mediumImageUrl TEXT, originalImageUrl TEXT, imdb TEXT, PRIMARY KEY(tvMazeID))")
     }
 }
 
 val MIGRATION_25_26: Migration = object : Migration(25, 26) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        database.execSQL("ALTER TABLE favorite_shows ADD COLUMN airStamp TEXT DEFAULT NULL")
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE favorite_shows ADD COLUMN airStamp TEXT DEFAULT NULL")
+    }
+}
+
+val MIGRATION_26_27 = object : Migration(26, 27) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("DROP TABLE IF EXISTS favorite_next_episodes")
+        db.execSQL("""
+                    CREATE TABLE favorite_shows_new (
+                        id INTEGER, 
+                        title TEXT, 
+                        year TEXT, 
+                        mediumImageUrl TEXT, 
+                        originalImageUrl TEXT, 
+                        imdbID TEXT, 
+                        slug TEXT, 
+                        tmdbID INTEGER, 
+                        traktID INTEGER, 
+                        tvdbID INTEGER, 
+                        tvMazeID INTEGER, 
+                        PRIMARY KEY(id)
+                    )
+                """.trimIndent())
+
+        // 2. Copy data from the old table to the new table
+        // Make sure to list all columns EXCEPT airStamp
+        db.execSQL("""
+                    INSERT INTO favorite_shows_new (id, title, year, mediumImageUrl, originalImageUrl, imdbID, slug, tmdbID, traktID, tvdbID, tvMazeID)
+                    SELECT id, title, year, mediumImageUrl, originalImageUrl, imdbID, slug, tmdbID, traktID, tvdbID, tvMazeID 
+                    FROM favorite_shows
+                """.trimIndent())
+
+        // 3. Drop the old table
+        db.execSQL("DROP TABLE favorite_shows")
+
+        // 4. Rename the new table to the original table name
+        db.execSQL("ALTER TABLE favorite_shows_new RENAME TO favorite_shows")
+    }
+}
+
+val MIGRATION_27_28: Migration = object : Migration(27, 28) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("""
+            CREATE TABLE trakt_most_anticipated_new (
+                id INTEGER PRIMARY KEY, 
+                title TEXT, 
+                year TEXT, 
+                medium_image_url TEXT, 
+                original_image_url TEXT, 
+                imdbID TEXT, 
+                slug TEXT, 
+                tmdbID INTEGER, 
+                traktID INTEGER,
+                tvdbID INTEGER, 
+                tvMazeID INTEGER
+            )
+        """)
+        db.execSQL("""
+            INSERT INTO trakt_most_anticipated_new (
+                id, title, year, medium_image_url, original_image_url, imdbID, slug, tmdbID, traktID, tvdbID, tvMazeID
+            )
+            SELECT 
+                id, title, year, medium_image_url, original_image_url, imdbID, slug, tmdbID, traktID, tvdbID, tvMazeID
+            FROM trakt_most_anticipated
+        """)
+        db.execSQL("DROP TABLE trakt_most_anticipated")
+
+        db.execSQL("ALTER TABLE trakt_most_anticipated_new RENAME TO trakt_most_anticipated")
+    }
+}
+
+val MIGRATION_28_29 = object : Migration(28, 29) { // Replace Y and Y+1 accordingly
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // 1. Create the new table with id as NON NULL
+        db.execSQL("""
+            CREATE TABLE trakt_most_anticipated_new (
+                id INTEGER NOT NULL PRIMARY KEY, 
+                title TEXT, 
+                year TEXT, 
+                medium_image_url TEXT, 
+                original_image_url TEXT, 
+                imdbID TEXT, 
+                slug TEXT, 
+                tmdbID INTEGER, 
+                traktID INTEGER,
+                tvdbID INTEGER, 
+                tvMazeID INTEGER
+            )
+        """)
+
+        db.execSQL("""
+            INSERT INTO trakt_most_anticipated_new (
+                id, title, year, medium_image_url, original_image_url, imdbID, slug, tmdbID, traktID, tvdbID, tvMazeID 
+            )
+            SELECT 
+                id, title, year, medium_image_url, original_image_url, imdbID, slug, tmdbID, traktID, tvdbID, tvMazeID
+            FROM trakt_most_anticipated 
+            WHERE id IS NOT NULL 
+        """)
+
+        // 3. Drop the old table
+        db.execSQL("DROP TABLE trakt_most_anticipated")
+
+        // 4. Rename the new table to the original name
+        db.execSQL("ALTER TABLE trakt_most_anticipated_new RENAME TO trakt_most_anticipated")
     }
 }

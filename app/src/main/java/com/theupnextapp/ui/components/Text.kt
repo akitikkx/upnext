@@ -21,6 +21,7 @@
 
 package com.theupnextapp.ui.components
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -80,6 +81,27 @@ fun SectionHeadingText(
         style = MaterialTheme.typography.headlineMedium,
         fontWeight = FontWeight.Bold
     )
+}
+
+@Composable
+fun HeadingAndItemText(
+    item: String,
+    heading: String
+) {
+    Column(
+        modifier = Modifier.padding(8.dp)
+    ) {
+        Text(
+            text = heading.uppercase(),
+            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.bodyMedium
+        )
+
+        Text(
+            text = item,
+            style = MaterialTheme.typography.bodySmall
+        )
+    }
 }
 
 @Preview

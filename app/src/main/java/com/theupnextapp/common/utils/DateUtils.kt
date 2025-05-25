@@ -97,6 +97,17 @@ object DateUtils {
         return timeDifferenceForDisplay
     }
 
+    /**
+     * Calculates the difference between two time points in the specified time unit.
+     * Returns endTime - startTime.
+     * A positive result means endTime is after startTime.
+     * A negative result means endTime is before startTime.
+     */
+    fun calculateDifference(startTimeMillis: Long, endTimeMillis: Long, unit: TimeUnit): Long {
+        val diffMillis = endTimeMillis - startTimeMillis
+        return unit.convert(diffMillis, TimeUnit.MILLISECONDS)
+    }
+
     fun dateDifference(startTime: Long? = null, endTime: Long, type: String): Long {
         val diffCount = startTime ?: Calendar.getInstance().timeInMillis - endTime
         var diff: Long = -1L
@@ -113,6 +124,33 @@ object DateUtils {
     fun getDisplayDateFromDateStamp(dateStamp: String): Date? {
         val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         return format.parse(dateStamp)
+    }
+
+    /**
+     * Formats a given timestamp (in milliseconds) into a String representation.
+     * @param timestampMillis The time in milliseconds since epoch.
+     * @param formatPattern The desired date format pattern (e.g., "yyyy-MM-dd").
+     * @return Formatted date string, or null if formatting fails (should be rare with valid inputs).
+     */
+    fun formatTimestampToString(timestampMillis: Long, formatPattern: String = "yyyy-MM-dd"): String? {
+        return try {
+            val sdf = SimpleDateFormat(formatPattern, Locale.getDefault())
+            val calendar = Calendar.getInstance()
+            calendar.timeInMillis = timestampMillis
+            sdf.format(calendar.time)
+        } catch (e: Exception) {
+            // Log error or handle appropriately
+            null // Or throw an exception if this case should not happen
+        }
+    }
+
+    fun formatDateToString(date: Date, formatPattern: String = "yyyy-MM-dd"): String? {
+        return try {
+            val sdf = SimpleDateFormat(formatPattern, Locale.getDefault())
+            sdf.format(date)
+        } catch (e: Exception) {
+            null
+        }
     }
 
     const val DAYS = "days"

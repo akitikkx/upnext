@@ -21,139 +21,191 @@
 
 package com.theupnextapp.ui.explore
 
-import androidx.lifecycle.MediatorLiveData
+import androidx.work.Constraints
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
-import androidx.work.OneTimeWorkRequest
+import androidx.lifecycle.viewModelScope
+import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
-import com.theupnextapp.common.utils.DateUtils
-import com.theupnextapp.common.utils.models.DatabaseTables
-import com.theupnextapp.common.utils.models.TableUpdateInterval
-import com.theupnextapp.domain.TableUpdate
+import com.theupnextapp.domain.TraktMostAnticipated
+import com.theupnextapp.domain.TraktPopularShows
+import com.theupnextapp.domain.TraktTrendingShows
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.work.RefreshTraktAnticipatedShowsWorker
 import com.theupnextapp.work.RefreshTraktPopularShowsWorker
 import com.theupnextapp.work.RefreshTraktTrendingShowsWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
+@ExperimentalCoroutinesApi
 @HiltViewModel
 class ExploreViewModel @Inject constructor(
     traktRepository: TraktRepository,
     private val workManager: WorkManager
 ) : ViewModel() {
 
-    val trendingShows = traktRepository.traktTrendingShows.asLiveData()
+    private val _isPullRefreshing = MutableStateFlow(false)
+    val isPullRefreshing: StateFlow<Boolean> = _isPullRefreshing.asStateFlow()
 
-    val popularShows = traktRepository.traktPopularShows.asLiveData()
+    val trendingShows: StateFlow<List<TraktTrendingShows>> =
+        traktRepository.traktTrendingShows
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyList()
+            )
 
-    val mostAnticipatedShows = traktRepository.traktMostAnticipatedShows.asLiveData()
+    val popularShows: StateFlow<List<TraktPopularShows>> =
+        traktRepository.traktPopularShows
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyList()
+            )
 
-    val isLoadingTraktTrending = traktRepository.isLoadingTraktTrending
+    val mostAnticipatedShows: StateFlow<List<TraktMostAnticipated>> =
+        traktRepository.traktMostAnticipatedShows
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyList()
+            )
 
-    val isLoadingTraktPopular = traktRepository.isLoadingTraktPopular
+    internal val isLoadingTraktTrending: StateFlow<Boolean> = traktRepository.isLoadingTraktTrending
+    internal val isLoadingTraktPopular: StateFlow<Boolean> = traktRepository.isLoadingTraktPopular
+    internal val isLoadingTraktMostAnticipated: StateFlow<Boolean> =
+        traktRepository.isLoadingTraktMostAnticipated
 
-    val isLoadingTraktMostAnticipated = traktRepository.isLoadingTraktMostAnticipated
-
-    val popularShowsTableUpdate =
-        traktRepository.tableUpdate(DatabaseTables.TABLE_TRAKT_POPULAR.tableName).asLiveData()
-
-    val trendingShowsTableUpdate =
-        traktRepository.tableUpdate(DatabaseTables.TABLE_TRAKT_TRENDING.tableName).asLiveData()
-
-    val mostAnticipatedShowsTableUpdate =
-        traktRepository.tableUpdate(DatabaseTables.TABLE_TRAKT_MOST_ANTICIPATED.tableName).asLiveData()
-
-    val trendingShowsEmpty = MediatorLiveData<Boolean>().apply {
-        addSource(trendingShows) {
-            value = it.isNullOrEmpty() == true
+    val isLoading: StateFlow<Boolean> = combine(
+        isLoadingTraktTrending,
+        isLoadingTraktPopular,
+        isLoadingTraktMostAnticipated
+    ) { trending, popular, anticipated ->
+        val currentlyLoading = trending || popular || anticipated
+        if (!currentlyLoading && _isPullRefreshing.value) {
+            _isPullRefreshing.value = false
         }
+        currentlyLoading
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = false // Initially false
+    )
+
+    val trendingShowsEmpty: StateFlow<Boolean> = trendingShows
+        .map { it.isEmpty() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
+
+    val popularShowsEmpty: StateFlow<Boolean> = popularShows
+        .map { it.isEmpty() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
+
+    val mostAnticipatedShowsEmpty: StateFlow<Boolean> = mostAnticipatedShows
+        .map { it.isEmpty() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
+
+
+    init {
+        Timber.d("ExploreViewModel initialized. Triggering initial data check.")
+        checkAndRefreshAllExploreData(forceRefresh = false)
     }
 
-    val popularShowsEmpty = MediatorLiveData<Boolean>().apply {
-        addSource(popularShows) {
-            value = it.isNullOrEmpty() == true
-        }
-    }
+    /**
+     * Call this method when the UI comes to the foreground or on a manual refresh trigger.
+     * @param forceRefresh True if the user explicitly requested a refresh (e.g., swipe to refresh)
+     *                     or if you want to bypass the daily check for a specific reason.
+     */
+    fun checkAndRefreshAllExploreData(forceRefresh: Boolean) {
+        Timber.d("checkAndRefreshAllExploreData called with forceRefresh: $forceRefresh")
 
-    val mostAnticipatedShowsEmpty = MediatorLiveData<Boolean>().apply {
-        addSource(popularShows) {
-            value = it.isNullOrEmpty() == true
-        }
-    }
-
-    val isLoading = MediatorLiveData<Boolean>().apply {
-        addSource(isLoadingTraktPopular) {
-            value = it
-        }
-        addSource(isLoadingTraktTrending) {
-            value = it
-        }
-        addSource(isLoadingTraktMostAnticipated) {
-            value = it
-        }
-    }
-
-    fun onPopularShowsTableUpdateReceived(tableUpdate: TableUpdate?) {
-        val diffInMinutes =
-            tableUpdate?.lastUpdated?.let { it ->
-                DateUtils.dateDifference(
-                    endTime = it,
-                    type = "minutes"
-                )
+        if (forceRefresh) {
+            // Only set to true if not already pull refreshing to avoid redundant state updates
+            // and to correctly capture the start of a user-initiated refresh.
+            if (!_isPullRefreshing.value) {
+                _isPullRefreshing.value = true
             }
-
-        val isPopularShowsEmpty = popularShowsEmpty.value == null || popularShowsEmpty.value == true
-
-        if (diffInMinutes != null && diffInMinutes != 0L) {
-            if (diffInMinutes > TableUpdateInterval.TRAKT_POPULAR_ITEMS.intervalMins && (isLoadingTraktPopular.value == false || isLoadingTraktPopular.value == null)) {
-                workManager.enqueue(OneTimeWorkRequest.from(RefreshTraktPopularShowsWorker::class.java))
-            }
-            // no updates have been done yet for this table
-        } else if (isPopularShowsEmpty && (isLoadingTraktPopular.value == null || isLoadingTraktPopular.value == false) && tableUpdate == null && diffInMinutes == null) {
-            workManager.enqueue(OneTimeWorkRequest.from(RefreshTraktPopularShowsWorker::class.java))
         }
-    }
 
-    fun onTrendingShowsTableUpdateReceived(tableUpdate: TableUpdate?) {
-        val diffInMinutes =
-            tableUpdate?.lastUpdated?.let { it ->
-                DateUtils.dateDifference(
-                    endTime = it,
-                    type = "minutes"
-                )
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+
+        // For Popular Shows
+        // We enqueue the worker. The worker calls repository.refreshPopularShows(forceRefresh=true).
+        // The repository then internally uses isUpdateNeededByDay OR forceRefresh to decide.
+        // We only need to check the loading state here to avoid enqueueing if already loading,
+        // and the 'forceRefresh' or 'isEmpty' to decide if we should even consider enqueueing.
+        viewModelScope.launch { // Launch is fine for these checks
+            if (forceRefresh || popularShowsEmpty.value) { // Check if empty or forced
+                if (!isLoadingTraktPopular.value) {
+                    Timber.i("Enqueueing RefreshTraktPopularShowsWorker due to forceRefresh ($forceRefresh) or empty data.")
+                    val popularWorkRequest = OneTimeWorkRequestBuilder<RefreshTraktPopularShowsWorker>()
+                        .setConstraints(constraints)
+                        .build()
+                    workManager.enqueueUniqueWork(
+                        RefreshTraktPopularShowsWorker.WORK_NAME,
+                        ExistingWorkPolicy.KEEP, // KEEPs existing work if not finished, REPLACE if you want to restart
+                        popularWorkRequest
+                    )
+                } else {
+                    Timber.d("RefreshTraktPopularShowsWorker NOT enqueued, already loading.")
+                }
+            } else {
+                Timber.d("RefreshTraktPopularShowsWorker NOT enqueued, not forced and data not empty. Daily check handled by worker's internal logic on next run if needed.")
             }
-
-        val isTrendingShowsEmpty = trendingShowsEmpty.value == null || trendingShowsEmpty.value == true
-
-        if (diffInMinutes != null && diffInMinutes != 0L) {
-            if (diffInMinutes > TableUpdateInterval.TRAKT_TRENDING_ITEMS.intervalMins && (isLoadingTraktTrending.value == false || isLoadingTraktTrending.value == null)) {
-                workManager.enqueue(OneTimeWorkRequest.from(RefreshTraktTrendingShowsWorker::class.java))
-            }
-            // no updates have been done yet for this table
-        } else if (isTrendingShowsEmpty && (isLoadingTraktTrending.value == null || isLoadingTraktTrending.value == false) && tableUpdate == null && diffInMinutes == null) {
-            workManager.enqueue(OneTimeWorkRequest.from(RefreshTraktTrendingShowsWorker::class.java))
         }
-    }
 
-    fun onMostAnticipatedShowsTableUpdateReceived(tableUpdate: TableUpdate?) {
-        val diffInMinutes =
-            tableUpdate?.lastUpdated?.let { it ->
-                DateUtils.dateDifference(
-                    endTime = it,
-                    type = "minutes"
-                )
+        // For Trending Shows
+        viewModelScope.launch {
+            if (forceRefresh || trendingShowsEmpty.value) {
+                if (!isLoadingTraktTrending.value) {
+                    Timber.i("Enqueueing RefreshTraktTrendingShowsWorker due to forceRefresh ($forceRefresh) or empty data.")
+                    val trendingWorkRequest = OneTimeWorkRequestBuilder<RefreshTraktTrendingShowsWorker>()
+                        .setConstraints(constraints)
+                        .build()
+                    workManager.enqueueUniqueWork(
+                        RefreshTraktTrendingShowsWorker.WORK_NAME,
+                        ExistingWorkPolicy.KEEP,
+                        trendingWorkRequest
+                    )
+                } else {
+                    Timber.d("RefreshTraktTrendingShowsWorker NOT enqueued, already loading.")
+                }
+            } else {
+                Timber.d("RefreshTraktTrendingShowsWorker NOT enqueued, not forced and data not empty.")
             }
+        }
 
-        val isMostAnticipatedShowsEmpty = mostAnticipatedShowsEmpty.value == null || mostAnticipatedShowsEmpty.value == true
-
-        if (diffInMinutes != null && diffInMinutes != 0L) {
-            if (diffInMinutes > TableUpdateInterval.TRAKT_MOST_ANTICIPATED_ITEMS.intervalMins && (isLoadingTraktMostAnticipated.value == false || isLoadingTraktMostAnticipated.value == null)) {
-                workManager.enqueue(OneTimeWorkRequest.from(RefreshTraktAnticipatedShowsWorker::class.java))
+        // For Most Anticipated Shows
+        viewModelScope.launch {
+            if (forceRefresh || mostAnticipatedShowsEmpty.value) {
+                if (!isLoadingTraktMostAnticipated.value) {
+                    Timber.i("Enqueueing RefreshTraktAnticipatedShowsWorker due to forceRefresh ($forceRefresh) or empty data.")
+                    val anticipatedWorkRequest = OneTimeWorkRequestBuilder<RefreshTraktAnticipatedShowsWorker>()
+                        .setConstraints(constraints)
+                        .build()
+                    workManager.enqueueUniqueWork(
+                        RefreshTraktAnticipatedShowsWorker.WORK_NAME,
+                        ExistingWorkPolicy.KEEP,
+                        anticipatedWorkRequest
+                    )
+                } else {
+                    Timber.d("RefreshTraktAnticipatedShowsWorker NOT enqueued, already loading.")
+                }
+            } else {
+                Timber.d("RefreshTraktAnticipatedShowsWorker NOT enqueued, not forced and data not empty.")
             }
-            // no updates have been done yet for this table
-        } else if (isMostAnticipatedShowsEmpty && (isLoadingTraktMostAnticipated.value == null || isLoadingTraktMostAnticipated.value == false) && tableUpdate == null && diffInMinutes == null) {
-            workManager.enqueue(OneTimeWorkRequest.from(RefreshTraktAnticipatedShowsWorker::class.java))
         }
     }
 }

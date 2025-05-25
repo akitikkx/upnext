@@ -31,35 +31,26 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface TraktDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertAllTraktPopular(vararg traktPopularShows: DatabaseTraktPopularShows)
-
-    @Query("delete from trakt_popular")
-    fun deleteAllTraktPopular()
+    suspend fun insertAllTraktPopular(vararg traktPopularShows: DatabaseTraktPopularShows)
 
     @Query("select * from trakt_popular")
     fun getTraktPopular(): Flow<List<DatabaseTraktPopularShows>>
 
     // TRAKT TRENDING SHOWS
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertAllTraktTrending(vararg traktTrendingShows: DatabaseTraktTrendingShows)
-
-    @Query("delete from trakt_trending")
-    fun deleteAllTraktTrending()
+    suspend fun insertAllTraktTrending(vararg traktTrendingShows: DatabaseTraktTrendingShows)
 
     @Query("select * from trakt_trending")
     fun getTraktTrending(): Flow<List<DatabaseTraktTrendingShows>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertAllTraktMostAnticipated(vararg traktMostAnticipatedShows: DatabaseTraktMostAnticipated)
-
-    @Query("delete from trakt_most_anticipated")
-    fun deleteAllTraktMostAnticipated()
+    suspend fun insertAllTraktMostAnticipated(vararg traktMostAnticipatedShows: DatabaseTraktMostAnticipated)
 
     @Query("select * from trakt_most_anticipated")
     fun getTraktMostAnticipated(): Flow<List<DatabaseTraktMostAnticipated>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertAllFavoriteShows(vararg databaseFavoriteShows: DatabaseFavoriteShows)
+    suspend fun insertAllFavoriteShows(vararg databaseFavoriteShows: DatabaseFavoriteShows)
 
     @Query("delete from favorite_shows")
     fun deleteAllFavoriteShows()
@@ -85,21 +76,45 @@ interface TraktDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAllTraktAccessData(databaseTraktAccess: DatabaseTraktAccess)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertAllFavoriteNextEpisodes(vararg databaseFavoriteNextEpisode: DatabaseFavoriteNextEpisode)
-
     @Update(entity = DatabaseFavoriteShows::class)
-    fun updateFavoriteEpisode(databaseFavoriteShows: DatabaseFavoriteShows)
-
-    @Query("delete from favorite_next_episodes")
-    fun deleteAllFavoriteEpisodes()
-
-    @Query("select * from favorite_next_episodes")
-    fun getFavoriteEpisodes(): Flow<List<DatabaseFavoriteNextEpisode>>
+    fun updateFavoriteShowWithAirStamp(databaseFavoriteShows: DatabaseFavoriteShows)
 
     @Query("select * from favorite_shows where tvMazeID = :tvMazeId")
-    fun getFavoriteShowRaw(tvMazeId: Int): DatabaseFavoriteShows
+    fun getFavoriteShowRawByTvMazeId(tvMazeId: Int): DatabaseFavoriteShows
 
-    @Query("delete from favorite_next_episodes where imdb = :imdbID")
-    fun deleteFavoriteEpisode(imdbID: String)
+    @Query("SELECT * FROM trakt_popular") // Check if at least one row exists
+    fun getTraktPopularRaw(): List<DatabaseTraktPopularShows> // Or return a single item or count
+
+    @Query("SELECT * FROM trakt_trending")
+    fun getTraktTrendingRaw(): List<DatabaseTraktTrendingShows>
+
+    @Query("SELECT * FROM trakt_most_anticipated")
+    fun getTraktMostAnticipatedRaw(): List<DatabaseTraktMostAnticipated>
+
+    @Query("DELETE FROM trakt_popular")
+    suspend fun clearPopularShows()
+
+    @Query("DELETE FROM trakt_trending")
+    suspend fun clearTrendingShows()
+
+    @Query("DELETE FROM trakt_most_anticipated")
+    suspend fun clearMostAnticipatedShows()
+
+    @Query("SELECT COUNT(id) == 0 FROM trakt_popular")
+    suspend fun checkIfPopularShowsIsEmpty(): Boolean
+
+    @Query("DELETE FROM trakt_popular WHERE id IN (:showIds)")
+    suspend fun deleteSpecificPopularShows(showIds: List<Int>)
+
+    @Query("SELECT COUNT(id) == 0 FROM trakt_trending")
+    suspend fun checkIfTrendingShowsIsEmpty(): Boolean
+
+    @Query("DELETE FROM trakt_trending WHERE id IN (:showIds)")
+    suspend fun deleteSpecificTrendingShows(showIds: List<Int>)
+
+    @Query("SELECT COUNT(id) == 0 FROM trakt_most_anticipated")
+    suspend fun checkIfMostAnticipatedShowsIsEmpty(): Boolean
+
+    @Query("DELETE FROM trakt_most_anticipated WHERE id IN (:showIds)")
+    suspend fun deleteSpecificMostAnticipatedShows(showIds: List<Int>)
 }

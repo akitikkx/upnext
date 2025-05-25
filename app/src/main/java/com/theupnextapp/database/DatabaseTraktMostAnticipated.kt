@@ -28,7 +28,7 @@ import com.theupnextapp.domain.TraktMostAnticipated
 @Entity(tableName = "trakt_most_anticipated")
 data class DatabaseTraktMostAnticipated(
     @PrimaryKey
-    val id: Int?,
+    val id: Int,
     val title: String?,
     val year: String?,
     val medium_image_url: String?,
@@ -39,7 +39,6 @@ data class DatabaseTraktMostAnticipated(
     val traktID: Int?,
     val tvdbID: Int?,
     val tvMazeID: Int?,
-    val list_count: Int?
 )
 
 fun List<DatabaseTraktMostAnticipated>.asDomainModel(): List<TraktMostAnticipated> {
@@ -55,8 +54,7 @@ fun List<DatabaseTraktMostAnticipated>.asDomainModel(): List<TraktMostAnticipate
             tmdbID = it.tmdbID,
             traktID = it.traktID,
             tvdbID = it.tvdbID,
-            tvMazeID = it.tvMazeID,
-            listCount = it.list_count
+            tvMazeID = it.tvMazeID
         )
     }
 }

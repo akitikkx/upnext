@@ -190,7 +190,7 @@ dependencies {
 
     // Hilt
     implementation libs.dagger.hilt.android
-    ksp libs.dagger.hilt.compiler
+    ksp libs.hilt.android.compiler
 
     // Timber
     // Logging
@@ -239,6 +239,12 @@ dependencies {
 
     // Accompanist Navigation Animation
     implementation libs.accompanist.navigation.animation
+
+    // Shimmer
+    implementation libs.compose.shimmer
+
+    // SwipeRefresh
+    implementation libs.accompanist.swiperefresh
 
     // Baseline Profiles
     implementation libs.profileinstaller

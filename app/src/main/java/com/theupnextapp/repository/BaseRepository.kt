@@ -21,17 +21,21 @@
 
 package com.theupnextapp.repository
 
+import android.icu.util.Calendar
 import com.theupnextapp.common.utils.DateUtils
+import com.theupnextapp.database.DatabaseTableUpdate
 import com.theupnextapp.database.UpnextDao
 import com.theupnextapp.network.TvMazeService
 import com.theupnextapp.network.models.tvmaze.NetworkShowNextEpisodeResponse
+import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.util.concurrent.TimeUnit
 
 abstract class BaseRepository(
-    protected val upnextDao: UpnextDao, // Changed to protected for potential access in subclasses
-    protected val tvMazeService: TvMazeService // Changed to protected
+    protected val upnextDao: UpnextDao,
+    protected val tvMazeService: TvMazeService
 ) {
 
     /**
@@ -43,18 +47,66 @@ abstract class BaseRepository(
      * @return `true` if the update can proceed (either enough time has passed or no previous update recorded),
      *         `false` otherwise.
      */
+    @Deprecated(message = "This will be replaced with a more robust update mechanism in the future.")
     protected fun canProceedWithUpdate(tableName: String, intervalMinutes: Long): Boolean {
         val lastUpdateTimeStamp = upnextDao.getTableLastUpdateTime(tableName)?.last_updated
-            ?: return true // No previous update time, so proceed
+            ?: return true
 
-        val diffInMinutes = DateUtils.dateDifference(
-            endTime = lastUpdateTimeStamp,
-            type = DateUtils.MINUTES
+        val elapsedMinutes = DateUtils.calculateDifference(
+            startTimeMillis = lastUpdateTimeStamp,
+            endTimeMillis = System.currentTimeMillis(),
+            unit = TimeUnit.MINUTES
         )
 
-        val canProceed = diffInMinutes > intervalMinutes
-        Timber.d("canProceedWithUpdate for table '$tableName': lastUpdate=$lastUpdateTimeStamp, diffMinutes=$diffInMinutes, interval=$intervalMinutes, proceed=$canProceed")
+        val canProceed = elapsedMinutes >= intervalMinutes
+        Timber.d("canProceedWithUpdate for table '$tableName': lastUpdate=$lastUpdateTimeStamp, elapsedMinutes=$elapsedMinutes, interval=$intervalMinutes, proceed=$canProceed")
         return canProceed
+    }
+
+    /**
+     * Checks if an update is needed for a given table.
+     * An update is needed if:
+     * 1. There's no previous update timestamp (initial load).
+     * 2. The last update was on a different day than the current day.
+     *
+     * @param tableName The name of the table.
+     * @return true if an update is needed, false otherwise.
+     */
+
+    /**
+     * Checks if an update is needed for a given table.
+     * An update is needed if:
+     * 1. There's no previous update timestamp (initial load).
+     * 2. The last update was on a different day than the current day (compared using "yyyy-MM-dd" format).
+     *
+     * @param tableName The name of the table.
+     * @return true if an update is needed, false otherwise.
+     */
+    protected suspend fun isUpdateNeededByDay(tableName: String): Boolean {
+        val lastUpdateInfo = upnextDao.getTableLastUpdateTime(tableName)
+        val lastUpdateTimeStamp = lastUpdateInfo?.last_updated
+
+        if (lastUpdateTimeStamp == null || lastUpdateTimeStamp == 0L) {
+            Timber.d("isUpdateNeededByDay for '$tableName': true (no previous update).")
+            return true // No previous update time, so proceed
+        }
+
+        // Use DateUtils to format timestamps to "yyyy-MM-dd" strings for comparison
+        val lastUpdateDateString = DateUtils.formatTimestampToString(lastUpdateTimeStamp, "yyyy-MM-dd")
+        val currentDateString = DateUtils.formatTimestampToString(System.currentTimeMillis(), "yyyy-MM-dd")
+
+        if (lastUpdateDateString == null || currentDateString == null) {
+            Timber.w("isUpdateNeededByDay for '$tableName': Could not format dates for comparison. Assuming update is needed to be safe.")
+            return true
+        }
+
+        val isDifferentDay = lastUpdateDateString != currentDateString
+
+        Timber.d(
+            "isUpdateNeededByDay for '$tableName': lastUpdateDateString='${lastUpdateDateString}', " +
+                    "currentDateString='${currentDateString}', isDifferentDay=$isDifferentDay."
+        )
+        return isDifferentDay
     }
 
     /**
@@ -69,19 +121,15 @@ abstract class BaseRepository(
             withContext(Dispatchers.IO) { // Ensure network call is on IO dispatcher
                 Timber.d("Fetching next episode for TVMaze ID: $tvMazeID")
 
-                // Step 1: Get the show summary to find the link to the next episode
                 val showInfo = tvMazeService.getShowSummaryAsync(tvMazeID.toString()).await()
                 Timber.v("Show summary response for $tvMazeID: $showInfo")
 
-                // Step 2: Extract the next episode ID from the _links
                 val nextEpisodeHref = showInfo._links?.nextepisode?.href
                 if (nextEpisodeHref.isNullOrBlank()) {
                     Timber.w("No nextepisode link found for TVMaze ID: $tvMazeID")
                     return@withContext null
                 }
 
-                // Robustly extract the ID from the href
-                // URL (e.g., "https://api.tvmaze.com/episodes/12345")
                 val nextEpisodeId = nextEpisodeHref
                     .substringAfterLast('/', "")
                 if (nextEpisodeId.isBlank()) {
@@ -96,13 +144,11 @@ abstract class BaseRepository(
                             "TVMaze ID: $tvMazeID"
                 )
 
-
-                // Step 3: Fetch the actual next episode details using the extracted ID
                 fetchNextEpisodeDetails(nextEpisodeId)
             }
         } catch (e: Exception) {
             Timber.e(e, "Error fetching next episode for TVMaze ID: $tvMazeID")
-            null // Return null on any exception during the process
+            null
         }
     }
 
@@ -120,8 +166,6 @@ abstract class BaseRepository(
         }
         return try {
             Timber.d("Fetching details for episode ID: $episodeId")
-            // The API endpoint seems to be just "/episodes/{id}", so no need to replace "/"
-            // if it's just the ID
             val episodeResponse = tvMazeService.getNextEpisodeAsync(episodeId).await()
             Timber.v("Next episode details response for ID $episodeId: $episodeResponse")
             episodeResponse
@@ -130,4 +174,55 @@ abstract class BaseRepository(
             null
         }
     }
+
+    /**
+     * Fetches TVMaze ID and image URLs for a show using its IMDb ID.
+     *
+     * @param imdbId The IMDb ID of the show.
+     * @return A Triple containing:
+     *         - First: TVMaze ID (Int?)
+     *         - Second: Original image URL (String?)
+     *         - Third: Medium image URL (String?)
+     *         Returns (null, null, null) if the show is not found or an error occurs.
+     */
+    open suspend fun getImages(imdbId: String?): Triple<Int?, String?, String?> {
+        if (imdbId.isNullOrBlank()) {
+            Timber.w("getImages called with null or blank imdbId.")
+            return Triple(null, null, null)
+        }
+        return try {
+            withContext(Dispatchers.IO) {
+                Timber.d("Fetching TVMaze info for IMDb ID: $imdbId")
+                val showLookupResponse: NetworkTvMazeShowLookupResponse =
+                    tvMazeService.getShowLookupAsync(imdbId).await()
+
+                val show = showLookupResponse
+
+                Timber.v("TVMaze show data for IMDb ID $imdbId: $show")
+                Triple(show.id, show.image.original, show.image.medium)
+            }
+        } catch (e: retrofit2.HttpException) {
+            Triple(null, null, null)
+        } catch (e: Exception) {
+            Triple(null, null, null)
+        }
+    }
+
+    protected suspend fun logTableUpdateTimestamp(tableName: String) {
+        withContext(Dispatchers.IO) {
+            try {
+                Timber.d("Attempting to insertTableUpdateLog for $tableName")
+                upnextDao.insertTableUpdateLog(
+                    DatabaseTableUpdate(
+                        table_name = tableName,
+                        last_updated = System.currentTimeMillis()
+                    )
+                )
+                Timber.d("Successfully insertedTableUpdateLog for $tableName at ${System.currentTimeMillis()}")
+            } catch (e: Exception) {
+                Timber.e(e, "Error inserting table update log for $tableName in DAO")
+            }
+        }
+    }
+
 }

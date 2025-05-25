@@ -10,22 +10,19 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.theupnextapp.repository
+package com.theupnextapp.ui.showDetail
 
-import com.theupnextapp.network.TvMazeService
+import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.theupnextapp.domain.ErrorResponse
 
-class ConcreteTestRepository(
-    upnextDao: com.theupnextapp.database.UpnextDao,
-    tvMazeService: TvMazeService
-) : BaseRepository(upnextDao, tvMazeService) {
-
-    // Expose the protected method for testing
-    fun testCanProceedWithUpdate(tableName: String, intervalMinutes: Long): Boolean {
-        return super.canProceedWithUpdate(tableName, intervalMinutes)
+class ShowDetailFetchException(
+    message: String,
+    errorResponse: ErrorResponse? = null,
+    cause: Throwable? = null
+) : RuntimeException(message, cause) {
+    init {
+        errorResponse?.let {
+            FirebaseCrashlytics.getInstance().setCustomKey("error_response_message", it.message)
+        }
     }
-
-    override suspend fun getImages(imdbId: String?): Triple<Int?, String?, String?> {
-        return super.getImages(imdbId)
-    }
-
 }

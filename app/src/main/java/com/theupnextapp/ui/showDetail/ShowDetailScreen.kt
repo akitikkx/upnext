@@ -21,199 +21,260 @@
 
 package com.theupnextapp.ui.showDetail
 
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavOptions
+import androidx.navigation.Navigator
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.ShowSeasonsScreenDestination
+import com.ramcosta.composedestinations.navigation.DestinationsNavOptionsBuilder
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.spec.Direction
+import com.ramcosta.composedestinations.spec.RouteOrDirection
 import com.theupnextapp.R
 import com.theupnextapp.common.utils.getWindowSizeClass
 import com.theupnextapp.domain.ShowCast
 import com.theupnextapp.domain.ShowDetailArg
-import com.theupnextapp.domain.ShowDetailSummary
 import com.theupnextapp.domain.ShowNextEpisode
 import com.theupnextapp.domain.ShowPreviousEpisode
 import com.theupnextapp.domain.TraktShowRating
-import com.theupnextapp.network.models.trakt.Distribution
+import com.theupnextapp.domain.TraktShowStats
 import com.theupnextapp.ui.components.PosterImage
 import com.theupnextapp.ui.components.SectionHeadingText
+import com.valentinilk.shimmer.shimmer
+import kotlinx.coroutines.launch
 import org.jsoup.Jsoup
+import java.util.Locale
 
-@ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
 @Destination<RootGraph>(navArgs = ShowDetailArg::class)
 @Composable
 fun ShowDetailScreen(
     viewModel: ShowDetailViewModel = hiltViewModel(),
-    showDetailArgs: ShowDetailArg?,
+    showDetailArgs: ShowDetailArg,
     navigator: DestinationsNavigator
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val isFavorite by viewModel.isFavoriteShow.collectAsStateWithLifecycle()
+    val showRating by viewModel.showRating.collectAsStateWithLifecycle()
+    val showStats by viewModel.showStats.collectAsStateWithLifecycle()
+    val isAuthorizedOnTrakt by viewModel.isAuthorizedOnTrakt.collectAsStateWithLifecycle()
+    val navigateToSeasons by viewModel.navigateToSeasons.collectAsStateWithLifecycle()
+    val isLoadingGlobal by viewModel.isLoading.collectAsStateWithLifecycle()
 
-    viewModel.selectedShow(showDetailArgs)
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
 
-    val showSummary = viewModel.showSummary.observeAsState()
+    LaunchedEffect(key1 = showDetailArgs) {
+        viewModel.selectedShow(showDetailArgs)
+    }
 
-    val showCast = viewModel.showCast.observeAsState()
-
-    val showRating = viewModel.showRating.observeAsState()
-
-    val showPreviousEpisode = viewModel.showPreviousEpisode.observeAsState()
-
-    val showNextEpisode = viewModel.showNextEpisode.observeAsState()
-
-    val isAuthorizedOnTrakt = viewModel.isAuthorizedOnTrakt.observeAsState()
-
-    val isFavorite = viewModel.isFavoriteShow.observeAsState()
-
-    val isLoading = viewModel.isLoading.observeAsState()
-
-    Surface(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-
-        Column {
-            Box(modifier = Modifier.fillMaxSize()) {
-                DetailArea(
-                    showSummary = showSummary.value,
-                    showDetailArgs = showDetailArgs,
-                    isAuthorizedOnTrakt = isAuthorizedOnTrakt.value,
-                    isFavorite = isFavorite.value,
-                    showCast = showCast.value,
-                    showNextEpisode = showNextEpisode.value,
-                    showPreviousEpisode = showPreviousEpisode.value,
-                    showRating = showRating.value,
-                    onSeasonsClick = {
-                        navigator.navigate(
-                            ShowSeasonsScreenDestination(
-                                ShowDetailArg(
-                                    showId = showDetailArgs?.showId,
-                                    showTitle = showDetailArgs?.showTitle,
-                                    showImageUrl = showDetailArgs?.showImageUrl,
-                                    showBackgroundUrl = showDetailArgs?.showBackgroundUrl,
-                                    imdbID = showDetailArgs?.imdbID,
-                                    isAuthorizedOnTrakt = isAuthorizedOnTrakt.value
-                                )
-                            )
-                        )
-                    },
-                    onCastItemClick = {
-                        // TODO trigger bottom sheet
-                    },
-                    onFavoriteClick = { viewModel.onAddRemoveFavoriteClick() }
-                )
-
-                if (isLoading.value == true) {
-                    LinearProgressIndicator(
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .fillMaxWidth()
+    LaunchedEffect(navigateToSeasons) {
+        if (navigateToSeasons) {
+            navigator.navigate(
+                ShowSeasonsScreenDestination(
+                    ShowDetailArg(
+                        showId = showDetailArgs.showId,
+                        showTitle = showDetailArgs.showTitle,
+                        showImageUrl = showDetailArgs.showImageUrl,
+                        showBackgroundUrl = showDetailArgs.showBackgroundUrl,
+                        imdbID = showDetailArgs.imdbID,
+                        isAuthorizedOnTrakt = isAuthorizedOnTrakt
                     )
-                }
+                )
+            )
+            viewModel.onSeasonsNavigationComplete()
+        }
+    }
+
+    LaunchedEffect(uiState.generalErrorMessage) {
+        uiState.generalErrorMessage?.let { message ->
+            coroutineScope.launch {
+                snackbarHostState.showSnackbar(message)
+                // viewModel.clearGeneralErrorMessage()
             }
+        }
+    }
+
+    val showTopLinearProgress = uiState.isLoadingSummary ||
+            uiState.isCastLoading ||
+            uiState.isNextEpisodeLoading ||
+            uiState.isPreviousEpisodeLoading ||
+            isLoadingGlobal
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            if (showTopLinearProgress) {
+                LinearProgressIndicator(
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            DetailArea(
+                uiState = uiState,
+                showDetailArgs = showDetailArgs,
+                isAuthorizedOnTrakt = isAuthorizedOnTrakt,
+                isFavorite = isFavorite,
+                showRating = showRating,
+                showStats = showStats,
+                onSeasonsClick = { viewModel.onSeasonsClick() },
+                onFavoriteClick = { viewModel.onAddRemoveFavoriteClick() },
+                onCastItemClick = { castItem -> viewModel.onShowCastItemClicked(castItem) }
+            )
+        }
+
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
+
+        // Bottom sheet for cast (if any) - this would typically be handled
+        // by a ModalBottomSheetLayout if you were using one, or manage its visibility
+        // within this Box.
+        val castMemberForBottomSheet by viewModel.showCastBottomSheet.collectAsStateWithLifecycle()
+        castMemberForBottomSheet?.let {
+            // Your BottomSheet Composable - e.g., A ModalBottomSheetLayout would wrap the content
+            // or you'd use a custom Composable here that overlays.
+            // For simplicity, if it's a simple overlay:
+            // Surface(modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().height(200.dp), elevation = 4.dp) {
+            //    Text("Bottom sheet for ${it.name}")
+            // }
         }
     }
 }
 
-@ExperimentalMaterial3WindowSizeClassApi
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
 fun DetailArea(
-    showSummary: ShowDetailSummary?,
-    showDetailArgs: ShowDetailArg?,
-    isAuthorizedOnTrakt: Boolean?,
-    isFavorite: Boolean?,
-    showCast: List<ShowCast>?,
+    uiState: ShowDetailViewModel.ShowDetailUiState,
+    showDetailArgs: ShowDetailArg,
+    isAuthorizedOnTrakt: Boolean,
+    isFavorite: Boolean,
     showRating: TraktShowRating?,
+    showStats: TraktShowStats?,
     onSeasonsClick: () -> Unit,
     onFavoriteClick: () -> Unit,
-    onCastItemClick: (item: ShowCast) -> Unit,
-    showNextEpisode: ShowNextEpisode?,
-    showPreviousEpisode: ShowPreviousEpisode?
+    onCastItemClick: (item: ShowCast) -> Unit
 ) {
     val scrollState = rememberScrollState()
+    val windowSizeClass = getWindowSizeClass()?.widthSizeClass ?: WindowWidthSizeClass.Compact
 
     Column(
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxSize()
             .verticalScroll(scrollState)
+            .padding(bottom = 16.dp)
     ) {
-        BackdropAndTitle(
-            showDetailArgs = showDetailArgs,
-            showSummary = showSummary
-        )
-
-        SynopsisArea(
-            showSummary = showSummary,
-            widthSizeClass = getWindowSizeClass()?.widthSizeClass
-        )
-
-        if (showSummary?.id != -1) {
-            ShowDetailButtons(
-                isAuthorizedOnTrakt = isAuthorizedOnTrakt,
-                isFavorite = isFavorite,
-                onSeasonsClick = { onSeasonsClick() },
-                onFavoriteClick = { onFavoriteClick() }
+        if (uiState.isLoadingSummary && uiState.showSummary == null) { // Show placeholder only if no data yet
+            SummaryPlaceholder() // Or a simpler version, or nothing if LinearProgress is enough
+        } else if (uiState.summaryErrorMessage != null) {
+            ErrorState(message = uiState.summaryErrorMessage) {
+                // Retry
+            }
+        } else if (uiState.showSummary != null) {
+            BackdropAndTitle(
+                showDetailArgs = showDetailArgs,
+                showSummary = uiState.showSummary
             )
-        }
-
-        showCast?.let {
-            if (it.isNotEmpty()) {
-                ShowCastList(it) { showCastItem ->
-                    onCastItemClick(showCastItem)
-                }
+            SynopsisArea(
+                showSummary = uiState.showSummary,
+                widthSizeClass = windowSizeClass
+            )
+            if (uiState.showSummary.id != -1) {
+                ShowDetailButtons(
+                    isAuthorizedOnTrakt = isAuthorizedOnTrakt,
+                    isFavorite = isFavorite,
+                    onSeasonsClick = onSeasonsClick,
+                    onFavoriteClick = onFavoriteClick
+                )
             }
-        }
-
-        if (!showNextEpisode?.nextEpisodeSummary.isNullOrEmpty()) {
-            showNextEpisode?.let {
-                NextEpisode(showNextEpisode = it)
-            }
-        }
-
-        if (!showPreviousEpisode?.previousEpisodeSummary.isNullOrEmpty()) {
-            showPreviousEpisode?.let {
-                PreviousEpisode(showPreviousEpisode = it)
-            }
+        } else if (showDetailArgs.showImageUrl != null || showDetailArgs.showBackgroundUrl != null) {
+            // Fallback for initial state with args but no summary yet
+            BackdropAndTitle(showDetailArgs = showDetailArgs, showSummary = null)
         }
 
         showRating?.let { ratingData ->
             if (ratingData.votes != 0) {
                 TraktRatingSummary(ratingData)
+                Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
             }
         }
+
+        // ----- Show Cast Section -----
+        ShowCast(uiState = uiState, onCastItemClick = onCastItemClick)
+        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
+
+        // ----- Next Episode Section -----
+        NextEpisode(uiState = uiState)
+        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
+
+        // ----- Previous Episode Section -----
+        PreviousEpisode(uiState = uiState)
+        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
+
+        // ----- Trakt Stats Section (Optional) -----
+        showStats?.let { statsData ->
+            // Assuming TraktStatsSummary Composable exists
+            // TraktStatsSummary(statsData)
+            // Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
+        }
+    }
+}
+
+@Composable
+fun ShowCast(
+    uiState: ShowDetailViewModel.ShowDetailUiState,
+    onCastItemClick: (item: ShowCast) -> Unit
+) {
+    if (!uiState.showCast.isNullOrEmpty()) {
+        ShowCastList(list = uiState.showCast, onClick = onCastItemClick)
+    } else if (uiState.isCastLoading) {
+        CastListPlaceholder()
+    } else if (uiState.castErrorMessage != null) {
+        ErrorState(message = uiState.castErrorMessage)
     }
 }
 
@@ -223,6 +284,7 @@ fun ShowCastList(
     onClick: (item: ShowCast) -> Unit
 ) {
     Column(
+        modifier = Modifier.padding(top = dimensionResource(id = R.dimen.padding_standard_double)),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.Start
     ) {
@@ -230,11 +292,16 @@ fun ShowCastList(
 
         LazyRow(
             modifier = Modifier
-                .background(Color.Transparent)
-                .padding(16.dp)
+                .fillMaxWidth()
+                .padding(
+                    horizontal = dimensionResource(id = R.dimen.padding_standard_double),
+                    vertical = dimensionResource(id = R.dimen.padding_standard)
+                )
         ) {
-            items(list) {
-                ShowCast(item = it) { showCastItem ->
+            items(
+                items = list,
+                key = { it.id ?: it.name ?: "" }) { item ->
+                ShowCastItem(item = item) { showCastItem ->
                     onClick(showCastItem)
                 }
             }
@@ -243,326 +310,415 @@ fun ShowCastList(
 }
 
 @Composable
-fun ShowCast(
+fun ShowCastItem(
     item: ShowCast,
     onClick: (item: ShowCast) -> Unit
 ) {
     Column(
         modifier = Modifier
-            .padding(4.dp)
+            .padding(dimensionResource(id = R.dimen.padding_standard))
             .width(dimensionResource(id = R.dimen.compose_show_detail_poster_width))
             .clickable { onClick(item) },
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.Top, // Align content to top
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        item.originalImageUrl?.let {
-            PosterImage(
-                url = it,
-                modifier = Modifier
-                    .width(dimensionResource(id = R.dimen.compose_show_detail_poster_width))
-                    .height(
-                        dimensionResource(id = R.dimen.compose_show_detail_poster_height)
-                    )
-            )
-        }
+        PosterImage(
+            url = item.originalImageUrl ?: "",
+            modifier = Modifier
+                .width(dimensionResource(id = R.dimen.compose_show_detail_poster_width))
+                .height(dimensionResource(id = R.dimen.compose_show_detail_poster_height))
+        )
 
         item.name?.let { name ->
             Text(
                 text = name,
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.CenterHorizontally)
+                    .padding(top = dimensionResource(id = R.dimen.padding_extra_small))
+                    .fillMaxWidth(),
+                maxLines = 2
             )
         }
 
         item.characterName?.let { characterName ->
             Text(
-                text = characterName,
+                text = "as $characterName",
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.Thin,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.CenterHorizontally)
+                    .fillMaxWidth(),
+                maxLines = 1
             )
         }
     }
 }
 
 @Composable
+fun PreviousEpisode(uiState: ShowDetailViewModel.ShowDetailUiState) {
+    if (uiState.showPreviousEpisode != null &&
+        (uiState.showPreviousEpisode.previousEpisodeName?.isNotBlank() == true ||
+                uiState.showPreviousEpisode.previousEpisodeAirdate?.isNotBlank() == true) // Check if there's actual data
+    ) {
+        PreviousEpisode(showPreviousEpisode = uiState.showPreviousEpisode)
+    } else if (uiState.isPreviousEpisodeLoading) {
+        EpisodePlaceholder(type = "Previous Episode")
+    } else if (uiState.previousEpisodeErrorMessage != null) {
+        ErrorState(
+            message = uiState.previousEpisodeErrorMessage
+        )
+    }
+}
+
+@Composable
 fun PreviousEpisode(showPreviousEpisode: ShowPreviousEpisode) {
-    Column {
+    Column(modifier = Modifier.padding(top = dimensionResource(id = R.dimen.padding_standard_double))) {
         SectionHeadingText(text = stringResource(id = R.string.show_detail_previous_episode_heading))
 
         Text(
             text = stringResource(
                 R.string.show_detail_episode_season_info,
-                showPreviousEpisode.previousEpisodeSeason.toString(),
-                showPreviousEpisode.previousEpisodeNumber.toString(),
-                showPreviousEpisode.previousEpisodeName.toString()
+                showPreviousEpisode.previousEpisodeSeason ?: "N/A",
+                showPreviousEpisode.previousEpisodeNumber ?: "N/A",
+                showPreviousEpisode.previousEpisodeName ?: stringResource(R.string.title_unknown)
             ),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    start = 16.dp,
-                    top = 2.dp,
-                    end = 16.dp,
-                    bottom = 4.dp
+                    start = dimensionResource(id = R.dimen.padding_standard_double),
+                    top = dimensionResource(id = R.dimen.padding_extra_small),
+                    end = dimensionResource(id = R.dimen.padding_standard_double),
+                    bottom = dimensionResource(id = R.dimen.padding_standard)
                 ),
-            style = MaterialTheme.typography.labelMedium
+            style = MaterialTheme.typography.titleSmall
         )
 
-        showPreviousEpisode.previousEpisodeSummary?.let {
-            EpisodeSummary(summary = it)
+        showPreviousEpisode.previousEpisodeSummary?.let { summary ->
+            if (summary.isNotBlank()) {
+                EpisodeSummary(summary = summary)
+            }
         }
     }
 }
 
 @Composable
-fun NextEpisode(showNextEpisode: ShowNextEpisode) {
-    Column {
+fun NextEpisode(uiState: ShowDetailViewModel.ShowDetailUiState) {
+    if (uiState.showNextEpisode != null &&
+        (uiState.showNextEpisode.nextEpisodeName?.isNotBlank() == true ||
+                uiState.showNextEpisode.nextEpisodeAirdate?.isNotBlank() == true) // Check if there's actual data
+    ) {
+        NextEpisode(showNextEpisode = uiState.showNextEpisode)
+    } else if (uiState.isNextEpisodeLoading) {
+        EpisodePlaceholder(type = "Next Episode")
+    } else if (uiState.nextEpisodeErrorMessage != null) {
+        ErrorState(message = uiState.nextEpisodeErrorMessage)
+    }
+}
+
+@Composable
+private fun NextEpisode(showNextEpisode: ShowNextEpisode) {
+    Column(modifier = Modifier.padding(top = dimensionResource(id = R.dimen.padding_standard_double))) {
         SectionHeadingText(text = stringResource(id = R.string.show_detail_next_episode_heading))
 
         Text(
             text = stringResource(
                 R.string.show_detail_episode_season_info,
-                showNextEpisode.nextEpisodeSeason.toString(),
-                showNextEpisode.nextEpisodeNumber.toString(),
-                showNextEpisode.nextEpisodeName.toString()
+                showNextEpisode.nextEpisodeSeason ?: "N/A",
+                showNextEpisode.nextEpisodeNumber ?: "N/A",
+                showNextEpisode.nextEpisodeName ?: stringResource(R.string.title_unknown)
             ),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    start = 16.dp,
-                    top = 2.dp,
-                    end = 16.dp,
-                    bottom = 4.dp
+                    start = dimensionResource(id = R.dimen.padding_standard_double),
+                    top = dimensionResource(id = R.dimen.padding_extra_small),
+                    end = dimensionResource(id = R.dimen.padding_standard_double),
+                    bottom = dimensionResource(id = R.dimen.padding_standard)
                 ),
-            style = MaterialTheme.typography.labelMedium
+            style = MaterialTheme.typography.titleSmall
         )
 
-        showNextEpisode.nextEpisodeSummary?.let {
-            EpisodeSummary(summary = it)
+        showNextEpisode.nextEpisodeSummary?.let { summary ->
+            if (summary.isNotBlank()) {
+                EpisodeSummary(summary = summary)
+            }
         }
     }
 }
 
 @Composable
 fun EpisodeSummary(summary: String) {
+    val cleanedSummary = Jsoup.parse(summary).text()
     Text(
-        text = Jsoup.parse(summary).text(),
+        text = cleanedSummary,
+        style = MaterialTheme.typography.bodyMedium,
         modifier = Modifier
+            .fillMaxWidth()
             .padding(
-                start = 16.dp,
-                top = 4.dp,
-                end = 16.dp,
-                bottom = 8.dp
+                start = dimensionResource(id = R.dimen.padding_standard_double),
+                end = dimensionResource(id = R.dimen.padding_standard_double),
+                bottom = dimensionResource(id = R.dimen.padding_standard_double)
             )
-            .fillMaxWidth(),
-        style = MaterialTheme.typography.bodyMedium
     )
 }
 
 @Composable
-private fun TraktRatingSummary(ratingData: TraktShowRating) {
-    Column(
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.Start
-    ) {
-        SectionHeadingText(text = stringResource(id = R.string.show_detail_ratings_heading))
-
-        Row(
-            verticalAlignment = Alignment.Top,
-            horizontalArrangement = Arrangement.Start,
-            modifier = Modifier.padding(8.dp)
-        ) {
-            Column(
-                verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(start = 8.dp, end = 8.dp)
-            ) {
-                Text(
-                    text = stringResource(
-                        id = R.string.show_detail_rating_numerator,
-                        ratingData.rating.toString()
-                    ),
-                    style = MaterialTheme.typography.headlineLarge
-                )
-
-                Text(
-                    text = stringResource(
-                        R.string.show_detail_rating_votes,
-                        ratingData.votes.toString()
-                    ),
-                    style = MaterialTheme.typography.labelMedium
-                )
-            }
-
-            TraktRatingVisual(ratingData = ratingData)
-        }
-    }
-}
-
-@Composable
-fun TraktRatingVisual(ratingData: TraktShowRating) {
-    val distributionList = mutableListOf<Distribution>()
-
-    ratingData.distribution?.forEach { (key, value) ->
-        val distribution = Distribution(
-            score = key,
-            value = value
-        )
-        distributionList.add(distribution)
-    }
-
-    Column(
-        verticalArrangement = Arrangement.SpaceEvenly,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(start = 8.dp, end = 8.dp)
-    ) {
-        distributionList.asReversed().forEach { distribution ->
-            val progressValue =
-                (distribution.value.toFloat() / (ratingData.votes?.toFloat() ?: 0f))
-
-            LinearProgress(
-                ratingLevel = distribution.score,
-                progress = progressValue,
-            )
-        }
-    }
-}
-
-@Composable
-fun LinearProgress(
-    ratingLevel: String,
-    progress: Float
+fun ShowDetailButtons(
+    isAuthorizedOnTrakt: Boolean?,
+    isFavorite: Boolean?,
+    onSeasonsClick: () -> Unit,
+    onFavoriteClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
-            .padding(4.dp)
-            .fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
+            .fillMaxWidth()
+            .padding(dimensionResource(id = R.dimen.padding_standard_double)),
+        horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-        Text(text = ratingLevel)
+        Text(
+            text = "Seasons",
+            modifier = Modifier
+                .clickable { onSeasonsClick() }
+                .padding(8.dp),
+            color = MaterialTheme.colorScheme.primary
+        )
+        if (isAuthorizedOnTrakt == true) {
+            Text(
+                text = if (isFavorite == true) "Remove Favorite" else "Add Favorite",
+                modifier = Modifier
+                    .clickable { onFavoriteClick() }
+                    .padding(8.dp),
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+    }
+}
 
-        LinearProgressIndicator(
-            progress = progress,
-            modifier = Modifier.padding(4.dp)
+
+@Composable
+fun TraktRatingSummary(rating: TraktShowRating) {
+    Column(modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_standard_double))) {
+        SectionHeadingText(text = stringResource(R.string.show_detail_ratings_heading)) // Corrected string resource
+        Text(
+            text = "Rating: ${
+                String.format(
+                    Locale.US,
+                    "%.1f",
+                    rating.rating ?: 0.0
+                )
+            }/10 (${rating.votes} votes)",
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.padding(top = dimensionResource(id = R.dimen.padding_extra_small)) // Added some top padding
         )
     }
 }
 
-@Preview
 @Composable
-fun LinearProgressPreview() {
-    Row(modifier = Modifier.fillMaxWidth()) {
-        Column(
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(8.dp)
-        ) {
-            Text(text = "7.0", style = MaterialTheme.typography.headlineSmall)
-            Text(text = "618 votes", style = MaterialTheme.typography.labelMedium)
+fun SummaryPlaceholder() {
+    Column(modifier = Modifier.shimmer()) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+                .background(Color.LightGray.copy(alpha = 0.3f))
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Box(
+            modifier = Modifier
+                .fillMaxWidth(0.7f)
+                .height(24.dp)
+                .padding(horizontal = 16.dp)
+                .background(Color.LightGray.copy(alpha = 0.3f))
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Box(
+            modifier = Modifier
+                .fillMaxWidth(0.5f)
+                .height(16.dp)
+                .padding(horizontal = 16.dp)
+                .background(Color.LightGray.copy(alpha = 0.3f))
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Column(Modifier.padding(horizontal = 16.dp)) {
+            repeat(4) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(12.dp)
+                        .background(Color.LightGray.copy(alpha = 0.3f))
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+            }
         }
-
-        Column(
-            verticalArrangement = Arrangement.SpaceEvenly,
-            horizontalAlignment = Alignment.Start
+        Spacer(modifier = Modifier.height(16.dp))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            LinearProgress(
-                ratingLevel = "10",
-                progress = 0.63f,
+            Box(
+                modifier = Modifier
+                    .size(100.dp, 40.dp)
+                    .background(Color.LightGray.copy(alpha = 0.3f))
             )
-            LinearProgress(
-                ratingLevel = "9",
-                progress = 0.43f,
+            Box(
+                modifier = Modifier
+                    .size(100.dp, 40.dp)
+                    .background(Color.LightGray.copy(alpha = 0.3f))
             )
-            LinearProgress(
-                ratingLevel = "8",
-                progress = 0.43f,
-            )
-            LinearProgress(
-                ratingLevel = "7",
-                progress = 0.43f,
-            )
-            LinearProgress(
-                ratingLevel = "6",
-                progress = 0.43f,
-            )
-            LinearProgress(
-                ratingLevel = "5",
-                progress = 0.43f,
-            )
-            LinearProgress(
-                ratingLevel = "4",
-                progress = 0.43f,
-            )
-            LinearProgress(
-                ratingLevel = "3",
-                progress = 0.43f,
-            )
-            LinearProgress(
-                ratingLevel = "2",
-                progress = 0.43f,
-            )
-            LinearProgress(
-                ratingLevel = "1",
-                progress = 0.43f,
-            )
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+    }
+}
+
+@Composable
+fun CastListPlaceholder() {
+    LazyRow(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .shimmer() // Make sure you have the shimmer dependency and import
+    ) {
+        items(5) {
+            Column(
+                modifier = Modifier
+                    .padding(end = 8.dp)
+                    .width(dimensionResource(id = R.dimen.compose_show_detail_poster_width)),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Box( // Poster placeholder
+                    modifier = Modifier
+                        .width(dimensionResource(id = R.dimen.compose_show_detail_poster_width))
+                        .height(dimensionResource(id = R.dimen.compose_show_detail_poster_height))
+                        .background(Color.LightGray.copy(alpha = 0.3f))
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Box( // Name placeholder
+                    modifier = Modifier
+                        .fillMaxWidth(0.8f)
+                        .height(12.dp)
+                        .background(Color.LightGray.copy(alpha = 0.3f))
+                )
+            }
         }
     }
 }
 
 @Composable
-fun HeadingAndItemText(
-    item: String,
-    heading: String
-) {
+fun EpisodePlaceholder(type: String) {
+    ElevatedCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .shimmer() // Make sure you have the shimmer dependency and import
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Box( // Episode Title placeholder
+                modifier = Modifier
+                    .fillMaxWidth(0.7f)
+                    .height(20.dp)
+                    .background(Color.LightGray.copy(alpha = 0.3f))
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(0.5f)
+                    .height(14.dp)
+                    .background(Color.LightGray.copy(alpha = 0.3f))
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            Column { // Summary lines
+                repeat(3) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(10.dp)
+                            .background(Color.LightGray.copy(alpha = 0.3f))
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ErrorState(message: String, onRetry: (() -> Unit)? = null) {
     Column(
-        modifier = Modifier.padding(8.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = heading.uppercase(),
-            fontWeight = FontWeight.Bold,
-            style = MaterialTheme.typography.bodyMedium
+            text = message,
+            color = MaterialTheme.colorScheme.error,
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.bodyLarge
         )
-
-        Text(
-            text = item,
-            style = MaterialTheme.typography.bodySmall
-        )
+        onRetry?.let {
+            Spacer(modifier = Modifier.height(8.dp))
+            Button(onClick = it) {
+                Text("Retry")
+            }
+        }
     }
 }
 
-internal class ShowDetailSummaryPreviewProvider : PreviewParameterProvider<ShowDetailSummary> {
-    override val values: Sequence<ShowDetailSummary>
-        get() = sequenceOf(
-            ShowDetailSummary(
-                airDays = "Sunday",
-                averageRating = "",
-                id = (0..1000).random(),
-                imdbID = "tt0903747",
-                genres = "Drama, Crime, Thriller",
-                language = "English",
-                mediumImageUrl = "https://static.tvmaze.com/uploads/images/medium_portrait/0/2400.jpg",
-                name = "Breaking Bad",
-                originalImageUrl = "https://static.tvmaze.com/uploads/images/original_untouched/0/2400.jpg",
-                summary = "<p><b>Breaking Bad</b> follows protagonist Walter White, a chemistry " +
-                        "teacher who lives in New Mexico with his wife and teenage son who has " +
-                        "cerebral palsy. White is diagnosed with Stage III cancer and given a " +
-                        "prognosis of two years left to live. With a new sense of fearlessness " +
-                        "based on his medical prognosis, and a desire to secure his family's " +
-                        "financial security, White chooses to enter a dangerous world of drugs " +
-                        "and crime and ascends to power in this world. The series explores how a " +
-                        "fatal diagnosis such as White's releases a typical man from the daily " +
-                        "concerns and constraints of normal society and follows his " +
-                        "transformation from mild family man to a kingpin of the drug trade.</p>",
-                time = "",
-                status = "Ended",
-                previousEpisodeHref = "",
-                nextEpisodeHref = "",
-                nextEpisodeLinkedId = 1,
-                previousEpisodeLinkedId = 2,
-            )
+@ExperimentalMaterial3Api
+@Preview(showBackground = true)
+@Composable
+fun ShowDetailScreenPreview() {
+    MaterialTheme { // Wrap with your app's theme
+        ShowDetailScreen(
+            viewModel = hiltViewModel(), // This won't work well in Preview without Hilt setup for previews
+            showDetailArgs = ShowDetailArg(
+                showId = "1",
+                showTitle = "Preview Show Title",
+                showImageUrl = "",
+                showBackgroundUrl = null
+            ),
+            navigator = object : DestinationsNavigator {
+                override fun navigate(
+                    direction: Direction,
+                    builder: DestinationsNavOptionsBuilder.() -> Unit
+                ) {
+                    // No-op for preview
+                }
+
+                override fun navigate(
+                    direction: Direction,
+                    navOptions: NavOptions?,
+                    navigatorExtras: Navigator.Extras?
+                ) {
+                    // No-op for preview
+                }
+
+                override fun navigateUp(): Boolean {
+                    return false // No-op
+                }
+
+                override fun popBackStack(): Boolean {
+                    return false // No-op
+                }
+
+                override fun popBackStack(
+                    route: RouteOrDirection,
+                    inclusive: Boolean,
+                    saveState: Boolean
+                ): Boolean {
+                    return false // No-op
+                }
+
+                override fun clearBackStack(route: RouteOrDirection): Boolean {
+                    return false // No-op
+                }
+
+                override fun getBackStackEntry(route: RouteOrDirection): NavBackStackEntry? {
+                    return null // No-op
+                }
+            }
         )
+    }
 }

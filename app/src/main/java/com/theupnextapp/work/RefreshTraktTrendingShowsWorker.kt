@@ -22,16 +22,11 @@
 package com.theupnextapp.work
 
 import android.content.Context
-import android.os.Bundle
 import androidx.hilt.work.HiltWorker
 import androidx.work.WorkerParameters
-import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.analytics // KTX extension
-import com.google.firebase.ktx.Firebase
 import com.theupnextapp.repository.TraktRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
 
 /**
@@ -53,51 +48,18 @@ class RefreshTraktTrendingShowsWorker @AssistedInject constructor(
     override val notificationId: Int = NOTIFICATION_ID
     override val contentTitleText: String = "Refreshing Trakt Trending shows"
 
-    private val firebaseAnalytics: FirebaseAnalytics by lazy { Firebase.analytics }
-
-    override suspend fun doWork(): Result = coroutineScope {
-        Timber.d("${WORK_NAME}: Starting worker.")
-        return@coroutineScope try {
-            Timber.d("${WORK_NAME}: Refreshing Trakt trending shows.")
-            refreshTrendingShows()
-
-            logSuccessToFirebase()
-            Timber.i("${WORK_NAME}: Worker completed successfully.")
+    override suspend fun doWork(): Result {
+        Timber.d("$WORK_NAME: Starting worker.")
+        return try {
+            Timber.d("$WORK_NAME: Refreshing Trakt trending shows from repository.")
+            // Pass forceRefresh = true because the worker is triggered when an update is desired
+            traktRepository.refreshTraktTrendingShows(forceRefresh = true)
+            Timber.i("$WORK_NAME: Worker completed successfully.")
             Result.success()
         } catch (e: Exception) {
-            Timber.e(e, "${WORK_NAME}: Worker failed.")
-            logFailureToFirebase(
-                errorType = e.javaClass.simpleName,
-                errorMessage = e.message ?: "Unknown error while refreshing Trakt trending shows."
-            )
+            Timber.e(e, "$WORK_NAME: Worker failed.")
             Result.failure()
         }
-    }
-
-    private suspend fun refreshTrendingShows() {
-        traktRepository.refreshTraktTrendingShows()
-        Timber.d(
-            "${WORK_NAME}: Finished refreshing Trakt " +
-                    "trending shows from repository."
-        )
-    }
-
-    private fun logSuccessToFirebase() {
-        val bundle = Bundle().apply {
-            putBoolean("job_successful", true)
-            putString("job_name", WORK_NAME)
-        }
-        firebaseAnalytics.logEvent("background_job_completed", bundle)
-    }
-
-    private fun logFailureToFirebase(errorType: String, errorMessage: String) {
-        val bundle = Bundle().apply {
-            putBoolean("job_successful", false)
-            putString("job_name", WORK_NAME)
-            putString("error_type", errorType)
-            putString("error_message", errorMessage)
-        }
-        firebaseAnalytics.logEvent("background_job_failed", bundle)
     }
 
     companion object {

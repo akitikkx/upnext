@@ -59,6 +59,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.ShowDetailScreenDestination
@@ -81,17 +82,17 @@ fun TraktAccountScreen(
 ) {
     val scrollState = rememberScrollState()
 
-    val isAuthorizedOnTrakt = viewModel.isAuthorizedOnTrakt.observeAsState()
+    val isAuthorizedOnTrakt = viewModel.isAuthorizedOnTrakt.collectAsStateWithLifecycle()
 
     val favoriteShowsList = viewModel.favoriteShows.observeAsState()
 
     val confirmDisconnectFromTrakt = viewModel.confirmDisconnectFromTrakt.observeAsState()
 
-    val isLoading = viewModel.isLoading.observeAsState()
+    val isLoading = viewModel.isLoading.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
 
-    if (!code.isNullOrEmpty() && isAuthorizedOnTrakt.value == false) {
+    if (!code.isNullOrEmpty() && !isAuthorizedOnTrakt.value) {
         viewModel.onCodeReceived(code)
     }
 
@@ -190,7 +191,7 @@ fun openCustomTab(context: Context) {
     // Check if Chrome is available
     val chromePackageInfo = try {
         context.packageManager.getPackageInfo(packageName, 0)
-    } catch (e: PackageManager.NameNotFoundException) {
+    } catch (_: PackageManager.NameNotFoundException) {
         null
     }
 

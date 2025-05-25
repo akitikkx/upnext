@@ -21,21 +21,25 @@
 
 package com.theupnextapp.domain
 
+import android.util.Log
 import com.squareup.moshi.Moshi
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
+import timber.log.Timber
 import java.io.IOException
 
 sealed class Result<out T> {
     data class Success<out T>(val data: T) : Result<T>()
-
     data class GenericError(val code: Int? = null, val error: ErrorResponse? = null) :
         Result<Nothing>()
 
     object NetworkError : Result<Nothing>()
+    data class Loading(val status: Boolean) :
+        Result<Nothing>() // If you intend to emit loading states from here
 
-    data class Loading(val status: Boolean) : Result<Nothing>()
+    data class Error(val exception: Throwable? = null, val message: String? = null) :
+        Result<Nothing>()
 }
 
 suspend fun <T> safeApiCall(dispatcher: CoroutineDispatcher, apiCall: suspend () -> T): Result<T> {
@@ -46,23 +50,36 @@ suspend fun <T> safeApiCall(dispatcher: CoroutineDispatcher, apiCall: suspend ()
             when (throwable) {
                 is IOException -> Result.NetworkError
                 is HttpException -> {
-                    val errorCode = throwable.code()
-                    val errorResponse = parseException(throwable)
-                    Result.GenericError(errorCode, errorResponse)
+                    val code = throwable.code()
+                    val errorResponse = parseHttpException(throwable)
+                    Result.GenericError(code, errorResponse)
                 }
-                else -> Result.GenericError(null, null)
+
+                else -> {
+                    // Log the unexpected error for debugging purposes
+                    Timber.tag("SafeApiCall")
+                        .e(throwable, "Unexpected API call failure: ${throwable.localizedMessage}")
+                    Result.Error(
+                        throwable,
+                        throwable.localizedMessage ?: "An unexpected error occurred"
+                    )
+                }
             }
         }
     }
 }
 
-private fun parseException(throwable: HttpException): ErrorResponse? {
+private fun parseHttpException(httpException: HttpException): ErrorResponse? {
     return try {
-        throwable.response()?.errorBody()?.source()?.let {
-            val moshiAdapter = Moshi.Builder().build().adapter(ErrorResponse::class.java)
-            moshiAdapter.fromJson(it)
+        httpException.response()?.errorBody()?.source()?.let { errorSource ->
+            val moshi = Moshi.Builder().build()
+            val adapter = moshi.adapter(ErrorResponse::class.java)
+            adapter.fromJson(errorSource)
         }
     } catch (exception: Exception) {
+        Timber
+            .tag("SafeApiCall")
+            .e(exception, "Failed to parse HttpException error body")
         null
     }
 }

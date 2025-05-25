@@ -27,5 +27,4 @@ enum class TableUpdateInterval(val intervalMins: Long, val intervalHours: Long) 
     TRAKT_TRENDING_ITEMS(120, 2),
     TRAKT_MOST_ANTICIPATED_ITEMS(120, 2),
     TRAKT_FAVORITE_SHOWS(120, 2),
-    TRAKT_FAVORITE_EPISODES(120, 2)
 }
