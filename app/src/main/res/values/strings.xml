@@ -35,6 +35,8 @@
     <string name="title_recommendations">Recommendations</string>
     <string name="title_trakt_account">Trakt Account</string>
     <string name="title_favorites_list">Your Favorite Shows</string>
+    <string name="title_loading">Loading</string>
+    <string name="title_unknown">Title Unknown</string>
 
     <!-- Notification channels -->
     <string name="notification_channel_name">App Updates</string>
@@ -51,6 +53,7 @@
     <string name="nav_title_account">Account</string>
 
     <!-- Show Detail -->
+    <string name="show_detail_synopsis_heading">Synopsis</string>
     <string name="show_detail_next_episode_heading">Next Episode</string>
     <string name="show_detail_previous_episode_heading">Previous Episode</string>
     <string name="show_detail_episode_season_info">S%1$sE%2$s, %3$s</string>
@@ -76,6 +79,18 @@
     <string name="show_detail_air_date_general">Aired on %1$s</string>
     <string name="show_detail_ratings_heading">Ratings (users on Trakt)</string>
     <string name="show_detail_connect_trakt_prompt">Go to the Account screen to connect your Trakt Account so you can add this show to your favorites</string>
+
+    <!-- Cast -->
+    <string name="cast_member_details_heading">Actor Details</string>
+    <string name="cast_member_birthday">Born</string>
+    <string name="cast_member_deathday">Died</string>
+    <string name="cast_member_gender">Gender</string>
+    <string name="character_details_heading">Character Details</string>
+    <string name="cast_member_plays_character">Plays: %s</string>
+    <string name="character_image_description">%s character image</string>
+    <string name="cast_member_voice_actor">(Voice)</string>
+    <string name="cast_member_plays_self">(Plays Self)</string>
+    <string name="cast_member_profile_image_description">%s profile image</string> <!-- Already had this -->
 
     <!-- Watched progress bottom sheet -->
     <string name="trakt_watched_overall_progress_percentage">%1$d%% watched</string>

@@ -12,35 +12,17 @@
 
 package com.theupnextapp.ui.showDetail
 
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.PreviewParameter
-import com.theupnextapp.domain.ShowDetailSummary
-import com.theupnextapp.extensions.ReferenceDevices
-import com.theupnextapp.ui.previewdata.ShowDetailSummaryProvider
-import org.jsoup.Jsoup
+import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.theupnextapp.domain.ErrorResponse
 
-@Composable
-fun ShowSynopsis(
-    showSummary: ShowDetailSummary?,
-    modifier: Modifier = Modifier
-) {
-    showSummary?.summary?.let { summary ->
-        Text(
-            text = Jsoup.parse(summary).text(),
-            modifier = modifier,
-            style = MaterialTheme.typography.bodyMedium
-        )
+class ShowDetailFetchException(
+    message: String,
+    errorResponse: ErrorResponse? = null,
+    cause: Throwable? = null
+) : RuntimeException(message, cause) {
+    init {
+        errorResponse?.let {
+            FirebaseCrashlytics.getInstance().setCustomKey("error_response_message", it.message)
+        }
     }
-}
-
-@ReferenceDevices
-@Composable
-fun ShowSynopsisPreview(
-    @PreviewParameter(ShowDetailSummaryProvider::class)
-    showSummary: ShowDetailSummary?
-) {
-    ShowSynopsis(showSummary = showSummary)
 }

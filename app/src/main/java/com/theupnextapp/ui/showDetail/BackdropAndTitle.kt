@@ -35,13 +35,15 @@ fun BackdropAndTitle(
     showDetailArgs: ShowDetailArg?,
     showSummary: ShowDetailSummary?,
 ) {
-    val imageUrl: String? = if (!showDetailArgs?.showBackgroundUrl.isNullOrEmpty()) {
-        showDetailArgs?.showBackgroundUrl
-    } else if (!showDetailArgs?.showImageUrl.isNullOrEmpty()) {
-        showDetailArgs?.showImageUrl
-    } else {
-        showSummary?.originalImageUrl
-    }
+    val imageUrl: String? = showDetailArgs?.let { args -> // Use let to scope on non-null showDetailArgs
+        if (!args.showBackgroundUrl.isNullOrEmpty()) {
+            args.showBackgroundUrl
+        } else if (!args.showImageUrl.isNullOrEmpty()) {
+            args.showImageUrl
+        } else {
+            null
+        }
+    } ?: showSummary?.originalImageUrl
 
     imageUrl?.let {
         PosterImage(

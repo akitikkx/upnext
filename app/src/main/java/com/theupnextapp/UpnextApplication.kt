@@ -38,13 +38,14 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.theupnextapp.common.utils.UpnextPreferenceManager
 import com.theupnextapp.common.utils.models.TableUpdateInterval
+import com.theupnextapp.database.DatabaseTraktAccess
 import com.theupnextapp.database.asDomainModel
+import com.theupnextapp.domain.TraktAccessToken
 import com.theupnextapp.domain.isTraktAccessTokenValid
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.work.BaseWorker
 import com.theupnextapp.work.RefreshDashboardShowsWorker
 import com.theupnextapp.work.RefreshFavoriteShowsWorker
-import com.theupnextapp.work.RefreshTraktExploreWorker
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -70,6 +71,7 @@ class UpnextApplication : Application(), Configuration.Provider {
 
     override fun onCreate() {
         super.onCreate()
+        Timber.plant(Timber.DebugTree())
         setupTheme()
         createNotificationChannels()
         initializeBackgroundTasks()
@@ -131,13 +133,26 @@ class UpnextApplication : Application(), Configuration.Provider {
             val workManager = WorkManager.getInstance(applicationContext)
             setupFavoriteShowsWorker(workManager)
             setupDashboardWorker(workManager)
-            setupTraktExploreWorker(workManager)
         }
     }
 
     private fun setupFavoriteShowsWorker(workManager: WorkManager) {
-        val traktAccessToken = try {
-            traktRepository.getTraktAccessTokenRaw()?.asDomainModel()
+        val traktAccessTokenDomain: TraktAccessToken? = try { // Explicit type for clarity
+            val rawTokenEntity = traktRepository.getTraktAccessTokenRaw()
+
+            // Check if the raw entity is of the correct database type
+            if (rawTokenEntity is DatabaseTraktAccess) {
+                rawTokenEntity.asDomainModel()
+            } else {
+                if (rawTokenEntity != null) {
+                    Timber.tag("UpnextApplication")
+                        .w("getTraktAccessTokenRaw() returned an unexpected type: ${rawTokenEntity.javaClass.name}. Expected DatabaseTraktAccess.")
+                } else {
+                    Timber.tag("UpnextApplication")
+                        .i("getTraktAccessTokenRaw() returned null.")
+                }
+                null // Return null if not the correct type or if rawTokenEntity was null
+            }
         } catch (e: Exception) {
             Timber
                 .tag("UpnextApplication")
@@ -148,9 +163,12 @@ class UpnextApplication : Application(), Configuration.Provider {
             null
         }
 
-        if (traktAccessToken?.access_token?.isNotEmpty() == true && traktAccessToken.isTraktAccessTokenValid()) {
+        if (traktAccessTokenDomain?.access_token?.isNotEmpty() == true && traktAccessTokenDomain.isTraktAccessTokenValid()) {
             val workerData = Data.Builder()
-                .putString(RefreshFavoriteShowsWorker.ARG_TOKEN, traktAccessToken.access_token)
+                .putString(
+                    RefreshFavoriteShowsWorker.ARG_TOKEN,
+                    traktAccessTokenDomain.access_token
+                )
                 .build()
 
             val refreshFavoriteShowsRequest =
@@ -159,7 +177,6 @@ class UpnextApplication : Application(), Configuration.Provider {
                     TimeUnit.MINUTES
                 )
                     .setInputData(workerData)
-                    // Optionally add constraints
                     .setConstraints(
                         Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
                     )
@@ -167,35 +184,21 @@ class UpnextApplication : Application(), Configuration.Provider {
 
             workManager.enqueueUniquePeriodicWork(
                 RefreshFavoriteShowsWorker.WORK_NAME,
-                ExistingPeriodicWorkPolicy.KEEP, // Or CANCEL_AND_REENQUEUE if new params are critical
+                ExistingPeriodicWorkPolicy.KEEP,
                 refreshFavoriteShowsRequest
             )
             Timber.tag("UpnextApplication").d("Enqueued ${RefreshFavoriteShowsWorker.WORK_NAME}")
         } else {
             Timber
                 .tag("UpnextApplication")
-                .i("Skipping favorite shows worker setup: Invalid or missing Trakt token.")
+                .i("Skipping favorite shows worker setup: Invalid or missing Trakt token. Token was: $traktAccessTokenDomain")
+            // It's good practice to also cancel if the conditions aren't met,
+            // especially if a previous valid token existed and the worker was enqueued.
             workManager.cancelUniqueWork(RefreshFavoriteShowsWorker.WORK_NAME)
+            Timber.tag("UpnextApplication")
+                .d("Cancelled ${RefreshFavoriteShowsWorker.WORK_NAME} due to invalid/missing token.")
         }
     }
-
-    private fun setupTraktExploreWorker(workManager: WorkManager) {
-        val refreshExploreShowsRequest =
-            PeriodicWorkRequestBuilder<RefreshTraktExploreWorker>(
-                TableUpdateInterval.TRAKT_TRENDING_ITEMS.intervalMins,
-                TimeUnit.MINUTES
-            ).build()
-
-        workManager.enqueueUniquePeriodicWork(
-            RefreshTraktExploreWorker.WORK_NAME,
-            ExistingPeriodicWorkPolicy.KEEP, // Consider policy: KEEP or REPLACE/CANCEL_AND_REENQUEUE
-            refreshExploreShowsRequest
-        )
-        Timber
-            .tag(tag = "UpnextApplication")
-            .d("Enqueued ${RefreshTraktExploreWorker.WORK_NAME}")
-    }
-
     private fun setupDashboardWorker(workManager: WorkManager) {
         val refreshDashboardShowsRequest =
             PeriodicWorkRequestBuilder<RefreshDashboardShowsWorker>(

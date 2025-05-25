@@ -56,7 +56,7 @@ fun NetworkTraktTrendingShowsResponseItem.asDomainModel(): TraktTrendingShows {
         mediumImageUrl = show.mediumImageUrl,
         originalImageUrl = show.originalImageUrl,
         imdbID = show.ids.imdb,
-        slug = show.ids.imdb,
+        slug = show.ids.slug,
         tmdbID = show.ids.tmdb,
         traktID = show.ids.trakt,
         tvMazeID = show.ids.tvMazeID,
@@ -64,18 +64,18 @@ fun NetworkTraktTrendingShowsResponseItem.asDomainModel(): TraktTrendingShows {
     )
 }
 
-fun NetworkTraktTrendingShowsResponseItem.asDatabaseModel(): DatabaseTraktTrendingShows {
+fun NetworkTraktTrendingShowsResponseItemShow.asDatabaseModel(): DatabaseTraktTrendingShows {
     return DatabaseTraktTrendingShows(
-        id = show.ids.trakt,
-        title = show.title,
-        year = show.year.toString(),
-        medium_image_url = show.mediumImageUrl,
-        original_image_url = show.originalImageUrl,
-        imdbID = show.ids.imdb,
-        slug = show.ids.slug,
-        tmdbID = show.ids.tmdb,
-        traktID = show.ids.trakt,
-        tvdbID = show.ids.tvdb,
-        tvMazeID = show.ids.tvMazeID
+        id = ids.trakt,
+        title = title,
+        year = year.toString(),
+        medium_image_url = mediumImageUrl,
+        original_image_url = originalImageUrl,
+        imdbID = ids.imdb,
+        slug = ids.slug,
+        tmdbID = ids.tmdb,
+        traktID = ids.trakt,
+        tvdbID = ids.tvdb,
+        tvMazeID = ids.tvMazeID
     )
 }

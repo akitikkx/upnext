@@ -33,13 +33,25 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.LaunchedEffect
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.isEmpty
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.ShowDetailScreenDestination
@@ -49,8 +61,12 @@ import com.theupnextapp.domain.TraktMostAnticipated
 import com.theupnextapp.domain.TraktPopularShows
 import com.theupnextapp.domain.TraktTrendingShows
 import com.theupnextapp.ui.components.SectionHeadingText
+import com.theupnextapp.ui.components.ShimmerPosterCardRow
 import com.theupnextapp.ui.widgets.ListPosterCard
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+
 @ExperimentalMaterial3WindowSizeClassApi
+@ExperimentalCoroutinesApi
 @ExperimentalMaterial3Api
 @Destination<RootGraph>
 @Composable
@@ -58,84 +74,117 @@ fun ExploreScreen(
     viewModel: ExploreViewModel = hiltViewModel(),
     navigator: DestinationsNavigator
 ) {
-    val popularShowsList = viewModel.popularShows.observeAsState()
+    val popularShowsList: List<TraktPopularShows>
+            by viewModel.popularShows.collectAsStateWithLifecycle()
+    val trendingShowsList: List<TraktTrendingShows>
+            by viewModel.trendingShows.collectAsStateWithLifecycle()
+    val mostAnticipatedShowsList: List<TraktMostAnticipated>
+            by viewModel.mostAnticipatedShows.collectAsStateWithLifecycle()
 
-    val trendingShowsList = viewModel.trendingShows.observeAsState()
+    val isOverallLoading by viewModel.isLoading.collectAsStateWithLifecycle()
+    val isPullRefreshing by viewModel.isPullRefreshing.collectAsStateWithLifecycle()
 
-    val mostAnticipatedShowsList = viewModel.mostAnticipatedShows.observeAsState()
-
-    val isLoading = viewModel.isLoading.observeAsState()
+    val isLoadingTrending by viewModel.isLoadingTraktTrending.collectAsStateWithLifecycle()
+    val isLoadingPopular by viewModel.isLoadingTraktPopular.collectAsStateWithLifecycle()
+    val isLoadingMostAnticipated
+            by viewModel.isLoadingTraktMostAnticipated.collectAsStateWithLifecycle()
 
     val scrollState = rememberScrollState()
 
-    Surface(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier.verticalScroll(scrollState)
-        ) {
-            Box(modifier = Modifier.fillMaxSize()) {
+    val onRefresh = {
+        viewModel.checkAndRefreshAllExploreData(forceRefresh = true)
+    }
 
-                Column(modifier = Modifier.padding(top = 8.dp)) {
-                    trendingShowsList.value?.let { list ->
-                        if (list.isNotEmpty())
-                            TrendingShowsRow(
-                                list = list,
-                                rowTitle = stringResource(id = R.string.explore_trending_shows_list_title)
-                            ) {
-                                navigator.navigate(
-                                    ShowDetailScreenDestination(
-                                        source = "trending",
-                                        showId = it.tvMazeID.toString(),
-                                        showTitle = it.title,
-                                        showImageUrl = it.originalImageUrl,
-                                        showBackgroundUrl = it.mediumImageUrl
-                                    )
-                                )
-                            }
-                    }
+    LaunchedEffect(Unit) {
+        if (popularShowsList.isEmpty() && trendingShowsList.isEmpty() && mostAnticipatedShowsList.isEmpty()) {
+            // Check if not already loading overall to prevent duplicate calls if init already started something
+            // or if a configuration change happened while loading.
+            if (!isOverallLoading) {
+                viewModel.checkAndRefreshAllExploreData(forceRefresh = false)
+            }
+        }
+    }
 
-                    popularShowsList.value?.let { list ->
-                        if (list.isNotEmpty())
-                            PopularShowsRow(
-                                list = list,
-                                rowTitle = stringResource(id = R.string.explore_popular_shows_list_title)
-                            ) {
-                                navigator.navigate(
-                                    ShowDetailScreenDestination(
-                                        source = "popular",
-                                        showId = it.tvMazeID.toString(),
-                                        showTitle = it.title,
-                                        showImageUrl = it.originalImageUrl,
-                                        showBackgroundUrl = it.mediumImageUrl
-                                    )
-                                )
-                            }
-                    }
-
-                    mostAnticipatedShowsList.value?.let { list ->
-                        if (list.isNotEmpty())
-                            MostAnticipatedShowsRow(
-                                list = list,
-                                rowTitle = stringResource(id = R.string.explore_most_anticipated_shows_list_title)
-                            ) {
-                                navigator.navigate(
-                                    ShowDetailScreenDestination(
-                                        source = "most_anticipated",
-                                        showId = it.tvMazeID.toString(),
-                                        showTitle = it.title,
-                                        showImageUrl = it.originalImageUrl,
-                                        showBackgroundUrl = it.mediumImageUrl
-                                    )
-                                )
-                            }
-                    }
+    PullToRefreshBox(
+        isRefreshing = isPullRefreshing,
+        onRefresh = onRefresh,
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Surface(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(scrollState)
+            ) {
+                if (isOverallLoading && !isPullRefreshing && popularShowsList.isEmpty() && trendingShowsList.isEmpty() && mostAnticipatedShowsList.isEmpty()) {
+                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
                 }
 
-                if (isLoading.value == true) {
-                    LinearProgressIndicator(
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .fillMaxWidth()
+                Column(
+                    modifier = Modifier.padding(
+                        top = 8.dp,
+                        bottom = 16.dp
                     )
+                ) {
+                    // Trending Shows Section
+                    if (isLoadingTrending && trendingShowsList.isEmpty()) {
+                        ShimmerPosterCardRow()
+                    } else if (trendingShowsList.isNotEmpty()) {
+                        TrendingShowsRow(
+                            list = trendingShowsList,
+                            rowTitle = stringResource(id = R.string.explore_trending_shows_list_title)
+                        ) { traktShow ->
+                            navigator.navigate(
+                                ShowDetailScreenDestination(
+                                    source = "trending",
+                                    showId = traktShow.tvMazeID.toString(),
+                                    showTitle = traktShow.title,
+                                    showImageUrl = traktShow.originalImageUrl,
+                                    showBackgroundUrl = traktShow.mediumImageUrl
+                                )
+                            )
+                        }
+                    }
+
+                    // Popular Shows Section
+                    if (isLoadingPopular && popularShowsList.isEmpty()) {
+                        ShimmerPosterCardRow()
+                    } else if (popularShowsList.isNotEmpty()) {
+                        PopularShowsRow(
+                            list = popularShowsList,
+                            rowTitle = stringResource(id = R.string.explore_popular_shows_list_title)
+                        ) { traktShow ->
+                            navigator.navigate(
+                                ShowDetailScreenDestination(
+                                    source = "popular",
+                                    showId = traktShow.tvMazeID.toString(),
+                                    showTitle = traktShow.title,
+                                    showImageUrl = traktShow.originalImageUrl,
+                                    showBackgroundUrl = traktShow.mediumImageUrl
+                                )
+                            )
+                        }
+                    }
+
+                    // Most Anticipated Shows Section
+                    if (isLoadingMostAnticipated && mostAnticipatedShowsList.isEmpty()) {
+                        ShimmerPosterCardRow()
+                    } else if (mostAnticipatedShowsList.isNotEmpty()) {
+                        MostAnticipatedShowsRow(
+                            list = mostAnticipatedShowsList,
+                            rowTitle = stringResource(id = R.string.explore_most_anticipated_shows_list_title)
+                        ) { traktShow ->
+                            navigator.navigate(
+                                ShowDetailScreenDestination(
+                                    source = "most_anticipated",
+                                    showId = traktShow.tvMazeID.toString(),
+                                    showTitle = traktShow.title,
+                                    showImageUrl = traktShow.originalImageUrl,
+                                    showBackgroundUrl = traktShow.mediumImageUrl
+                                )
+                            )
+                        }
+                    } //
                 }
             }
         }
@@ -143,7 +192,7 @@ fun ExploreScreen(
 }
 
 @ExperimentalMaterial3WindowSizeClassApi
-@ExperimentalMaterial3Api
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TrendingShowsRow(
     list: List<TraktTrendingShows>,
@@ -153,8 +202,8 @@ fun TrendingShowsRow(
     Column {
         SectionHeadingText(text = rowTitle)
 
-        LazyRow(modifier = Modifier.padding(8.dp)) {
-            items(list) { show ->
+        LazyRow(modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)) {
+            items(items = list, key = { it.id ?: it.title ?: "" }) { show ->
                 ListPosterCard(
                     itemName = show.title,
                     itemUrl = show.originalImageUrl
@@ -167,7 +216,7 @@ fun TrendingShowsRow(
 }
 
 @ExperimentalMaterial3WindowSizeClassApi
-@ExperimentalMaterial3Api
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PopularShowsRow(
     list: List<TraktPopularShows>,
@@ -177,8 +226,8 @@ fun PopularShowsRow(
     Column {
         SectionHeadingText(text = rowTitle)
 
-        LazyRow(modifier = Modifier.padding(8.dp)) {
-            items(list) { show ->
+        LazyRow(modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)) {
+            items(items = list, key = { it.id ?: it.title ?: "" }) { show ->
                 ListPosterCard(
                     itemName = show.title,
                     itemUrl = show.originalImageUrl
@@ -191,7 +240,7 @@ fun PopularShowsRow(
 }
 
 @ExperimentalMaterial3WindowSizeClassApi
-@ExperimentalMaterial3Api
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MostAnticipatedShowsRow(
     list: List<TraktMostAnticipated>,
@@ -201,8 +250,8 @@ fun MostAnticipatedShowsRow(
     Column {
         SectionHeadingText(text = rowTitle)
 
-        LazyRow(modifier = Modifier.padding(8.dp)) {
-            items(list) { show ->
+        LazyRow(modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)) {
+            items(items = list, key = { it.id ?: it.title ?: "" }) { show ->
                 ListPosterCard(
                     itemName = show.title,
                     itemUrl = show.originalImageUrl

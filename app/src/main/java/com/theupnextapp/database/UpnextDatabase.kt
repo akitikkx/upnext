@@ -36,9 +36,8 @@ import androidx.room.RoomDatabase
         DatabaseTraktMostAnticipated::class,
         DatabaseFavoriteShows::class,
         DatabaseTraktAccess::class,
-        DatabaseFavoriteNextEpisode::class
     ],
-    version = 26,
+    version = 29,
     exportSchema = true
 )
 abstract class UpnextDatabase : RoomDatabase() {

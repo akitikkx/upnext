@@ -35,6 +35,9 @@ import com.theupnextapp.database.MIGRATION_22_23
 import com.theupnextapp.database.MIGRATION_23_24
 import com.theupnextapp.database.MIGRATION_24_25
 import com.theupnextapp.database.MIGRATION_25_26
+import com.theupnextapp.database.MIGRATION_26_27
+import com.theupnextapp.database.MIGRATION_27_28
+import com.theupnextapp.database.MIGRATION_28_29
 import com.theupnextapp.database.TraktDao
 import com.theupnextapp.database.TvMazeDao
 import com.theupnextapp.database.UpnextDao
@@ -71,7 +74,10 @@ class RoomModule {
                 MIGRATION_22_23,
                 MIGRATION_23_24,
                 MIGRATION_24_25,
-                MIGRATION_25_26
+                MIGRATION_25_26,
+                MIGRATION_26_27,
+                MIGRATION_27_28,
+                MIGRATION_28_29,
             )
             .build()
     }

@@ -23,7 +23,7 @@ package com.theupnextapp.network.models.tvmaze
 
 import com.theupnextapp.domain.ShowDetailSummary
 
-data class NetworkShowInfoResponse constructor(
+data class NetworkShowInfoResponse(
     val id: Int,
     val image: NetworkShowInfoImage?,
     val externals: NetworkShowInfoExternals,

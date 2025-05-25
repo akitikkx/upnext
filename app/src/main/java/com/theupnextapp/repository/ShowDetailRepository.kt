@@ -43,21 +43,9 @@ import kotlinx.coroutines.flow.flowOn
 
 class ShowDetailRepository(
     upnextDao: UpnextDao,
-    private val tvMazeService: TvMazeService,
+    tvMazeService: TvMazeService,
     private val firebaseCrashlytics: FirebaseCrashlytics
 ) : BaseRepository(upnextDao = upnextDao, tvMazeService = tvMazeService) {
-
-    private val _isLoading = MutableLiveData<Boolean>()
-    val isLoading: LiveData<Boolean> = _isLoading
-
-    private val _showCast = MutableLiveData<List<ShowCast>>()
-    val showCast: LiveData<List<ShowCast>> = _showCast
-
-    private val _showSeasons = MutableLiveData<List<ShowSeason>>()
-    val showSeasons: LiveData<List<ShowSeason>> = _showSeasons
-
-    private val _episodes = MutableLiveData<List<ShowSeasonEpisode>>()
-    val episodes: LiveData<List<ShowSeasonEpisode>> = _episodes
 
     suspend fun getShowSummary(showId: Int): Flow<Result<ShowDetailSummary>> {
         return flow {

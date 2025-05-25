@@ -33,5 +33,4 @@ data class TraktUserListItem(
     val traktID: Int?,
     val tvdbID: Int?,
     val tvMazeID: Int?,
-    var airStamp: String? = null
 )

@@ -10,37 +10,22 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.theupnextapp.ui.showDetail
+package com.theupnextapp.repository
 
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.PreviewParameter
-import com.theupnextapp.domain.ShowDetailSummary
-import com.theupnextapp.extensions.ReferenceDevices
-import com.theupnextapp.ui.previewdata.ShowDetailSummaryProvider
-import org.jsoup.Jsoup
+import com.theupnextapp.network.TvMazeService
 
-@Composable
-fun ShowSynopsis(
-    showSummary: ShowDetailSummary?,
-    modifier: Modifier = Modifier
-) {
-    showSummary?.summary?.let { summary ->
-        Text(
-            text = Jsoup.parse(summary).text(),
-            modifier = modifier,
-            style = MaterialTheme.typography.bodyMedium
-        )
+class ConcreteTestRepository(
+    upnextDao: com.theupnextapp.database.UpnextDao,
+    tvMazeService: TvMazeService
+) : BaseRepository(upnextDao, tvMazeService) {
+
+    // Expose the protected method for testing
+    fun testCanProceedWithUpdate(tableName: String, intervalMinutes: Long): Boolean {
+        return super.canProceedWithUpdate(tableName, intervalMinutes)
     }
-}
 
-@ReferenceDevices
-@Composable
-fun ShowSynopsisPreview(
-    @PreviewParameter(ShowDetailSummaryProvider::class)
-    showSummary: ShowDetailSummary?
-) {
-    ShowSynopsis(showSummary = showSummary)
+    override suspend fun getImages(imdbId: String?): Triple<Int?, String?, String?> {
+        return super.getImages(imdbId)
+    }
+
 }

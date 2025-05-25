@@ -21,8 +21,6 @@
 
 package com.theupnextapp.ui.showDetail
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.work.Data
@@ -35,6 +33,8 @@ import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.ShowDetailSummary
 import com.theupnextapp.domain.ShowNextEpisode
 import com.theupnextapp.domain.ShowPreviousEpisode
+import com.theupnextapp.domain.TraktShowRating
+import com.theupnextapp.domain.TraktShowStats
 import com.theupnextapp.domain.emptyShowData
 import com.theupnextapp.repository.ShowDetailRepository
 import com.theupnextapp.repository.TraktRepository
@@ -43,6 +43,13 @@ import com.theupnextapp.work.AddFavoriteShowWorker
 import com.theupnextapp.work.RemoveFavoriteShowWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -58,91 +65,179 @@ class ShowDetailViewModel @Inject constructor(
 ) {
 
     private val _show = MutableLiveData<ShowDetailArg>()
-    val showDetailArg: LiveData<ShowDetailArg> = _show
+    private val _showCastBottomSheet = MutableStateFlow<ShowCast?>(null)
+    val showCastBottomSheet: StateFlow<ShowCast?> = _showCastBottomSheet.asStateFlow()
 
-    private val _showCastBottomSheet = MutableLiveData<ShowCast?>()
-    val showCastBottomSheet: LiveData<ShowCast?> = _showCastBottomSheet
+    private val _navigateToSeasons = MutableStateFlow(false)
+    val navigateToSeasons: StateFlow<Boolean> = _navigateToSeasons.asStateFlow()
 
-    private val _navigateToSeasons = MutableLiveData<Boolean>()
-    val navigateToSeasons: LiveData<Boolean> = _navigateToSeasons
+    private val _uiState = MutableStateFlow(ShowDetailUiState())
+    val uiState: StateFlow<ShowDetailUiState> = _uiState.asStateFlow()
 
-    private val _showSummary = MutableLiveData<ShowDetailSummary?>()
-    val showSummary: LiveData<ShowDetailSummary?> = _showSummary
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
-    private val _showPreviousEpisode = MutableLiveData<ShowPreviousEpisode?>()
-    val showPreviousEpisode: LiveData<ShowPreviousEpisode?> = _showPreviousEpisode
+    val isFavoriteShow =
+        traktRepository.favoriteShow.map { it != null }
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5000L),
+                false
+            )
 
-    private val _showNextEpisode = MutableLiveData<ShowNextEpisode?>()
-    val showNextEpisode: LiveData<ShowNextEpisode?> = _showNextEpisode
+    val showRating: StateFlow<TraktShowRating?> = traktRepository.traktShowRating
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), null)
 
-    val isLoading = MediatorLiveData<Boolean>()
+    val showStats: StateFlow<TraktShowStats?> = traktRepository.traktShowStats
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), null)
 
-    val isFavoriteShow = MediatorLiveData<Boolean>()
-
-    private val isUpnextRepositoryLoading = showDetailRepository.isLoading
-
-    private val isTraktRepositoryLoading = traktRepository.isLoading
-
-    private val _showCast = MutableLiveData<List<ShowCast>?>()
-    val showCast: LiveData<List<ShowCast>?> = _showCast
-
-    val showRating = traktRepository.traktShowRating
-
-    val showStats = traktRepository.traktShowStats
-
-    private val favoriteShow = traktRepository.favoriteShow
-
-    init {
-        isLoading.addSource(isUpnextRepositoryLoading) { result ->
-            isLoading.value = result == true
-        }
-
-        isLoading.addSource(isTraktRepositoryLoading) { result ->
-            isLoading.value = result == true
-        }
-
-        isFavoriteShow.addSource(favoriteShow) { result ->
-            isFavoriteShow.value = result != null
-        }
-    }
+    data class ShowDetailUiState(
+        val showSummary: ShowDetailSummary? = null,
+        val showPreviousEpisode: ShowPreviousEpisode? = null,
+        val showNextEpisode: ShowNextEpisode? = null,
+        val showCast: List<ShowCast>? = null,
+        val isLoadingSummary: Boolean = false,
+        val isCastLoading: Boolean = false,
+        val isPreviousEpisodeLoading: Boolean = false,
+        val isNextEpisodeLoading: Boolean = false,
+        val summaryErrorMessage: String? = null,
+        val castErrorMessage: String? = null,
+        val previousEpisodeErrorMessage: String? = null,
+        val nextEpisodeErrorMessage: String? = null,
+        val generalErrorMessage: String? = null
+    )
 
     fun selectedShow(show: ShowDetailArg?) {
+        _uiState.update { ShowDetailUiState() }
+        _isLoading.value = true
+
         show?.let {
             _show.value = it
-            try {
-                getShowSummary(it)
-            } catch (exception: Exception) {
-                firebaseCrashlytics.recordException(exception)
+            _uiState.update { currentState ->
+                currentState.copy(
+                    isLoadingSummary = true,
+                    summaryErrorMessage = null,
+                    generalErrorMessage = null,
+                    showSummary = null,
+                    showCast = null,
+                    showPreviousEpisode = null,
+                    showNextEpisode = null
+                )
+            }
+            getShowSummary(it)
+        } ?: run {
+            _isLoading.value = false
+            _uiState.update { currentState ->
+                currentState.copy(
+                    isLoadingSummary = false,
+                    generalErrorMessage = "No show information provided."
+                )
             }
         }
     }
 
     private fun getShowSummary(show: ShowDetailArg) {
         viewModelScope.launch {
+            _uiState.update { it.copy(isLoadingSummary = true, summaryErrorMessage = null) }
+
             show.showId?.let { showId ->
                 if (showId.isNotEmpty() && showId != "null") {
                     showDetailRepository.getShowSummary(showId.toInt()).collect { result ->
+                        _isLoading.value = false // Global loader off after summary attempt
+
                         when (result) {
                             is Result.Success -> {
-                                val showSummary = result.data
-                                _showSummary.value = showSummary
-                                getShowPreviousEpisode(showSummary.previousEpisodeHref)
-                                getShowNextEpisode(showSummary.nextEpisodeHref)
-                                getTraktShowRating(showSummary.imdbID)
-                                getTraktShowStats(showSummary.imdbID)
-                                checkIfShowIsTraktFavorite(showSummary.imdbID)
+                                val summary = result.data
+                                _uiState.update { currentState ->
+                                    currentState.copy(
+                                        showSummary = summary,
+                                        isLoadingSummary = false
+                                    )
+                                }
+                                getShowPreviousEpisode(summary.previousEpisodeHref)
+                                getShowNextEpisode(summary.nextEpisodeHref)
+                                getTraktShowRating(summary.imdbID)
+                                getTraktShowStats(summary.imdbID)
+                                checkIfShowIsTraktFavorite(summary.imdbID)
+                                getShowCast(showId.toInt())
+                            }
+
+                            is Result.GenericError -> {
+                                val errorMessage = result.error?.message
+                                    ?: "Error loading summary (Code: ${result.code ?: "Unknown"})"
+                                firebaseCrashlytics.recordException(
+                                    ShowDetailFetchException(
+                                        "GenericError in getShowSummary: $errorMessage",
+                                        result.error
+                                    )
+                                )
+                                _uiState.update {
+                                    it.copy(
+                                        showSummary = emptyShowData(),
+                                        isLoadingSummary = false,
+                                        summaryErrorMessage = errorMessage
+                                    )
+                                }
+                            }
+
+                            is Result.NetworkError -> {
+                                val networkErrorMessage = "Network error loading summary."
+                                firebaseCrashlytics.recordException(
+                                    ShowDetailFetchException(networkErrorMessage)
+                                )
+                                _uiState.update {
+                                    it.copy(
+                                        showSummary = emptyShowData(),
+                                        isLoadingSummary = false,
+                                        summaryErrorMessage = networkErrorMessage
+                                    )
+                                }
+                            }
+
+                            is Result.Error -> { // Handle the specific Error type
+                                val errorMessage = result.message
+                                    ?: "An unexpected error occurred while loading summary."
+                                firebaseCrashlytics.recordException(
+                                    result.exception ?: ShowDetailFetchException(errorMessage)
+                                )
+                                _uiState.update {
+                                    it.copy(
+                                        showSummary = emptyShowData(),
+                                        isLoadingSummary = false,
+                                        summaryErrorMessage = errorMessage
+                                    )
+                                }
                             }
 
                             is Result.Loading -> {
-                                isLoading.value = result.status
+                                _uiState.update { it.copy(isLoadingSummary = result.status) }
+                                // Ensure global is off if granular loading finishes (and was the last one)
+                                if (!result.status && !_uiState.value.isCastLoading && !_uiState.value.isPreviousEpisodeLoading && !_uiState.value.isNextEpisodeLoading) {
+                                    _isLoading.value = false
+                                } else if (result.status) {
+                                    _isLoading.value =
+                                        true // If any granular loading starts, ensure global reflects it if desired
+                                }
                             }
-
-                            else -> {}
                         }
                     }
-                    getShowCast(showId.toInt())
                 } else {
-                    _showSummary.value = emptyShowData()
+                    _isLoading.value = false
+                    _uiState.update {
+                        it.copy(
+                            showSummary = emptyShowData(),
+                            isLoadingSummary = false,
+                            summaryErrorMessage = "Invalid Show ID."
+                        )
+                    }
+                }
+            } ?: run {
+                _isLoading.value = false
+                _uiState.update {
+                    it.copy(
+                        isLoadingSummary = false,
+                        generalErrorMessage = "Show ID is missing."
+                    )
                 }
             }
         }
@@ -150,17 +245,62 @@ class ShowDetailViewModel @Inject constructor(
 
     private fun getShowCast(showId: Int) {
         viewModelScope.launch {
-            showDetailRepository.getShowCast(showId).collect { response ->
-                when (response) {
+            _uiState.update { it.copy(isCastLoading = true, castErrorMessage = null) }
+            showDetailRepository.getShowCast(showId).collect { result ->
+                when (result) {
                     is Result.Success -> {
-                        _showCast.value = response.data
+                        _uiState.update { it.copy(showCast = result.data, isCastLoading = false) }
+                    }
+
+                    is Result.GenericError -> {
+                        val errorMessage = result.error?.message
+                            ?: "Failed to load cast (Code: ${result.code ?: "Unknown"})"
+                        firebaseCrashlytics.recordException(
+                            ShowDetailFetchException(
+                                "GenericError in getShowCast: $errorMessage",
+                                result.error
+                            )
+                        )
+                        _uiState.update {
+                            it.copy(
+                                isCastLoading = false,
+                                castErrorMessage = errorMessage
+                            )
+                        }
+                    }
+
+                    is Result.NetworkError -> {
+                        val networkErrorMessage = "Network error loading cast."
+                        firebaseCrashlytics.recordException(
+                            ShowDetailFetchException(
+                                networkErrorMessage
+                            )
+                        )
+                        _uiState.update {
+                            it.copy(
+                                isCastLoading = false,
+                                castErrorMessage = networkErrorMessage
+                            )
+                        }
+                    }
+
+                    is Result.Error -> {
+                        val errorMessage =
+                            result.message ?: "An unexpected error occurred while loading cast."
+                        firebaseCrashlytics.recordException(
+                            result.exception ?: ShowDetailFetchException(errorMessage)
+                        )
+                        _uiState.update {
+                            it.copy(
+                                isCastLoading = false,
+                                castErrorMessage = errorMessage
+                            )
+                        }
                     }
 
                     is Result.Loading -> {
-                        isLoading.value = response.status
+                        _uiState.update { it.copy(isCastLoading = result.status) }
                     }
-
-                    else -> {}
                 }
             }
         }
@@ -168,57 +308,207 @@ class ShowDetailViewModel @Inject constructor(
 
     private fun getShowPreviousEpisode(previousEpisodeHref: String?) {
         viewModelScope.launch {
-            showDetailRepository.getPreviousEpisode(previousEpisodeHref).collect { result ->
-                when (result) {
-                    is Result.Success -> {
-                        _showPreviousEpisode.value = result.data
-                    }
-
-                    is Result.Loading -> {
-                        isLoading.value = result.status
-                    }
-
-                    else -> {}
-                }
+            _uiState.update {
+                it.copy(
+                    isPreviousEpisodeLoading = true,
+                    previousEpisodeErrorMessage = null
+                )
             }
+            previousEpisodeHref?.takeIf { it.isNotEmpty() }?.let { href ->
+                showDetailRepository.getPreviousEpisode(href).collect { result ->
+                    when (result) {
+                        is Result.Success -> {
+                            _uiState.update { currentState ->
+                                currentState.copy(
+                                    showPreviousEpisode = result.data,
+                                    isPreviousEpisodeLoading = false
+                                )
+                            }
+                        }
+
+                        is Result.GenericError -> {
+                            val errorMessage = result.error?.message
+                                ?: "Failed to load previous episode (Code: ${result.code ?: "Unknown"})"
+                            firebaseCrashlytics.recordException(
+                                ShowDetailFetchException(
+                                    "GenericError in getShowPreviousEpisode: $errorMessage",
+                                    result.error
+                                )
+                            )
+                            _uiState.update {
+                                it.copy(
+                                    isPreviousEpisodeLoading = false,
+                                    previousEpisodeErrorMessage = errorMessage
+                                )
+                            }
+                        }
+
+                        is Result.NetworkError -> {
+                            val networkErrorMessage = "Network error loading previous episode."
+                            firebaseCrashlytics.recordException(
+                                ShowDetailFetchException(
+                                    networkErrorMessage
+                                )
+                            )
+                            _uiState.update {
+                                it.copy(
+                                    isPreviousEpisodeLoading = false,
+                                    previousEpisodeErrorMessage = networkErrorMessage
+                                )
+                            }
+                        }
+
+                        is Result.Error -> {
+                            val errorMessage = result.message
+                                ?: "An unexpected error occurred while loading the previous episode."
+                            firebaseCrashlytics.recordException(
+                                result.exception ?: ShowDetailFetchException(errorMessage)
+                            )
+                            _uiState.update {
+                                it.copy(
+                                    isPreviousEpisodeLoading = false,
+                                    previousEpisodeErrorMessage = errorMessage
+                                )
+                            }
+                        }
+
+                        is Result.Loading -> {
+                            _uiState.update { it.copy(isPreviousEpisodeLoading = result.status) }
+                        }
+                    }
+                }
+            } ?: _uiState.update {
+                it.copy(
+                    showPreviousEpisode = null,
+                    isPreviousEpisodeLoading = false
+                )
+            } // No href, clear data and loading
         }
     }
 
     private fun getShowNextEpisode(nextEpisodeHref: String?) {
         viewModelScope.launch {
-            showDetailRepository.getNextEpisode(nextEpisodeHref).collect { result ->
-                when (result) {
-                    is Result.Success -> {
-                        _showNextEpisode.value = result.data
-                    }
+            _uiState.update { it.copy(isNextEpisodeLoading = true, nextEpisodeErrorMessage = null) }
+            nextEpisodeHref?.takeIf { it.isNotEmpty() }?.let { href ->
+                showDetailRepository.getNextEpisode(href).collect { result ->
+                    when (result) {
+                        is Result.Success -> {
+                            _uiState.update { currentState ->
+                                currentState.copy(
+                                    showNextEpisode = result.data,
+                                    isNextEpisodeLoading = false
+                                )
+                            }
+                        }
 
-                    is Result.Loading -> {
-                        isLoading.value = result.status
-                    }
+                        is Result.GenericError -> {
+                            val errorMessage = result.error?.message
+                                ?: "Failed to load next episode (Code: ${result.code ?: "Unknown"})"
+                            firebaseCrashlytics.recordException(
+                                ShowDetailFetchException(
+                                    "GenericError in getShowNextEpisode: $errorMessage",
+                                    result.error
+                                )
+                            )
+                            _uiState.update {
+                                it.copy(
+                                    isNextEpisodeLoading = false,
+                                    nextEpisodeErrorMessage = errorMessage
+                                )
+                            }
+                        }
 
-                    else -> {}
+                        is Result.NetworkError -> {
+                            val networkErrorMessage = "Network error loading next episode."
+                            firebaseCrashlytics.recordException(
+                                ShowDetailFetchException(
+                                    networkErrorMessage
+                                )
+                            )
+                            _uiState.update {
+                                it.copy(
+                                    isNextEpisodeLoading = false,
+                                    nextEpisodeErrorMessage = networkErrorMessage
+                                )
+                            }
+                        }
+
+                        is Result.Error -> {
+                            val errorMessage = result.message
+                                ?: "An unexpected error occurred while loading the next episode."
+                            firebaseCrashlytics.recordException(
+                                result.exception ?: ShowDetailFetchException(errorMessage)
+                            )
+                            _uiState.update {
+                                it.copy(
+                                    isNextEpisodeLoading = false,
+                                    nextEpisodeErrorMessage = errorMessage
+                                )
+                            }
+                        }
+
+                        is Result.Loading -> {
+                            _uiState.update { it.copy(isNextEpisodeLoading = result.status) }
+                        }
+                    }
                 }
+            } ?: _uiState.update {
+                it.copy(
+                    showNextEpisode = null,
+                    isNextEpisodeLoading = false
+                )
             }
         }
     }
 
     private fun getTraktShowRating(imdbID: String?) {
         viewModelScope.launch {
-            traktRepository.getTraktShowRating(imdbID)
+            try {
+                traktRepository.getTraktShowRating(imdbID)
+            } catch (e: Exception) {
+                firebaseCrashlytics.recordException(
+                    ShowDetailFetchException(
+                        "Error fetching Trakt show rating for IMDB ID: $imdbID",
+                        cause = e
+                    )
+                )
+            }
         }
     }
 
     private fun getTraktShowStats(imdbID: String?) {
         viewModelScope.launch {
-            traktRepository.getTraktShowStats(imdbID)
+            try {
+                traktRepository.getTraktShowStats(imdbID)
+            } catch (e: Exception) {
+                firebaseCrashlytics.recordException(
+                    ShowDetailFetchException(
+                        "Error fetching Trakt show stats for IMDB ID: $imdbID",
+                        cause = e
+                    )
+                )
+            }
         }
     }
 
     private fun checkIfShowIsTraktFavorite(imdbID: String?) {
         viewModelScope.launch {
-            traktRepository.checkIfShowIsFavorite(imdbID)
+            try {
+                traktRepository.checkIfShowIsFavorite(imdbID)
+            } catch (e: Exception) {
+                firebaseCrashlytics.recordException(
+                    ShowDetailFetchException(
+                        "Error checking Trakt favorite status for IMDB ID: $imdbID",
+                        cause = e
+                    )
+                )
+                _uiState.update { it.copy(generalErrorMessage = "Could not check Trakt favorite status.") }
+            }
         }
     }
+
+
+    // --- UI Event Handlers ---
 
     fun displayCastBottomSheetComplete() {
         _showCastBottomSheet.value = null
@@ -234,45 +524,51 @@ class ShowDetailViewModel @Inject constructor(
 
     fun onAddRemoveFavoriteClick() {
         viewModelScope.launch(Dispatchers.IO) {
-            val accessToken = traktAccessToken.value
-            if (accessToken != null) {
-                if (favoriteShow.value != null) {
-                    val traktUserListItem = favoriteShow.value
+            val currentAccessToken = traktAccessToken.value
+            val currentFavoriteShow = favoriteShow.value // This is already a StateFlow
+            val currentShowSummary = uiState.value.showSummary
+
+            if (currentAccessToken != null) {
+                if (currentFavoriteShow != null) { // Show is currently a favorite
                     val workerData = Data.Builder()
-                    traktUserListItem?.traktID?.let {
-                        workerData.putInt(
-                            RemoveFavoriteShowWorker.ARG_TRAKT_ID,
-                            it
-                        )
+                    currentFavoriteShow.traktID?.let {
+                        workerData.putInt(RemoveFavoriteShowWorker.ARG_TRAKT_ID, it)
                     }
                     workerData.putString(
                         RemoveFavoriteShowWorker.ARG_IMDB_ID,
-                        traktUserListItem?.imdbID
+                        currentFavoriteShow.imdbID ?: currentShowSummary?.imdbID
                     )
                     workerData.putString(
                         RemoveFavoriteShowWorker.ARG_TOKEN,
-                        accessToken.access_token
+                        currentAccessToken.access_token
                     )
 
                     val removeFavoriteWork =
                         OneTimeWorkRequest.Builder(RemoveFavoriteShowWorker::class.java)
-                    removeFavoriteWork.setInputData(workerData.build())
+                            .setInputData(workerData.build())
+                            .build()
+                    workManager.enqueue(removeFavoriteWork)
+                } else { // Show is not a favorite
+                    currentShowSummary?.imdbID?.let { imdbId ->
+                        val workerData = Data.Builder()
+                            .putString(AddFavoriteShowWorker.ARG_IMDB_ID, imdbId)
+                            .putString(
+                                AddFavoriteShowWorker.ARG_TOKEN,
+                                currentAccessToken.access_token
+                            )
+                            .build()
 
-                    workManager.enqueue(removeFavoriteWork.build())
-                } else {
-                    val workerData = Data.Builder()
-                    workerData.putString(
-                        AddFavoriteShowWorker.ARG_IMDB_ID,
-                        showSummary.value?.imdbID
-                    )
-                    workerData.putString(AddFavoriteShowWorker.ARG_TOKEN, accessToken.access_token)
-
-                    val addFavoriteWork =
-                        OneTimeWorkRequest.Builder(AddFavoriteShowWorker::class.java)
-                    addFavoriteWork.setInputData(workerData.build())
-
-                    workManager.enqueue(addFavoriteWork.build())
+                        val addFavoriteWork =
+                            OneTimeWorkRequest.Builder(AddFavoriteShowWorker::class.java)
+                                .setInputData(workerData)
+                                .build()
+                        workManager.enqueue(addFavoriteWork)
+                    }
+                        ?: firebaseCrashlytics.log("Cannot add favorite: IMDB ID is null in showSummary.")
                 }
+            } else {
+                firebaseCrashlytics.log("Cannot add/remove favorite: Trakt access token is null.")
+                _uiState.update { it.copy(generalErrorMessage = "Please log in to Trakt to manage favorites.") }
             }
         }
     }

@@ -26,6 +26,8 @@ import androidx.compose.ui.unit.dp
 import com.theupnextapp.R
 import com.theupnextapp.domain.ShowDetailSummary
 import com.theupnextapp.extensions.ReferenceDevices
+import com.theupnextapp.ui.components.HeadingAndItemText
+import com.theupnextapp.ui.previewdata.ShowDetailSummaryProvider
 
 @Composable
 fun ShowMetadata(
@@ -72,7 +74,8 @@ fun ShowMetadata(
 @ReferenceDevices
 @Composable
 fun ShowMetadataPreview(
-    @PreviewParameter(ShowDetailSummaryPreviewProvider::class) showDetailSummary: ShowDetailSummary
+    @PreviewParameter(ShowDetailSummaryProvider::class)
+    showDetailSummary: ShowDetailSummary
 ) {
     ShowMetadata(showSummary = showDetailSummary)
 }

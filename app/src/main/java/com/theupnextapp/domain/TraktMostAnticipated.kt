@@ -33,7 +33,6 @@ data class TraktMostAnticipated(
     val traktID: Int?,
     val tvdbID: Int?,
     val tvMazeID: Int?,
-    val listCount: Int?
 ) {
     override fun equals(other: Any?): Boolean {
         if (javaClass != other?.javaClass) {
@@ -101,7 +100,6 @@ data class TraktMostAnticipated(
         result = 31 * result + (traktID ?: 0)
         result = 31 * result + (tvdbID ?: 0)
         result = 31 * result + (tvMazeID ?: 0)
-        result = 31 * result + (listCount ?: 0)
         return result
     }
 }

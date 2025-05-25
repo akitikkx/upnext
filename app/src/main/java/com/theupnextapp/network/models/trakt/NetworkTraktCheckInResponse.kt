@@ -21,6 +21,7 @@
 
 package com.theupnextapp.network.models.trakt
 
+import com.squareup.moshi.Json
 import com.theupnextapp.common.utils.DateUtils
 import com.theupnextapp.domain.TraktCheckInStatus
 
@@ -65,11 +66,33 @@ data class NetworkTraktCheckInResponseSharing(
     val twitter: Boolean?
 )
 
+
 fun NetworkTraktCheckInResponse.asDomainModel(): TraktCheckInStatus {
-    return TraktCheckInStatus(
-        season = episode?.season,
-        episode = episode?.number,
-        checkInTime = watched_at?.let { DateUtils.getDisplayDateFromDateStamp(it).toString() },
-        message = null
-    )
+    // ... (implementation as before)
+    return if (this.watched_at != null && this.id != null) {
+        TraktCheckInStatus(
+            season = this.episode?.season,
+            episode = this.episode?.number,
+            checkInTime = this.watched_at.let {
+                DateUtils.getDisplayDateFromDateStamp(it).toString()
+            },
+            message = "Checked into ${this.show?.title ?: "show"} S${this.episode?.season}E${this.episode?.number} successfully."
+        )
+    } else {
+        TraktCheckInStatus(
+            season = this.episode?.season,
+            episode = this.episode?.number,
+            message = "Check-in status uncertain: received successful response but missing key details."
+        )
+    }
 }
+
+/**
+ * Represents the JSON structure typically returned by Trakt for an HTTP 409 Conflict
+ * when a check-in is already in progress.
+ */
+data class TraktConflictErrorResponse(
+    @Json(name = "expires_at") val expiresAt: String?,
+    @Json(name = "show") val show: NetworkTraktCheckInResponseShow?,
+    @Json(name = "episode") val episode: NetworkTraktCheckInResponseEpisode?
+)
