@@ -48,10 +48,9 @@ import com.theupnextapp.ui.widgets.ListPosterCard
 @ExperimentalMaterial3Api
 @ExperimentalFoundationApi
 @Composable
-fun FavoritesList(
+fun FavoritesListContent(
     favoriteShows: List<TraktUserListItem>,
     widthSizeClass: WindowWidthSizeClass?,
-    onLogoutClick: () -> Unit,
     onFavoriteClick: (item: TraktUserListItem) -> Unit
 ) {
     val columns: GridCells = when(widthSizeClass) {
@@ -60,30 +59,11 @@ fun FavoritesList(
         else -> GridCells.Adaptive(minSize = 140.dp)
     }
 
-    val traktLogo: Painter = painterResource(id = R.drawable.ic_trakt_wide_red_white)
     Column(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.padding(8.dp)
     ) {
-        Image(
-            painter = traktLogo,
-            contentDescription = stringResource(id = R.string.trakt_logo_description),
-            modifier = Modifier
-                .height(dimensionResource(id = R.dimen.trakt_account_authorized_logo_height))
-                .fillMaxWidth()
-        )
-        Text(
-            text = stringResource(id = R.string.trakt_connection_status_disconnect),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(4.dp)
-                .clickable { onLogoutClick() },
-            textAlign = TextAlign.Center,
-            fontWeight = FontWeight.Bold,
-            style = MaterialTheme.typography.bodyMedium
-        )
-
         SectionHeadingText(
             modifier = Modifier
                 .padding(top = 8.dp, bottom = 8.dp)

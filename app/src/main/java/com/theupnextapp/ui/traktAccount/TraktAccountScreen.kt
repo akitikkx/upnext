@@ -34,6 +34,7 @@ import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -41,13 +42,21 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator // Changed from Linear
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.Surface
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
@@ -69,10 +78,11 @@ import com.theupnextapp.R
 import com.theupnextapp.common.utils.getWindowSizeClass
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.TraktUserListItem
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalFoundationApi
-@ExperimentalMaterial3Api
 @Destination<RootGraph>
 @Composable
 fun TraktAccountScreen(
@@ -81,66 +91,165 @@ fun TraktAccountScreen(
     code: String? = null
 ) {
     val scrollState = rememberScrollState()
-
-    val isAuthorizedOnTrakt = viewModel.isAuthorizedOnTrakt.collectAsStateWithLifecycle()
-
-    val favoriteShowsList = viewModel.favoriteShows.observeAsState()
-
-    val confirmDisconnectFromTrakt = viewModel.confirmDisconnectFromTrakt.observeAsState()
-
-    val isLoading = viewModel.isLoading.collectAsStateWithLifecycle()
-
     val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
-    if (!code.isNullOrEmpty() && !isAuthorizedOnTrakt.value) {
-        viewModel.onCodeReceived(code)
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val isAuthorizedOnTrakt by viewModel.isAuthorizedOnTrakt.collectAsStateWithLifecycle()
+    val favoriteShowsList by viewModel.favoriteShows.collectAsStateWithLifecycle()
+    val isLoadingConnection by viewModel.isLoadingConnection.collectAsStateWithLifecycle()
+    val isLoadingFavorites by viewModel.isLoadingFavoriteShows.collectAsStateWithLifecycle()
+    val favoriteShowsError by viewModel.favoriteShowsError.collectAsStateWithLifecycle()
+    val isFavoriteShowsEmpty by viewModel.favoriteShowsEmpty.collectAsStateWithLifecycle()
+
+
+    // Handle deep link code for authorization
+    LaunchedEffect(key1 = code, key2 = isAuthorizedOnTrakt) {
+        if (!code.isNullOrEmpty() && !isAuthorizedOnTrakt) {
+            viewModel.onCodeReceived(code)
+        }
     }
 
-    Surface(
-        modifier = Modifier
-            .fillMaxSize()
-            .scrollable(scrollState, orientation = Orientation.Vertical)
-    ) {
-        Column {
-            Box(modifier = Modifier.fillMaxSize()) {
-                AccountArea(
-                    isAuthorizedOnTrakt = isAuthorizedOnTrakt.value,
-                    favoriteShowsList = favoriteShowsList.value,
-                    onConnectToTraktClick = { openCustomTab(context = context) },
-                    onFavoriteClick = {
-                        navigator.navigate(
-                            ShowDetailScreenDestination(
-                                ShowDetailArg(
-                                    source = "favorites",
-                                    showId = it.tvMazeID.toString(),
-                                    showTitle = it.title,
-                                    showImageUrl = it.originalImageUrl,
-                                    showBackgroundUrl = it.mediumImageUrl
-                                )
+    // Handle opening custom tab for Trakt authorization
+    LaunchedEffect(key1 = uiState.openCustomTab) {
+        if (uiState.openCustomTab) {
+            openCustomTab(context = context)
+            viewModel.onCustomTabOpened() // Reset the flag
+        }
+    }
+
+    // Show connection error snackbar
+    LaunchedEffect(uiState.connectionError) {
+        uiState.connectionError?.let { error ->
+            scope.launch {
+                snackbarHostState.showSnackbar(
+                    message = error,
+                    duration = SnackbarDuration.Long
+                )
+            }
+            viewModel.clearConnectionError()
+        }
+    }
+
+    // Show disconnection error snackbar
+    LaunchedEffect(uiState.disconnectionError) {
+        uiState.disconnectionError?.let { error ->
+            scope.launch {
+                snackbarHostState.showSnackbar(
+                    message = error,
+                    duration = SnackbarDuration.Long
+                )
+            }
+            viewModel.clearDisconnectionError()
+        }
+    }
+
+    // Show favorite shows error snackbar
+    LaunchedEffect(favoriteShowsError) {
+        favoriteShowsError?.let { error ->
+            scope.launch {
+                snackbarHostState.showSnackbar(
+                    message = "Error loading favorites: $error",
+                    duration = SnackbarDuration.Long
+                )
+            }
+        }
+    }
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        modifier = Modifier.fillMaxSize()
+    ) { localScaffoldPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(localScaffoldPadding)
+                .scrollable(scrollState, orientation = Orientation.Vertical)
+        ) {
+            AccountContent(
+                isAuthorizedOnTrakt = isAuthorizedOnTrakt,
+                favoriteShowsList = favoriteShowsList,
+                isFavoriteShowsEmpty = isFavoriteShowsEmpty,
+                isLoadingConnection = isLoadingConnection,
+                isLoadingFavorites = isLoadingFavorites,
+                isDisconnecting = uiState.isDisconnecting,
+                onConnectToTraktClick = { viewModel.onConnectToTraktClick() },
+                onFavoriteClick = { item ->
+                    navigator.navigate(
+                        ShowDetailScreenDestination(
+                            ShowDetailArg(
+                                source = "favorites",
+                                showId = item.tvMazeID.toString(),
+                                showTitle = item.title,
+                                showImageUrl = item.originalImageUrl,
+                                showBackgroundUrl = item.mediumImageUrl
                             )
                         )
-                    },
-                    onLogoutClick = { viewModel.onDisconnectFromTraktClick() }
+                    )
+                },
+                onLogoutClick = { viewModel.onDisconnectFromTraktClick() }
+            )
+
+            if (uiState.confirmDisconnectFromTrakt) {
+                DisconnectTraktDialog(
+                    onDismissed = { viewModel.onDisconnectFromTraktRefused() },
+                    onConfirmed = { viewModel.onDisconnectConfirm() }
                 )
-
-                if (isLoading.value == true) {
-                    LinearProgressIndicator(
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .fillMaxWidth()
-                    )
-                }
-
-                if (confirmDisconnectFromTrakt.value == true) {
-                    DisconnectTraktDialog(
-                        onDismissed = { viewModel.onDisconnectFromTraktRefused() },
-                        onConfirmed = { viewModel.onDisconnectConfirm() }
-                    )
-                }
             }
         }
     }
 }
+
+@ExperimentalMaterial3WindowSizeClassApi
+@ExperimentalMaterial3Api
+@ExperimentalFoundationApi
+@Composable
+private fun AccountContent(
+    isAuthorizedOnTrakt: Boolean,
+    favoriteShowsList: List<TraktUserListItem>,
+    isFavoriteShowsEmpty: Boolean,
+    isLoadingConnection: Boolean,
+    isLoadingFavorites: Boolean,
+    isDisconnecting: Boolean,
+    onConnectToTraktClick: () -> Unit,
+    onFavoriteClick: (item: TraktUserListItem) -> Unit,
+    onLogoutClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        if (isLoadingConnection || isDisconnecting) {
+            CircularProgressIndicator(modifier = Modifier.padding(16.dp))
+            if (isLoadingConnection) Text(text = stringResource(R.string.trakt_connecting_text))
+            if (isDisconnecting) Text(text = stringResource(R.string.trakt_disconnecting_text))
+        } else {
+            if (isAuthorizedOnTrakt) {
+                TraktProfileHeader(onLogoutClick = onLogoutClick)
+                Spacer(modifier = Modifier.height(16.dp)) // Space between header and content
+
+                if (isLoadingFavorites) {
+                    CircularProgressIndicator(modifier = Modifier.padding(16.dp))
+                    Text(text = stringResource(R.string.trakt_loading_favorites))
+                } else if (isFavoriteShowsEmpty) {
+                    EmptyFavoritesContent()
+                } else {
+                    FavoritesListContent( // Renamed or refactored
+                        favoriteShows = favoriteShowsList,
+                        widthSizeClass = getWindowSizeClass()?.widthSizeClass,
+                        onFavoriteClick = onFavoriteClick,
+                    )
+                }
+            } else {
+                ConnectToTrakt(onClick = onConnectToTraktClick)
+            }
+        }
+    }
+}
+
 
 @Composable
 private fun DisconnectTraktDialog(
@@ -160,12 +269,12 @@ private fun DisconnectTraktDialog(
             )
         },
         confirmButton = {
-            Button(onClick = { onConfirmed() }) {
+            TextButton(onClick = { onConfirmed() }) { // Changed to TextButton for Material 3
                 Text(text = stringResource(id = R.string.disconnect_from_trakt_dialog_confirm))
             }
         },
         dismissButton = {
-            Button(onClick = { onDismissed() }) {
+            TextButton(onClick = { onDismissed() }) { // Changed to TextButton for Material 3
                 Text(text = stringResource(id = R.string.disconnect_from_trakt_dialog_cancel))
             }
         }
@@ -173,7 +282,7 @@ private fun DisconnectTraktDialog(
 }
 
 fun openCustomTab(context: Context) {
-    val packageName = "com.android.chrome" // This is the specific package causing the issue
+    val packageName = "com.android.chrome"
 
     val traktUrl =
         "https://trakt.tv/oauth/authorize?response_type=code&client_id=" +
@@ -185,10 +294,11 @@ fun openCustomTab(context: Context) {
     val builder = CustomTabsIntent.Builder()
     builder.setShowTitle(true)
     builder.setInstantAppsEnabled(true)
+    // Optional: Add color to the custom tab toolbar
+    // builder.setToolbarColor(ContextCompat.getColor(context, R.color.your_color))
 
     val customBuilder = builder.build()
 
-    // Check if Chrome is available
     val chromePackageInfo = try {
         context.packageManager.getPackageInfo(packageName, 0)
     } catch (_: PackageManager.NameNotFoundException) {
@@ -196,17 +306,20 @@ fun openCustomTab(context: Context) {
     }
 
     if (chromePackageInfo != null) {
-        // If Chrome is found
         customBuilder.intent.setPackage(packageName)
         customBuilder.launchUrl(context, traktUrl.toUri())
     } else {
-        // Fallback to any browser if Chrome is not found
-        val intent = Intent(Intent.ACTION_VIEW, traktUrl.toUri())
-        // Ensure there's an activity to handle this intent to prevent another crash
-        if (intent.resolveActivity(context.packageManager) != null) {
-            activity?.startActivity(intent)
-        } else {
-            Toast.makeText(context, "No browser found", Toast.LENGTH_SHORT).show()
+        try {
+            val intent = Intent(Intent.ACTION_VIEW, traktUrl.toUri())
+            if (intent.resolveActivity(context.packageManager) != null) {
+                activity?.startActivity(intent)
+                    ?: context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            } else {
+                Toast.makeText(context, "No browser found to open Trakt.", Toast.LENGTH_LONG).show()
+            }
+        } catch (e: Exception) {
+            Toast.makeText(context, "Could not open browser: ${e.message}", Toast.LENGTH_LONG)
+                .show()
         }
     }
 }
@@ -215,46 +328,16 @@ fun openCustomTab(context: Context) {
 @ExperimentalMaterial3Api
 @ExperimentalFoundationApi
 @Composable
-fun AccountArea(
-    isAuthorizedOnTrakt: Boolean?,
-    favoriteShowsList: List<TraktUserListItem>?,
-    onConnectToTraktClick: () -> Unit,
-    onFavoriteClick: (item: TraktUserListItem) -> Unit,
-    onLogoutClick: () -> Unit
-) {
-    if (isAuthorizedOnTrakt == true) {
-        favoriteShowsList?.let { list ->
-            if (list.isEmpty()) {
-                EmptyFavoritesList()
-            } else {
-                FavoritesList(
-                    favoriteShows = list,
-                    widthSizeClass = getWindowSizeClass()?.widthSizeClass,
-                    onFavoriteClick = { favoriteShow ->
-                        onFavoriteClick(favoriteShow)
-                    },
-                    onLogoutClick = { onLogoutClick() }
-                )
-            }
-        }
-    } else {
-        ConnectToTrakt {
-            onConnectToTraktClick()
-        }
-    }
-}
-
-@Composable
 fun ConnectToTrakt(
     onClick: () -> Unit
 ) {
     val image: Painter = painterResource(id = R.drawable.ic_trakt_wide_red_white)
     Column(
-        verticalArrangement = Arrangement.Top,
+        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)
+            .fillMaxSize()
+            .padding(16.dp)
     ) {
         Image(
             painter = image,
@@ -263,13 +346,14 @@ fun ConnectToTrakt(
         )
         Text(
             text = stringResource(id = R.string.trakt_connect_description),
-            modifier = Modifier.padding(8.dp),
-            textAlign = TextAlign.Center
+            modifier = Modifier.padding(16.dp), // Increased padding
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.bodyLarge
         )
         Button(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp),
+                .padding(horizontal = 32.dp, vertical = 8.dp), // Adjusted padding
             onClick = { onClick() }
         ) {
             Text(text = stringResource(id = R.string.connect_to_trakt_button))

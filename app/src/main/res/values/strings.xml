@@ -156,6 +156,11 @@
     <string name="favorite_title_and_release_year">%1$s (%2$s)</string>
     <string name="favorite_title_no_year">%1$s</string>
     <string name="trakt_account_favorites_empty">You currently have no favorite shows. Search for your favorite show and click \'Add Favorite\' so it can appear here.</string>
+    <string name="trakt_connecting_text">Connecting to Trakt…</string>
+    <string name="trakt_disconnecting_text">Disconnecting from Trakt…</string>
+    <string name="trakt_loading_favorites">Loading your Trakt favorites…</string>
+    <string name="trakt_no_favorites_message">No Favorite Shows Yet</string>
+    <string name="trakt_no_favorites_description">Add shows to your favorites on Trakt, and they\'ll appear here!</string>
 
     <!-- Library -->
     <string name="library_connect_to_trakt_dialog_title">Heads up!</string>

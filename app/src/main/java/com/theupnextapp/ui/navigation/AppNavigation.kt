@@ -15,8 +15,6 @@ package com.theupnextapp.ui.navigation
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Surface
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
@@ -37,8 +35,7 @@ import com.theupnextapp.ui.main.TopBar
 @ExperimentalAnimationApi
 @Composable
 fun AppNavigation(
-    navHostController: NavHostController,
-    contentPadding: PaddingValues
+    navHostController: NavHostController
 ) {
     val navBackStackEntry by navHostController.currentBackStackEntryAsState()
 
@@ -51,7 +48,7 @@ fun AppNavigation(
             DestinationsNavHost(
                 navGraph = NavGraphs.root,
                 navController = navHostController,
-                modifier = Modifier.padding(contentPadding),
+                modifier = Modifier,
             )
         }
     }

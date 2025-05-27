@@ -22,6 +22,7 @@
 package com.theupnextapp.di
 
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.squareup.moshi.Moshi
 import com.theupnextapp.database.TraktDao
 import com.theupnextapp.database.TvMazeDao
 import com.theupnextapp.database.UpnextDao
@@ -63,14 +64,16 @@ object RepositoryModule {
         traktDao: TraktDao,
         tvMazeService: TvMazeService,
         traktService: TraktService,
-        firebaseCrashlytics: FirebaseCrashlytics
+        firebaseCrashlytics: FirebaseCrashlytics,
+        moshi: Moshi,
     ): TraktRepository {
         return TraktRepositoryImpl(
             upnextDao = upnextDao,
             traktDao = traktDao,
             tvMazeService = tvMazeService,
             traktService = traktService,
-            firebaseCrashlytics = firebaseCrashlytics
+            firebaseCrashlytics = firebaseCrashlytics,
+            moshi = moshi,
         )
     }
 
