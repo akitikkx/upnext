@@ -12,6 +12,7 @@
 
 package com.theupnextapp.repository
 
+import com.theupnextapp.database.DatabaseTraktAccess
 import com.theupnextapp.domain.ShowSeasonEpisode
 import com.theupnextapp.domain.TableUpdate
 import com.theupnextapp.domain.TraktAccessToken
@@ -21,6 +22,7 @@ import com.theupnextapp.domain.TraktPopularShows
 import com.theupnextapp.domain.TraktShowRating
 import com.theupnextapp.domain.TraktShowStats
 import com.theupnextapp.domain.TraktTrendingShows
+import com.theupnextapp.domain.TraktUserList
 import com.theupnextapp.domain.TraktUserListItem
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
@@ -44,19 +46,40 @@ interface TraktRepository {
     val traktShowStats: StateFlow<TraktShowStats?>
     val favoriteShow: StateFlow<TraktUserListItem?>
 
+    val traktUserCustomLists: Flow<List<TraktUserList>>
+
+    val isLoadingFavoriteShows: StateFlow<Boolean>
+
+    val favoriteShowsError: StateFlow<String?>
+
+    val isLoadingUserCustomLists: StateFlow<Boolean>
+
+    val userCustomListsError: StateFlow<String?>
+
+
     val traktCheckInEvent: SharedFlow<TraktCheckInStatus>
 
     // Authentication
-    suspend fun getTraktAccessToken(code: String?)
+    suspend fun getTraktAccessToken(code: String): Result<TraktAccessToken>
+
+    @Deprecated(
+        "Use revokeTraktAccessToken(token: String) instead",
+        ReplaceWith("revokeTraktAccessToken(traktAccessToken.access_token ?: \"\")")
+    )
     suspend fun revokeTraktAccessToken(traktAccessToken: TraktAccessToken)
-    suspend fun getTraktAccessRefreshToken(refreshToken: String?)
-    fun getTraktAccessTokenRaw(): Any?
+    suspend fun revokeTraktAccessToken(token: String): Result<Unit>
+    suspend fun getTraktAccessRefreshToken(refreshToken: String?): Result<TraktAccessToken>
+    fun getTraktAccessTokenRaw(): DatabaseTraktAccess?
+    fun isAuthorizedOnTrakt(): StateFlow<Boolean>
 
     // Favorite Shows Management
     suspend fun refreshFavoriteShows(forceRefresh: Boolean = false, token: String?)
+    suspend fun refreshFavoriteShows(token: String): Result<Unit>
+    suspend fun addShowToFavorites(imdbId: String, token: String): Result<Unit>
     suspend fun addShowToList(imdbID: String?, token: String?)
     suspend fun removeShowFromList(traktId: Int?, imdbID: String?, token: String?)
     suspend fun checkIfShowIsFavorite(imdbID: String?)
+    suspend fun removeShowFromFavorites(traktId: Int, imdbId: String, token: String): Result<Unit>
     suspend fun clearFavorites()
 
     // Public lists refresh
@@ -70,6 +93,4 @@ interface TraktRepository {
 
     // Check-in
     suspend fun checkInToShow(showSeasonEpisode: ShowSeasonEpisode, token: String?)
-
-    suspend fun refreshImagesForFavoriteShows(forceRefresh: Boolean = false)
 }

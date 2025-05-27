@@ -76,8 +76,7 @@ fun MainScreen(
         },
         content = {
             AppNavigation(
-                navHostController = navController,
-                contentPadding = PaddingValues()
+                navHostController = navController
             )
         }
     )

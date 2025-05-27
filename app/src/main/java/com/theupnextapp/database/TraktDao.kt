@@ -30,40 +30,8 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TraktDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAllTraktPopular(vararg traktPopularShows: DatabaseTraktPopularShows)
 
-    @Query("select * from trakt_popular")
-    fun getTraktPopular(): Flow<List<DatabaseTraktPopularShows>>
-
-    // TRAKT TRENDING SHOWS
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAllTraktTrending(vararg traktTrendingShows: DatabaseTraktTrendingShows)
-
-    @Query("select * from trakt_trending")
-    fun getTraktTrending(): Flow<List<DatabaseTraktTrendingShows>>
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAllTraktMostAnticipated(vararg traktMostAnticipatedShows: DatabaseTraktMostAnticipated)
-
-    @Query("select * from trakt_most_anticipated")
-    fun getTraktMostAnticipated(): Flow<List<DatabaseTraktMostAnticipated>>
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAllFavoriteShows(vararg databaseFavoriteShows: DatabaseFavoriteShows)
-
-    @Query("delete from favorite_shows")
-    fun deleteAllFavoriteShows()
-
-    @Query("select * from favorite_shows")
-    fun getFavoriteShows(): Flow<List<DatabaseFavoriteShows>>
-
-    @Query("select * from favorite_shows")
-    fun getFavoriteShowsRaw(): List<DatabaseFavoriteShows>
-
-    @Query("select * from favorite_shows where imdbID = :imdbID")
-    fun getFavoriteShow(imdbID: String): DatabaseFavoriteShows?
-
+    // TRAKT ACCESS
     @Query("delete from trakt_access")
     fun deleteTraktAccessData()
 
@@ -76,29 +44,57 @@ interface TraktDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAllTraktAccessData(databaseTraktAccess: DatabaseTraktAccess)
 
+
+    // TRAKT FAVORITE SHOWS
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAllFavoriteShows(vararg shows: DatabaseFavoriteShows)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertFavoriteShow(databaseFavoriteShows: DatabaseFavoriteShows)
+
+    @Query("DELETE FROM favorite_shows")
+    suspend fun deleteAllFavoriteShows()
+
+    @Query("select * from favorite_shows")
+    fun getFavoriteShows(): Flow<List<DatabaseFavoriteShows>>
+
+    @Query("select * from favorite_shows")
+    fun getFavoriteShowsRaw(): List<DatabaseFavoriteShows>
+
+    @Query("select * from favorite_shows where imdbID = :imdbID")
+    fun getFavoriteShow(imdbID: String): DatabaseFavoriteShows?
+
     @Update(entity = DatabaseFavoriteShows::class)
     fun updateFavoriteShowWithAirStamp(databaseFavoriteShows: DatabaseFavoriteShows)
 
     @Query("select * from favorite_shows where tvMazeID = :tvMazeId")
     fun getFavoriteShowRawByTvMazeId(tvMazeId: Int): DatabaseFavoriteShows
 
-    @Query("SELECT * FROM trakt_popular") // Check if at least one row exists
-    fun getTraktPopularRaw(): List<DatabaseTraktPopularShows> // Or return a single item or count
+    @Query("SELECT * FROM favorite_shows WHERE traktID = :traktId LIMIT 1")
+    suspend fun getFavoriteShowByTraktId(traktId: Int): DatabaseFavoriteShows?
 
-    @Query("SELECT * FROM trakt_trending")
-    fun getTraktTrendingRaw(): List<DatabaseTraktTrendingShows>
+    @Query("SELECT traktID FROM favorite_shows")
+    suspend fun getAllFavoriteShowTraktIds(): List<Int>
 
-    @Query("SELECT * FROM trakt_most_anticipated")
-    fun getTraktMostAnticipatedRaw(): List<DatabaseTraktMostAnticipated>
+    @Query("DELETE FROM favorite_shows WHERE traktID IN (:traktIds)")
+    suspend fun deleteFavoriteShowsByTraktIds(traktIds: List<Int>): Int // returns number of rows deleted
+
+    @Query("DELETE FROM favorite_shows WHERE traktID = :traktId")
+    suspend fun deleteFavoriteShowByTraktId(traktId: Int): Int
+
+
+    // TRAKT POPULAR SHOWS
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAllTraktPopular(vararg traktPopularShows: DatabaseTraktPopularShows)
+
+    @Query("select * from trakt_popular")
+    fun getTraktPopular(): Flow<List<DatabaseTraktPopularShows>>
+
+    @Query("SELECT * FROM trakt_popular")
+    fun getTraktPopularRaw(): List<DatabaseTraktPopularShows>
 
     @Query("DELETE FROM trakt_popular")
     suspend fun clearPopularShows()
-
-    @Query("DELETE FROM trakt_trending")
-    suspend fun clearTrendingShows()
-
-    @Query("DELETE FROM trakt_most_anticipated")
-    suspend fun clearMostAnticipatedShows()
 
     @Query("SELECT COUNT(id) == 0 FROM trakt_popular")
     suspend fun checkIfPopularShowsIsEmpty(): Boolean
@@ -106,11 +102,39 @@ interface TraktDao {
     @Query("DELETE FROM trakt_popular WHERE id IN (:showIds)")
     suspend fun deleteSpecificPopularShows(showIds: List<Int>)
 
+
+    // TRAKT TRENDING SHOWS
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAllTraktTrending(vararg traktTrendingShows: DatabaseTraktTrendingShows)
+
+    @Query("select * from trakt_trending")
+    fun getTraktTrending(): Flow<List<DatabaseTraktTrendingShows>>
+
+    @Query("SELECT * FROM trakt_trending")
+    fun getTraktTrendingRaw(): List<DatabaseTraktTrendingShows>
+
+    @Query("DELETE FROM trakt_trending")
+    suspend fun clearTrendingShows()
+
     @Query("SELECT COUNT(id) == 0 FROM trakt_trending")
     suspend fun checkIfTrendingShowsIsEmpty(): Boolean
 
     @Query("DELETE FROM trakt_trending WHERE id IN (:showIds)")
     suspend fun deleteSpecificTrendingShows(showIds: List<Int>)
+
+
+    // TRAKT MOST ANTICIPATED SHOWS
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAllTraktMostAnticipated(vararg traktMostAnticipatedShows: DatabaseTraktMostAnticipated)
+
+    @Query("select * from trakt_most_anticipated")
+    fun getTraktMostAnticipated(): Flow<List<DatabaseTraktMostAnticipated>>
+
+    @Query("SELECT * FROM trakt_most_anticipated")
+    fun getTraktMostAnticipatedRaw(): List<DatabaseTraktMostAnticipated>
+
+    @Query("DELETE FROM trakt_most_anticipated")
+    suspend fun clearMostAnticipatedShows()
 
     @Query("SELECT COUNT(id) == 0 FROM trakt_most_anticipated")
     suspend fun checkIfMostAnticipatedShowsIsEmpty(): Boolean

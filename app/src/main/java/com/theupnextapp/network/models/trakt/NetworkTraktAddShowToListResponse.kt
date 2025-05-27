@@ -35,6 +35,10 @@ data class NetworkTraktAddShowToListResponseExisting(
     val shows: Int
 )
 
+data class NotFoundShowItem(
+    val ids: NetworkTraktAddShowToListRequestShowIds // This will correctly point to your class with just 'trakt: Int'
+)
+
 data class NetworkTraktAddShowToListResponseNotFound(
-    val shows: List<Any>
+    val shows: List<NotFoundShowItem>
 )
