@@ -54,13 +54,13 @@ class DashboardRepository(
     private val firebaseCrashlytics: FirebaseCrashlytics
 ) : BaseRepository(upnextDao = upnextDao, tvMazeService = tvMazeService) {
 
-    private val _isLoadingYesterdayShows = MutableLiveData<Boolean>()
+    private val _isLoadingYesterdayShows = MutableLiveData<Boolean>(false)
     val isLoadingYesterdayShows: LiveData<Boolean> = _isLoadingYesterdayShows
 
-    private val _isLoadingTodayShows = MutableLiveData<Boolean>()
+    private val _isLoadingTodayShows = MutableLiveData<Boolean>(false)
     val isLoadingTodayShows: LiveData<Boolean> = _isLoadingTodayShows
 
-    private val _isLoadingTomorrowShows = MutableLiveData<Boolean>()
+    private val _isLoadingTomorrowShows = MutableLiveData<Boolean>(false)
     val isLoadingTomorrowShows: LiveData<Boolean> = _isLoadingTomorrowShows
 
     val yesterdayShows: Flow<List<ScheduleShow>>
@@ -130,6 +130,10 @@ class DashboardRepository(
                         )
                     }
                     _isLoadingYesterdayShows.postValue(false)
+                } else {
+                    if (_isLoadingYesterdayShows.value == true) {
+                        _isLoadingYesterdayShows.postValue(false)
+                    }
                 }
             } catch (e: Exception) {
                 _isLoadingYesterdayShows.postValue(false)
@@ -182,6 +186,10 @@ class DashboardRepository(
                         )
                     }
                     _isLoadingTodayShows.postValue(false)
+                } else {
+                    if (_isLoadingTodayShows.value == true) {
+                        _isLoadingTodayShows.postValue(false)
+                    }
                 }
             } catch (e: Exception) {
                 _isLoadingTodayShows.postValue(false)
@@ -235,6 +243,10 @@ class DashboardRepository(
                         )
                     }
                     _isLoadingTomorrowShows.postValue(false)
+                } else {
+                    if (_isLoadingTomorrowShows.value == true) {
+                        _isLoadingTomorrowShows.postValue(false)
+                    }
                 }
             } catch (e: Exception) {
                 _isLoadingTomorrowShows.postValue(false)

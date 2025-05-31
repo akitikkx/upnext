@@ -43,6 +43,7 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -89,13 +90,14 @@ import kotlinx.coroutines.launch
 import org.jsoup.Jsoup
 import java.util.Locale
 
-@ExperimentalMaterial3Api
+@OptIn(ExperimentalMaterial3Api::class)
 @Destination<RootGraph>(navArgs = ShowDetailArg::class)
 @Composable
 fun ShowDetailScreen(
+    modifier: Modifier = Modifier,
     viewModel: ShowDetailViewModel = hiltViewModel(),
     showDetailArgs: ShowDetailArg,
-    navigator: DestinationsNavigator
+    navigator: DestinationsNavigator,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val isFavorite by viewModel.isFavoriteShow.collectAsStateWithLifecycle()
@@ -134,7 +136,6 @@ fun ShowDetailScreen(
         uiState.generalErrorMessage?.let { message ->
             coroutineScope.launch {
                 snackbarHostState.showSnackbar(message)
-                // viewModel.clearGeneralErrorMessage()
             }
         }
     }
@@ -145,43 +146,39 @@ fun ShowDetailScreen(
             uiState.isPreviousEpisodeLoading ||
             isLoadingGlobal
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            if (showTopLinearProgress) {
-                LinearProgressIndicator(
-                    modifier = Modifier.fillMaxWidth()
+    Scaffold(
+        modifier = modifier,
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState) // Use the remembered snackbarHostState
+        }
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+        ) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                if (showTopLinearProgress) {
+                    LinearProgressIndicator(
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+
+                DetailArea(
+                    uiState = uiState,
+                    showDetailArgs = showDetailArgs,
+                    isAuthorizedOnTrakt = isAuthorizedOnTrakt,
+                    isFavorite = isFavorite,
+                    showRating = showRating,
+                    showStats = showStats,
+                    onSeasonsClick = { viewModel.onSeasonsClick() },
+                    onFavoriteClick = { viewModel.onAddRemoveFavoriteClick() },
+                    onCastItemClick = { castItem -> viewModel.onShowCastItemClicked(castItem) }
                 )
             }
 
-            DetailArea(
-                uiState = uiState,
-                showDetailArgs = showDetailArgs,
-                isAuthorizedOnTrakt = isAuthorizedOnTrakt,
-                isFavorite = isFavorite,
-                showRating = showRating,
-                showStats = showStats,
-                onSeasonsClick = { viewModel.onSeasonsClick() },
-                onFavoriteClick = { viewModel.onAddRemoveFavoriteClick() },
-                onCastItemClick = { castItem -> viewModel.onShowCastItemClicked(castItem) }
-            )
-        }
-
-        SnackbarHost(
-            hostState = snackbarHostState,
-            modifier = Modifier.align(Alignment.BottomCenter)
-        )
-
-        // Bottom sheet for cast (if any) - this would typically be handled
-        // by a ModalBottomSheetLayout if you were using one, or manage its visibility
-        // within this Box.
-        val castMemberForBottomSheet by viewModel.showCastBottomSheet.collectAsStateWithLifecycle()
-        castMemberForBottomSheet?.let {
-            // Your BottomSheet Composable - e.g., A ModalBottomSheetLayout would wrap the content
-            // or you'd use a custom Composable here that overlays.
-            // For simplicity, if it's a simple overlay:
-            // Surface(modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().height(200.dp), elevation = 4.dp) {
-            //    Text("Bottom sheet for ${it.name}")
-            // }
+            val castMemberForBottomSheet by viewModel.showCastBottomSheet.collectAsStateWithLifecycle()
+            castMemberForBottomSheet?.let {}
         }
     }
 }
@@ -256,11 +253,7 @@ fun DetailArea(
         Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
 
         // ----- Trakt Stats Section (Optional) -----
-        showStats?.let { statsData ->
-            // Assuming TraktStatsSummary Composable exists
-            // TraktStatsSummary(statsData)
-            // Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
-        }
+        showStats?.let { statsData -> }
     }
 }
 
@@ -298,9 +291,7 @@ fun ShowCastList(
                     vertical = dimensionResource(id = R.dimen.padding_standard)
                 )
         ) {
-            items(
-                items = list,
-                key = { it.id ?: it.name ?: "" }) { item ->
+            items(items = list) { item ->
                 ShowCastItem(item = item) { showCastItem ->
                     onClick(showCastItem)
                 }
@@ -361,7 +352,7 @@ fun PreviousEpisode(uiState: ShowDetailViewModel.ShowDetailUiState) {
     ) {
         PreviousEpisode(showPreviousEpisode = uiState.showPreviousEpisode)
     } else if (uiState.isPreviousEpisodeLoading) {
-        EpisodePlaceholder(type = "Previous Episode")
+        EpisodePlaceholder()
     } else if (uiState.previousEpisodeErrorMessage != null) {
         ErrorState(
             message = uiState.previousEpisodeErrorMessage
@@ -408,7 +399,7 @@ fun NextEpisode(uiState: ShowDetailViewModel.ShowDetailUiState) {
     ) {
         NextEpisode(showNextEpisode = uiState.showNextEpisode)
     } else if (uiState.isNextEpisodeLoading) {
-        EpisodePlaceholder(type = "Next Episode")
+        EpisodePlaceholder()
     } else if (uiState.nextEpisodeErrorMessage != null) {
         ErrorState(message = uiState.nextEpisodeErrorMessage)
     }
@@ -605,12 +596,12 @@ fun CastListPlaceholder() {
 }
 
 @Composable
-fun EpisodePlaceholder(type: String) {
+fun EpisodePlaceholder() {
     ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
-            .shimmer() // Make sure you have the shimmer dependency and import
+            .shimmer()
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Box( // Episode Title placeholder

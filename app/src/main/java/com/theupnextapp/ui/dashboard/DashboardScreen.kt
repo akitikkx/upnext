@@ -22,7 +22,6 @@
 package com.theupnextapp.ui.dashboard
 
 import androidx.activity.compose.ReportDrawnWhen
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -55,108 +54,116 @@ import com.theupnextapp.extensions.ReferenceDevices
 import com.theupnextapp.ui.components.SectionHeadingText
 import com.theupnextapp.ui.widgets.ListPosterCard
 
-@ExperimentalMaterial3WindowSizeClassApi
-@ExperimentalMaterial3Api
-@Destination<RootGraph>(start = true)
+@OptIn(
+    ExperimentalMaterial3WindowSizeClassApi::class,
+    ExperimentalMaterial3Api::class,
+)
+@Destination<RootGraph>
 @Composable
 fun DashboardScreen(
     viewModel: DashboardViewModel = hiltViewModel(),
     navigator: DestinationsNavigator
 ) {
     val yesterdayShowsList = viewModel.yesterdayShowsList.observeAsState()
-
     val todayShowsList = viewModel.todayShowsList.observeAsState()
-
     val tomorrowShowsList = viewModel.tomorrowShowsList.observeAsState()
-
     val scrollState = rememberScrollState()
-
-    val isLoading = viewModel.isLoading.observeAsState()
+    // Set initial value for isLoading
+    val isLoading = viewModel.isLoading.observeAsState(initial = true)
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
-                .verticalScroll(scrollState)
+                .fillMaxSize()
                 .testTag("dashboard_list")
         ) {
-            Box(modifier = Modifier.fillMaxSize()) {
-                Column(modifier = Modifier.padding(top = 8.dp)) {
-                    yesterdayShowsList.value?.let { list ->
-                        if (list.isNotEmpty()) {
-                            ShowsRow(
-                                list = list,
-                                rowTitle = stringResource(id = R.string.title_yesterday_shows)
-                            ) {
-                                navigator.navigate(
-                                    ShowDetailScreenDestination(
-                                        source = "dashboard",
-                                        showId = it.id.toString(),
-                                        showTitle = it.name,
-                                        showImageUrl = it.originalImage,
-                                        showBackgroundUrl = it.mediumImage
-                                    )
-                                )
-                            }
-                        }
-                    }
+            // Show LinearProgressIndicator at the top if loading
+            if (isLoading.value == true) {
+                LinearProgressIndicator(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp, vertical = 4.dp) // Adjust padding as needed
+                )
+            }
 
-                    todayShowsList.value?.let { list ->
-                        if (list.isNotEmpty()) {
-                            ShowsRow(
-                                list = list,
-                                rowTitle = stringResource(id = R.string.title_today_shows)
-                            ) {
-                                navigator.navigate(
-                                    ShowDetailScreenDestination(
-                                        source = "dashboard",
-                                        showId = it.id.toString(),
-                                        showTitle = it.name,
-                                        showImageUrl = it.originalImage,
-                                        showBackgroundUrl = it.mediumImage
-                                    )
+            // Scrollable content area
+            Column(
+                modifier = Modifier
+                    .weight(1f) // Allow this Column to take remaining space
+                    .verticalScroll(scrollState) // Make this part scrollable
+                    .padding(top = 8.dp)
+            ) {
+                // Yesterday Shows
+                yesterdayShowsList.value?.let { list ->
+                    if (list.isNotEmpty()) {
+                        ShowsRow(
+                            list = list,
+                            rowTitle = stringResource(id = R.string.title_yesterday_shows)
+                        ) {
+                            navigator.navigate(
+                                ShowDetailScreenDestination(
+                                    source = "dashboard",
+                                    showId = it.id.toString(),
+                                    showTitle = it.name,
+                                    showImageUrl = it.originalImage,
+                                    showBackgroundUrl = it.mediumImage
                                 )
-                            }
-                        }
-                    }
-
-                    tomorrowShowsList.value?.let { list ->
-                        if (list.isNotEmpty()) {
-                            ShowsRow(
-                                list = list,
-                                rowTitle = stringResource(id = R.string.title_tomorrow_shows)
-                            ) {
-                                navigator.navigate(
-                                    ShowDetailScreenDestination(
-                                        source = "dashboard",
-                                        showId = it.id.toString(),
-                                        showTitle = it.name,
-                                        showImageUrl = it.originalImage,
-                                        showBackgroundUrl = it.mediumImage
-                                    )
-                                )
-                            }
+                            )
                         }
                     }
                 }
 
-                if (isLoading.value == true) {
-                    LinearProgressIndicator(
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .fillMaxWidth()
-                    )
+                // Today Shows
+                todayShowsList.value?.let { list ->
+                    if (list.isNotEmpty()) {
+                        ShowsRow(
+                            list = list,
+                            rowTitle = stringResource(id = R.string.title_today_shows)
+                        ) {
+                            navigator.navigate(
+                                ShowDetailScreenDestination(
+                                    source = "dashboard",
+                                    showId = it.id.toString(),
+                                    showTitle = it.name,
+                                    showImageUrl = it.originalImage,
+                                    showBackgroundUrl = it.mediumImage
+                                )
+                            )
+                        }
+                    }
+                }
+
+                // Tomorrow Shows
+                tomorrowShowsList.value?.let { list ->
+                    if (list.isNotEmpty()) {
+                        ShowsRow(
+                            list = list,
+                            rowTitle = stringResource(id = R.string.title_tomorrow_shows)
+                        ) {
+                            navigator.navigate(
+                                ShowDetailScreenDestination(
+                                    source = "dashboard",
+                                    showId = it.id.toString(),
+                                    showTitle = it.name,
+                                    showImageUrl = it.originalImage,
+                                    showBackgroundUrl = it.mediumImage
+                                )
+                            )
+                        }
+                    }
                 }
             }
         }
     }
 
     ReportDrawnWhen {
-        !yesterdayShowsList.value.isNullOrEmpty() ||
+        (!yesterdayShowsList.value.isNullOrEmpty() ||
                 !tomorrowShowsList.value.isNullOrEmpty() ||
-                !todayShowsList.value.isNullOrEmpty()
+                !todayShowsList.value.isNullOrEmpty()) || (isLoading.value == false)
     }
 }
 
+// ShowsRow and PreviewProvider remain the same
 @ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
 @Composable
