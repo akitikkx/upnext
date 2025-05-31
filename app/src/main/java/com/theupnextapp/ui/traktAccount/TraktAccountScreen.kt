@@ -80,9 +80,11 @@ import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.TraktUserListItem
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
-@ExperimentalMaterial3WindowSizeClassApi
-@ExperimentalFoundationApi
+@OptIn(
+    ExperimentalMaterial3Api::class,
+    ExperimentalMaterial3WindowSizeClassApi::class,
+    ExperimentalFoundationApi::class
+)
 @Destination<RootGraph>
 @Composable
 fun TraktAccountScreen(
@@ -229,7 +231,7 @@ private fun AccountContent(
         } else {
             if (isAuthorizedOnTrakt) {
                 TraktProfileHeader(onLogoutClick = onLogoutClick)
-                Spacer(modifier = Modifier.height(16.dp)) // Space between header and content
+                Spacer(modifier = Modifier.height(16.dp))
 
                 if (isLoadingFavorites) {
                     CircularProgressIndicator(modifier = Modifier.padding(16.dp))
@@ -237,7 +239,7 @@ private fun AccountContent(
                 } else if (isFavoriteShowsEmpty) {
                     EmptyFavoritesContent()
                 } else {
-                    FavoritesListContent( // Renamed or refactored
+                    FavoritesListContent(
                         favoriteShows = favoriteShowsList,
                         widthSizeClass = getWindowSizeClass()?.widthSizeClass,
                         onFavoriteClick = onFavoriteClick,
@@ -294,8 +296,6 @@ fun openCustomTab(context: Context) {
     val builder = CustomTabsIntent.Builder()
     builder.setShowTitle(true)
     builder.setInstantAppsEnabled(true)
-    // Optional: Add color to the custom tab toolbar
-    // builder.setToolbarColor(ContextCompat.getColor(context, R.color.your_color))
 
     val customBuilder = builder.build()
 

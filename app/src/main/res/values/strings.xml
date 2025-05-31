@@ -38,6 +38,8 @@
     <string name="title_loading">Loading</string>
     <string name="title_unknown">Title Unknown</string>
 
+    <string name="action_navigate_up_description">Navigation arrow</string>
+
     <!-- Notification channels -->
     <string name="notification_channel_name">App Updates</string>
     <string name="notification_channel_description">Notifications for app data updates and background tasks.</string>
@@ -51,6 +53,9 @@
     <string name="nav_title_explore">Explore</string>
     <string name="nav_title_settings">Settings</string>
     <string name="nav_title_account">Account</string>
+
+    <!-- Empty detail screen -->
+    <string name="empty_detail_screen_prompt">Select a show from the list to see its details.</string>
 
     <!-- Show Detail -->
     <string name="show_detail_synopsis_heading">Synopsis</string>

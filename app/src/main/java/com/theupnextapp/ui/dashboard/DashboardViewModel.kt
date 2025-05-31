@@ -44,9 +44,7 @@ class DashboardViewModel @Inject constructor(
 ) : ViewModel() {
 
     val isLoadingYesterdayShows = dashboardRepository.isLoadingYesterdayShows
-
     val isLoadingTodayShows = dashboardRepository.isLoadingTodayShows
-
     val isLoadingTomorrowShows = dashboardRepository.isLoadingTomorrowShows
 
     val yesterdayShowsList = dashboardRepository.yesterdayShows.asLiveData()
@@ -83,14 +81,23 @@ class DashboardViewModel @Inject constructor(
     }
 
     val isLoading = MediatorLiveData<Boolean>().apply {
+        val updateLoadingState = {
+            // Value is true if any of the individual loading states are true
+            // Ensure you handle nulls from the LiveData sources if they haven't emitted yet.
+            // isLoadingYesterdayShows.value could be null initially.
+            value = (isLoadingYesterdayShows.value == true) ||
+                    (isLoadingTodayShows.value == true) ||
+                    (isLoadingTomorrowShows.value == true)
+        }
+
         addSource(isLoadingYesterdayShows) {
-            value = it
+            updateLoadingState()
         }
         addSource(isLoadingTodayShows) {
-            value = it
+            updateLoadingState()
         }
         addSource(isLoadingTomorrowShows) {
-            value = it
+            updateLoadingState()
         }
     }
 

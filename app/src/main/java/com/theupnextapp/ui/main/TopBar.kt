@@ -12,20 +12,18 @@
 
 package com.theupnextapp.ui.main
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavBackStackEntry
 import com.ramcosta.composedestinations.generated.destinations.ShowDetailScreenDestination
@@ -33,60 +31,63 @@ import com.ramcosta.composedestinations.generated.destinations.ShowSeasonEpisode
 import com.ramcosta.composedestinations.generated.destinations.ShowSeasonsScreenDestination
 import com.theupnextapp.R
 
-@ExperimentalMaterial3WindowSizeClassApi
-@ExperimentalMaterial3Api
+@OptIn(
+    ExperimentalMaterial3WindowSizeClassApi::class,
+    ExperimentalMaterial3Api::class
+)
 @Composable
 fun TopBar(
     navBackStackEntry: NavBackStackEntry?,
-    onArrowClick: () -> Unit
+    onArrowClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    title: String? = null, // Allow passing a specific title
+    scrollBehavior: TopAppBarScrollBehavior? = null
 ) {
-    val appBarIconState = rememberSaveable { mutableStateOf(true) }
+    val currentRoute = navBackStackEntry?.destination?.route
 
-    appBarIconState.value = isChildScreen(navBackStackEntry = navBackStackEntry)
-
-    TopAppBar(
-        title = {
-            AnimatedVisibility(visible = !appBarIconState.value) {
-                Text(
-                    text = stringResource(id = R.string.app_name),
-                    style = MaterialTheme.typography.headlineSmall
-                )
-            }
-        },
-        navigationIcon = {
-            NavigationIcon(appBarIconState = appBarIconState) {
-                onArrowClick()
-            }
-        }
-    )
-}
-
-@Composable
-fun NavigationIcon(
-    appBarIconState: State<Boolean>,
-    onArrowClick: () -> Unit
-) {
-    AnimatedVisibility(visible = appBarIconState.value) {
-        IconButton(onClick = { onArrowClick() }) {
-            Icon(Icons.Filled.ArrowBack, contentDescription = "Back arrow")
-        }
-    }
-}
-
-/**
- * Determine whether this screen is not one of the main screens found on the
- * bottom navigation bar
- *
- * If it is a child screen then the bottom navigation should not be shown
- * and the app bar should have a back arrow displayed
- */
-@ExperimentalMaterial3WindowSizeClassApi
-@ExperimentalMaterial3Api
-fun isChildScreen(navBackStackEntry: NavBackStackEntry?): Boolean {
-    return when (navBackStackEntry?.destination?.route) {
+    // Determine if a back arrow should be shown.
+    // Show arrow if it's a detail screen deeper than the initial ShowDetailScreen,
+    // or if it's ShowDetailScreen itself and not the EmptyDetailScreen.
+    // The overrideUpNavigation in MainScreen handles what "back" means.
+    val showBackArrow = when (currentRoute) {
         ShowDetailScreenDestination.route,
         ShowSeasonsScreenDestination.route,
         ShowSeasonEpisodesScreenDestination.route -> true
+        // Do not show back arrow for EmptyDetailScreen or other non-detail-flow
+        // screens in this TopBar's context
         else -> false
     }
+
+    // Determine the title to display
+    // Prioritize passed 'title' from AppNavigation
+    val currentTitle: String = title ?: when (currentRoute) {
+        ShowSeasonsScreenDestination.route -> stringResource(R.string.title_seasons)
+        ShowSeasonEpisodesScreenDestination.route -> stringResource(R.string.title_season_episodes)
+        // If currentRoute is ShowDetailScreenDestination but 'title' (dynamicTitle) was
+        // null from AppNavigation
+        // Fallback for show detail if title is missing
+        ShowDetailScreenDestination.route -> stringResource(id = R.string.title_unknown)
+        else -> ""
+    }
+
+    TopAppBar(
+        title = {
+            Text(
+                text = currentTitle,
+                style = MaterialTheme.typography.headlineSmall
+            )
+        },
+        modifier = modifier,
+        navigationIcon = {
+            if (showBackArrow) {
+                IconButton(onClick = onArrowClick) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = stringResource(R.string.action_navigate_up_description)
+                    )
+                }
+            }
+        },
+        scrollBehavior = scrollBehavior,
+    )
 }
