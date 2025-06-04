@@ -32,7 +32,6 @@ import androidx.compose.material3.adaptive.navigation.NavigableListDetailPaneSca
 import androidx.compose.material3.adaptive.navigation.rememberSupportingPaneScaffoldNavigator
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -116,35 +115,21 @@ fun MainScreen(
 
     val listDetailNavigator = rememberSupportingPaneScaffoldNavigator<ThreePaneScaffoldRole>()
 
-    windowSizeClass?.let { wsc ->
-        LaunchedEffect(
-            isDetailFlowActive,
-            listDetailNavigator.currentDestination,
-            wsc.widthSizeClass
-        ) {
-            val currentPaneRole = listDetailNavigator.currentDestination?.pane
+    LaunchedEffect(
+        isDetailFlowActive,
+        listDetailNavigator.currentDestination
+    ) {
+        val currentPaneRole = listDetailNavigator.currentDestination?.pane
 
-            if (wsc.widthSizeClass == WindowWidthSizeClass.Compact) {
-                if (isDetailFlowActive) {
-                    if (currentPaneRole != ThreePaneScaffoldRole.Primary) {
-                        listDetailNavigator.navigateTo(ThreePaneScaffoldRole.Primary)
-                    }
-                } else {
-                    if (currentPaneRole != ThreePaneScaffoldRole.Secondary) {
-                        listDetailNavigator.navigateTo(ThreePaneScaffoldRole.Secondary)
-                    }
-                }
-            } else { // Medium or Expanded
-                if (isDetailFlowActive) {
-                    if (currentPaneRole != ThreePaneScaffoldRole.Primary) {
-                        listDetailNavigator.navigateTo(ThreePaneScaffoldRole.Primary)
-                    }
-                } else {
-                    if (currentPaneRole != ThreePaneScaffoldRole.Secondary) {
-                        listDetailNavigator.navigateTo(ThreePaneScaffoldRole.Secondary)
-                    }
-                }
-            }
+        // Common logic for determining target pane based on isDetailFlowActive
+        val targetPaneRole = if (isDetailFlowActive) {
+            ThreePaneScaffoldRole.Primary // Show detail
+        } else {
+            ThreePaneScaffoldRole.Secondary // Show list
+        }
+
+        if (currentPaneRole != targetPaneRole) {
+            listDetailNavigator.navigateTo(targetPaneRole)
         }
     }
 
