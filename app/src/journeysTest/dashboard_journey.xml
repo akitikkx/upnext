@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ MIT License
+  ~
+  ~ Copyright (c) 2022 Ahmed Tikiwa
+  ~
+  ~ Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+  ~
+  ~ The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+  ~
+  ~ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+  -->
+
+<journey name="Dashboard Journey">
+    <description>A Journey that tests the user flow on the dashboard screen</description>
+    <actions>
+        <action>Click on the Explore menu item, which can either be on the bottom of the screen (for
+            compact window size classes) or on the left (on medium and expanded window size classes)</action>
+        <action>If the Explore screen is displayed, keep waiting until there are visible posters
+            with images for the Popular Shows and "Trending Shows" headings displayed on the screen</action>
+        <action>If the Explore screen is displayed, verify that there is a list of poster images
+            under a heading "Trending Shows".</action>
+        <action>If the Explore screen is displayed, click on the first poster displayed under the
+            "Trending Shows" heading</action>
+        <action>Verify that clicking on the poster image under the "Trending Shows" heading results
+            in the detail page for that same show title being displayed.</action>
+        <action>If the detail page is being loaded, keep waiting until two images are fully
+            displayed</action>
+        <action>If the detail page is displayed, verify that the name of the show appears in the top
+            bar as well as above the poster.</action>
+        <action>If the detail page is displayed, click on the back arrow at the top of the detail
+            screen</action>
+        <action>Verify that clicking on the back arrow from the detail page for the selected show
+            dismisses the detail page for that selected show</action>
+        <action>If the Explore screen is displayed, scroll to the "Popular Shows" heading. Verify
+            that there are a list of posters displayed under the "Popular Shows" heading</action>
+        <action>If on the Explore screen, click on one of the shows under the "Popular Shows"
+            heading</action>
+        <action>Verify that clicking on the poster image under the "Popular Shows" heading results
+            in the detail page for that same show title being displayed.</action>
+        <action>If the detail page is being loaded, keep waiting until two images are fully
+            displayed
+        </action>
+        <action>If the detail page is displayed, verify that the name of the show appears in the top
+            bar as well as above the poster.
+        </action>
+        <action>If the detail page is displayed, click on the back arrow at the top of the detail
+            screen
+        </action>
+        <action>If the Explore screen is displayed, scroll to the bottom of the screen "Most
+            Anticipated Shows" heading
+        </action>
+        <action>Verify that there is a heading with "Most Anticipated Shows" text displayed with a
+            list of poster images underneath it
+        </action>
+        <action>Click the back arrow at the top of the screen</action>
+    </actions>
+</journey>
