@@ -34,7 +34,13 @@ import javax.inject.Singleton
 @Module
 abstract class FirebaseCrashlyticsModule {
 
-    companion object { // Added companion object
+    @Binds
+    @Singleton
+    abstract fun bindCrashlyticsHelper(
+        appCrashlyticsHelper: AppCrashlyticsHelper
+    ): CrashlyticsHelper
+
+    companion object {
         @Singleton
         @Provides
         fun provideFirebaseCrashlytics(): FirebaseCrashlytics {
@@ -42,9 +48,4 @@ abstract class FirebaseCrashlyticsModule {
         }
     }
 
-    @Binds
-    @Singleton
-    abstract fun bindCrashlyticsHelper(
-        appCrashlyticsHelper: AppCrashlyticsHelper
-    ): CrashlyticsHelper
 }

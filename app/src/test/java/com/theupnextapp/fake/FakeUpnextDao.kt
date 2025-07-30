@@ -42,14 +42,4 @@ class FakeUpnextDao : UpnextDao {
         tableUpdates.remove(tableName)
         tableUpdatesFlow.value = HashMap(tableUpdates) // Emit new state
     }
-
-    // Helper for tests
-    fun clearAll() {
-        tableUpdates.clear()
-        tableUpdatesFlow.value = emptyMap()
-    }
-
-    fun addTableUpdate(update: DatabaseTableUpdate) {
-        insertTableUpdateLog(update)
-    }
 }

@@ -21,7 +21,6 @@
 
 package com.theupnextapp.domain
 
-import android.util.Log
 import com.squareup.moshi.Moshi
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext

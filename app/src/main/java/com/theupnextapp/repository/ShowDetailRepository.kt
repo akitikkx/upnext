@@ -21,8 +21,6 @@
 
 package com.theupnextapp.repository
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.theupnextapp.common.CrashlyticsHelper
 import com.theupnextapp.database.UpnextDao
 import com.theupnextapp.domain.Result
@@ -47,7 +45,7 @@ class ShowDetailRepository(
     private val crashlytics: CrashlyticsHelper
 ) : BaseRepository(upnextDao = upnextDao, tvMazeService = tvMazeService) {
 
-    suspend fun getShowSummary(showId: Int): Flow<Result<ShowDetailSummary>> {
+    fun getShowSummary(showId: Int): Flow<Result<ShowDetailSummary>> {
         return flow {
             emit(Result.Loading(true))
             val response =
@@ -73,7 +71,7 @@ class ShowDetailRepository(
             .flowOn(Dispatchers.IO)
     }
 
-    suspend fun getPreviousEpisode(episodeRef: String?): Flow<Result<ShowPreviousEpisode>> {
+    fun getPreviousEpisode(episodeRef: String?): Flow<Result<ShowPreviousEpisode>> {
         return flow {
             emit(Result.Loading(true))
             val previousEpisodeLink = episodeRef?.substring(
@@ -109,7 +107,7 @@ class ShowDetailRepository(
             .flowOn(Dispatchers.IO)
     }
 
-    suspend fun getNextEpisode(episodeRef: String?): Flow<Result<ShowNextEpisode>> {
+    fun getNextEpisode(episodeRef: String?): Flow<Result<ShowNextEpisode>> {
         return flow {
             emit(Result.Loading(true))
             val nextEpisodeLink = episodeRef?.substring(
@@ -145,7 +143,7 @@ class ShowDetailRepository(
             .flowOn(Dispatchers.IO)
     }
 
-    suspend fun getShowCast(showId: Int): Flow<Result<List<ShowCast>>> {
+    fun getShowCast(showId: Int): Flow<Result<List<ShowCast>>> {
         return flow {
             emit(Result.Loading(true))
             val response = safeApiCall(Dispatchers.IO) {
@@ -170,7 +168,7 @@ class ShowDetailRepository(
             .flowOn(Dispatchers.IO)
     }
 
-    suspend fun getShowSeasons(showId: Int): Flow<Result<List<ShowSeason>>> {
+    fun getShowSeasons(showId: Int): Flow<Result<List<ShowSeason>>> {
         return flow {
             emit(Result.Loading(true))
             val response = safeApiCall(Dispatchers.IO) {
@@ -195,7 +193,7 @@ class ShowDetailRepository(
             .flowOn(Dispatchers.IO)
     }
 
-    suspend fun getShowSeasonEpisodes(
+    fun getShowSeasonEpisodes(
         showId: Int,
         seasonNumber: Int
     ): Flow<Result<List<ShowSeasonEpisode>>> {
