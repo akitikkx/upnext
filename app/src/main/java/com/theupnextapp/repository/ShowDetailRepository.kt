@@ -21,9 +21,7 @@
 
 package com.theupnextapp.repository
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.theupnextapp.common.CrashlyticsHelper
 import com.theupnextapp.database.UpnextDao
 import com.theupnextapp.domain.Result
 import com.theupnextapp.domain.ShowCast
@@ -44,26 +42,36 @@ import kotlinx.coroutines.flow.flowOn
 class ShowDetailRepository(
     upnextDao: UpnextDao,
     tvMazeService: TvMazeService,
-    private val firebaseCrashlytics: FirebaseCrashlytics
+    private val crashlytics: CrashlyticsHelper
 ) : BaseRepository(upnextDao = upnextDao, tvMazeService = tvMazeService) {
 
-    suspend fun getShowSummary(showId: Int): Flow<Result<ShowDetailSummary>> {
+    fun getShowSummary(showId: Int): Flow<Result<ShowDetailSummary>> {
         return flow {
             emit(Result.Loading(true))
             val response =
                 safeApiCall(Dispatchers.IO) {
                     tvMazeService.getShowSummaryAsync(showId.toString()).await().asDomainModel()
                 }
+
+            when (response) {
+                is Result.NetworkError -> crashlytics.recordException(response.exception)
+                is Result.GenericError -> crashlytics.recordException(response.exception)
+                is Result.Error -> response.exception?.let { crashlytics.recordException(it) }
+                else -> { /* No action for Success or Loading */ }
+            }
+
             emit(Result.Loading(false))
             emit(response)
         }
             .catch {
-                firebaseCrashlytics.recordException(it)
+                crashlytics.recordException(it)
+                emit(Result.Loading(false))
+                emit(Result.Error(it, "An unexpected error occurred in the repository flow."))
             }
             .flowOn(Dispatchers.IO)
     }
 
-    suspend fun getPreviousEpisode(episodeRef: String?): Flow<Result<ShowPreviousEpisode>> {
+    fun getPreviousEpisode(episodeRef: String?): Flow<Result<ShowPreviousEpisode>> {
         return flow {
             emit(Result.Loading(true))
             val previousEpisodeLink = episodeRef?.substring(
@@ -77,17 +85,29 @@ class ShowDetailRepository(
                         previousEpisodeLink.replace("/", "")
                     ).await().asDomainModel()
                 }
+
+                when (response) {
+                    is Result.NetworkError -> crashlytics.recordException(response.exception)
+                    is Result.GenericError -> crashlytics.recordException(response.exception)
+                    is Result.Error -> response.exception?.let { crashlytics.recordException(it) }
+                    else -> { /* No action for Success or Loading */ }
+                }
+
                 emit(Result.Loading(false))
                 emit(response)
+            } else {
+                emit(Result.Loading(false))
             }
         }
             .catch {
-                firebaseCrashlytics.recordException(it)
+                crashlytics.recordException(it)
+                emit(Result.Loading(false))
+                emit(Result.Error(it, "An unexpected error occurred in the repository flow."))
             }
             .flowOn(Dispatchers.IO)
     }
 
-    suspend fun getNextEpisode(episodeRef: String?): Flow<Result<ShowNextEpisode>> {
+    fun getNextEpisode(episodeRef: String?): Flow<Result<ShowNextEpisode>> {
         return flow {
             emit(Result.Loading(true))
             val nextEpisodeLink = episodeRef?.substring(
@@ -101,47 +121,79 @@ class ShowDetailRepository(
                         nextEpisodeLink.replace("/", "")
                     ).await().asDomainModel()
                 }
+
+                when (response) {
+                    is Result.NetworkError -> crashlytics.recordException(response.exception)
+                    is Result.GenericError -> crashlytics.recordException(response.exception)
+                    is Result.Error -> response.exception?.let { crashlytics.recordException(it) }
+                    else -> { /* No action for Success or Loading */ }
+                }
+
                 emit(Result.Loading(false))
                 emit(response)
+            } else {
+                emit(Result.Loading(false))
             }
         }
             .catch {
-                firebaseCrashlytics.recordException(it)
+                crashlytics.recordException(it)
+                emit(Result.Loading(false))
+                emit(Result.Error(it, "An unexpected error occurred in the repository flow."))
             }
             .flowOn(Dispatchers.IO)
     }
 
-    suspend fun getShowCast(showId: Int): Flow<Result<List<ShowCast>>> {
+    fun getShowCast(showId: Int): Flow<Result<List<ShowCast>>> {
         return flow {
             emit(Result.Loading(true))
             val response = safeApiCall(Dispatchers.IO) {
                 tvMazeService.getShowCastAsync(showId.toString()).await().asDomainModel()
             }
+
+            when (response) {
+                is Result.NetworkError -> crashlytics.recordException(response.exception)
+                is Result.GenericError -> crashlytics.recordException(response.exception)
+                is Result.Error -> response.exception?.let { crashlytics.recordException(it) }
+                else -> { /* No action for Success or Loading */ }
+            }
+
             emit(Result.Loading(false))
             emit(response)
         }
             .catch {
-                firebaseCrashlytics.recordException(it)
+                crashlytics.recordException(it)
+                emit(Result.Loading(false))
+                emit(Result.Error(it, "An unexpected error occurred in the repository flow."))
             }
             .flowOn(Dispatchers.IO)
     }
 
-    suspend fun getShowSeasons(showId: Int): Flow<Result<List<ShowSeason>>> {
+    fun getShowSeasons(showId: Int): Flow<Result<List<ShowSeason>>> {
         return flow {
             emit(Result.Loading(true))
             val response = safeApiCall(Dispatchers.IO) {
                 tvMazeService.getShowSeasonsAsync(showId.toString()).await().asDomainModel()
             }
+
+            when (response) {
+                is Result.NetworkError -> crashlytics.recordException(response.exception)
+                is Result.GenericError -> crashlytics.recordException(response.exception)
+                is Result.Error -> response.exception?.let { crashlytics.recordException(it) }
+                else -> { /* No action for Success or Loading */ }
+            }
+
             emit(Result.Loading(false))
             emit(response)
         }
             .catch {
-                firebaseCrashlytics.recordException(it)
+                crashlytics.recordException(it)
+                emit(Result.Loading(false))
+                emit(Result.Error(it, "An unexpected error occurred in the repository flow."))
             }
             .flowOn(Dispatchers.IO)
     }
 
-    suspend fun getShowSeasonEpisodes(
+    fun getShowSeasonEpisodes(
         showId: Int,
         seasonNumber: Int
     ): Flow<Result<List<ShowSeasonEpisode>>> {
@@ -151,11 +203,21 @@ class ShowDetailRepository(
                 tvMazeService.getSeasonEpisodesAsync(showId.toString()).await().asDomainModel()
                     .filter { it.season == seasonNumber }
             }
+
+            when (response) {
+                is Result.NetworkError -> crashlytics.recordException(response.exception)
+                is Result.GenericError -> crashlytics.recordException(response.exception)
+                is Result.Error -> response.exception?.let { crashlytics.recordException(it) }
+                else -> { /* No action for Success or Loading */ }
+            }
+
             emit(Result.Loading(false))
             emit(response)
         }
             .catch {
-                firebaseCrashlytics.recordException(it)
+                crashlytics.recordException(it)
+                emit(Result.Loading(false))
+                emit(Result.Error(it, "An unexpected error occurred in the repository flow."))
             }
             .flowOn(Dispatchers.IO)
     }

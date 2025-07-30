@@ -22,6 +22,8 @@
 package com.theupnextapp.di
 
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.theupnextapp.common.CrashlyticsHelper
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -30,11 +32,20 @@ import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
 @Module
-class FirebaseCrashlyticsModule {
+abstract class FirebaseCrashlyticsModule {
 
+    @Binds
     @Singleton
-    @Provides
-    fun provideFirebaseCrashlytics(): FirebaseCrashlytics {
-        return FirebaseCrashlytics.getInstance()
+    abstract fun bindCrashlyticsHelper(
+        appCrashlyticsHelper: AppCrashlyticsHelper
+    ): CrashlyticsHelper
+
+    companion object {
+        @Singleton
+        @Provides
+        fun provideFirebaseCrashlytics(): FirebaseCrashlytics {
+            return FirebaseCrashlytics.getInstance()
+        }
     }
+
 }
