@@ -103,7 +103,7 @@ fun DashboardScreen(
                             navigator.navigate(
                                 ShowDetailScreenDestination(
                                     source = "dashboard",
-                                    showId = it.id.toString(),
+                                    showId = it.showId.toString(), // Updated to use showId
                                     showTitle = it.name,
                                     showImageUrl = it.originalImage,
                                     showBackgroundUrl = it.mediumImage
@@ -123,7 +123,7 @@ fun DashboardScreen(
                             navigator.navigate(
                                 ShowDetailScreenDestination(
                                     source = "dashboard",
-                                    showId = it.id.toString(),
+                                    showId = it.showId.toString(), // Updated to use showId
                                     showTitle = it.name,
                                     showImageUrl = it.originalImage,
                                     showBackgroundUrl = it.mediumImage
@@ -143,7 +143,7 @@ fun DashboardScreen(
                             navigator.navigate(
                                 ShowDetailScreenDestination(
                                     source = "dashboard",
-                                    showId = it.id.toString(),
+                                    showId = it.showId.toString(), // Updated to use showId
                                     showTitle = it.name,
                                     showImageUrl = it.originalImage,
                                     showBackgroundUrl = it.mediumImage
@@ -213,15 +213,16 @@ internal class ShowsRowPreviewProvider : PreviewParameterProvider<List<ScheduleS
             MutableList(10) { index ->
                 ScheduleShow(
                     id = index,
+                    showId = index, // Added showId for preview
                     originalImage = "",
                     mediumImage = "",
                     language = "",
-                    name = "",
+                    name = "Show Name $index",
                     officialSite = "",
                     premiered = "",
                     runtime = "",
                     status = "",
-                    summary = "",
+                    summary = "Summary for show $index",
                     type = "",
                     updated = "",
                     url = ""

@@ -3,7 +3,7 @@ package com.theupnextapp.repository
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.theupnextapp.common.utils.DateUtils
 import com.theupnextapp.database.DatabaseTableUpdate
-import com.theupnextapp.fake.FakeTvMazeService
+import com.theupnextapp.repository.fakes.FakeTvMazeService
 import com.theupnextapp.network.models.tvmaze.NetworkShowInfoLinks
 import com.theupnextapp.network.models.tvmaze.NetworkShowInfoNextEpisode
 import com.theupnextapp.network.models.tvmaze.NetworkShowInfoResponse

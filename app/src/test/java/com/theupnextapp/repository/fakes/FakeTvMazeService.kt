@@ -10,7 +10,7 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.theupnextapp.fake
+package com.theupnextapp.repository.fakes // Changed package
 
 import com.theupnextapp.network.TvMazeService
 import com.theupnextapp.network.models.tvmaze.NetworkShowCastResponse
@@ -26,7 +26,7 @@ import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowImageResponse
 import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupResponse
 import com.theupnextapp.network.models.tvmaze.NetworkYesterdayScheduleResponse
 
-// Imports for NetworkShowSearchResponse construction
+// Imports for NetworkShowSearchResponse construction (assuming they are needed, though not directly used in new methods)
 import com.theupnextapp.network.models.tvmaze.NetworkShowSearchResponseShow
 import com.theupnextapp.network.models.tvmaze.NetworkShowSearchResponseImage
 import com.theupnextapp.network.models.tvmaze.Rating
@@ -44,8 +44,8 @@ import kotlinx.coroutines.Deferred
 class FakeTvMazeService : TvMazeService {
 
     var mockShowInfoResponse: NetworkShowInfoResponse? = null
-    var shouldThrowGetShowSummaryError: Boolean = false // Legacy, for generic IOException
-    var showSummaryError: Throwable? = null // For specific throwables
+    var shouldThrowGetShowSummaryError: Boolean = false
+    var showSummaryError: Throwable? = null
 
     var mockShowLookupResponse: NetworkTvMazeShowLookupResponse? = null
     var showLookupError: Throwable? = null
@@ -54,8 +54,8 @@ class FakeTvMazeService : TvMazeService {
     var nextEpisodeError: Throwable? = null
 
     var mockPreviousEpisodeResponse: NetworkShowPreviousEpisodeResponse? = null
-    var shouldThrowGetPreviousEpisodeError: Boolean = false // Legacy, for generic IOException
-    var previousEpisodeError: Throwable? = null // For specific throwables
+    var shouldThrowGetPreviousEpisodeError: Boolean = false
+    var previousEpisodeError: Throwable? = null
 
     var mockShowCastResponse: NetworkShowCastResponse? = null
     var showCastError: Throwable? = null
@@ -66,26 +66,42 @@ class FakeTvMazeService : TvMazeService {
     var mockTvMazeEpisodesResponse: NetworkTvMazeEpisodesResponse? = null
     var seasonEpisodesError: Throwable? = null
 
+    // New properties for DashboardRepository usage
+    var mockYesterdayScheduleResponse: List<NetworkYesterdayScheduleResponse>? = null
+    var yesterdayScheduleError: Throwable? = null
+
+    var mockTodayScheduleResponse: List<NetworkTodayScheduleResponse>? = null
+    var todayScheduleError: Throwable? = null
+
+    var mockTomorrowScheduleResponse: List<NetworkTomorrowScheduleResponse>? = null
+    var tomorrowScheduleError: Throwable? = null
+
+    var mockShowImagesResponse: NetworkTvMazeShowImageResponse? = null
+    var showImagesError: Throwable? = null
+
 
     override fun getYesterdayScheduleAsync(
         countryCode: String,
         date: String?
     ): Deferred<List<NetworkYesterdayScheduleResponse>> {
-        throw NotImplementedError("Fake method not implemented")
+        yesterdayScheduleError?.let { throw it }
+        return CompletableDeferred(mockYesterdayScheduleResponse ?: emptyList())
     }
 
     override fun getTodayScheduleAsync(
         countryCode: String,
         date: String?
     ): Deferred<List<NetworkTodayScheduleResponse>> {
-        throw NotImplementedError("Fake method not implemented")
+        todayScheduleError?.let { throw it }
+        return CompletableDeferred(mockTodayScheduleResponse ?: emptyList())
     }
 
     override fun getTomorrowScheduleAsync(
         countryCode: String,
         date: String?
     ): Deferred<List<NetworkTomorrowScheduleResponse>> {
-        throw NotImplementedError("Fake method not implemented")
+        tomorrowScheduleError?.let { throw it }
+        return CompletableDeferred(mockTomorrowScheduleResponse ?: emptyList())
     }
 
     override fun getShowLookupAsync(imdbId: String): Deferred<NetworkTvMazeShowLookupResponse> {
@@ -95,18 +111,18 @@ class FakeTvMazeService : TvMazeService {
     }
 
     override fun getShowImagesAsync(id: String): Deferred<NetworkTvMazeShowImageResponse> {
-        throw NotImplementedError("Fake method not implemented for getShowImagesAsync. Consider adding mock/error properties if needed.")
+        showImagesError?.let { throw it }
+        // Assuming NetworkTvMazeShowImageResponse is a typealias for List<SomeImageItem>
+        // or a class that can be empty. If it's non-nullable list, this works.
+        // If NetworkTvMazeShowImageResponse itself can be null, then an explicit null check for mock is better.
+        return CompletableDeferred(mockShowImagesResponse ?: NetworkTvMazeShowImageResponse())
     }
 
     override fun getSuggestionListAsync(name: String): Deferred<List<NetworkShowSearchResponse>> {
-        // Keeping existing minimal mock for now, can be enhanced with error/mock properties if needed by tests
+        // Minimal mock from original FakeTvMazeService
         val showData = NetworkShowSearchResponseShow(
-            id = 1,
-            name = "Queen of the South",
-            genres = arrayListOf("Drama", "Action", "Crime"),
-            status = "Ended",
-            premiered = "2021-04-07",
-            rating = Rating(average = 8.8),
+            id = 1, name = "Queen of the South", genres = arrayListOf("Drama", "Action", "Crime"),
+            status = "Ended", premiered = "2021-04-07", rating = Rating(average = 8.8),
             image = NetworkShowSearchResponseImage(
                 original = "https://static.tvmaze.com/uploads/images/original_untouched/324/811968.jpg",
                 medium = "https://static.tvmaze.com/uploads/images/medium_portrait/324/811968.jpg"
@@ -114,30 +130,18 @@ class FakeTvMazeService : TvMazeService {
             summary = "Teresa flees Mexico after her drug-runner boyfriend is murdered. Settling in Dallas, she looks to become the country's reigning drug smuggler and to avenge her lover's murder.",
             updated = 1620422,
             network = NetworkShowSeasonsResponseNetwork(
-                country = NetworkShowSeasonsResponseCountry(
-                    name = "United States",
-                    code = "US",
-                    timezone = "America/New_York"
-                ),
-                id = 2,
-                name = "USA Network"
+                country = NetworkShowSeasonsResponseCountry(name = "United States", code = "US", timezone = "America/New_York"),
+                id = 2, name = "USA Network"
             ),
-            schedule = Schedule(
-                time = "22:00",
-                days = arrayListOf("Wednesday")
-            ),
+            schedule = Schedule(time = "22:00", days = arrayListOf("Wednesday")),
             url = "https://www.tvmaze.com/shows/13158/queen-of-the-south",
             _links = NetworkShowSearchReponseLinks(
                 previousepisode = NetworkShowSearchResponsePreviousepisode(href = "http://api.tvmaze.com/episodes/2059593"),
                 self = NetworkShowSearchResponseSelf(href = "http://api.tvmaze.com/shows/1")
             ),
             externals = Externals(imdb = "tt4352842", thetvdb = 300998, tvrage = null),
-            language = "English",
-            officialSite = "http://www.usanetwork.com/queen-of-the-south",
-            runtime = 60,
-            type = "Scripted",
-            webChannel = Any(),
-            weight = 99
+            language = "English", officialSite = "http://www.usanetwork.com/queen-of-the-south",
+            runtime = 60, type = "Scripted", webChannel = Any(), weight = 99
         )
         val searchResult = NetworkShowSearchResponse(score = 10.0, show = showData)
         return CompletableDeferred(listOf(searchResult))
@@ -145,7 +149,7 @@ class FakeTvMazeService : TvMazeService {
 
     override fun getShowSummaryAsync(id: String?): Deferred<NetworkShowInfoResponse> {
         showSummaryError?.let { throw it }
-        if (shouldThrowGetShowSummaryError) { // Legacy generic error
+        if (shouldThrowGetShowSummaryError) {
             throw IOException("Fake network error for getShowSummary")
         }
         mockShowInfoResponse?.let { return CompletableDeferred(it) }
@@ -160,7 +164,7 @@ class FakeTvMazeService : TvMazeService {
 
     override fun getPreviousEpisodeAsync(name: String?): Deferred<NetworkShowPreviousEpisodeResponse> {
         previousEpisodeError?.let { throw it }
-        if (shouldThrowGetPreviousEpisodeError) { // Legacy generic error
+        if (shouldThrowGetPreviousEpisodeError) {
             throw IOException("Fake network error for getPreviousEpisode")
         }
         mockPreviousEpisodeResponse?.let { return CompletableDeferred(it) }
@@ -183,5 +187,33 @@ class FakeTvMazeService : TvMazeService {
         seasonEpisodesError?.let { throw it }
         mockTvMazeEpisodesResponse?.let { return CompletableDeferred(it) }
         throw NotImplementedError("mockTvMazeEpisodesResponse not set for this test, or seasonEpisodesError not specified.")
+    }
+
+    // Helper to reset all mock data and errors
+    fun reset() {
+        mockShowInfoResponse = null
+        shouldThrowGetShowSummaryError = false
+        showSummaryError = null
+        mockShowLookupResponse = null
+        showLookupError = null
+        mockNextEpisodeResponse = null
+        nextEpisodeError = null
+        mockPreviousEpisodeResponse = null
+        shouldThrowGetPreviousEpisodeError = false
+        previousEpisodeError = null
+        mockShowCastResponse = null
+        showCastError = null
+        mockShowSeasonsResponse = null
+        showSeasonsError = null
+        mockTvMazeEpisodesResponse = null
+        seasonEpisodesError = null
+        mockYesterdayScheduleResponse = null
+        yesterdayScheduleError = null
+        mockTodayScheduleResponse = null
+        todayScheduleError = null
+        mockTomorrowScheduleResponse = null
+        tomorrowScheduleError = null
+        mockShowImagesResponse = null
+        showImagesError = null
     }
 }

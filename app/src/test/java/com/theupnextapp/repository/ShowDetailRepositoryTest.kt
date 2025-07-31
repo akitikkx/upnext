@@ -12,9 +12,9 @@
 
 package com.theupnextapp.repository
 
-import com.theupnextapp.fake.FakeFirebaseCrashlytics
-import com.theupnextapp.fake.FakeTvMazeService
-import com.theupnextapp.fake.FakeUpnextDao
+import com.theupnextapp.repository.fakes.FakeCrashlytics // Corrected import
+import com.theupnextapp.repository.fakes.FakeTvMazeService
+import com.theupnextapp.repository.fakes.FakeUpnextDao
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
@@ -44,7 +44,7 @@ class ShowDetailRepositoryTest {
 
     private lateinit var fakeUpnextDao: FakeUpnextDao
     private lateinit var fakeTvMazeService: FakeTvMazeService
-    private lateinit var fakeFirebaseCrashlytics: FakeFirebaseCrashlytics
+    private lateinit var fakeCrashlytics: FakeCrashlytics // Changed type
 
     private lateinit var showDetailRepository: ShowDetailRepository
 
@@ -52,13 +52,13 @@ class ShowDetailRepositoryTest {
     fun setUp() {
         fakeUpnextDao = FakeUpnextDao()
         fakeTvMazeService = FakeTvMazeService()
-        fakeFirebaseCrashlytics = FakeFirebaseCrashlytics()
-        fakeFirebaseCrashlytics.clear()
+        fakeCrashlytics = FakeCrashlytics() // Changed instantiation
+        fakeCrashlytics.clear()
 
         showDetailRepository = ShowDetailRepository(
             upnextDao = fakeUpnextDao,
             tvMazeService = fakeTvMazeService,
-            crashlytics = fakeFirebaseCrashlytics
+            crashlytics = fakeCrashlytics // Pass new type
         )
     }
 
@@ -119,8 +119,8 @@ class ShowDetailRepositoryTest {
         assertTrue("NetworkError's exception type is not IOException", networkErrorResult?.exception is IOException)
         assertEquals(errorMessage, networkErrorResult?.exception?.message)
         assertTrue("Final Loading state (false) not found or incorrect", results.any { it is Result.Loading && !it.status })
-        assertEquals("Crashlytics should have recorded one exception", 1, fakeFirebaseCrashlytics.getRecordedExceptions().size)
-        assertTrue("Recorded exception is not IOException", fakeFirebaseCrashlytics.getRecordedExceptions()[0] is IOException)
+        assertEquals("Crashlytics should have recorded one exception", 1, fakeCrashlytics.getRecordedExceptions().size)
+        assertTrue("Recorded exception is not IOException", fakeCrashlytics.getRecordedExceptions()[0] is IOException)
     }
 
     @Test
@@ -177,7 +177,7 @@ class ShowDetailRepositoryTest {
 
         assertTrue("Final Loading state (false) not found or incorrect", results.any { it is Result.Loading && !it.status })
 
-        val recordedExceptions = fakeFirebaseCrashlytics.getRecordedExceptions()
+        val recordedExceptions = fakeCrashlytics.getRecordedExceptions()
         assertEquals("Crashlytics should have recorded one exception", 1, recordedExceptions.size)
         assertTrue("Recorded exception is not IOException", recordedExceptions[0] is IOException)
         assertEquals(errorMessage, recordedExceptions[0].message)
@@ -195,7 +195,7 @@ class ShowDetailRepositoryTest {
                  assertTrue("If more than one, last should be Loading(false)", results.last() is Result.Loading && !(results.last() as Result.Loading).status)
             }
         }
-        assertEquals("Crashlytics should not have recorded any exception", 0, fakeFirebaseCrashlytics.getRecordedExceptions().size)
+        assertEquals("Crashlytics should not have recorded any exception", 0, fakeCrashlytics.getRecordedExceptions().size)
     }
 
     @Test
@@ -211,6 +211,6 @@ class ShowDetailRepositoryTest {
                  assertTrue("If more than one, last should be Loading(false)", results.last() is Result.Loading && !(results.last() as Result.Loading).status)
             }
         }
-        assertEquals("Crashlytics should not have recorded any exception", 0, fakeFirebaseCrashlytics.getRecordedExceptions().size)
+        assertEquals("Crashlytics should not have recorded any exception", 0, fakeCrashlytics.getRecordedExceptions().size)
     }
 }

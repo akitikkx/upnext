@@ -23,7 +23,7 @@ package com.theupnextapp.repository
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.theupnextapp.common.CrashlyticsHelper // Updated import
 import com.theupnextapp.common.utils.models.DatabaseTables
 import com.theupnextapp.common.utils.models.TableUpdateInterval
 import com.theupnextapp.database.DatabaseTableUpdate
@@ -51,7 +51,7 @@ class DashboardRepository(
     upnextDao: UpnextDao,
     tvMazeService: TvMazeService,
     private val tvMazeDao: TvMazeDao,
-    private val firebaseCrashlytics: FirebaseCrashlytics
+    private val firebaseCrashlytics: CrashlyticsHelper // Updated type
 ) : BaseRepository(upnextDao = upnextDao, tvMazeService = tvMazeService) {
 
     private val _isLoadingYesterdayShows = MutableLiveData<Boolean>(false)
@@ -103,7 +103,7 @@ class DashboardRepository(
                         yesterdayShowsList.forEach {
                             val yesterdayShow: NetworkYesterdayScheduleResponse = it
 
-                            // only adding shows that have an image
+                            // only adding shows that have an image and an imdb id
                             if (!yesterdayShow.show.image?.original.isNullOrEmpty() && !yesterdayShow.show.externals?.imdb.isNullOrEmpty()) {
 
                                 val (poster, heroImage) = getImages(
@@ -159,7 +159,7 @@ class DashboardRepository(
                         todayShowsList.forEach {
                             val todayShow: NetworkTodayScheduleResponse = it
 
-                            // only adding shows that have an image
+                            // only adding shows that have an image and an imdb id
                             if (!it.show.image?.original.isNullOrEmpty() && !it.show.externals?.imdb.isNullOrEmpty()) {
 
                                 val (poster, heroImage) = getImages(
@@ -216,7 +216,7 @@ class DashboardRepository(
                         tomorrowShowsList.forEach {
                             val tomorrowShow: NetworkTomorrowScheduleResponse = it
 
-                            // only adding shows that have an image
+                            // only adding shows that have an image and an imdb id
                             if (!tomorrowShow.show.image?.original.isNullOrEmpty() && !tomorrowShow.show.externals?.imdb.isNullOrEmpty()) {
 
                                 val (poster, heroImage) = getImages(
@@ -264,8 +264,9 @@ class DashboardRepository(
         fallbackPoster: String?,
         fallbackMedium: String?
     ): Pair<String?, String?> {
-        var poster: String? = ""
-        var heroImage: String? = ""
+        var finalPosterUrl: String? = null
+        var finalHeroUrl: String? = null
+        var posterMediumUrl: String? = null // To store medium res of poster
 
         var showImagesResponse: NetworkTvMazeShowImageResponse? = null
         try {
@@ -277,19 +278,23 @@ class DashboardRepository(
             firebaseCrashlytics.recordException(e)
         }
 
-        showImagesResponse.let { response ->
-            if (!response.isNullOrEmpty()) {
+        showImagesResponse?.let { response ->
+            if (response.isNotEmpty()) {
                 for (image in response) {
                     if (image.type == "poster") {
-                        poster = image.resolutions.original.url
+                        finalPosterUrl = image.resolutions.original.url
+                        posterMediumUrl = image.resolutions.medium?.url 
                     }
 
                     if (image.type == "background") {
-                        heroImage = image.resolutions.original.url
+                        finalHeroUrl = image.resolutions.original.url
                     }
                 }
             }
         }
-        return Pair(poster ?: fallbackPoster, heroImage ?: fallbackMedium)
+        // Prioritize specific hero image (from background), then poster's medium, then fallback
+        val chosenHeroUrl = finalHeroUrl ?: posterMediumUrl
+    
+        return Pair(finalPosterUrl ?: fallbackPoster, chosenHeroUrl ?: fallbackMedium)
     }
 }
