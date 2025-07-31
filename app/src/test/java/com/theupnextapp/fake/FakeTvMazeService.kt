@@ -37,25 +37,35 @@ import com.theupnextapp.network.models.tvmaze.NetworkShowSearchReponseLinks
 import com.theupnextapp.network.models.tvmaze.NetworkShowSearchResponsePreviousepisode
 import com.theupnextapp.network.models.tvmaze.NetworkShowSearchResponseSelf
 import com.theupnextapp.network.models.tvmaze.Externals
-import java.io.IOException // Added for error simulation
+import java.io.IOException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 
 class FakeTvMazeService : TvMazeService {
 
     var mockShowInfoResponse: NetworkShowInfoResponse? = null
-    // Flag for getShowSummaryAsync error simulation - already present
-    var shouldThrowGetShowSummaryError: Boolean = false
+    var shouldThrowGetShowSummaryError: Boolean = false // Legacy, for generic IOException
+    var showSummaryError: Throwable? = null // For specific throwables
 
+    var mockShowLookupResponse: NetworkTvMazeShowLookupResponse? = null
+    var showLookupError: Throwable? = null
 
     var mockNextEpisodeResponse: NetworkShowNextEpisodeResponse? = null
-    var mockPreviousEpisodeResponse: NetworkShowPreviousEpisodeResponse? = null
-    var mockShowCastResponse: NetworkShowCastResponse? = null
-    var mockShowSeasonsResponse: NetworkShowSeasonsResponse? = null
-    var mockTvMazeEpisodesResponse: NetworkTvMazeEpisodesResponse? = null
+    var nextEpisodeError: Throwable? = null
 
-    // Added: Flag for getPreviousEpisodeAsync error simulation
-    var shouldThrowGetPreviousEpisodeError: Boolean = false
+    var mockPreviousEpisodeResponse: NetworkShowPreviousEpisodeResponse? = null
+    var shouldThrowGetPreviousEpisodeError: Boolean = false // Legacy, for generic IOException
+    var previousEpisodeError: Throwable? = null // For specific throwables
+
+    var mockShowCastResponse: NetworkShowCastResponse? = null
+    var showCastError: Throwable? = null
+
+    var mockShowSeasonsResponse: NetworkShowSeasonsResponse? = null
+    var showSeasonsError: Throwable? = null
+
+    var mockTvMazeEpisodesResponse: NetworkTvMazeEpisodesResponse? = null
+    var seasonEpisodesError: Throwable? = null
+
 
     override fun getYesterdayScheduleAsync(
         countryCode: String,
@@ -79,14 +89,17 @@ class FakeTvMazeService : TvMazeService {
     }
 
     override fun getShowLookupAsync(imdbId: String): Deferred<NetworkTvMazeShowLookupResponse> {
-        throw NotImplementedError("Fake method not implemented")
+        showLookupError?.let { throw it }
+        mockShowLookupResponse?.let { return CompletableDeferred(it) }
+        throw NotImplementedError("mockShowLookupResponse not set for this test, or showLookupError not specified.")
     }
 
     override fun getShowImagesAsync(id: String): Deferred<NetworkTvMazeShowImageResponse> {
-        throw NotImplementedError("Fake method not implemented")
+        throw NotImplementedError("Fake method not implemented for getShowImagesAsync. Consider adding mock/error properties if needed.")
     }
 
     override fun getSuggestionListAsync(name: String): Deferred<List<NetworkShowSearchResponse>> {
+        // Keeping existing minimal mock for now, can be enhanced with error/mock properties if needed by tests
         val showData = NetworkShowSearchResponseShow(
             id = 1,
             name = "Queen of the South",
@@ -123,73 +136,52 @@ class FakeTvMazeService : TvMazeService {
             officialSite = "http://www.usanetwork.com/queen-of-the-south",
             runtime = 60,
             type = "Scripted",
-            webChannel = Any(), // Consider replacing Any with a more specific mock or null if appropriate
+            webChannel = Any(),
             weight = 99
         )
-
         val searchResult = NetworkShowSearchResponse(score = 10.0, show = showData)
-        val searchResults = mutableListOf(searchResult)
-
-        return CompletableDeferred(searchResults)
+        return CompletableDeferred(listOf(searchResult))
     }
 
     override fun getShowSummaryAsync(id: String?): Deferred<NetworkShowInfoResponse> {
-        if (shouldThrowGetShowSummaryError) {
+        showSummaryError?.let { throw it }
+        if (shouldThrowGetShowSummaryError) { // Legacy generic error
             throw IOException("Fake network error for getShowSummary")
         }
-        val currentMock = mockShowInfoResponse
-        if (currentMock != null) {
-            return CompletableDeferred(currentMock)
-        } else {
-            throw NotImplementedError("mockShowInfoResponse not set for this test")
-        }
+        mockShowInfoResponse?.let { return CompletableDeferred(it) }
+        throw NotImplementedError("mockShowInfoResponse not set for this test, or showSummaryError/shouldThrowGetShowSummaryError not specified.")
     }
 
     override fun getNextEpisodeAsync(name: String?): Deferred<NetworkShowNextEpisodeResponse> {
-        val currentMock = mockNextEpisodeResponse
-        if (currentMock != null) {
-            return CompletableDeferred(currentMock)
-        } else {
-            throw NotImplementedError("mockNextEpisodeResponse not set for this test")
-        }
+        nextEpisodeError?.let { throw it }
+        mockNextEpisodeResponse?.let { return CompletableDeferred(it) }
+        throw NotImplementedError("mockNextEpisodeResponse not set for this test, or nextEpisodeError not specified.")
     }
 
     override fun getPreviousEpisodeAsync(name: String?): Deferred<NetworkShowPreviousEpisodeResponse> {
-        if (shouldThrowGetPreviousEpisodeError) {
+        previousEpisodeError?.let { throw it }
+        if (shouldThrowGetPreviousEpisodeError) { // Legacy generic error
             throw IOException("Fake network error for getPreviousEpisode")
         }
-        val currentMock = mockPreviousEpisodeResponse
-        if (currentMock != null) {
-            return CompletableDeferred(currentMock)
-        } else {
-            throw NotImplementedError("mockPreviousEpisodeResponse not set for this test")
-        }
+        mockPreviousEpisodeResponse?.let { return CompletableDeferred(it) }
+        throw NotImplementedError("mockPreviousEpisodeResponse not set for this test, or previousEpisodeError/shouldThrowGetPreviousEpisodeError not specified.")
     }
 
     override fun getShowCastAsync(id: String?): Deferred<NetworkShowCastResponse> {
-        val currentMock = mockShowCastResponse
-        if (currentMock != null) {
-            return CompletableDeferred(currentMock)
-        } else {
-            throw NotImplementedError("mockShowCastResponse not set for this test")
-        }
+        showCastError?.let { throw it }
+        mockShowCastResponse?.let { return CompletableDeferred(it) }
+        throw NotImplementedError("mockShowCastResponse not set for this test, or showCastError not specified.")
     }
 
     override fun getShowSeasonsAsync(id: String?): Deferred<NetworkShowSeasonsResponse> {
-        val currentMock = mockShowSeasonsResponse
-        if (currentMock != null) {
-            return CompletableDeferred(currentMock)
-        } else {
-            throw NotImplementedError("mockShowSeasonsResponse not set for this test")
-        }
+        showSeasonsError?.let { throw it }
+        mockShowSeasonsResponse?.let { return CompletableDeferred(it) }
+        throw NotImplementedError("mockShowSeasonsResponse not set for this test, or showSeasonsError not specified.")
     }
 
     override fun getSeasonEpisodesAsync(id: String?): Deferred<NetworkTvMazeEpisodesResponse> {
-        val currentMock = mockTvMazeEpisodesResponse
-        if (currentMock != null) {
-            return CompletableDeferred(currentMock)
-        } else {
-            throw NotImplementedError("mockTvMazeEpisodesResponse not set for this test")
-        }
+        seasonEpisodesError?.let { throw it }
+        mockTvMazeEpisodesResponse?.let { return CompletableDeferred(it) }
+        throw NotImplementedError("mockTvMazeEpisodesResponse not set for this test, or seasonEpisodesError not specified.")
     }
 }
