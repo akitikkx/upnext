@@ -3,8 +3,7 @@ package com.theupnextapp.repository
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.theupnextapp.common.utils.DateUtils
 import com.theupnextapp.database.DatabaseTableUpdate
-import com.theupnextapp.database.UpnextDao
-import com.theupnextapp.network.TvMazeService
+import com.theupnextapp.fake.FakeTvMazeService
 import com.theupnextapp.network.models.tvmaze.NetworkShowInfoLinks
 import com.theupnextapp.network.models.tvmaze.NetworkShowInfoNextEpisode
 import com.theupnextapp.network.models.tvmaze.NetworkShowInfoResponse
@@ -19,9 +18,17 @@ import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupRating
 import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupResponse
 import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupSchedule
 import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupSelf
-import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupWebChannel
+import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupCountry // Added for dummyNetwork
+import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupWebChannel // Added for webChannel
+import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupCountryX // Added for webChannel
+import com.theupnextapp.network.models.tvmaze.NetworkShowInfoExternals // Added for dummyShowInfoExternals
+import com.theupnextapp.network.models.tvmaze.NetworkShowInfoImage // Added for dummyShowInfoImage
+import com.theupnextapp.network.models.tvmaze.NetworkShowInfoRating // Added for dummyShowInfoRating
+import com.theupnextapp.network.models.tvmaze.NetworkShowInfoSchedule // Added for dummyShowInfoSchedule
+import com.theupnextapp.network.models.tvmaze.NetworkShowInfoNetwork // Added for dummyShowInfoNetwork
+import com.theupnextapp.network.models.tvmaze.NetworkShowInfoCountry // Added for dummyShowInfoCountry
+import com.theupnextapp.network.models.tvmaze.NetworkShowNextEpisodeSelf // Added for dummyNextEpisodeSelf
 import com.theupnextapp.repository.fakes.FakeUpnextDao
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -34,70 +41,55 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.mockito.Mock
-import org.mockito.junit.MockitoJUnitRunner
-import org.mockito.kotlin.any
-import org.mockito.kotlin.doSuspendableAnswer
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.whenever
 import retrofit2.HttpException
 import retrofit2.Response
 import java.util.concurrent.TimeUnit
 
-// Concrete repository for testing protected methods
-class ConcreteTestRepository(
-    upnextDao: UpnextDao, // Use UpnextDao interface
-    tvMazeService: TvMazeService
-) : BaseRepository(upnextDao, tvMazeService) {
-
-    fun testCanProceedWithUpdate(tableName: String, intervalMinutes: Long): Boolean {
-        // This method is deprecated in BaseRepository, consider removing or updating if logic changes
-        return super.canProceedWithUpdate(tableName, intervalMinutes)
-    }
-
-    suspend fun testIsUpdateNeededByDay(tableName: String): Boolean {
-        return super.isUpdateNeededByDay(tableName)
-    }
-
-    suspend fun testLogTableUpdateTimestamp(tableName: String) {
-        super.logTableUpdateTimestamp(tableName)
-    }
-}
-
 @ExperimentalCoroutinesApi
-@RunWith(MockitoJUnitRunner::class)
 class BaseRepositoryTest {
 
     @get:Rule
     var instantTaskExecutorRule = InstantTaskExecutorRule()
 
     private lateinit var fakeUpnextDao: FakeUpnextDao
-
-    @Mock
-    private lateinit var mockTvMazeService: TvMazeService
-
+    private lateinit var fakeTvMazeService: FakeTvMazeService
     private lateinit var repository: ConcreteTestRepository
 
-    private val dummyLinksSelfLink: NetworkTvMazeShowLookupSelf = mock()
-    private val dummyPreviousEpisodeLink: NetworkTvMazeShowLookupPreviousepisode = mock()
-    private val dummyExternals: NetworkTvMazeShowLookupExternals = mock()
-    private val dummyNetwork: NetworkTvMazeShowLookupNetwork = mock()
-    private val dummyRating: NetworkTvMazeShowLookupRating = mock()
-    private val dummySchedule: NetworkTvMazeShowLookupSchedule = mock()
-    private val dummyWebChannel: NetworkTvMazeShowLookupWebChannel = mock()
+    // Dummy data for NetworkTvMazeShowLookupResponse
+    private val dummyLookupSelfLink = NetworkTvMazeShowLookupSelf(href = "http://api.tvmaze.com/shows/1/self")
+    private val dummyLookupPreviousEpisodeLink = NetworkTvMazeShowLookupPreviousepisode(href = "http://api.tvmaze.com/episodes/1")
+    private val dummyLookupExternals = NetworkTvMazeShowLookupExternals(tvrage = 123, thetvdb = 456, imdb = "tt1234567")
+    private val dummyLookupCountry = NetworkTvMazeShowLookupCountry(name = "US", code = "US", timezone = "America/New_York")
+    private val dummyLookupCountryX = NetworkTvMazeShowLookupCountryX(name = "US", code = "US", timezone = "America/New_York")
+    private val dummyLookupWebChannel = NetworkTvMazeShowLookupWebChannel(id = 1, name = "Fake Web Channel", country = dummyLookupCountryX)
+    private val dummyLookupNetwork = NetworkTvMazeShowLookupNetwork(id = 1, name = "Fake Network", country = dummyLookupCountry)
+    private val dummyLookupRating = NetworkTvMazeShowLookupRating(average = 8.5)
+    private val dummyLookupSchedule = NetworkTvMazeShowLookupSchedule(time = "22:00", days = listOf("Monday"))
+
+    // Dummy data for NetworkShowInfoResponse
+    private val dummyShowInfoCountry = NetworkShowInfoCountry(name = "US", code = "US", timezone = "America/New_York")
+    private val dummyShowInfoNetwork = NetworkShowInfoNetwork(id = 1, name = "Fake Network", country = dummyShowInfoCountry)
+    private val dummyShowInfoExternals = NetworkShowInfoExternals(tvrage = 123, thetvdb = 456, imdb = "tt1234567")
+    private val dummyShowInfoImage = NetworkShowInfoImage(medium = "http://medium.jpg", original = "http://original.jpg")
+    private val dummyShowInfoRating = NetworkShowInfoRating(average = 8.0)
+    private val dummyShowInfoSchedule = NetworkShowInfoSchedule(time = "20:00", days = listOf("Sunday"))
+
+    // Dummy data for NetworkShowNextEpisodeResponse
+    private val dummyNextEpisodeSelf = NetworkShowNextEpisodeSelf(href = "http://api.tvmaze.com/episodes/2/self")
 
 
     @Before
     fun setUp() {
-        fakeUpnextDao = FakeUpnextDao() 
-        repository = ConcreteTestRepository(fakeUpnextDao, mockTvMazeService)
+        fakeUpnextDao = FakeUpnextDao()
+        fakeTvMazeService = FakeTvMazeService()
+        repository = ConcreteTestRepository(fakeUpnextDao, fakeTvMazeService)
     }
 
     private val testTableName = "test_shows"
     private val shortIntervalMinutes = 30L
 
     @Test
+    @Suppress("DEPRECATION")
     fun `canProceedWithUpdate should return true when no last update time exists`() {
         val canProceed =
             repository.testCanProceedWithUpdate(testTableName, shortIntervalMinutes)
@@ -105,6 +97,7 @@ class BaseRepositoryTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun `canProceedWithUpdate should return true when update interval has passed`() {
         val currentTime = System.currentTimeMillis()
         val lastUpdateTimeMillis =
@@ -121,6 +114,7 @@ class BaseRepositoryTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun `canProceedWithUpdate should return false when update interval has not passed`() {
         val currentTime = System.currentTimeMillis()
         val lastUpdateTimeMillis = currentTime - ((shortIntervalMinutes - 5) * 60 * 1000)
@@ -135,57 +129,38 @@ class BaseRepositoryTest {
         assertFalse("Should not proceed as the interval has not passed.", canProceed)
     }
 
-    private fun createMockShowResponse(
+    private fun createMockShowLookupResponse(
         id: Int,
         name: String,
         mediumImageUrl: String,
-        originalImageUrl: String,
-        linksParam: NetworkTvMazeShowLookupLinks = NetworkTvMazeShowLookupLinks(self = dummyLinksSelfLink, previousepisode = dummyPreviousEpisodeLink),
-        averageRuntime: Int? = 0, 
-        dvdCountry: Any? = null, 
-        externals: NetworkTvMazeShowLookupExternals = dummyExternals, 
-        genres: List<String>? = emptyList(), 
-        language: String = "English", 
-        network: NetworkTvMazeShowLookupNetwork = dummyNetwork,
-        officialSite: String = "",
-        premiered: String = "",
-        rating: NetworkTvMazeShowLookupRating = dummyRating,
-        runtime: Int = 0,
-        schedule: NetworkTvMazeShowLookupSchedule = dummySchedule,
-        status: String = "",
-        summary: String = "",
-        type: String = "",
-        updated: Int = 0,
-        url: String = "", 
-        webChannel: NetworkTvMazeShowLookupWebChannel = dummyWebChannel,
-        weight: Int = 0
+        originalImageUrl: String
     ): NetworkTvMazeShowLookupResponse {
         return NetworkTvMazeShowLookupResponse(
-            _links = linksParam,
-            averageRuntime = averageRuntime,
-            dvdCountry = dvdCountry,
-            externals = externals,
-            genres = genres,
+            _links = NetworkTvMazeShowLookupLinks(self = dummyLookupSelfLink, previousepisode = dummyLookupPreviousEpisodeLink),
+            averageRuntime = 60,
+            dvdCountry = null,
+            externals = dummyLookupExternals,
+            genres = listOf("Drama"),
             id = id,
             image = NetworkTvMazeShowLookupImage(
                 medium = mediumImageUrl,
                 original = originalImageUrl
             ),
-            language = language,
+            language = "English",
             name = name,
-            network = network,
-            officialSite = officialSite,
-            premiered = premiered,
-            rating = rating,
-            runtime = runtime,
-            schedule = schedule,
-            status = status,
-            summary = summary,
-            type = type,
-            updated = updated,
-            url = url,
-            webChannel = webChannel,
-            weight = weight
+            network = dummyLookupNetwork,
+            officialSite = "http://official.site",
+            premiered = "2022-01-01",
+            rating = dummyLookupRating,
+            runtime = 60,
+            schedule = dummyLookupSchedule,
+            status = "Running",
+            summary = "Summary for lookup",
+            type = "Scripted",
+            updated = 123456789,
+            url = "http://show.url",
+            webChannel = dummyLookupWebChannel,
+            weight = 90
         )
     }
 
@@ -195,14 +170,13 @@ class BaseRepositoryTest {
         val expectedTvMazeId = 123
         val expectedOriginalUrl = "http://example.com/original.jpg"
         val expectedMediumUrl = "http://example.com/medium.jpg"
-        val mockResponse = createMockShowResponse(
+        val mockResponse = createMockShowLookupResponse(
             id = expectedTvMazeId,
             name = "Test Show",
             mediumImageUrl = expectedMediumUrl,
             originalImageUrl = expectedOriginalUrl
         )
-        whenever(mockTvMazeService.getShowLookupAsync(imdbId))
-            .thenReturn(CompletableDeferred(mockResponse))
+        fakeTvMazeService.mockShowLookupResponse = mockResponse
 
         val result = repository.getImages(imdbId)
 
@@ -231,8 +205,8 @@ class BaseRepositoryTest {
     fun `getImages when service throws 404 HttpException returns null triple`() = runTest {
         val imdbId = "ttNotFound"
         val responseBody = "".toResponseBody("application/json".toMediaTypeOrNull())
-        val mockHttpException = HttpException(Response.error<Any>(404, responseBody))
-        whenever(mockTvMazeService.getShowLookupAsync(any())).doSuspendableAnswer { throw mockHttpException }
+        fakeTvMazeService.showLookupError = HttpException(Response.error<Any>(404, responseBody))
+
         val result = repository.getImages(imdbId)
         assertNull(result.first)
         assertNull(result.second)
@@ -243,8 +217,8 @@ class BaseRepositoryTest {
     fun `getImages when service throws other HttpException returns null triple`() = runTest {
         val imdbId = "ttError"
         val responseBody = "".toResponseBody("application/json".toMediaTypeOrNull())
-        val mockHttpException = HttpException(Response.error<Any>(500, responseBody))
-        whenever(mockTvMazeService.getShowLookupAsync(any())).doSuspendableAnswer { throw mockHttpException }
+        fakeTvMazeService.showLookupError = HttpException(Response.error<Any>(500, responseBody))
+
         val result = repository.getImages(imdbId)
         assertNull(result.first)
         assertNull(result.second)
@@ -254,8 +228,8 @@ class BaseRepositoryTest {
     @Test
     fun `getImages when service throws generic Exception returns null triple`() = runTest {
         val imdbId = "ttGenericError"
-        val genericException = RuntimeException("Network issue")
-        whenever(mockTvMazeService.getShowLookupAsync(any())).doSuspendableAnswer { throw genericException }
+        fakeTvMazeService.showLookupError = RuntimeException("Network issue")
+
         val result = repository.getImages(imdbId)
         assertNull(result.first)
         assertNull(result.second)
@@ -290,35 +264,35 @@ class BaseRepositoryTest {
     }
 
     // Helper for getNextEpisode tests
-    private fun createMockShowInfoResponseForNextEpisode(nextEpisodeHref: String?): NetworkShowInfoResponse {
+    private fun createMockShowInfoResponseForNextEpisode(showId: Int, nextEpisodeHref: String?): NetworkShowInfoResponse {
         val nextEpisodeLink = if (nextEpisodeHref != null) NetworkShowInfoNextEpisode(href = nextEpisodeHref) else null
         val links = NetworkShowInfoLinks(nextepisode = nextEpisodeLink, previousepisode = null, self = null)
         return NetworkShowInfoResponse(
-            id = 1,
+            id = showId,
             name = "Test Show For Next Ep",
-            image = null, 
-            externals = mock(), 
+            image = dummyShowInfoImage,
+            externals = dummyShowInfoExternals,
             genres = emptyList(),
             language = "English",
             _links = links,
-            network = null, 
-            officialSite = null, 
-            premiered = null, 
-            rating = null, 
-            runtime = 0, 
-            schedule = null, 
+            network = dummyShowInfoNetwork,
+            officialSite = "http://official.site",
+            premiered = "2023-01-01",
+            rating = dummyShowInfoRating,
+            runtime = 60,
+            schedule = dummyShowInfoSchedule,
             status = "Running",
-            summary = "Summary",
+            summary = "Summary for Show Info",
             type = "Scripted",
-            updated = 0,
-            url = "http://example.com/show/1",
-            webChannel = dummyWebChannel, 
-            weight = 0
+            updated = 12345,
+            url = "http://example.com/show/$showId",
+            webChannel = Any(),
+            weight = 100
         )
     }
 
     private fun createMockNextEpisodeInternalResponse(id: Int, name: String = "The Next One"): NetworkShowNextEpisodeResponse {
-        val mockEpLinks = mock<NetworkShowNextEpisodeLinks>()
+        val links = NetworkShowNextEpisodeLinks(self = dummyNextEpisodeSelf)
         return NetworkShowNextEpisodeResponse(
             id = id,
             name = name,
@@ -329,13 +303,13 @@ class BaseRepositoryTest {
             airtime = "20:00",
             runtime = 30,
             summary = "Episode summary",
-            _links = mockEpLinks, 
-            image = null,
-            mediumShowImageUrl = "http://example.com/medium_show.jpg",
-            originalShowImageUrl = "http://example.com/original_show.jpg",
-            tvMazeID = 123,
-            imdb = "tt1234567",
-            url = "http://example.com/mock_url"
+            _links = links,
+            image = null, // Assuming image can be null or provide a dummy NetworkShowNextEpisodeImage
+            mediumShowImageUrl = "http://example.com/medium_show.jpg", // These seem to be custom fields added to the model
+            originalShowImageUrl = "http://example.com/original_show.jpg", // These seem to be custom fields added to the model
+            tvMazeID = 123, // This seems to be custom field
+            imdb = "tt1234567", // This seems to be custom field
+            url = "http://example.com/mock_url" // This seems to be custom field
         )
     }
 
@@ -345,13 +319,8 @@ class BaseRepositoryTest {
         val nextEpisodeId = "101"
         val nextEpisodeHref = "http://api.tvmaze.com/episodes/$nextEpisodeId"
 
-        val mockShowInfoResponse = createMockShowInfoResponseForNextEpisode(nextEpisodeHref)
-        whenever(mockTvMazeService.getShowSummaryAsync(tvMazeID.toString()))
-            .thenReturn(CompletableDeferred(mockShowInfoResponse))
-
-        val mockNextEpisodeResponse = createMockNextEpisodeInternalResponse(nextEpisodeId.toInt())
-        whenever(mockTvMazeService.getNextEpisodeAsync(nextEpisodeId))
-            .thenReturn(CompletableDeferred(mockNextEpisodeResponse))
+        fakeTvMazeService.mockShowInfoResponse = createMockShowInfoResponseForNextEpisode(tvMazeID, nextEpisodeHref)
+        fakeTvMazeService.mockNextEpisodeResponse = createMockNextEpisodeInternalResponse(nextEpisodeId.toInt())
 
         val result = repository.getNextEpisode(tvMazeID)
 
@@ -363,9 +332,7 @@ class BaseRepositoryTest {
     @Test
     fun `getNextEpisode returns null when show summary has no nextepisode link`() = runTest {
         val tvMazeID = 2
-        val mockShowInfoResponse = createMockShowInfoResponseForNextEpisode(null) // No href
-        whenever(mockTvMazeService.getShowSummaryAsync(tvMazeID.toString()))
-            .thenReturn(CompletableDeferred(mockShowInfoResponse))
+        fakeTvMazeService.mockShowInfoResponse = createMockShowInfoResponseForNextEpisode(tvMazeID, null) // No href
 
         val result = repository.getNextEpisode(tvMazeID)
         assertNull(result)
@@ -374,9 +341,7 @@ class BaseRepositoryTest {
     @Test
     fun `getNextEpisode returns null when nextepisode link is blank`() = runTest {
         val tvMazeID = 3
-        val mockShowInfoResponse = createMockShowInfoResponseForNextEpisode("  ") // Blank href
-        whenever(mockTvMazeService.getShowSummaryAsync(tvMazeID.toString()))
-            .thenReturn(CompletableDeferred(mockShowInfoResponse))
+        fakeTvMazeService.mockShowInfoResponse = createMockShowInfoResponseForNextEpisode(tvMazeID, "  ") // Blank href
 
         val result = repository.getNextEpisode(tvMazeID)
         assertNull(result)
@@ -386,9 +351,11 @@ class BaseRepositoryTest {
     fun `getNextEpisode returns null when nextepisode ID cannot be extracted`() = runTest {
         val tvMazeID = 4
         // Href that doesn't end with /ID
-        val mockShowInfoResponse = createMockShowInfoResponseForNextEpisode("http://api.tvmaze.com/episodes/showInvalid")
-        whenever(mockTvMazeService.getShowSummaryAsync(tvMazeID.toString()))
-            .thenReturn(CompletableDeferred(mockShowInfoResponse))
+        fakeTvMazeService.mockShowInfoResponse = createMockShowInfoResponseForNextEpisode(tvMazeID, "http://api.tvmaze.com/episodes/showInvalid")
+
+        // Explicitly tell FakeTvMazeService to throw an error when getNextEpisodeAsync("showInvalid") is called
+        val responseBody = "".toResponseBody("application/json".toMediaTypeOrNull())
+        fakeTvMazeService.nextEpisodeError = HttpException(Response.error<Any>(404, responseBody))
 
         val result = repository.getNextEpisode(tvMazeID)
         assertNull(result)
@@ -397,8 +364,9 @@ class BaseRepositoryTest {
     @Test
     fun `getNextEpisode returns null when getShowSummaryAsync fails`() = runTest {
         val tvMazeID = 5
-        whenever(mockTvMazeService.getShowSummaryAsync(tvMazeID.toString()))
-            .thenThrow(RuntimeException("Network error"))
+        // Use shouldThrowGetShowSummaryError (throws IOException) or specific error
+        fakeTvMazeService.showSummaryError = RuntimeException("Network error for getShowSummaryAsync")
+
 
         val result = repository.getNextEpisode(tvMazeID)
         assertNull(result)
@@ -410,12 +378,8 @@ class BaseRepositoryTest {
         val nextEpisodeId = "102"
         val nextEpisodeHref = "http://api.tvmaze.com/episodes/$nextEpisodeId"
 
-        val mockShowInfoResponse = createMockShowInfoResponseForNextEpisode(nextEpisodeHref)
-        whenever(mockTvMazeService.getShowSummaryAsync(tvMazeID.toString()))
-            .thenReturn(CompletableDeferred(mockShowInfoResponse))
-
-        whenever(mockTvMazeService.getNextEpisodeAsync(nextEpisodeId))
-            .thenThrow(RuntimeException("Network error for next episode"))
+        fakeTvMazeService.mockShowInfoResponse = createMockShowInfoResponseForNextEpisode(tvMazeID, nextEpisodeHref)
+        fakeTvMazeService.nextEpisodeError = RuntimeException("Network error for next episode")
 
         val result = repository.getNextEpisode(tvMazeID)
         assertNull(result)
@@ -437,7 +401,6 @@ class BaseRepositoryTest {
             "Timestamp should be within the test execution time range",
             updatedEntry!!.last_updated >= startTime && updatedEntry.last_updated <= endTime
         )
-        // Check if it's "today" according to DateUtils, which matches the logic in isUpdateNeededByDay
         val todayString = DateUtils.formatTimestampToString(System.currentTimeMillis(), "yyyy-MM-dd")
         val entryDateString = DateUtils.formatTimestampToString(updatedEntry.last_updated, "yyyy-MM-dd")
         assertEquals("Entry date should be today", todayString, entryDateString)

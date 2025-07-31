@@ -92,7 +92,8 @@ class ShowDetailRepositoryTest {
             _links = NetworkShowInfoLinks(self = NetworkShowInfoSelf(href = "http://fakeurl.com/show/$showId/self"), nextepisode = null, previousepisode = null)
         )
         fakeTvMazeService.mockShowInfoResponse = fakeNetworkResponse
-        fakeTvMazeService.shouldThrowGetShowSummaryError = false
+        fakeTvMazeService.showSummaryError = null // Ensure no error is set
+        fakeTvMazeService.shouldThrowGetShowSummaryError = false // Ensure legacy flag is off
 
         val results = showDetailRepository.getShowSummary(showId).toList()
 
@@ -107,7 +108,8 @@ class ShowDetailRepositoryTest {
     @Test
     fun `getShowSummary emits Error and logs to Crashlytics when network call fails`() = runTest {
         val showId = 456
-        fakeTvMazeService.shouldThrowGetShowSummaryError = true
+        val errorMessage = "Fake network error for getShowSummary"
+        fakeTvMazeService.showSummaryError = IOException(errorMessage)
 
         val results = showDetailRepository.getShowSummary(showId).toList()
 
@@ -115,7 +117,7 @@ class ShowDetailRepositoryTest {
         val networkErrorResult = results.firstOrNull { it is Result.NetworkError } as? Result.NetworkError
         assertNotNull("NetworkError result was not found", networkErrorResult)
         assertTrue("NetworkError's exception type is not IOException", networkErrorResult?.exception is IOException)
-        assertEquals("Fake network error for getShowSummary", networkErrorResult?.exception?.message)
+        assertEquals(errorMessage, networkErrorResult?.exception?.message)
         assertTrue("Final Loading state (false) not found or incorrect", results.any { it is Result.Loading && !it.status })
         assertEquals("Crashlytics should have recorded one exception", 1, fakeFirebaseCrashlytics.getRecordedExceptions().size)
         assertTrue("Recorded exception is not IOException", fakeFirebaseCrashlytics.getRecordedExceptions()[0] is IOException)
@@ -123,7 +125,6 @@ class ShowDetailRepositoryTest {
 
     @Test
     fun `getPreviousEpisode emits Loading then Success when network call is successful`() = runTest {
-        // GIVEN: Configure FakeTvMazeService for success
         val episodeRef = "http://api.tvmaze.com/episodes/12345"
         val previousEpisodeId = 12345
         val fakeNetworkPreviousEpisodeResponse = NetworkShowPreviousEpisodeResponse(
@@ -141,12 +142,11 @@ class ShowDetailRepositoryTest {
             _links = NetworkShowPreviousEpisodeLinks(self = NetworkShowPreviousEpisodeSelf(href = "http://fakeurl.com/episode/$previousEpisodeId/self"))
         )
         fakeTvMazeService.mockPreviousEpisodeResponse = fakeNetworkPreviousEpisodeResponse
-        fakeTvMazeService.shouldThrowGetPreviousEpisodeError = false
+        fakeTvMazeService.previousEpisodeError = null // Ensure no error is set
+        fakeTvMazeService.shouldThrowGetPreviousEpisodeError = false // Ensure legacy flag is off
 
-        // WHEN: Call the repository method and collect emissions
         val results = showDetailRepository.getPreviousEpisode(episodeRef).toList()
 
-        // THEN: Assert the flow emits the correct sequence of states
         assertTrue("Initial Loading state (true) not found or incorrect", results.any { it is Result.Loading && it.status })
 
         val successResult = results.firstOrNull { it is Result.Success } as? Result.Success<ShowPreviousEpisode>
@@ -162,40 +162,33 @@ class ShowDetailRepositoryTest {
 
     @Test
     fun `getPreviousEpisode emits Error and logs to Crashlytics when network call fails`() = runTest {
-        // GIVEN: Configure FakeTvMazeService to throw an exception
         val episodeRef = "http://api.tvmaze.com/episodes/67890"
-        fakeTvMazeService.shouldThrowGetPreviousEpisodeError = true
+        val errorMessage = "Fake network error for getPreviousEpisode"
+        fakeTvMazeService.previousEpisodeError = IOException(errorMessage)
 
-        // WHEN: Call the repository method and collect emissions
         val results = showDetailRepository.getPreviousEpisode(episodeRef).toList()
 
-        // THEN: Assert the flow emits the correct sequence of states and logs to crashlytics
         assertTrue("Initial Loading state (true) not found or incorrect", results.any { it is Result.Loading && it.status })
 
         val networkErrorResult = results.firstOrNull { it is Result.NetworkError } as? Result.NetworkError
         assertNotNull("NetworkError result was not found", networkErrorResult)
         assertTrue("NetworkError's exception type is not IOException", networkErrorResult?.exception is IOException)
-        assertEquals("Fake network error for getPreviousEpisode", networkErrorResult?.exception?.message)
+        assertEquals(errorMessage, networkErrorResult?.exception?.message)
 
         assertTrue("Final Loading state (false) not found or incorrect", results.any { it is Result.Loading && !it.status })
 
-        // Verify Crashlytics was called
         val recordedExceptions = fakeFirebaseCrashlytics.getRecordedExceptions()
         assertEquals("Crashlytics should have recorded one exception", 1, recordedExceptions.size)
         assertTrue("Recorded exception is not IOException", recordedExceptions[0] is IOException)
-        assertEquals("Fake network error for getPreviousEpisode", recordedExceptions[0].message)
+        assertEquals(errorMessage, recordedExceptions[0].message)
     }
 
     @Test
     fun `getPreviousEpisode with null episodeRef completes without data or error`() = runTest {
-        // WHEN: Call the repository method with null episodeRef
         val results = showDetailRepository.getPreviousEpisode(null).toList()
 
-        // THEN: Assert the flow completes, possibly emitting only Loading states or nothing
         assertEquals("Should only emit Loading(true) and Loading(false) or be empty, but not Success/Error",
-            0, results.filter { it is Result.Success<*> || it is Result.Error || it is Result.NetworkError || it is Result.GenericError }.size) // Updated to include all error/success types
-        // It might be empty if the condition is checked before emitting Loading(true)
-        // Or it might emit Loading(true) then Loading(false)
+            0, results.filter { it is Result.Success<*> || it is Result.Error || it is Result.NetworkError || it is Result.GenericError }.size)
         if (results.isNotEmpty()) {
             assertTrue("If not empty, first should be Loading(true)", results.first() is Result.Loading && (results.first() as Result.Loading).status)
             if (results.size > 1) {
@@ -207,12 +200,10 @@ class ShowDetailRepositoryTest {
 
     @Test
     fun `getPreviousEpisode with empty episodeRef completes without data or error`() = runTest {
-        // WHEN: Call the repository method with empty episodeRef
         val results = showDetailRepository.getPreviousEpisode("").toList()
 
-        // THEN: Assert the flow completes, possibly emitting only Loading states or nothing
         assertEquals("Should only emit Loading(true) and Loading(false) or be empty, but not Success/Error",
-            0, results.filter { it is Result.Success<*> || it is Result.Error || it is Result.NetworkError || it is Result.GenericError }.size)  // Updated to include all error/success types
+            0, results.filter { it is Result.Success<*> || it is Result.Error || it is Result.NetworkError || it is Result.GenericError }.size)
 
         if (results.isNotEmpty()) {
             assertTrue("If not empty, first should be Loading(true)", results.first() is Result.Loading && (results.first() as Result.Loading).status)
