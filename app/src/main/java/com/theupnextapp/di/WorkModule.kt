@@ -32,7 +32,6 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 @Module
 class WorkModule {
-
     @Singleton
     @Provides
     fun provideWorkManager(application: Application): WorkManager {

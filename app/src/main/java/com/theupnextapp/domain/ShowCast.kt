@@ -21,7 +21,6 @@
 
 package com.theupnextapp.domain
 
-import android.os.Parcel
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
@@ -41,5 +40,5 @@ data class ShowCast(
     val characterMediumImageUrl: String?,
     val characterOriginalImageUrl: String?,
     val self: Boolean?,
-    val voice: Boolean?
-): Parcelable
+    val voice: Boolean?,
+) : Parcelable

@@ -28,5 +28,5 @@ data class NetworkTraktCreateCustomListRequest(
     val name: String,
     val privacy: String = "private",
     val sort_by: String = "rank",
-    val sort_how: String = "asc"
+    val sort_how: String = "asc",
 )

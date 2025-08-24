@@ -21,20 +21,8 @@
 
 package com.theupnextapp.network.models.tvmaze
 
-data class Links(
-    val self: NetworkShowEpisodeSelf
-)
-
-data class NetworkShowEpisodeSelf(
-    val href: String
-)
-
 data class NetworkShowEpisodeLinks(
-    val self: NetworkShowNextEpisodeSelf
-)
-
-data class Self(
-    val href: String
+    val self: NetworkShowNextEpisodeSelf,
 )
 
 data class NetworkScheduleShow(
@@ -57,55 +45,55 @@ data class NetworkScheduleShow(
     val updated: Int?,
     val url: String?,
     val webChannel: Any?,
-    val weight: Int?
+    val weight: Int?,
 )
 
 data class NetworkScheduleLinksX(
     val nextepisode: NetworkScheduleNextEpisode,
     val previousepisode: NetworkSchedulePreviousEpisode,
-    val self: NetworkScheduleNetworkSelfX
+    val self: NetworkScheduleNetworkSelfX,
 )
 
 data class NetworkScheduleNextEpisode(
-    val href: String
+    val href: String,
 )
 
 data class NetworkSchedulePreviousEpisode(
-    val href: String
+    val href: String,
 )
 
 data class NetworkScheduleNetworkSelfX(
-    val href: String
+    val href: String,
 )
 
 data class NetworkScheduleExternals(
     val imdb: String,
     val thetvdb: Int,
-    val tvrage: Any
+    val tvrage: Any,
 )
 
 data class NetworkScheduleImage(
     var medium: String?,
-    var original: String?
+    var original: String?,
 )
 
 data class NetworkScheduleNetwork(
     val country: NetworkScheduleCountry,
     val id: Int,
-    val name: String
+    val name: String,
 )
 
 data class NetworkScheduleCountry(
     val code: String,
     val name: String,
-    val timezone: String
+    val timezone: String,
 )
 
 data class NetworkScheduleRating(
-    val average: Any
+    val average: Any,
 )
 
 data class NetworkScheduleSchedule(
     val days: List<String>,
-    val time: String
+    val time: String,
 )

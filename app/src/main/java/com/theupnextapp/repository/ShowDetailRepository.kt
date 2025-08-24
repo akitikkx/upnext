@@ -42,9 +42,8 @@ import kotlinx.coroutines.flow.flowOn
 class ShowDetailRepository(
     upnextDao: UpnextDao,
     tvMazeService: TvMazeService,
-    private val crashlytics: CrashlyticsHelper
+    private val crashlytics: CrashlyticsHelper,
 ) : BaseRepository(upnextDao = upnextDao, tvMazeService = tvMazeService) {
-
     fun getShowSummary(showId: Int): Flow<Result<ShowDetailSummary>> {
         return flow {
             emit(Result.Loading(true))
@@ -74,17 +73,19 @@ class ShowDetailRepository(
     fun getPreviousEpisode(episodeRef: String?): Flow<Result<ShowPreviousEpisode>> {
         return flow {
             emit(Result.Loading(true))
-            val previousEpisodeLink = episodeRef?.substring(
-                episodeRef.lastIndexOf("/") + 1,
-                episodeRef.length
-            )?.replace("/", "")
+            val previousEpisodeLink =
+                episodeRef?.substring(
+                    episodeRef.lastIndexOf("/") + 1,
+                    episodeRef.length,
+                )?.replace("/", "")
 
             if (!previousEpisodeLink.isNullOrEmpty()) {
-                val response = safeApiCall(Dispatchers.IO) {
-                    tvMazeService.getPreviousEpisodeAsync(
-                        previousEpisodeLink.replace("/", "")
-                    ).await().asDomainModel()
-                }
+                val response =
+                    safeApiCall(Dispatchers.IO) {
+                        tvMazeService.getPreviousEpisodeAsync(
+                            previousEpisodeLink.replace("/", ""),
+                        ).await().asDomainModel()
+                    }
 
                 when (response) {
                     is Result.NetworkError -> crashlytics.recordException(response.exception)
@@ -110,17 +111,19 @@ class ShowDetailRepository(
     fun getNextEpisode(episodeRef: String?): Flow<Result<ShowNextEpisode>> {
         return flow {
             emit(Result.Loading(true))
-            val nextEpisodeLink = episodeRef?.substring(
-                episodeRef.lastIndexOf("/") + 1,
-                episodeRef.length
-            )?.replace("/", "")
+            val nextEpisodeLink =
+                episodeRef?.substring(
+                    episodeRef.lastIndexOf("/") + 1,
+                    episodeRef.length,
+                )?.replace("/", "")
 
             if (!nextEpisodeLink.isNullOrEmpty()) {
-                val response = safeApiCall(Dispatchers.IO) {
-                    tvMazeService.getNextEpisodeAsync(
-                        nextEpisodeLink.replace("/", "")
-                    ).await().asDomainModel()
-                }
+                val response =
+                    safeApiCall(Dispatchers.IO) {
+                        tvMazeService.getNextEpisodeAsync(
+                            nextEpisodeLink.replace("/", ""),
+                        ).await().asDomainModel()
+                    }
 
                 when (response) {
                     is Result.NetworkError -> crashlytics.recordException(response.exception)
@@ -146,9 +149,10 @@ class ShowDetailRepository(
     fun getShowCast(showId: Int): Flow<Result<List<ShowCast>>> {
         return flow {
             emit(Result.Loading(true))
-            val response = safeApiCall(Dispatchers.IO) {
-                tvMazeService.getShowCastAsync(showId.toString()).await().asDomainModel()
-            }
+            val response =
+                safeApiCall(Dispatchers.IO) {
+                    tvMazeService.getShowCastAsync(showId.toString()).await().asDomainModel()
+                }
 
             when (response) {
                 is Result.NetworkError -> crashlytics.recordException(response.exception)
@@ -171,9 +175,10 @@ class ShowDetailRepository(
     fun getShowSeasons(showId: Int): Flow<Result<List<ShowSeason>>> {
         return flow {
             emit(Result.Loading(true))
-            val response = safeApiCall(Dispatchers.IO) {
-                tvMazeService.getShowSeasonsAsync(showId.toString()).await().asDomainModel()
-            }
+            val response =
+                safeApiCall(Dispatchers.IO) {
+                    tvMazeService.getShowSeasonsAsync(showId.toString()).await().asDomainModel()
+                }
 
             when (response) {
                 is Result.NetworkError -> crashlytics.recordException(response.exception)
@@ -195,14 +200,15 @@ class ShowDetailRepository(
 
     fun getShowSeasonEpisodes(
         showId: Int,
-        seasonNumber: Int
+        seasonNumber: Int,
     ): Flow<Result<List<ShowSeasonEpisode>>> {
         return flow {
             emit(Result.Loading(true))
-            val response = safeApiCall(Dispatchers.IO) {
-                tvMazeService.getSeasonEpisodesAsync(showId.toString()).await().asDomainModel()
-                    .filter { it.season == seasonNumber }
-            }
+            val response =
+                safeApiCall(Dispatchers.IO) {
+                    tvMazeService.getSeasonEpisodesAsync(showId.toString()).await().asDomainModel()
+                        .filter { it.season == seasonNumber }
+                }
 
             when (response) {
                 is Result.NetworkError -> crashlytics.recordException(response.exception)

@@ -101,7 +101,6 @@ class TraktRepositoryImpl(
     private val firebaseCrashlytics: FirebaseCrashlytics,
     private val moshi: Moshi,
 ) : BaseRepository(upnextDao = upnextDao, tvMazeService = tvMazeService), TraktRepository {
-
     // Scope for long-running repository tasks, uses SupervisorJob to prevent one failure from cancelling all
     private val repositoryScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
@@ -127,7 +126,7 @@ class TraktRepositoryImpl(
             .stateIn(
                 scope = repositoryScope,
                 started = SharingStarted.WhileSubscribed(5000),
-                initialValue = null
+                initialValue = null,
             )
 
     // StateFlows for UI State
@@ -168,11 +167,12 @@ class TraktRepositoryImpl(
     private val _favoriteShow = MutableStateFlow<TraktUserListItem?>(null)
     override val favoriteShow: StateFlow<TraktUserListItem?> = _favoriteShow.asStateFlow()
 
-    private val _traktCheckInEvent = MutableSharedFlow<TraktCheckInStatus>(
-        replay = 0,
-        extraBufferCapacity = 1,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
+    private val _traktCheckInEvent =
+        MutableSharedFlow<TraktCheckInStatus>(
+            replay = 0,
+            extraBufferCapacity = 1,
+            onBufferOverflow = BufferOverflow.DROP_OLDEST,
+        )
     private val traktConflictErrorAdapter = moshi.adapter(TraktConflictErrorResponse::class.java)
 
     override val traktCheckInEvent: SharedFlow<TraktCheckInStatus> =
@@ -184,7 +184,10 @@ class TraktRepositoryImpl(
      * Placeholder for your actual logging function.
      * This function should ideally log to Timber and/or a remote crash reporting service.
      */
-    private fun logTraktException(message: String, throwable: Throwable? = null) {
+    private fun logTraktException(
+        message: String,
+        throwable: Throwable? = null,
+    ) {
         if (throwable != null) {
             Timber.e(throwable, "Trakt Error: $message")
             firebaseCrashlytics.recordException(throwable)
@@ -194,7 +197,10 @@ class TraktRepositoryImpl(
         }
     }
 
-    private fun handleGenericException(e: Exception, messagePrefix: String = "An error occurred") {
+    private fun handleGenericException(
+        e: Exception,
+        messagePrefix: String = "An error occurred",
+    ) {
         Timber.e(e, "$messagePrefix: ${e.message}")
         firebaseCrashlytics.recordException(e)
     }
@@ -202,7 +208,7 @@ class TraktRepositoryImpl(
     private suspend fun <T> safeApiCall(
         loadingStateFlow: MutableStateFlow<Boolean> = _isLoading,
         errorStateFlow: MutableStateFlow<String?>? = null,
-        apiCall: suspend () -> T
+        apiCall: suspend () -> T,
     ): Result<T> {
         return withContext(Dispatchers.IO) {
             loadingStateFlow.value = true
@@ -248,13 +254,14 @@ class TraktRepositoryImpl(
             return Result.failure(IllegalArgumentException(message))
         }
         return safeApiCall(_isLoading) {
-            val request = NetworkTraktAccessTokenRequest(
-                code = code,
-                client_id = BuildConfig.TRAKT_CLIENT_ID,
-                client_secret = BuildConfig.TRAKT_CLIENT_SECRET,
-                redirect_uri = BuildConfig.TRAKT_REDIRECT_URI,
-                grant_type = "authorization_code"
-            )
+            val request =
+                NetworkTraktAccessTokenRequest(
+                    code = code,
+                    client_id = BuildConfig.TRAKT_CLIENT_ID,
+                    client_secret = BuildConfig.TRAKT_CLIENT_SECRET,
+                    redirect_uri = BuildConfig.TRAKT_REDIRECT_URI,
+                    grant_type = "authorization_code",
+                )
             val response = traktService.getAccessTokenAsync(request).await()
             traktDao.deleteTraktAccessData()
             traktDao.insertAllTraktAccessData(response.asDatabaseModel())
@@ -275,7 +282,7 @@ class TraktRepositoryImpl(
         if (result.isFailure) {
             logTraktException(
                 "Failed to revoke Trakt access token (via old method).",
-                result.exceptionOrNull()
+                result.exceptionOrNull(),
             )
         }
     }
@@ -287,11 +294,12 @@ class TraktRepositoryImpl(
             return Result.failure(IllegalArgumentException(message))
         }
         return safeApiCall(_isLoading) {
-            val request = NetworkTraktRevokeAccessTokenRequest(
-                client_id = BuildConfig.TRAKT_CLIENT_ID,
-                client_secret = BuildConfig.TRAKT_CLIENT_SECRET,
-                token = token
-            )
+            val request =
+                NetworkTraktRevokeAccessTokenRequest(
+                    client_id = BuildConfig.TRAKT_CLIENT_ID,
+                    client_secret = BuildConfig.TRAKT_CLIENT_SECRET,
+                    token = token,
+                )
             traktService.revokeAccessTokenAsync(request).await()
             traktDao.deleteTraktAccessData() // Clear local token data
             Unit // Success
@@ -307,13 +315,14 @@ class TraktRepositoryImpl(
             return Result.failure(IllegalArgumentException(message))
         }
         return safeApiCall(_isLoading) {
-            val request = NetworkTraktAccessRefreshTokenRequest(
-                refresh_token = refreshToken,
-                client_id = BuildConfig.TRAKT_CLIENT_ID,
-                client_secret = BuildConfig.TRAKT_CLIENT_SECRET,
-                redirect_uri = BuildConfig.TRAKT_REDIRECT_URI,
-                grant_type = "refresh_token"
-            )
+            val request =
+                NetworkTraktAccessRefreshTokenRequest(
+                    refresh_token = refreshToken,
+                    client_id = BuildConfig.TRAKT_CLIENT_ID,
+                    client_secret = BuildConfig.TRAKT_CLIENT_SECRET,
+                    redirect_uri = BuildConfig.TRAKT_REDIRECT_URI,
+                    grant_type = "refresh_token",
+                )
             val response = traktService.getAccessRefreshTokenAsync(request).await()
             traktDao.deleteTraktAccessData()
             traktDao.insertAllTraktAccessData(response.asDatabaseModel())
@@ -328,13 +337,13 @@ class TraktRepositoryImpl(
             .stateIn(
                 scope = repositoryScope,
                 started = SharingStarted.WhileSubscribed(5000L),
-                initialValue = getTraktAccessTokenRaw() != null // Initial check
+                initialValue = getTraktAccessTokenRaw() != null, // Initial check
             )
     }
 
     private suspend fun getOrCreateFavoritesListId(
         token: String,
-        userSlug: String
+        userSlug: String,
     ): Result<String> {
         val bearerToken = "Bearer $token"
         return safeApiCall(_isLoadingUserCustomLists, _userCustomListsError) {
@@ -349,15 +358,16 @@ class TraktRepositoryImpl(
                 favoritesList.ids.slug // Safe call due to check
             } else {
                 Timber.d("Favorites list '$FAVORITES_LIST_NAME' not found. Creating it.")
-                val createRequest = NetworkTraktCreateCustomListRequest(
-                    name = FAVORITES_LIST_NAME,
-                    privacy = "private"
-                )
+                val createRequest =
+                    NetworkTraktCreateCustomListRequest(
+                        name = FAVORITES_LIST_NAME,
+                        privacy = "private",
+                    )
                 val createdList =
                     traktService.createCustomListAsync(
                         token = bearerToken,
                         userSlug = userSlug,
-                        createCustomListRequest = createRequest
+                        createCustomListRequest = createRequest,
                     ).await()
                 Timber.d("Created new favorites list: '${createdList.name}' with slug: ${createdList.ids?.slug}")
                 createdList.ids?.slug
@@ -369,7 +379,7 @@ class TraktRepositoryImpl(
     private suspend fun fetchAndStoreFavoriteShows(
         token: String,
         userSlug: String,
-        listSlug: String
+        listSlug: String,
     ): Result<Unit> {
         _isLoadingFavoriteShows.value = true
         _favoriteShowsError.value = null
@@ -378,11 +388,12 @@ class TraktRepositoryImpl(
         return try {
             Timber.d("Fetching items from Trakt list: User: $userSlug, List Slug: $listSlug")
             // Get all items from the "UpnextApp Favorites" list
-            val customListItemsResponse = traktService.getCustomListItemsAsync(
-                token = bearerToken,
-                userSlug = userSlug,
-                traktId = listSlug
-            ).await()
+            val customListItemsResponse =
+                traktService.getCustomListItemsAsync(
+                    token = bearerToken,
+                    userSlug = userSlug,
+                    traktId = listSlug,
+                ).await()
 
             handleTraktUserListItemsResponse(customListItemsResponse)
 
@@ -398,7 +409,7 @@ class TraktRepositoryImpl(
                 parseTraktApiError(
                     errorBody,
                     defaultMessage = "Server error fetching favorite items.",
-                    moshi = moshi
+                    moshi = moshi,
                 )
             Result.failure(Exception(detailedMessage, e))
         } catch (e: Exception) {
@@ -413,7 +424,10 @@ class TraktRepositoryImpl(
         }
     }
 
-    override suspend fun refreshFavoriteShows(forceRefresh: Boolean, token: String?) {
+    override suspend fun refreshFavoriteShows(
+        forceRefresh: Boolean,
+        token: String?,
+    ) {
         if (token.isNullOrEmpty()) {
             logTraktException("Cannot refresh favorite shows: token is null or empty.")
             _favoriteShowsError.value = "Authentication token is missing."
@@ -444,19 +458,22 @@ class TraktRepositoryImpl(
                 val bearerToken = "Bearer $token"
                 // 1. Get User Slug
                 val userSettings = traktService.getUserSettingsAsync(bearerToken).await()
-                val userSlug = userSettings.user?.ids?.slug
-                    ?: return@withContext Result.failure<Unit>(
-                        Exception("User slug not found in Trakt settings.").also {
-                            logTraktException(it.message!!); _favoriteShowsError.value = it.message
-                        }
-                    )
+                val userSlug =
+                    userSettings.user?.ids?.slug
+                        ?: return@withContext Result.failure<Unit>(
+                            Exception("User slug not found in Trakt settings.").also {
+                                logTraktException(it.message!!)
+                                _favoriteShowsError.value = it.message
+                            },
+                        )
                 Timber.d("User slug for refresh: $userSlug")
 
                 // 2. Get or Create "UpnextApp Favorites" List ID (Slug)
                 val listIdSlugResult = getOrCreateFavoritesListId(token, userSlug)
                 if (listIdSlugResult.isFailure) {
-                    val error = listIdSlugResult.exceptionOrNull()
-                        ?: Exception("Unknown error getting/creating favorites list ID.")
+                    val error =
+                        listIdSlugResult.exceptionOrNull()
+                            ?: Exception("Unknown error getting/creating favorites list ID.")
                     _favoriteShowsError.value =
                         error.message ?: "Failed to get/create favorites list ID."
                     return@withContext Result.failure(error)
@@ -473,8 +490,9 @@ class TraktRepositoryImpl(
                     Timber.d("Favorite shows refreshed successfully (Result version).")
                     Result.success(Unit)
                 } else {
-                    val error = fetchResult.exceptionOrNull()
-                        ?: Exception("Unknown error fetching favorite show items.")
+                    val error =
+                        fetchResult.exceptionOrNull()
+                            ?: Exception("Unknown error fetching favorite show items.")
                     _favoriteShowsError.value =
                         error.message ?: "Failed to fetch favorite show items."
                     Result.failure(error)
@@ -504,52 +522,61 @@ class TraktRepositoryImpl(
             customListItemsResponse.mapNotNull { it.show?.ids?.trakt }.toSet()
 
         // Create a list of async jobs for fetching images where needed
-        val imageFetchAndUpdateJobs = customListItemsResponse.mapNotNull { networkListItem ->
-            networkListItem.show?.ids?.trakt?.let { traktId ->
-                repositoryScope.async { // Perform image fetching and DB model creation concurrently
-                    var dbShow = networkListItem.asDatabaseModel() // Basic mapping
+        val imageFetchAndUpdateJobs =
+            customListItemsResponse.mapNotNull { networkListItem ->
+                networkListItem.show?.ids?.trakt?.let { traktId ->
+                    repositoryScope.async { // Perform image fetching and DB model creation concurrently
+                        var dbShow = networkListItem.asDatabaseModel() // Basic mapping
 
-                    // Check if local version (if any) has images, or fetch them
-                    val existingLocalShow =
-                        traktDao.getFavoriteShowByTraktId(traktId) // Needs this DAO method
+                        // Check if local version (if any) has images, or fetch them
+                        val existingLocalShow =
+                            traktDao.getFavoriteShowByTraktId(traktId) // Needs this DAO method
 
-                    // Determine if image fetch is needed
-                    val needsImageFetch = existingLocalShow == null || // New show
-                            existingLocalShow.originalImageUrl.isNullOrEmpty() ||
-                            existingLocalShow.mediumImageUrl.isNullOrEmpty() ||
-                            existingLocalShow.tvMazeID == null // Also fetch if tvMazeID is missing
+                        // Determine if image fetch is needed
+                        val needsImageFetch =
+                            existingLocalShow == null || // New show
+                                existingLocalShow.originalImageUrl.isNullOrEmpty() ||
+                                existingLocalShow.mediumImageUrl.isNullOrEmpty() ||
+                                existingLocalShow.tvMazeID == null // Also fetch if tvMazeID is missing
 
-                    if (needsImageFetch) {
-                        networkListItem.show.ids.imdb?.let { imdbId ->
-                            Timber.d("Fetching images for favorite show (during list sync): '${dbShow.title}' (IMDb: $imdbId)")
-                            val (tvMazeIdResult, poster, heroImage) = getImages(imdbId) // From BaseRepository
+                        if (needsImageFetch) {
+                            networkListItem.show.ids.imdb?.let { imdbId ->
+                                Timber.d("Fetching images for favorite show (during list sync): '${dbShow.title}' (IMDb: $imdbId)")
+                                val (tvMazeIdResult, poster, heroImage) = getImages(imdbId) // From BaseRepository
 
-                            dbShow = dbShow.copy(
-                                originalImageUrl = poster
-                                    ?: existingLocalShow?.originalImageUrl, // Keep old if new is null
-                                mediumImageUrl = heroImage
-                                    ?: existingLocalShow?.mediumImageUrl, // Keep old if new is null
-                                tvMazeID = tvMazeIdResult
-                                    ?: existingLocalShow?.tvMazeID // Keep old if new is null
-                            )
+                                dbShow =
+                                    dbShow.copy(
+                                        originalImageUrl =
+                                            poster
+                                                ?: existingLocalShow?.originalImageUrl,
+                                        // Keep old if new is null
+                                        mediumImageUrl =
+                                            heroImage
+                                                ?: existingLocalShow?.mediumImageUrl,
+                                        // Keep old if new is null
+                                        tvMazeID =
+                                            tvMazeIdResult
+                                                ?: existingLocalShow?.tvMazeID, // Keep old if new is null
+                                    )
+                            }
+                                ?: Timber.w("Favorite show '${dbShow.title}' (TraktID: $traktId) missing imdbID for image fetch during list sync.")
+                        } else if (existingLocalShow != null) {
+                            // Images and TvMazeID exist locally, preserve them
+                            // Also ensure we keep the local DB ID if we're updating
+                            dbShow =
+                                dbShow.copy(
+                                    id = existingLocalShow.id, // Keep the auto-generated primary key
+                                    originalImageUrl = existingLocalShow.originalImageUrl,
+                                    mediumImageUrl = existingLocalShow.mediumImageUrl,
+                                    tvMazeID = existingLocalShow.tvMazeID,
+                                )
                         }
-                            ?: Timber.w("Favorite show '${dbShow.title}' (TraktID: $traktId) missing imdbID for image fetch during list sync.")
-                    } else if (existingLocalShow != null) {
-                        // Images and TvMazeID exist locally, preserve them
-                        // Also ensure we keep the local DB ID if we're updating
-                        dbShow = dbShow.copy(
-                            id = existingLocalShow.id, // Keep the auto-generated primary key
-                            originalImageUrl = existingLocalShow.originalImageUrl,
-                            mediumImageUrl = existingLocalShow.mediumImageUrl,
-                            tvMazeID = existingLocalShow.tvMazeID
-                        )
+                        // Add to a temporary list; will be processed after all jobs complete
+                        showsToInsertOrUpdateInDb.add(dbShow)
+                        dbShow // Return the processed dbShow
                     }
-                    // Add to a temporary list; will be processed after all jobs complete
-                    showsToInsertOrUpdateInDb.add(dbShow)
-                    dbShow // Return the processed dbShow
                 }
             }
-        }
 
         // Wait for all image fetching and model preparation jobs to complete
         val processedDbShows = imageFetchAndUpdateJobs.awaitAll()
@@ -574,10 +601,11 @@ class TraktRepositoryImpl(
             // If the Trakt list was empty and we didn't delete anything above (because local was already empty)
             Timber.d("No favorite shows to insert/update as the Trakt list is empty.")
         } else {
-            Timber.d("No favorite shows required updating or inserting after processing Trakt list items (possibly all images were already present).")
+            Timber.d(
+                "No favorite shows required updating or inserting after processing Trakt list items (possibly all images were already present).",
+            )
         }
     }
-
 
     override suspend fun clearFavorites() {
         withContext(Dispatchers.IO) {
@@ -612,7 +640,10 @@ class TraktRepositoryImpl(
         }
     }
 
-    override suspend fun addShowToList(imdbID: String?, token: String?) {
+    override suspend fun addShowToList(
+        imdbID: String?,
+        token: String?,
+    ) {
         if (imdbID.isNullOrEmpty() || token.isNullOrEmpty()) {
             logTraktException("Cannot add show to list: imdbID or token is null or empty.")
             _favoriteShowsError.value = "IMDb ID or token is invalid."
@@ -628,7 +659,7 @@ class TraktRepositoryImpl(
 
     override suspend fun addShowToFavorites(
         imdbId: String,
-        token: String
+        token: String,
     ): Result<Unit> {
         if (imdbId.isEmpty() || token.isEmpty()) {
             val message = "Cannot add show to favorites: IMDb ID or token is empty."
@@ -645,16 +676,17 @@ class TraktRepositoryImpl(
                 val bearerToken = "Bearer $token"
 
                 // 1. Get Trakt Show ID and other details by IMDb ID
-                val showSummaryResponse = try {
-                    traktService.getShowInfoAsync(imdbID = imdbId)
-                        .await()
-                } catch (e: Exception) {
-                    val notFoundMessage =
-                        "Show with IMDb ID $imdbId not found on Trakt during initial ID lookup."
-                    Timber.w(e, notFoundMessage)
-                    _favoriteShowsError.value = notFoundMessage
-                    return@withContext Result.failure(Exception(notFoundMessage, e))
-                }
+                val showSummaryResponse =
+                    try {
+                        traktService.getShowInfoAsync(imdbID = imdbId)
+                            .await()
+                    } catch (e: Exception) {
+                        val notFoundMessage =
+                            "Show with IMDb ID $imdbId not found on Trakt during initial ID lookup."
+                        Timber.w(e, notFoundMessage)
+                        _favoriteShowsError.value = notFoundMessage
+                        return@withContext Result.failure(Exception(notFoundMessage, e))
+                    }
 
                 val traktShowId = showSummaryResponse.ids?.trakt
                 if (traktShowId == null) {
@@ -667,43 +699,49 @@ class TraktRepositoryImpl(
 
                 // 2. Get User Slug
                 val userSettings = traktService.getUserSettingsAsync(bearerToken).await()
-                val userSlug = userSettings.user?.ids?.slug
-                    ?: return@withContext Result.failure<Unit>(
-                        Exception("User slug not found in Trakt settings for adding show.").also {
-                            logTraktException(it.message ?: "User slug not found")
-                            _favoriteShowsError.value = it.message
-                        }
-                    )
+                val userSlug =
+                    userSettings.user?.ids?.slug
+                        ?: return@withContext Result.failure<Unit>(
+                            Exception("User slug not found in Trakt settings for adding show.").also {
+                                logTraktException(it.message ?: "User slug not found")
+                                _favoriteShowsError.value = it.message
+                            },
+                        )
 
                 // 3. Get or Create "UpnextApp Favorites" List ID (Slug)
                 val listIdSlugResult =
                     getOrCreateFavoritesListId(token, userSlug)
                 if (listIdSlugResult.isFailure) {
-                    val error = listIdSlugResult.exceptionOrNull()
-                        ?: Exception("Failed to get/create favorites list ID.")
+                    val error =
+                        listIdSlugResult.exceptionOrNull()
+                            ?: Exception("Failed to get/create favorites list ID.")
                     _favoriteShowsError.value = error.message
                     return@withContext Result.failure(error)
                 }
                 val favoritesListSlug = listIdSlugResult.getOrThrow()
 
                 // 4. Prepare request to add show to the Trakt List
-                val addRequest = NetworkTraktAddShowToListRequest(
-                    shows = listOf(
-                        NetworkTraktAddShowToListRequestShow(
-                            ids = NetworkTraktAddShowToListRequestShowIds(
-                                trakt = traktShowId
-                            )
-                        )
+                val addRequest =
+                    NetworkTraktAddShowToListRequest(
+                        shows =
+                            listOf(
+                                NetworkTraktAddShowToListRequestShow(
+                                    ids =
+                                        NetworkTraktAddShowToListRequestShowIds(
+                                            trakt = traktShowId,
+                                        ),
+                                ),
+                            ),
                     )
-                )
 
                 Timber.d("Attempting to add show (IMDb: $imdbId, Trakt: $traktShowId) to list $favoritesListSlug for user $userSlug")
-                val addResponse = traktService.addShowToCustomListAsync(
-                    token = bearerToken,
-                    userSlug = userSlug,
-                    traktId = favoritesListSlug, // This is the slug of the "UpnextApp Favorites" list
-                    networkTraktAddShowToListRequest = addRequest
-                ).await()
+                val addResponse =
+                    traktService.addShowToCustomListAsync(
+                        token = bearerToken,
+                        userSlug = userSlug,
+                        traktId = favoritesListSlug, // This is the slug of the "UpnextApp Favorites" list
+                        networkTraktAddShowToListRequest = addRequest,
+                    ).await()
 
                 // 5. Process Trakt's response & Update Local DB
                 val showSuccessfullyAdded = addResponse.added.shows == 1
@@ -712,32 +750,34 @@ class TraktRepositoryImpl(
                 if (showSuccessfullyAdded || showAlreadyExistsOnList) {
                     Timber.d(
                         "Show (IMDb: $imdbId, Trakt: $traktShowId) successfully added or already present on Trakt list $favoritesListSlug. " +
-                                "Added: ${addResponse.added.shows}, Existing: ${addResponse.existing.shows}, Not Found (on Trakt): ${addResponse.not_found.shows.size}"
+                            "Added: ${addResponse.added.shows}, Existing: ${addResponse.existing.shows}, Not Found (on Trakt): ${addResponse.not_found.shows.size}",
                     )
 
                     // Construct DatabaseFavoriteShows from the showSummaryResponse and fetched images
-                    var dbShow = DatabaseFavoriteShows(
-                        id = null,
-                        title = showSummaryResponse.title,
-                        year = showSummaryResponse.year?.toString(),
-                        imdbID = imdbId,
-                        slug = showSummaryResponse.ids.slug,
-                        tmdbID = showSummaryResponse.ids.tmdb,
-                        traktID = traktShowId,
-                        tvdbID = showSummaryResponse.ids.tvdb,
-                        mediumImageUrl = null, // Placeholder, will be updated by getImages
-                        originalImageUrl = null, // Placeholder, will be updated by getImages
-                        tvMazeID = null // Placeholder, will be updated by getImages
-                    )
+                    var dbShow =
+                        DatabaseFavoriteShows(
+                            id = null,
+                            title = showSummaryResponse.title,
+                            year = showSummaryResponse.year?.toString(),
+                            imdbID = imdbId,
+                            slug = showSummaryResponse.ids.slug,
+                            tmdbID = showSummaryResponse.ids.tmdb,
+                            traktID = traktShowId,
+                            tvdbID = showSummaryResponse.ids.tvdb,
+                            mediumImageUrl = null, // Placeholder, will be updated by getImages
+                            originalImageUrl = null, // Placeholder, will be updated by getImages
+                            tvMazeID = null, // Placeholder, will be updated by getImages
+                        )
 
                     // Fetch images for this newly added favorite
                     // Assuming getImages returns (tvMazeId: Int?, poster: String?, heroImage: String?)
                     val (tvMazeIdResult, poster, heroImage) = getImages(imdbId)
-                    dbShow = dbShow.copy(
-                        tvMazeID = tvMazeIdResult,
-                        originalImageUrl = poster,
-                        mediumImageUrl = heroImage
-                    )
+                    dbShow =
+                        dbShow.copy(
+                            tvMazeID = tvMazeIdResult,
+                            originalImageUrl = poster,
+                            mediumImageUrl = heroImage,
+                        )
 
                     traktDao.insertFavoriteShow(dbShow)
                     Timber.d("Show (IMDb: $imdbId) saved/updated in local favorites DB.")
@@ -747,7 +787,8 @@ class TraktRepositoryImpl(
                     Result.success(Unit)
                 } else if (addResponse.not_found.shows.any { notFoundItem ->
                         notFoundItem.ids.trakt == traktShowId
-                    }) {
+                    }
+                ) {
                     val notFoundMessage =
                         "Show with IMDb ID $imdbId (Trakt ID: $traktShowId) reported as 'not found' by Trakt during add to list. This is unexpected."
                     Timber.w(notFoundMessage)
@@ -761,8 +802,9 @@ class TraktRepositoryImpl(
                     Result.failure(Exception(unexpectedResponseMessage))
                 }
             } catch (e: HttpException) {
-                val errorBody = e.response()?.errorBody()
-                    ?.stringSuspending()
+                val errorBody =
+                    e.response()?.errorBody()
+                        ?.stringSuspending()
                 val detailedMessage =
                     "HTTP error adding show (IMDb: $imdbId) to favorites: ${e.code()} - $errorBody"
                 logTraktException(detailedMessage, e)
@@ -770,7 +812,7 @@ class TraktRepositoryImpl(
                     parseTraktApiError(
                         errorBody,
                         defaultMessage = "Server error adding show to favorites.",
-                        moshi = moshi
+                        moshi = moshi,
                     )
                 Result.failure(Exception(detailedMessage, e))
             } catch (e: Exception) {
@@ -801,7 +843,6 @@ class TraktRepositoryImpl(
         }
     }
 
-
     /**
      * Parses a JSON error string from Trakt API into a more readable message.
      *
@@ -813,7 +854,7 @@ class TraktRepositoryImpl(
     fun parseTraktApiError(
         errorBodyString: String?,
         defaultMessage: String,
-        moshi: Moshi
+        moshi: Moshi,
     ): String {
         if (errorBodyString.isNullOrBlank()) {
             return defaultMessage
@@ -844,17 +885,22 @@ class TraktRepositoryImpl(
         }
     }
 
-    override suspend fun removeShowFromList(traktId: Int?, imdbID: String?, token: String?) {
+    override suspend fun removeShowFromList(
+        traktId: Int?,
+        imdbID: String?,
+        token: String?,
+    ) {
         if (traktId == null || imdbID.isNullOrEmpty() || token.isNullOrEmpty()) {
             logTraktException("Cannot remove show: traktId, imdbID, or token is invalid.")
             _favoriteShowsError.value = "Cannot remove show: Invalid parameters."
             return
         }
-        val result = removeShowFromFavorites(
-            traktId,
-            imdbID,
-            token
-        ) // imdbID used for local DB update after successful removal
+        val result =
+            removeShowFromFavorites(
+                traktId,
+                imdbID,
+                token,
+            ) // imdbID used for local DB update after successful removal
         if (result.isFailure) {
             Timber.w("removeShowFromList (legacy) failed for Trakt ID $traktId: ${result.exceptionOrNull()?.message}")
         } else {
@@ -865,7 +911,7 @@ class TraktRepositoryImpl(
     override suspend fun removeShowFromFavorites(
         traktId: Int,
         imdbId: String,
-        token: String
+        token: String,
     ): Result<Unit> {
         if (token.isEmpty()) {
             val message = "Cannot remove show from favorites: token is empty."
@@ -882,23 +928,26 @@ class TraktRepositoryImpl(
 
                 // 1. Get User Slug
                 val userSettings = traktService.getUserSettingsAsync(bearerToken).await()
-                val userSlug = userSettings.user?.ids?.slug
-                    ?: return@withContext Result.failure<Unit>(
-                        Exception("User slug not found in Trakt settings for removal.").also {
-                            logTraktException(it.message ?: "User slug not found")
-                            _favoriteShowsError.value = it.message
-                        }
-                    )
+                val userSlug =
+                    userSettings.user?.ids?.slug
+                        ?: return@withContext Result.failure<Unit>(
+                            Exception("User slug not found in Trakt settings for removal.").also {
+                                logTraktException(it.message ?: "User slug not found")
+                                _favoriteShowsError.value = it.message
+                            },
+                        )
 
                 // 2. Get "UpnextApp Favorites" List ID (Slug)
                 // We need the list's slug to remove items from it.
-                val listIdSlugResult = getOrCreateFavoritesListId(
-                    token,
-                    userSlug,
-                ) // false: don't create if not found for removal
+                val listIdSlugResult =
+                    getOrCreateFavoritesListId(
+                        token,
+                        userSlug,
+                    ) // false: don't create if not found for removal
                 if (listIdSlugResult.isFailure) {
-                    val error = listIdSlugResult.exceptionOrNull()
-                        ?: Exception("Failed to get favorites list ID for removal.")
+                    val error =
+                        listIdSlugResult.exceptionOrNull()
+                            ?: Exception("Failed to get favorites list ID for removal.")
                     _favoriteShowsError.value = error.message
                     return@withContext Result.failure(error)
                 }
@@ -907,31 +956,36 @@ class TraktRepositoryImpl(
 
                 // 3. Prepare request to remove show from the Trakt List
                 // Trakt API removes items based on their Trakt IDs.
-                val request = NetworkTraktRemoveShowFromListRequest(
-                    shows = listOf(
-                        NetworkTraktRemoveShowFromListRequestShow(
-                            ids = NetworkTraktRemoveShowFromListRequestShowIds(
-                                trakt = traktId
-                            )
-                        )
+                val request =
+                    NetworkTraktRemoveShowFromListRequest(
+                        shows =
+                            listOf(
+                                NetworkTraktRemoveShowFromListRequestShow(
+                                    ids =
+                                        NetworkTraktRemoveShowFromListRequestShowIds(
+                                            trakt = traktId,
+                                        ),
+                                ),
+                            ),
                     )
-                )
 
                 Timber.d("Attempting to remove show Trakt ID $traktId from list $favoritesListSlug for user $userSlug")
-                val removeResponse = traktService.removeShowFromCustomListAsync(
-                    token = bearerToken,
-                    userSlug = userSlug,
-                    traktId = favoritesListSlug, // This is the slug of the "UpnextApp Favorites" list
-                    networkTraktRemoveShowFromListRequest = request
-                ).await()
+                val removeResponse =
+                    traktService.removeShowFromCustomListAsync(
+                        token = bearerToken,
+                        userSlug = userSlug,
+                        traktId = favoritesListSlug, // This is the slug of the "UpnextApp Favorites" list
+                        networkTraktRemoveShowFromListRequest = request,
+                    ).await()
 
-                Timber.d("Remove show response: Deleted: ${removeResponse.deleted.shows}, Not Found: ${removeResponse.not_found.shows?.size}")
+                Timber.d(
+                    "Remove show response: Deleted: ${removeResponse.deleted.shows}, Not Found: ${removeResponse.not_found.shows?.size}",
+                )
 
                 val showSuccessfullyRemovedOnTrakt = removeResponse.deleted.shows == 1
                 val showNotFoundOnTraktList =
                     removeResponse.not_found.shows?.any { it.ids.trakt == traktId } == true ||
-                            removeResponse.not_found.shows?.any { it.ids.trakt == traktId } == true
-
+                        removeResponse.not_found.shows?.any { it.ids.trakt == traktId } == true
 
                 if (showSuccessfullyRemovedOnTrakt || showNotFoundOnTraktList) {
                     Timber.d("Show with Trakt ID $traktId successfully removed or confirmed not on Trakt list $favoritesListSlug.")
@@ -970,7 +1024,7 @@ class TraktRepositoryImpl(
                     parseTraktApiError(
                         errorBody,
                         defaultMessage = "Failed to remove show due to server error.",
-                        moshi = moshi
+                        moshi = moshi,
                     )
                 Result.failure(Exception(detailedMessage, e))
             } catch (e: Exception) {
@@ -978,7 +1032,7 @@ class TraktRepositoryImpl(
                     "Error removing show (TraktID: $traktId, IMDb: $imdbId) from favorites list"
                 handleGenericException(
                     e,
-                    errorMessage
+                    errorMessage,
                 ) // This logs and potentially formats the message
                 _favoriteShowsError.value = e.localizedMessage ?: errorMessage
                 Result.failure(e)
@@ -1047,9 +1101,9 @@ class TraktRepositoryImpl(
         Timber.d(
             "refreshTraktTrendingShows: STARTING. IsEmpty: $isEmpty, NeedsUpdate: ${
                 isUpdateNeededByDay(
-                    tableName
+                    tableName,
                 )
-            }, Force: $forceRefresh"
+            }, Force: $forceRefresh",
         )
 
         try {
@@ -1087,14 +1141,15 @@ class TraktRepositoryImpl(
                     val existingLocalShow = localShowsMap[networkShowModel.id]
 
                     if (existingLocalShow != null) {
-                        val updatedShow = existingLocalShow.copy(
-                            title = networkShowModel.title,
-                            year = networkShowModel.year,
-                            slug = networkShowModel.slug,
-                            tmdbID = networkShowModel.tmdbID,
-                            traktID = networkShowModel.traktID,
-                            tvdbID = networkShowModel.tvdbID
-                        )
+                        val updatedShow =
+                            existingLocalShow.copy(
+                                title = networkShowModel.title,
+                                year = networkShowModel.year,
+                                slug = networkShowModel.slug,
+                                tmdbID = networkShowModel.tmdbID,
+                                traktID = networkShowModel.traktID,
+                                tvdbID = networkShowModel.tvdbID,
+                            )
                         showsToUpsert.add(updatedShow)
 
                         if (existingLocalShow.original_image_url.isNullOrEmpty() ||
@@ -1216,7 +1271,7 @@ class TraktRepositoryImpl(
         if (_isLoadingTraktPopular.value && !forceRefresh) {
             Timber.d(
                 "refreshTraktPopularShows: Already in progress, " +
-                        "and not a force refresh."
+                    "and not a force refresh.",
             )
             return
         }
@@ -1228,7 +1283,7 @@ class TraktRepositoryImpl(
         if (!needsUpdate) {
             Timber.d(
                 "refreshTraktPopularShows: Update not needed. Empty: $isEmpty, " +
-                        "Force: $forceRefresh. Last update was today."
+                    "Force: $forceRefresh. Last update was today.",
             )
             _isLoadingTraktPopular.value = false
             return
@@ -1238,9 +1293,9 @@ class TraktRepositoryImpl(
         Timber.d(
             "refreshTraktPopularShows: STARTING. IsEmpty: $isEmpty, NeedsUpdateByDay: ${
                 isUpdateNeededByDay(
-                    tableName
+                    tableName,
                 )
-            }, ForceRefresh: $forceRefresh"
+            }, ForceRefresh: $forceRefresh",
         )
 
         try {
@@ -1273,17 +1328,18 @@ class TraktRepositoryImpl(
                         // Show exists locally. Update its Trakt data but preserve existing
                         // images for now. Only copy Trakt-specific fields. Images
                         // will be handled later.
-                        val updatedShow = existingLocalShow.copy(
-                            title = networkShowModel.title,
-                            year = networkShowModel.year,
-                            slug = networkShowModel.slug,
-                            tmdbID = networkShowModel.tmdbID,
-                            traktID = networkShowModel.traktID,
-                            tvdbID = networkShowModel.tvdbID
-                            // not copying medium_image_url, original_image_url, tvMazeID
-                            // from networkShowModel as networkShowModel has them as null
-                            // initially from asDatabaseModel()
-                        )
+                        val updatedShow =
+                            existingLocalShow.copy(
+                                title = networkShowModel.title,
+                                year = networkShowModel.year,
+                                slug = networkShowModel.slug,
+                                tmdbID = networkShowModel.tmdbID,
+                                traktID = networkShowModel.traktID,
+                                tvdbID = networkShowModel.tvdbID,
+                                // not copying medium_image_url, original_image_url, tvMazeID
+                                // from networkShowModel as networkShowModel has them as null
+                                // initially from asDatabaseModel()
+                            )
                         showsToUpsert.add(updatedShow)
 
                         // Check if images are missing or if forceRefresh (which implies refreshing images too)
@@ -1358,8 +1414,12 @@ class TraktRepositoryImpl(
                     }
 
                     if (showsToUpdateWithFetchedImages.isNotEmpty()) {
-                        traktDao.insertAllTraktPopular(*showsToUpdateWithFetchedImages.toTypedArray()) // This will update existing rows by PK
-                        Timber.d("refreshTraktPopularShows: Updated image information for ${showsToUpdateWithFetchedImages.size} popular shows.")
+                        traktDao.insertAllTraktPopular(
+                            *showsToUpdateWithFetchedImages.toTypedArray(),
+                        ) // This will update existing rows by PK
+                        Timber.d(
+                            "refreshTraktPopularShows: Updated image information for ${showsToUpdateWithFetchedImages.size} popular shows.",
+                        )
                     }
                 } else {
                     Timber.d("refreshTraktPopularShows: No shows required image fetching/updating.")
@@ -1427,9 +1487,9 @@ class TraktRepositoryImpl(
         Timber.d(
             "refreshTraktMostAnticipatedShows: STARTING. IsEmpty: $isEmpty, NeedsUpdate: ${
                 isUpdateNeededByDay(
-                    tableName
+                    tableName,
                 )
-            }, Force: $forceRefresh"
+            }, Force: $forceRefresh",
         )
 
         try {
@@ -1469,15 +1529,16 @@ class TraktRepositoryImpl(
                     val existingLocalShow = localShowsMap[networkShowModel.id]
 
                     if (existingLocalShow != null) {
-                        val updatedShow = existingLocalShow.copy(
-                            title = networkShowModel.title,
-                            year = networkShowModel.year,
-                            slug = networkShowModel.slug,
-                            tmdbID = networkShowModel.tmdbID,
-                            traktID = networkShowModel.traktID,
-                            tvdbID = networkShowModel.tvdbID,
-                            imdbID = networkShowModel.imdbID
-                        )
+                        val updatedShow =
+                            existingLocalShow.copy(
+                                title = networkShowModel.title,
+                                year = networkShowModel.year,
+                                slug = networkShowModel.slug,
+                                tmdbID = networkShowModel.tmdbID,
+                                traktID = networkShowModel.traktID,
+                                tvdbID = networkShowModel.tvdbID,
+                                imdbID = networkShowModel.imdbID,
+                            )
                         showsToUpsert.add(updatedShow)
 
                         if (existingLocalShow.original_image_url.isNullOrEmpty() ||
@@ -1541,7 +1602,9 @@ class TraktRepositoryImpl(
 
                     if (showsToUpdateWithFetchedImages.isNotEmpty()) {
                         traktDao.insertAllTraktMostAnticipated(*showsToUpdateWithFetchedImages.toTypedArray())
-                        Timber.d("refreshTraktMostAnticipatedShows: Updated images/tvMazeIDs for ${showsToUpdateWithFetchedImages.size} shows.")
+                        Timber.d(
+                            "refreshTraktMostAnticipatedShows: Updated images/tvMazeIDs for ${showsToUpdateWithFetchedImages.size} shows.",
+                        )
                     }
                 } else {
                     Timber.d("refreshTraktMostAnticipatedShows: No shows required image fetching/updating.")
@@ -1568,10 +1631,9 @@ class TraktRepositoryImpl(
         } catch (e: Exception) {
             Timber.e(
                 e,
-                "Error in repositoryScope.launch while logging table update for ${databaseTables.tableName}"
+                "Error in repositoryScope.launch while logging table update for ${databaseTables.tableName}",
             )
         }
-
     }
 
     /**
@@ -1617,7 +1679,7 @@ class TraktRepositoryImpl(
      */
     override suspend fun checkInToShow(
         showSeasonEpisode: ShowSeasonEpisode,
-        token: String?
+        token: String?,
     ) {
         if (token.isNullOrEmpty()) {
             logTraktException("Cannot check-in to show: token is null or empty.")
@@ -1652,11 +1714,14 @@ class TraktRepositoryImpl(
                 Timber.d("Looking up Trakt ID for IMDB ID: $imdbId")
                 val idLookupResponse =
                     traktService.idLookupAsync(idType = "imdb", id = imdbId).await()
-                val traktShowId = idLookupResponse.firstNotNullOfOrNull { result ->
-                    if (result.type == "show" && result.show?.ids?.trakt != null) {
-                        result.show.ids.trakt
-                    } else null
-                }
+                val traktShowId =
+                    idLookupResponse.firstNotNullOfOrNull { result ->
+                        if (result.type == "show" && result.show?.ids?.trakt != null) {
+                            result.show.ids.trakt
+                        } else {
+                            null
+                        }
+                    }
 
                 if (traktShowId == null) {
                     logTraktException("Could not find Trakt Show ID for IMDB ID: $imdbId")
@@ -1667,33 +1732,36 @@ class TraktRepositoryImpl(
                 Timber.d("Found Trakt Show ID: $traktShowId for IMDB ID: $imdbId")
 
                 val bearerToken = "Bearer $token"
-                val request = NetworkTraktCheckInRequest(
-                    show = NetworkTraktCheckInRequestShow(
-                        ids = NetworkTraktCheckInRequestShowIds(
-                            trakt = traktShowId,
-                        ),
-                        title = null,
-                        year = null
-                    ),
-                    episode = NetworkTraktCheckInRequestEpisode(
-                        season = seasonNumber,
-                        number = episodeNumber
+                val request =
+                    NetworkTraktCheckInRequest(
+                        show =
+                            NetworkTraktCheckInRequestShow(
+                                ids =
+                                    NetworkTraktCheckInRequestShowIds(
+                                        trakt = traktShowId,
+                                    ),
+                                title = null,
+                                year = null,
+                            ),
+                        episode =
+                            NetworkTraktCheckInRequestEpisode(
+                                season = seasonNumber,
+                                number = episodeNumber,
+                            ),
                     )
-                )
 
-                Timber.d("Attempting Trakt check-in: Show Trakt ID $traktShowId, S${seasonNumber}E${episodeNumber}")
+                Timber.d("Attempting Trakt check-in: Show Trakt ID $traktShowId, S${seasonNumber}E$episodeNumber")
                 val checkInApiResponse: NetworkTraktCheckInResponse =
                     traktService.checkInAsync(bearerToken, request).await()
 
                 val domainStatus = checkInApiResponse.asDomainModel()
                 _traktCheckInEvent.tryEmit(domainStatus)
                 Timber.i("Trakt check-in successful: ${domainStatus.message}")
-
             } catch (e: HttpException) {
                 val errorBody = e.response()?.errorBody()?.string()
                 logTraktException(
                     "Trakt check-in process HTTP error (Code: ${e.code()}): $errorBody",
-                    e
+                    e,
                 )
 
                 var errorStatus: TraktCheckInStatus
@@ -1701,66 +1769,75 @@ class TraktRepositoryImpl(
                     try {
                         val conflictResponse = traktConflictErrorAdapter.fromJson(errorBody)
                         if (conflictResponse?.expiresAt != null) {
-                            val showTitleFromConflict = conflictResponse.show?.title
-                                ?: showSeasonEpisode.name // Prioritize conflict response
+                            val showTitleFromConflict =
+                                conflictResponse.show?.title
+                                    ?: showSeasonEpisode.name // Prioritize conflict response
                             val conflictSeason =
                                 conflictResponse.episode?.season ?: seasonNumber
                             val conflictEpisode =
                                 conflictResponse.episode?.number ?: episodeNumber
-                            errorStatus = TraktCheckInStatus(
-                                season = conflictSeason,
-                                episode = conflictEpisode,
-                                checkInTime = DateUtils.getDisplayDateFromDateStamp(
-                                    conflictResponse.expiresAt
+                            errorStatus =
+                                TraktCheckInStatus(
+                                    season = conflictSeason,
+                                    episode = conflictEpisode,
+                                    checkInTime =
+                                        DateUtils.getDisplayDateFromDateStamp(
+                                            conflictResponse.expiresAt,
+                                        )
+                                            .toString(),
+                                    message = "A check-in for ${showTitleFromConflict ?: "this item"} S${conflictSeason}E$conflictEpisode is already in progress. Expires at: ${
+                                        DateUtils.getDisplayDateFromDateStamp(
+                                            conflictResponse.expiresAt,
+                                        )
+                                    }.",
                                 )
-                                    .toString(),
-                                message = "A check-in for ${showTitleFromConflict ?: "this item"} S${conflictSeason}E${conflictEpisode} is already in progress. Expires at: ${
-                                    DateUtils.getDisplayDateFromDateStamp(
-                                        conflictResponse.expiresAt
-                                    )
-                                }."
-                            )
                         } else {
                             // 409 but no expires_at, could be another type of conflict (e.g., watching something else not this item)
-                            errorStatus = TraktCheckInStatus(
-                                season = seasonNumber, episode = episodeNumber,
-                                message = "Check-in conflict (Code 409). You might be watching something else, or the item is already watched. Details: $errorBody"
-                            )
+                            errorStatus =
+                                TraktCheckInStatus(
+                                    season = seasonNumber, episode = episodeNumber,
+                                    message = "Check-in conflict (Code 409). You might be watching something else, or the item is already watched. Details: $errorBody",
+                                )
                         }
                     } catch (parseEx: Exception) {
                         logTraktException(
                             "Failed to parse Trakt 409 error body for check-in.",
-                            parseEx
+                            parseEx,
                         )
-                        errorStatus = TraktCheckInStatus(
-                            season = seasonNumber, episode = episodeNumber,
-                            message = "Check-in conflict (Code 409), unable to parse details. Raw: $errorBody"
-                        )
+                        errorStatus =
+                            TraktCheckInStatus(
+                                season = seasonNumber, episode = episodeNumber,
+                                message = "Check-in conflict (Code 409), unable to parse details. Raw: $errorBody",
+                            )
                     }
                 } else {
-                    val httpErrorMessage = when (e.code()) {
-                        400 -> "Bad request (Code 400). Details: $errorBody"
-                        401 -> "Unauthorized. Check Trakt token (Code 401). Details: $errorBody"
-                        403 -> "Forbidden. You may not have permission for this action or item (Code 403). Details: $errorBody"
-                        404 -> "Show or episode not found on Trakt (Code 404). Details: $errorBody"
-                        412 -> "Precondition Failed - Typically related to user settings or watched status (Code 412). Details: $errorBody"
-                        429 -> "Rate limit exceeded. Please try again later (Code 429). Details: $errorBody"
-                        500, 502, 503, 504 -> "Trakt server error (Code: ${e.code()}). Please try again later. Details: $errorBody"
-                        else -> "Check-in process failed with HTTP error (Code: ${e.code()}). Details: $errorBody"
-                    }
-                    errorStatus = TraktCheckInStatus(
-                        season = seasonNumber, episode = episodeNumber,
-                        message = httpErrorMessage
-                    )
+                    val httpErrorMessage =
+                        when (e.code()) {
+                            400 -> "Bad request (Code 400). Details: $errorBody"
+                            401 -> "Unauthorized. Check Trakt token (Code 401). Details: $errorBody"
+                            403 -> "Forbidden. You may not have permission for this action or item (Code 403). Details: $errorBody"
+                            404 -> "Show or episode not found on Trakt (Code 404). Details: $errorBody"
+                            412 -> "Precondition Failed - Typically related to user settings or watched status (Code 412). Details: $errorBody"
+                            429 -> "Rate limit exceeded. Please try again later (Code 429). Details: $errorBody"
+                            500, 502, 503, 504 -> "Trakt server error (Code: ${e.code()}). Please try again later. Details: $errorBody"
+                            else -> "Check-in process failed with HTTP error (Code: ${e.code()}). Details: $errorBody"
+                        }
+                    errorStatus =
+                        TraktCheckInStatus(
+                            season = seasonNumber, episode = episodeNumber,
+                            message = httpErrorMessage,
+                        )
                 }
                 _traktCheckInEvent.tryEmit(errorStatus)
-            } catch (e: Exception) { // For non-HTTP exceptions (network issues, other parsing errors, etc.)
+            } catch (e: Exception) {
+                // For non-HTTP exceptions (network issues, other parsing errors, etc.)
                 logTraktException("Generic error during Trakt check-in process.", e)
                 _traktCheckInEvent.tryEmit(
                     TraktCheckInStatus(
-                        season = seasonNumber, episode = episodeNumber,
-                        message = "An unexpected error occurred: ${e.localizedMessage}"
-                    )
+                        season = seasonNumber,
+                        episode = episodeNumber,
+                        message = "An unexpected error occurred: ${e.localizedMessage}",
+                    ),
                 )
             } finally {
                 _isLoading.value = false

@@ -33,7 +33,7 @@ import com.theupnextapp.R
 
 @OptIn(
     ExperimentalMaterial3WindowSizeClassApi::class,
-    ExperimentalMaterial3Api::class
+    ExperimentalMaterial3Api::class,
 )
 @Composable
 fun TopBar(
@@ -41,7 +41,7 @@ fun TopBar(
     onArrowClick: () -> Unit,
     modifier: Modifier = Modifier,
     title: String? = null, // Allow passing a specific title
-    scrollBehavior: TopAppBarScrollBehavior? = null
+    scrollBehavior: TopAppBarScrollBehavior? = null,
 ) {
     val currentRoute = navBackStackEntry?.destination?.route
 
@@ -49,32 +49,35 @@ fun TopBar(
     // Show arrow if it's a detail screen deeper than the initial ShowDetailScreen,
     // or if it's ShowDetailScreen itself and not the EmptyDetailScreen.
     // The overrideUpNavigation in MainScreen handles what "back" means.
-    val showBackArrow = when (currentRoute) {
-        ShowDetailScreenDestination.route,
-        ShowSeasonsScreenDestination.route,
-        ShowSeasonEpisodesScreenDestination.route -> true
-        // Do not show back arrow for EmptyDetailScreen or other non-detail-flow
-        // screens in this TopBar's context
-        else -> false
-    }
+    val showBackArrow =
+        when (currentRoute) {
+            ShowDetailScreenDestination.route,
+            ShowSeasonsScreenDestination.route,
+            ShowSeasonEpisodesScreenDestination.route,
+            -> true
+            // Do not show back arrow for EmptyDetailScreen or other non-detail-flow
+            // screens in this TopBar's context
+            else -> false
+        }
 
     // Determine the title to display
     // Prioritize passed 'title' from AppNavigation
-    val currentTitle: String = title ?: when (currentRoute) {
-        ShowSeasonsScreenDestination.route -> stringResource(R.string.title_seasons)
-        ShowSeasonEpisodesScreenDestination.route -> stringResource(R.string.title_season_episodes)
-        // If currentRoute is ShowDetailScreenDestination but 'title' (dynamicTitle) was
-        // null from AppNavigation
-        // Fallback for show detail if title is missing
-        ShowDetailScreenDestination.route -> stringResource(id = R.string.title_unknown)
-        else -> ""
-    }
+    val currentTitle: String =
+        title ?: when (currentRoute) {
+            ShowSeasonsScreenDestination.route -> stringResource(R.string.title_seasons)
+            ShowSeasonEpisodesScreenDestination.route -> stringResource(R.string.title_season_episodes)
+            // If currentRoute is ShowDetailScreenDestination but 'title' (dynamicTitle) was
+            // null from AppNavigation
+            // Fallback for show detail if title is missing
+            ShowDetailScreenDestination.route -> stringResource(id = R.string.title_unknown)
+            else -> ""
+        }
 
     TopAppBar(
         title = {
             Text(
                 text = currentTitle,
-                style = MaterialTheme.typography.headlineSmall
+                style = MaterialTheme.typography.headlineSmall,
             )
         },
         modifier = modifier,
@@ -83,7 +86,7 @@ fun TopBar(
                 IconButton(onClick = onArrowClick) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(R.string.action_navigate_up_description)
+                        contentDescription = stringResource(R.string.action_navigate_up_description),
                     )
                 }
             }

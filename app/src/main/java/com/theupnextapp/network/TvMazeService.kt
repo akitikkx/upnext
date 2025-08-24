@@ -44,47 +44,65 @@ interface TvMazeService {
     @GET("schedule")
     fun getYesterdayScheduleAsync(
         @Query("country") countryCode: String,
-        @Query("date") date: String?
+        @Query("date") date: String?,
     ): Deferred<List<NetworkYesterdayScheduleResponse>>
 
     @GET("schedule")
     fun getTodayScheduleAsync(
         @Query("country") countryCode: String,
-        @Query("date") date: String?
+        @Query("date") date: String?,
     ): Deferred<List<NetworkTodayScheduleResponse>>
 
     @GET("schedule")
     fun getTomorrowScheduleAsync(
         @Query("country") countryCode: String,
-        @Query("date") date: String?
+        @Query("date") date: String?,
     ): Deferred<List<NetworkTomorrowScheduleResponse>>
 
     @GET("lookup/shows")
-    fun getShowLookupAsync(@Query("imdb") imdbId: String): Deferred<NetworkTvMazeShowLookupResponse>
+    fun getShowLookupAsync(
+        @Query("imdb") imdbId: String,
+    ): Deferred<NetworkTvMazeShowLookupResponse>
 
     @GET("shows/{id}/images")
-    fun getShowImagesAsync(@Path("id") id: String): Deferred<NetworkTvMazeShowImageResponse>
+    fun getShowImagesAsync(
+        @Path("id") id: String,
+    ): Deferred<NetworkTvMazeShowImageResponse>
 
     @GET("search/shows")
-    fun getSuggestionListAsync(@Query("q") name: String): Deferred<List<NetworkShowSearchResponse>>
+    fun getSuggestionListAsync(
+        @Query("q") name: String,
+    ): Deferred<List<NetworkShowSearchResponse>>
 
     @GET("shows/{id}")
-    fun getShowSummaryAsync(@Path("id") id: String?): Deferred<NetworkShowInfoResponse>
+    fun getShowSummaryAsync(
+        @Path("id") id: String?,
+    ): Deferred<NetworkShowInfoResponse>
 
     @GET("/episodes/{id}")
-    fun getNextEpisodeAsync(@Path("id") name: String?): Deferred<NetworkShowNextEpisodeResponse>
+    fun getNextEpisodeAsync(
+        @Path("id") name: String?,
+    ): Deferred<NetworkShowNextEpisodeResponse>
 
     @GET("/episodes/{id}")
-    fun getPreviousEpisodeAsync(@Path("id") name: String?): Deferred<NetworkShowPreviousEpisodeResponse>
+    fun getPreviousEpisodeAsync(
+        @Path("id") name: String?,
+    ): Deferred<NetworkShowPreviousEpisodeResponse>
 
     @GET("shows/{id}/cast")
-    fun getShowCastAsync(@Path("id") id: String?): Deferred<NetworkShowCastResponse>
+    fun getShowCastAsync(
+        @Path("id") id: String?,
+    ): Deferred<NetworkShowCastResponse>
 
     @GET("shows/{id}/seasons")
-    fun getShowSeasonsAsync(@Path("id") id: String?): Deferred<NetworkShowSeasonsResponse>
+    fun getShowSeasonsAsync(
+        @Path("id") id: String?,
+    ): Deferred<NetworkShowSeasonsResponse>
 
     @GET("shows/{id}/episodes")
-    fun getSeasonEpisodesAsync(@Path("id") id: String?): Deferred<NetworkTvMazeEpisodesResponse>
+    fun getSeasonEpisodesAsync(
+        @Path("id") id: String?,
+    ): Deferred<NetworkTvMazeEpisodesResponse>
 }
 
 object TvMazeNetwork {

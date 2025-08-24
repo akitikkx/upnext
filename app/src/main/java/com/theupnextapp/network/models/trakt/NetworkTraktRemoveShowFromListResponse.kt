@@ -22,12 +22,12 @@
 package com.theupnextapp.network.models.trakt
 
 data class NotFoundShowItemForRemoval(
-    val ids: NetworkTraktRemoveShowFromListRequestShowIds // Use the ID structure from your request
+    val ids: NetworkTraktRemoveShowFromListRequestShowIds, // Use the ID structure from your request
 )
 
 data class NetworkTraktRemoveShowFromListResponse(
     val deleted: NetworkTraktRemoveShowFromListResponseDeleted,
-    val not_found: NetworkTraktRemoveShowFromListResponseNotFound
+    val not_found: NetworkTraktRemoveShowFromListResponseNotFound,
 )
 
 data class NetworkTraktRemoveShowFromListResponseDeleted(
@@ -35,7 +35,7 @@ data class NetworkTraktRemoveShowFromListResponseDeleted(
     val movies: Int? = null,
     val seasons: Int? = null,
     val episodes: Int? = null,
-    val people: Int? = null
+    val people: Int? = null,
 )
 
 data class NetworkTraktRemoveShowFromListResponseNotFound(
@@ -44,5 +44,5 @@ data class NetworkTraktRemoveShowFromListResponseNotFound(
     val seasons: List<NotFoundShowItemForRemoval>? = null,
     val episodes: List<NotFoundShowItemForRemoval>? = null,
     val people: List<NotFoundShowItemForRemoval>? = null,
-    val ids: List<Map<String, Any>>? = null
+    val ids: List<Map<String, Any>>? = null,
 )

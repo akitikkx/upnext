@@ -30,13 +30,20 @@ import java.io.IOException
 
 sealed class Result<out T> {
     data class Success<out T>(val data: T) : Result<T>()
+
     data class GenericError(val code: Int? = null, val error: ErrorResponse? = null, val exception: HttpException) : Result<Nothing>() // Modified
+
     data class NetworkError(val exception: IOException) : Result<Nothing>() // Modified
+
     data class Loading(val status: Boolean) : Result<Nothing>()
+
     data class Error(val exception: Throwable? = null, val message: String? = null) : Result<Nothing>()
 }
 
-suspend fun <T> safeApiCall(dispatcher: CoroutineDispatcher, apiCall: suspend () -> T): Result<T> {
+suspend fun <T> safeApiCall(
+    dispatcher: CoroutineDispatcher,
+    apiCall: suspend () -> T,
+): Result<T> {
     return withContext(dispatcher) {
         try {
             Result.Success(apiCall.invoke())
@@ -53,7 +60,7 @@ suspend fun <T> safeApiCall(dispatcher: CoroutineDispatcher, apiCall: suspend ()
                         .e(throwable, "Unexpected API call failure: ${throwable.localizedMessage}")
                     Result.Error(
                         throwable,
-                        throwable.localizedMessage ?: "An unexpected error occurred"
+                        throwable.localizedMessage ?: "An unexpected error occurred",
                     )
                 }
             }

@@ -14,7 +14,7 @@ data class ScheduleShow(
     val summary: String?,
     val type: String?,
     val updated: String?,
-    val url: String?
+    val url: String?,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

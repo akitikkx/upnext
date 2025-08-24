@@ -43,6 +43,7 @@ import com.theupnextapp.ui.main.MainScreen
 import com.theupnextapp.ui.theme.UpnextTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+
 @ExperimentalAnimationApi
 @ExperimentalFoundationApi
 @ExperimentalComposeUiApi
@@ -50,7 +51,6 @@ import javax.inject.Inject
 @ExperimentalMaterial3WindowSizeClassApi
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), TabConnectionCallback {
-
     @Inject
     lateinit var customTabComponent: CustomTabComponent
 
@@ -61,10 +61,11 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
             val dataString: MutableState<String?> = rememberSaveable { mutableStateOf("") }
 
             DisposableEffect(Unit) {
-                val listener = Consumer<Intent> {
-                    val code = it.data?.getQueryParameter("code")
-                    dataString.value = code
-                }
+                val listener =
+                    Consumer<Intent> {
+                        val code = it.data?.getQueryParameter("code")
+                        dataString.value = code
+                    }
                 addOnNewIntentListener(listener)
                 onDispose {
                     removeOnNewIntentListener(listener)
@@ -74,7 +75,7 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
 
             UpnextTheme {
                 MainScreen(
-                    valueState = dataString
+                    valueState = dataString,
                 ) {
                     dataString.value = null
                 }
@@ -114,7 +115,9 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
 
     companion object {
         const val TRAKT_AUTH_URL =
-            "https://trakt.tv/oauth/authorize?response_type=code&client_id=${BuildConfig.TRAKT_CLIENT_ID}&redirect_uri=${BuildConfig.TRAKT_REDIRECT_URI}"
+            "https://trakt.tv/oauth/authorize?response_type=code" +
+                "&client_id=${BuildConfig.TRAKT_CLIENT_ID}" +
+                "&redirect_uri=${BuildConfig.TRAKT_REDIRECT_URI}"
         const val REQUEST_CODE_INTERNET = 10
     }
 }

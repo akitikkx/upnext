@@ -30,13 +30,13 @@ data class DatabaseTableUpdate(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val table_name: String,
-    val last_updated: Long
+    val last_updated: Long,
 )
 
 fun DatabaseTableUpdate.asDomainModel(): TableUpdate {
     return TableUpdate(
         id = id,
         tableName = table_name,
-        lastUpdated = last_updated
+        lastUpdated = last_updated,
     )
 }

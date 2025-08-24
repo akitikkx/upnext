@@ -37,7 +37,7 @@ import com.theupnextapp.R
 enum class NavigationDestination(
     val direction: Direction,
     val icon: ImageVector,
-    @StringRes val label: Int
+    @StringRes val label: Int,
 ) {
     Dashboard(DashboardScreenDestination, Icons.Default.Home, R.string.nav_title_dashboard),
     SearchScreen(SearchScreenDestination, Icons.Default.Search, R.string.nav_title_search),
@@ -45,6 +45,6 @@ enum class NavigationDestination(
     TraktAccount(
         TraktAccountScreenDestination(),
         Icons.Filled.AccountBox,
-        R.string.nav_title_account
-    )
+        R.string.nav_title_account,
+    ),
 }

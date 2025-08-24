@@ -30,6 +30,7 @@ import kotlinx.coroutines.flow.StateFlow
 
 interface TraktRepository {
     fun tableUpdate(tableName: String): Flow<TableUpdate?>
+
     val traktPopularShows: Flow<List<TraktPopularShows>>
     val traktTrendingShows: Flow<List<TraktTrendingShows>>
     val traktMostAnticipatedShows: Flow<List<TraktMostAnticipated>>
@@ -56,7 +57,6 @@ interface TraktRepository {
 
     val userCustomListsError: StateFlow<String?>
 
-
     val traktCheckInEvent: SharedFlow<TraktCheckInStatus>
 
     // Authentication
@@ -64,33 +64,67 @@ interface TraktRepository {
 
     @Deprecated(
         "Use revokeTraktAccessToken(token: String) instead",
-        ReplaceWith("revokeTraktAccessToken(traktAccessToken.access_token ?: \"\")")
+        ReplaceWith("revokeTraktAccessToken(traktAccessToken.access_token ?: \"\")"),
     )
     suspend fun revokeTraktAccessToken(traktAccessToken: TraktAccessToken)
+
     suspend fun revokeTraktAccessToken(token: String): Result<Unit>
+
     suspend fun getTraktAccessRefreshToken(refreshToken: String?): Result<TraktAccessToken>
+
     fun getTraktAccessTokenRaw(): DatabaseTraktAccess?
+
     fun isAuthorizedOnTrakt(): StateFlow<Boolean>
 
     // Favorite Shows Management
-    suspend fun refreshFavoriteShows(forceRefresh: Boolean = false, token: String?)
+    suspend fun refreshFavoriteShows(
+        forceRefresh: Boolean = false,
+        token: String?,
+    )
+
     suspend fun refreshFavoriteShows(token: String): Result<Unit>
-    suspend fun addShowToFavorites(imdbId: String, token: String): Result<Unit>
-    suspend fun addShowToList(imdbID: String?, token: String?)
-    suspend fun removeShowFromList(traktId: Int?, imdbID: String?, token: String?)
+
+    suspend fun addShowToFavorites(
+        imdbId: String,
+        token: String,
+    ): Result<Unit>
+
+    suspend fun addShowToList(
+        imdbID: String?,
+        token: String?,
+    )
+
+    suspend fun removeShowFromList(
+        traktId: Int?,
+        imdbID: String?,
+        token: String?,
+    )
+
     suspend fun checkIfShowIsFavorite(imdbID: String?)
-    suspend fun removeShowFromFavorites(traktId: Int, imdbId: String, token: String): Result<Unit>
+
+    suspend fun removeShowFromFavorites(
+        traktId: Int,
+        imdbId: String,
+        token: String,
+    ): Result<Unit>
+
     suspend fun clearFavorites()
 
     // Public lists refresh
     suspend fun refreshTraktTrendingShows(forceRefresh: Boolean)
+
     suspend fun refreshTraktPopularShows(forceRefresh: Boolean)
+
     suspend fun refreshTraktMostAnticipatedShows(forceRefresh: Boolean)
 
     // Show Details
     suspend fun getTraktShowRating(imdbID: String?)
+
     suspend fun getTraktShowStats(imdbID: String?)
 
     // Check-in
-    suspend fun checkInToShow(showSeasonEpisode: ShowSeasonEpisode, token: String?)
+    suspend fun checkInToShow(
+        showSeasonEpisode: ShowSeasonEpisode,
+        token: String?,
+    )
 }

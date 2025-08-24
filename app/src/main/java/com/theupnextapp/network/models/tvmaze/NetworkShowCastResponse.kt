@@ -29,7 +29,7 @@ data class NetworkShowCastResponseItem(
     val character: NetworkShowCastCharacter?,
     val person: NetworkShowCastPerson?,
     val self: Boolean?,
-    val voice: Boolean?
+    val voice: Boolean?,
 )
 
 data class NetworkShowCastCharacter(
@@ -37,7 +37,7 @@ data class NetworkShowCastCharacter(
     val id: Int?,
     val image: NetworkShowCastImage?,
     val name: String?,
-    val url: String?
+    val url: String?,
 )
 
 data class NetworkShowCastPerson(
@@ -49,34 +49,34 @@ data class NetworkShowCastPerson(
     val id: Int?,
     val image: NetworkShowCastImage?,
     val name: String?,
-    val url: String?
+    val url: String?,
 )
 
 data class NetworkShowCastLinks(
-    val self: NetworkShowCastSelf?
+    val self: NetworkShowCastSelf?,
 )
 
 data class NetworkShowCastSelf(
-    val href: String?
+    val href: String?,
 )
 
 data class NetworkShowCastLinksX(
-    val self: NetworkShowCastSelfX?
+    val self: NetworkShowCastSelfX?,
 )
 
 data class NetworkShowCastCountry(
     val code: String?,
     val name: String?,
-    val timezone: String?
+    val timezone: String?,
 )
 
 data class NetworkShowCastImage(
     val medium: String?,
-    val original: String?
+    val original: String?,
 )
 
 data class NetworkShowCastSelfX(
-    val href: String?
+    val href: String?,
 )
 
 fun NetworkShowCastResponse.asDomainModel(): List<ShowCast> {
@@ -96,7 +96,7 @@ fun NetworkShowCastResponse.asDomainModel(): List<ShowCast> {
             characterOriginalImageUrl = it.character?.image?.original,
             characterMediumImageUrl = it.character?.image?.medium,
             self = it.self,
-            voice = it.voice
+            voice = it.voice,
         )
     }
 }

@@ -37,14 +37,15 @@ import com.theupnextapp.R
 fun PosterAttributionItem() {
     Text(
         text = stringResource(id = R.string.tv_maze_creative_commons_attribution_text_single),
-        modifier = Modifier.padding(
-            start = 4.dp,
-            top = 8.dp,
-            bottom = 8.dp,
-            end = 4.dp
-        ),
+        modifier =
+            Modifier.padding(
+                start = 4.dp,
+                top = 8.dp,
+                bottom = 8.dp,
+                end = 4.dp,
+            ),
         maxLines = 5,
-        style = MaterialTheme.typography.labelMedium
+        style = MaterialTheme.typography.labelMedium,
     )
 }
 
@@ -55,51 +56,53 @@ fun PosterTitleTextItem(title: String) {
         fontWeight = FontWeight.Bold,
         style = MaterialTheme.typography.labelMedium,
         maxLines = 1,
-        modifier = Modifier.padding(
-            start = 4.dp,
-            top = 8.dp,
-            bottom = 8.dp,
-            end = 4.dp
-        )
+        modifier =
+            Modifier.padding(
+                start = 4.dp,
+                top = 8.dp,
+                bottom = 8.dp,
+                end = 4.dp,
+            ),
     )
 }
 
 @Composable
 fun SectionHeadingText(
     modifier: Modifier = Modifier,
-    text: String
+    text: String,
 ) {
     Text(
         text = text,
-        modifier = modifier
-            .padding(
-                start = 16.dp,
-                top = 4.dp,
-                end = 16.dp,
-                bottom = 4.dp
-            ),
+        modifier =
+            modifier
+                .padding(
+                    start = 16.dp,
+                    top = 4.dp,
+                    end = 16.dp,
+                    bottom = 4.dp,
+                ),
         style = MaterialTheme.typography.headlineMedium,
-        fontWeight = FontWeight.Bold
+        fontWeight = FontWeight.Bold,
     )
 }
 
 @Composable
 fun HeadingAndItemText(
     item: String,
-    heading: String
+    heading: String,
 ) {
     Column(
-        modifier = Modifier.padding(8.dp)
+        modifier = Modifier.padding(8.dp),
     ) {
         Text(
             text = heading.uppercase(),
             fontWeight = FontWeight.Bold,
-            style = MaterialTheme.typography.bodyMedium
+            style = MaterialTheme.typography.bodyMedium,
         )
 
         Text(
             text = item,
-            style = MaterialTheme.typography.bodySmall
+            style = MaterialTheme.typography.bodySmall,
         )
     }
 }

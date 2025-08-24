@@ -15,5 +15,5 @@ package com.theupnextapp.network.models.tvmaze
 data class NetworkTvMazeShowImageMedium(
     val url: String,
     val height: Int? = null,
-    val width: Int? = null
+    val width: Int? = null,
 )

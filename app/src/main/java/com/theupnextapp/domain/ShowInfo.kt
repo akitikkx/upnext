@@ -38,7 +38,7 @@ data class ShowInfo(
     val time: String?,
     val status: String?,
     val nextEpisodeLinkedId: Int?,
-    val previousEpisodeLinkedId: Int?
+    val previousEpisodeLinkedId: Int?,
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readString(),
@@ -54,10 +54,13 @@ data class ShowInfo(
         parcel.readString(),
         parcel.readString(),
         parcel.readValue(Int::class.java.classLoader) as? Int,
-        parcel.readValue(Int::class.java.classLoader) as? Int
+        parcel.readValue(Int::class.java.classLoader) as? Int,
     )
 
-    override fun writeToParcel(parcel: Parcel, flags: Int) {
+    override fun writeToParcel(
+        parcel: Parcel,
+        flags: Int,
+    ) {
         parcel.writeString(airDays)
         parcel.writeString(averageRating)
         parcel.writeInt(id)

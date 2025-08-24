@@ -19,19 +19,14 @@ import com.theupnextapp.network.TvMazeService
 @Suppress("DEPRECATION")
 class ConcreteTestRepository(
     upnextDao: UpnextDao,
-    tvMazeService: TvMazeService
+    tvMazeService: TvMazeService,
 ) : BaseRepository(upnextDao, tvMazeService) {
-
     // testCanProceedWithUpdate is deprecated in BaseRepository, if not used, consider removing from here too
-    fun testCanProceedWithUpdate(tableName: String, intervalMinutes: Long): Boolean {
+    fun testCanProceedWithUpdate(
+        tableName: String,
+        intervalMinutes: Long,
+    ): Boolean {
         return super.canProceedWithUpdate(tableName, intervalMinutes)
     }
 
-    suspend fun testIsUpdateNeededByDay(tableName: String): Boolean {
-        return super.isUpdateNeededByDay(tableName)
-    }
-
-    suspend fun testLogTableUpdateTimestamp(tableName: String) {
-        super.logTableUpdateTimestamp(tableName)
-    }
 }

@@ -39,20 +39,20 @@ data class NetworkShowNextEpisodeResponse(
     val runtime: Int?,
     val season: Int?,
     val summary: String?,
-    val url: String?
+    val url: String?,
 )
 
 data class NetworkShowNextEpisodeLinks(
-    val self: NetworkShowNextEpisodeSelf
+    val self: NetworkShowNextEpisodeSelf,
 )
 
 data class NetworkShowNextEpisodeSelf(
-    val href: String
+    val href: String,
 )
 
 data class NetworkShowNextEpisodeImage(
     val medium: String,
-    val original: String
+    val original: String,
 )
 
 fun NetworkShowNextEpisodeResponse.asDomainModel(): ShowNextEpisode {

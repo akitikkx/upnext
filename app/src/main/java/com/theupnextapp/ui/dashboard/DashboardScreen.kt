@@ -62,7 +62,7 @@ import com.theupnextapp.ui.widgets.ListPosterCard
 @Composable
 fun DashboardScreen(
     viewModel: DashboardViewModel = hiltViewModel(),
-    navigator: DestinationsNavigator
+    navigator: DestinationsNavigator,
 ) {
     val yesterdayShowsList = viewModel.yesterdayShowsList.observeAsState()
     val todayShowsList = viewModel.todayShowsList.observeAsState()
@@ -73,32 +73,35 @@ fun DashboardScreen(
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .testTag("dashboard_list")
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .testTag("dashboard_list"),
         ) {
             // Show LinearProgressIndicator at the top if loading
             if (isLoading.value == true) {
                 LinearProgressIndicator(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp, vertical = 4.dp) // Adjust padding as needed
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp, vertical = 4.dp), // Adjust padding as needed
                 )
             }
 
             // Scrollable content area
             Column(
-                modifier = Modifier
-                    .weight(1f) // Allow this Column to take remaining space
-                    .verticalScroll(scrollState) // Make this part scrollable
-                    .padding(top = 8.dp)
+                modifier =
+                    Modifier
+                        .weight(1f) // Allow this Column to take remaining space
+                        .verticalScroll(scrollState) // Make this part scrollable
+                        .padding(top = 8.dp),
             ) {
                 // Yesterday Shows
                 yesterdayShowsList.value?.let { list ->
                     if (list.isNotEmpty()) {
                         ShowsRow(
                             list = list,
-                            rowTitle = stringResource(id = R.string.title_yesterday_shows)
+                            rowTitle = stringResource(id = R.string.title_yesterday_shows),
                         ) {
                             navigator.navigate(
                                 ShowDetailScreenDestination(
@@ -106,8 +109,8 @@ fun DashboardScreen(
                                     showId = it.showId.toString(), // Updated to use showId
                                     showTitle = it.name,
                                     showImageUrl = it.originalImage,
-                                    showBackgroundUrl = it.mediumImage
-                                )
+                                    showBackgroundUrl = it.mediumImage,
+                                ),
                             )
                         }
                     }
@@ -118,7 +121,7 @@ fun DashboardScreen(
                     if (list.isNotEmpty()) {
                         ShowsRow(
                             list = list,
-                            rowTitle = stringResource(id = R.string.title_today_shows)
+                            rowTitle = stringResource(id = R.string.title_today_shows),
                         ) {
                             navigator.navigate(
                                 ShowDetailScreenDestination(
@@ -126,8 +129,8 @@ fun DashboardScreen(
                                     showId = it.showId.toString(), // Updated to use showId
                                     showTitle = it.name,
                                     showImageUrl = it.originalImage,
-                                    showBackgroundUrl = it.mediumImage
-                                )
+                                    showBackgroundUrl = it.mediumImage,
+                                ),
                             )
                         }
                     }
@@ -138,7 +141,7 @@ fun DashboardScreen(
                     if (list.isNotEmpty()) {
                         ShowsRow(
                             list = list,
-                            rowTitle = stringResource(id = R.string.title_tomorrow_shows)
+                            rowTitle = stringResource(id = R.string.title_tomorrow_shows),
                         ) {
                             navigator.navigate(
                                 ShowDetailScreenDestination(
@@ -146,8 +149,8 @@ fun DashboardScreen(
                                     showId = it.showId.toString(), // Updated to use showId
                                     showTitle = it.name,
                                     showImageUrl = it.originalImage,
-                                    showBackgroundUrl = it.mediumImage
-                                )
+                                    showBackgroundUrl = it.mediumImage,
+                                ),
                             )
                         }
                     }
@@ -157,9 +160,11 @@ fun DashboardScreen(
     }
 
     ReportDrawnWhen {
-        (!yesterdayShowsList.value.isNullOrEmpty() ||
+        (
+            !yesterdayShowsList.value.isNullOrEmpty() ||
                 !tomorrowShowsList.value.isNullOrEmpty() ||
-                !todayShowsList.value.isNullOrEmpty()) || (isLoading.value == false)
+                !todayShowsList.value.isNullOrEmpty()
+        ) || (isLoading.value == false)
     }
 }
 
@@ -171,7 +176,7 @@ fun ShowsRow(
     list: List<ScheduleShow>,
     rowTitle: String,
     modifier: Modifier = Modifier,
-    onClick: (item: ScheduleShow) -> Unit
+    onClick: (item: ScheduleShow) -> Unit,
 ) {
     val state = rememberLazyListState()
 
@@ -180,13 +185,13 @@ fun ShowsRow(
 
         LazyRow(
             state = state,
-            modifier = Modifier.padding(8.dp)
+            modifier = Modifier.padding(8.dp),
         ) {
             items(list) { show ->
                 ListPosterCard(
                     itemName = show.name,
                     itemUrl = show.originalImage,
-                    modifier = Modifier.testTag("show_item")
+                    modifier = Modifier.testTag("show_item"),
                 ) {
                     onClick(show)
                 }
@@ -199,34 +204,37 @@ fun ShowsRow(
 @ExperimentalMaterial3Api
 @ReferenceDevices
 @Composable
-private fun ShowsRowPreview(@PreviewParameter(ShowsRowPreviewProvider::class) shows: List<ScheduleShow>) {
+private fun ShowsRowPreview(
+    @PreviewParameter(ShowsRowPreviewProvider::class) shows: List<ScheduleShow>,
+) {
     ShowsRow(
         list = shows,
         rowTitle = "Test Shows",
-        onClick = {}
+        onClick = {},
     )
 }
 
 internal class ShowsRowPreviewProvider : PreviewParameterProvider<List<ScheduleShow>> {
     override val values: Sequence<List<ScheduleShow>>
-        get() = sequenceOf(
-            MutableList(10) { index ->
-                ScheduleShow(
-                    id = index,
-                    showId = index, // Added showId for preview
-                    originalImage = "",
-                    mediumImage = "",
-                    language = "",
-                    name = "Show Name $index",
-                    officialSite = "",
-                    premiered = "",
-                    runtime = "",
-                    status = "",
-                    summary = "Summary for show $index",
-                    type = "",
-                    updated = "",
-                    url = ""
-                )
-            }
-        )
+        get() =
+            sequenceOf(
+                MutableList(10) { index ->
+                    ScheduleShow(
+                        id = index,
+                        showId = index, // Added showId for preview
+                        originalImage = "",
+                        mediumImage = "",
+                        language = "",
+                        name = "Show Name $index",
+                        officialSite = "",
+                        premiered = "",
+                        runtime = "",
+                        status = "",
+                        summary = "Summary for show $index",
+                        type = "",
+                        updated = "",
+                        url = "",
+                    )
+                },
+            )
 }

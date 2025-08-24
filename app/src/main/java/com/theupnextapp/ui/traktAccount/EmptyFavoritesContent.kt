@@ -23,8 +23,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -32,26 +30,25 @@ import com.theupnextapp.R
 import com.theupnextapp.extensions.ReferenceDevices
 
 @Composable
-fun EmptyFavoritesContent(
-    modifier: Modifier = Modifier
-) {
+fun EmptyFavoritesContent(modifier: Modifier = Modifier) {
     Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp),
+        modifier =
+            modifier
+                .fillMaxSize()
+                .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top
+        verticalArrangement = Arrangement.Top,
     ) {
         Text(
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.headlineSmall,
-            text = stringResource(id = R.string.trakt_no_favorites_message)
+            text = stringResource(id = R.string.trakt_no_favorites_message),
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.bodyLarge,
-            text = stringResource(id = R.string.trakt_account_favorites_empty)
+            text = stringResource(id = R.string.trakt_account_favorites_empty),
         )
 
         Spacer(modifier = Modifier.weight(1f))

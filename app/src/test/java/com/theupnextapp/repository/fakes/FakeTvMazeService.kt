@@ -42,7 +42,6 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 
 class FakeTvMazeService : TvMazeService {
-
     var mockShowInfoResponse: NetworkShowInfoResponse? = null
     var shouldThrowGetShowSummaryError: Boolean = false
     var showSummaryError: Throwable? = null
@@ -79,10 +78,9 @@ class FakeTvMazeService : TvMazeService {
     var mockShowImagesResponse: NetworkTvMazeShowImageResponse? = null
     var showImagesError: Throwable? = null
 
-
     override fun getYesterdayScheduleAsync(
         countryCode: String,
-        date: String?
+        date: String?,
     ): Deferred<List<NetworkYesterdayScheduleResponse>> {
         yesterdayScheduleError?.let { throw it }
         return CompletableDeferred(mockYesterdayScheduleResponse ?: emptyList())
@@ -90,7 +88,7 @@ class FakeTvMazeService : TvMazeService {
 
     override fun getTodayScheduleAsync(
         countryCode: String,
-        date: String?
+        date: String?,
     ): Deferred<List<NetworkTodayScheduleResponse>> {
         todayScheduleError?.let { throw it }
         return CompletableDeferred(mockTodayScheduleResponse ?: emptyList())
@@ -98,7 +96,7 @@ class FakeTvMazeService : TvMazeService {
 
     override fun getTomorrowScheduleAsync(
         countryCode: String,
-        date: String?
+        date: String?,
     ): Deferred<List<NetworkTomorrowScheduleResponse>> {
         tomorrowScheduleError?.let { throw it }
         return CompletableDeferred(mockTomorrowScheduleResponse ?: emptyList())
@@ -120,29 +118,34 @@ class FakeTvMazeService : TvMazeService {
 
     override fun getSuggestionListAsync(name: String): Deferred<List<NetworkShowSearchResponse>> {
         // Minimal mock from original FakeTvMazeService
-        val showData = NetworkShowSearchResponseShow(
-            id = 1, name = "Queen of the South", genres = arrayListOf("Drama", "Action", "Crime"),
-            status = "Ended", premiered = "2021-04-07", rating = Rating(average = 8.8),
-            image = NetworkShowSearchResponseImage(
-                original = "https://static.tvmaze.com/uploads/images/original_untouched/324/811968.jpg",
-                medium = "https://static.tvmaze.com/uploads/images/medium_portrait/324/811968.jpg"
-            ),
-            summary = "Teresa flees Mexico after her drug-runner boyfriend is murdered. Settling in Dallas, she looks to become the country's reigning drug smuggler and to avenge her lover's murder.",
-            updated = 1620422,
-            network = NetworkShowSeasonsResponseNetwork(
-                country = NetworkShowSeasonsResponseCountry(name = "United States", code = "US", timezone = "America/New_York"),
-                id = 2, name = "USA Network"
-            ),
-            schedule = Schedule(time = "22:00", days = arrayListOf("Wednesday")),
-            url = "https://www.tvmaze.com/shows/13158/queen-of-the-south",
-            _links = NetworkShowSearchReponseLinks(
-                previousepisode = NetworkShowSearchResponsePreviousepisode(href = "http://api.tvmaze.com/episodes/2059593"),
-                self = NetworkShowSearchResponseSelf(href = "http://api.tvmaze.com/shows/1")
-            ),
-            externals = Externals(imdb = "tt4352842", thetvdb = 300998, tvrage = null),
-            language = "English", officialSite = "http://www.usanetwork.com/queen-of-the-south",
-            runtime = 60, type = "Scripted", webChannel = Any(), weight = 99
-        )
+        val showData =
+            NetworkShowSearchResponseShow(
+                id = 1, name = "Queen of the South", genres = arrayListOf("Drama", "Action", "Crime"),
+                status = "Ended", premiered = "2021-04-07", rating = Rating(average = 8.8),
+                image =
+                    NetworkShowSearchResponseImage(
+                        original = "https://static.tvmaze.com/uploads/images/original_untouched/324/811968.jpg",
+                        medium = "https://static.tvmaze.com/uploads/images/medium_portrait/324/811968.jpg",
+                    ),
+                summary = "Teresa flees Mexico after her drug-runner boyfriend is murdered. Settling in Dallas, she looks to become the country's reigning drug smuggler and to avenge her lover's murder.",
+                updated = 1620422,
+                network =
+                    NetworkShowSeasonsResponseNetwork(
+                        country = NetworkShowSeasonsResponseCountry(name = "United States", code = "US", timezone = "America/New_York"),
+                        id = 2,
+                        name = "USA Network",
+                    ),
+                schedule = Schedule(time = "22:00", days = arrayListOf("Wednesday")),
+                url = "https://www.tvmaze.com/shows/13158/queen-of-the-south",
+                _links =
+                    NetworkShowSearchReponseLinks(
+                        previousepisode = NetworkShowSearchResponsePreviousepisode(href = "http://api.tvmaze.com/episodes/2059593"),
+                        self = NetworkShowSearchResponseSelf(href = "http://api.tvmaze.com/shows/1"),
+                    ),
+                externals = Externals(imdb = "tt4352842", thetvdb = 300998, tvrage = null),
+                language = "English", officialSite = "http://www.usanetwork.com/queen-of-the-south",
+                runtime = 60, type = "Scripted", webChannel = Any(), weight = 99,
+            )
         val searchResult = NetworkShowSearchResponse(score = 10.0, show = showData)
         return CompletableDeferred(listOf(searchResult))
     }
@@ -153,7 +156,9 @@ class FakeTvMazeService : TvMazeService {
             throw IOException("Fake network error for getShowSummary")
         }
         mockShowInfoResponse?.let { return CompletableDeferred(it) }
-        throw NotImplementedError("mockShowInfoResponse not set for this test, or showSummaryError/shouldThrowGetShowSummaryError not specified.")
+        throw NotImplementedError(
+            "mockShowInfoResponse not set for this test, or showSummaryError/shouldThrowGetShowSummaryError not specified.",
+        )
     }
 
     override fun getNextEpisodeAsync(name: String?): Deferred<NetworkShowNextEpisodeResponse> {
@@ -168,7 +173,9 @@ class FakeTvMazeService : TvMazeService {
             throw IOException("Fake network error for getPreviousEpisode")
         }
         mockPreviousEpisodeResponse?.let { return CompletableDeferred(it) }
-        throw NotImplementedError("mockPreviousEpisodeResponse not set for this test, or previousEpisodeError/shouldThrowGetPreviousEpisodeError not specified.")
+        throw NotImplementedError(
+            "mockPreviousEpisodeResponse not set for this test, or previousEpisodeError/shouldThrowGetPreviousEpisodeError not specified.",
+        )
     }
 
     override fun getShowCastAsync(id: String?): Deferred<NetworkShowCastResponse> {

@@ -35,20 +35,21 @@ fun BackdropAndTitle(
     showDetailArgs: ShowDetailArg?,
     showSummary: ShowDetailSummary?,
 ) {
-    val imageUrl: String? = showDetailArgs?.let { args -> // Use let to scope on non-null showDetailArgs
-        if (!args.showBackgroundUrl.isNullOrEmpty()) {
-            args.showBackgroundUrl
-        } else if (!args.showImageUrl.isNullOrEmpty()) {
-            args.showImageUrl
-        } else {
-            null
-        }
-    } ?: showSummary?.originalImageUrl
+    val imageUrl: String? =
+        showDetailArgs?.let { args -> // Use let to scope on non-null showDetailArgs
+            if (!args.showBackgroundUrl.isNullOrEmpty()) {
+                args.showBackgroundUrl
+            } else if (!args.showImageUrl.isNullOrEmpty()) {
+                args.showImageUrl
+            } else {
+                null
+            }
+        } ?: showSummary?.originalImageUrl
 
     imageUrl?.let {
         PosterImage(
             url = it,
-            height = backdropHeight
+            height = backdropHeight,
         )
     }
 
@@ -57,13 +58,14 @@ fun BackdropAndTitle(
             text = name,
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    start = 16.dp,
-                    top = 8.dp,
-                    end = 16.dp,
-                )
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        start = 16.dp,
+                        top = 8.dp,
+                        end = 16.dp,
+                    ),
         )
     }
 
@@ -71,26 +73,27 @@ fun BackdropAndTitle(
         Text(
             text = status,
             style = MaterialTheme.typography.labelMedium,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    start = 16.dp,
-                    top = 4.dp,
-                    end = 16.dp,
-                    bottom = 4.dp
-                )
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        start = 16.dp,
+                        top = 4.dp,
+                        end = 16.dp,
+                        bottom = 4.dp,
+                    ),
         )
     }
 }
 
 @ExperimentalMaterial3WindowSizeClassApi
 object BackdropAndTitleConfig {
-
     val backdropHeight: Dp
         @Composable
-        get() = when(getWindowSizeClass()?.widthSizeClass) {
-            WindowWidthSizeClass.Compact -> 250.dp
-            WindowWidthSizeClass.Medium -> 280.dp
-            else -> 290.dp
-        }
+        get() =
+            when (getWindowSizeClass()?.widthSizeClass) {
+                WindowWidthSizeClass.Compact -> 250.dp
+                WindowWidthSizeClass.Medium -> 280.dp
+                else -> 290.dp
+            }
 }

@@ -25,5 +25,5 @@ data class TraktCheckInStatus(
     val season: Int? = null,
     val episode: Int? = null,
     val checkInTime: String? = null,
-    val message: String? = null
+    val message: String? = null,
 )

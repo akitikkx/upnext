@@ -35,20 +35,20 @@ data class NetworkShowPreviousEpisodeResponse constructor(
     val runtime: Int?,
     val season: Int?,
     val summary: String?,
-    val url: String?
+    val url: String?,
 )
 
 data class NetworkShowPreviousEpisodeLinks(
-    val self: NetworkShowPreviousEpisodeSelf
+    val self: NetworkShowPreviousEpisodeSelf,
 )
 
 data class NetworkShowPreviousEpisodeSelf(
-    val href: String
+    val href: String,
 )
 
 data class NetworkShowPreviousEpisodeImage(
     val medium: String,
-    val original: String
+    val original: String,
 )
 
 fun NetworkShowPreviousEpisodeResponse.asDomainModel(): ShowPreviousEpisode {
@@ -64,6 +64,6 @@ fun NetworkShowPreviousEpisodeResponse.asDomainModel(): ShowPreviousEpisode {
         previousEpisodeOriginalImageUrl = image?.original,
         previousEpisodeAirtime = airtime,
         previousEpisodeAirstamp = airstamp,
-        previousEpisodeAirdate = airdate
+        previousEpisodeAirdate = airdate,
     )
 }

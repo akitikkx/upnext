@@ -16,15 +16,23 @@ import com.theupnextapp.common.CrashlyticsHelper
 
 class FakeCrashlytics : CrashlyticsHelper { // Renamed class
     private val recordedExceptions = mutableListOf<Throwable>()
+    private val loggedMessages = mutableListOf<String>()
 
     override fun recordException(e: Throwable) {
         recordedExceptions.add(e)
     }
 
+    override fun log(message: String) {
+        loggedMessages.add(message)
+    }
+
     // Helper method for assertions in tests
     fun getRecordedExceptions(): List<Throwable> = recordedExceptions
 
+    fun getLoggedMessages(): List<String> = loggedMessages
+
     fun clear() {
         recordedExceptions.clear()
+        loggedMessages.clear()
     }
 }

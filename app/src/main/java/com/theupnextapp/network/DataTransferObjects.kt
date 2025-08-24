@@ -30,57 +30,57 @@ import com.theupnextapp.network.models.tvmaze.NetworkYesterdayScheduleResponse
 
 fun NetworkYesterdayScheduleResponse.asDatabaseModel(): DatabaseYesterdaySchedule {
     return DatabaseYesterdaySchedule(
-        id = this.id, // Episode ID from response root
-        showId = this.show.id, // Show ID from nested show object
-        image = this.show.image?.original, // Prefer show's original image
-        mediumImage = this.show.image?.medium, // Prefer show's medium image
+        id = this.id,
+        showId = this.show.id,
+        image = this.show.image?.original,
+        mediumImage = this.show.image?.medium,
         language = this.show.language,
-        name = this.name, // Episode name from response root
+        name = this.name,
         officialSite = this.show.officialSite,
         premiered = this.show.premiered,
-        runtime = this.show.runtime.toString(), // This is show's runtime. Episode runtime is this.runtime
+        runtime = this.show.runtime.toString(),
         status = this.show.status,
-        summary = this.summary, // Episode summary from response root
+        summary = this.summary,
         type = this.show.type,
         updated = this.show.updated.toString(),
-        url = this.url // Episode URL from response root
+        url = this.url,
     )
 }
 
 fun NetworkTodayScheduleResponse.asDatabaseModel(): DatabaseTodaySchedule {
     return DatabaseTodaySchedule(
-        id = this.id, // Episode ID from response root
-        showId = this.show.id, // Show ID from nested show object
+        id = this.id,
+        showId = this.show.id,
         image = this.show.image?.original,
         mediumImage = this.show.image?.medium,
         language = this.show.language,
-        name = this.name, // Episode name
+        name = this.name,
         officialSite = this.show.officialSite,
         premiered = this.show.premiered,
         runtime = this.show.runtime.toString(),
         status = this.show.status,
-        summary = this.summary, // Episode summary
+        summary = this.summary,
         type = this.show.type,
         updated = this.show.updated.toString(),
-        url = this.url // Episode URL
+        url = this.url,
     )
 }
 
 fun NetworkTomorrowScheduleResponse.asDatabaseModel(): DatabaseTomorrowSchedule {
     return DatabaseTomorrowSchedule(
-        id = this.id, // Episode ID from response root
-        showId = this.show.id, // Show ID from nested show object
+        id = this.id,
+        showId = this.show.id,
         image = this.show.image?.original,
         mediumImage = this.show.image?.medium,
         language = this.show.language,
-        name = this.name, // Episode name
+        name = this.name,
         officialSite = this.show.officialSite,
         premiered = this.show.premiered,
         runtime = this.show.runtime.toString(),
         status = this.show.status,
-        summary = this.summary, // Episode summary
+        summary = this.summary,
         type = this.show.type,
         updated = this.show.updated.toString(),
-        url = this.url // Episode URL
+        url = this.url,
     )
 }

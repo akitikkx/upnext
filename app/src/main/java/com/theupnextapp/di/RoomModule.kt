@@ -52,15 +52,16 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 @Module
 class RoomModule {
-
     @Singleton
     @Provides
-    fun provideDatabase(@ApplicationContext context: Context): UpnextDatabase {
+    fun provideDatabase(
+        @ApplicationContext context: Context,
+    ): UpnextDatabase {
         return Room
             .databaseBuilder(
                 context,
                 UpnextDatabase::class.java,
-                "upnext"
+                "upnext",
             )
             .addMigrations(
                 MIGRATION_14_15,

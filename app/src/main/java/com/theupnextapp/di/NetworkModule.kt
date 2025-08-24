@@ -50,16 +50,17 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
-
     @Singleton
     @Provides
-    fun provideNetworkClient(@ApplicationContext context: Context): OkHttpClient {
+    fun provideNetworkClient(
+        @ApplicationContext context: Context,
+    ): OkHttpClient {
         return OkHttpClient().newBuilder()
             .cache(Cache(context.cacheDir, (5 * 1024 * 1024).toLong()))
             .addInterceptor(
                 HttpLoggingInterceptor().apply {
                     level = HttpLoggingInterceptor.Level.BODY
-                }
+                },
             )
             .addInterceptor { chain ->
                 var request = chain.request()
@@ -74,14 +75,14 @@ object NetworkModule {
                         ChuckerCollector(
                             context = context,
                             showNotification = true,
-                            retentionPeriod = RetentionManager.Period.ONE_HOUR
-                        )
+                            retentionPeriod = RetentionManager.Period.ONE_HOUR,
+                        ),
                     )
                     .maxContentLength(250_000L)
                     .redactHeaders("Auth-Token", "Bearer")
                     .alwaysReadResponseBody(true)
                     .createShortcut(true)
-                    .build()
+                    .build(),
             )
             .connectTimeout(30, TimeUnit.SECONDS)
             .retryOnConnectionFailure(true)
@@ -92,9 +93,7 @@ object NetworkModule {
 
     @Singleton
     @Provides
-    fun provideTvMazeService(
-        networkClient: OkHttpClient
-    ): TvMazeService {
+    fun provideTvMazeService(networkClient: OkHttpClient): TvMazeService {
         return Retrofit.Builder()
             .client(networkClient)
             .baseUrl(BASE_URL)

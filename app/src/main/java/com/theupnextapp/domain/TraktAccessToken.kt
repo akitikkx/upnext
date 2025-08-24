@@ -29,12 +29,8 @@ data class TraktAccessToken(
     val expires_in: Long?,
     val refresh_token: String?,
     val scope: String?,
-    val token_type: String?
+    val token_type: String?,
 )
-
-fun TraktAccessToken.areVariablesEmpty(): Boolean {
-    return (access_token.isNullOrEmpty() || created_at == null || expires_in == null || refresh_token.isNullOrEmpty() || scope.isNullOrEmpty() || token_type.isNullOrEmpty())
-}
 
 /**
  * Check if the Trakt access token is still valid

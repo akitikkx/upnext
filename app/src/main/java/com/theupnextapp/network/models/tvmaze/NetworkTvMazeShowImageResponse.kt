@@ -27,5 +27,5 @@ data class NetworkTvMazeShowImageResponseItem(
     val id: Int,
     val main: Boolean,
     val resolutions: NetworkTvMazeShowImageResolutions,
-    val type: String
+    val type: String,
 )

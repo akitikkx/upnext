@@ -27,14 +27,15 @@ import com.theupnextapp.R
 import javax.inject.Inject
 
 @Deprecated(message = "SharedPreferences no longer recommended")
-class UpnextPreferenceManager @Inject constructor(val application: Application) {
+class UpnextPreferenceManager
+    @Inject
+    constructor(val application: Application) {
+        fun getSelectedTheme(): String? {
+            val preferences = PreferenceManager.getDefaultSharedPreferences(application)
 
-    fun getSelectedTheme(): String? {
-        val preferences = PreferenceManager.getDefaultSharedPreferences(application)
-
-        return preferences.getString(
-            application.getString(R.string.dark_mode),
-            application.getString(R.string.dark_mode_yes)
-        )
+            return preferences.getString(
+                application.getString(R.string.dark_mode),
+                application.getString(R.string.dark_mode_yes),
+            )
+        }
     }
-}

@@ -36,43 +36,45 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ShowSeasonEpisodesViewModel @Inject constructor(
-    private val showDetailRepository: ShowDetailRepository,
-    traktRepository: TraktRepository,
-    workManager: WorkManager
-) : BaseTraktViewModel(
-    traktRepository,
-    workManager
-) {
+class ShowSeasonEpisodesViewModel
+    @Inject
+    constructor(
+        private val showDetailRepository: ShowDetailRepository,
+        traktRepository: TraktRepository,
+        workManager: WorkManager,
+    ) : BaseTraktViewModel(
+            traktRepository,
+            workManager,
+        ) {
+        private val _isLoading = MutableLiveData<Boolean>()
+        val isLoading: LiveData<Boolean> = _isLoading
 
-    private val _isLoading = MutableLiveData<Boolean>()
-    val isLoading: LiveData<Boolean> = _isLoading
+        private val _episodes = MutableLiveData<List<ShowSeasonEpisode>?>()
+        val episodes: LiveData<List<ShowSeasonEpisode>?> = _episodes
 
-    private val _episodes = MutableLiveData<List<ShowSeasonEpisode>?>()
-    val episodes: LiveData<List<ShowSeasonEpisode>?> = _episodes
+        private val _seasonNumber = MutableLiveData<Int?>()
+        val seasonNumber: LiveData<Int?> = _seasonNumber
 
-    private val _seasonNumber = MutableLiveData<Int?>()
-    val seasonNumber: LiveData<Int?> = _seasonNumber
+        fun selectedSeason(showSeasonEpisodesArg: ShowSeasonEpisodesArg?) {
+            showSeasonEpisodesArg?.let { selectedSeason ->
+                _seasonNumber.value = selectedSeason.seasonNumber
 
-    fun selectedSeason(showSeasonEpisodesArg: ShowSeasonEpisodesArg?) {
-        showSeasonEpisodesArg?.let { selectedSeason ->
-            _seasonNumber.value = selectedSeason.seasonNumber
-
-            selectedSeason.showId?.let { season ->
-                selectedSeason.seasonNumber?.let { seasonNumber ->
-                    viewModelScope.launch {
-                        showDetailRepository.getShowSeasonEpisodes(
-                            showId = season,
-                            seasonNumber = seasonNumber
-                        ).collect { result ->
-                            when (result) {
-                                is Result.Success -> {
-                                    _episodes.value = result.data
+                selectedSeason.showId?.let { season ->
+                    selectedSeason.seasonNumber?.let { seasonNumber ->
+                        viewModelScope.launch {
+                            showDetailRepository.getShowSeasonEpisodes(
+                                showId = season,
+                                seasonNumber = seasonNumber,
+                            ).collect { result ->
+                                when (result) {
+                                    is Result.Success -> {
+                                        _episodes.value = result.data
+                                    }
+                                    is Result.Loading -> {
+                                        _isLoading.value = result.status
+                                    }
+                                    else -> {}
                                 }
-                                is Result.Loading -> {
-                                    _isLoading.value = result.status
-                                }
-                                else -> {}
                             }
                         }
                     }
@@ -80,4 +82,3 @@ class ShowSeasonEpisodesViewModel @Inject constructor(
             }
         }
     }
-}

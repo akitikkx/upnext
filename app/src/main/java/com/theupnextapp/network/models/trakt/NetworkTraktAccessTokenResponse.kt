@@ -30,7 +30,7 @@ data class NetworkTraktAccessTokenResponse(
     val expires_in: Long?,
     val refresh_token: String?,
     val scope: String?,
-    val token_type: String?
+    val token_type: String?,
 )
 
 fun NetworkTraktAccessTokenResponse.asDatabaseModel(): DatabaseTraktAccess {
@@ -41,7 +41,7 @@ fun NetworkTraktAccessTokenResponse.asDatabaseModel(): DatabaseTraktAccess {
         expires_in = expires_in,
         refresh_token = refresh_token,
         scope = scope,
-        token_type = token_type
+        token_type = token_type,
     )
 }
 
@@ -52,6 +52,6 @@ fun NetworkTraktAccessTokenResponse.asDomainModel(): TraktAccessToken {
         expires_in = expires_in,
         refresh_token = refresh_token,
         scope = scope,
-        token_type = token_type
+        token_type = token_type,
     )
 }

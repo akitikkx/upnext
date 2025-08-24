@@ -48,43 +48,46 @@ import com.theupnextapp.ui.components.PosterImage
 @Composable
 fun SearchListCard(
     item: ShowSearch,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     Card(
         shape = MaterialTheme.shapes.large,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(4.dp),
-        onClick = onClick
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(4.dp),
+        onClick = onClick,
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             item.originalImageUrl?.let { url ->
                 PosterImage(
                     url = url,
-                    modifier = Modifier
-                        .width(dimensionResource(id = R.dimen.compose_search_poster_width))
-                        .height(dimensionResource(id = R.dimen.compose_search_poster_height))
+                    modifier =
+                        Modifier
+                            .width(dimensionResource(id = R.dimen.compose_search_poster_width))
+                            .height(dimensionResource(id = R.dimen.compose_search_poster_height)),
                 )
             }
             Column(
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.Start,
-                modifier = Modifier.padding(8.dp)
+                modifier = Modifier.padding(8.dp),
             ) {
                 Text(
-                    text = stringResource(
-                        getNameAndReleaseYearResource(item),
-                        item.name.toString(),
-                        item.premiered?.substring(0, 4).toString()
-                    ),
+                    text =
+                        stringResource(
+                            getNameAndReleaseYearResource(item),
+                            item.name.toString(),
+                            item.premiered?.substring(0, 4).toString(),
+                        ),
                     modifier = Modifier.padding(4.dp),
                     style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
                 )
                 Text(
                     text = item.status.toString(),
                     modifier = Modifier.padding(4.dp),
-                    style = MaterialTheme.typography.bodySmall
+                    style = MaterialTheme.typography.bodySmall,
                 )
             }
         }

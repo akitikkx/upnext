@@ -34,7 +34,7 @@ data class DatabaseTraktAccess(
     val expires_in: Long?,
     val refresh_token: String?,
     val scope: String?,
-    val token_type: String?
+    val token_type: String?,
 )
 
 fun DatabaseTraktAccess.asDomainModel(): TraktAccessToken {
@@ -44,6 +44,6 @@ fun DatabaseTraktAccess.asDomainModel(): TraktAccessToken {
         expires_in = expires_in,
         refresh_token = refresh_token,
         scope = scope,
-        created_at = created_at
+        created_at = created_at,
     )
 }

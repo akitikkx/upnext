@@ -58,12 +58,11 @@ class ShowDetailViewModel @Inject constructor(
     private val showDetailRepository: ShowDetailRepository,
     private val workManager: WorkManager,
     private val traktRepository: TraktRepository,
-    private val firebaseCrashlytics: FirebaseCrashlytics
+    private val firebaseCrashlytics: FirebaseCrashlytics,
 ) : BaseTraktViewModel(
     traktRepository,
-    workManager
+    workManager,
 ) {
-
     private val _show = MutableLiveData<ShowDetailArg>()
     private val _showCastBottomSheet = MutableStateFlow<ShowCast?>(null)
     val showCastBottomSheet: StateFlow<ShowCast?> = _showCastBottomSheet.asStateFlow()
@@ -82,14 +81,24 @@ class ShowDetailViewModel @Inject constructor(
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(5000L),
-                false
+                false,
             )
 
-    val showRating: StateFlow<TraktShowRating?> = traktRepository.traktShowRating
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), null)
+    val showRating: StateFlow<TraktShowRating?> =
+        traktRepository.traktShowRating
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5000L),
+                null,
+            )
 
-    val showStats: StateFlow<TraktShowStats?> = traktRepository.traktShowStats
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), null)
+    val showStats: StateFlow<TraktShowStats?> =
+        traktRepository.traktShowStats
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5000L),
+                null,
+            )
 
     data class ShowDetailUiState(
         val showSummary: ShowDetailSummary? = null,
@@ -104,7 +113,7 @@ class ShowDetailViewModel @Inject constructor(
         val castErrorMessage: String? = null,
         val previousEpisodeErrorMessage: String? = null,
         val nextEpisodeErrorMessage: String? = null,
-        val generalErrorMessage: String? = null
+        val generalErrorMessage: String? = null,
     )
 
     fun selectedShow(show: ShowDetailArg?) {
@@ -121,7 +130,7 @@ class ShowDetailViewModel @Inject constructor(
                     showSummary = null,
                     showCast = null,
                     showPreviousEpisode = null,
-                    showNextEpisode = null
+                    showNextEpisode = null,
                 )
             }
             getShowSummary(it)
@@ -130,7 +139,7 @@ class ShowDetailViewModel @Inject constructor(
             _uiState.update { currentState ->
                 currentState.copy(
                     isLoadingSummary = false,
-                    generalErrorMessage = "No show information provided."
+                    generalErrorMessage = "No show information provided.",
                 )
             }
         }
@@ -143,7 +152,7 @@ class ShowDetailViewModel @Inject constructor(
             show.showId?.let { showId ->
                 if (showId.isNotEmpty() && showId != "null") {
                     showDetailRepository.getShowSummary(showId.toInt()).collect { result ->
-                        _isLoading.value = false // Global loader off after summary attempt
+                        _isLoading.value = false
 
                         when (result) {
                             is Result.Success -> {
@@ -151,7 +160,7 @@ class ShowDetailViewModel @Inject constructor(
                                 _uiState.update { currentState ->
                                     currentState.copy(
                                         showSummary = summary,
-                                        isLoadingSummary = false
+                                        isLoadingSummary = false,
                                     )
                                 }
                                 getShowPreviousEpisode(summary.previousEpisodeHref)
@@ -163,19 +172,21 @@ class ShowDetailViewModel @Inject constructor(
                             }
 
                             is Result.GenericError -> {
-                                val errorMessage = result.error?.message
-                                    ?: "Error loading summary (Code: ${result.code ?: "Unknown"})"
+                                val errorMessage =
+                                    result.error?.message
+                                        ?: "Error loading summary (Code: ${result.code ?: "Unknown"})"
                                 firebaseCrashlytics.recordException(
                                     ShowDetailFetchException(
-                                        "GenericError in getShowSummary: $errorMessage",
-                                        result.error
-                                    )
+                                        message = "GenericError in getShowSummary: $errorMessage",
+                                        errorResponse = result.error,
+                                        cause = result.exception,
+                                    ),
                                 )
                                 _uiState.update {
                                     it.copy(
                                         showSummary = emptyShowData(),
                                         isLoadingSummary = false,
-                                        summaryErrorMessage = errorMessage
+                                        summaryErrorMessage = errorMessage,
                                     )
                                 }
                             }
@@ -183,40 +194,46 @@ class ShowDetailViewModel @Inject constructor(
                             is Result.NetworkError -> {
                                 val networkErrorMessage = "Network error loading summary."
                                 firebaseCrashlytics.recordException(
-                                    ShowDetailFetchException(networkErrorMessage)
+                                    ShowDetailFetchException(
+                                        message = networkErrorMessage,
+                                        errorResponse = null,
+                                        cause = result.exception,
+                                    ),
                                 )
                                 _uiState.update {
                                     it.copy(
                                         showSummary = emptyShowData(),
                                         isLoadingSummary = false,
-                                        summaryErrorMessage = networkErrorMessage
+                                        summaryErrorMessage = networkErrorMessage,
                                     )
                                 }
                             }
 
-                            is Result.Error -> { // Handle the specific Error type
-                                val errorMessage = result.message
-                                    ?: "An unexpected error occurred while loading summary."
+                            is Result.Error -> {
+                                val errorMessage =
+                                    result.message
+                                        ?: "An unexpected error occurred while loading summary."
                                 firebaseCrashlytics.recordException(
-                                    result.exception ?: ShowDetailFetchException(errorMessage)
+                                    ShowDetailFetchException(
+                                        message = errorMessage,
+                                        cause = result.exception
+                                    )
                                 )
                                 _uiState.update {
                                     it.copy(
                                         showSummary = emptyShowData(),
                                         isLoadingSummary = false,
-                                        summaryErrorMessage = errorMessage
+                                        summaryErrorMessage = errorMessage,
                                     )
                                 }
                             }
 
                             is Result.Loading -> {
                                 _uiState.update { it.copy(isLoadingSummary = result.status) }
-                                // Ensure global is off if granular loading finishes (and was the last one)
                                 if (!result.status && !_uiState.value.isCastLoading && !_uiState.value.isPreviousEpisodeLoading && !_uiState.value.isNextEpisodeLoading) {
                                     _isLoading.value = false
                                 } else if (result.status) {
-                                    _isLoading.value =
-                                        true // If any granular loading starts, ensure global reflects it if desired
+                                    _isLoading.value = true
                                 }
                             }
                         }
@@ -227,7 +244,7 @@ class ShowDetailViewModel @Inject constructor(
                         it.copy(
                             showSummary = emptyShowData(),
                             isLoadingSummary = false,
-                            summaryErrorMessage = "Invalid Show ID."
+                            summaryErrorMessage = "Invalid Show ID.",
                         )
                     }
                 }
@@ -236,7 +253,7 @@ class ShowDetailViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         isLoadingSummary = false,
-                        generalErrorMessage = "Show ID is missing."
+                        generalErrorMessage = "Show ID is missing.",
                     )
                 }
             }
@@ -253,18 +270,20 @@ class ShowDetailViewModel @Inject constructor(
                     }
 
                     is Result.GenericError -> {
-                        val errorMessage = result.error?.message
-                            ?: "Failed to load cast (Code: ${result.code ?: "Unknown"})"
+                        val errorMessage =
+                            result.error?.message
+                                ?: "Failed to load cast (Code: ${result.code ?: "Unknown"})"
                         firebaseCrashlytics.recordException(
                             ShowDetailFetchException(
-                                "GenericError in getShowCast: $errorMessage",
-                                result.error
-                            )
+                                message = "GenericError in getShowCast: $errorMessage",
+                                errorResponse = result.error,
+                                cause = result.exception,
+                            ),
                         )
                         _uiState.update {
                             it.copy(
                                 isCastLoading = false,
-                                castErrorMessage = errorMessage
+                                castErrorMessage = errorMessage,
                             )
                         }
                     }
@@ -273,13 +292,15 @@ class ShowDetailViewModel @Inject constructor(
                         val networkErrorMessage = "Network error loading cast."
                         firebaseCrashlytics.recordException(
                             ShowDetailFetchException(
-                                networkErrorMessage
-                            )
+                                message = networkErrorMessage,
+                                errorResponse = null,
+                                cause = result.exception,
+                            ),
                         )
                         _uiState.update {
                             it.copy(
                                 isCastLoading = false,
-                                castErrorMessage = networkErrorMessage
+                                castErrorMessage = networkErrorMessage,
                             )
                         }
                     }
@@ -288,12 +309,15 @@ class ShowDetailViewModel @Inject constructor(
                         val errorMessage =
                             result.message ?: "An unexpected error occurred while loading cast."
                         firebaseCrashlytics.recordException(
-                            result.exception ?: ShowDetailFetchException(errorMessage)
+                             ShowDetailFetchException(
+                                 message = errorMessage,
+                                 cause = result.exception
+                             )
                         )
                         _uiState.update {
                             it.copy(
                                 isCastLoading = false,
-                                castErrorMessage = errorMessage
+                                castErrorMessage = errorMessage,
                             )
                         }
                     }
@@ -311,7 +335,7 @@ class ShowDetailViewModel @Inject constructor(
             _uiState.update {
                 it.copy(
                     isPreviousEpisodeLoading = true,
-                    previousEpisodeErrorMessage = null
+                    previousEpisodeErrorMessage = null,
                 )
             }
             previousEpisodeHref?.takeIf { it.isNotEmpty() }?.let { href ->
@@ -321,24 +345,26 @@ class ShowDetailViewModel @Inject constructor(
                             _uiState.update { currentState ->
                                 currentState.copy(
                                     showPreviousEpisode = result.data,
-                                    isPreviousEpisodeLoading = false
+                                    isPreviousEpisodeLoading = false,
                                 )
                             }
                         }
 
                         is Result.GenericError -> {
-                            val errorMessage = result.error?.message
-                                ?: "Failed to load previous episode (Code: ${result.code ?: "Unknown"})"
+                            val errorMessage =
+                                result.error?.message
+                                    ?: "Failed to load previous episode (Code: ${result.code ?: "Unknown"})"
                             firebaseCrashlytics.recordException(
                                 ShowDetailFetchException(
-                                    "GenericError in getShowPreviousEpisode: $errorMessage",
-                                    result.error
-                                )
+                                    message = "GenericError in getShowPreviousEpisode: $errorMessage",
+                                    errorResponse = result.error,
+                                    cause = result.exception,
+                                ),
                             )
                             _uiState.update {
                                 it.copy(
                                     isPreviousEpisodeLoading = false,
-                                    previousEpisodeErrorMessage = errorMessage
+                                    previousEpisodeErrorMessage = errorMessage,
                                 )
                             }
                         }
@@ -347,27 +373,33 @@ class ShowDetailViewModel @Inject constructor(
                             val networkErrorMessage = "Network error loading previous episode."
                             firebaseCrashlytics.recordException(
                                 ShowDetailFetchException(
-                                    networkErrorMessage
-                                )
+                                    message = networkErrorMessage,
+                                    errorResponse = null,
+                                    cause = result.exception,
+                                ),
                             )
                             _uiState.update {
                                 it.copy(
                                     isPreviousEpisodeLoading = false,
-                                    previousEpisodeErrorMessage = networkErrorMessage
+                                    previousEpisodeErrorMessage = networkErrorMessage,
                                 )
                             }
                         }
 
                         is Result.Error -> {
-                            val errorMessage = result.message
-                                ?: "An unexpected error occurred while loading the previous episode."
+                            val errorMessage =
+                                result.message
+                                    ?: "An unexpected error occurred while loading the previous episode."
                             firebaseCrashlytics.recordException(
-                                result.exception ?: ShowDetailFetchException(errorMessage)
+                                ShowDetailFetchException(
+                                    message = errorMessage,
+                                    cause = result.exception
+                                )
                             )
                             _uiState.update {
                                 it.copy(
                                     isPreviousEpisodeLoading = false,
-                                    previousEpisodeErrorMessage = errorMessage
+                                    previousEpisodeErrorMessage = errorMessage,
                                 )
                             }
                         }
@@ -380,9 +412,9 @@ class ShowDetailViewModel @Inject constructor(
             } ?: _uiState.update {
                 it.copy(
                     showPreviousEpisode = null,
-                    isPreviousEpisodeLoading = false
+                    isPreviousEpisodeLoading = false,
                 )
-            } // No href, clear data and loading
+            }
         }
     }
 
@@ -396,24 +428,26 @@ class ShowDetailViewModel @Inject constructor(
                             _uiState.update { currentState ->
                                 currentState.copy(
                                     showNextEpisode = result.data,
-                                    isNextEpisodeLoading = false
+                                    isNextEpisodeLoading = false,
                                 )
                             }
                         }
 
                         is Result.GenericError -> {
-                            val errorMessage = result.error?.message
-                                ?: "Failed to load next episode (Code: ${result.code ?: "Unknown"})"
+                            val errorMessage =
+                                result.error?.message
+                                    ?: "Failed to load next episode (Code: ${result.code ?: "Unknown"})"
                             firebaseCrashlytics.recordException(
                                 ShowDetailFetchException(
-                                    "GenericError in getShowNextEpisode: $errorMessage",
-                                    result.error
-                                )
+                                    message = "GenericError in getShowNextEpisode: $errorMessage",
+                                    errorResponse = result.error,
+                                    cause = result.exception,
+                                ),
                             )
                             _uiState.update {
                                 it.copy(
                                     isNextEpisodeLoading = false,
-                                    nextEpisodeErrorMessage = errorMessage
+                                    nextEpisodeErrorMessage = errorMessage,
                                 )
                             }
                         }
@@ -422,27 +456,33 @@ class ShowDetailViewModel @Inject constructor(
                             val networkErrorMessage = "Network error loading next episode."
                             firebaseCrashlytics.recordException(
                                 ShowDetailFetchException(
-                                    networkErrorMessage
-                                )
+                                    message = networkErrorMessage,
+                                    errorResponse = null,
+                                    cause = result.exception,
+                                ),
                             )
                             _uiState.update {
                                 it.copy(
                                     isNextEpisodeLoading = false,
-                                    nextEpisodeErrorMessage = networkErrorMessage
+                                    nextEpisodeErrorMessage = networkErrorMessage,
                                 )
                             }
                         }
 
                         is Result.Error -> {
-                            val errorMessage = result.message
-                                ?: "An unexpected error occurred while loading the next episode."
+                            val errorMessage =
+                                result.message
+                                    ?: "An unexpected error occurred while loading the next episode."
                             firebaseCrashlytics.recordException(
-                                result.exception ?: ShowDetailFetchException(errorMessage)
+                                ShowDetailFetchException(
+                                    message = errorMessage,
+                                    cause = result.exception
+                                )
                             )
                             _uiState.update {
                                 it.copy(
                                     isNextEpisodeLoading = false,
-                                    nextEpisodeErrorMessage = errorMessage
+                                    nextEpisodeErrorMessage = errorMessage,
                                 )
                             }
                         }
@@ -455,7 +495,7 @@ class ShowDetailViewModel @Inject constructor(
             } ?: _uiState.update {
                 it.copy(
                     showNextEpisode = null,
-                    isNextEpisodeLoading = false
+                    isNextEpisodeLoading = false,
                 )
             }
         }
@@ -468,9 +508,9 @@ class ShowDetailViewModel @Inject constructor(
             } catch (e: Exception) {
                 firebaseCrashlytics.recordException(
                     ShowDetailFetchException(
-                        "Error fetching Trakt show rating for IMDB ID: $imdbID",
-                        cause = e
-                    )
+                        message = "Error fetching Trakt show rating for IMDB ID: $imdbID",
+                        cause = e,
+                    ),
                 )
             }
         }
@@ -483,9 +523,9 @@ class ShowDetailViewModel @Inject constructor(
             } catch (e: Exception) {
                 firebaseCrashlytics.recordException(
                     ShowDetailFetchException(
-                        "Error fetching Trakt show stats for IMDB ID: $imdbID",
-                        cause = e
-                    )
+                        message = "Error fetching Trakt show stats for IMDB ID: $imdbID",
+                        cause = e,
+                    ),
                 )
             }
         }
@@ -498,17 +538,14 @@ class ShowDetailViewModel @Inject constructor(
             } catch (e: Exception) {
                 firebaseCrashlytics.recordException(
                     ShowDetailFetchException(
-                        "Error checking Trakt favorite status for IMDB ID: $imdbID",
-                        cause = e
-                    )
+                        message = "Error checking Trakt favorite status for IMDB ID: $imdbID",
+                        cause = e,
+                    ),
                 )
                 _uiState.update { it.copy(generalErrorMessage = "Could not check Trakt favorite status.") }
             }
         }
     }
-
-
-    // --- UI Event Handlers ---
 
     fun displayCastBottomSheetComplete() {
         _showCastBottomSheet.value = null
@@ -525,38 +562,39 @@ class ShowDetailViewModel @Inject constructor(
     fun onAddRemoveFavoriteClick() {
         viewModelScope.launch(Dispatchers.IO) {
             val currentAccessToken = traktAccessToken.value
-            val currentFavoriteShow = favoriteShow.value // This is already a StateFlow
+            val currentFavoriteShow = favoriteShow.value
             val currentShowSummary = uiState.value.showSummary
 
             if (currentAccessToken != null) {
-                if (currentFavoriteShow != null) { // Show is currently a favorite
-                    val workerData = Data.Builder()
+                if (currentFavoriteShow != null) {
+                    val workerDataBuilder = Data.Builder()
                     currentFavoriteShow.traktID?.let {
-                        workerData.putInt(RemoveFavoriteShowWorker.ARG_TRAKT_ID, it)
+                        workerDataBuilder.putInt(RemoveFavoriteShowWorker.ARG_TRAKT_ID, it)
                     }
-                    workerData.putString(
+                    workerDataBuilder.putString(
                         RemoveFavoriteShowWorker.ARG_IMDB_ID,
-                        currentFavoriteShow.imdbID ?: currentShowSummary?.imdbID
+                        currentFavoriteShow.imdbID ?: currentShowSummary?.imdbID,
                     )
-                    workerData.putString(
+                    workerDataBuilder.putString(
                         RemoveFavoriteShowWorker.ARG_TOKEN,
-                        currentAccessToken.access_token
+                        currentAccessToken.access_token,
                     )
 
                     val removeFavoriteWork =
                         OneTimeWorkRequest.Builder(RemoveFavoriteShowWorker::class.java)
-                            .setInputData(workerData.build())
+                            .setInputData(workerDataBuilder.build())
                             .build()
                     workManager.enqueue(removeFavoriteWork)
-                } else { // Show is not a favorite
+                } else {
                     currentShowSummary?.imdbID?.let { imdbId ->
-                        val workerData = Data.Builder()
-                            .putString(AddFavoriteShowWorker.ARG_IMDB_ID, imdbId)
-                            .putString(
-                                AddFavoriteShowWorker.ARG_TOKEN,
-                                currentAccessToken.access_token
-                            )
-                            .build()
+                        val workerData =
+                            Data.Builder()
+                                .putString(AddFavoriteShowWorker.ARG_IMDB_ID, imdbId)
+                                .putString(
+                                    AddFavoriteShowWorker.ARG_TOKEN,
+                                    currentAccessToken.access_token,
+                                )
+                                .build()
 
                         val addFavoriteWork =
                             OneTimeWorkRequest.Builder(AddFavoriteShowWorker::class.java)

@@ -36,7 +36,6 @@ import androidx.browser.customtabs.CustomTabsSession
 import timber.log.Timber
 
 open class CustomTabComponent : TabServiceConnectionCallback {
-
     private var client: CustomTabsClient? = null
 
     private var connectionCallback: TabConnectionCallback? = null
@@ -63,7 +62,7 @@ open class CustomTabComponent : TabServiceConnectionCallback {
         activity: Activity,
         customTabsIntent: CustomTabsIntent,
         uri: Uri,
-        customTabFallback: CustomTabFallback
+        customTabFallback: CustomTabFallback,
     ) {
         val packageName = detectCorrectPackage(activity)
 
@@ -102,12 +101,17 @@ open class CustomTabComponent : TabServiceConnectionCallback {
         val packageName = detectCorrectPackage(activity) ?: return
         tabServiceConnection = TabServiceConnection(this)
         CustomTabsClient.bindCustomTabsService(
-            activity, packageName,
-            tabServiceConnection as TabServiceConnection
+            activity,
+            packageName,
+            tabServiceConnection as TabServiceConnection,
         )
     }
 
-    fun mayLaunchUrl(uri: Uri?, bundle: Bundle?, otherLikelyBundle: List<Bundle>?): Boolean {
+    fun mayLaunchUrl(
+        uri: Uri?,
+        bundle: Bundle?,
+        otherLikelyBundle: List<Bundle>?,
+    ): Boolean {
         if (client == null) return false
         val session: CustomTabsSession? = getSession()
         return session?.mayLaunchUrl(uri, bundle, otherLikelyBundle) ?: false
@@ -138,9 +142,10 @@ open class CustomTabComponent : TabServiceConnectionCallback {
             correctPackage = null
         } else if (packagesSupportingCustomTabs.size == 1) {
             correctPackage = packagesSupportingCustomTabs[0]
-        } else if (!defaultViewHandlerPackageName.isNullOrEmpty() && !hasSpecificIntentHandlers(
+        } else if (!defaultViewHandlerPackageName.isNullOrEmpty() &&
+            !hasSpecificIntentHandlers(
                 context,
-                activityIntent
+                activityIntent,
             ) && packagesSupportingCustomTabs.contains(defaultViewHandlerPackageName)
         ) {
             correctPackage = defaultViewHandlerPackageName
@@ -156,7 +161,10 @@ open class CustomTabComponent : TabServiceConnectionCallback {
         return correctPackage
     }
 
-    private fun hasSpecificIntentHandlers(context: Context, intent: Intent): Boolean {
+    private fun hasSpecificIntentHandlers(
+        context: Context,
+        intent: Intent,
+    ): Boolean {
         try {
             val packageManager = context.packageManager
             val handlers =

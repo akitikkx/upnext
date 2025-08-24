@@ -30,27 +30,27 @@ data class NetworkTraktCheckInResponse(
     val id: Long?,
     val sharing: NetworkTraktCheckInResponseSharing?,
     val show: NetworkTraktCheckInResponseShow?,
-    val watched_at: String?
+    val watched_at: String?,
 )
 
 data class NetworkTraktCheckInResponseEpisode(
     val ids: NetworkTraktCheckInResponseEpisodeIds?,
     val number: Int?,
     val season: Int?,
-    val title: String?
+    val title: String?,
 )
 
 data class NetworkTraktCheckInResponseEpisodeIds(
     val imdb: Any?,
     val tmdb: Any?,
     val trakt: Int?,
-    val tvdb: Int?
+    val tvdb: Int?,
 )
 
 data class NetworkTraktCheckInResponseShow(
     val ids: NetworkTraktCheckInResponseShowIds?,
     val title: String?,
-    val year: Int?
+    val year: Int?,
 )
 
 data class NetworkTraktCheckInResponseShowIds(
@@ -58,14 +58,13 @@ data class NetworkTraktCheckInResponseShowIds(
     val slug: String?,
     val tmdb: Int?,
     val trakt: Int?,
-    val tvdb: Int?
+    val tvdb: Int?,
 )
 
 data class NetworkTraktCheckInResponseSharing(
     val tumblr: Boolean?,
-    val twitter: Boolean?
+    val twitter: Boolean?,
 )
-
 
 fun NetworkTraktCheckInResponse.asDomainModel(): TraktCheckInStatus {
     // ... (implementation as before)
@@ -73,16 +72,17 @@ fun NetworkTraktCheckInResponse.asDomainModel(): TraktCheckInStatus {
         TraktCheckInStatus(
             season = this.episode?.season,
             episode = this.episode?.number,
-            checkInTime = this.watched_at.let {
-                DateUtils.getDisplayDateFromDateStamp(it).toString()
-            },
-            message = "Checked into ${this.show?.title ?: "show"} S${this.episode?.season}E${this.episode?.number} successfully."
+            checkInTime =
+                this.watched_at.let {
+                    DateUtils.getDisplayDateFromDateStamp(it).toString()
+                },
+            message = "Checked into ${this.show?.title ?: "show"} S${this.episode?.season}E${this.episode?.number} successfully.",
         )
     } else {
         TraktCheckInStatus(
             season = this.episode?.season,
             episode = this.episode?.number,
-            message = "Check-in status uncertain: received successful response but missing key details."
+            message = "Check-in status uncertain: received successful response but missing key details.",
         )
     }
 }
@@ -94,5 +94,5 @@ fun NetworkTraktCheckInResponse.asDomainModel(): TraktCheckInStatus {
 data class TraktConflictErrorResponse(
     @Json(name = "expires_at") val expiresAt: String?,
     @Json(name = "show") val show: NetworkTraktCheckInResponseShow?,
-    @Json(name = "episode") val episode: NetworkTraktCheckInResponseEpisode?
+    @Json(name = "episode") val episode: NetworkTraktCheckInResponseEpisode?,
 )

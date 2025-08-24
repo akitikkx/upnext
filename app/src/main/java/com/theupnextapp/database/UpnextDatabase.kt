@@ -38,7 +38,7 @@ import androidx.room.RoomDatabase
         DatabaseTraktAccess::class,
     ],
     version = 29,
-    exportSchema = true
+    exportSchema = true,
 )
 abstract class UpnextDatabase : RoomDatabase() {
     abstract val upnextDao: UpnextDao

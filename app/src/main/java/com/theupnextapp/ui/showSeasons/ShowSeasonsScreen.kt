@@ -64,7 +64,7 @@ import com.theupnextapp.ui.components.SectionHeadingText
 fun ShowSeasonsScreen(
     viewModel: ShowSeasonsViewModel = hiltViewModel(),
     showDetailArg: ShowDetailArg?,
-    navigator: DestinationsNavigator
+    navigator: DestinationsNavigator,
 ) {
     viewModel.setSelectedShow(showDetailArg)
 
@@ -83,18 +83,19 @@ fun ShowSeasonsScreen(
                                     showId = showDetailArg?.showId?.toInt(),
                                     seasonNumber = showSeason.seasonNumber,
                                     imdbID = showDetailArg?.imdbID,
-                                    isAuthorizedOnTrakt = showDetailArg?.isAuthorizedOnTrakt
-                                )
-                            )
+                                    isAuthorizedOnTrakt = showDetailArg?.isAuthorizedOnTrakt,
+                                ),
+                            ),
                         )
                     }
                 }
 
                 if (isLoading.value == true) {
                     LinearProgressIndicator(
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .fillMaxWidth()
+                        modifier =
+                            Modifier
+                                .padding(8.dp)
+                                .fillMaxWidth(),
                     )
                 }
             }
@@ -104,7 +105,10 @@ fun ShowSeasonsScreen(
 
 @ExperimentalMaterial3Api
 @Composable
-fun ShowSeasons(list: List<ShowSeason>, onClick: (item: ShowSeason) -> Unit) {
+fun ShowSeasons(
+    list: List<ShowSeason>,
+    onClick: (item: ShowSeason) -> Unit,
+) {
     Column(modifier = Modifier.fillMaxWidth()) {
         SectionHeadingText(text = stringResource(id = R.string.title_seasons))
         LazyColumn(modifier = Modifier.padding(8.dp)) {
@@ -121,75 +125,82 @@ fun ShowSeasons(list: List<ShowSeason>, onClick: (item: ShowSeason) -> Unit) {
 @Composable
 fun ShowSeasonCard(
     item: ShowSeason,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     Card(
         shape = MaterialTheme.shapes.large,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(4.dp),
-        onClick = onClick
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(4.dp),
+        onClick = onClick,
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             item.originalImageUrl?.let { url ->
                 PosterImage(
                     url = url,
-                    modifier = Modifier
-                        .width(dimensionResource(id = R.dimen.compose_search_poster_width))
-                        .height(dimensionResource(id = R.dimen.compose_search_poster_height))
+                    modifier =
+                        Modifier
+                            .width(dimensionResource(id = R.dimen.compose_search_poster_width))
+                            .height(dimensionResource(id = R.dimen.compose_search_poster_height)),
                 )
             }
             Column(
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.Start,
-                modifier = Modifier.padding(8.dp)
+                modifier = Modifier.padding(8.dp),
             ) {
                 if (item.seasonNumber.toString().isNotEmpty()) {
                     Text(
-                        text = stringResource(
-                            R.string.show_detail_season_and_number,
-                            item.seasonNumber.toString()
-                        ),
+                        text =
+                            stringResource(
+                                R.string.show_detail_season_and_number,
+                                item.seasonNumber.toString(),
+                            ),
                         modifier = Modifier.padding(4.dp),
                         style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
                     )
                 }
 
                 if (!item.premiereDate.isNullOrEmpty()) {
                     Text(
-                        text = stringResource(
-                            R.string.show_detail_season_premiere_date,
-                            item.premiereDate
-                        ),
+                        text =
+                            stringResource(
+                                R.string.show_detail_season_premiere_date,
+                                item.premiereDate,
+                            ),
                         modifier = Modifier.padding(2.dp),
-                        style = MaterialTheme.typography.bodyMedium
+                        style = MaterialTheme.typography.bodyMedium,
                     )
                 }
 
                 if (!item.endDate.isNullOrEmpty()) {
                     Text(
-                        text = stringResource(
-                            R.string.show_detail_season_end_date,
-                            item.endDate
-                        ),
+                        text =
+                            stringResource(
+                                R.string.show_detail_season_end_date,
+                                item.endDate,
+                            ),
                         modifier = Modifier.padding(2.dp),
-                        style = MaterialTheme.typography.bodyMedium
+                        style = MaterialTheme.typography.bodyMedium,
                     )
                 }
 
                 if (!item.originalImageUrl.isNullOrEmpty()) {
                     Text(
-                        text = stringResource(
-                            R.string.tv_maze_creative_commons_attribution_text_single
-                        ),
-                        modifier = Modifier.padding(
-                            start = 2.dp,
-                            top = 4.dp,
-                            bottom = 2.dp,
-                            end = 4.dp
-                        ),
-                        style = MaterialTheme.typography.bodyMedium
+                        text =
+                            stringResource(
+                                R.string.tv_maze_creative_commons_attribution_text_single,
+                            ),
+                        modifier =
+                            Modifier.padding(
+                                start = 2.dp,
+                                top = 4.dp,
+                                bottom = 2.dp,
+                                end = 4.dp,
+                            ),
+                        style = MaterialTheme.typography.bodyMedium,
                     )
                 }
             }

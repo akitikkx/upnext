@@ -22,7 +22,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 class FakeTvMazeDao : TvMazeDao {
-
     private val _yesterdayShows = MutableStateFlow<List<DatabaseYesterdaySchedule>>(emptyList())
     val yesterdayShowsList = mutableListOf<DatabaseYesterdaySchedule>()
 
@@ -36,7 +35,9 @@ class FakeTvMazeDao : TvMazeDao {
 
     override fun getYesterdayShows(): Flow<List<DatabaseYesterdaySchedule>> = _yesterdayShows.asStateFlow()
 
-    override fun insertAllYesterdayShows(vararg yesterdayShows: DatabaseYesterdaySchedule) {
+    override fun insertAllYesterdayShows(
+        vararg yesterdayShows: DatabaseYesterdaySchedule
+    ) {
         yesterdayShowsList.clear()
         yesterdayShowsList.addAll(yesterdayShows)
         _yesterdayShows.value = yesterdayShowsList.toList()
@@ -49,7 +50,9 @@ class FakeTvMazeDao : TvMazeDao {
 
     override fun getTodayShows(): Flow<List<DatabaseTodaySchedule>> = _todayShows.asStateFlow()
 
-    override fun insertAllTodayShows(vararg todayShows: DatabaseTodaySchedule) {
+    override fun insertAllTodayShows(
+        vararg todayShows: DatabaseTodaySchedule
+    ) {
         todayShowsList.clear()
         todayShowsList.addAll(todayShows)
         _todayShows.value = todayShowsList.toList()
@@ -62,7 +65,9 @@ class FakeTvMazeDao : TvMazeDao {
 
     override fun getTomorrowShows(): Flow<List<DatabaseTomorrowSchedule>> = _tomorrowShows.asStateFlow()
 
-    override fun insertAllTomorrowShows(vararg tomorrowShows: DatabaseTomorrowSchedule) {
+    override fun insertAllTomorrowShows(
+        vararg tomorrowShows: DatabaseTomorrowSchedule
+    ) {
         tomorrowShowsList.clear()
         tomorrowShowsList.addAll(tomorrowShows)
         _tomorrowShows.value = tomorrowShowsList.toList()
@@ -79,11 +84,6 @@ class FakeTvMazeDao : TvMazeDao {
 
     override fun getShowWithId(id: Int): ShowInfo {
         return showInfoMap[id] ?: throw NoSuchElementException("Show with id $id not found in FakeTvMazeDao")
-    }
-
-    // Helper methods for testing
-    fun addShowInfo(showInfo: ShowInfo) {
-        showInfoMap[showInfo.id] = showInfo // Corrected to use showInfo.id
     }
 
     fun clearAllData() {

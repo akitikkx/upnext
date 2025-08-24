@@ -31,7 +31,7 @@ data class NetworkTraktPopularShowsResponseItem(
     val title: String?,
     val year: Int?,
     var mediumImageUrl: String?,
-    var originalImageUrl: String?
+    var originalImageUrl: String?,
 )
 
 data class NetworkTraktPopularShowsResponseItemIds(
@@ -40,7 +40,7 @@ data class NetworkTraktPopularShowsResponseItemIds(
     val tmdb: Int?,
     val trakt: Int,
     val tvdb: Int?,
-    var tvMazeID: Int?
+    var tvMazeID: Int?,
 )
 
 fun NetworkTraktPopularShowsResponseItem.asDomainModel(): TraktPopularShows {
@@ -55,7 +55,7 @@ fun NetworkTraktPopularShowsResponseItem.asDomainModel(): TraktPopularShows {
         tmdbID = ids.tmdb,
         traktID = ids.trakt,
         tvMazeID = ids.tvMazeID,
-        tvdbID = ids.tvdb
+        tvdbID = ids.tvdb,
     )
 }
 
@@ -71,6 +71,6 @@ fun NetworkTraktPopularShowsResponseItem.asDatabaseModel(): DatabaseTraktPopular
         tmdbID = ids.tmdb,
         traktID = ids.trakt,
         tvdbID = ids.tvdb,
-        tvMazeID = ids.tvMazeID
+        tvMazeID = ids.tvMazeID,
     )
 }

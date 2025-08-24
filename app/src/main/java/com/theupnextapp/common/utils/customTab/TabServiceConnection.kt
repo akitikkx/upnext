@@ -28,11 +28,13 @@ import java.lang.ref.WeakReference
 
 class TabServiceConnection(connectionCallback: TabServiceConnectionCallback) :
     CustomTabsServiceConnection() {
-
     private val mConnectionCallback: WeakReference<TabServiceConnectionCallback> =
         WeakReference<TabServiceConnectionCallback>(connectionCallback)
 
-    override fun onCustomTabsServiceConnected(name: ComponentName, client: CustomTabsClient) {
+    override fun onCustomTabsServiceConnected(
+        name: ComponentName,
+        client: CustomTabsClient,
+    ) {
         mConnectionCallback.get()?.onTabServiceConnected(client)
     }
 

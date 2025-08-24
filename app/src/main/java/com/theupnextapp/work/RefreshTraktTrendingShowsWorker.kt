@@ -39,31 +39,32 @@ import timber.log.Timber
  * @param traktRepository The Trakt repository.
  */
 @HiltWorker
-class RefreshTraktTrendingShowsWorker @AssistedInject constructor(
-    @Assisted appContext: Context,
-    @Assisted workerParameters: WorkerParameters,
-    private val traktRepository: TraktRepository
-) : BaseWorker(appContext, workerParameters) {
+class RefreshTraktTrendingShowsWorker
+    @AssistedInject
+    constructor(
+        @Assisted appContext: Context,
+        @Assisted workerParameters: WorkerParameters,
+        private val traktRepository: TraktRepository,
+    ) : BaseWorker(appContext, workerParameters) {
+        override val notificationId: Int = NOTIFICATION_ID
+        override val contentTitleText: String = "Refreshing Trakt Trending shows"
 
-    override val notificationId: Int = NOTIFICATION_ID
-    override val contentTitleText: String = "Refreshing Trakt Trending shows"
+        override suspend fun doWork(): Result {
+            Timber.d("$WORK_NAME: Starting worker.")
+            return try {
+                Timber.d("$WORK_NAME: Refreshing Trakt trending shows from repository.")
+                // Pass forceRefresh = true because the worker is triggered when an update is desired
+                traktRepository.refreshTraktTrendingShows(forceRefresh = true)
+                Timber.i("$WORK_NAME: Worker completed successfully.")
+                Result.success()
+            } catch (e: Exception) {
+                Timber.e(e, "$WORK_NAME: Worker failed.")
+                Result.failure()
+            }
+        }
 
-    override suspend fun doWork(): Result {
-        Timber.d("$WORK_NAME: Starting worker.")
-        return try {
-            Timber.d("$WORK_NAME: Refreshing Trakt trending shows from repository.")
-            // Pass forceRefresh = true because the worker is triggered when an update is desired
-            traktRepository.refreshTraktTrendingShows(forceRefresh = true)
-            Timber.i("$WORK_NAME: Worker completed successfully.")
-            Result.success()
-        } catch (e: Exception) {
-            Timber.e(e, "$WORK_NAME: Worker failed.")
-            Result.failure()
+        companion object {
+            const val WORK_NAME = "RefreshTraktTrendingShowsWorker"
+            private const val NOTIFICATION_ID = 1008
         }
     }
-
-    companion object {
-        const val WORK_NAME = "RefreshTraktTrendingShowsWorker"
-        private const val NOTIFICATION_ID = 1008
-    }
-}

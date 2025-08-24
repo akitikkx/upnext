@@ -25,13 +25,13 @@ import org.jsoup.Jsoup
 @Composable
 fun ShowSynopsis(
     showSummary: ShowDetailSummary?,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     showSummary?.summary?.let { summary ->
         Text(
             text = Jsoup.parse(summary).text(),
             modifier = modifier,
-            style = MaterialTheme.typography.bodyMedium
+            style = MaterialTheme.typography.bodyMedium,
         )
     }
 }
@@ -40,7 +40,7 @@ fun ShowSynopsis(
 @Composable
 fun ShowSynopsisPreview(
     @PreviewParameter(ShowDetailSummaryProvider::class)
-    showSummary: ShowDetailSummary?
+    showSummary: ShowDetailSummary?,
 ) {
     ShowSynopsis(showSummary = showSummary)
 }

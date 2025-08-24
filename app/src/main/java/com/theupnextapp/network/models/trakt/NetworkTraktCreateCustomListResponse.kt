@@ -34,10 +34,10 @@ data class NetworkTraktCreateCustomListResponse(
     val privacy: String?,
     val sort_by: String?,
     val sort_how: String?,
-    val updated_at: String?
+    val updated_at: String?,
 )
 
 data class NetworkTraktCreateCustomListResponseIds(
     val slug: String?,
-    val trakt: Int?
+    val trakt: Int?,
 )

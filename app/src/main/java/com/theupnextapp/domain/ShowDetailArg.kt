@@ -28,5 +28,5 @@ data class ShowDetailArg(
     val showImageUrl: String?,
     val showBackgroundUrl: String?,
     val imdbID: String? = null,
-    val isAuthorizedOnTrakt: Boolean? = false
+    val isAuthorizedOnTrakt: Boolean? = false,
 )

@@ -21,7 +21,6 @@
 
 package com.theupnextapp.common.utils
 
-import com.theupnextapp.common.utils.models.TimeDifferenceForDisplay
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -30,93 +29,43 @@ import java.util.concurrent.TimeUnit
 
 object DateUtils {
 
-    fun currentDate(): String? {
-        val calendar = Calendar.getInstance()
-        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        return simpleDateFormat.format(calendar.time)
-    }
-
-    fun tomorrowDate(): String? {
-        val calendar = Calendar.getInstance()
-        calendar.add(Calendar.DAY_OF_YEAR, 1)
-        val tomorrow = calendar.time
-        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        return simpleDateFormat.format(tomorrow)
-    }
-
-    fun yesterdayDate(): String? {
-        val calendar = Calendar.getInstance()
-        calendar.add(Calendar.DAY_OF_YEAR, -1)
-        val yesterday = calendar.time
-        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        return simpleDateFormat.format(yesterday)
-    }
-
-    fun getTimeDifferenceForDisplay(
-        startTime: Long? = null,
-        endTime: Long
-    ): TimeDifferenceForDisplay? {
-        var timeDifferenceForDisplay: TimeDifferenceForDisplay? = null
-
-        val daysDiff = dateDifference(startTime = startTime, endTime = endTime, type = "days")
-        val hoursDiff = dateDifference(startTime = startTime, endTime = endTime, type = "hours")
-        val minutesDiff = dateDifference(startTime = startTime, endTime = endTime, type = "minutes")
-        val secondsDiff = dateDifference(startTime = startTime, endTime = endTime, type = "seconds")
-
-        if (daysDiff == 0L && hoursDiff == 0L && minutesDiff != -0L) {
-            timeDifferenceForDisplay =
-                TimeDifferenceForDisplay(
-                    minutesDiff,
-                    "minutes"
-                )
-        } else if (daysDiff == 0L && hoursDiff != 0L) {
-            timeDifferenceForDisplay =
-                TimeDifferenceForDisplay(
-                    hoursDiff,
-                    "hours"
-                )
-        } else if (daysDiff != 0L && hoursDiff != 0L) {
-            timeDifferenceForDisplay =
-                TimeDifferenceForDisplay(
-                    daysDiff,
-                    "days"
-                )
-        } else if (daysDiff == 0L && hoursDiff == 0L && minutesDiff == 0L && secondsDiff != 0L) {
-            timeDifferenceForDisplay =
-                TimeDifferenceForDisplay(
-                    secondsDiff,
-                    "seconds"
-                )
-        } else if (daysDiff == 0L && hoursDiff == 0L && minutesDiff == 0L && secondsDiff == 0L) {
-            timeDifferenceForDisplay =
-                TimeDifferenceForDisplay(
-                    0L,
-                    "seconds"
-                )
-        }
-        return timeDifferenceForDisplay
-    }
-
     /**
      * Calculates the difference between two time points in the specified time unit.
      * Returns endTime - startTime.
      * A positive result means endTime is after startTime.
      * A negative result means endTime is before startTime.
      */
-    fun calculateDifference(startTimeMillis: Long, endTimeMillis: Long, unit: TimeUnit): Long {
+    fun calculateDifference(
+        startTimeMillis: Long,
+        endTimeMillis: Long,
+        unit: TimeUnit,
+    ): Long {
         val diffMillis = endTimeMillis - startTimeMillis
         return unit.convert(diffMillis, TimeUnit.MILLISECONDS)
     }
 
-    fun dateDifference(startTime: Long? = null, endTime: Long, type: String): Long {
-        val diffCount = startTime ?: Calendar.getInstance().timeInMillis - endTime
+    fun dateDifference(
+        startTime: Long? = null,
+        endTime: Long,
+        type: String,
+    ): Long {
+        val diffCount = startTime
+            ?: (Calendar.getInstance().timeInMillis - endTime)
         var diff: Long = -1L
 
         when (type) {
-            DAYS -> diff = endTime.let { TimeUnit.MILLISECONDS.toDays(diffCount) }
-            HOURS -> diff = endTime.let { TimeUnit.MILLISECONDS.toHours(diffCount) }
-            MINUTES -> diff = endTime.let { TimeUnit.MILLISECONDS.toMinutes(diffCount) }
-            SECONDS -> diff = endTime.let { TimeUnit.MILLISECONDS.toSeconds(diffCount) }
+            DAYS ->
+                diff = endTime.let { TimeUnit.MILLISECONDS.toDays(diffCount) }
+
+            HOURS ->
+                diff = endTime.let { TimeUnit.MILLISECONDS.toHours(diffCount) }
+
+            MINUTES ->
+                diff = endTime.let { TimeUnit.MILLISECONDS.toMinutes(diffCount) }
+
+            SECONDS -> {
+                diff = endTime.let { TimeUnit.MILLISECONDS.toSeconds(diffCount) }
+            }
         }
         return diff
     }
@@ -132,24 +81,18 @@ object DateUtils {
      * @param formatPattern The desired date format pattern (e.g., "yyyy-MM-dd").
      * @return Formatted date string, or null if formatting fails (should be rare with valid inputs).
      */
-    fun formatTimestampToString(timestampMillis: Long, formatPattern: String = "yyyy-MM-dd"): String? {
+    fun formatTimestampToString(
+        timestampMillis: Long,
+        formatPattern: String = "yyyy-MM-dd",
+    ): String? {
         return try {
             val sdf = SimpleDateFormat(formatPattern, Locale.getDefault())
             val calendar = Calendar.getInstance()
             calendar.timeInMillis = timestampMillis
             sdf.format(calendar.time)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             // Log error or handle appropriately
             null // Or throw an exception if this case should not happen
-        }
-    }
-
-    fun formatDateToString(date: Date, formatPattern: String = "yyyy-MM-dd"): String? {
-        return try {
-            val sdf = SimpleDateFormat(formatPattern, Locale.getDefault())
-            sdf.format(date)
-        } catch (e: Exception) {
-            null
         }
     }
 

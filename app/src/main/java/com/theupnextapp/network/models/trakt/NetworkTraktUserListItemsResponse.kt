@@ -30,7 +30,7 @@ data class NetworkTraktUserListItemResponseItem(
     val listed_at: String?,
     val rank: Int?,
     val show: NetworkTraktUserListItemResponseItemShow?,
-    val type: String?
+    val type: String?,
 )
 
 data class NetworkTraktUserListItemResponseItemShow(
@@ -38,7 +38,7 @@ data class NetworkTraktUserListItemResponseItemShow(
     val title: String?,
     val year: Int?,
     var mediumImageUrl: String?,
-    var originalImageUrl: String?
+    var originalImageUrl: String?,
 )
 
 data class NetworkTraktUserListItemResponseItemShowIds(
@@ -47,7 +47,7 @@ data class NetworkTraktUserListItemResponseItemShowIds(
     val tmdb: Int?,
     val trakt: Int?,
     val tvdb: Int?,
-    var tvMazeID: Int?
+    var tvMazeID: Int?,
 )
 
 fun NetworkTraktUserListItemResponseItem.asDatabaseModel(): DatabaseFavoriteShows {
@@ -62,6 +62,6 @@ fun NetworkTraktUserListItemResponseItem.asDatabaseModel(): DatabaseFavoriteShow
         tmdbID = show?.ids?.tmdb,
         traktID = show?.ids?.trakt,
         tvdbID = show?.ids?.tvdb,
-        tvMazeID = show?.ids?.tvMazeID
+        tvMazeID = show?.ids?.tvMazeID,
     )
 }

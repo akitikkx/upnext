@@ -24,21 +24,21 @@ package com.theupnextapp.network.models.trakt
 data class NetworkTraktAddShowToListResponse(
     val added: NetworkTraktAddShowToListResponseAdded,
     val existing: NetworkTraktAddShowToListResponseExisting,
-    val not_found: NetworkTraktAddShowToListResponseNotFound
+    val not_found: NetworkTraktAddShowToListResponseNotFound,
 )
 
 data class NetworkTraktAddShowToListResponseAdded(
-    val shows: Int
+    val shows: Int,
 )
 
 data class NetworkTraktAddShowToListResponseExisting(
-    val shows: Int
+    val shows: Int,
 )
 
 data class NotFoundShowItem(
-    val ids: NetworkTraktAddShowToListRequestShowIds // This will correctly point to your class with just 'trakt: Int'
+    val ids: NetworkTraktAddShowToListRequestShowIds, // This will correctly point to your class with just 'trakt: Int'
 )
 
 data class NetworkTraktAddShowToListResponseNotFound(
-    val shows: List<NotFoundShowItem>
+    val shows: List<NotFoundShowItem>,
 )

@@ -27,26 +27,26 @@ data class NetworkTraktCheckInRequest(
     val episode: NetworkTraktCheckInRequestEpisode?,
     val message: String? = null,
     val sharing: NetworkTraktCheckInRequestSharing? = null,
-    val show: NetworkTraktCheckInRequestShow?
+    val show: NetworkTraktCheckInRequestShow?,
 )
 
 data class NetworkTraktCheckInRequestShow(
     val ids: NetworkTraktCheckInRequestShowIds?,
     val title: String?,
-    val year: Int?
+    val year: Int?,
 )
 
 data class NetworkTraktCheckInRequestEpisode(
     val number: Int?,
-    val season: Int?
+    val season: Int?,
 )
 
 data class NetworkTraktCheckInRequestSharing(
     val tumblr: Boolean?,
-    val twitter: Boolean?
+    val twitter: Boolean?,
 )
 
 data class NetworkTraktCheckInRequestShowIds(
     val trakt: Int?,
-    val tvdb: Int? = null
+    val tvdb: Int? = null,
 )

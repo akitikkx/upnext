@@ -17,5 +17,5 @@ data class TraktAccountUiState(
     val confirmDisconnectFromTrakt: Boolean = false,
     val isDisconnecting: Boolean = false,
     val connectionError: String? = null,
-    val disconnectionError: String? = null
+    val disconnectionError: String? = null,
 )

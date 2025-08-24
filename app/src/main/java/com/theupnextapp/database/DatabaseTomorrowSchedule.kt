@@ -20,7 +20,7 @@ data class DatabaseTomorrowSchedule(
     val summary: String?,
     val type: String?,
     val updated: String?,
-    val url: String?
+    val url: String?,
 )
 
 fun List<DatabaseTomorrowSchedule>.asDomainModel(): List<ScheduleShow> {
@@ -39,7 +39,7 @@ fun List<DatabaseTomorrowSchedule>.asDomainModel(): List<ScheduleShow> {
             summary = it.summary,
             type = it.type,
             updated = it.updated,
-            url = it.url
+            url = it.url,
         )
     }
 }

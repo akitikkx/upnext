@@ -38,20 +38,20 @@ data class NetworkTvMazeEpisodesResponseItem(
     val season: Int?,
     val summary: String?,
     val type: String?,
-    val url: String?
+    val url: String?,
 )
 
 data class NetworkTvMazeEpisodesResponseLinks(
-    val self: NetworkTvMazeEpisodesResponseSelf?
+    val self: NetworkTvMazeEpisodesResponseSelf?,
 )
 
 data class NetworkTvMazeEpisodesResponseImage(
     val medium: String?,
-    val original: String?
+    val original: String?,
 )
 
 data class NetworkTvMazeEpisodesResponseSelf(
-    val href: String
+    val href: String,
 )
 
 fun List<NetworkTvMazeEpisodesResponseItem>.asDomainModel(): List<ShowSeasonEpisode> {
@@ -69,7 +69,7 @@ fun List<NetworkTvMazeEpisodesResponseItem>.asDomainModel(): List<ShowSeasonEpis
             airdate = it.airdate,
             airstamp = it.airstamp,
             airtime = it.airtime,
-            imdbID = null
+            imdbID = null,
         )
     }
 }

@@ -12,7 +12,6 @@
 
 package com.theupnextapp.ui.main
 
-
 import AppNavigation
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
@@ -44,6 +43,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -62,7 +62,6 @@ import com.theupnextapp.ui.search.SearchScreen
 import com.theupnextapp.ui.traktAccount.TraktAccountScreen
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
-
 
 @OptIn(
     ExperimentalMaterial3AdaptiveApi::class,
@@ -93,40 +92,44 @@ fun MainScreen(
     val navBackStackEntry by mainNavController.currentBackStackEntryAsState()
     val currentRouteForDetailPane = navBackStackEntry?.destination?.route
 
-    val isDetailFlowActive = remember(currentRouteForDetailPane) {
-        val isActive = currentRouteForDetailPane?.let { route ->
-            route.startsWith(ShowDetailScreenDestination.baseRoute) ||
-                    route.startsWith(ShowSeasonsScreenDestination.baseRoute) ||
-                    route.startsWith(ShowSeasonEpisodesScreenDestination.baseRoute) ||
-                    route.startsWith(TraktAccountScreenDestination.baseRoute)
-                    // Explicitly ensure EmptyDetailScreen is NOT considered part of an active detail flow
-                    && route != EmptyDetailScreenDestination.route
-        } == true
-        isActive
-    }
-
-    val showDetailScreenArgs = remember(currentRouteForDetailPane, navBackStackEntry) {
-        if (currentRouteForDetailPane?.startsWith(ShowDetailScreenDestination.baseRoute) == true) {
-            navBackStackEntry?.let { ShowDetailScreenDestination.argsFrom(it) }
-        } else {
-            null
+    val isDetailFlowActive =
+        remember(currentRouteForDetailPane) {
+            val isActive =
+                currentRouteForDetailPane?.let { route ->
+                    route.startsWith(ShowDetailScreenDestination.baseRoute) ||
+                        route.startsWith(ShowSeasonsScreenDestination.baseRoute) ||
+                        route.startsWith(ShowSeasonEpisodesScreenDestination.baseRoute) ||
+                        route.startsWith(TraktAccountScreenDestination.baseRoute) &&
+                        // Explicitly ensure EmptyDetailScreen is NOT considered part of an active detail flow
+                        route != EmptyDetailScreenDestination.route
+                } == true
+            isActive
         }
-    }
+
+    val showDetailScreenArgs =
+        remember(currentRouteForDetailPane, navBackStackEntry) {
+            if (currentRouteForDetailPane?.startsWith(ShowDetailScreenDestination.baseRoute) == true) {
+                navBackStackEntry?.let { ShowDetailScreenDestination.argsFrom(it) }
+            } else {
+                null
+            }
+        }
 
     val listDetailNavigator = rememberSupportingPaneScaffoldNavigator<ThreePaneScaffoldRole>()
 
     LaunchedEffect(
         isDetailFlowActive,
-        listDetailNavigator.currentDestination
+        listDetailNavigator.currentDestination,
     ) {
         val currentPaneRole = listDetailNavigator.currentDestination?.pane
 
         // Common logic for determining target pane based on isDetailFlowActive
-        val targetPaneRole = if (isDetailFlowActive) {
-            ThreePaneScaffoldRole.Primary // Show detail
-        } else {
-            ThreePaneScaffoldRole.Secondary // Show list
-        }
+        val targetPaneRole =
+            if (isDetailFlowActive) {
+                ThreePaneScaffoldRole.Primary // Show detail
+            } else {
+                ThreePaneScaffoldRole.Secondary // Show list
+            }
 
         if (currentPaneRole != targetPaneRole) {
             listDetailNavigator.navigateTo(targetPaneRole)
@@ -156,6 +159,7 @@ fun MainScreen(
     }
 
     NavigationSuiteScaffold(
+        modifier = Modifier.testTag("navigation_suite_scaffold"),
         navigationSuiteItems = {
             NavigationDestination.entries.forEach { item ->
                 val isSelected = item == currentListSection
@@ -182,22 +186,23 @@ fun MainScreen(
                         }
                         // isDetailFlowActive will become false if we navigated to EmptyDetailScreen,
                         // triggering listDetailNavigator to Secondary via the LaunchedEffect.
-                    }
+                    },
                 )
             }
-        }
+        },
     ) {
         NavigableListDetailPaneScaffold(
             modifier = Modifier.fillMaxSize(),
             navigator = listDetailNavigator,
             listPane = {
                 Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.surface) // Ensure opaque background
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .background(MaterialTheme.colorScheme.surface), // Ensure opaque background
                 ) {
                     TopAppBar(
-                        title = { Text(stringResource(currentListSection.label)) }
+                        title = { Text(stringResource(currentListSection.label)) },
                     )
                     // Content of the current list section
                     // IMPORTANT: Pass destinationsNavigatorForDetail for navigation to detail screens
@@ -205,10 +210,11 @@ fun MainScreen(
                         NavigationDestination.Dashboard -> DashboardScreen(navigator = destinationsNavigatorForDetail)
                         NavigationDestination.SearchScreen -> SearchScreen(navigator = destinationsNavigatorForDetail)
                         NavigationDestination.Explore -> ExploreScreen(navigator = destinationsNavigatorForDetail)
-                        NavigationDestination.TraktAccount -> TraktAccountScreen(
-                            navigator = destinationsNavigatorForDetail,
-                            code = null /* Code handled by LaunchedEffect below */
-                        )
+                        NavigationDestination.TraktAccount ->
+                            TraktAccountScreen(
+                                navigator = destinationsNavigatorForDetail,
+                                code = null, // Code handled by LaunchedEffect below
+                            )
                     }
                 }
             },
@@ -225,10 +231,10 @@ fun MainScreen(
                             } else {
                                 mainNavController.popBackStack()
                             }
-                        }
+                        },
                     )
                 }
-            }
+            },
         )
     }
 
@@ -242,10 +248,13 @@ fun MainScreen(
             currentListSection = NavigationDestination.TraktAccount // Switch list pane
 
             destinationsNavigatorForDetail.navigate(
-                TraktAccountScreenDestination(code = codeArg)
+                TraktAccountScreenDestination(code = codeArg),
             ) {
                 // Clear backstack up to start, then add Empty
-                popUpTo(NavGraphs.root.startDestination) { inclusive = true; saveState = true }
+                popUpTo(NavGraphs.root.startDestination) {
+                    inclusive = true
+                    saveState = true
+                }
                 launchSingleTop = true
             }
             // isDetailFlowActive will become true after navigation to TraktAccountScreen,

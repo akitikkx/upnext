@@ -55,90 +55,97 @@ import java.util.Locale
  * @param dashboardRepository The repository responsible for fetching and saving TV show data.
  */
 @HiltWorker
-class RefreshYesterdayShowsWorker @AssistedInject constructor(
-    @Assisted appContext: Context,
-    @Assisted workerParameters: WorkerParameters,
-    private val dashboardRepository: DashboardRepository
-) : BaseWorker(appContext, workerParameters) {
+class RefreshYesterdayShowsWorker
+    @AssistedInject
+    constructor(
+        @Assisted appContext: Context,
+        @Assisted workerParameters: WorkerParameters,
+        private val dashboardRepository: DashboardRepository,
+    ) : BaseWorker(appContext, workerParameters) {
+        override val notificationId: Int = NOTIFICATION_ID
+        override val contentTitleText: String = "Refreshing yesterday's schedule"
 
-    override val notificationId: Int = NOTIFICATION_ID
-    override val contentTitleText: String = "Refreshing yesterday's schedule"
+        private val firebaseAnalytics: FirebaseAnalytics by lazy { Firebase.analytics }
 
-    private val firebaseAnalytics: FirebaseAnalytics by lazy { Firebase.analytics }
+        override suspend fun doWork(): Result =
+            coroutineScope {
+                Timber.d("${WORK_NAME}: Starting worker.")
+                return@coroutineScope try {
+                    Timber.d("${WORK_NAME}: Refreshing yesterday's shows for country code $DEFAULT_COUNTRY_CODE.")
+                    refreshYesterdayShows()
 
-    override suspend fun doWork(): Result = coroutineScope {
-        Timber.d("${WORK_NAME}: Starting worker.")
-        return@coroutineScope try {
-            Timber.d("${WORK_NAME}: Refreshing yesterday's shows for country code $DEFAULT_COUNTRY_CODE.")
-            refreshYesterdayShows()
+                    logSuccessToFirebase()
+                    Timber.i("${WORK_NAME}: Worker completed successfully.")
+                    Result.success()
+                } catch (e: Exception) {
+                    Timber.e(e, "${WORK_NAME}: Worker failed.")
+                    logFailureToFirebase(
+                        errorType = e.javaClass.simpleName,
+                        errorMessage = e.message ?: "Unknown error while refreshing yesterday's shows.",
+                    )
+                    Result.failure() // Or Result.retry() if appropriate
+                }
+            }
 
-            logSuccessToFirebase()
-            Timber.i("${WORK_NAME}: Worker completed successfully.")
-            Result.success()
-        } catch (e: Exception) {
-            Timber.e(e, "${WORK_NAME}: Worker failed.")
-            logFailureToFirebase(
-                errorType = e.javaClass.simpleName,
-                errorMessage = e.message ?: "Unknown error while refreshing yesterday's shows."
+        private suspend fun refreshYesterdayShows() {
+            val date = yesterdayDate()
+            if (date == null) {
+                Timber.w("${WORK_NAME}: Could not determine yesterday's date. Skipping refresh.")
+                return
+            }
+            Timber.d("${WORK_NAME}: Yesterday's date for refresh: $date")
+            dashboardRepository.refreshYesterdayShows(
+                DEFAULT_COUNTRY_CODE,
+                date,
             )
-            Result.failure() // Or Result.retry() if appropriate
+            Timber.d("${WORK_NAME}: Finished refreshing yesterday's shows from repository.")
+        }
+
+        /**
+         * Gets yesterday's date formatted as "yyyy-MM-dd".
+         * @return The formatted date string, or null if formatting fails (should be rare).
+         */
+        private fun yesterdayDate(): String? {
+            return try {
+                val calendar = Calendar.getInstance()
+                calendar.add(Calendar.DAY_OF_YEAR, -1) // Subtract one day to get yesterday
+                val yesterday = calendar.time
+                val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                simpleDateFormat.format(yesterday)
+            } catch (e: Exception) {
+                Timber.e(e, "${WORK_NAME}: Error formatting yesterday's date.")
+                null // Return null if date formatting fails
+            }
+        }
+
+        private fun logSuccessToFirebase() {
+            val bundle =
+                Bundle().apply {
+                    putBoolean("job_successful", true)
+                    putString("job_name", WORK_NAME)
+                    putString("country_code", DEFAULT_COUNTRY_CODE)
+                }
+            firebaseAnalytics.logEvent("background_job_completed", bundle)
+        }
+
+        private fun logFailureToFirebase(
+            errorType: String,
+            errorMessage: String,
+        ) {
+            val bundle =
+                Bundle().apply {
+                    putBoolean("job_successful", false)
+                    putString("job_name", WORK_NAME)
+                    putString("country_code", DEFAULT_COUNTRY_CODE)
+                    putString("error_type", errorType)
+                    putString("error_message", errorMessage)
+                }
+            firebaseAnalytics.logEvent("background_job_failed", bundle)
+        }
+
+        companion object {
+            const val WORK_NAME = "RefreshYesterdayShowsWorker"
+            const val DEFAULT_COUNTRY_CODE = "US"
+            private const val NOTIFICATION_ID = 1003
         }
     }
-
-    private suspend fun refreshYesterdayShows() {
-        val date = yesterdayDate()
-        if (date == null) {
-            Timber.w("${WORK_NAME}: Could not determine yesterday's date. Skipping refresh.")
-            return
-        }
-        Timber.d("${WORK_NAME}: Yesterday's date for refresh: $date")
-        dashboardRepository.refreshYesterdayShows(
-            DEFAULT_COUNTRY_CODE,
-            date
-        )
-        Timber.d("${WORK_NAME}: Finished refreshing yesterday's shows from repository.")
-    }
-
-    /**
-     * Gets yesterday's date formatted as "yyyy-MM-dd".
-     * @return The formatted date string, or null if formatting fails (should be rare).
-     */
-    private fun yesterdayDate(): String? {
-        return try {
-            val calendar = Calendar.getInstance()
-            calendar.add(Calendar.DAY_OF_YEAR, -1) // Subtract one day to get yesterday
-            val yesterday = calendar.time
-            val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-            simpleDateFormat.format(yesterday)
-        } catch (e: Exception) {
-            Timber.e(e, "${WORK_NAME}: Error formatting yesterday's date.")
-            null // Return null if date formatting fails
-        }
-    }
-
-    private fun logSuccessToFirebase() {
-        val bundle = Bundle().apply {
-            putBoolean("job_successful", true)
-            putString("job_name", WORK_NAME)
-            putString("country_code", DEFAULT_COUNTRY_CODE)
-        }
-        firebaseAnalytics.logEvent("background_job_completed", bundle)
-    }
-
-    private fun logFailureToFirebase(errorType: String, errorMessage: String) {
-        val bundle = Bundle().apply {
-            putBoolean("job_successful", false)
-            putString("job_name", WORK_NAME)
-            putString("country_code", DEFAULT_COUNTRY_CODE)
-            putString("error_type", errorType)
-            putString("error_message", errorMessage)
-        }
-        firebaseAnalytics.logEvent("background_job_failed", bundle)
-    }
-
-    companion object {
-        const val WORK_NAME = "RefreshYesterdayShowsWorker"
-        const val DEFAULT_COUNTRY_CODE = "US"
-        private const val NOTIFICATION_ID = 1003
-    }
-}

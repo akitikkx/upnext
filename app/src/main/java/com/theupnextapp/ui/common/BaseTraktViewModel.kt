@@ -43,79 +43,82 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-open class BaseTraktViewModel @Inject constructor(
-    private val traktRepository: TraktRepository,
-    private val workManager: WorkManager
-) : ViewModel() {
+open class BaseTraktViewModel
+    @Inject
+    constructor(
+        private val traktRepository: TraktRepository,
+        private val workManager: WorkManager,
+    ) : ViewModel() {
+        val traktAccessToken: StateFlow<TraktAccessToken?> =
+            traktRepository.traktAccessToken
+                .stateIn(
+                    scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(5000),
+                    initialValue = null,
+                )
 
-    val traktAccessToken: StateFlow<TraktAccessToken?> =
-        traktRepository.traktAccessToken
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5000),
-                initialValue = null
-            )
+        val favoriteShow: StateFlow<TraktUserListItem?> =
+            traktRepository.favoriteShow
+                .stateIn(
+                    scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(5000),
+                    initialValue = null,
+                )
 
-    val favoriteShow: StateFlow<TraktUserListItem?> =
-        traktRepository.favoriteShow
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5000),
-                initialValue = null
-            )
-
-    val isAuthorizedOnTrakt: StateFlow<Boolean> = traktAccessToken
-        .map { accessToken ->
-            val isTokenPresentAndNotEmpty = !accessToken?.access_token.isNullOrEmpty()
-
-            val isTokenStructurallyValid = accessToken?.isTraktAccessTokenValid() == true
-
-            isTokenPresentAndNotEmpty && isTokenStructurallyValid
-        }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = false
-        )
-
-    init {
-        viewModelScope.launch {
+        val isAuthorizedOnTrakt: StateFlow<Boolean> =
             traktAccessToken
-                .onEach { accessToken ->
-                    if (accessToken != null) {
-                        if (!accessToken.isTraktAccessTokenValid()) {
-                            viewModelScope.launch(Dispatchers.IO) {
-                                traktRepository.getTraktAccessRefreshToken(accessToken.refresh_token)
+                .map { accessToken ->
+                    val isTokenPresentAndNotEmpty = !accessToken?.access_token.isNullOrEmpty()
+
+                    val isTokenStructurallyValid = accessToken?.isTraktAccessTokenValid() == true
+
+                    isTokenPresentAndNotEmpty && isTokenStructurallyValid
+                }
+                .stateIn(
+                    scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(5000),
+                    initialValue = false,
+                )
+
+        init {
+            viewModelScope.launch {
+                traktAccessToken
+                    .onEach { accessToken ->
+                        if (accessToken != null) {
+                            if (!accessToken.isTraktAccessTokenValid()) {
+                                viewModelScope.launch(Dispatchers.IO) {
+                                    traktRepository.getTraktAccessRefreshToken(accessToken.refresh_token)
+                                }
+                            } else {
+                                val workerData =
+                                    Data.Builder().putString(
+                                        RefreshFavoriteShowsWorker.ARG_TOKEN,
+                                        accessToken.access_token,
+                                    ).build()
+
+                                val refreshFavoritesWork =
+                                    OneTimeWorkRequest.Builder(RefreshFavoriteShowsWorker::class.java)
+                                        .setInputData(workerData)
+                                        .build()
+
+                                workManager.enqueue(refreshFavoritesWork)
                             }
-                        } else {
-                            val workerData = Data.Builder().putString(
-                                RefreshFavoriteShowsWorker.ARG_TOKEN,
-                                accessToken.access_token
-                            ).build()
-
-                            val refreshFavoritesWork =
-                                OneTimeWorkRequest.Builder(RefreshFavoriteShowsWorker::class.java)
-                                    .setInputData(workerData)
-                                    .build()
-
-                            workManager.enqueue(refreshFavoritesWork)
                         }
                     }
-                }
-                .collect()
+                    .collect()
+            }
         }
-    }
 
-    fun revokeTraktAccessToken() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val currentToken = traktAccessToken.value
-            if (currentToken != null) {
-                if (!currentToken.access_token.isNullOrEmpty()
-                    && currentToken.isTraktAccessTokenValid()
-                ) {
-                    traktRepository.revokeTraktAccessToken(currentToken)
+        fun revokeTraktAccessToken() {
+            viewModelScope.launch(Dispatchers.IO) {
+                val currentToken = traktAccessToken.value
+                if (currentToken != null) {
+                    if (!currentToken.access_token.isNullOrEmpty() &&
+                        currentToken.isTraktAccessTokenValid()
+                    ) {
+                        traktRepository.revokeTraktAccessToken(currentToken)
+                    }
                 }
             }
         }
     }
-}
