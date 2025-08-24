@@ -23,7 +23,7 @@ package com.theupnextapp.di
 
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.squareup.moshi.Moshi
-import com.theupnextapp.common.CrashlyticsHelper // Added
+import com.theupnextapp.common.CrashlyticsHelper
 import com.theupnextapp.database.TraktDao
 import com.theupnextapp.database.TvMazeDao
 import com.theupnextapp.database.UpnextDao
@@ -49,12 +49,12 @@ object RepositoryModule {
     fun provideShowDetailRepository(
         upnextDao: UpnextDao,
         tvMazeService: TvMazeService,
-        crashlyticsHelper: CrashlyticsHelper // Changed
+        crashlyticsHelper: CrashlyticsHelper
     ): ShowDetailRepository {
         return ShowDetailRepository(
             upnextDao = upnextDao,
             tvMazeService = tvMazeService,
-            crashlytics = crashlyticsHelper // Changed
+            crashlytics = crashlyticsHelper
         )
     }
 
@@ -90,13 +90,13 @@ object RepositoryModule {
         upnextDao: UpnextDao,
         tvMazeDao: TvMazeDao,
         tvMazeService: TvMazeService,
-        firebaseCrashlytics: FirebaseCrashlytics
+        crashlyticsHelper: CrashlyticsHelper // Changed here
     ): DashboardRepository {
         return DashboardRepository(
             upnextDao = upnextDao,
             tvMazeDao = tvMazeDao,
             tvMazeService = tvMazeService,
-            firebaseCrashlytics = firebaseCrashlytics
+            firebaseCrashlytics = crashlyticsHelper // Changed here
         )
     }
 }

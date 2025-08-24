@@ -26,25 +26,25 @@ import com.theupnextapp.R
 fun TraktFavoriteButton(
     isAuthorizedOnTrakt: Boolean?,
     isFavorite: Boolean?,
-    onFavoriteClick: () -> Unit
+    onFavoriteClick: () -> Unit,
 ) {
     if (isAuthorizedOnTrakt == true) {
         if (isFavorite == true) {
             OutlinedButton(
                 onClick = { onFavoriteClick() },
-                modifier = Modifier.padding(4.dp)
+                modifier = Modifier.padding(4.dp),
             ) {
                 Text(
-                    text = stringResource(id = R.string.btn_show_detail_remove_from_favorites)
+                    text = stringResource(id = R.string.btn_show_detail_remove_from_favorites),
                 )
             }
         } else {
             Button(
                 onClick = { onFavoriteClick() },
-                modifier = Modifier.padding(4.dp)
+                modifier = Modifier.padding(4.dp),
             ) {
                 Text(
-                    text = stringResource(id = R.string.btn_show_detail_add_to_favorites)
+                    text = stringResource(id = R.string.btn_show_detail_add_to_favorites),
                 )
             }
         }

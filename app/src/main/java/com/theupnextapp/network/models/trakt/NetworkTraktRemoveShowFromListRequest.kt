@@ -22,13 +22,13 @@
 package com.theupnextapp.network.models.trakt
 
 data class NetworkTraktRemoveShowFromListRequest(
-    val shows: List<NetworkTraktRemoveShowFromListRequestShow>
+    val shows: List<NetworkTraktRemoveShowFromListRequestShow>,
 )
 
 data class NetworkTraktRemoveShowFromListRequestShow(
-    val ids: NetworkTraktRemoveShowFromListRequestShowIds
+    val ids: NetworkTraktRemoveShowFromListRequestShowIds,
 )
 
 data class NetworkTraktRemoveShowFromListRequestShowIds(
-    val trakt: Int
+    val trakt: Int,
 )

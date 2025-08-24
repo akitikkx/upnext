@@ -30,7 +30,7 @@ fun TraktProfileHeader(onLogoutClick: () -> Unit) {
         Image(
             painter = painterResource(id = R.drawable.ic_trakt_wide_red_white),
             contentDescription = "Trakt Logo",
-            modifier = Modifier.height(40.dp) // Adjust size
+            modifier = Modifier.height(40.dp), // Adjust size
         )
         TextButton(onClick = onLogoutClick) {
             Text("Logout")

@@ -18,7 +18,7 @@ import com.theupnextapp.domain.ErrorResponse
 class ShowDetailFetchException(
     message: String,
     errorResponse: ErrorResponse? = null,
-    cause: Throwable? = null
+    cause: Throwable? = null,
 ) : RuntimeException(message, cause) {
     init {
         errorResponse?.let {

@@ -37,7 +37,6 @@ abstract class BaseWorker(
     appContext: Context,
     workerParameters: WorkerParameters,
 ) : CoroutineWorker(appContext, workerParameters) {
-
     abstract val notificationId: Int
     abstract val contentTitleText: String
 
@@ -47,7 +46,7 @@ abstract class BaseWorker(
             notificationId = notificationId,
             channelId = NOTIFICATION_CHANNEL_ID,
             contentText = contentTitleText,
-            smallIconRes = R.drawable.ic_baseline_arrow_circle_down_24 // TODO: Replace with your app's icon
+            smallIconRes = R.drawable.ic_baseline_arrow_circle_down_24, // TODO: Replace with your app's icon
         )
     }
 
@@ -55,15 +54,16 @@ abstract class BaseWorker(
         notificationId: Int,
         channelId: String,
         contentText: String,
-        smallIconRes: Int
+        smallIconRes: Int,
     ): ForegroundInfo {
-        val notification = NotificationCompat.Builder(appContext, channelId)
-            .setContentTitle(contentText)
-            .setSmallIcon(smallIconRes)
-            .setOngoing(true)
-            .setSilent(true)
-            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
-            .build()
+        val notification =
+            NotificationCompat.Builder(appContext, channelId)
+                .setContentTitle(contentText)
+                .setSmallIcon(smallIconRes)
+                .setOngoing(true)
+                .setSilent(true)
+                .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
+                .build()
 
         return ForegroundInfo(notificationId, notification)
     }
@@ -74,16 +74,15 @@ abstract class BaseWorker(
             notificationId = notificationId,
             channelId = NOTIFICATION_CHANNEL_ID,
             contentText = contentTitleText,
-            smallIconRes = R.drawable.ic_baseline_arrow_circle_down_24
+            smallIconRes = R.drawable.ic_baseline_arrow_circle_down_24,
         )
     }
-
 
     private fun ensureNotificationChannelCreated() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val notificationManager =
                 appContext.getSystemService(Context.NOTIFICATION_SERVICE)
-                        as? NotificationManager
+                    as? NotificationManager
             if (notificationManager == null) {
                 Timber.tag(TAG).e("NotificationManager not available.")
                 return
@@ -104,7 +103,7 @@ abstract class BaseWorker(
                     }
                 notificationManager.createNotificationChannel(channel)
                 Timber.tag(TAG).d(
-                    message = "Notification channel '$NOTIFICATION_CHANNEL_ID' created."
+                    message = "Notification channel '$NOTIFICATION_CHANNEL_ID' created.",
                 )
             }
         }

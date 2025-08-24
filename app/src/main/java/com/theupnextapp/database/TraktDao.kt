@@ -30,7 +30,6 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TraktDao {
-
     // TRAKT ACCESS
     @Query("delete from trakt_access")
     fun deleteTraktAccessData()
@@ -43,7 +42,6 @@ interface TraktDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAllTraktAccessData(databaseTraktAccess: DatabaseTraktAccess)
-
 
     // TRAKT FAVORITE SHOWS
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -82,7 +80,6 @@ interface TraktDao {
     @Query("DELETE FROM favorite_shows WHERE traktID = :traktId")
     suspend fun deleteFavoriteShowByTraktId(traktId: Int): Int
 
-
     // TRAKT POPULAR SHOWS
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAllTraktPopular(vararg traktPopularShows: DatabaseTraktPopularShows)
@@ -102,7 +99,6 @@ interface TraktDao {
     @Query("DELETE FROM trakt_popular WHERE id IN (:showIds)")
     suspend fun deleteSpecificPopularShows(showIds: List<Int>)
 
-
     // TRAKT TRENDING SHOWS
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAllTraktTrending(vararg traktTrendingShows: DatabaseTraktTrendingShows)
@@ -121,7 +117,6 @@ interface TraktDao {
 
     @Query("DELETE FROM trakt_trending WHERE id IN (:showIds)")
     suspend fun deleteSpecificTrendingShows(showIds: List<Int>)
-
 
     // TRAKT MOST ANTICIPATED SHOWS
     @Insert(onConflict = OnConflictStrategy.REPLACE)

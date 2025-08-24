@@ -33,7 +33,7 @@ data class ShowSearch(
     val status: String?,
     val summary: String?,
     val type: String?,
-    val updated: String?
+    val updated: String?,
 ) {
     override fun equals(other: Any?): Boolean {
         if (javaClass != other?.javaClass) {

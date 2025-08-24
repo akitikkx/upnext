@@ -1,24 +1,3 @@
-/*
- * MIT License
- *
- * Copyright (c) 2022 Ahmed Tikiwa
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
- * BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
-
 package com.theupnextapp.database
 
 import androidx.room.Entity
@@ -28,7 +7,8 @@ import com.theupnextapp.domain.ScheduleShow
 @Entity(tableName = "schedule_yesterday")
 data class DatabaseYesterdaySchedule(
     @PrimaryKey
-    val id: Int,
+    val id: Int, // This is the episode ID
+    val showId: Int?, // This is the actual Show ID
     val image: String?,
     val mediumImage: String?,
     val language: String?,
@@ -40,13 +20,14 @@ data class DatabaseYesterdaySchedule(
     val summary: String?,
     val type: String?,
     val updated: String?,
-    val url: String?
+    val url: String?,
 )
 
 fun List<DatabaseYesterdaySchedule>.asDomainModel(): List<ScheduleShow> {
     return map {
         ScheduleShow(
             id = it.id,
+            showId = it.showId, // Added mapping
             originalImage = it.image,
             mediumImage = it.mediumImage,
             language = it.language,
@@ -58,7 +39,7 @@ fun List<DatabaseYesterdaySchedule>.asDomainModel(): List<ScheduleShow> {
             summary = it.summary,
             type = it.type,
             updated = it.updated,
-            url = it.url
+            url = it.url,
         )
     }
 }

@@ -39,147 +39,156 @@ import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
-class TraktAccountViewModel @Inject constructor(
-    private val traktRepository: TraktRepository,
-    workManager: WorkManager
-) : BaseTraktViewModel(
-    traktRepository,
-    workManager
-) {
+class TraktAccountViewModel
+    @Inject
+    constructor(
+        private val traktRepository: TraktRepository,
+        workManager: WorkManager,
+    ) : BaseTraktViewModel(
+            traktRepository,
+            workManager,
+        ) {
+        // General loading state for initial connection/authorization processes
+        val isLoadingConnection: StateFlow<Boolean> = traktRepository.isLoading
 
-    // General loading state for initial connection/authorization processes
-    val isLoadingConnection: StateFlow<Boolean> = traktRepository.isLoading
+        // Specific loading state for fetching favorite shows
+        val isLoadingFavoriteShows: StateFlow<Boolean> = traktRepository.isLoadingFavoriteShows
 
-    // Specific loading state for fetching favorite shows
-    val isLoadingFavoriteShows: StateFlow<Boolean> = traktRepository.isLoadingFavoriteShows
+        // Favorite shows data
+        val favoriteShows: StateFlow<List<TraktUserListItem>> =
+            traktRepository.traktFavoriteShows
+                .stateIn(
+                    scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(5000),
+                    initialValue = emptyList(),
+                )
 
-    // Favorite shows data
-    val favoriteShows: StateFlow<List<TraktUserListItem>> = traktRepository.traktFavoriteShows
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
-        )
+        // Error state specifically for loading favorite shows
+        val favoriteShowsError: StateFlow<String?> = traktRepository.favoriteShowsError
 
-    // Error state specifically for loading favorite shows
-    val favoriteShowsError: StateFlow<String?> = traktRepository.favoriteShowsError
+        // Combined loading state for the screen (true if either connection or favorites are loading)
+        val isScreenLoading: StateFlow<Boolean> =
+            combine(
+                isLoadingConnection,
+                isLoadingFavoriteShows,
+            ) { connectionLoading, favoritesLoading ->
+                connectionLoading || favoritesLoading
+            }.stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = false,
+            )
 
-    // Combined loading state for the screen (true if either connection or favorites are loading)
-    val isScreenLoading: StateFlow<Boolean> = combine(
-        isLoadingConnection,
-        isLoadingFavoriteShows
-    ) { connectionLoading, favoritesLoading ->
-        connectionLoading || favoritesLoading
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = false
-    )
+        private val _uiState = MutableStateFlow(TraktAccountUiState())
+        val uiState: StateFlow<TraktAccountUiState> = _uiState.asStateFlow()
 
-    private val _uiState = MutableStateFlow(TraktAccountUiState())
-    val uiState: StateFlow<TraktAccountUiState> = _uiState.asStateFlow()
+        val favoriteShowsEmpty: StateFlow<Boolean> =
+            favoriteShows
+                .map { it.isEmpty() }
+                .stateIn(
+                    scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(5000),
+                    initialValue = true,
+                )
 
-    val favoriteShowsEmpty: StateFlow<Boolean> = favoriteShows
-        .map { it.isEmpty() }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = true
-        )
+        fun onConnectToTraktClick() {
+            _uiState.value = _uiState.value.copy(openCustomTab = true)
+        }
 
-    fun onConnectToTraktClick() {
-        _uiState.value = _uiState.value.copy(openCustomTab = true)
-    }
+        fun onCustomTabOpened() {
+            _uiState.value = _uiState.value.copy(openCustomTab = false)
+        }
 
-    fun onCustomTabOpened() {
-        _uiState.value = _uiState.value.copy(openCustomTab = false)
-    }
+        fun onDisconnectFromTraktClick() {
+            _uiState.value = _uiState.value.copy(confirmDisconnectFromTrakt = true)
+        }
 
-    fun onDisconnectFromTraktClick() {
-        _uiState.value = _uiState.value.copy(confirmDisconnectFromTrakt = true)
-    }
+        fun onDisconnectFromTraktRefused() {
+            _uiState.value = _uiState.value.copy(confirmDisconnectFromTrakt = false)
+        }
 
-    fun onDisconnectFromTraktRefused() {
-        _uiState.value = _uiState.value.copy(confirmDisconnectFromTrakt = false)
-    }
+        fun onDisconnectConfirm() {
+            _uiState.value =
+                _uiState.value.copy(
+                    isDisconnecting = true,
+                    confirmDisconnectFromTrakt = false,
+                    disconnectionError = null,
+                )
+            viewModelScope.launch {
+                try {
+                    traktRepository.clearFavorites()
 
-    fun onDisconnectConfirm() {
-        _uiState.value = _uiState.value.copy(
-            isDisconnecting = true,
-            confirmDisconnectFromTrakt = false,
-            disconnectionError = null
-        )
-        viewModelScope.launch {
-            try {
-                traktRepository.clearFavorites()
+                    val currentToken = traktAccessToken.value
+                    if (currentToken?.access_token != null) {
+                        val result = traktRepository.revokeTraktAccessToken(currentToken.access_token)
 
-                val currentToken = traktAccessToken.value
-                if (currentToken?.access_token != null) {
-                    val result = traktRepository.revokeTraktAccessToken(currentToken.access_token)
+                        if (result.isFailure) {
+                            Timber.e(
+                                result.exceptionOrNull(),
+                                "Failed to revoke Trakt access token during disconnect.",
+                            )
+                            _uiState.value =
+                                _uiState.value.copy(
+                                    disconnectionError = TraktConnectionError.DISCONNECT_FAILED.message,
+                                )
+                        }
+                    } else {
+                        Timber.w("Attempted to disconnect without a valid access token.")
+                        _uiState.value =
+                            _uiState.value.copy(
+                                disconnectionError = TraktConnectionError.DISCONNECT_FAILED.message, // Or a more specific error
+                            )
+                    }
+                } catch (e: Exception) {
+                    Timber.e(e, "Error during disconnection process.")
+                    _uiState.value =
+                        _uiState.value.copy(
+                            disconnectionError = TraktConnectionError.DISCONNECT_FAILED.message,
+                        )
+                } finally {
+                    _uiState.value = _uiState.value.copy(isDisconnecting = false)
+                }
+            }
+        }
 
+        fun onCodeReceived(code: String?) {
+            if (!code.isNullOrEmpty()) {
+                _uiState.value = _uiState.value.copy(connectionError = null)
+                viewModelScope.launch {
+                    val result = traktRepository.getTraktAccessToken(code)
                     if (result.isFailure) {
                         Timber.e(
                             result.exceptionOrNull(),
-                            "Failed to revoke Trakt access token during disconnect."
+                            "Failed to get Trakt access token with code.",
                         )
-                        _uiState.value = _uiState.value.copy(
-                            disconnectionError = TraktConnectionError.DISCONNECT_FAILED.message
-                        )
+                        _uiState.value =
+                            _uiState.value.copy(
+                                connectionError = TraktConnectionError.TOKEN_EXCHANGE_FAILED.message,
+                            )
                     }
-                } else {
-                    Timber.w("Attempted to disconnect without a valid access token.")
-                    _uiState.value = _uiState.value.copy(
-                        disconnectionError = TraktConnectionError.DISCONNECT_FAILED.message // Or a more specific error
-                    )
                 }
-
-            } catch (e: Exception) {
-                Timber.e(e, "Error during disconnection process.")
-                _uiState.value = _uiState.value.copy(
-                    disconnectionError = TraktConnectionError.DISCONNECT_FAILED.message
-                )
-            } finally {
-                _uiState.value = _uiState.value.copy(isDisconnecting = false)
+            } else {
+                _uiState.value =
+                    _uiState.value.copy(
+                        connectionError = TraktConnectionError.INVALID_AUTH_CODE.message,
+                    )
             }
         }
-    }
 
-    fun onCodeReceived(code: String?) {
-        if (!code.isNullOrEmpty()) {
+        fun clearConnectionError() {
             _uiState.value = _uiState.value.copy(connectionError = null)
-            viewModelScope.launch {
-                val result = traktRepository.getTraktAccessToken(code)
-                if (result.isFailure) {
-                    Timber.e(
-                        result.exceptionOrNull(),
-                        "Failed to get Trakt access token with code."
-                    )
-                    _uiState.value = _uiState.value.copy(
-                        connectionError = TraktConnectionError.TOKEN_EXCHANGE_FAILED.message
-                    )
-                }
-            }
-        } else {
-            _uiState.value = _uiState.value.copy(
-                connectionError = TraktConnectionError.INVALID_AUTH_CODE.message
-            )
+        }
+
+        fun clearDisconnectionError() {
+            _uiState.value = _uiState.value.copy(disconnectionError = null)
+        }
+
+        fun clearFavoriteShowsError() {
+            // This is tricky because favoriteShowsError comes directly from the repository.
+            // The repository would need a method to clear its own error.
+            // For now, the UI can just choose to hide the error after a timeout or user action.
+            // Or, if truly needed, add:
+            // viewModelScope.launch { traktRepository.clearFavoriteShowsError() }
+            // And implement `clearFavoriteShowsError()` in TraktRepository/Impl
         }
     }
-
-    fun clearConnectionError() {
-        _uiState.value = _uiState.value.copy(connectionError = null)
-    }
-
-    fun clearDisconnectionError() {
-        _uiState.value = _uiState.value.copy(disconnectionError = null)
-    }
-
-    fun clearFavoriteShowsError() {
-        // This is tricky because favoriteShowsError comes directly from the repository.
-        // The repository would need a method to clear its own error.
-        // For now, the UI can just choose to hide the error after a timeout or user action.
-        // Or, if truly needed, add:
-        // viewModelScope.launch { traktRepository.clearFavoriteShowsError() }
-        // And implement `clearFavoriteShowsError()` in TraktRepository/Impl
-    }
-}

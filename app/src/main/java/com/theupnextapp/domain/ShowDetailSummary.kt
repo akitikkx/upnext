@@ -58,11 +58,14 @@ data class ShowDetailSummary(
         parcel.readString(),
         parcel.readString(),
         parcel.readValue(Int::class.java.classLoader) as? Int,
-        parcel.readValue(Int::class.java.classLoader) as? Int
+        parcel.readValue(Int::class.java.classLoader) as? Int,
     ) {
     }
 
-    override fun writeToParcel(parcel: Parcel, flags: Int) {
+    override fun writeToParcel(
+        parcel: Parcel,
+        flags: Int,
+    ) {
         parcel.writeString(airDays)
         parcel.writeString(averageRating)
         parcel.writeInt(id)
@@ -113,6 +116,6 @@ fun emptyShowData(): ShowDetailSummary {
         previousEpisodeHref = null,
         nextEpisodeHref = null,
         nextEpisodeLinkedId = null,
-        previousEpisodeLinkedId = null
+        previousEpisodeLinkedId = null,
     )
 }

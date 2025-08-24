@@ -39,19 +39,22 @@ import com.theupnextapp.ui.showDetail.SynopsisAreaConfig.posterWidth
 fun SynopsisArea(
     showSummary: ShowDetailSummary?,
     widthSizeClass: WindowWidthSizeClass?,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     when (widthSizeClass) {
         WindowWidthSizeClass.Compact,
-        WindowWidthSizeClass.Medium -> SynopsisAreaCompact(
-            showSummary = showSummary,
-            modifier = modifier
-        )
+        WindowWidthSizeClass.Medium,
+        ->
+            SynopsisAreaCompact(
+                showSummary = showSummary,
+                modifier = modifier,
+            )
 
-        else -> SynopsisAreaExpanded(
-            showSummary = showSummary,
-            modifier = modifier
-        )
+        else ->
+            SynopsisAreaExpanded(
+                showSummary = showSummary,
+                modifier = modifier,
+            )
     }
 }
 
@@ -59,20 +62,22 @@ fun SynopsisArea(
 @Composable
 private fun SynopsisAreaCompact(
     showSummary: ShowDetailSummary?,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
         ) {
             showSummary?.originalImageUrl?.let {
                 PosterImage(
                     url = it,
-                    modifier = Modifier
-                        .width(posterWidth)
-                        .height(posterHeight)
+                    modifier =
+                        Modifier
+                            .width(posterWidth)
+                            .height(posterHeight),
                 )
             }
 
@@ -80,12 +85,13 @@ private fun SynopsisAreaCompact(
         }
         ShowSynopsis(
             showSummary = showSummary,
-            modifier = Modifier.padding(
-                top = 4.dp,
-                start = 16.dp,
-                end = 16.dp,
-                bottom = 4.dp
-            )
+            modifier =
+                Modifier.padding(
+                    top = 4.dp,
+                    start = 16.dp,
+                    end = 16.dp,
+                    bottom = 4.dp,
+                ),
         )
     }
 }
@@ -94,36 +100,40 @@ private fun SynopsisAreaCompact(
 @Composable
 private fun SynopsisAreaExpanded(
     showSummary: ShowDetailSummary?,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(16.dp)
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(16.dp),
     ) {
         showSummary?.originalImageUrl?.let {
             PosterImage(
                 url = it,
-                modifier = Modifier
-                    .width(posterWidth)
-                    .height(posterHeight)
+                modifier =
+                    Modifier
+                        .width(posterWidth)
+                        .height(posterHeight),
             )
         }
 
         ShowMetadata(
             showSummary = showSummary,
-            modifier = Modifier
-                .width(150.dp)
-                .padding(start = 16.dp)
+            modifier =
+                Modifier
+                    .width(150.dp)
+                    .padding(start = 16.dp),
         )
 
         ShowSynopsis(
             showSummary = showSummary,
-            modifier = Modifier.padding(
-                top = 4.dp,
-                start = 16.dp,
-                end = 16.dp,
-            )
+            modifier =
+                Modifier.padding(
+                    top = 4.dp,
+                    start = 16.dp,
+                    end = 16.dp,
+                ),
         )
     }
 }
@@ -147,7 +157,6 @@ object SynopsisAreaConfig {
                 else -> 250.dp
             }
         }
-
 }
 
 @Preview(name = "phone", device = Devices.PHONE, showBackground = true)
@@ -155,7 +164,7 @@ object SynopsisAreaConfig {
 @Composable
 fun SynopsisAreaCompactPreview(
     @PreviewParameter(ShowDetailSummaryProvider::class)
-    showDetailSummary: ShowDetailSummary
+    showDetailSummary: ShowDetailSummary,
 ) {
     SynopsisAreaCompact(showSummary = showDetailSummary)
 }
@@ -167,7 +176,7 @@ fun SynopsisAreaCompactPreview(
 @Composable
 fun SynopsisAreaExpandedPreview(
     @PreviewParameter(ShowDetailSummaryProvider::class)
-    showDetailSummary: ShowDetailSummary
+    showDetailSummary: ShowDetailSummary,
 ) {
     SynopsisAreaExpanded(showSummary = showDetailSummary)
 }

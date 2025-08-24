@@ -13,30 +13,19 @@
 package com.theupnextapp.ui.traktAccount
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.theupnextapp.R
 import com.theupnextapp.domain.TraktUserListItem
@@ -51,23 +40,25 @@ import com.theupnextapp.ui.widgets.ListPosterCard
 fun FavoritesListContent(
     favoriteShows: List<TraktUserListItem>,
     widthSizeClass: WindowWidthSizeClass?,
-    onFavoriteClick: (item: TraktUserListItem) -> Unit
+    onFavoriteClick: (item: TraktUserListItem) -> Unit,
 ) {
-    val columns: GridCells = when(widthSizeClass) {
-        WindowWidthSizeClass.Compact -> GridCells.Fixed(3)
-        WindowWidthSizeClass.Medium -> GridCells.Fixed(4)
-        else -> GridCells.Adaptive(minSize = 140.dp)
-    }
+    val columns: GridCells =
+        when (widthSizeClass) {
+            WindowWidthSizeClass.Compact -> GridCells.Fixed(3)
+            WindowWidthSizeClass.Medium -> GridCells.Fixed(4)
+            else -> GridCells.Adaptive(minSize = 140.dp)
+        }
 
     Column(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(8.dp)
+        modifier = Modifier.padding(8.dp),
     ) {
         SectionHeadingText(
-            modifier = Modifier
-                .padding(top = 8.dp, bottom = 8.dp)
-                .align(Alignment.CenterHorizontally),
+            modifier =
+                Modifier
+                    .padding(top = 8.dp, bottom = 8.dp)
+                    .align(Alignment.CenterHorizontally),
             text = stringResource(id = R.string.title_favorites_list),
         )
 
@@ -75,7 +66,7 @@ fun FavoritesListContent(
             items(favoriteShows) { favoriteShow ->
                 ListPosterCard(
                     itemName = favoriteShow.title,
-                    itemUrl = favoriteShow.originalImageUrl
+                    itemUrl = favoriteShow.originalImageUrl,
                 ) {
                     onFavoriteClick(favoriteShow)
                 }
@@ -87,5 +78,4 @@ fun FavoritesListContent(
 @ReferenceDevices
 @Composable
 fun FavoritesListPreview() {
-
 }

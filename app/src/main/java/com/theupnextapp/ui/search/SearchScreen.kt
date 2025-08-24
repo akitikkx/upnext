@@ -59,7 +59,7 @@ import com.theupnextapp.ui.widgets.SearchListCard
 @Composable
 fun SearchScreen(
     viewModel: SearchViewModel = hiltViewModel(),
-    navigator: DestinationsNavigator
+    navigator: DestinationsNavigator,
 ) {
     val searchResultsList = viewModel.searchResponse.observeAsState()
 
@@ -67,7 +67,7 @@ fun SearchScreen(
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
-            modifier = Modifier.padding(8.dp)
+            modifier = Modifier.padding(8.dp),
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
                 SearchArea(
@@ -79,20 +79,21 @@ fun SearchScreen(
                                 showId = it.id.toString(),
                                 showTitle = it.name,
                                 showImageUrl = it.originalImageUrl,
-                                showBackgroundUrl = it.mediumImageUrl
-                            )
+                                showBackgroundUrl = it.mediumImageUrl,
+                            ),
                         )
                     },
                     onTextSubmit = {
                         viewModel.onQueryTextSubmit(it)
-                    }
+                    },
                 )
 
                 if (isLoading.value == true) {
                     LinearProgressIndicator(
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .fillMaxWidth()
+                        modifier =
+                            Modifier
+                                .padding(8.dp)
+                                .fillMaxWidth(),
                     )
                 }
             }
@@ -106,7 +107,7 @@ fun SearchScreen(
 fun SearchArea(
     searchResultsList: List<ShowSearch>?,
     onTextSubmit: (query: String) -> Unit,
-    onResultClick: (item: ShowSearch) -> Unit
+    onResultClick: (item: ShowSearch) -> Unit,
 ) {
     Column(modifier = Modifier.padding(top = 8.dp)) {
         SearchForm {
@@ -124,9 +125,7 @@ fun SearchArea(
 @ExperimentalMaterial3Api
 @ExperimentalComposeUiApi
 @Composable
-fun SearchForm(
-    onSearch: (String) -> Unit
-) {
+fun SearchForm(onSearch: (String) -> Unit) {
     val searchQueryState = rememberSaveable { mutableStateOf("") }
 
     SearchInputField(
@@ -134,7 +133,7 @@ fun SearchForm(
         valueState = searchQueryState,
         onValueChange = {
             onSearch(searchQueryState.value.trim())
-        }
+        },
     )
 }
 
@@ -144,7 +143,7 @@ fun SearchInputField(
     modifier: Modifier = Modifier,
     inputLabel: String,
     valueState: MutableState<String>,
-    onValueChange: (value: String) -> Unit
+    onValueChange: (value: String) -> Unit,
 ) {
     OutlinedTextField(
         value = valueState.value,
@@ -154,9 +153,10 @@ fun SearchInputField(
         },
         label = { Text(inputLabel) },
         singleLine = true,
-        modifier = modifier
-            .padding(8.dp)
-            .fillMaxWidth()
+        modifier =
+            modifier
+                .padding(8.dp)
+                .fillMaxWidth(),
     )
 }
 
@@ -164,7 +164,7 @@ fun SearchInputField(
 @Composable
 fun SearchResultsList(
     list: List<ShowSearch>,
-    onClick: (item: ShowSearch) -> Unit
+    onClick: (item: ShowSearch) -> Unit,
 ) {
     LazyColumn {
         items(list) { result ->

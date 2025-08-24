@@ -13,5 +13,8 @@
 package com.theupnextapp.common
 
 interface CrashlyticsHelper {
+
+    fun log(message: String)
+
     fun recordException(e: Throwable)
 }

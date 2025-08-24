@@ -32,7 +32,6 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 @Module
 class FirebaseAnalyticsModule {
-
     @Singleton
     @Provides
     fun provideFirebaseAnalytics(application: Application): FirebaseAnalytics {

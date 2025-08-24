@@ -43,57 +43,57 @@ data class NetworkShowInfoResponse(
     val updated: Int,
     val url: String?,
     val webChannel: Any,
-    val weight: Int
+    val weight: Int,
 )
 
 data class NetworkShowInfoLinks(
     val nextepisode: NetworkShowInfoNextEpisode?,
     val previousepisode: NetworkShowInfoPreviousEpsiode?,
-    val self: NetworkShowInfoSelf?
+    val self: NetworkShowInfoSelf?,
 )
 
 data class NetworkShowInfoPreviousEpsiode(
-    val href: String
+    val href: String,
 )
 
 data class NetworkShowInfoNextEpisode(
-    val href: String
+    val href: String,
 )
 
 data class NetworkShowInfoSelf(
-    val href: String
+    val href: String,
 )
 
 data class NetworkShowInfoExternals(
     val imdb: String?,
     val thetvdb: Int?,
-    val tvrage: Int?
+    val tvrage: Int?,
 )
 
 data class NetworkShowInfoImage(
     val medium: String,
-    val original: String
+    val original: String,
 )
 
 data class NetworkShowInfoNetwork(
     val country: NetworkShowInfoCountry,
     val id: Int,
-    val name: String
+    val name: String,
 )
 
 data class NetworkShowInfoCountry(
     val code: String,
     val name: String,
-    val timezone: String
+    val timezone: String,
 )
 
 data class NetworkShowInfoRating(
-    val average: Double
+    val average: Double,
 )
 
 data class NetworkShowInfoSchedule(
     val days: List<String>,
-    val time: String
+    val time: String,
 )
 
 fun NetworkShowInfoResponse.asDomainModel(): ShowDetailSummary {
@@ -112,21 +112,23 @@ fun NetworkShowInfoResponse.asDomainModel(): ShowDetailSummary {
         time = schedule?.time,
         previousEpisodeHref = _links?.previousepisode?.href,
         nextEpisodeHref = _links?.nextepisode?.href,
-        nextEpisodeLinkedId = _links?.nextepisode?.href?.substring(
-            _links.nextepisode.href.lastIndexOf("/") + 1,
-            _links.nextepisode.href.length
-        )?.replace("/", "")?.let {
-            Integer.parseInt(
-                it
-            )
-        },
-        previousEpisodeLinkedId = _links?.previousepisode?.href?.substring(
-            _links.previousepisode.href.lastIndexOf("/") + 1,
-            _links.previousepisode.href.length
-        )?.replace("/", "")?.let {
-            Integer.parseInt(
-                it
-            )
-        }
+        nextEpisodeLinkedId =
+            _links?.nextepisode?.href?.substring(
+                _links.nextepisode.href.lastIndexOf("/") + 1,
+                _links.nextepisode.href.length,
+            )?.replace("/", "")?.let {
+                Integer.parseInt(
+                    it,
+                )
+            },
+        previousEpisodeLinkedId =
+            _links?.previousepisode?.href?.substring(
+                _links.previousepisode.href.lastIndexOf("/") + 1,
+                _links.previousepisode.href.length,
+            )?.replace("/", "")?.let {
+                Integer.parseInt(
+                    it,
+                )
+            },
     )
 }

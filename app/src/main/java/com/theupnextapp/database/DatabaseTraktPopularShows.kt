@@ -38,7 +38,7 @@ data class DatabaseTraktPopularShows(
     val tmdbID: Int?,
     val traktID: Int?,
     val tvdbID: Int?,
-    val tvMazeID: Int?
+    val tvMazeID: Int?,
 )
 
 fun List<DatabaseTraktPopularShows>.asDomainModel(): List<TraktPopularShows> {
@@ -54,7 +54,7 @@ fun List<DatabaseTraktPopularShows>.asDomainModel(): List<TraktPopularShows> {
             tmdbID = it.tmdbID,
             traktID = it.traktID,
             tvdbID = it.tvdbID,
-            tvMazeID = it.tvMazeID
+            tvMazeID = it.tvMazeID,
         )
     }
 }

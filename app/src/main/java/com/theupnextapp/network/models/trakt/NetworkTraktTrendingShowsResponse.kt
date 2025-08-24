@@ -28,7 +28,7 @@ class NetworkTraktTrendingShowsResponse : ArrayList<NetworkTraktTrendingShowsRes
 
 data class NetworkTraktTrendingShowsResponseItem(
     val show: NetworkTraktTrendingShowsResponseItemShow,
-    val watchers: Int?
+    val watchers: Int?,
 )
 
 data class NetworkTraktTrendingShowsResponseItemShow(
@@ -36,7 +36,7 @@ data class NetworkTraktTrendingShowsResponseItemShow(
     val title: String?,
     val year: Int?,
     var mediumImageUrl: String?,
-    var originalImageUrl: String?
+    var originalImageUrl: String?,
 )
 
 data class NetworkTraktTrendingShowsResponseItemShowIds(
@@ -45,7 +45,7 @@ data class NetworkTraktTrendingShowsResponseItemShowIds(
     val tmdb: Int?,
     val trakt: Int,
     val tvdb: Int?,
-    var tvMazeID: Int?
+    var tvMazeID: Int?,
 )
 
 fun NetworkTraktTrendingShowsResponseItem.asDomainModel(): TraktTrendingShows {
@@ -60,7 +60,7 @@ fun NetworkTraktTrendingShowsResponseItem.asDomainModel(): TraktTrendingShows {
         tmdbID = show.ids.tmdb,
         traktID = show.ids.trakt,
         tvMazeID = show.ids.tvMazeID,
-        tvdbID = show.ids.tvdb
+        tvdbID = show.ids.tvdb,
     )
 }
 
@@ -76,6 +76,6 @@ fun NetworkTraktTrendingShowsResponseItemShow.asDatabaseModel(): DatabaseTraktTr
         tmdbID = ids.tmdb,
         traktID = ids.trakt,
         tvdbID = ids.tvdb,
-        tvMazeID = ids.tvMazeID
+        tvMazeID = ids.tvMazeID,
     )
 }

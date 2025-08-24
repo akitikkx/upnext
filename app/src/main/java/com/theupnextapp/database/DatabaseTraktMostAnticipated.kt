@@ -54,7 +54,7 @@ fun List<DatabaseTraktMostAnticipated>.asDomainModel(): List<TraktMostAnticipate
             tmdbID = it.tmdbID,
             traktID = it.traktID,
             tvdbID = it.tvdbID,
-            tvMazeID = it.tvMazeID
+            tvMazeID = it.tvMazeID,
         )
     }
 }

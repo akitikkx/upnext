@@ -21,7 +21,6 @@
 
 package com.theupnextapp.repository
 
-import android.icu.util.Calendar
 import com.theupnextapp.common.utils.DateUtils
 import com.theupnextapp.database.DatabaseTableUpdate
 import com.theupnextapp.database.UpnextDao
@@ -35,9 +34,8 @@ import java.util.concurrent.TimeUnit
 
 abstract class BaseRepository(
     protected val upnextDao: UpnextDao,
-    protected val tvMazeService: TvMazeService
+    protected val tvMazeService: TvMazeService,
 ) {
-
     /**
      * Determines whether a data update operation can proceed based on the last update timestamp
      * for a given table and a specified interval.
@@ -48,18 +46,25 @@ abstract class BaseRepository(
      *         `false` otherwise.
      */
     @Deprecated(message = "This will be replaced with a more robust update mechanism in the future.")
-    protected fun canProceedWithUpdate(tableName: String, intervalMinutes: Long): Boolean {
-        val lastUpdateTimeStamp = upnextDao.getTableLastUpdateTime(tableName)?.last_updated
-            ?: return true
+    protected fun canProceedWithUpdate(
+        tableName: String,
+        intervalMinutes: Long,
+    ): Boolean {
+        val lastUpdateTimeStamp =
+            upnextDao.getTableLastUpdateTime(tableName)?.last_updated
+                ?: return true
 
-        val elapsedMinutes = DateUtils.calculateDifference(
-            startTimeMillis = lastUpdateTimeStamp,
-            endTimeMillis = System.currentTimeMillis(),
-            unit = TimeUnit.MINUTES
-        )
+        val elapsedMinutes =
+            DateUtils.calculateDifference(
+                startTimeMillis = lastUpdateTimeStamp,
+                endTimeMillis = System.currentTimeMillis(),
+                unit = TimeUnit.MINUTES,
+            )
 
         val canProceed = elapsedMinutes >= intervalMinutes
-        Timber.d("canProceedWithUpdate for table '$tableName': lastUpdate=$lastUpdateTimeStamp, elapsedMinutes=$elapsedMinutes, interval=$intervalMinutes, proceed=$canProceed")
+        Timber.d(
+            "canProceedWithUpdate for table '$tableName': lastUpdate=$lastUpdateTimeStamp, elapsedMinutes=$elapsedMinutes, interval=$intervalMinutes, proceed=$canProceed",
+        )
         return canProceed
     }
 
@@ -103,8 +108,8 @@ abstract class BaseRepository(
         val isDifferentDay = lastUpdateDateString != currentDateString
 
         Timber.d(
-            "isUpdateNeededByDay for '$tableName': lastUpdateDateString='${lastUpdateDateString}', " +
-                    "currentDateString='${currentDateString}', isDifferentDay=$isDifferentDay."
+            "isUpdateNeededByDay for '$tableName': lastUpdateDateString='$lastUpdateDateString', " +
+                "currentDateString='$currentDateString', isDifferentDay=$isDifferentDay.",
         )
         return isDifferentDay
     }
@@ -130,18 +135,19 @@ abstract class BaseRepository(
                     return@withContext null
                 }
 
-                val nextEpisodeId = nextEpisodeHref
-                    .substringAfterLast('/', "")
+                val nextEpisodeId =
+                    nextEpisodeHref
+                        .substringAfterLast('/', "")
                 if (nextEpisodeId.isBlank()) {
                     Timber.w(
                         "Could not extract next episode ID from href: " +
-                                "$nextEpisodeHref for TVMaze ID: $tvMazeID"
+                            "$nextEpisodeHref for TVMaze ID: $tvMazeID",
                     )
                     return@withContext null
                 }
                 Timber.d(
                     "Extracted next episode ID: $nextEpisodeId for " +
-                            "TVMaze ID: $tvMazeID"
+                        "TVMaze ID: $tvMazeID",
                 )
 
                 fetchNextEpisodeDetails(nextEpisodeId)
@@ -158,8 +164,7 @@ abstract class BaseRepository(
      * @param episodeId The ID of the episode to fetch.
      * @return [NetworkShowNextEpisodeResponse] or `null` if fetching fails or ID is invalid.
      */
-    private suspend fun fetchNextEpisodeDetails(episodeId: String?):
-            NetworkShowNextEpisodeResponse? {
+    private suspend fun fetchNextEpisodeDetails(episodeId: String?): NetworkShowNextEpisodeResponse? {
         if (episodeId.isNullOrBlank()) {
             Timber.w("fetchNextEpisodeDetails called with null or blank episodeId.")
             return null
@@ -215,8 +220,8 @@ abstract class BaseRepository(
                 upnextDao.insertTableUpdateLog(
                     DatabaseTableUpdate(
                         table_name = tableName,
-                        last_updated = System.currentTimeMillis()
-                    )
+                        last_updated = System.currentTimeMillis(),
+                    ),
                 )
                 Timber.d("Successfully insertedTableUpdateLog for $tableName at ${System.currentTimeMillis()}")
             } catch (e: Exception) {
@@ -224,5 +229,4 @@ abstract class BaseRepository(
             }
         }
     }
-
 }

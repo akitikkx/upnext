@@ -38,19 +38,19 @@ data class NetworkTraktUserListsResponseItem(
     val privacy: String?,
     val sort_by: String?,
     val sort_how: String?,
-    val updated_at: String?
+    val updated_at: String?,
 )
 
 data class NetworkTraktUserListsResponseItemIds(
     val slug: String?,
-    val trakt: Int?
+    val trakt: Int?,
 )
 
 fun List<NetworkTraktUserListsResponseItem>.asDomainModel(): List<TraktUserList> {
     return map {
         TraktUserList(
             traktId = it.ids?.trakt,
-            slug = it.ids?.slug
+            slug = it.ids?.slug,
         )
     }
 }

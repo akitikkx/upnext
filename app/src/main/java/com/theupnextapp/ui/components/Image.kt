@@ -41,17 +41,19 @@ fun PosterImage(
     height: Dp = dimensionResource(id = R.dimen.compose_shows_list_poster_height),
 ) {
     AsyncImage(
-        model = ImageRequest.Builder(LocalContext.current)
-            .data(url)
-            .crossfade(true)
-            .fallback(R.drawable.poster_placeholder)
-            .error(R.drawable.poster_placeholder)
-            .build(),
+        model =
+            ImageRequest.Builder(LocalContext.current)
+                .data(url)
+                .crossfade(true)
+                .fallback(R.drawable.poster_placeholder)
+                .error(R.drawable.poster_placeholder)
+                .build(),
         placeholder = painterResource(id = R.drawable.poster_placeholder),
         contentDescription = null,
         contentScale = ContentScale.Crop,
-        modifier = modifier
-            .fillMaxWidth()
-            .height(height)
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .height(height),
     )
 }

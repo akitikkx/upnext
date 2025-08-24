@@ -28,5 +28,5 @@ data class TraktShowStats(
     val lists: Int?,
     val plays: Int?,
     val votes: Int?,
-    val watchers: Int?
+    val watchers: Int?,
 )

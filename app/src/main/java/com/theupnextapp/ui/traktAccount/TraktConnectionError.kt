@@ -15,5 +15,5 @@ package com.theupnextapp.ui.traktAccount
 enum class TraktConnectionError(val message: String) {
     TOKEN_EXCHANGE_FAILED("Failed to connect to Trakt. Please try authorizing again."),
     INVALID_AUTH_CODE("Invalid authorization code received."),
-    DISCONNECT_FAILED("Failed to disconnect from Trakt. Please try again.")
+    DISCONNECT_FAILED("Failed to disconnect from Trakt. Please try again."),
 }

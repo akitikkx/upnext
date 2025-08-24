@@ -32,20 +32,21 @@ import com.theupnextapp.ui.previewdata.ShowDetailSummaryProvider
 @Composable
 fun ShowMetadata(
     showSummary: ShowDetailSummary?,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.Start,
-        modifier = modifier
+        modifier = modifier,
     ) {
         showSummary?.airDays?.let {
             if (it.isNotEmpty()) {
                 HeadingAndItemText(
                     item = it,
-                    heading = stringResource(
-                        id = R.string.show_detail_air_days_heading
-                    )
+                    heading =
+                        stringResource(
+                            id = R.string.show_detail_air_days_heading,
+                        ),
                 )
             }
         }
@@ -54,9 +55,10 @@ fun ShowMetadata(
             if (it.isNotEmpty()) {
                 HeadingAndItemText(
                     item = it,
-                    heading = stringResource(
-                        id = R.string.show_detail_genres_heading
-                    )
+                    heading =
+                        stringResource(
+                            id = R.string.show_detail_genres_heading,
+                        ),
                 )
             }
         }
@@ -65,7 +67,7 @@ fun ShowMetadata(
             Text(
                 text = stringResource(id = R.string.tv_maze_creative_commons_attribution_text_multiple),
                 style = MaterialTheme.typography.labelMedium,
-                modifier = Modifier.padding(8.dp)
+                modifier = Modifier.padding(8.dp),
             )
         }
     }
@@ -75,7 +77,7 @@ fun ShowMetadata(
 @Composable
 fun ShowMetadataPreview(
     @PreviewParameter(ShowDetailSummaryProvider::class)
-    showDetailSummary: ShowDetailSummary
+    showDetailSummary: ShowDetailSummary,
 ) {
     ShowMetadata(showSummary = showDetailSummary)
 }

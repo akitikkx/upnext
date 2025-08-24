@@ -35,39 +35,40 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ShowSeasonsViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
-    private val showDetailRepository: ShowDetailRepository
-) : ViewModel() {
+class ShowSeasonsViewModel
+    @Inject
+    constructor(
+        private val savedStateHandle: SavedStateHandle,
+        private val showDetailRepository: ShowDetailRepository,
+    ) : ViewModel() {
+        private val _isLoading = MutableLiveData<Boolean>()
+        val isLoading: LiveData<Boolean> = _isLoading
 
-    private val _isLoading = MutableLiveData<Boolean>()
-    val isLoading: LiveData<Boolean> = _isLoading
+        private val _showSeasons = MutableLiveData<List<ShowSeason>?>()
+        val showSeasons: LiveData<List<ShowSeason>?> = _showSeasons
 
-    private val _showSeasons = MutableLiveData<List<ShowSeason>?>()
-    val showSeasons: LiveData<List<ShowSeason>?> = _showSeasons
-
-    fun setSelectedShow(showDetailArg: ShowDetailArg?) {
-        showDetailArg?.let { selectedShow ->
-            savedStateHandle.set(SHOW_ID, selectedShow.showId)
-            viewModelScope.launch {
-                savedStateHandle.get<String>(SHOW_ID)?.let {
-                    showDetailRepository.getShowSeasons(it.toInt()).collect { result ->
-                        when (result) {
-                            is Result.Success -> {
-                                _showSeasons.value = result.data
+        fun setSelectedShow(showDetailArg: ShowDetailArg?) {
+            showDetailArg?.let { selectedShow ->
+                savedStateHandle.set(SHOW_ID, selectedShow.showId)
+                viewModelScope.launch {
+                    savedStateHandle.get<String>(SHOW_ID)?.let {
+                        showDetailRepository.getShowSeasons(it.toInt()).collect { result ->
+                            when (result) {
+                                is Result.Success -> {
+                                    _showSeasons.value = result.data
+                                }
+                                is Result.Loading -> {
+                                    _isLoading.value = result.status
+                                }
+                                else -> {}
                             }
-                            is Result.Loading -> {
-                                _isLoading.value = result.status
-                            }
-                            else -> {}
                         }
                     }
                 }
             }
         }
-    }
 
-    companion object {
-        const val SHOW_ID = "showId"
+        companion object {
+            const val SHOW_ID = "showId"
+        }
     }
-}

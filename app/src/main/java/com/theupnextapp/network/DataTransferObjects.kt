@@ -30,54 +30,57 @@ import com.theupnextapp.network.models.tvmaze.NetworkYesterdayScheduleResponse
 
 fun NetworkYesterdayScheduleResponse.asDatabaseModel(): DatabaseYesterdaySchedule {
     return DatabaseYesterdaySchedule(
-        id = show.id,
-        image = show.image?.original,
-        mediumImage = show.image?.medium,
-        language = show.language,
-        name = show.name,
-        officialSite = show.officialSite,
-        premiered = show.premiered,
-        runtime = show.runtime.toString(),
-        status = show.status,
-        summary = show.summary,
-        type = show.type,
-        updated = show.updated.toString(),
-        url = show.url
+        id = this.id,
+        showId = this.show.id,
+        image = this.show.image?.original,
+        mediumImage = this.show.image?.medium,
+        language = this.show.language,
+        name = this.name,
+        officialSite = this.show.officialSite,
+        premiered = this.show.premiered,
+        runtime = this.show.runtime.toString(),
+        status = this.show.status,
+        summary = this.summary,
+        type = this.show.type,
+        updated = this.show.updated.toString(),
+        url = this.url,
     )
 }
 
 fun NetworkTodayScheduleResponse.asDatabaseModel(): DatabaseTodaySchedule {
     return DatabaseTodaySchedule(
-        id = show.id,
-        image = show.image?.original,
-        mediumImage = show.image?.medium,
-        language = show.language,
-        name = show.name,
-        officialSite = show.officialSite,
-        premiered = show.premiered,
-        runtime = show.runtime.toString(),
-        status = show.status,
-        summary = show.summary,
-        type = show.type,
-        updated = show.updated.toString(),
-        url = show.url
+        id = this.id,
+        showId = this.show.id,
+        image = this.show.image?.original,
+        mediumImage = this.show.image?.medium,
+        language = this.show.language,
+        name = this.name,
+        officialSite = this.show.officialSite,
+        premiered = this.show.premiered,
+        runtime = this.show.runtime.toString(),
+        status = this.show.status,
+        summary = this.summary,
+        type = this.show.type,
+        updated = this.show.updated.toString(),
+        url = this.url,
     )
 }
 
 fun NetworkTomorrowScheduleResponse.asDatabaseModel(): DatabaseTomorrowSchedule {
     return DatabaseTomorrowSchedule(
-        id = show.id,
-        image = show.image?.original,
-        mediumImage = show.image?.medium,
-        language = show.language,
-        name = show.name,
-        officialSite = show.officialSite,
-        premiered = show.premiered,
-        runtime = show.runtime.toString(),
-        status = show.status,
-        summary = show.summary,
-        type = show.type,
-        updated = show.updated.toString(),
-        url = show.url
+        id = this.id,
+        showId = this.show.id,
+        image = this.show.image?.original,
+        mediumImage = this.show.image?.medium,
+        language = this.show.language,
+        name = this.name,
+        officialSite = this.show.officialSite,
+        premiered = this.show.premiered,
+        runtime = this.show.runtime.toString(),
+        status = this.show.status,
+        summary = this.summary,
+        type = this.show.type,
+        updated = this.show.updated.toString(),
+        url = this.url,
     )
 }

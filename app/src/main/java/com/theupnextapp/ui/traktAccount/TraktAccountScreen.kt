@@ -83,14 +83,14 @@ import kotlinx.coroutines.launch
 @OptIn(
     ExperimentalMaterial3Api::class,
     ExperimentalMaterial3WindowSizeClassApi::class,
-    ExperimentalFoundationApi::class
+    ExperimentalFoundationApi::class,
 )
 @Destination<RootGraph>
 @Composable
 fun TraktAccountScreen(
     viewModel: TraktAccountViewModel = hiltViewModel(),
     navigator: DestinationsNavigator,
-    code: String? = null
+    code: String? = null,
 ) {
     val scrollState = rememberScrollState()
     val context = LocalContext.current
@@ -104,7 +104,6 @@ fun TraktAccountScreen(
     val isLoadingFavorites by viewModel.isLoadingFavoriteShows.collectAsStateWithLifecycle()
     val favoriteShowsError by viewModel.favoriteShowsError.collectAsStateWithLifecycle()
     val isFavoriteShowsEmpty by viewModel.favoriteShowsEmpty.collectAsStateWithLifecycle()
-
 
     // Handle deep link code for authorization
     LaunchedEffect(key1 = code, key2 = isAuthorizedOnTrakt) {
@@ -127,7 +126,7 @@ fun TraktAccountScreen(
             scope.launch {
                 snackbarHostState.showSnackbar(
                     message = error,
-                    duration = SnackbarDuration.Long
+                    duration = SnackbarDuration.Long,
                 )
             }
             viewModel.clearConnectionError()
@@ -140,7 +139,7 @@ fun TraktAccountScreen(
             scope.launch {
                 snackbarHostState.showSnackbar(
                     message = error,
-                    duration = SnackbarDuration.Long
+                    duration = SnackbarDuration.Long,
                 )
             }
             viewModel.clearDisconnectionError()
@@ -153,7 +152,7 @@ fun TraktAccountScreen(
             scope.launch {
                 snackbarHostState.showSnackbar(
                     message = "Error loading favorites: $error",
-                    duration = SnackbarDuration.Long
+                    duration = SnackbarDuration.Long,
                 )
             }
         }
@@ -161,13 +160,14 @@ fun TraktAccountScreen(
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
     ) { localScaffoldPadding ->
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(localScaffoldPadding)
-                .scrollable(scrollState, orientation = Orientation.Vertical)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(localScaffoldPadding)
+                    .scrollable(scrollState, orientation = Orientation.Vertical),
         ) {
             AccountContent(
                 isAuthorizedOnTrakt = isAuthorizedOnTrakt,
@@ -185,18 +185,18 @@ fun TraktAccountScreen(
                                 showId = item.tvMazeID.toString(),
                                 showTitle = item.title,
                                 showImageUrl = item.originalImageUrl,
-                                showBackgroundUrl = item.mediumImageUrl
-                            )
-                        )
+                                showBackgroundUrl = item.mediumImageUrl,
+                            ),
+                        ),
                     )
                 },
-                onLogoutClick = { viewModel.onDisconnectFromTraktClick() }
+                onLogoutClick = { viewModel.onDisconnectFromTraktClick() },
             )
 
             if (uiState.confirmDisconnectFromTrakt) {
                 DisconnectTraktDialog(
                     onDismissed = { viewModel.onDisconnectFromTraktRefused() },
-                    onConfirmed = { viewModel.onDisconnectConfirm() }
+                    onConfirmed = { viewModel.onDisconnectConfirm() },
                 )
             }
         }
@@ -216,13 +216,14 @@ private fun AccountContent(
     isDisconnecting: Boolean,
     onConnectToTraktClick: () -> Unit,
     onFavoriteClick: (item: TraktUserListItem) -> Unit,
-    onLogoutClick: () -> Unit
+    onLogoutClick: () -> Unit,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         if (isLoadingConnection || isDisconnecting) {
             CircularProgressIndicator(modifier = Modifier.padding(16.dp))
@@ -252,22 +253,21 @@ private fun AccountContent(
     }
 }
 
-
 @Composable
 private fun DisconnectTraktDialog(
     onDismissed: () -> Unit,
-    onConfirmed: () -> Unit
+    onConfirmed: () -> Unit,
 ) {
     AlertDialog(
         onDismissRequest = { onDismissed() },
         title = {
             Text(
-                text = stringResource(id = R.string.disconnect_from_trakt_dialog_title)
+                text = stringResource(id = R.string.disconnect_from_trakt_dialog_title),
             )
         },
         text = {
             Text(
-                text = stringResource(id = R.string.disconnect_from_trakt_dialog_message)
+                text = stringResource(id = R.string.disconnect_from_trakt_dialog_message),
             )
         },
         confirmButton = {
@@ -279,7 +279,7 @@ private fun DisconnectTraktDialog(
             TextButton(onClick = { onDismissed() }) { // Changed to TextButton for Material 3
                 Text(text = stringResource(id = R.string.disconnect_from_trakt_dialog_cancel))
             }
-        }
+        },
     )
 }
 
@@ -288,8 +288,8 @@ fun openCustomTab(context: Context) {
 
     val traktUrl =
         "https://trakt.tv/oauth/authorize?response_type=code&client_id=" +
-                "${BuildConfig.TRAKT_CLIENT_ID}&redirect_uri=" +
-                BuildConfig.TRAKT_REDIRECT_URI
+            "${BuildConfig.TRAKT_CLIENT_ID}&redirect_uri=" +
+            BuildConfig.TRAKT_REDIRECT_URI
 
     val activity = (context as? Activity)
 
@@ -299,11 +299,12 @@ fun openCustomTab(context: Context) {
 
     val customBuilder = builder.build()
 
-    val chromePackageInfo = try {
-        context.packageManager.getPackageInfo(packageName, 0)
-    } catch (_: PackageManager.NameNotFoundException) {
-        null
-    }
+    val chromePackageInfo =
+        try {
+            context.packageManager.getPackageInfo(packageName, 0)
+        } catch (_: PackageManager.NameNotFoundException) {
+            null
+        }
 
     if (chromePackageInfo != null) {
         customBuilder.intent.setPackage(packageName)
@@ -328,33 +329,34 @@ fun openCustomTab(context: Context) {
 @ExperimentalMaterial3Api
 @ExperimentalFoundationApi
 @Composable
-fun ConnectToTrakt(
-    onClick: () -> Unit
-) {
+fun ConnectToTrakt(onClick: () -> Unit) {
     val image: Painter = painterResource(id = R.drawable.ic_trakt_wide_red_white)
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(16.dp),
     ) {
         Image(
             painter = image,
             stringResource(id = R.string.trakt_logo_description),
-            modifier = Modifier.height(dimensionResource(id = R.dimen.trakt_account_not_authorized_logo_height))
+            modifier = Modifier.height(dimensionResource(id = R.dimen.trakt_account_not_authorized_logo_height)),
         )
         Text(
             text = stringResource(id = R.string.trakt_connect_description),
             modifier = Modifier.padding(16.dp), // Increased padding
             textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.bodyLarge
+            style = MaterialTheme.typography.bodyLarge,
         )
         Button(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 32.dp, vertical = 8.dp), // Adjusted padding
-            onClick = { onClick() }
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 32.dp, vertical = 8.dp),
+            // Adjusted padding
+            onClick = { onClick() },
         ) {
             Text(text = stringResource(id = R.string.connect_to_trakt_button))
         }

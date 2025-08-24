@@ -33,5 +33,5 @@ data class ShowNextEpisode(
     val nextEpisodeRuntime: String?,
     val nextEpisodeSeason: String?,
     val nextEpisodeSummary: String?,
-    val nextEpisodeUrl: String?
+    val nextEpisodeUrl: String?,
 )

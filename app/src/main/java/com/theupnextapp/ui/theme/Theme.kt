@@ -22,36 +22,39 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
-private val DarkColorTheme = darkColorScheme(
-    primary = Teal500,
-    secondary = Purple500,
-    tertiary = Teal600
-)
+private val DarkColorTheme =
+    darkColorScheme(
+        primary = Teal500,
+        secondary = Purple500,
+        tertiary = Teal600,
+    )
 
-private val LightColorTheme = lightColorScheme(
-    primary = Teal200,
-    secondary = Purple200,
-    tertiary = Teal700
-)
+private val LightColorTheme =
+    lightColorScheme(
+        primary = Teal200,
+        secondary = Purple200,
+        tertiary = Teal700,
+    )
 
 @Composable
 fun UpnextTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = true,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+    val colorScheme =
+        when {
+            dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+                val context = LocalContext.current
+                if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            }
+            darkTheme -> DarkColorTheme
+            else -> LightColorTheme
         }
-        darkTheme -> DarkColorTheme
-        else -> LightColorTheme
-    }
 
     MaterialTheme(
         colorScheme = colorScheme,
         typography = Typography,
-        content = content
+        content = content,
     )
 }

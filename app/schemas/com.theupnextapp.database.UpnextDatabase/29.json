@@ -2,17 +2,22 @@
   "formatVersion": 1,
   "database": {
     "version": 29,
-    "identityHash": "3a9a96a36a3b70b21a8ccf9b99ee9717",
+    "identityHash": "0fc390f25156d240e724e51c15cc7307",
     "entities": [
       {
         "tableName": "schedule_yesterday",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `image` TEXT, `mediumImage` TEXT, `language` TEXT, `name` TEXT, `officialSite` TEXT, `premiered` TEXT, `runtime` TEXT, `status` TEXT, `summary` TEXT, `type` TEXT, `updated` TEXT, `url` TEXT, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `showId` INTEGER, `image` TEXT, `mediumImage` TEXT, `language` TEXT, `name` TEXT, `officialSite` TEXT, `premiered` TEXT, `runtime` TEXT, `status` TEXT, `summary` TEXT, `type` TEXT, `updated` TEXT, `url` TEXT, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
             "columnName": "id",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "showId",
+            "columnName": "showId",
+            "affinity": "INTEGER"
           },
           {
             "fieldPath": "image",
@@ -84,13 +89,18 @@
       },
       {
         "tableName": "schedule_today",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `image` TEXT, `mediumImage` TEXT, `language` TEXT, `name` TEXT, `officialSite` TEXT, `premiered` TEXT, `runtime` TEXT, `status` TEXT, `summary` TEXT, `type` TEXT, `updated` TEXT, `url` TEXT, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `showId` INTEGER, `image` TEXT, `mediumImage` TEXT, `language` TEXT, `name` TEXT, `officialSite` TEXT, `premiered` TEXT, `runtime` TEXT, `status` TEXT, `summary` TEXT, `type` TEXT, `updated` TEXT, `url` TEXT, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
             "columnName": "id",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "showId",
+            "columnName": "showId",
+            "affinity": "INTEGER"
           },
           {
             "fieldPath": "image",
@@ -162,13 +172,18 @@
       },
       {
         "tableName": "schedule_tomorrow",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `image` TEXT, `mediumImage` TEXT, `language` TEXT, `name` TEXT, `officialSite` TEXT, `premiered` TEXT, `runtime` TEXT, `status` TEXT, `summary` TEXT, `type` TEXT, `updated` TEXT, `url` TEXT, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `showId` INTEGER, `image` TEXT, `mediumImage` TEXT, `language` TEXT, `name` TEXT, `officialSite` TEXT, `premiered` TEXT, `runtime` TEXT, `status` TEXT, `summary` TEXT, `type` TEXT, `updated` TEXT, `url` TEXT, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
             "columnName": "id",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "showId",
+            "columnName": "showId",
+            "affinity": "INTEGER"
           },
           {
             "fieldPath": "image",
@@ -793,7 +808,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '3a9a96a36a3b70b21a8ccf9b99ee9717')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '0fc390f25156d240e724e51c15cc7307')"
     ]
   }
 }

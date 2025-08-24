@@ -9,12 +9,13 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.test.DeviceConfigurationOverride
+import androidx.compose.ui.test.ForcedSize
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.google.accompanist.testharness.TestHarness
 import com.theupnextapp.ui.main.MainScreen
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -31,7 +32,6 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @HiltAndroidTest
 class MainScreenTest {
-
     @get:Rule(order = 0)
     val hiltTestRule = HiltAndroidRule(this)
 
@@ -51,13 +51,16 @@ class MainScreenTest {
         composeTestRule.activity.setContent {
             val dataString: MutableState<String?> = rememberSaveable { mutableStateOf("") }
 
-            TestHarness(size = DpSize(200.dp, 600.dp)) {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(200.dp, 600.dp))
+            ) {
                 MainScreen(
                     valueState = dataString,
-                    onTraktAuthCompleted = {})
+                    onTraktAuthCompleted = {},
+                )
             }
         }
-        composeTestRule.onNodeWithTag("bottom_app_bar").assertExists()
+        composeTestRule.onNodeWithTag("navigation_suite_scaffold").assertExists()
     }
 
     @Test
@@ -65,14 +68,16 @@ class MainScreenTest {
         composeTestRule.activity.setContent {
             val dataString: MutableState<String?> = rememberSaveable { mutableStateOf("") }
 
-            TestHarness(size = DpSize(600.dp, 480.dp)) {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(600.dp, 480.dp))
+            ) {
                 MainScreen(
                     valueState = dataString,
-                    onTraktAuthCompleted = {})
-
+                    onTraktAuthCompleted = {},
+                )
             }
         }
-        composeTestRule.onNodeWithTag("navigation_rail").assertExists()
+        composeTestRule.onNodeWithTag("navigation_suite_scaffold").assertExists()
     }
 
     @Test
@@ -80,13 +85,15 @@ class MainScreenTest {
         composeTestRule.activity.setContent {
             val dataString: MutableState<String?> = rememberSaveable { mutableStateOf("") }
 
-            TestHarness(size = DpSize(840.dp, 480.dp)) {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(840.dp, 480.dp))
+            ) {
                 MainScreen(
                     valueState = dataString,
-                    onTraktAuthCompleted = {})
-
+                    onTraktAuthCompleted = {},
+                )
             }
         }
-        composeTestRule.onNodeWithTag("navigation_drawer").assertExists()
+        composeTestRule.onNodeWithTag("navigation_suite_scaffold").assertExists()
     }
 }

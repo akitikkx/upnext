@@ -37,32 +37,32 @@ data class NetworkShowSeasonsResponseItem(
     val premiereDate: String?,
     val summary: String?,
     val url: String?,
-    val webChannel: Any?
+    val webChannel: Any?,
 )
 
 data class NetworkShowSeasonsResponseLinks(
-    val self: NetworkShowSeasonsResponseSelf?
+    val self: NetworkShowSeasonsResponseSelf?,
 )
 
 data class NetworkShowSeasonsResponseImage(
     val medium: String?,
-    val original: String?
+    val original: String?,
 )
 
 data class NetworkShowSeasonsResponseNetwork(
     val country: NetworkShowSeasonsResponseCountry?,
     val id: Int?,
-    val name: String?
+    val name: String?,
 )
 
 data class NetworkShowSeasonsResponseSelf(
-    val href: String?
+    val href: String?,
 )
 
 data class NetworkShowSeasonsResponseCountry(
     val code: String?,
     val name: String?,
-    val timezone: String?
+    val timezone: String?,
 )
 
 fun NetworkShowSeasonsResponse.asDomainModel(): List<ShowSeason> {
@@ -75,7 +75,7 @@ fun NetworkShowSeasonsResponse.asDomainModel(): List<ShowSeason> {
             premiereDate = it.premiereDate,
             endDate = it.endDate,
             mediumImageUrl = it.image?.medium,
-            originalImageUrl = it.image?.original
+            originalImageUrl = it.image?.original,
         )
     }
 }

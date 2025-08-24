@@ -27,7 +27,7 @@ class NetworkTraktMostAnticipatedResponse : ArrayList<NetworkTraktMostAnticipate
 
 data class NetworkTraktMostAnticipatedResponseItem(
     val list_count: Int?,
-    val show: NetworkTraktMostAnticipatedResponseItemShow
+    val show: NetworkTraktMostAnticipatedResponseItemShow,
 )
 
 data class NetworkTraktMostAnticipatedResponseItemShow(
@@ -35,7 +35,7 @@ data class NetworkTraktMostAnticipatedResponseItemShow(
     val title: String?,
     val year: Int?,
     var mediumImageUrl: String?,
-    var originalImageUrl: String?
+    var originalImageUrl: String?,
 )
 
 data class NetworkTraktMostAnticipatedResponseItemIds(
@@ -44,7 +44,7 @@ data class NetworkTraktMostAnticipatedResponseItemIds(
     val tmdb: Int?,
     val trakt: Int,
     val tvdb: Int?,
-    var tvMazeID: Int?
+    var tvMazeID: Int?,
 )
 
 fun NetworkTraktMostAnticipatedResponseItemShow.asDatabaseModel(): DatabaseTraktMostAnticipated {

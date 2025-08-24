@@ -21,7 +21,6 @@
 
 package com.theupnextapp.ui.explore
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -33,25 +32,16 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.isEmpty
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.ShowDetailScreenDestination
@@ -72,14 +62,14 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 @Composable
 fun ExploreScreen(
     viewModel: ExploreViewModel = hiltViewModel(),
-    navigator: DestinationsNavigator
+    navigator: DestinationsNavigator,
 ) {
     val popularShowsList: List<TraktPopularShows>
-            by viewModel.popularShows.collectAsStateWithLifecycle()
+        by viewModel.popularShows.collectAsStateWithLifecycle()
     val trendingShowsList: List<TraktTrendingShows>
-            by viewModel.trendingShows.collectAsStateWithLifecycle()
+        by viewModel.trendingShows.collectAsStateWithLifecycle()
     val mostAnticipatedShowsList: List<TraktMostAnticipated>
-            by viewModel.mostAnticipatedShows.collectAsStateWithLifecycle()
+        by viewModel.mostAnticipatedShows.collectAsStateWithLifecycle()
 
     val isOverallLoading by viewModel.isLoading.collectAsStateWithLifecycle()
     val isPullRefreshing by viewModel.isPullRefreshing.collectAsStateWithLifecycle()
@@ -87,7 +77,7 @@ fun ExploreScreen(
     val isLoadingTrending by viewModel.isLoadingTraktTrending.collectAsStateWithLifecycle()
     val isLoadingPopular by viewModel.isLoadingTraktPopular.collectAsStateWithLifecycle()
     val isLoadingMostAnticipated
-            by viewModel.isLoadingTraktMostAnticipated.collectAsStateWithLifecycle()
+        by viewModel.isLoadingTraktMostAnticipated.collectAsStateWithLifecycle()
 
     val scrollState = rememberScrollState()
 
@@ -108,23 +98,25 @@ fun ExploreScreen(
     PullToRefreshBox(
         isRefreshing = isPullRefreshing,
         onRefresh = onRefresh,
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
     ) {
         Surface(modifier = Modifier.fillMaxSize()) {
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(scrollState)
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .verticalScroll(scrollState),
             ) {
                 if (isOverallLoading && !isPullRefreshing && popularShowsList.isEmpty() && trendingShowsList.isEmpty() && mostAnticipatedShowsList.isEmpty()) {
                     LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
                 }
 
                 Column(
-                    modifier = Modifier.padding(
-                        top = 8.dp,
-                        bottom = 16.dp
-                    )
+                    modifier =
+                        Modifier.padding(
+                            top = 8.dp,
+                            bottom = 16.dp,
+                        ),
                 ) {
                     // Trending Shows Section
                     if (isLoadingTrending && trendingShowsList.isEmpty()) {
@@ -132,7 +124,7 @@ fun ExploreScreen(
                     } else if (trendingShowsList.isNotEmpty()) {
                         TrendingShowsRow(
                             list = trendingShowsList,
-                            rowTitle = stringResource(id = R.string.explore_trending_shows_list_title)
+                            rowTitle = stringResource(id = R.string.explore_trending_shows_list_title),
                         ) { traktShow ->
                             navigator.navigate(
                                 ShowDetailScreenDestination(
@@ -140,8 +132,8 @@ fun ExploreScreen(
                                     showId = traktShow.tvMazeID.toString(),
                                     showTitle = traktShow.title,
                                     showImageUrl = traktShow.originalImageUrl,
-                                    showBackgroundUrl = traktShow.mediumImageUrl
-                                )
+                                    showBackgroundUrl = traktShow.mediumImageUrl,
+                                ),
                             )
                         }
                     }
@@ -152,7 +144,7 @@ fun ExploreScreen(
                     } else if (popularShowsList.isNotEmpty()) {
                         PopularShowsRow(
                             list = popularShowsList,
-                            rowTitle = stringResource(id = R.string.explore_popular_shows_list_title)
+                            rowTitle = stringResource(id = R.string.explore_popular_shows_list_title),
                         ) { traktShow ->
                             navigator.navigate(
                                 ShowDetailScreenDestination(
@@ -160,8 +152,8 @@ fun ExploreScreen(
                                     showId = traktShow.tvMazeID.toString(),
                                     showTitle = traktShow.title,
                                     showImageUrl = traktShow.originalImageUrl,
-                                    showBackgroundUrl = traktShow.mediumImageUrl
-                                )
+                                    showBackgroundUrl = traktShow.mediumImageUrl,
+                                ),
                             )
                         }
                     }
@@ -172,7 +164,7 @@ fun ExploreScreen(
                     } else if (mostAnticipatedShowsList.isNotEmpty()) {
                         MostAnticipatedShowsRow(
                             list = mostAnticipatedShowsList,
-                            rowTitle = stringResource(id = R.string.explore_most_anticipated_shows_list_title)
+                            rowTitle = stringResource(id = R.string.explore_most_anticipated_shows_list_title),
                         ) { traktShow ->
                             navigator.navigate(
                                 ShowDetailScreenDestination(
@@ -180,8 +172,8 @@ fun ExploreScreen(
                                     showId = traktShow.tvMazeID.toString(),
                                     showTitle = traktShow.title,
                                     showImageUrl = traktShow.originalImageUrl,
-                                    showBackgroundUrl = traktShow.mediumImageUrl
-                                )
+                                    showBackgroundUrl = traktShow.mediumImageUrl,
+                                ),
                             )
                         }
                     } //
@@ -197,7 +189,7 @@ fun ExploreScreen(
 fun TrendingShowsRow(
     list: List<TraktTrendingShows>,
     rowTitle: String,
-    onClick: (item: TraktTrendingShows) -> Unit
+    onClick: (item: TraktTrendingShows) -> Unit,
 ) {
     Column {
         SectionHeadingText(text = rowTitle)
@@ -206,7 +198,7 @@ fun TrendingShowsRow(
             items(items = list, key = { it.id ?: it.title ?: "" }) { show ->
                 ListPosterCard(
                     itemName = show.title,
-                    itemUrl = show.originalImageUrl
+                    itemUrl = show.originalImageUrl,
                 ) {
                     onClick(show)
                 }
@@ -221,7 +213,7 @@ fun TrendingShowsRow(
 fun PopularShowsRow(
     list: List<TraktPopularShows>,
     rowTitle: String,
-    onClick: (item: TraktPopularShows) -> Unit
+    onClick: (item: TraktPopularShows) -> Unit,
 ) {
     Column {
         SectionHeadingText(text = rowTitle)
@@ -230,7 +222,7 @@ fun PopularShowsRow(
             items(items = list, key = { it.id ?: it.title ?: "" }) { show ->
                 ListPosterCard(
                     itemName = show.title,
-                    itemUrl = show.originalImageUrl
+                    itemUrl = show.originalImageUrl,
                 ) {
                     onClick(show)
                 }
@@ -245,7 +237,7 @@ fun PopularShowsRow(
 fun MostAnticipatedShowsRow(
     list: List<TraktMostAnticipated>,
     rowTitle: String,
-    onClick: (item: TraktMostAnticipated) -> Unit
+    onClick: (item: TraktMostAnticipated) -> Unit,
 ) {
     Column {
         SectionHeadingText(text = rowTitle)
@@ -254,7 +246,7 @@ fun MostAnticipatedShowsRow(
             items(items = list, key = { it.id ?: it.title ?: "" }) { show ->
                 ListPosterCard(
                     itemName = show.title,
-                    itemUrl = show.originalImageUrl
+                    itemUrl = show.originalImageUrl,
                 ) {
                     onClick(show)
                 }

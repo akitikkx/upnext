@@ -25,7 +25,7 @@ import com.theupnextapp.domain.ShowSearch
 
 data class NetworkShowSearchResponse(
     val score: Double,
-    val show: NetworkShowSearchResponseShow
+    val show: NetworkShowSearchResponseShow,
 )
 
 data class NetworkShowSearchResponseShow(
@@ -48,52 +48,52 @@ data class NetworkShowSearchResponseShow(
     val updated: Int,
     val url: String?,
     val webChannel: Any,
-    val weight: Int
+    val weight: Int,
 )
 
 data class NetworkShowSearchReponseLinks(
     val previousepisode: NetworkShowSearchResponsePreviousepisode,
-    val self: NetworkShowSearchResponseSelf
+    val self: NetworkShowSearchResponseSelf,
 )
 
 data class NetworkShowSearchResponsePreviousepisode(
-    val href: String?
+    val href: String?,
 )
 
 data class NetworkShowSearchResponseSelf(
-    val href: String?
+    val href: String?,
 )
 
 data class Externals(
     val imdb: String?,
     val thetvdb: Int?,
-    val tvrage: Any?
+    val tvrage: Any?,
 )
 
 data class NetworkShowSearchResponseImage(
     val medium: String?,
-    val original: String?
+    val original: String?,
 )
 
 data class Network(
     val country: NetworkShowCastCountry?,
     val id: Int,
-    val name: String?
+    val name: String?,
 )
 
 data class Country(
     val code: String,
     val name: String,
-    val timezone: String
+    val timezone: String,
 )
 
 data class Rating(
-    val average: Double
+    val average: Double,
 )
 
 data class Schedule(
     val days: List<String>,
-    val time: String
+    val time: String,
 )
 
 fun List<NetworkShowSearchResponse>.asDomainModel(): List<ShowSearch> {
@@ -110,7 +110,7 @@ fun List<NetworkShowSearchResponse>.asDomainModel(): List<ShowSearch> {
             status = it.show.status,
             summary = it.show.summary,
             type = it.show.type,
-            updated = it.show.updated.toString()
+            updated = it.show.updated.toString(),
         )
     }
 }

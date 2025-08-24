@@ -60,7 +60,7 @@ import org.jsoup.Jsoup
 @Composable
 fun ShowSeasonEpisodesScreen(
     viewModel: ShowSeasonEpisodesViewModel = hiltViewModel(),
-    showSeasonEpisodesArg: ShowSeasonEpisodesArg?
+    showSeasonEpisodesArg: ShowSeasonEpisodesArg?,
 ) {
     viewModel.selectedSeason(showSeasonEpisodesArg)
 
@@ -77,16 +77,17 @@ fun ShowSeasonEpisodesScreen(
                     episodeList.value?.let { episodes ->
                         ShowSeasonEpisodes(
                             seasonNumber = season,
-                            list = episodes
+                            list = episodes,
                         )
                     }
                 }
 
                 if (isLoading.value == true) {
                     LinearProgressIndicator(
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .fillMaxWidth()
+                        modifier =
+                            Modifier
+                                .padding(8.dp)
+                                .fillMaxWidth(),
                     )
                 }
             }
@@ -99,14 +100,15 @@ fun ShowSeasonEpisodesScreen(
 @Composable
 fun ShowSeasonEpisodes(
     seasonNumber: Int,
-    list: List<ShowSeasonEpisode>
+    list: List<ShowSeasonEpisode>,
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         SectionHeadingText(
-            text = stringResource(
-                R.string.show_detail_show_season_episodes_title_with_number,
-                seasonNumber
-            )
+            text =
+                stringResource(
+                    R.string.show_detail_show_season_episodes_title_with_number,
+                    seasonNumber,
+                ),
         )
         LazyColumn(Modifier.padding(8.dp)) {
             items(list) {
@@ -118,14 +120,13 @@ fun ShowSeasonEpisodes(
 
 @ExperimentalMaterial3Api
 @Composable
-fun ShowSeasonEpisodeCard(
-    item: ShowSeasonEpisode
-) {
+fun ShowSeasonEpisodeCard(item: ShowSeasonEpisode) {
     Card(
         shape = MaterialTheme.shapes.large,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
     ) {
         Column(
             verticalArrangement = Arrangement.Top,
@@ -134,27 +135,29 @@ fun ShowSeasonEpisodeCard(
             item.originalImageUrl?.let { url ->
                 PosterImage(
                     url = url,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(dimensionResource(id = R.dimen.show_season_episode_poster_height))
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(dimensionResource(id = R.dimen.show_season_episode_poster_height)),
                 )
             }
 
             Column(
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.Start,
-                modifier = Modifier.padding(8.dp)
+                modifier = Modifier.padding(8.dp),
             ) {
                 if (item.number.toString().isNotEmpty() && item.season.toString().isNotEmpty()) {
                     Text(
-                        text = stringResource(
-                            R.string.show_detail_season_and_episode_number,
-                            item.season.toString(),
-                            item.number.toString()
-                        ),
+                        text =
+                            stringResource(
+                                R.string.show_detail_season_and_episode_number,
+                                item.season.toString(),
+                                item.number.toString(),
+                            ),
                         modifier = Modifier.padding(4.dp),
                         style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
                     )
                 }
 
@@ -162,11 +165,12 @@ fun ShowSeasonEpisodeCard(
                     if (item.name.toString().isNotEmpty()) {
                         Text(
                             text = it,
-                            modifier = Modifier
-                                .padding(start = 4.dp)
-                                .fillMaxWidth(),
+                            modifier =
+                                Modifier
+                                    .padding(start = 4.dp)
+                                    .fillMaxWidth(),
                             style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
                         )
                     }
                 }
@@ -175,14 +179,15 @@ fun ShowSeasonEpisodeCard(
                     if (it.isNotEmpty()) {
                         Text(
                             text = Jsoup.parse(it).text(),
-                            modifier = Modifier
-                                .padding(
-                                    start = 4.dp,
-                                    top = 4.dp,
-                                    bottom = 2.dp
-                                )
-                                .fillMaxWidth(),
-                            style = MaterialTheme.typography.bodySmall
+                            modifier =
+                                Modifier
+                                    .padding(
+                                        start = 4.dp,
+                                        top = 4.dp,
+                                        bottom = 2.dp,
+                                    )
+                                    .fillMaxWidth(),
+                            style = MaterialTheme.typography.bodySmall,
                         )
                     }
                 }
@@ -190,14 +195,16 @@ fun ShowSeasonEpisodeCard(
                 if (!item.airstamp.isNullOrEmpty()) {
                     val date = DateUtils.getDisplayDateFromDateStamp(item.airstamp)
                     Text(
-                        text = stringResource(
-                            R.string.show_detail_air_date_general, date.toString()
-
-                        ),
-                        modifier = Modifier
-                            .padding(4.dp)
-                            .fillMaxWidth(),
-                        style = MaterialTheme.typography.bodySmall
+                        text =
+                            stringResource(
+                                R.string.show_detail_air_date_general,
+                                date.toString(),
+                            ),
+                        modifier =
+                            Modifier
+                                .padding(4.dp)
+                                .fillMaxWidth(),
+                        style = MaterialTheme.typography.bodySmall,
                     )
                 }
             }

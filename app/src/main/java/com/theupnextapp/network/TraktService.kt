@@ -54,27 +54,33 @@ import retrofit2.http.Path
 
 interface TraktService {
     @POST(" oauth/token")
-    fun getAccessTokenAsync(@Body traktAccessTokenRequest: NetworkTraktAccessTokenRequest): Deferred<NetworkTraktAccessTokenResponse>
+    fun getAccessTokenAsync(
+        @Body traktAccessTokenRequest: NetworkTraktAccessTokenRequest,
+    ): Deferred<NetworkTraktAccessTokenResponse>
 
     @POST(" oauth/token")
-    fun getAccessRefreshTokenAsync(@Body traktAccessRefreshTokenRequest: NetworkTraktAccessRefreshTokenRequest): Deferred<NetworkTraktAccessRefreshTokenResponse>
+    fun getAccessRefreshTokenAsync(
+        @Body traktAccessRefreshTokenRequest: NetworkTraktAccessRefreshTokenRequest,
+    ): Deferred<NetworkTraktAccessRefreshTokenResponse>
 
     @POST("oauth/revoke")
-    fun revokeAccessTokenAsync(@Body networkTraktRevokeAccessTokenRequest: NetworkTraktRevokeAccessTokenRequest): Deferred<NetworkTraktRevokeAccessTokenResponse>
+    fun revokeAccessTokenAsync(
+        @Body networkTraktRevokeAccessTokenRequest: NetworkTraktRevokeAccessTokenRequest,
+    ): Deferred<NetworkTraktRevokeAccessTokenResponse>
 
     @GET("shows/{id}")
     fun getShowInfoAsync(
-        @Path("id") imdbID: String
+        @Path("id") imdbID: String,
     ): Deferred<NetworkTraktShowInfoResponse>
 
     @GET("shows/{id}/ratings")
     fun getShowRatingsAsync(
-        @Path("id") id: String
+        @Path("id") id: String,
     ): Deferred<NetworkTraktShowRatingResponse>
 
     @GET("shows/{id}/stats")
     fun getShowStatsAsync(
-        @Path("id") id: String
+        @Path("id") id: String,
     ): Deferred<NetworkTraktShowStatsResponse>
 
     @GET("shows/trending")
@@ -88,27 +94,27 @@ interface TraktService {
 
     @GET("users/settings")
     fun getUserSettingsAsync(
-        @Header("Authorization") token: String
+        @Header("Authorization") token: String,
     ): Deferred<NetworkTraktUserSettingsResponse>
 
     @GET("users/{id}/lists")
     fun getUserCustomListsAsync(
         @Header("Authorization") token: String,
-        @Path("id") userSlug: String
+        @Path("id") userSlug: String,
     ): Deferred<NetworkTraktUserListsResponse>
 
     @POST("users/{id}/lists")
     fun createCustomListAsync(
         @Header("Authorization") token: String,
         @Path("id") userSlug: String,
-        @Body createCustomListRequest: NetworkTraktCreateCustomListRequest
+        @Body createCustomListRequest: NetworkTraktCreateCustomListRequest,
     ): Deferred<NetworkTraktCreateCustomListResponse>
 
     @GET("users/{id}/lists/{list_id}/items/show")
     fun getCustomListItemsAsync(
         @Header("Authorization") token: String,
         @Path("id") userSlug: String,
-        @Path("list_id") traktId: String
+        @Path("list_id") traktId: String,
     ): Deferred<NetworkTraktUserListItemResponse>
 
     @POST("users/{id}/lists/{list_id}/items")
@@ -116,7 +122,7 @@ interface TraktService {
         @Header("Authorization") token: String,
         @Path("id") userSlug: String,
         @Path("list_id") traktId: String,
-        @Body networkTraktAddShowToListRequest: NetworkTraktAddShowToListRequest
+        @Body networkTraktAddShowToListRequest: NetworkTraktAddShowToListRequest,
     ): Deferred<NetworkTraktAddShowToListResponse>
 
     @POST("users/{id}/lists/{list_id}/items/remove")
@@ -124,19 +130,19 @@ interface TraktService {
         @Header("Authorization") token: String,
         @Path("id") userSlug: String,
         @Path("list_id") traktId: String,
-        @Body networkTraktRemoveShowFromListRequest: NetworkTraktRemoveShowFromListRequest
+        @Body networkTraktRemoveShowFromListRequest: NetworkTraktRemoveShowFromListRequest,
     ): Deferred<NetworkTraktRemoveShowFromListResponse>
 
     @GET("search/{id_type}/{id}?type=show")
     fun idLookupAsync(
         @Path("id_type") idType: String,
-        @Path("id") id: String
+        @Path("id") id: String,
     ): Deferred<NetworkTraktIdLookupResponse>
 
     @POST("checkin")
     fun checkInAsync(
         @Header("Authorization") token: String,
-        @Body networkTraktCheckInRequest: NetworkTraktCheckInRequest
+        @Body networkTraktCheckInRequest: NetworkTraktCheckInRequest,
     ): Deferred<NetworkTraktCheckInResponse>
 }
 

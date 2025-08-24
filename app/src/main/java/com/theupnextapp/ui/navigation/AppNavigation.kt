@@ -40,21 +40,22 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 @Composable
 fun AppNavigation(
     navHostController: NavHostController,
-    overrideUpNavigation: (() -> Unit)? = null
+    overrideUpNavigation: (() -> Unit)? = null,
 ) {
     val navBackStackEntry by navHostController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
     // Attempt to extract a title if ShowDetailArgs are present for ShowDetailScreen
-    val dynamicTitle = if (currentRoute == ShowDetailScreenDestination.route) {
-        navBackStackEntry?.let { ShowDetailScreenDestination.argsFrom(it).showTitle }
-    } else {
-        null
-    }
+    val dynamicTitle =
+        if (currentRoute == ShowDetailScreenDestination.route) {
+            navBackStackEntry?.let { ShowDetailScreenDestination.argsFrom(it).showTitle }
+        } else {
+            null
+        }
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
         ) {
             TopBar(
                 navBackStackEntry = navBackStackEntry,
@@ -72,7 +73,7 @@ fun AppNavigation(
             DestinationsNavHost(
                 navGraph = NavGraphs.root,
                 navController = navHostController,
-                modifier = Modifier.weight(1f) // Ensures it takes available space
+                modifier = Modifier.weight(1f), // Ensures it takes available space
             )
         }
     }

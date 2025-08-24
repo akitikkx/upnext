@@ -38,7 +38,7 @@ data class DatabaseTraktTrendingShows(
     val tmdbID: Int?,
     val traktID: Int?,
     val tvdbID: Int?,
-    val tvMazeID: Int?
+    val tvMazeID: Int?,
 )
 
 fun List<DatabaseTraktTrendingShows>.asDomainModel(): List<TraktTrendingShows> {
@@ -54,7 +54,7 @@ fun List<DatabaseTraktTrendingShows>.asDomainModel(): List<TraktTrendingShows> {
             tmdbID = it.tmdbID,
             traktID = it.traktID,
             tvdbID = it.tvdbID,
-            tvMazeID = it.tvMazeID
+            tvMazeID = it.tvMazeID,
         )
     }
 }

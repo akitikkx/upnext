@@ -25,5 +25,5 @@ data class ShowSeasonEpisodesArg(
     val showId: Int?,
     val seasonNumber: Int?,
     val imdbID: String? = null,
-    val isAuthorizedOnTrakt: Boolean? = false
+    val isAuthorizedOnTrakt: Boolean? = false,
 )

@@ -30,7 +30,7 @@ data class NetworkTraktShowStatsResponse(
     val lists: Int?,
     val plays: Int?,
     val votes: Int?,
-    val watchers: Int?
+    val watchers: Int?,
 )
 
 fun NetworkTraktShowStatsResponse.asDomainModel(): TraktShowStats {
@@ -41,6 +41,6 @@ fun NetworkTraktShowStatsResponse.asDomainModel(): TraktShowStats {
         lists = lists,
         plays = plays,
         votes = votes,
-        watchers = watchers
+        watchers = watchers,
     )
 }

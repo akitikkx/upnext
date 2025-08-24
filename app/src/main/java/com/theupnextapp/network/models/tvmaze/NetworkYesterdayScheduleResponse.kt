@@ -1,38 +1,39 @@
-/*
- * MIT License
- *
- * Copyright (c) 2022 Ahmed Tikiwa
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
- * BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
-
 package com.theupnextapp.network.models.tvmaze
+
+import com.theupnextapp.database.DatabaseYesterdaySchedule
 
 data class NetworkYesterdayScheduleResponse(
     val _links: NetworkShowEpisodeLinks,
     val airdate: String,
     val airstamp: String,
     val airtime: String,
-    val id: Int,
-    val image: Any,
+    val id: Int, 
+    val image: NetworkScheduleImage?, 
     val name: String,
     val number: Int,
     val runtime: Int,
     val season: Int,
-    val show: NetworkScheduleShow,
+    val show: NetworkScheduleShow, 
     val summary: String,
-    val url: String
+    val url: String,
 )
+
+
+fun NetworkYesterdayScheduleResponse.asDatabaseModel(): DatabaseYesterdaySchedule {
+    return DatabaseYesterdaySchedule(
+        id = this.id, 
+        showId = this.show.id, 
+        image = this.show.image?.original,
+        mediumImage = this.show.image?.medium,
+        language = this.show.language,
+        name = this.name, 
+        officialSite = this.show.officialSite,
+        premiered = this.show.premiered,
+        runtime = this.show.runtime.toString(),
+        status = this.show.status,
+        summary = this.summary, 
+        type = this.show.type,
+        updated = this.show.updated.toString(),
+        url = this.url, 
+    )
+}

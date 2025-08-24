@@ -10,15 +10,29 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.theupnextapp.extensions
+package com.theupnextapp.repository.fakes // Changed package
 
-import android.content.Context
-import android.content.ContextWrapper
-import androidx.appcompat.app.AppCompatActivity
+import com.theupnextapp.common.CrashlyticsHelper
 
-fun Context.getActivity(): AppCompatActivity? =
-    when (this) {
-        is AppCompatActivity -> this
-        is ContextWrapper -> baseContext.getActivity()
-        else -> null
+class FakeCrashlytics : CrashlyticsHelper { // Renamed class
+    private val recordedExceptions = mutableListOf<Throwable>()
+    private val loggedMessages = mutableListOf<String>()
+
+    override fun recordException(e: Throwable) {
+        recordedExceptions.add(e)
     }
+
+    override fun log(message: String) {
+        loggedMessages.add(message)
+    }
+
+    // Helper method for assertions in tests
+    fun getRecordedExceptions(): List<Throwable> = recordedExceptions
+
+    fun getLoggedMessages(): List<String> = loggedMessages
+
+    fun clear() {
+        recordedExceptions.clear()
+        loggedMessages.clear()
+    }
+}

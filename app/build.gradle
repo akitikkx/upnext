@@ -263,6 +263,7 @@ dependencies {
     testImplementation libs.junit
     androidTestImplementation libs.androidx.test.ext.junit
     androidTestImplementation libs.androidx.ui.test.junit4
+    androidTestImplementation libs.androidx.test.runner
 
     // Mockito for mocking dependencies (highly recommended)
     testImplementation libs.mockito.core

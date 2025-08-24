@@ -50,28 +50,31 @@ fun ListPosterCard(
     itemName: String?,
     itemUrl: String?,
     modifier: Modifier = Modifier,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     Card(
         shape = MaterialTheme.shapes.large,
-        modifier = modifier
-            .width(listPosterWidth)
-            .padding(4.dp),
-        onClick = onClick
+        modifier =
+            modifier
+                .width(listPosterWidth)
+                .padding(4.dp),
+        onClick = onClick,
     ) {
         Column {
             itemUrl?.let {
                 PosterImage(
                     url = it,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(listPosterHeight)
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(listPosterHeight),
                 )
             }
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
             ) {
                 itemName?.let {
                     PosterTitleTextItem(title = it)
@@ -111,6 +114,6 @@ fun ListPosterCardPreview() {
     ListPosterCard(
         itemName = "List Poster",
         itemUrl = "https://www.theupnextapp.com",
-        onClick = {}
+        onClick = {},
     )
 }

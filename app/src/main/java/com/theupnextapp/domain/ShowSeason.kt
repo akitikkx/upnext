@@ -32,9 +32,8 @@ data class ShowSeason(
     val premiereDate: String?,
     val endDate: String?,
     val mediumImageUrl: String?,
-    val originalImageUrl: String?
+    val originalImageUrl: String?,
 ) : Parcelable {
-
     constructor(parcel: Parcel) : this(
         parcel.readValue(Int::class.java.classLoader) as? Int,
         parcel.readString(),
@@ -43,10 +42,13 @@ data class ShowSeason(
         parcel.readString(),
         parcel.readString(),
         parcel.readString(),
-        parcel.readString()
+        parcel.readString(),
     )
 
-    override fun writeToParcel(parcel: Parcel, flags: Int) {
+    override fun writeToParcel(
+        parcel: Parcel,
+        flags: Int,
+    ) {
         parcel.writeValue(id)
         parcel.writeString(name)
         parcel.writeValue(seasonNumber)

@@ -43,5 +43,5 @@ data class NetworkTvMazeShowLookupResponse(
     val updated: Int,
     val url: String,
     val webChannel: NetworkTvMazeShowLookupWebChannel,
-    val weight: Int
+    val weight: Int,
 )

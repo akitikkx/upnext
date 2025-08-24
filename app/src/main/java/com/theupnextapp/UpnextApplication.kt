@@ -57,7 +57,6 @@ import javax.inject.Inject
 
 @HiltAndroidApp
 class UpnextApplication : Application(), Configuration.Provider {
-
     private val applicationScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
     @Inject
@@ -78,32 +77,35 @@ class UpnextApplication : Application(), Configuration.Provider {
     }
 
     override val workManagerConfiguration: Configuration
-        get() = Configuration.Builder()
-            .setWorkerFactory(workerFactory)
-            .setMinimumLoggingLevel(if (BuildConfig.DEBUG) Log.DEBUG else Log.INFO)
-            .build()
+        get() =
+            Configuration.Builder()
+                .setWorkerFactory(workerFactory)
+                .setMinimumLoggingLevel(if (BuildConfig.DEBUG) Log.DEBUG else Log.INFO)
+                .build()
 
     private fun setupTheme() {
         val selectedTheme = preferenceManager.getSelectedTheme()
-        val nightMode = when (selectedTheme) {
-            getString(R.string.dark_mode_follow_system) ->
-                AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+        val nightMode =
+            when (selectedTheme) {
+                getString(R.string.dark_mode_follow_system) ->
+                    AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
 
-            getString(R.string.dark_mode_no) -> AppCompatDelegate.MODE_NIGHT_NO
-            getString(R.string.dark_mode_yes) -> AppCompatDelegate.MODE_NIGHT_YES
-            getString(R.string.dark_mode_auto_battery) ->
-                AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY
+                getString(R.string.dark_mode_no) -> AppCompatDelegate.MODE_NIGHT_NO
+                getString(R.string.dark_mode_yes) -> AppCompatDelegate.MODE_NIGHT_YES
+                getString(R.string.dark_mode_auto_battery) ->
+                    AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY
 
-            else -> {
-                Timber
-                    .tag("UpnextApplication")
-                    .w(
-                        message = "Unknown theme preference: $selectedTheme. " +
-                                "Defaulting to MODE_NIGHT_YES."
-                    )
-                AppCompatDelegate.MODE_NIGHT_YES // Default theme
+                else -> {
+                    Timber
+                        .tag("UpnextApplication")
+                        .w(
+                            message =
+                                "Unknown theme preference: $selectedTheme. " +
+                                        "Defaulting to MODE_NIGHT_YES.",
+                        )
+                    AppCompatDelegate.MODE_NIGHT_YES
+                }
             }
-        }
         AppCompatDelegate.setDefaultNightMode(nightMode)
     }
 
@@ -117,9 +119,10 @@ class UpnextApplication : Application(), Configuration.Provider {
                 val channelName = getString(R.string.notification_channel_name)
                 val channelDescription = getString(R.string.notification_channel_description)
                 val importance = NotificationManager.IMPORTANCE_DEFAULT
-                val channel = NotificationChannel(channelId, channelName, importance).apply {
-                    description = channelDescription
-                }
+                val channel =
+                    NotificationChannel(channelId, channelName, importance).apply {
+                        description = channelDescription
+                    }
                 notificationManager.createNotificationChannel(channel)
                 Timber
                     .tag("UpnextApplication")
@@ -137,61 +140,70 @@ class UpnextApplication : Application(), Configuration.Provider {
     }
 
     private fun setupFavoriteShowsWorker(workManager: WorkManager) {
-        val traktAccessTokenDomain: TraktAccessToken? = try { // Explicit type for clarity
-            val rawTokenEntity = traktRepository.getTraktAccessTokenRaw()
+        val traktAccessTokenDomain: TraktAccessToken? =
+            try {
+                // Explicit type for clarity
+                val rawTokenEntity = traktRepository.getTraktAccessTokenRaw()
 
-            // Check if the raw entity is of the correct database type
-            if (rawTokenEntity is DatabaseTraktAccess) {
-                rawTokenEntity.asDomainModel()
-            } else {
-                if (rawTokenEntity != null) {
-                    Timber.tag("UpnextApplication")
-                        .w("getTraktAccessTokenRaw() returned an unexpected type: ${rawTokenEntity.javaClass.name}. Expected DatabaseTraktAccess.")
+                // Check if the raw entity is of the correct database type
+                if (rawTokenEntity is DatabaseTraktAccess) {
+                    rawTokenEntity.asDomainModel()
                 } else {
-                    Timber.tag("UpnextApplication")
-                        .i("getTraktAccessTokenRaw() returned null.")
+                    if (rawTokenEntity != null) {
+                        Timber.tag("UpnextApplication")
+                            .w(
+                                "getTraktAccessTokenRaw() returned an unexpected type: " +
+                                        "${rawTokenEntity.javaClass.name}. Expected DatabaseTraktAccess.",
+                            )
+                    } else {
+                        Timber.tag("UpnextApplication")
+                            .i("getTraktAccessTokenRaw() returned null.")
+                    }
+                    null
                 }
-                null // Return null if not the correct type or if rawTokenEntity was null
+            } catch (e: Exception) {
+                Timber
+                    .tag("UpnextApplication")
+                    .e(
+                        t = e,
+                        message = "Error fetching Trakt token for worker setup",
+                    )
+                null
             }
-        } catch (e: Exception) {
-            Timber
-                .tag("UpnextApplication")
-                .e(
-                    t = e,
-                    message = "Error fetching Trakt token for worker setup"
-                )
-            null
-        }
 
         if (traktAccessTokenDomain?.access_token?.isNotEmpty() == true && traktAccessTokenDomain.isTraktAccessTokenValid()) {
-            val workerData = Data.Builder()
-                .putString(
-                    RefreshFavoriteShowsWorker.ARG_TOKEN,
-                    traktAccessTokenDomain.access_token
-                )
-                .build()
+            val workerData =
+                Data.Builder()
+                    .putString(
+                        RefreshFavoriteShowsWorker.ARG_TOKEN,
+                        traktAccessTokenDomain.access_token,
+                    )
+                    .build()
 
             val refreshFavoriteShowsRequest =
                 PeriodicWorkRequestBuilder<RefreshFavoriteShowsWorker>(
                     TableUpdateInterval.TRAKT_FAVORITE_SHOWS.intervalMins,
-                    TimeUnit.MINUTES
+                    TimeUnit.MINUTES,
                 )
                     .setInputData(workerData)
                     .setConstraints(
-                        Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
+                        Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build(),
                     )
                     .build()
 
             workManager.enqueueUniquePeriodicWork(
                 RefreshFavoriteShowsWorker.WORK_NAME,
                 ExistingPeriodicWorkPolicy.KEEP,
-                refreshFavoriteShowsRequest
+                refreshFavoriteShowsRequest,
             )
             Timber.tag("UpnextApplication").d("Enqueued ${RefreshFavoriteShowsWorker.WORK_NAME}")
         } else {
             Timber
                 .tag("UpnextApplication")
-                .i("Skipping favorite shows worker setup: Invalid or missing Trakt token. Token was: $traktAccessTokenDomain")
+                .i(
+                    "Skipping favorite shows worker setup: Invalid or missing Trakt token. " +
+                            "Token was: $traktAccessTokenDomain",
+                )
             // It's good practice to also cancel if the conditions aren't met,
             // especially if a previous valid token existed and the worker was enqueued.
             workManager.cancelUniqueWork(RefreshFavoriteShowsWorker.WORK_NAME)
@@ -199,17 +211,18 @@ class UpnextApplication : Application(), Configuration.Provider {
                 .d("Cancelled ${RefreshFavoriteShowsWorker.WORK_NAME} due to invalid/missing token.")
         }
     }
+
     private fun setupDashboardWorker(workManager: WorkManager) {
         val refreshDashboardShowsRequest =
             PeriodicWorkRequestBuilder<RefreshDashboardShowsWorker>(
                 TableUpdateInterval.DASHBOARD_ITEMS.intervalMins,
-                TimeUnit.MINUTES
+                TimeUnit.MINUTES,
             ).build()
 
         workManager.enqueueUniquePeriodicWork(
             RefreshDashboardShowsWorker.WORK_NAME,
-            ExistingPeriodicWorkPolicy.KEEP, // Consider policy
-            refreshDashboardShowsRequest
+            ExistingPeriodicWorkPolicy.KEEP,
+            refreshDashboardShowsRequest,
         )
         Timber
             .tag(tag = "UpnextApplication")

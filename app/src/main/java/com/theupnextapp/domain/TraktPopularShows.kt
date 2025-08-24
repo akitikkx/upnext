@@ -32,7 +32,7 @@ data class TraktPopularShows(
     val tmdbID: Int?,
     val traktID: Int?,
     val tvdbID: Int?,
-    val tvMazeID: Int?
+    val tvMazeID: Int?,
 ) {
     override fun equals(other: Any?): Boolean {
         if (javaClass != other?.javaClass) {
