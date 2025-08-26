@@ -49,8 +49,8 @@ android {
         applicationId "com.theupnextapp"
         minSdkVersion 24
         targetSdkVersion 36
-        versionCode 208
-        versionName "3.10.1"
+        versionCode 209
+        versionName "3.10.2"
         testInstrumentationRunner "com.theupnextapp.CustomTestRunner"
 
         ksp {
@@ -264,6 +264,7 @@ dependencies {
     androidTestImplementation libs.androidx.test.ext.junit
     androidTestImplementation libs.androidx.ui.test.junit4
     androidTestImplementation libs.androidx.test.runner
+    androidTestImplementation libs.room.testing
 
     // Mockito for mocking dependencies (highly recommended)
     testImplementation libs.mockito.core
