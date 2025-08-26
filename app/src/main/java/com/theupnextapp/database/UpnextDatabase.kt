@@ -37,7 +37,7 @@ import androidx.room.RoomDatabase
         DatabaseFavoriteShows::class,
         DatabaseTraktAccess::class,
     ],
-    version = 29,
+    version = 30,
     exportSchema = true,
 )
 abstract class UpnextDatabase : RoomDatabase() {
