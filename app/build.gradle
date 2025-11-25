@@ -49,8 +49,8 @@ android {
         applicationId "com.theupnextapp"
         minSdkVersion 24
         targetSdkVersion 36
-        versionCode 209
-        versionName "3.10.2"
+        versionCode 211
+        versionName "3.10.4"
         testInstrumentationRunner "com.theupnextapp.CustomTestRunner"
 
         ksp {

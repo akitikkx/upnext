@@ -52,7 +52,7 @@ class MainScreenTest {
             val dataString: MutableState<String?> = rememberSaveable { mutableStateOf("") }
 
             DeviceConfigurationOverride(
-                DeviceConfigurationOverride.ForcedSize(DpSize(200.dp, 600.dp))
+                DeviceConfigurationOverride.ForcedSize(DpSize(200.dp, 600.dp)),
             ) {
                 MainScreen(
                     valueState = dataString,
@@ -69,7 +69,7 @@ class MainScreenTest {
             val dataString: MutableState<String?> = rememberSaveable { mutableStateOf("") }
 
             DeviceConfigurationOverride(
-                DeviceConfigurationOverride.ForcedSize(DpSize(600.dp, 480.dp))
+                DeviceConfigurationOverride.ForcedSize(DpSize(600.dp, 480.dp)),
             ) {
                 MainScreen(
                     valueState = dataString,
@@ -86,7 +86,7 @@ class MainScreenTest {
             val dataString: MutableState<String?> = rememberSaveable { mutableStateOf("") }
 
             DeviceConfigurationOverride(
-                DeviceConfigurationOverride.ForcedSize(DpSize(840.dp, 480.dp))
+                DeviceConfigurationOverride.ForcedSize(DpSize(840.dp, 480.dp)),
             ) {
                 MainScreen(
                     valueState = dataString,

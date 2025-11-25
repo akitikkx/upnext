@@ -101,7 +101,7 @@ class UpnextApplication : Application(), Configuration.Provider {
                         .w(
                             message =
                                 "Unknown theme preference: $selectedTheme. " +
-                                        "Defaulting to MODE_NIGHT_YES.",
+                                    "Defaulting to MODE_NIGHT_YES.",
                         )
                     AppCompatDelegate.MODE_NIGHT_YES
                 }
@@ -153,7 +153,7 @@ class UpnextApplication : Application(), Configuration.Provider {
                         Timber.tag("UpnextApplication")
                             .w(
                                 "getTraktAccessTokenRaw() returned an unexpected type: " +
-                                        "${rawTokenEntity.javaClass.name}. Expected DatabaseTraktAccess.",
+                                    "${rawTokenEntity.javaClass.name}. Expected DatabaseTraktAccess.",
                             )
                     } else {
                         Timber.tag("UpnextApplication")
@@ -202,7 +202,7 @@ class UpnextApplication : Application(), Configuration.Provider {
                 .tag("UpnextApplication")
                 .i(
                     "Skipping favorite shows worker setup: Invalid or missing Trakt token. " +
-                            "Token was: $traktAccessTokenDomain",
+                        "Token was: $traktAccessTokenDomain",
                 )
             // It's good practice to also cancel if the conditions aren't met,
             // especially if a previous valid token existed and the worker was enqueued.

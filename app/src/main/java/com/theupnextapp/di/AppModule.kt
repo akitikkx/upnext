@@ -10,9 +10,6 @@ import dagger.hilt.components.SingletonComponent
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class AppModule {
-
     @Binds
-    abstract fun bindCrashlyticsHelper(
-        appCrashlyticsHelper: AppCrashlyticsHelper
-    ): CrashlyticsHelper
+    abstract fun bindCrashlyticsHelper(appCrashlyticsHelper: AppCrashlyticsHelper): CrashlyticsHelper
 }

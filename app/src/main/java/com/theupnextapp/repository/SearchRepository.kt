@@ -34,16 +34,16 @@ import kotlinx.coroutines.flow.flowOn
 class SearchRepository(
     private val tvMazeService: TvMazeService,
 ) {
-
     suspend fun getShowSearchResults(name: String?): Flow<Result<List<ShowSearch>>?> {
         return flow {
             if (name.isNullOrEmpty().not()) {
                 emit(Result.Loading(true))
-                val response = name?.let {
-                    safeApiCall(Dispatchers.IO) {
-                        tvMazeService.getSuggestionListAsync(it).await().asDomainModel()
+                val response =
+                    name?.let {
+                        safeApiCall(Dispatchers.IO) {
+                            tvMazeService.getSuggestionListAsync(it).await().asDomainModel()
+                        }
                     }
-                }
                 emit(Result.Loading(false))
                 emit(response)
             } else {

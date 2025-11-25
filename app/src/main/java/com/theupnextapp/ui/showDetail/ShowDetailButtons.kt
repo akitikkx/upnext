@@ -11,4 +11,3 @@
  */
 
 package com.theupnextapp.ui.showDetail
-

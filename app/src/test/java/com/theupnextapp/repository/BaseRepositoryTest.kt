@@ -69,11 +69,12 @@ class BaseRepositoryTest {
         NetworkTvMazeShowLookupCountry(name = "US", code = "US", timezone = "America/New_York")
     private val dummyLookupCountryX =
         NetworkTvMazeShowLookupCountryX(name = "US", code = "US", timezone = "America/New_York")
-    private val dummyLookupWebChannel = NetworkTvMazeShowLookupWebChannel(
-        id = 1,
-        name = "Fake Web Channel",
-        country = dummyLookupCountryX,
-    )
+    private val dummyLookupWebChannel =
+        NetworkTvMazeShowLookupWebChannel(
+            id = 1,
+            name = "Fake Web Channel",
+            country = dummyLookupCountryX,
+        )
     private val dummyLookupNetwork =
         NetworkTvMazeShowLookupNetwork(id = 1, name = "Fake Network", country = dummyLookupCountry)
     private val dummyLookupRating = NetworkTvMazeShowLookupRating(average = 8.5)
@@ -155,10 +156,11 @@ class BaseRepositoryTest {
         originalImageUrl: String,
     ): NetworkTvMazeShowLookupResponse {
         return NetworkTvMazeShowLookupResponse(
-            _links = NetworkTvMazeShowLookupLinks(
-                self = dummyLookupSelfLink,
-                previousepisode = dummyLookupPreviousEpisodeLink,
-            ),
+            _links =
+                NetworkTvMazeShowLookupLinks(
+                    self = dummyLookupSelfLink,
+                    previousepisode = dummyLookupPreviousEpisodeLink,
+                ),
             averageRuntime = 60,
             dvdCountry = null,
             externals = dummyLookupExternals,

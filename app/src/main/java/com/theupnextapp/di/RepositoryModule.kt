@@ -43,18 +43,17 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 @Module
 object RepositoryModule {
-
     @Singleton
     @Provides
     fun provideShowDetailRepository(
         upnextDao: UpnextDao,
         tvMazeService: TvMazeService,
-        crashlyticsHelper: CrashlyticsHelper
+        crashlyticsHelper: CrashlyticsHelper,
     ): ShowDetailRepository {
         return ShowDetailRepository(
             upnextDao = upnextDao,
             tvMazeService = tvMazeService,
-            crashlytics = crashlyticsHelper
+            crashlytics = crashlyticsHelper,
         )
     }
 
@@ -90,13 +89,13 @@ object RepositoryModule {
         upnextDao: UpnextDao,
         tvMazeDao: TvMazeDao,
         tvMazeService: TvMazeService,
-        crashlyticsHelper: CrashlyticsHelper // Changed here
+        crashlyticsHelper: CrashlyticsHelper, // Changed here
     ): DashboardRepository {
         return DashboardRepository(
             upnextDao = upnextDao,
             tvMazeDao = tvMazeDao,
             tvMazeService = tvMazeService,
-            firebaseCrashlytics = crashlyticsHelper // Changed here
+            firebaseCrashlytics = crashlyticsHelper, // Changed here
         )
     }
 }

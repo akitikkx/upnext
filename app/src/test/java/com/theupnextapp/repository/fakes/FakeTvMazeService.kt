@@ -10,36 +10,34 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.theupnextapp.repository.fakes // Changed package
+package com.theupnextapp.repository.fakes
 
 import com.theupnextapp.network.TvMazeService
+import com.theupnextapp.network.models.tvmaze.Externals
 import com.theupnextapp.network.models.tvmaze.NetworkShowCastResponse
 import com.theupnextapp.network.models.tvmaze.NetworkShowInfoResponse
 import com.theupnextapp.network.models.tvmaze.NetworkShowNextEpisodeResponse
 import com.theupnextapp.network.models.tvmaze.NetworkShowPreviousEpisodeResponse
+import com.theupnextapp.network.models.tvmaze.NetworkShowSearchReponseLinks
 import com.theupnextapp.network.models.tvmaze.NetworkShowSearchResponse
+import com.theupnextapp.network.models.tvmaze.NetworkShowSearchResponseImage
+import com.theupnextapp.network.models.tvmaze.NetworkShowSearchResponsePreviousepisode
+import com.theupnextapp.network.models.tvmaze.NetworkShowSearchResponseSelf
+import com.theupnextapp.network.models.tvmaze.NetworkShowSearchResponseShow
 import com.theupnextapp.network.models.tvmaze.NetworkShowSeasonsResponse
+import com.theupnextapp.network.models.tvmaze.NetworkShowSeasonsResponseCountry
+import com.theupnextapp.network.models.tvmaze.NetworkShowSeasonsResponseNetwork
 import com.theupnextapp.network.models.tvmaze.NetworkTodayScheduleResponse
 import com.theupnextapp.network.models.tvmaze.NetworkTomorrowScheduleResponse
 import com.theupnextapp.network.models.tvmaze.NetworkTvMazeEpisodesResponse
 import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowImageResponse
 import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupResponse
 import com.theupnextapp.network.models.tvmaze.NetworkYesterdayScheduleResponse
-
-// Imports for NetworkShowSearchResponse construction (assuming they are needed, though not directly used in new methods)
-import com.theupnextapp.network.models.tvmaze.NetworkShowSearchResponseShow
-import com.theupnextapp.network.models.tvmaze.NetworkShowSearchResponseImage
 import com.theupnextapp.network.models.tvmaze.Rating
 import com.theupnextapp.network.models.tvmaze.Schedule
-import com.theupnextapp.network.models.tvmaze.NetworkShowSeasonsResponseNetwork
-import com.theupnextapp.network.models.tvmaze.NetworkShowSeasonsResponseCountry
-import com.theupnextapp.network.models.tvmaze.NetworkShowSearchReponseLinks
-import com.theupnextapp.network.models.tvmaze.NetworkShowSearchResponsePreviousepisode
-import com.theupnextapp.network.models.tvmaze.NetworkShowSearchResponseSelf
-import com.theupnextapp.network.models.tvmaze.Externals
-import java.io.IOException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
+import java.io.IOException
 
 class FakeTvMazeService : TvMazeService {
     var mockShowInfoResponse: NetworkShowInfoResponse? = null
@@ -120,18 +118,32 @@ class FakeTvMazeService : TvMazeService {
         // Minimal mock from original FakeTvMazeService
         val showData =
             NetworkShowSearchResponseShow(
-                id = 1, name = "Queen of the South", genres = arrayListOf("Drama", "Action", "Crime"),
-                status = "Ended", premiered = "2021-04-07", rating = Rating(average = 8.8),
+                id = 1,
+                name = "Queen of the South",
+                genres = arrayListOf("Drama", "Action", "Crime"),
+                status = "Ended",
+                premiered = "2021-04-07",
+                rating = Rating(average = 8.8),
                 image =
                     NetworkShowSearchResponseImage(
                         original = "https://static.tvmaze.com/uploads/images/original_untouched/324/811968.jpg",
                         medium = "https://static.tvmaze.com/uploads/images/medium_portrait/324/811968.jpg",
                     ),
-                summary = "Teresa flees Mexico after her drug-runner boyfriend is murdered. Settling in Dallas, she looks to become the country's reigning drug smuggler and to avenge her lover's murder.",
+                summary =
+                    """
+                    Teresa flees Mexico after her drug-runner boyfriend is murdered.
+                    Settling in Dallas, she looks to become the country's reigning drug
+                    smuggler and to avenge her lover's murder.
+                    """.trimIndent(),
                 updated = 1620422,
                 network =
                     NetworkShowSeasonsResponseNetwork(
-                        country = NetworkShowSeasonsResponseCountry(name = "United States", code = "US", timezone = "America/New_York"),
+                        country =
+                            NetworkShowSeasonsResponseCountry(
+                                name = "United States",
+                                code = "US",
+                                timezone = "America/New_York",
+                            ),
                         id = 2,
                         name = "USA Network",
                     ),
@@ -143,8 +155,12 @@ class FakeTvMazeService : TvMazeService {
                         self = NetworkShowSearchResponseSelf(href = "http://api.tvmaze.com/shows/1"),
                     ),
                 externals = Externals(imdb = "tt4352842", thetvdb = 300998, tvrage = null),
-                language = "English", officialSite = "http://www.usanetwork.com/queen-of-the-south",
-                runtime = 60, type = "Scripted", webChannel = Any(), weight = 99,
+                language = "English",
+                officialSite = "http://www.usanetwork.com/queen-of-the-south",
+                runtime = 60,
+                type = "Scripted",
+                webChannel = Any(),
+                weight = 99,
             )
         val searchResult = NetworkShowSearchResponse(score = 10.0, show = showData)
         return CompletableDeferred(listOf(searchResult))

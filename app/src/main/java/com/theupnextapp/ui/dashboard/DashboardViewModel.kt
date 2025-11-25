@@ -46,7 +46,7 @@ class DashboardViewModel
 
         val tomorrowShowsList = dashboardRepository.tomorrowShows.asLiveData()
 
-    private val yesterdayShowsEmpty =
+        private val yesterdayShowsEmpty =
             MediatorLiveData<Boolean>().apply {
                 addSource(yesterdayShowsList) {
                     value = it.isNullOrEmpty() == true
@@ -88,5 +88,4 @@ class DashboardViewModel
                     updateLoadingState()
                 }
             }
-
-}
+    }
