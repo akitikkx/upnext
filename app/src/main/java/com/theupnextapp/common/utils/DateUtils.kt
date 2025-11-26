@@ -28,7 +28,6 @@ import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 object DateUtils {
-
     /**
      * Calculates the difference between two time points in the specified time unit.
      * Returns endTime - startTime.
@@ -49,8 +48,9 @@ object DateUtils {
         endTime: Long,
         type: String,
     ): Long {
-        val diffCount = startTime
-            ?: (Calendar.getInstance().timeInMillis - endTime)
+        val diffCount =
+            startTime
+                ?: (Calendar.getInstance().timeInMillis - endTime)
         var diff: Long = -1L
 
         when (type) {

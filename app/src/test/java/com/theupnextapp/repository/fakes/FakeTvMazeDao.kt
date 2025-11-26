@@ -22,60 +22,54 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 class FakeTvMazeDao : TvMazeDao {
-    private val _yesterdayShows = MutableStateFlow<List<DatabaseYesterdaySchedule>>(emptyList())
+    private val yesterdayShowsFlow = MutableStateFlow<List<DatabaseYesterdaySchedule>>(emptyList())
     val yesterdayShowsList = mutableListOf<DatabaseYesterdaySchedule>()
 
-    private val _todayShows = MutableStateFlow<List<DatabaseTodaySchedule>>(emptyList())
+    private val todayShowsFlow = MutableStateFlow<List<DatabaseTodaySchedule>>(emptyList())
     val todayShowsList = mutableListOf<DatabaseTodaySchedule>()
 
-    private val _tomorrowShows = MutableStateFlow<List<DatabaseTomorrowSchedule>>(emptyList())
+    private val tomorrowShowsFlow = MutableStateFlow<List<DatabaseTomorrowSchedule>>(emptyList())
     val tomorrowShowsList = mutableListOf<DatabaseTomorrowSchedule>()
 
     private val showInfoMap = mutableMapOf<Int, ShowInfo>()
 
-    override fun getYesterdayShows(): Flow<List<DatabaseYesterdaySchedule>> = _yesterdayShows.asStateFlow()
+    override fun getYesterdayShows(): Flow<List<DatabaseYesterdaySchedule>> = yesterdayShowsFlow.asStateFlow()
 
-    override fun insertAllYesterdayShows(
-        vararg yesterdayShows: DatabaseYesterdaySchedule
-    ) {
+    override fun insertAllYesterdayShows(vararg yesterdayShows: DatabaseYesterdaySchedule) {
         yesterdayShowsList.clear()
         yesterdayShowsList.addAll(yesterdayShows)
-        _yesterdayShows.value = yesterdayShowsList.toList()
+        yesterdayShowsFlow.value = yesterdayShowsList.toList()
     }
 
     override fun deleteAllYesterdayShows() {
         yesterdayShowsList.clear()
-        _yesterdayShows.value = emptyList()
+        yesterdayShowsFlow.value = emptyList()
     }
 
-    override fun getTodayShows(): Flow<List<DatabaseTodaySchedule>> = _todayShows.asStateFlow()
+    override fun getTodayShows(): Flow<List<DatabaseTodaySchedule>> = todayShowsFlow.asStateFlow()
 
-    override fun insertAllTodayShows(
-        vararg todayShows: DatabaseTodaySchedule
-    ) {
+    override fun insertAllTodayShows(vararg todayShows: DatabaseTodaySchedule) {
         todayShowsList.clear()
         todayShowsList.addAll(todayShows)
-        _todayShows.value = todayShowsList.toList()
+        todayShowsFlow.value = todayShowsList.toList()
     }
 
     override fun deleteAllTodayShows() {
         todayShowsList.clear()
-        _todayShows.value = emptyList()
+        todayShowsFlow.value = emptyList()
     }
 
-    override fun getTomorrowShows(): Flow<List<DatabaseTomorrowSchedule>> = _tomorrowShows.asStateFlow()
+    override fun getTomorrowShows(): Flow<List<DatabaseTomorrowSchedule>> = tomorrowShowsFlow.asStateFlow()
 
-    override fun insertAllTomorrowShows(
-        vararg tomorrowShows: DatabaseTomorrowSchedule
-    ) {
+    override fun insertAllTomorrowShows(vararg tomorrowShows: DatabaseTomorrowSchedule) {
         tomorrowShowsList.clear()
         tomorrowShowsList.addAll(tomorrowShows)
-        _tomorrowShows.value = tomorrowShowsList.toList()
+        tomorrowShowsFlow.value = tomorrowShowsList.toList()
     }
 
     override fun deleteAllTomorrowShows() {
         tomorrowShowsList.clear()
-        _tomorrowShows.value = emptyList()
+        tomorrowShowsFlow.value = emptyList()
     }
 
     override fun deleteAllShowInfo(id: Int) {

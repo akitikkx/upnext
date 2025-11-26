@@ -28,5 +28,4 @@ class ConcreteTestRepository(
     ): Boolean {
         return super.canProceedWithUpdate(tableName, intervalMinutes)
     }
-
 }

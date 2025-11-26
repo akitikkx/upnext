@@ -7,8 +7,8 @@ import com.theupnextapp.domain.ScheduleShow
 @Entity(tableName = "schedule_today")
 data class DatabaseTodaySchedule(
     @PrimaryKey
-    val id: Int, 
-    val showId: Int?, 
+    val id: Int,
+    val showId: Int?,
     val image: String?,
     val mediumImage: String?,
     val language: String?,
@@ -27,7 +27,7 @@ fun List<DatabaseTodaySchedule>.asDomainModel(): List<ScheduleShow> {
     return map {
         ScheduleShow(
             id = it.id,
-            showId = it.showId, 
+            showId = it.showId,
             originalImage = it.image,
             mediumImage = it.mediumImage,
             language = it.language,

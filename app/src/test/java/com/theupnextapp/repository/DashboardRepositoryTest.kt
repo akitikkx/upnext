@@ -3,22 +3,21 @@ package com.theupnextapp.repository
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.theupnextapp.CoroutineTestRule
 import com.theupnextapp.database.DatabaseTableUpdate
-import com.theupnextapp.repository.fakes.FakeCrashlytics
-import com.theupnextapp.repository.fakes.FakeTvMazeService
-import com.theupnextapp.repository.fakes.FakeUpnextDao
 import com.theupnextapp.network.models.tvmaze.NetworkScheduleExternals
 import com.theupnextapp.network.models.tvmaze.NetworkScheduleImage
 import com.theupnextapp.network.models.tvmaze.NetworkScheduleShow
 import com.theupnextapp.network.models.tvmaze.NetworkShowEpisodeLinks
 import com.theupnextapp.network.models.tvmaze.NetworkShowNextEpisodeSelf
-import com.theupnextapp.network.models.tvmaze.NetworkYesterdayScheduleResponse
+import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowImageMedium
+import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowImageOriginal
+import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowImageResolutions
 import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowImageResponse
 import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowImageResponseItem
-import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowImageResolutions
-import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowImageOriginal
-import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowImageMedium
+import com.theupnextapp.network.models.tvmaze.NetworkYesterdayScheduleResponse
+import com.theupnextapp.repository.fakes.FakeCrashlytics
 import com.theupnextapp.repository.fakes.FakeTvMazeDao
-import java.io.IOException
+import com.theupnextapp.repository.fakes.FakeTvMazeService
+import com.theupnextapp.repository.fakes.FakeUpnextDao
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -27,6 +26,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import java.io.IOException
 
 @ExperimentalCoroutinesApi
 class DashboardRepositoryTest {
@@ -207,9 +207,10 @@ class DashboardRepositoryTest {
                 NetworkScheduleShow(
                     id = showId,
                     name = "Test Show $showId",
-                    externals = imdb?.let {
-                        NetworkScheduleExternals(imdb = it, thetvdb = 1, tvrage = 1)
-                    },
+                    externals =
+                        imdb?.let {
+                            NetworkScheduleExternals(imdb = it, thetvdb = 1, tvrage = 1)
+                        },
                     image = showImageObject,
                     genres = emptyList(),
                     language = "English",
