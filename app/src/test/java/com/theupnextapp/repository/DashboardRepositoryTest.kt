@@ -56,7 +56,7 @@ class DashboardRepositoryTest {
         fakeCrashlytics.clear()
 
         repository =
-            DashboardRepository(
+            DashboardRepositoryImpl(
                 upnextDao = fakeUpnextDao,
                 tvMazeDao = fakeTvMazeDao,
                 tvMazeService = fakeTvMazeService,

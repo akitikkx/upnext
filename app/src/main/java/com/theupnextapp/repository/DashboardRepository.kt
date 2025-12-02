@@ -23,7 +23,7 @@ package com.theupnextapp.repository
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.theupnextapp.common.CrashlyticsHelper // Updated import
+import com.theupnextapp.common.CrashlyticsHelper
 import com.theupnextapp.common.utils.models.DatabaseTables
 import com.theupnextapp.common.utils.models.TableUpdateInterval
 import com.theupnextapp.database.DatabaseTableUpdate
@@ -44,45 +44,61 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
-class DashboardRepository(
+interface DashboardRepository {
+    val isLoadingYesterdayShows: LiveData<Boolean>
+    val isLoadingTodayShows: LiveData<Boolean>
+    val isLoadingTomorrowShows: LiveData<Boolean>
+
+    val yesterdayShows: Flow<List<ScheduleShow>>
+    val todayShows: Flow<List<ScheduleShow>>
+    val tomorrowShows: Flow<List<ScheduleShow>>
+
+    fun tableUpdate(tableName: String): Flow<TableUpdate?>
+
+    suspend fun refreshYesterdayShows(countryCode: String, date: String?)
+    suspend fun refreshTodayShows(countryCode: String, date: String?)
+    suspend fun refreshTomorrowShows(countryCode: String, date: String?)
+}
+
+class DashboardRepositoryImpl(
     upnextDao: UpnextDao,
     tvMazeService: TvMazeService,
     private val tvMazeDao: TvMazeDao,
-    private val firebaseCrashlytics: CrashlyticsHelper, // Updated type
-) : BaseRepository(upnextDao = upnextDao, tvMazeService = tvMazeService) {
+    private val firebaseCrashlytics: CrashlyticsHelper,
+) : BaseRepository(upnextDao = upnextDao, tvMazeService = tvMazeService), DashboardRepository {
     private val _isLoadingYesterdayShows = MutableLiveData<Boolean>(false)
-    val isLoadingYesterdayShows: LiveData<Boolean> = _isLoadingYesterdayShows
+    override val isLoadingYesterdayShows: LiveData<Boolean> = _isLoadingYesterdayShows
 
     private val _isLoadingTodayShows = MutableLiveData<Boolean>(false)
-    val isLoadingTodayShows: LiveData<Boolean> = _isLoadingTodayShows
+    override val isLoadingTodayShows: LiveData<Boolean> = _isLoadingTodayShows
 
     private val _isLoadingTomorrowShows = MutableLiveData<Boolean>(false)
-    val isLoadingTomorrowShows: LiveData<Boolean> = _isLoadingTomorrowShows
+    override val isLoadingTomorrowShows: LiveData<Boolean> = _isLoadingTomorrowShows
 
-    val yesterdayShows: Flow<List<ScheduleShow>>
+    override val yesterdayShows: Flow<List<ScheduleShow>>
         get() =
             tvMazeDao.getYesterdayShows().map {
                 it.asDomainModel()
             }
 
-    val todayShows: Flow<List<ScheduleShow>>
+    override val todayShows: Flow<List<ScheduleShow>>
         get() =
             tvMazeDao.getTodayShows().map {
                 it.asDomainModel()
             }
 
-    val tomorrowShows: Flow<List<ScheduleShow>>
+    override val tomorrowShows: Flow<List<ScheduleShow>>
         get() =
             tvMazeDao.getTomorrowShows().map {
                 it.asDomainModel()
             }
 
-    fun tableUpdate(tableName: String): Flow<TableUpdate?> =
+    override fun tableUpdate(tableName: String): Flow<TableUpdate?> =
         upnextDao.getTableLastUpdate(tableName).map {
             it?.asDomainModel()
         }
 
-    suspend fun refreshYesterdayShows(
+    override suspend fun refreshYesterdayShows(
         countryCode: String,
         date: String?,
     ) {
@@ -143,7 +159,7 @@ class DashboardRepository(
         }
     }
 
-    suspend fun refreshTodayShows(
+    override suspend fun refreshTodayShows(
         countryCode: String,
         date: String?,
     ) {
@@ -200,7 +216,7 @@ class DashboardRepository(
         }
     }
 
-    suspend fun refreshTomorrowShows(
+    override suspend fun refreshTomorrowShows(
         countryCode: String,
         date: String?,
     ) {
