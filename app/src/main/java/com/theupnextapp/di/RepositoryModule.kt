@@ -30,6 +30,7 @@ import com.theupnextapp.database.UpnextDao
 import com.theupnextapp.network.TraktService
 import com.theupnextapp.network.TvMazeService
 import com.theupnextapp.repository.DashboardRepository
+import com.theupnextapp.repository.DashboardRepositoryImpl
 import com.theupnextapp.repository.SearchRepository
 import com.theupnextapp.repository.ShowDetailRepository
 import com.theupnextapp.repository.TraktRepository
@@ -89,13 +90,13 @@ object RepositoryModule {
         upnextDao: UpnextDao,
         tvMazeDao: TvMazeDao,
         tvMazeService: TvMazeService,
-        crashlyticsHelper: CrashlyticsHelper, // Changed here
+        crashlyticsHelper: CrashlyticsHelper,
     ): DashboardRepository {
-        return DashboardRepository(
+        return DashboardRepositoryImpl(
             upnextDao = upnextDao,
             tvMazeDao = tvMazeDao,
             tvMazeService = tvMazeService,
-            firebaseCrashlytics = crashlyticsHelper, // Changed here
+            firebaseCrashlytics = crashlyticsHelper,
         )
     }
 }

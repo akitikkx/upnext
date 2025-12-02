@@ -68,6 +68,7 @@ timber = "5.0.1"
 uiTestManifest = "1.8.2"
 workRuntimeKtx = "2.10.3"
 workTesting = "2.10.1"
+turbine = "1.0.0"
 
 [libraries]
 accompanist-navigation-animation = { module = "com.google.accompanist:accompanist-navigation-animation", version.ref = "accompanistNavigationAnimation" }
@@ -151,6 +152,7 @@ moshi-kotlin = { module = "com.squareup.moshi:moshi-kotlin", version.ref = "mosh
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 test-harness = { module = "com.google.accompanist:accompanist-testharness", version.ref = "testHarness" }
 work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
+turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
