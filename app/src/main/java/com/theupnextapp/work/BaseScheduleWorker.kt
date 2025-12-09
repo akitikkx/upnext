@@ -27,18 +27,17 @@ import androidx.work.WorkerParameters
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
+
 import com.theupnextapp.repository.DashboardRepository
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedInject
 import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
-abstract class BaseScheduleWorker @AssistedInject constructor(
-    @Assisted appContext: Context,
-    @Assisted workerParameters: WorkerParameters,
+abstract class BaseScheduleWorker(
+    appContext: Context,
+    workerParameters: WorkerParameters,
     protected val dashboardRepository: DashboardRepository,
 ) : BaseWorker(appContext, workerParameters) {
 
