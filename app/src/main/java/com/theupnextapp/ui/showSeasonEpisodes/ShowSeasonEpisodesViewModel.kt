@@ -24,14 +24,20 @@ package com.theupnextapp.ui.showSeasonEpisodes
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import androidx.work.Data
+import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.theupnextapp.domain.Result
 import com.theupnextapp.domain.ShowSeasonEpisode
 import com.theupnextapp.domain.ShowSeasonEpisodesArg
 import com.theupnextapp.repository.ShowDetailRepository
 import com.theupnextapp.repository.TraktRepository
+import com.theupnextapp.repository.WatchProgressRepository
 import com.theupnextapp.ui.common.BaseTraktViewModel
+import com.theupnextapp.work.SyncWatchProgressWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -40,11 +46,12 @@ class ShowSeasonEpisodesViewModel
     @Inject
     constructor(
         private val showDetailRepository: ShowDetailRepository,
+        private val watchProgressRepository: WatchProgressRepository,
+        private val localWorkManager: WorkManager,
         traktRepository: TraktRepository,
-        workManager: WorkManager,
     ) : BaseTraktViewModel(
             traktRepository,
-            workManager,
+            localWorkManager,
         ) {
         private val _isLoading = MutableLiveData<Boolean>()
         val isLoading: LiveData<Boolean> = _isLoading
@@ -55,30 +62,108 @@ class ShowSeasonEpisodesViewModel
         private val _seasonNumber = MutableLiveData<Int?>()
         val seasonNumber: LiveData<Int?> = _seasonNumber
 
+        private var currentShowTraktId: Int? = null
+        private var currentShowTvMazeId: Int? = null
+        private var currentShowImdbId: String? = null
+        private var currentSeasonNumber: Int? = null
+
         fun selectedSeason(showSeasonEpisodesArg: ShowSeasonEpisodesArg?) {
             showSeasonEpisodesArg?.let { selectedSeason ->
                 _seasonNumber.value = selectedSeason.seasonNumber
 
-                selectedSeason.showId?.let { season ->
+                currentShowTraktId = selectedSeason.showTraktId
+                currentShowTvMazeId = selectedSeason.showId
+                currentShowImdbId = selectedSeason.imdbID
+                currentSeasonNumber = selectedSeason.seasonNumber
+
+                selectedSeason.showId?.let { showId ->
                     selectedSeason.seasonNumber?.let { seasonNumber ->
-                        viewModelScope.launch {
-                            showDetailRepository.getShowSeasonEpisodes(
-                                showId = season,
-                                seasonNumber = seasonNumber,
-                            ).collect { result ->
-                                when (result) {
-                                    is Result.Success -> {
-                                        _episodes.value = result.data
-                                    }
-                                    is Result.Loading -> {
-                                        _isLoading.value = result.status
-                                    }
-                                    else -> {}
-                                }
-                            }
-                        }
+                        loadEpisodesWithWatchStatus(showId, seasonNumber)
                     }
                 }
+            }
+        }
+
+        private fun loadEpisodesWithWatchStatus(
+            showId: Int,
+            seasonNumber: Int,
+        ) {
+            viewModelScope.launch {
+                val episodesFlow =
+                    showDetailRepository.getShowSeasonEpisodes(
+                        showId = showId,
+                        seasonNumber = seasonNumber,
+                    )
+
+                val watchedEpisodesFlow =
+                    currentShowTraktId?.let {
+                        watchProgressRepository.getWatchedEpisodesForShow(it)
+                    } ?: flowOf(emptyList())
+
+                combine(episodesFlow, watchedEpisodesFlow) { episodeResult, watchedEpisodes ->
+                    when (episodeResult) {
+                        is Result.Success -> {
+                            val watchedSet =
+                                watchedEpisodes
+                                    .filter { it.seasonNumber == seasonNumber }
+                                    .map { it.episodeNumber }
+                                    .toSet()
+
+                            episodeResult.data.map { episode ->
+                                episode.copy(isWatched = episode.number in watchedSet)
+                            }
+                        }
+
+                        is Result.Loading -> {
+                            _isLoading.postValue(episodeResult.status)
+                            null
+                        }
+
+                        else -> null
+                    }
+                }.collect { episodes ->
+                    episodes?.let { _episodes.postValue(it) }
+                }
+            }
+        }
+
+        fun onToggleWatched(episode: ShowSeasonEpisode) {
+            val showTraktId = currentShowTraktId ?: return
+            val season = episode.season ?: return
+            val episodeNum = episode.number ?: return
+
+            viewModelScope.launch {
+                if (episode.isWatched) {
+                    watchProgressRepository.markEpisodeUnwatched(
+                        showTraktId = showTraktId,
+                        seasonNumber = season,
+                        episodeNumber = episodeNum,
+                    )
+                } else {
+                    watchProgressRepository.markEpisodeWatched(
+                        showTraktId = showTraktId,
+                        showTvMazeId = currentShowTvMazeId,
+                        showImdbId = currentShowImdbId,
+                        seasonNumber = season,
+                        episodeNumber = episodeNum,
+                    )
+                }
+
+                triggerSyncIfAuthenticated()
+            }
+        }
+
+        private fun triggerSyncIfAuthenticated() {
+            traktAccessToken.value?.access_token?.let { token ->
+                val syncWork =
+                    OneTimeWorkRequestBuilder<SyncWatchProgressWorker>()
+                        .setInputData(
+                            Data
+                                .Builder()
+                                .putString(SyncWatchProgressWorker.ARG_TOKEN, token)
+                                .build(),
+                        ).build()
+                localWorkManager.enqueue(syncWork)
             }
         }
     }

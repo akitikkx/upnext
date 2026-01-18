@@ -24,14 +24,20 @@ package com.theupnextapp.ui.showSeasonEpisodes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -78,6 +84,9 @@ fun ShowSeasonEpisodesScreen(
                         ShowSeasonEpisodes(
                             seasonNumber = season,
                             list = episodes,
+                            onToggleWatched = { episode ->
+                                viewModel.onToggleWatched(episode)
+                            },
                         )
                     }
                 }
@@ -96,11 +105,11 @@ fun ShowSeasonEpisodesScreen(
 }
 
 @ExperimentalMaterial3Api
-@Destination<RootGraph>
 @Composable
 fun ShowSeasonEpisodes(
     seasonNumber: Int,
     list: List<ShowSeasonEpisode>,
+    onToggleWatched: (ShowSeasonEpisode) -> Unit = {},
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         SectionHeadingText(
@@ -111,8 +120,11 @@ fun ShowSeasonEpisodes(
                 ),
         )
         LazyColumn(Modifier.padding(8.dp)) {
-            items(list) {
-                ShowSeasonEpisodeCard(item = it)
+            items(list) { episode ->
+                ShowSeasonEpisodeCard(
+                    item = episode,
+                    onToggleWatched = onToggleWatched,
+                )
             }
         }
     }
@@ -120,7 +132,10 @@ fun ShowSeasonEpisodes(
 
 @ExperimentalMaterial3Api
 @Composable
-fun ShowSeasonEpisodeCard(item: ShowSeasonEpisode) {
+fun ShowSeasonEpisodeCard(
+    item: ShowSeasonEpisode,
+    onToggleWatched: (ShowSeasonEpisode) -> Unit = {},
+) {
     Card(
         shape = MaterialTheme.shapes.large,
         modifier =
@@ -147,18 +162,47 @@ fun ShowSeasonEpisodeCard(item: ShowSeasonEpisode) {
                 horizontalAlignment = Alignment.Start,
                 modifier = Modifier.padding(8.dp),
             ) {
-                if (item.number.toString().isNotEmpty() && item.season.toString().isNotEmpty()) {
-                    Text(
-                        text =
-                            stringResource(
-                                R.string.show_detail_season_and_episode_number,
-                                item.season.toString(),
-                                item.number.toString(),
-                            ),
-                        modifier = Modifier.padding(4.dp),
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Bold,
-                    )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    if (item.number.toString().isNotEmpty() && item.season.toString().isNotEmpty()) {
+                        Text(
+                            text =
+                                stringResource(
+                                    R.string.show_detail_season_and_episode_number,
+                                    item.season.toString(),
+                                    item.number.toString(),
+                                ),
+                            modifier = Modifier.padding(4.dp),
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    }
+
+                    IconButton(onClick = { onToggleWatched(item) }) {
+                        Icon(
+                            imageVector =
+                                if (item.isWatched) {
+                                    Icons.Filled.CheckCircle
+                                } else {
+                                    Icons.Outlined.CheckCircle
+                                },
+                            contentDescription =
+                                if (item.isWatched) {
+                                    stringResource(R.string.episode_mark_unwatched)
+                                } else {
+                                    stringResource(R.string.episode_mark_watched)
+                                },
+                            tint =
+                                if (item.isWatched) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    MaterialTheme.colorScheme.onSurfaceVariant
+                                },
+                        )
+                    }
                 }
 
                 item.name?.let {
@@ -205,6 +249,18 @@ fun ShowSeasonEpisodeCard(item: ShowSeasonEpisode) {
                                 .padding(4.dp)
                                 .fillMaxWidth(),
                         style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+
+                if (item.isWatched) {
+                    Text(
+                        text = stringResource(R.string.episode_watched),
+                        modifier =
+                            Modifier
+                                .padding(4.dp),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Medium,
                     )
                 }
             }

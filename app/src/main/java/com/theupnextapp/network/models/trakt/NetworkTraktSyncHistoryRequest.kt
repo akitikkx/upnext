@@ -19,30 +19,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.theupnextapp.database
+package com.theupnextapp.network.models.trakt
 
-import androidx.room.Database
-import androidx.room.RoomDatabase
+import com.squareup.moshi.Json
 
-@Database(
-    entities = [
-        DatabaseYesterdaySchedule::class,
-        DatabaseTodaySchedule::class,
-        DatabaseTomorrowSchedule::class,
-        DatabaseShowInfo::class,
-        DatabaseTableUpdate::class,
-        DatabaseTraktPopularShows::class,
-        DatabaseTraktTrendingShows::class,
-        DatabaseTraktMostAnticipated::class,
-        DatabaseFavoriteShows::class,
-        DatabaseTraktAccess::class,
-        DatabaseWatchedEpisode::class,
-    ],
-    version = 31,
-    exportSchema = true,
+data class NetworkTraktSyncHistoryRequest(
+    val shows: List<NetworkTraktSyncHistoryShow>,
 )
-abstract class UpnextDatabase : RoomDatabase() {
-    abstract val upnextDao: UpnextDao
-    abstract val traktDao: TraktDao
-    abstract val tvMazeDao: TvMazeDao
-}
+
+data class NetworkTraktSyncHistoryShow(
+    val ids: NetworkTraktSyncHistoryShowIds,
+    val seasons: List<NetworkTraktSyncHistorySeason>,
+)
+
+data class NetworkTraktSyncHistoryShowIds(
+    val trakt: Int? = null,
+    val imdb: String? = null,
+)
+
+data class NetworkTraktSyncHistorySeason(
+    val number: Int,
+    val episodes: List<NetworkTraktSyncHistoryEpisode>,
+)
+
+data class NetworkTraktSyncHistoryEpisode(
+    val number: Int,
+    @Json(name = "watched_at")
+    val watchedAt: String? = null,
+)

@@ -35,6 +35,8 @@ import com.theupnextapp.repository.SearchRepository
 import com.theupnextapp.repository.ShowDetailRepository
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.TraktRepositoryImpl
+import com.theupnextapp.repository.WatchProgressRepository
+import com.theupnextapp.repository.WatchProgressRepositoryImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -97,6 +99,20 @@ object RepositoryModule {
             tvMazeDao = tvMazeDao,
             tvMazeService = tvMazeService,
             firebaseCrashlytics = crashlyticsHelper,
+        )
+    }
+
+    @Singleton
+    @Provides
+    fun provideWatchProgressRepository(
+        traktDao: TraktDao,
+        traktService: TraktService,
+        firebaseCrashlytics: FirebaseCrashlytics,
+    ): WatchProgressRepository {
+        return WatchProgressRepositoryImpl(
+            traktDao = traktDao,
+            traktService = traktService,
+            firebaseCrashlytics = firebaseCrashlytics,
         )
     }
 }
