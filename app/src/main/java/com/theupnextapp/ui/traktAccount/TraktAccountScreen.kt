@@ -232,21 +232,29 @@ internal fun AccountContent(
             if (isDisconnecting) Text(text = stringResource(R.string.trakt_disconnecting_text))
         } else {
             if (isAuthorizedOnTrakt) {
-                TraktProfileHeader(onLogoutClick = onLogoutClick)
-                Spacer(modifier = Modifier.height(16.dp))
-
-                if (isLoadingFavorites) {
-                    CircularProgressIndicator(modifier = Modifier.padding(16.dp))
-                    Text(text = stringResource(R.string.trakt_loading_favorites))
-                } else if (isFavoriteShowsEmpty) {
-                    EmptyFavoritesContent()
-                } else {
+                if (!isLoadingFavorites && !isFavoriteShowsEmpty) {
                     FavoritesListContent(
                         favoriteShows = favoriteShowsList,
                         widthSizeClass = getWindowSizeClass()?.widthSizeClass,
                         modifier = Modifier.weight(1f),
+                        header = {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                TraktProfileHeader(onLogoutClick = onLogoutClick)
+                                Spacer(modifier = Modifier.height(16.dp))
+                            }
+                        },
                         onFavoriteClick = onFavoriteClick,
                     )
+                } else {
+                    TraktProfileHeader(onLogoutClick = onLogoutClick)
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    if (isLoadingFavorites) {
+                        CircularProgressIndicator(modifier = Modifier.padding(16.dp))
+                        Text(text = stringResource(R.string.trakt_loading_favorites))
+                    } else {
+                        EmptyFavoritesContent()
+                    }
                 }
             } else {
                 ConnectToTrakt(onClick = onConnectToTraktClick)

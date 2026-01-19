@@ -16,6 +16,8 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -36,6 +38,9 @@ import com.theupnextapp.ui.widgets.ListPosterCard
 
 import androidx.compose.ui.platform.testTag
 
+import androidx.compose.ui.platform.testTag
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+
 @ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
 @ExperimentalFoundationApi
@@ -44,6 +49,7 @@ fun FavoritesListContent(
     favoriteShows: List<TraktUserListItem>,
     widthSizeClass: WindowWidthSizeClass?,
     modifier: Modifier = Modifier,
+    header: @Composable () -> Unit = {},
     onFavoriteClick: (item: TraktUserListItem) -> Unit,
 ) {
     val columns: GridCells =
@@ -53,30 +59,31 @@ fun FavoritesListContent(
             else -> GridCells.Adaptive(minSize = 140.dp)
         }
 
-    Column(
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier.padding(8.dp),
+    LazyVerticalGrid(
+        columns = columns,
+        modifier = modifier.testTag("favorites_grid")
     ) {
-        SectionHeadingText(
-            modifier =
-                Modifier
-                    .padding(top = 8.dp, bottom = 8.dp)
-                    .align(Alignment.CenterHorizontally),
-            text = stringResource(id = R.string.title_favorites_list),
-        )
+        item(span = { GridItemSpan(maxLineSpan) }) {
+            header()
+        }
 
-        LazyVerticalGrid(
-            columns = columns,
-            modifier = Modifier.fillMaxSize().testTag("favorites_grid")
-        ) {
-            items(favoriteShows) { favoriteShow ->
-                ListPosterCard(
-                    itemName = favoriteShow.title,
-                    itemUrl = favoriteShow.originalImageUrl,
-                ) {
-                    onFavoriteClick(favoriteShow)
-                }
+        item(span = { GridItemSpan(maxLineSpan) }) {
+            SectionHeadingText(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .wrapContentWidth(Alignment.CenterHorizontally)
+                        .padding(top = 8.dp, bottom = 8.dp),
+                text = stringResource(id = R.string.title_favorites_list),
+            )
+        }
+
+        items(favoriteShows) { favoriteShow ->
+            ListPosterCard(
+                itemName = favoriteShow.title,
+                itemUrl = favoriteShow.originalImageUrl,
+            ) {
+                onFavoriteClick(favoriteShow)
             }
         }
     }
