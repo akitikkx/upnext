@@ -48,11 +48,39 @@ class DashboardViewModelTest {
     }
 
     @Test
-    fun `isLoading is true when any of the loading states are true`() {
+    fun `isLoading is true when only yesterday is loading`() {
         // Given
         fakeRepository.setLoadingYesterday(true)
         fakeRepository.setLoadingToday(false)
         fakeRepository.setLoadingTomorrow(false)
+
+        // When
+        val isLoading = viewModel.isLoading.getOrAwaitValue()
+
+        // Then
+        assertTrue(isLoading)
+    }
+
+    @Test
+    fun `isLoading is true when only today is loading`() {
+        // Given
+        fakeRepository.setLoadingYesterday(false)
+        fakeRepository.setLoadingToday(true)
+        fakeRepository.setLoadingTomorrow(false)
+
+        // When
+        val isLoading = viewModel.isLoading.getOrAwaitValue()
+
+        // Then
+        assertTrue(isLoading)
+    }
+
+    @Test
+    fun `isLoading is true when only tomorrow is loading`() {
+        // Given
+        fakeRepository.setLoadingYesterday(false)
+        fakeRepository.setLoadingToday(false)
+        fakeRepository.setLoadingTomorrow(true)
 
         // When
         val isLoading = viewModel.isLoading.getOrAwaitValue()
