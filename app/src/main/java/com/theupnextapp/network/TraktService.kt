@@ -116,9 +116,7 @@ interface TraktService {
         @Header("Authorization") token: String,
         @Path("id") userSlug: String,
         @Path("list_id") traktId: String,
-        @Query("limit") limit: Int = 100, // Default to 100? No, let's allow caller to specify, but default in repo? Or Default in Interface?
-        // Retrofit support default values? No.
-        // I'll make it nullable or just add it.
+        @Query("limit") limit: Int = 100,
     ): Deferred<NetworkTraktUserListItemResponse>
 
     @POST("users/{id}/lists/{list_id}/items")
