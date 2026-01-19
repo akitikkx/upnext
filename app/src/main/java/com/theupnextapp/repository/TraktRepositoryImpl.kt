@@ -393,7 +393,10 @@ class TraktRepositoryImpl(
                     token = bearerToken,
                     userSlug = userSlug,
                     traktId = listSlug,
+                    limit = 1000 // Ensure we get all items (or at least a large page)
                 ).await()
+
+            Timber.d("Fetched ${customListItemsResponse.size} items from Trakt favorites list ($listSlug).")
 
             handleTraktUserListItemsResponse(customListItemsResponse)
 
@@ -1846,6 +1849,6 @@ class TraktRepositoryImpl(
     }
 
     companion object {
-        const val FAVORITES_LIST_NAME = "UpnextApp Favorites"
+        const val FAVORITES_LIST_NAME = "Upnext Favorites"
     }
 }

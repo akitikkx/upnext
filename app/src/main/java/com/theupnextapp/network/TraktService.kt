@@ -51,6 +51,7 @@ import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface TraktService {
     @POST(" oauth/token")
@@ -115,6 +116,9 @@ interface TraktService {
         @Header("Authorization") token: String,
         @Path("id") userSlug: String,
         @Path("list_id") traktId: String,
+        @Query("limit") limit: Int = 100, // Default to 100? No, let's allow caller to specify, but default in repo? Or Default in Interface?
+        // Retrofit support default values? No.
+        // I'll make it nullable or just add it.
     ): Deferred<NetworkTraktUserListItemResponse>
 
     @POST("users/{id}/lists/{list_id}/items")
