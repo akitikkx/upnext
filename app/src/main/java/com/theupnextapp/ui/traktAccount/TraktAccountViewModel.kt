@@ -23,13 +23,11 @@ package com.theupnextapp.ui.traktAccount
 
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkManager
-import com.theupnextapp.BuildConfig
 import com.theupnextapp.common.utils.TraktConstants
 import com.theupnextapp.domain.TraktUserListItem
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.ui.common.BaseTraktViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -197,5 +195,4 @@ class TraktAccountViewModel
             // viewModelScope.launch { traktRepository.clearFavoriteShowsError() }
             // And implement `clearFavoriteShowsError()` in TraktRepository/Impl
         }
-
     }

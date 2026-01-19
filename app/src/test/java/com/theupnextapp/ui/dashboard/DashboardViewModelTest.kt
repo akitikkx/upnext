@@ -28,7 +28,6 @@ import org.junit.Test
 
 @ExperimentalCoroutinesApi
 class DashboardViewModelTest {
-
     @get:Rule
     var instantTaskExecutorRule = InstantTaskExecutorRule()
 
@@ -106,24 +105,25 @@ class DashboardViewModelTest {
     @Test
     fun `yesterdayShowsList returns the correct data`() {
         // Given
-        val shows = listOf(
-            ScheduleShow(
-                id = 1,
-                showId = 1,
-                name = "Show 1",
-                summary = "Summary 1",
-                originalImage = "url",
-                mediumImage = "url",
-                language = "English",
-                officialSite = "url",
-                premiered = "yesterday",
-                runtime = "60",
-                status = "running",
-                type = "scripted",
-                updated = "yesterday",
-                url = "url"
+        val shows =
+            listOf(
+                ScheduleShow(
+                    id = 1,
+                    showId = 1,
+                    name = "Show 1",
+                    summary = "Summary 1",
+                    originalImage = "url",
+                    mediumImage = "url",
+                    language = "English",
+                    officialSite = "url",
+                    premiered = "yesterday",
+                    runtime = "60",
+                    status = "running",
+                    type = "scripted",
+                    updated = "yesterday",
+                    url = "url",
+                ),
             )
-        )
         fakeRepository.setYesterdayShows(shows)
 
         // When
@@ -136,24 +136,25 @@ class DashboardViewModelTest {
     @Test
     fun `todayShowsList returns the correct data`() {
         // Given
-        val shows = listOf(
-            ScheduleShow(
-                id = 2,
-                showId = 2,
-                name = "Show 2",
-                summary = "Summary 2",
-                originalImage = "url",
-                mediumImage = "url",
-                language = "English",
-                officialSite = "url",
-                premiered = "today",
-                runtime = "60",
-                status = "running",
-                type = "scripted",
-                updated = "today",
-                url = "url"
+        val shows =
+            listOf(
+                ScheduleShow(
+                    id = 2,
+                    showId = 2,
+                    name = "Show 2",
+                    summary = "Summary 2",
+                    originalImage = "url",
+                    mediumImage = "url",
+                    language = "English",
+                    officialSite = "url",
+                    premiered = "today",
+                    runtime = "60",
+                    status = "running",
+                    type = "scripted",
+                    updated = "today",
+                    url = "url",
+                ),
             )
-        )
         fakeRepository.setTodayShows(shows)
 
         // When
@@ -166,24 +167,25 @@ class DashboardViewModelTest {
     @Test
     fun `tomorrowShowsList returns the correct data`() {
         // Given
-        val shows = listOf(
-            ScheduleShow(
-                id = 3,
-                showId = 3,
-                name = "Show 3",
-                summary = "Summary 3",
-                originalImage = "url",
-                mediumImage = "url",
-                language = "English",
-                officialSite = "url",
-                premiered = "tomorrow",
-                runtime = "60",
-                status = "running",
-                type = "scripted",
-                updated = "tomorrow",
-                url = "url"
+        val shows =
+            listOf(
+                ScheduleShow(
+                    id = 3,
+                    showId = 3,
+                    name = "Show 3",
+                    summary = "Summary 3",
+                    originalImage = "url",
+                    mediumImage = "url",
+                    language = "English",
+                    officialSite = "url",
+                    premiered = "tomorrow",
+                    runtime = "60",
+                    status = "running",
+                    type = "scripted",
+                    updated = "tomorrow",
+                    url = "url",
+                ),
             )
-        )
         fakeRepository.setTomorrowShows(shows)
 
         // When

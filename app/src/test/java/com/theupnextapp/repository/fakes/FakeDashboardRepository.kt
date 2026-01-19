@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flowOf
 
 class FakeDashboardRepository : DashboardRepository {
-
     private val _isLoadingYesterdayShows = MutableLiveData(false)
     override val isLoadingYesterdayShows: LiveData<Boolean> = _isLoadingYesterdayShows
 
@@ -34,18 +33,27 @@ class FakeDashboardRepository : DashboardRepository {
         return flowOf(null)
     }
 
-    override suspend fun refreshYesterdayShows(countryCode: String, date: String?) {
+    override suspend fun refreshYesterdayShows(
+        countryCode: String,
+        date: String?,
+    ) {
         _isLoadingYesterdayShows.postValue(true)
         // Simulate network/db work
         _isLoadingYesterdayShows.postValue(false)
     }
 
-    override suspend fun refreshTodayShows(countryCode: String, date: String?) {
+    override suspend fun refreshTodayShows(
+        countryCode: String,
+        date: String?,
+    ) {
         _isLoadingTodayShows.postValue(true)
         _isLoadingTodayShows.postValue(false)
     }
 
-    override suspend fun refreshTomorrowShows(countryCode: String, date: String?) {
+    override suspend fun refreshTomorrowShows(
+        countryCode: String,
+        date: String?,
+    ) {
         _isLoadingTomorrowShows.postValue(true)
         _isLoadingTomorrowShows.postValue(false)
     }

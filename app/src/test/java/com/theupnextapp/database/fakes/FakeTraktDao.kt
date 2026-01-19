@@ -51,33 +51,62 @@ class FakeTraktDao : TraktDao {
 
     // Unimplemented methods
     override suspend fun insertAllFavoriteShows(vararg shows: DatabaseFavoriteShows) {}
+
     override suspend fun insertFavoriteShow(databaseFavoriteShows: DatabaseFavoriteShows) {}
+
     override suspend fun deleteAllFavoriteShows() {}
+
     override fun getFavoriteShows(): Flow<List<DatabaseFavoriteShows>> = flowOf(emptyList())
+
     override fun getFavoriteShowsRaw(): List<DatabaseFavoriteShows> = emptyList()
+
     override fun getFavoriteShow(imdbID: String): DatabaseFavoriteShows? = null
+
     override fun updateFavoriteShowWithAirStamp(databaseFavoriteShows: DatabaseFavoriteShows) {}
+
     override fun getFavoriteShowRawByTvMazeId(tvMazeId: Int): DatabaseFavoriteShows = TODO()
+
     override suspend fun getFavoriteShowByTraktId(traktId: Int): DatabaseFavoriteShows? = null
+
     override suspend fun getAllFavoriteShowTraktIds(): List<Int> = emptyList()
+
     override suspend fun deleteFavoriteShowsByTraktIds(traktIds: List<Int>): Int = 0
+
     override suspend fun deleteFavoriteShowByTraktId(traktId: Int): Int = 0
+
     override suspend fun insertAllTraktPopular(vararg traktPopularShows: DatabaseTraktPopularShows) {}
+
     override fun getTraktPopular(): Flow<List<DatabaseTraktPopularShows>> = flowOf(emptyList())
+
     override fun getTraktPopularRaw(): List<DatabaseTraktPopularShows> = emptyList()
+
     override suspend fun clearPopularShows() {}
+
     override suspend fun checkIfPopularShowsIsEmpty(): Boolean = true
+
     override suspend fun deleteSpecificPopularShows(showIds: List<Int>) {}
+
     override suspend fun insertAllTraktTrending(vararg traktTrendingShows: DatabaseTraktTrendingShows) {}
+
     override fun getTraktTrending(): Flow<List<DatabaseTraktTrendingShows>> = flowOf(emptyList())
+
     override fun getTraktTrendingRaw(): List<DatabaseTraktTrendingShows> = emptyList()
+
     override suspend fun clearTrendingShows() {}
+
     override suspend fun checkIfTrendingShowsIsEmpty(): Boolean = true
+
     override suspend fun deleteSpecificTrendingShows(showIds: List<Int>) {}
+
     override suspend fun insertAllTraktMostAnticipated(vararg traktMostAnticipatedShows: DatabaseTraktMostAnticipated) {}
+
     override fun getTraktMostAnticipated(): Flow<List<DatabaseTraktMostAnticipated>> = flowOf(emptyList())
+
     override fun getTraktMostAnticipatedRaw(): List<DatabaseTraktMostAnticipated> = emptyList()
+
     override suspend fun clearMostAnticipatedShows() {}
+
     override suspend fun checkIfMostAnticipatedShowsIsEmpty(): Boolean = true
+
     override suspend fun deleteSpecificMostAnticipatedShows(showIds: List<Int>) {}
 }

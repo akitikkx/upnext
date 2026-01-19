@@ -39,12 +39,16 @@ class FakeTraktAuthApi : TraktAuthApi {
         TODO("Not yet implemented")
     }
 
-    override fun getAccessRefreshTokenAsync(traktAccessRefreshTokenRequest: NetworkTraktAccessRefreshTokenRequest): Deferred<NetworkTraktAccessRefreshTokenResponse> {
+    override fun getAccessRefreshTokenAsync(
+        traktAccessRefreshTokenRequest: NetworkTraktAccessRefreshTokenRequest,
+    ): Deferred<NetworkTraktAccessRefreshTokenResponse> {
         if (shouldThrow) throw RuntimeException("Network Error")
         return CompletableDeferred(responseToReturn!!)
     }
 
-    override fun revokeAccessTokenAsync(networkTraktRevokeAccessTokenRequest: NetworkTraktRevokeAccessTokenRequest): Deferred<NetworkTraktRevokeAccessTokenResponse> {
+    override fun revokeAccessTokenAsync(
+        networkTraktRevokeAccessTokenRequest: NetworkTraktRevokeAccessTokenRequest,
+    ): Deferred<NetworkTraktRevokeAccessTokenResponse> {
         TODO("Not yet implemented")
     }
 }

@@ -4,7 +4,6 @@ package com.theupnextapp.common.utils
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
-import android.content.Intent
 import android.net.Uri
 import androidx.browser.customtabs.CustomTabsIntent
 
@@ -17,7 +16,10 @@ fun Context.findActivity(): Activity? {
     return null
 }
 
-fun launchCustomTab(context: Context, url: String) {
+fun launchCustomTab(
+    context: Context,
+    url: String,
+) {
     val builder = CustomTabsIntent.Builder()
     val customTabsIntent = builder.build()
     customTabsIntent.launchUrl(context, Uri.parse(url))

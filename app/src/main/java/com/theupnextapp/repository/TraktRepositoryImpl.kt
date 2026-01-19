@@ -393,7 +393,7 @@ class TraktRepositoryImpl(
                     token = bearerToken,
                     userSlug = userSlug,
                     traktId = listSlug,
-                    limit = 1000 // Ensure we get all items (or at least a large page)
+                    limit = 1000, // Ensure we get all items (or at least a large page)
                 ).await()
 
             Timber.d("Fetched ${customListItemsResponse.size} items from Trakt favorites list ($listSlug).")

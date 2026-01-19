@@ -46,7 +46,6 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34], manifest = Config.NONE, application = Application::class)
 class CustomTabComponentTest {
-
     @Mock
     private lateinit var activity: Activity
 
@@ -70,11 +69,13 @@ class CustomTabComponentTest {
     @Test
     fun openCustomTab_whenChromeIsAvailable_shouldLaunchCustomTab() {
         val uri = Uri.parse("https://trakt.tv")
-        val resolveInfo = ResolveInfo().apply {
-            activityInfo = ActivityInfo().apply {
-                packageName = "com.android.chrome"
+        val resolveInfo =
+            ResolveInfo().apply {
+                activityInfo =
+                    ActivityInfo().apply {
+                        packageName = "com.android.chrome"
+                    }
             }
-        }
 
         `when`(packageManager.resolveActivity(any(Intent::class.java), anyInt())).thenReturn(resolveInfo)
         `when`(packageManager.queryIntentActivities(any(Intent::class.java), anyInt())).thenReturn(listOf(resolveInfo))
@@ -84,7 +85,7 @@ class CustomTabComponentTest {
 
         val intentCaptor = ArgumentCaptor.forClass(Intent::class.java)
         verify(activity).startActivity(intentCaptor.capture(), any())
-        
+
         val capturedIntent = intentCaptor.value
         assertEquals("com.android.chrome", capturedIntent.`package`)
         assertEquals(uri, capturedIntent.data)

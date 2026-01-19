@@ -26,18 +26,20 @@ import okhttp3.Interceptor
 import okhttp3.Response
 import javax.inject.Inject
 
-class TraktAuthInterceptor @Inject constructor(
-    private val traktDao: TraktDao
-) : Interceptor {
-    override fun intercept(chain: Interceptor.Chain): Response {
-        val originalRequest = chain.request()
-        val builder = originalRequest.newBuilder()
+class TraktAuthInterceptor
+    @Inject
+    constructor(
+        private val traktDao: TraktDao,
+    ) : Interceptor {
+        override fun intercept(chain: Interceptor.Chain): Response {
+            val originalRequest = chain.request()
+            val builder = originalRequest.newBuilder()
 
-        val token = traktDao.getTraktAccessDataRaw()
-        if (!token?.access_token.isNullOrEmpty()) {
-            builder.header("Authorization", "Bearer ${token?.access_token}")
+            val token = traktDao.getTraktAccessDataRaw()
+            if (!token?.access_token.isNullOrEmpty()) {
+                builder.header("Authorization", "Bearer ${token?.access_token}")
+            }
+
+            return chain.proceed(builder.build())
         }
-
-        return chain.proceed(builder.build())
     }
-}
