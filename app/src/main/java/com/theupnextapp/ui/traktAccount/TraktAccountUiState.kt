@@ -13,7 +13,6 @@
 package com.theupnextapp.ui.traktAccount
 
 data class TraktAccountUiState(
-    val openCustomTab: Boolean = false,
     val confirmDisconnectFromTrakt: Boolean = false,
     val isDisconnecting: Boolean = false,
     val connectionError: String? = null,

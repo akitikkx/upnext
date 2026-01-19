@@ -41,6 +41,7 @@ import com.theupnextapp.common.utils.customTab.CustomTabComponent
 import com.theupnextapp.common.utils.customTab.TabConnectionCallback
 import com.theupnextapp.ui.main.MainScreen
 import com.theupnextapp.ui.theme.UpnextTheme
+import com.theupnextapp.ui.traktAccount.TraktAccountViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -106,7 +107,7 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
     }
 
     override fun onTabConnected() {
-        customTabComponent.mayLaunchUrl(Uri.parse(TRAKT_AUTH_URL), null, null)
+        customTabComponent.mayLaunchUrl(Uri.parse(TraktAccountViewModel.TRAKT_AUTH_URL), null, null)
     }
 
     override fun onTabDisconnected() {
@@ -114,10 +115,6 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
     }
 
     companion object {
-        const val TRAKT_AUTH_URL =
-            "https://trakt.tv/oauth/authorize?response_type=code" +
-                "&client_id=${BuildConfig.TRAKT_CLIENT_ID}" +
-                "&redirect_uri=${BuildConfig.TRAKT_REDIRECT_URI}"
         const val REQUEST_CODE_INTERNET = 10
     }
 }

@@ -23,16 +23,20 @@ package com.theupnextapp.ui.traktAccount
 
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkManager
+import com.theupnextapp.BuildConfig
 import com.theupnextapp.domain.TraktUserListItem
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.ui.common.BaseTraktViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -82,6 +86,9 @@ class TraktAccountViewModel
         private val _uiState = MutableStateFlow(TraktAccountUiState())
         val uiState: StateFlow<TraktAccountUiState> = _uiState.asStateFlow()
 
+        private val _openCustomTab = Channel<String>()
+        val openCustomTab = _openCustomTab.receiveAsFlow()
+
         val favoriteShowsEmpty: StateFlow<Boolean> =
             favoriteShows
                 .map { it.isEmpty() }
@@ -92,11 +99,9 @@ class TraktAccountViewModel
                 )
 
         fun onConnectToTraktClick() {
-            _uiState.value = _uiState.value.copy(openCustomTab = true)
-        }
-
-        fun onCustomTabOpened() {
-            _uiState.value = _uiState.value.copy(openCustomTab = false)
+            viewModelScope.launch {
+                _openCustomTab.send(TRAKT_AUTH_URL)
+            }
         }
 
         fun onDisconnectFromTraktClick() {
@@ -190,5 +195,12 @@ class TraktAccountViewModel
             // Or, if truly needed, add:
             // viewModelScope.launch { traktRepository.clearFavoriteShowsError() }
             // And implement `clearFavoriteShowsError()` in TraktRepository/Impl
+        }
+
+        companion object {
+            const val TRAKT_AUTH_URL =
+                "https://trakt.tv/oauth/authorize?response_type=code" +
+                        "&client_id=${BuildConfig.TRAKT_CLIENT_ID}" +
+                        "&redirect_uri=${BuildConfig.TRAKT_REDIRECT_URI}"
         }
     }

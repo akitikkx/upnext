@@ -116,6 +116,7 @@ android {
 
     testOptions {
         unitTests.returnDefaultValues = true
+        unitTests.includeAndroidResources = true
     }
 }
 
@@ -281,4 +282,7 @@ dependencies {
 
     // WorkManager testing
     androidTestImplementation libs.androidx.work.testing
+
+    // Robolectric
+    testImplementation libs.robolectric
 }
