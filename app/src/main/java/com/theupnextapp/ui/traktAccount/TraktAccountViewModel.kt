@@ -24,6 +24,7 @@ package com.theupnextapp.ui.traktAccount
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkManager
 import com.theupnextapp.BuildConfig
+import com.theupnextapp.common.utils.TraktConstants
 import com.theupnextapp.domain.TraktUserListItem
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.ui.common.BaseTraktViewModel
@@ -100,7 +101,7 @@ class TraktAccountViewModel
 
         fun onConnectToTraktClick() {
             viewModelScope.launch {
-                _openCustomTab.send(TRAKT_AUTH_URL)
+                _openCustomTab.send(TraktConstants.TRAKT_AUTH_URL)
             }
         }
 
@@ -197,10 +198,4 @@ class TraktAccountViewModel
             // And implement `clearFavoriteShowsError()` in TraktRepository/Impl
         }
 
-        companion object {
-            const val TRAKT_AUTH_URL =
-                "https://trakt.tv/oauth/authorize?response_type=code" +
-                        "&client_id=${BuildConfig.TRAKT_CLIENT_ID}" +
-                        "&redirect_uri=${BuildConfig.TRAKT_REDIRECT_URI}"
-        }
     }

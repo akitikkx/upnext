@@ -37,11 +37,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.core.util.Consumer
+import com.theupnextapp.common.utils.TraktConstants
 import com.theupnextapp.common.utils.customTab.CustomTabComponent
 import com.theupnextapp.common.utils.customTab.TabConnectionCallback
 import com.theupnextapp.ui.main.MainScreen
 import com.theupnextapp.ui.theme.UpnextTheme
-import com.theupnextapp.ui.traktAccount.TraktAccountViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -107,7 +107,7 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
     }
 
     override fun onTabConnected() {
-        customTabComponent.mayLaunchUrl(Uri.parse(TraktAccountViewModel.TRAKT_AUTH_URL), null, null)
+        customTabComponent.mayLaunchUrl(Uri.parse(TraktConstants.TRAKT_AUTH_URL), null, null)
     }
 
     override fun onTabDisconnected() {
