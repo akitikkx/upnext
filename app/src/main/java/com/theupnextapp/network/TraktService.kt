@@ -51,6 +51,7 @@ import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface TraktService {
     @POST(" oauth/token")
@@ -115,6 +116,7 @@ interface TraktService {
         @Header("Authorization") token: String,
         @Path("id") userSlug: String,
         @Path("list_id") traktId: String,
+        @Query("limit") limit: Int = 100,
     ): Deferred<NetworkTraktUserListItemResponse>
 
     @POST("users/{id}/lists/{list_id}/items")

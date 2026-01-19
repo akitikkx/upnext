@@ -61,6 +61,7 @@ preferenceKtx = "1.2.1"
 profileinstaller = "1.4.1"
 retrofit = "3.0.0"
 retrofit2KotlinCoroutinesAdapter = "0.9.2"
+robolectric = "4.16"
 room = "2.7.1"
 runtimeLivedata = "1.9.0"
 testHarness = "0.36.0"
@@ -142,6 +143,7 @@ profileinstaller = { module = "androidx.profileinstaller:profileinstaller", vers
 recyclerview-selection = { module = "androidx.recyclerview:recyclerview-selection", version.ref = "androidxRecyclerviewSelection" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 retrofit2-kotlin-coroutines-adapter = { module = "com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter", version.ref = "retrofit2KotlinCoroutinesAdapter" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }

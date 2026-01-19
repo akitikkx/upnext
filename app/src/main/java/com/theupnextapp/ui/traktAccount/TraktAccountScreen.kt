@@ -22,11 +22,7 @@
 package com.theupnextapp.ui.traktAccount
 
 import android.app.Activity
-import android.content.Context
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.widget.Toast
-import androidx.browser.customtabs.CustomTabsIntent
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.Orientation
@@ -58,6 +54,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
@@ -66,24 +63,28 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.ShowDetailScreenDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.theupnextapp.BuildConfig
 import com.theupnextapp.R
 import com.theupnextapp.common.utils.getWindowSizeClass
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.TraktUserListItem
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
+
+import com.theupnextapp.common.utils.launchCustomTab
 
 @OptIn(
     ExperimentalMaterial3Api::class,
     ExperimentalMaterial3WindowSizeClassApi::class,
     ExperimentalFoundationApi::class,
+    ExperimentalAnimationApi::class,
+    ExperimentalComposeUiApi::class,
+    ExperimentalCoroutinesApi::class,
 )
 @Destination<RootGraph>
 @Composable
@@ -105,18 +106,16 @@ fun TraktAccountScreen(
     val favoriteShowsError by viewModel.favoriteShowsError.collectAsStateWithLifecycle()
     val isFavoriteShowsEmpty by viewModel.favoriteShowsEmpty.collectAsStateWithLifecycle()
 
+    LaunchedEffect(viewModel, context) {
+        viewModel.openCustomTab.collect { url ->
+            launchCustomTab(context, url)
+        }
+    }
+
     // Handle deep link code for authorization
     LaunchedEffect(key1 = code, key2 = isAuthorizedOnTrakt) {
         if (!code.isNullOrEmpty() && !isAuthorizedOnTrakt) {
             viewModel.onCodeReceived(code)
-        }
-    }
-
-    // Handle opening custom tab for Trakt authorization
-    LaunchedEffect(key1 = uiState.openCustomTab) {
-        if (uiState.openCustomTab) {
-            openCustomTab(context = context)
-            viewModel.onCustomTabOpened() // Reset the flag
         }
     }
 
@@ -176,7 +175,9 @@ fun TraktAccountScreen(
                 isLoadingConnection = isLoadingConnection,
                 isLoadingFavorites = isLoadingFavorites,
                 isDisconnecting = uiState.isDisconnecting,
-                onConnectToTraktClick = { viewModel.onConnectToTraktClick() },
+                onConnectToTraktClick = {
+                    viewModel.onConnectToTraktClick()
+                },
                 onFavoriteClick = { item ->
                     navigator.navigate(
                         ShowDetailScreenDestination(
@@ -207,7 +208,7 @@ fun TraktAccountScreen(
 @ExperimentalMaterial3Api
 @ExperimentalFoundationApi
 @Composable
-private fun AccountContent(
+internal fun AccountContent(
     isAuthorizedOnTrakt: Boolean,
     favoriteShowsList: List<TraktUserListItem>,
     isFavoriteShowsEmpty: Boolean,
@@ -231,20 +232,29 @@ private fun AccountContent(
             if (isDisconnecting) Text(text = stringResource(R.string.trakt_disconnecting_text))
         } else {
             if (isAuthorizedOnTrakt) {
-                TraktProfileHeader(onLogoutClick = onLogoutClick)
-                Spacer(modifier = Modifier.height(16.dp))
-
-                if (isLoadingFavorites) {
-                    CircularProgressIndicator(modifier = Modifier.padding(16.dp))
-                    Text(text = stringResource(R.string.trakt_loading_favorites))
-                } else if (isFavoriteShowsEmpty) {
-                    EmptyFavoritesContent()
-                } else {
+                if (!isLoadingFavorites && !isFavoriteShowsEmpty) {
                     FavoritesListContent(
                         favoriteShows = favoriteShowsList,
                         widthSizeClass = getWindowSizeClass()?.widthSizeClass,
+                        modifier = Modifier.weight(1f),
+                        header = {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                TraktProfileHeader(onLogoutClick = onLogoutClick)
+                                Spacer(modifier = Modifier.height(16.dp))
+                            }
+                        },
                         onFavoriteClick = onFavoriteClick,
                     )
+                } else {
+                    TraktProfileHeader(onLogoutClick = onLogoutClick)
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    if (isLoadingFavorites) {
+                        CircularProgressIndicator(modifier = Modifier.padding(16.dp))
+                        Text(text = stringResource(R.string.trakt_loading_favorites))
+                    } else {
+                        EmptyFavoritesContent()
+                    }
                 }
             } else {
                 ConnectToTrakt(onClick = onConnectToTraktClick)
@@ -281,48 +291,6 @@ private fun DisconnectTraktDialog(
             }
         },
     )
-}
-
-fun openCustomTab(context: Context) {
-    val packageName = "com.android.chrome"
-
-    val traktUrl =
-        "https://trakt.tv/oauth/authorize?response_type=code&client_id=" +
-            "${BuildConfig.TRAKT_CLIENT_ID}&redirect_uri=" +
-            BuildConfig.TRAKT_REDIRECT_URI
-
-    val activity = (context as? Activity)
-
-    val builder = CustomTabsIntent.Builder()
-    builder.setShowTitle(true)
-    builder.setInstantAppsEnabled(true)
-
-    val customBuilder = builder.build()
-
-    val chromePackageInfo =
-        try {
-            context.packageManager.getPackageInfo(packageName, 0)
-        } catch (_: PackageManager.NameNotFoundException) {
-            null
-        }
-
-    if (chromePackageInfo != null) {
-        customBuilder.intent.setPackage(packageName)
-        customBuilder.launchUrl(context, traktUrl.toUri())
-    } else {
-        try {
-            val intent = Intent(Intent.ACTION_VIEW, traktUrl.toUri())
-            if (intent.resolveActivity(context.packageManager) != null) {
-                activity?.startActivity(intent)
-                    ?: context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-            } else {
-                Toast.makeText(context, "No browser found to open Trakt.", Toast.LENGTH_LONG).show()
-            }
-        } catch (e: Exception) {
-            Toast.makeText(context, "Could not open browser: ${e.message}", Toast.LENGTH_LONG)
-                .show()
-        }
-    }
 }
 
 @ExperimentalMaterial3WindowSizeClassApi
