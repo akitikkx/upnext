@@ -15,6 +15,7 @@ package com.theupnextapp.ui.traktAccount
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -33,6 +34,8 @@ import com.theupnextapp.extensions.ReferenceDevices
 import com.theupnextapp.ui.components.SectionHeadingText
 import com.theupnextapp.ui.widgets.ListPosterCard
 
+import androidx.compose.ui.platform.testTag
+
 @ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
 @ExperimentalFoundationApi
@@ -40,6 +43,7 @@ import com.theupnextapp.ui.widgets.ListPosterCard
 fun FavoritesListContent(
     favoriteShows: List<TraktUserListItem>,
     widthSizeClass: WindowWidthSizeClass?,
+    modifier: Modifier = Modifier,
     onFavoriteClick: (item: TraktUserListItem) -> Unit,
 ) {
     val columns: GridCells =
@@ -52,7 +56,7 @@ fun FavoritesListContent(
     Column(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(8.dp),
+        modifier = modifier.padding(8.dp),
     ) {
         SectionHeadingText(
             modifier =
@@ -62,7 +66,10 @@ fun FavoritesListContent(
             text = stringResource(id = R.string.title_favorites_list),
         )
 
-        LazyVerticalGrid(columns = columns) {
+        LazyVerticalGrid(
+            columns = columns,
+            modifier = Modifier.fillMaxSize().testTag("favorites_grid")
+        ) {
             items(favoriteShows) { favoriteShow ->
                 ListPosterCard(
                     itemName = favoriteShow.title,

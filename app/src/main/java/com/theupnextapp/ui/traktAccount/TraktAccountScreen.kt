@@ -244,6 +244,7 @@ internal fun AccountContent(
                     FavoritesListContent(
                         favoriteShows = favoriteShowsList,
                         widthSizeClass = getWindowSizeClass()?.widthSizeClass,
+                        modifier = Modifier.weight(1f),
                         onFavoriteClick = onFavoriteClick,
                     )
                 }
