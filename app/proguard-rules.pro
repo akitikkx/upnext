@@ -23,12 +23,8 @@
 # Repackage classes into the top-level.
 #-repackageclasses
 
--keep public class * implements com.bumptech.glide.module.GlideModule
--keep public class * extends com.bumptech.glide.module.AppGlideModule
--keep public enum com.bumptech.glide.load.ImageHeaderParser$** {
-  **[] $VALUES;
-  public *;
-}
+
+
 
 # Please add these rules to your existing keep rules in order to suppress warnings.
 # This is generated automatically by the Android Gradle plugin.

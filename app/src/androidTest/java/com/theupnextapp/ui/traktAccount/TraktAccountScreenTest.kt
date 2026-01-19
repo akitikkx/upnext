@@ -17,10 +17,9 @@ import org.junit.Test
 @OptIn(
     ExperimentalMaterial3Api::class,
     ExperimentalMaterial3WindowSizeClassApi::class,
-    ExperimentalFoundationApi::class
+    ExperimentalFoundationApi::class,
 )
 class TraktAccountScreenTest {
-
     @get:Rule
     val rule = createComposeRule()
 
@@ -38,13 +37,13 @@ class TraktAccountScreenTest {
                 isDisconnecting = false,
                 onConnectToTraktClick = { connectClicked = true },
                 onFavoriteClick = {},
-                onLogoutClick = {}
+                onLogoutClick = {},
             )
         }
 
         rule.onNodeWithText("Connect to Trakt").assertIsDisplayed()
         rule.onNodeWithText("Connect to Trakt").performClick()
-        
+
         assert(connectClicked)
     }
 
@@ -60,7 +59,7 @@ class TraktAccountScreenTest {
                 isDisconnecting = false,
                 onConnectToTraktClick = {},
                 onFavoriteClick = {},
-                onLogoutClick = {}
+                onLogoutClick = {},
             )
         }
 
@@ -71,21 +70,22 @@ class TraktAccountScreenTest {
 
     @Test
     fun testFavoritesListDisplaysAndScrolls() {
-        val favoriteShows = List(20) { index ->
-            TraktUserListItem(
-                id = index,
-                title = "Show $index",
-                slug = "show-$index",
-                tvMazeID = index,
-                originalImageUrl = "",
-                mediumImageUrl = "",
-                tmdbID = index,
-                traktID = index,
-                tvdbID = index,
-                year = "2023",
-                imdbID = "tt$index"
-            )
-        }
+        val favoriteShows =
+            List(20) { index ->
+                TraktUserListItem(
+                    id = index,
+                    title = "Show $index",
+                    slug = "show-$index",
+                    tvMazeID = index,
+                    originalImageUrl = "",
+                    mediumImageUrl = "",
+                    tmdbID = index,
+                    traktID = index,
+                    tvdbID = index,
+                    year = "2023",
+                    imdbID = "tt$index",
+                )
+            }
 
         rule.setContent {
             AccountContent(
@@ -97,7 +97,7 @@ class TraktAccountScreenTest {
                 isDisconnecting = false,
                 onConnectToTraktClick = {},
                 onFavoriteClick = {},
-                onLogoutClick = {}
+                onLogoutClick = {},
             )
         }
 
@@ -106,7 +106,7 @@ class TraktAccountScreenTest {
 
         // Scroll the grid to reveal the last item
         val grid = rule.onNodeWithTag("favorites_grid")
-        
+
         // Swipe up multiple times to ensure we reach the bottom
         repeat(5) {
             grid.performTouchInput { swipeUp() }

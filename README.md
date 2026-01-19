@@ -102,7 +102,7 @@ In your Trakt account dashboard https://trakt.tv/oauth/applications:
 - Hilt
 - Data Binding
 - Chrome Custom Tabs
-- Glide
+
 - Firebase Analytics
 - Firebase Crashlytics
 - Firebase Core

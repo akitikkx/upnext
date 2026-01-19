@@ -13,13 +13,11 @@
 package com.theupnextapp.ui.traktAccount
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -28,6 +26,7 @@ import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.theupnextapp.R
@@ -35,11 +34,6 @@ import com.theupnextapp.domain.TraktUserListItem
 import com.theupnextapp.extensions.ReferenceDevices
 import com.theupnextapp.ui.components.SectionHeadingText
 import com.theupnextapp.ui.widgets.ListPosterCard
-
-import androidx.compose.ui.platform.testTag
-
-import androidx.compose.ui.platform.testTag
-import androidx.compose.foundation.lazy.grid.GridItemSpan
 
 @ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
@@ -61,7 +55,7 @@ fun FavoritesListContent(
 
     LazyVerticalGrid(
         columns = columns,
-        modifier = modifier.testTag("favorites_grid")
+        modifier = modifier.testTag("favorites_grid"),
     ) {
         item(span = { GridItemSpan(maxLineSpan) }) {
             header()

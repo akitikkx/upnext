@@ -46,6 +46,7 @@ import com.theupnextapp.ui.components.PosterImage
 
 @ExperimentalMaterial3Api
 @Composable
+@Suppress("FunctionNaming")
 fun SearchListCard(
     item: ShowSearch,
     onClick: () -> Unit,

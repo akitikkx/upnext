@@ -55,9 +55,20 @@ interface DashboardRepository {
 
     fun tableUpdate(tableName: String): Flow<TableUpdate?>
 
-    suspend fun refreshYesterdayShows(countryCode: String, date: String?)
-    suspend fun refreshTodayShows(countryCode: String, date: String?)
-    suspend fun refreshTomorrowShows(countryCode: String, date: String?)
+    suspend fun refreshYesterdayShows(
+        countryCode: String,
+        date: String?,
+    )
+
+    suspend fun refreshTodayShows(
+        countryCode: String,
+        date: String?,
+    )
+
+    suspend fun refreshTomorrowShows(
+        countryCode: String,
+        date: String?,
+    )
 }
 
 class DashboardRepositoryImpl(

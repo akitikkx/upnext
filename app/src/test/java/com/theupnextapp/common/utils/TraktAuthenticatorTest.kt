@@ -34,7 +34,6 @@ import org.junit.Before
 import org.junit.Test
 
 class TraktAuthenticatorTest {
-
     private lateinit var fakeTraktAuthApi: FakeTraktAuthApi
     private lateinit var fakeTraktDao: FakeTraktDao
     private lateinit var authenticator: TraktAuthenticator
@@ -49,17 +48,18 @@ class TraktAuthenticatorTest {
     @Test
     fun `authenticate returns null when no token in db`() {
         fakeTraktDao.currentToken = null
-        
+
         val request = Request.Builder().url("https://api.trakt.tv/").build()
-        val response = Response.Builder()
-            .request(request)
-            .protocol(Protocol.HTTP_1_1)
-            .code(401)
-            .message("Unauthorized")
-            .build()
-        
+        val response =
+            Response.Builder()
+                .request(request)
+                .protocol(Protocol.HTTP_1_1)
+                .code(401)
+                .message("Unauthorized")
+                .build()
+
         val result = authenticator.authenticate(null, response)
-        
+
         assertNull(result)
     }
 
@@ -68,15 +68,16 @@ class TraktAuthenticatorTest {
         // Setup
         val oldToken = DatabaseTraktAccess(0, "old_token", 0L, 0L, "refresh_token", "scope", "Bearer")
         fakeTraktDao.currentToken = oldToken
-        
+
         val request = Request.Builder().url("https://api.trakt.tv/").header("Authorization", "Bearer old_token").build()
-        val response = Response.Builder()
-            .request(request)
-            .protocol(Protocol.HTTP_1_1)
-            .code(401)
-            .message("Unauthorized")
-            .build()
-            
+        val response =
+            Response.Builder()
+                .request(request)
+                .protocol(Protocol.HTTP_1_1)
+                .code(401)
+                .message("Unauthorized")
+                .build()
+
         val refreshResponse = NetworkTraktAccessRefreshTokenResponse("new_token", "Bearer", 3600, "new_refresh", "scope", 12345)
         fakeTraktAuthApi.responseToReturn = refreshResponse
 
@@ -85,7 +86,7 @@ class TraktAuthenticatorTest {
 
         // Verify
         assertEquals("Bearer new_token", result?.header("Authorization"))
-        
+
         // Verify DB update
         assertEquals("new_token", fakeTraktDao.currentToken?.access_token)
         assertEquals("new_refresh", fakeTraktDao.currentToken?.refresh_token)
@@ -93,18 +94,19 @@ class TraktAuthenticatorTest {
 
     @Test
     fun `authenticate deletes token when refresh fails`() {
-         // Setup
+        // Setup
         val oldToken = DatabaseTraktAccess(0, "old_token", 0L, 0L, "refresh_token", "scope", "Bearer")
         fakeTraktDao.currentToken = oldToken
-        
+
         val request = Request.Builder().url("https://api.trakt.tv/").header("Authorization", "Bearer old_token").build()
-        val response = Response.Builder()
-            .request(request)
-            .protocol(Protocol.HTTP_1_1)
-            .code(401)
-            .message("Unauthorized")
-            .build()
-        
+        val response =
+            Response.Builder()
+                .request(request)
+                .protocol(Protocol.HTTP_1_1)
+                .code(401)
+                .message("Unauthorized")
+                .build()
+
         fakeTraktAuthApi.shouldThrow = true
 
         // Execute

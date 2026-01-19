@@ -110,6 +110,7 @@ object ListPosterCardConfig {
 @ExperimentalMaterial3Api
 @ReferenceDevices
 @Composable
+@Suppress("FunctionNaming")
 fun ListPosterCardPreview() {
     ListPosterCard(
         itemName = "List Poster",

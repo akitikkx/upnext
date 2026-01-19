@@ -21,7 +21,6 @@
 
 package com.theupnextapp.ui.traktAccount
 
-import android.app.Activity
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -71,12 +70,11 @@ import com.ramcosta.composedestinations.generated.destinations.ShowDetailScreenD
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.theupnextapp.R
 import com.theupnextapp.common.utils.getWindowSizeClass
+import com.theupnextapp.common.utils.launchCustomTab
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.TraktUserListItem
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
-
-import com.theupnextapp.common.utils.launchCustomTab
 
 @OptIn(
     ExperimentalMaterial3Api::class,

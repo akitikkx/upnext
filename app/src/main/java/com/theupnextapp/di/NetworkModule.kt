@@ -108,14 +108,12 @@ object NetworkModule {
 
     @Singleton
     @Provides
-    fun provideTraktAuthApi(
-        networkClient: OkHttpClient
-    ): TraktAuthApi {
+    fun provideTraktAuthApi(networkClient: OkHttpClient): TraktAuthApi {
         return Retrofit.Builder()
             .client(
                 networkClient.newBuilder()
                     .addInterceptor(TraktConnectionInterceptor())
-                    .build()
+                    .build(),
             )
             .baseUrl(TraktNetwork.BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
@@ -129,7 +127,7 @@ object NetworkModule {
     fun provideTraktService(
         networkClient: OkHttpClient,
         traktAuthInterceptor: TraktAuthInterceptor,
-        traktAuthenticator: TraktAuthenticator
+        traktAuthenticator: TraktAuthenticator,
     ): TraktService {
         return Retrofit.Builder()
             .client(
@@ -137,7 +135,7 @@ object NetworkModule {
                     .authenticator(traktAuthenticator)
                     .addInterceptor(traktAuthInterceptor)
                     .addInterceptor(TraktConnectionInterceptor())
-                    .build()
+                    .build(),
             )
             .baseUrl(TraktNetwork.BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
