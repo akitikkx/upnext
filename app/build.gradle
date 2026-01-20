@@ -116,6 +116,7 @@ android {
 
     testOptions {
         unitTests.returnDefaultValues = true
+        unitTests.includeAndroidResources = true
     }
 }
 
@@ -168,10 +169,7 @@ dependencies {
     implementation libs.okhttp
     implementation libs.logging.interceptor
 
-    // Glide for images
-    implementation libs.glide
-    implementation libs.legacy.support.v4
-    ksp libs.glide.compiler
+
 
     // ViewModel and LiveData (arch components)
     implementation libs.lifecycle.livedata.ktx
@@ -281,4 +279,7 @@ dependencies {
 
     // WorkManager testing
     androidTestImplementation libs.androidx.work.testing
+
+    // Robolectric
+    testImplementation libs.robolectric
 }

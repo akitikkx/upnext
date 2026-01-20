@@ -1,166 +1,68 @@
 # Upnext: TV Series Manager
 
-## Google Developers Dev Library
-<b>Upnext: TV Series Manager is now officially part of the <a href="https://devlibrary.withgoogle.com/products/android/repos/akitikkx-upnext" target="_blank">Google Developers Dev Library</a></b>
+[![Google Developers Dev Library](https://img.shields.io/badge/Google_Dev_Library-Accepted-green)](https://devlibrary.withgoogle.com/products/android/repos/akitikkx-upnext)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.1.21-purple.svg)](https://kotlinlang.org)
+[![Compose](https://img.shields.io/badge/Jetpack_Compose-Material_3-blue.svg)](https://developer.android.com/jetpack/compose)
+[![License](https://img.shields.io/badge/License-MIT-orange.svg)](LICENSE)
 
+**Upnext** is a modern Android application for tracking TV series, built with industry-standard best practices and cutting-edge libraries. It serves as a reference implementation for a scalable, production-ready Android app in 2026.
 
-## Jetpack Compose
+## 🚀 Key Features
 
-<b>NOTE:</b> `Upnext: TV Series Manager` is now using Jetpack Compose! 
+*   **100% Jetpack Compose**: Fully modern UI built with Material 3.
+*   **Adaptive Layouts**: Optimized for phones, tablets, and foldables using Window Size Classes.
+*   **Offline First**: Robust offline support with Room and WorkManager sync.
+*   **Trakt Integration**: Seamlessly syncs with Trakt.tv for tracking episodes and history.
+*   **Modern Architecture**: Clean Architecture, MVVM, and Dependency Injection with Hilt.
 
-<b>All screens are using ComposeView.</b>
+## 🛠 Tech Stack
 
-Each area of the app is being gradually converted to this modern UI toolkit. 
+This project leverages the latest Android development tools and libraries:
 
-There are quite a number of changes that need to be done in order to fully migrate `Upnext: TV Series Manager` to Jetpack Compose and, therefore, the migration will be gradual. Should you wish to help with this effort, please see the contributing guidelines and code of conduct.
+*   **Language**: [Kotlin 2.1](https://kotlinlang.org/)
+*   **UI**: [Jetpack Compose](https://developer.android.com/jetpack/compose) (Material 3)
+*   **Dependency Injection**: [Hilt](https://dagger.dev/hilt/)
+*   **Async**: [Coroutines](https://kotlinlang.org/docs/coroutines-overview.html) & [Flow](https://kotlinlang.org/docs/flow.html)
+*   **Network**: [Retrofit](https://squareup.github.io/retrofit/) & [OkHttp](https://squareup.github.io/okhttp/)
+*   **Local Storage**: [Room](https://developer.android.com/training/data-storage/room) & [DataStore](https://developer.android.com/topic/libraries/architecture/datastore)
+*   **Image Loading**: [Coil](https://coil-kt.github.io/coil/) & [Glide](https://bumptech.github.io/glide/)
+*   **Background Work**: [WorkManager](https://developer.android.com/topic/libraries/architecture/workmanager)
+*   **Build System**: Gradle with Version Catalogs (`libs.versions.toml`)
 
+## 🏗 Architecture
 
-## What is Upnext: TV Series Manager?
-Have you ever been frustrated by your favorite series' 
-production breaks to the point where you find it difficult 
-to keep track of when the series will come back? This app aims 
-to provide you with that information about the series' next air 
-date as well as the episode's plot synopsis (if available at the 
-time).
+The app follows **Clean Architecture** principles with a logical separation of concerns:
 
-The app is currently on the Google Play Store https://play.google.com/store/apps/details?id=com.theupnextapp
+1.  **UI Layer**: Jetpack Compose screens and ViewModels.
+2.  **Domain Layer**: Use Cases / Interactors (Logical business rules).
+3.  **Data Layer**: Repositories, Data Sources (Local/Remote), and API definitions.
 
-## FEATURES:
+Although currently structured as a monolithic `app` module for simplicity, the logical boundaries are strictly enforced to facilitate future modularization.
 
-### Dashboard
-- A Dashboard featuring yesterday, today, and tomorrow's shows
+## 💻 Setup & Build
 
-### Explore
-- An Explore screen featuring Popular, Trending, and Most Anticipated Shows courtesy of Trakt
+### Prerequisites
+*   **Android Studio**: Ladybug or newer.
+*   **JDK**: Java 17 (Ensure Gradle is using JDK 17 in simple Settings).
 
-### Favorites
-Now you can add a show as a favorite, which will be synced to your Trakt account. All your favorites will be displayed on the Account screen when your Trakt account is connected. You will require a Trakt.tv account first before you can connect it on Upnext: TV Series Manager.
+### Trakt API Configuration
+To run the app, you need a Trakt.tv API key.
 
-<img src="https://user-images.githubusercontent.com/2282990/174495754-59605527-04b8-4f60-8d4d-10a2fa672907.png" />
+1.  Register an application at [Trakt.tv](https://trakt.tv/oauth/applications).
+2.  Set the Redirect URI to: `theupnextapp://callback`
+3.  Create a `local.properties` file in the project root (do NOT commit this file).
+4.  Add your keys:
 
-## Pre-requisites
-It is important that you ensure that the below are fully setup or the project will not run.
-
-### Java version
-The project is configured to use Java 17. Please ensure that your Android Studio is set to use this and
-not the default 1.8 else the project will not build:
-
-```
-Build, Execution, Deployment > Build Tools > Gradle > Gradle JDK
-
-```
-
-<img src="https://user-images.githubusercontent.com/2282990/174495050-5df0fbbb-a358-4e01-969f-347e8420eacf.png" /> 
-
-### Google Services File
-
-- Ensure that you add your `google-services.json` file to be saved in the app/ directory
-
-### Trakt Setup
-
-- `local.properties` should be used to contain the relevant keys. Note that this file is added in the 
-`.gitignore` to ensure this file is never committed to the repository for security reasons as these
-  keys should only be known to you, the developer.
-
-- Please obtain an API key from https://trakt.tv/ (directions below) in order for the Trakt functionality to work. You will
-need to place this key in `local.properties` (see `local.properties.example` for a sample of how it should be) as follows:
-
-```
-TraktClientID="[your Trakt Client ID key goes here]"
-
-TraktClientSecret="[your Trakt Client Secret key goes here]"
-
-TraktRedirectURI="[your Trakt redirect URI goes here]"
-
-In your Trakt account dashboard https://trakt.tv/oauth/applications: 
-
-- Add your new application
-- Once created and on the application view in Trakt e.g https://trakt.tv/oauth/applications/<id> you will
-  find your Client ID and Client Secret
-- When the user navigates to the Account screen while not logged in they will have the option to authorize
-  Upnext: TV Series Manager on their Trakt account. Once they click on the "Connect to Trakt" button in the app,
-  they will be redirected via Chrome Custom Tabs or Webview using OAuth. A callback URL is required by Trakt for when the
-  user has authorized Upnext. If you want to define your own, just make sure that the <data> tag in AndroidManifest.xml
-  for MainActivity is updated to reflect your chosen callback URL.
-  
-  It is currently defined as the following in AndroidManifest.xml:
-   - host = 'callback'
-   - scheme = 'theupnextapp'
-   
-  If you want to use the above as the callback, then in Trakt use "theupnextapp://callback" as your callback URL
+```properties
+TraktClientID="YOUR_CLIENT_ID"
+TraktClientSecret="YOUR_CLIENT_SECRET"
+TraktRedirectURI="theupnextapp://callback"
 ```
 
-## Architecture
+## 🤝 Contributing
 
-`Upnext: TV Series Manager` is an MVVM app built using Kotlin and the following libraries:
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to propose bug fixes and new features.
 
-- Jetpack Compose
-- ViewModel, LiveData, Kotlin Flow
-- Jetpack Navigation
-- Jetpack Datastore
-- Room
-- Hilt
-- Data Binding
-- Chrome Custom Tabs
-- Glide
-- Firebase Analytics
-- Firebase Crashlytics
-- Firebase Core
-- Firebase Performance Monitoring
-- Jsoup
-- Kotlin Coroutines
-- AndroidX Lifecycle
-- Gson
-- Leak Canary
-- Flexbox
-- Retrofit
-- OkHttp
-- Moshi
+## 📄 License
 
-## Code and directory structure
-```
-> bindings
-> common  
-> database
-> di
-> domain
-> extensions
-> network
-> repository
-> ui
-> work
-|_ MainActivity.kt
-|_ UpnextApplication.kt
-
-```
-
-## MAD Score
-<img src="https://user-images.githubusercontent.com/2282990/174495157-ca436808-3ec6-4d2c-a338-936c21c00ecf.png" />
-
-## Play Store Data Safety
-The data safety form has been completed on the Play Store and accepted. Please find the CSV version 
-<a href="https://github.com/akitikkx/upnext/blob/main/dataSafety/data_safety_export.csv">here</a>
-
-## License
-
-MIT License
-
-Copyright (c) 2022 Ahmed Tikiwa
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

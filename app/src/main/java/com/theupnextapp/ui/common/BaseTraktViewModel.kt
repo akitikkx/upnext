@@ -36,6 +36,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
@@ -101,7 +102,11 @@ open class BaseTraktViewModel
                                         .setInputData(workerData)
                                         .build()
 
-                                workManager.enqueue(refreshFavoritesWork)
+                                workManager.enqueueUniqueWork(
+                                    "refresh_favorite_shows_work", // Unique Name
+                                    androidx.work.ExistingWorkPolicy.KEEP, // Don't run if already enqueued/running
+                                    refreshFavoritesWork
+                                )
                             }
                         }
                     }

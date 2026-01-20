@@ -46,7 +46,8 @@ abstract class BaseWorker(
             notificationId = notificationId,
             channelId = NOTIFICATION_CHANNEL_ID,
             contentText = contentTitleText,
-            smallIconRes = R.drawable.ic_baseline_arrow_circle_down_24, // TODO: Replace with your app's icon
+            // TODO: Replace with your app's icon
+            smallIconRes = R.drawable.ic_baseline_arrow_circle_down_24,
         )
     }
 

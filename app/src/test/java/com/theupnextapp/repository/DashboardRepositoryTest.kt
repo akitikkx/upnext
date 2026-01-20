@@ -8,6 +8,8 @@ import com.theupnextapp.network.models.tvmaze.NetworkScheduleImage
 import com.theupnextapp.network.models.tvmaze.NetworkScheduleShow
 import com.theupnextapp.network.models.tvmaze.NetworkShowEpisodeLinks
 import com.theupnextapp.network.models.tvmaze.NetworkShowNextEpisodeSelf
+import com.theupnextapp.network.models.tvmaze.NetworkTodayScheduleResponse
+import com.theupnextapp.network.models.tvmaze.NetworkTomorrowScheduleResponse
 import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowImageMedium
 import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowImageOriginal
 import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowImageResolutions
@@ -168,6 +170,214 @@ class DashboardRepositoryTest {
             assertEquals("final_medium_for_show_10.png", insertedShow.mediumImage)
         }
 
+    @Test
+    fun `refreshTodayShows - network call and db insert happen when update is needed`() =
+        runTest {
+            val mockResponse = listOf(createMockTodayScheduleResponse(1, "imdb1", "image.png"))
+            fakeTvMazeService.mockTodayScheduleResponse = mockResponse
+            fakeTvMazeService.mockShowImagesResponse =
+                NetworkTvMazeShowImageResponse().apply {
+                    add(
+                        NetworkTvMazeShowImageResponseItem(
+                            id = 101, type = "poster", main = true,
+                            resolutions =
+                                NetworkTvMazeShowImageResolutions(
+                                    original = NetworkTvMazeShowImageOriginal(url = "final_original.png"),
+                                    medium = NetworkTvMazeShowImageMedium(url = "final_medium.png"),
+                                ),
+                        ),
+                    )
+                }
+            val testTableName = "schedule_today"
+
+            repository.refreshTodayShows("US", "2023-01-01")
+
+            assertEquals(1, fakeTvMazeDao.todayShowsList.size)
+            assertEquals(1, fakeTvMazeDao.todayShowsList.first().id)
+            assertEquals("final_original.png", fakeTvMazeDao.todayShowsList.first().image)
+            assertEquals("final_medium.png", fakeTvMazeDao.todayShowsList.first().mediumImage)
+
+            val tableUpdateLog = fakeUpnextDao.getTableLastUpdateTime(testTableName)
+            assertNotNull(tableUpdateLog)
+            assertEquals(testTableName, tableUpdateLog?.table_name)
+        }
+
+    @Test
+    fun `refreshTodayShows - network call and db insert do NOT happen when not needed`() =
+        runTest {
+            val tableName = "schedule_today"
+            val recentUpdateTimestamp = System.currentTimeMillis()
+            val initialLog = DatabaseTableUpdate(table_name = tableName, last_updated = recentUpdateTimestamp)
+            fakeUpnextDao.insertTableUpdateLog(initialLog)
+
+            repository.refreshTodayShows("US", "2023-01-01")
+
+            assertTrue(fakeTvMazeDao.todayShowsList.isEmpty())
+
+            val finalLog = fakeUpnextDao.getTableLastUpdateTime(tableName)
+            assertEquals(initialLog, finalLog)
+
+            assertTrue(fakeCrashlytics.getRecordedExceptions().isEmpty())
+        }
+
+    @Test
+    fun `refreshTodayShows - handles network exception gracefully`() =
+        runTest {
+            fakeTvMazeService.todayScheduleError = IOException("Network failed")
+
+            repository.refreshTodayShows("US", "2023-01-01")
+
+            assertEquals(1, fakeCrashlytics.getRecordedExceptions().size)
+            assertTrue(fakeCrashlytics.getRecordedExceptions().first() is IOException)
+            assertEquals("Network failed", fakeCrashlytics.getRecordedExceptions().first().message)
+            assertTrue(fakeTvMazeDao.todayShowsList.isEmpty())
+        }
+
+    @Test
+    fun `refreshTodayShows - filters out shows with no image or imdb id from initial fetch`() =
+        runTest {
+            val validShowNetwork = createMockTodayScheduleResponse(id = 1, imdb = "imdb1", image = "image.png", showId = 10)
+            val showWithoutImageNetwork =
+                createMockTodayScheduleResponse(
+                    id = 2,
+                    imdb = "imdb2",
+                    image = null,
+                    showId = 20,
+                    showImageOriginal = null,
+                    showImageMedium = null,
+                )
+            val showWithoutImdbNetwork = createMockTodayScheduleResponse(id = 3, imdb = null, image = "image.png", showId = 30)
+
+            fakeTvMazeService.mockTodayScheduleResponse = listOf(validShowNetwork, showWithoutImageNetwork, showWithoutImdbNetwork)
+
+            fakeTvMazeService.mockShowImagesResponse =
+                NetworkTvMazeShowImageResponse().apply {
+                    add(
+                        NetworkTvMazeShowImageResponseItem(
+                            id = 101, type = "poster", main = true,
+                            resolutions =
+                                NetworkTvMazeShowImageResolutions(
+                                    original = NetworkTvMazeShowImageOriginal(url = "final_original_for_show_10.png"),
+                                    medium = NetworkTvMazeShowImageMedium(url = "final_medium_for_show_10.png"),
+                                ),
+                        ),
+                    )
+                }
+
+            repository.refreshTodayShows("US", "2023-01-01")
+
+            assertEquals(1, fakeTvMazeDao.todayShowsList.size)
+            val insertedShow = fakeTvMazeDao.todayShowsList.first()
+            assertEquals(1, insertedShow.id)
+            assertEquals(10, insertedShow.showId)
+            assertEquals("final_original_for_show_10.png", insertedShow.image)
+            assertEquals("final_medium_for_show_10.png", insertedShow.mediumImage)
+        }
+
+    @Test
+    fun `refreshTomorrowShows - network call and db insert happen when update is needed`() =
+        runTest {
+            val mockResponse = listOf(createMockTomorrowScheduleResponse(1, "imdb1", "image.png"))
+            fakeTvMazeService.mockTomorrowScheduleResponse = mockResponse
+            fakeTvMazeService.mockShowImagesResponse =
+                NetworkTvMazeShowImageResponse().apply {
+                    add(
+                        NetworkTvMazeShowImageResponseItem(
+                            id = 101, type = "poster", main = true,
+                            resolutions =
+                                NetworkTvMazeShowImageResolutions(
+                                    original = NetworkTvMazeShowImageOriginal(url = "final_original.png"),
+                                    medium = NetworkTvMazeShowImageMedium(url = "final_medium.png"),
+                                ),
+                        ),
+                    )
+                }
+            val testTableName = "schedule_tomorrow"
+
+            repository.refreshTomorrowShows("US", "2023-01-01")
+
+            assertEquals(1, fakeTvMazeDao.tomorrowShowsList.size)
+            assertEquals(1, fakeTvMazeDao.tomorrowShowsList.first().id)
+            assertEquals("final_original.png", fakeTvMazeDao.tomorrowShowsList.first().image)
+            assertEquals("final_medium.png", fakeTvMazeDao.tomorrowShowsList.first().mediumImage)
+
+            val tableUpdateLog = fakeUpnextDao.getTableLastUpdateTime(testTableName)
+            assertNotNull(tableUpdateLog)
+            assertEquals(testTableName, tableUpdateLog?.table_name)
+        }
+
+    @Test
+    fun `refreshTomorrowShows - network call and db insert do NOT happen when not needed`() =
+        runTest {
+            val tableName = "schedule_tomorrow"
+            val recentUpdateTimestamp = System.currentTimeMillis()
+            val initialLog = DatabaseTableUpdate(table_name = tableName, last_updated = recentUpdateTimestamp)
+            fakeUpnextDao.insertTableUpdateLog(initialLog)
+
+            repository.refreshTomorrowShows("US", "2023-01-01")
+
+            assertTrue(fakeTvMazeDao.tomorrowShowsList.isEmpty())
+
+            val finalLog = fakeUpnextDao.getTableLastUpdateTime(tableName)
+            assertEquals(initialLog, finalLog)
+
+            assertTrue(fakeCrashlytics.getRecordedExceptions().isEmpty())
+        }
+
+    @Test
+    fun `refreshTomorrowShows - handles network exception gracefully`() =
+        runTest {
+            fakeTvMazeService.tomorrowScheduleError = IOException("Network failed")
+
+            repository.refreshTomorrowShows("US", "2023-01-01")
+
+            assertEquals(1, fakeCrashlytics.getRecordedExceptions().size)
+            assertTrue(fakeCrashlytics.getRecordedExceptions().first() is IOException)
+            assertEquals("Network failed", fakeCrashlytics.getRecordedExceptions().first().message)
+            assertTrue(fakeTvMazeDao.tomorrowShowsList.isEmpty())
+        }
+
+    @Test
+    fun `refreshTomorrowShows - filters out shows with no image or imdb id from initial fetch`() =
+        runTest {
+            val validShowNetwork = createMockTomorrowScheduleResponse(id = 1, imdb = "imdb1", image = "image.png", showId = 10)
+            val showWithoutImageNetwork =
+                createMockTomorrowScheduleResponse(
+                    id = 2,
+                    imdb = "imdb2",
+                    image = null,
+                    showId = 20,
+                    showImageOriginal = null,
+                    showImageMedium = null,
+                )
+            val showWithoutImdbNetwork = createMockTomorrowScheduleResponse(id = 3, imdb = null, image = "image.png", showId = 30)
+
+            fakeTvMazeService.mockTomorrowScheduleResponse = listOf(validShowNetwork, showWithoutImageNetwork, showWithoutImdbNetwork)
+
+            fakeTvMazeService.mockShowImagesResponse =
+                NetworkTvMazeShowImageResponse().apply {
+                    add(
+                        NetworkTvMazeShowImageResponseItem(
+                            id = 101, type = "poster", main = true,
+                            resolutions =
+                                NetworkTvMazeShowImageResolutions(
+                                    original = NetworkTvMazeShowImageOriginal(url = "final_original_for_show_10.png"),
+                                    medium = NetworkTvMazeShowImageMedium(url = "final_medium.png"),
+                                ),
+                        ),
+                    )
+                }
+
+            repository.refreshTomorrowShows("US", "2023-01-01")
+
+            assertEquals(1, fakeTvMazeDao.tomorrowShowsList.size)
+            val insertedShow = fakeTvMazeDao.tomorrowShowsList.first()
+            assertEquals(1, insertedShow.id)
+            assertEquals(10, insertedShow.showId)
+            assertEquals("final_original_for_show_10.png", insertedShow.image)
+            assertEquals("final_medium.png", insertedShow.mediumImage)
+        }
+
     private fun createMockYesterdayScheduleResponse(
         id: Int,
         imdb: String?,
@@ -191,6 +401,135 @@ class DashboardRepositoryTest {
             }
 
         return NetworkYesterdayScheduleResponse(
+            id = id,
+            name = "Episode Name $id",
+            airdate = "2023-01-01",
+            airstamp = "sometime",
+            airtime = "10:00",
+            runtime = 30,
+            season = 1,
+            number = id,
+            image = episodeImageObject,
+            summary = "summary for episode $id",
+            url = "url_episode_$id",
+            _links = mockLinks,
+            show =
+                NetworkScheduleShow(
+                    id = showId,
+                    name = "Test Show $showId",
+                    externals =
+                        imdb?.let {
+                            NetworkScheduleExternals(imdb = it, thetvdb = 1, tvrage = 1)
+                        },
+                    image = showImageObject,
+                    genres = emptyList(),
+                    language = "English",
+                    network = null,
+                    officialSite = null,
+                    premiered = null,
+                    rating = null,
+                    runtime = 30,
+                    schedule = null,
+                    status = "Running",
+                    summary = "summary for show $showId",
+                    type = "Scripted",
+                    updated = 123,
+                    url = "url_show_$showId",
+                    webChannel = null,
+                    weight = 1,
+                    _links = null,
+                ),
+        )
+    }
+
+    private fun createMockTodayScheduleResponse(
+        id: Int,
+        imdb: String?,
+        image: String?,
+        showId: Int = id * 10,
+        showImageOriginal: String? = "show_original_default.png",
+        showImageMedium: String? = "show_medium_default.png",
+    ): NetworkTodayScheduleResponse {
+        val mockLinks = NetworkShowEpisodeLinks(self = NetworkShowNextEpisodeSelf(href = "href_episode_$id"))
+
+        val episodeImageObject: NetworkScheduleImage? =
+            image?.let {
+                NetworkScheduleImage(original = it, medium = it)
+            }
+
+        val showImageObject: NetworkScheduleImage? =
+            if (showImageOriginal != null || showImageMedium != null) {
+                NetworkScheduleImage(original = showImageOriginal, medium = showImageMedium)
+            } else {
+                null
+            }
+
+        return NetworkTodayScheduleResponse(
+            id = id,
+            name = "Episode Name $id",
+            airdate = "2023-01-01",
+            airstamp = "sometime",
+            airtime = "10:00",
+            runtime = 30,
+            season = 1,
+            number = id,
+            image = episodeImageObject,
+            summary = "summary for episode $id",
+            url = "url_episode_$id",
+            _links = mockLinks,
+            imdbId = imdb,
+            show =
+                NetworkScheduleShow(
+                    id = showId,
+                    name = "Test Show $showId",
+                    externals =
+                        imdb?.let {
+                            NetworkScheduleExternals(imdb = it, thetvdb = 1, tvrage = 1)
+                        },
+                    image = showImageObject,
+                    genres = emptyList(),
+                    language = "English",
+                    network = null,
+                    officialSite = null,
+                    premiered = null,
+                    rating = null,
+                    runtime = 30,
+                    schedule = null,
+                    status = "Running",
+                    summary = "summary for show $showId",
+                    type = "Scripted",
+                    updated = 123,
+                    url = "url_show_$showId",
+                    webChannel = null,
+                    weight = 1,
+                    _links = null,
+                ),
+        )
+    }
+
+    private fun createMockTomorrowScheduleResponse(
+        id: Int,
+        imdb: String?,
+        image: String?,
+        showId: Int = id * 10,
+        showImageOriginal: String? = "show_original_default.png",
+        showImageMedium: String? = "show_medium_default.png",
+    ): NetworkTomorrowScheduleResponse {
+        val mockLinks = NetworkShowEpisodeLinks(self = NetworkShowNextEpisodeSelf(href = "href_episode_$id"))
+
+        val episodeImageObject: NetworkScheduleImage? =
+            image?.let {
+                NetworkScheduleImage(original = it, medium = it)
+            }
+
+        val showImageObject: NetworkScheduleImage? =
+            if (showImageOriginal != null || showImageMedium != null) {
+                NetworkScheduleImage(original = showImageOriginal, medium = showImageMedium)
+            } else {
+                null
+            }
+
+        return NetworkTomorrowScheduleResponse(
             id = id,
             name = "Episode Name $id",
             airdate = "2023-01-01",

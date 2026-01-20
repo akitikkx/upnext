@@ -27,7 +27,6 @@ import androidx.work.WorkerParameters
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
-
 import com.theupnextapp.repository.DashboardRepository
 import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
@@ -40,7 +39,6 @@ abstract class BaseScheduleWorker(
     workerParameters: WorkerParameters,
     protected val dashboardRepository: DashboardRepository,
 ) : BaseWorker(appContext, workerParameters) {
-
     abstract val workerName: String
 
     protected abstract val dayOffset: Int

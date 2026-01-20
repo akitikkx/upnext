@@ -19,34 +19,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.theupnextapp.work
+package com.theupnextapp.common.utils
 
-import android.content.Context
-import androidx.hilt.work.HiltWorker
-import androidx.work.WorkerParameters
-import com.theupnextapp.repository.DashboardRepository
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedInject
+import com.theupnextapp.database.TraktDao
+import okhttp3.Interceptor
+import okhttp3.Response
+import javax.inject.Inject
 
-@HiltWorker
-class RefreshTomorrowShowsWorker
-    @AssistedInject
+class TraktAuthInterceptor
+    @Inject
     constructor(
-        @Assisted appContext: Context,
-        @Assisted workerParameters: WorkerParameters,
-        dashboardRepository: DashboardRepository,
-    ) : BaseScheduleWorker(appContext, workerParameters, dashboardRepository) {
-        override val workerName: String = WORK_NAME
-        override val notificationId: Int = NOTIFICATION_ID
-        override val contentTitleText: String = "Refreshing tomorrow's schedule"
-        override val dayOffset: Int = 1
+        private val traktDao: TraktDao,
+    ) : Interceptor {
+        override fun intercept(chain: Interceptor.Chain): Response {
+            val originalRequest = chain.request()
+            val builder = originalRequest.newBuilder()
 
-        override suspend fun refresh(date: String) {
-            dashboardRepository.refreshTomorrowShows(DEFAULT_COUNTRY_CODE, date)
-        }
+            val token = traktDao.getTraktAccessDataRaw()
+            if (!token?.access_token.isNullOrEmpty()) {
+                builder.header("Authorization", "Bearer ${token?.access_token}")
+            }
 
-        companion object {
-            const val WORK_NAME = "RefreshTomorrowShowsWorker"
-            private const val NOTIFICATION_ID = 1002
+            return chain.proceed(builder.build())
         }
     }

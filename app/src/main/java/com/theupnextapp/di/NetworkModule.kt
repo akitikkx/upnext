@@ -28,7 +28,10 @@ import com.chuckerteam.chucker.api.RetentionManager
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import com.theupnextapp.common.utils.TraktAuthInterceptor
+import com.theupnextapp.common.utils.TraktAuthenticator
 import com.theupnextapp.common.utils.TraktConnectionInterceptor
+import com.theupnextapp.network.TraktAuthApi
 import com.theupnextapp.network.TraktNetwork
 import com.theupnextapp.network.TraktService
 import com.theupnextapp.network.TvMazeNetwork.BASE_URL
@@ -105,9 +108,35 @@ object NetworkModule {
 
     @Singleton
     @Provides
-    fun provideTraktService(networkClient: OkHttpClient): TraktService {
+    fun provideTraktAuthApi(networkClient: OkHttpClient): TraktAuthApi {
         return Retrofit.Builder()
-            .client(networkClient.newBuilder().addInterceptor(TraktConnectionInterceptor()).build())
+            .client(
+                networkClient.newBuilder()
+                    .addInterceptor(TraktConnectionInterceptor())
+                    .build(),
+            )
+            .baseUrl(TraktNetwork.BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .addCallAdapterFactory(CoroutineCallAdapterFactory())
+            .build()
+            .create(TraktAuthApi::class.java)
+    }
+
+    @Singleton
+    @Provides
+    fun provideTraktService(
+        networkClient: OkHttpClient,
+        traktAuthInterceptor: TraktAuthInterceptor,
+        traktAuthenticator: TraktAuthenticator,
+    ): TraktService {
+        return Retrofit.Builder()
+            .client(
+                networkClient.newBuilder()
+                    .authenticator(traktAuthenticator)
+                    .addInterceptor(traktAuthInterceptor)
+                    .addInterceptor(TraktConnectionInterceptor())
+                    .build(),
+            )
             .baseUrl(TraktNetwork.BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .addCallAdapterFactory(CoroutineCallAdapterFactory())

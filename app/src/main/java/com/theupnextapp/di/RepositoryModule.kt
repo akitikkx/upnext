@@ -21,13 +21,13 @@
 
 package com.theupnextapp.di
 
-import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.squareup.moshi.Moshi
 import com.theupnextapp.common.CrashlyticsHelper
 import com.theupnextapp.database.TraktDao
 import com.theupnextapp.database.TvMazeDao
 import com.theupnextapp.database.UpnextDao
-import com.theupnextapp.network.TraktService
+import com.theupnextapp.datasource.TraktAccountDataSource
+import com.theupnextapp.datasource.TraktAuthDataSource
+import com.theupnextapp.datasource.TraktRecommendationsDataSource
 import com.theupnextapp.network.TvMazeService
 import com.theupnextapp.repository.DashboardRepository
 import com.theupnextapp.repository.DashboardRepositoryImpl
@@ -66,17 +66,17 @@ object RepositoryModule {
         upnextDao: UpnextDao,
         traktDao: TraktDao,
         tvMazeService: TvMazeService,
-        traktService: TraktService,
-        firebaseCrashlytics: FirebaseCrashlytics,
-        moshi: Moshi,
+        traktAuthDataSource: TraktAuthDataSource,
+        traktRecommendationsDataSource: TraktRecommendationsDataSource,
+        traktAccountDataSource: TraktAccountDataSource,
     ): TraktRepository {
         return TraktRepositoryImpl(
             upnextDao = upnextDao,
             traktDao = traktDao,
             tvMazeService = tvMazeService,
-            traktService = traktService,
-            firebaseCrashlytics = firebaseCrashlytics,
-            moshi = moshi,
+            traktAuthDataSource = traktAuthDataSource,
+            traktRecommendationsDataSource = traktRecommendationsDataSource,
+            traktAccountDataSource = traktAccountDataSource,
         )
     }
 

@@ -60,7 +60,10 @@ interface TraktDao {
     fun getFavoriteShowsRaw(): List<DatabaseFavoriteShows>
 
     @Query("select * from favorite_shows where imdbID = :imdbID")
-    fun getFavoriteShow(imdbID: String): DatabaseFavoriteShows?
+    fun getFavoriteShowFlow(imdbID: String): Flow<DatabaseFavoriteShows?>
+
+    @Query("select * from favorite_shows where imdbID = :imdbID")
+    suspend fun getFavoriteShow(imdbID: String): DatabaseFavoriteShows?
 
     @Update(entity = DatabaseFavoriteShows::class)
     fun updateFavoriteShowWithAirStamp(databaseFavoriteShows: DatabaseFavoriteShows)
