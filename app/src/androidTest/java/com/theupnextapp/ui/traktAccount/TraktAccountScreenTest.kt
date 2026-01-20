@@ -11,6 +11,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeUp
 import com.theupnextapp.domain.TraktUserListItem
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import org.junit.Rule
 import org.junit.Test
 
@@ -35,6 +36,7 @@ class TraktAccountScreenTest {
                 isLoadingConnection = false,
                 isLoadingFavorites = false,
                 isDisconnecting = false,
+                lazyGridState = rememberLazyGridState(),
                 onConnectToTraktClick = { connectClicked = true },
                 onFavoriteClick = {},
                 onLogoutClick = {},
@@ -57,6 +59,7 @@ class TraktAccountScreenTest {
                 isLoadingConnection = false,
                 isLoadingFavorites = false,
                 isDisconnecting = false,
+                lazyGridState = rememberLazyGridState(),
                 onConnectToTraktClick = {},
                 onFavoriteClick = {},
                 onLogoutClick = {},
@@ -95,6 +98,7 @@ class TraktAccountScreenTest {
                 isLoadingConnection = false,
                 isLoadingFavorites = false,
                 isDisconnecting = false,
+                lazyGridState = rememberLazyGridState(),
                 onConnectToTraktClick = {},
                 onFavoriteClick = {},
                 onLogoutClick = {},

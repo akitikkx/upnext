@@ -60,7 +60,13 @@ class FakeTraktDao : TraktDao {
 
     override fun getFavoriteShowsRaw(): List<DatabaseFavoriteShows> = emptyList()
 
-    override fun getFavoriteShow(imdbID: String): DatabaseFavoriteShows? = null
+    override fun getFavoriteShowFlow(imdbID: String): Flow<DatabaseFavoriteShows?> =
+        flowOf(getFavoriteShowRaw(imdbID))
+
+    // Helper for non-suspend access in tests if needed, or just standard lookup
+    private fun getFavoriteShowRaw(imdbID: String): DatabaseFavoriteShows? = null
+
+    override suspend fun getFavoriteShow(imdbID: String): DatabaseFavoriteShows? = getFavoriteShowRaw(imdbID)
 
     override fun updateFavoriteShowWithAirStamp(databaseFavoriteShows: DatabaseFavoriteShows) {}
 

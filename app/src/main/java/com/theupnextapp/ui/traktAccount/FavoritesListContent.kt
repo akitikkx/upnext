@@ -18,8 +18,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
@@ -43,6 +45,7 @@ fun FavoritesListContent(
     favoriteShows: List<TraktUserListItem>,
     widthSizeClass: WindowWidthSizeClass?,
     modifier: Modifier = Modifier,
+    lazyGridState: LazyGridState = rememberLazyGridState(),
     header: @Composable () -> Unit = {},
     onFavoriteClick: (item: TraktUserListItem) -> Unit,
 ) {
@@ -56,6 +59,7 @@ fun FavoritesListContent(
     LazyVerticalGrid(
         columns = columns,
         modifier = modifier.testTag("favorites_grid"),
+        state = lazyGridState,
     ) {
         item(span = { GridItemSpan(maxLineSpan) }) {
             header()
@@ -72,7 +76,10 @@ fun FavoritesListContent(
             )
         }
 
-        items(favoriteShows) { favoriteShow ->
+        items(
+            items = favoriteShows,
+            key = { item -> item.traktID ?: item.id ?: item.hashCode() }
+        ) { favoriteShow ->
             ListPosterCard(
                 itemName = favoriteShow.title,
                 itemUrl = favoriteShow.originalImageUrl,

@@ -275,6 +275,10 @@ class TraktRepositoryImpl(
         _favoriteShow.value = favorite?.asDomainModel()
     }
 
+    override fun getFavoriteShowFlow(imdbID: String): Flow<TraktUserListItem?> {
+        return traktDao.getFavoriteShowFlow(imdbID).map { it?.asDomainModel() }
+    }
+
     override suspend fun clearFavorites() {
         traktDao.deleteAllFavoriteShows()
     }

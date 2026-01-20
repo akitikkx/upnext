@@ -184,10 +184,9 @@ open class TraktAccountDataSource
                 return
             }
 
-            val showsToInsertOrUpdateInDb = mutableListOf<DatabaseFavoriteShows>()
             val showsFromNetworkTraktIds = customListItemsResponse.mapNotNull { it.show?.ids?.trakt }.toSet()
 
-            withContext(Dispatchers.IO) {
+            val showsToInsertOrUpdateInDb = withContext(Dispatchers.IO) {
                 val imageFetchAndUpdateJobs =
                     customListItemsResponse.mapNotNull { networkListItem ->
                         networkListItem.show?.ids?.trakt?.let { traktId ->
@@ -220,7 +219,6 @@ open class TraktAccountDataSource
                                             tvMazeID = existingLocalShow.tvMazeID,
                                         )
                                 }
-                                showsToInsertOrUpdateInDb.add(dbShow)
                                 dbShow
                             }
                         }
