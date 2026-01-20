@@ -60,6 +60,7 @@ class TraktAccountViewModel
         // Favorite shows data
         val favoriteShows: StateFlow<List<TraktUserListItem>> =
             traktRepository.traktFavoriteShows
+                .map { list -> list.distinctBy { it.traktID } }
                 .stateIn(
                     scope = viewModelScope,
                     started = SharingStarted.WhileSubscribed(5000),
