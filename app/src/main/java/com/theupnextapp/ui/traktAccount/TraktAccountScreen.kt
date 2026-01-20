@@ -34,6 +34,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -91,7 +92,8 @@ fun TraktAccountScreen(
     navigator: DestinationsNavigator,
     code: String? = null,
 ) {
-    val scrollState = rememberScrollState()
+    val lazyGridState = androidx.compose.foundation.lazy.grid.rememberLazyGridState()
+
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -163,8 +165,7 @@ fun TraktAccountScreen(
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .padding(localScaffoldPadding)
-                    .scrollable(scrollState, orientation = Orientation.Vertical),
+                    .padding(localScaffoldPadding),
         ) {
             AccountContent(
                 isAuthorizedOnTrakt = isAuthorizedOnTrakt,
@@ -173,6 +174,7 @@ fun TraktAccountScreen(
                 isLoadingConnection = isLoadingConnection,
                 isLoadingFavorites = isLoadingFavorites,
                 isDisconnecting = uiState.isDisconnecting,
+                lazyGridState = lazyGridState,
                 onConnectToTraktClick = {
                     viewModel.onConnectToTraktClick()
                 },
@@ -213,6 +215,7 @@ internal fun AccountContent(
     isLoadingConnection: Boolean,
     isLoadingFavorites: Boolean,
     isDisconnecting: Boolean,
+    lazyGridState: LazyGridState,
     onConnectToTraktClick: () -> Unit,
     onFavoriteClick: (item: TraktUserListItem) -> Unit,
     onLogoutClick: () -> Unit,
@@ -235,6 +238,7 @@ internal fun AccountContent(
                         favoriteShows = favoriteShowsList,
                         widthSizeClass = getWindowSizeClass()?.widthSizeClass,
                         modifier = Modifier.weight(1f),
+                        lazyGridState = lazyGridState,
                         header = {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 TraktProfileHeader(onLogoutClick = onLogoutClick)
