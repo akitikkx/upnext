@@ -102,6 +102,8 @@ interface TraktRepository {
 
     suspend fun checkIfShowIsFavorite(imdbID: String?)
 
+    fun getFavoriteShowFlow(imdbID: String): Flow<TraktUserListItem?>
+
     suspend fun removeShowFromFavorites(
         traktId: Int,
         imdbId: String,

@@ -101,6 +101,7 @@ fun ShowDetailScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val isFavorite by viewModel.isFavoriteShow.collectAsStateWithLifecycle()
+    val isFavoriteLoading by viewModel.isFavoriteLoading.collectAsStateWithLifecycle()
     val showRating by viewModel.showRating.collectAsStateWithLifecycle()
     val showStats by viewModel.showStats.collectAsStateWithLifecycle()
     val isAuthorizedOnTrakt by viewModel.isAuthorizedOnTrakt.collectAsStateWithLifecycle()
@@ -171,6 +172,7 @@ fun ShowDetailScreen(
                     showDetailArgs = showDetailArgs,
                     isAuthorizedOnTrakt = isAuthorizedOnTrakt,
                     isFavorite = isFavorite,
+                    isFavoriteLoading = isFavoriteLoading,
                     showRating = showRating,
                     showStats = showStats,
                     onSeasonsClick = { viewModel.onSeasonsClick() },
@@ -192,6 +194,7 @@ fun DetailArea(
     showDetailArgs: ShowDetailArg,
     isAuthorizedOnTrakt: Boolean,
     isFavorite: Boolean,
+    isFavoriteLoading: Boolean,
     showRating: TraktShowRating?,
     showStats: TraktShowStats?,
     onSeasonsClick: () -> Unit,
@@ -227,6 +230,7 @@ fun DetailArea(
                 ShowDetailButtons(
                     isAuthorizedOnTrakt = isAuthorizedOnTrakt,
                     isFavorite = isFavorite,
+                    isLoading = isFavoriteLoading,
                     onSeasonsClick = onSeasonsClick,
                     onFavoriteClick = onFavoriteClick,
                 )
@@ -257,6 +261,55 @@ fun DetailArea(
 
         // ----- Trakt Stats Section (Optional) -----
         showStats?.let { statsData -> }
+    }
+}
+
+// ... skipped intermediate functions ...
+
+@Composable
+fun ShowDetailButtons(
+    isAuthorizedOnTrakt: Boolean?,
+    isFavorite: Boolean?,
+    isLoading: Boolean,
+    onSeasonsClick: () -> Unit,
+    onFavoriteClick: () -> Unit,
+) {
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(dimensionResource(id = R.dimen.padding_standard_double)),
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = "Seasons",
+            modifier =
+                Modifier
+                    .clickable { onSeasonsClick() }
+                    .padding(8.dp),
+            color = MaterialTheme.colorScheme.primary,
+        )
+        if (isAuthorizedOnTrakt == true) {
+            if (isLoading) {
+                androidx.compose.material3.CircularProgressIndicator(
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .size(24.dp),
+                    strokeWidth = 2.dp,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            } else {
+                Text(
+                    text = if (isFavorite == true) "Remove Favorite" else "Add Favorite",
+                    modifier =
+                        Modifier
+                            .clickable { onFavoriteClick() }
+                            .padding(8.dp),
+                    color = MaterialTheme.colorScheme.primary,
+                )
+            }
+        }
     }
 }
 
@@ -469,40 +522,7 @@ fun EpisodeSummary(summary: String) {
     )
 }
 
-@Composable
-fun ShowDetailButtons(
-    isAuthorizedOnTrakt: Boolean?,
-    isFavorite: Boolean?,
-    onSeasonsClick: () -> Unit,
-    onFavoriteClick: () -> Unit,
-) {
-    Row(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(dimensionResource(id = R.dimen.padding_standard_double)),
-        horizontalArrangement = Arrangement.SpaceEvenly,
-    ) {
-        Text(
-            text = "Seasons",
-            modifier =
-                Modifier
-                    .clickable { onSeasonsClick() }
-                    .padding(8.dp),
-            color = MaterialTheme.colorScheme.primary,
-        )
-        if (isAuthorizedOnTrakt == true) {
-            Text(
-                text = if (isFavorite == true) "Remove Favorite" else "Add Favorite",
-                modifier =
-                    Modifier
-                        .clickable { onFavoriteClick() }
-                        .padding(8.dp),
-                color = MaterialTheme.colorScheme.primary,
-            )
-        }
-    }
-}
+
 
 @Composable
 fun TraktRatingSummary(rating: TraktShowRating) {

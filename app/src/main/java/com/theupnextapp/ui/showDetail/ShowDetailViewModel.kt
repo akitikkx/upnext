@@ -38,6 +38,7 @@ import com.theupnextapp.domain.TraktShowStats
 import com.theupnextapp.domain.emptyShowData
 import com.theupnextapp.repository.ShowDetailRepository
 import com.theupnextapp.repository.TraktRepository
+import com.theupnextapp.domain.TraktUserListItem
 import com.theupnextapp.ui.common.BaseTraktViewModel
 import com.theupnextapp.work.AddFavoriteShowWorker
 import com.theupnextapp.work.RemoveFavoriteShowWorker
@@ -47,6 +48,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -54,6 +57,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class ShowDetailViewModel
     @Inject
     constructor(
@@ -78,8 +82,43 @@ class ShowDetailViewModel
         private val _isLoading = MutableStateFlow(false)
         val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
+        private val observedFavoriteShow =
+            _uiState.map { it.showSummary?.imdbID }
+                .distinctUntilChanged()
+                .flatMapLatest { imdbID ->
+                    if (imdbID != null) {
+                        traktRepository.getFavoriteShowFlow(imdbID)
+                    } else {
+                        kotlinx.coroutines.flow.flowOf(null)
+                    }
+                }
+                .stateIn(
+                    viewModelScope,
+                    SharingStarted.WhileSubscribed(5000L),
+                    null,
+                )
+
         val isFavoriteShow =
-            traktRepository.favoriteShow.map { it != null }
+            observedFavoriteShow.map { it != null }
+                .stateIn(
+                    viewModelScope,
+                    SharingStarted.WhileSubscribed(5000L),
+                    false,
+                )
+
+        val isFavoriteLoading: StateFlow<Boolean> =
+            _uiState.map { it.showSummary?.imdbID }
+                .distinctUntilChanged()
+                .flatMapLatest { imdbID ->
+                    if (imdbID != null) {
+                        workManager.getWorkInfosByTagFlow(WORK_TAG_FAVORITE_PREFIX + imdbID)
+                            .map { workInfoList ->
+                                workInfoList.any { !it.state.isFinished }
+                            }
+                    } else {
+                        kotlinx.coroutines.flow.flowOf(false)
+                    }
+                }
                 .stateIn(
                     viewModelScope,
                     SharingStarted.WhileSubscribed(5000L),
@@ -116,6 +155,7 @@ class ShowDetailViewModel
             val previousEpisodeErrorMessage: String? = null,
             val nextEpisodeErrorMessage: String? = null,
             val generalErrorMessage: String? = null,
+            val favoriteShow: TraktUserListItem? = null
         )
 
         fun selectedShow(show: ShowDetailArg?) {
@@ -169,7 +209,7 @@ class ShowDetailViewModel
                                     getShowNextEpisode(summary.nextEpisodeHref)
                                     getTraktShowRating(summary.imdbID)
                                     getTraktShowStats(summary.imdbID)
-                                    checkIfShowIsTraktFavorite(summary.imdbID)
+                                    // checkIfShowIsTraktFavorite(summary.imdbID) // No longer needed as Flow handles it
                                     getShowCast(showId.toInt())
                                 }
 
@@ -297,8 +337,8 @@ class ShowDetailViewModel
                                     message = networkErrorMessage,
                                     errorResponse = null,
                                     cause = result.exception,
-                                ),
-                            )
+                                        ),
+                                    )
                             _uiState.update {
                                 it.copy(
                                     isCastLoading = false,
@@ -533,21 +573,7 @@ class ShowDetailViewModel
             }
         }
 
-        private fun checkIfShowIsTraktFavorite(imdbID: String?) {
-            viewModelScope.launch {
-                try {
-                    traktRepository.checkIfShowIsFavorite(imdbID)
-                } catch (e: Exception) {
-                    firebaseCrashlytics.recordException(
-                        ShowDetailFetchException(
-                            message = "Error checking Trakt favorite status for IMDB ID: $imdbID",
-                            cause = e,
-                        ),
-                    )
-                    _uiState.update { it.copy(generalErrorMessage = "Could not check Trakt favorite status.") }
-                }
-            }
-        }
+        // Removed checkIfShowIsTraktFavorite as it is payload logic
 
         fun displayCastBottomSheetComplete() {
             _showCastBottomSheet.value = null
@@ -564,10 +590,11 @@ class ShowDetailViewModel
         fun onAddRemoveFavoriteClick() {
             viewModelScope.launch(Dispatchers.IO) {
                 val currentAccessToken = traktAccessToken.value
-                val currentFavoriteShow = favoriteShow.value
+                val currentFavoriteShow = observedFavoriteShow.value // Use source of truth
                 val currentShowSummary = uiState.value.showSummary
+                val imdbID = currentShowSummary?.imdbID
 
-                if (currentAccessToken != null) {
+                if (currentAccessToken != null && imdbID != null) {
                     if (currentFavoriteShow != null) {
                         val workerDataBuilder = Data.Builder()
                         currentFavoriteShow.traktID?.let {
@@ -575,7 +602,7 @@ class ShowDetailViewModel
                         }
                         workerDataBuilder.putString(
                             RemoveFavoriteShowWorker.ARG_IMDB_ID,
-                            currentFavoriteShow.imdbID ?: currentShowSummary?.imdbID,
+                            currentFavoriteShow.imdbID ?: imdbID,
                         )
                         workerDataBuilder.putString(
                             RemoveFavoriteShowWorker.ARG_TOKEN,
@@ -584,33 +611,40 @@ class ShowDetailViewModel
 
                         val removeFavoriteWork =
                             OneTimeWorkRequest.Builder(RemoveFavoriteShowWorker::class.java)
+                                .addTag(WORK_TAG_FAVORITE_PREFIX + imdbID)
                                 .setInputData(workerDataBuilder.build())
                                 .build()
                         workManager.enqueue(removeFavoriteWork)
                     } else {
-                        currentShowSummary?.imdbID?.let { imdbId ->
-                            val workerData =
-                                Data.Builder()
-                                    .putString(AddFavoriteShowWorker.ARG_IMDB_ID, imdbId)
-                                    .putString(
-                                        AddFavoriteShowWorker.ARG_TOKEN,
-                                        currentAccessToken.access_token,
-                                    )
-                                    .build()
+                        val workerData =
+                            Data.Builder()
+                                .putString(AddFavoriteShowWorker.ARG_IMDB_ID, imdbID)
+                                .putString(
+                                    AddFavoriteShowWorker.ARG_TOKEN,
+                                    currentAccessToken.access_token,
+                                )
+                                .build()
 
-                            val addFavoriteWork =
-                                OneTimeWorkRequest.Builder(AddFavoriteShowWorker::class.java)
-                                    .setInputData(workerData)
-                                    .build()
-                            workManager.enqueue(addFavoriteWork)
-                        }
-                            ?: firebaseCrashlytics.log("Cannot add favorite: IMDB ID is null in showSummary.")
+                        val addFavoriteWork =
+                            OneTimeWorkRequest.Builder(AddFavoriteShowWorker::class.java)
+                                .addTag(WORK_TAG_FAVORITE_PREFIX + imdbID)
+                                .setInputData(workerData)
+                                .build()
+                        workManager.enqueue(addFavoriteWork)
                     }
                 } else {
-                    firebaseCrashlytics.log("Cannot add/remove favorite: Trakt access token is null.")
-                    _uiState.update { it.copy(generalErrorMessage = "Please log in to Trakt to manage favorites.") }
+                    if (currentAccessToken == null) {
+                        firebaseCrashlytics.log("Cannot add/remove favorite: Trakt access token is null.")
+                        _uiState.update { it.copy(generalErrorMessage = "Please log in to Trakt to manage favorites.") }
+                    } else {
+                        firebaseCrashlytics.log("Cannot add/remove favorite: IMDB ID is null.")
+                    }
                 }
             }
+        }
+
+        companion object {
+            const val WORK_TAG_FAVORITE_PREFIX = "work_tag_favorite_"
         }
 
         fun onSeasonsNavigationComplete() {
