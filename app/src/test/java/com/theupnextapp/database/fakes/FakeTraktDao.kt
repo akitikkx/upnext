@@ -115,4 +115,43 @@ class FakeTraktDao : TraktDao {
     override suspend fun checkIfMostAnticipatedShowsIsEmpty(): Boolean = true
 
     override suspend fun deleteSpecificMostAnticipatedShows(showIds: List<Int>) {}
+
+    // Watched Episodes
+    override suspend fun insertWatchedEpisode(episode: com.theupnextapp.database.DatabaseWatchedEpisode) {}
+
+    override suspend fun insertWatchedEpisodes(episodes: List<com.theupnextapp.database.DatabaseWatchedEpisode>) {}
+
+    override suspend fun deleteWatchedEpisode(
+        showTraktId: Int,
+        season: Int,
+        episode: Int,
+    ) {}
+
+    override fun getWatchedEpisodesForShow(showTraktId: Int): Flow<List<com.theupnextapp.database.DatabaseWatchedEpisode>> =
+        flowOf(emptyList())
+
+    override suspend fun getWatchedEpisode(
+        showTraktId: Int,
+        season: Int,
+        episode: Int,
+    ): com.theupnextapp.database.DatabaseWatchedEpisode? = null
+
+    override suspend fun getWatchedCountForShow(showTraktId: Int): Int = 0
+
+    override suspend fun getPendingSyncEpisodes(): List<com.theupnextapp.database.DatabaseWatchedEpisode> = emptyList()
+
+    override suspend fun updateSyncStatus(
+        showTraktId: Int,
+        season: Int,
+        episode: Int,
+        status: Int,
+    ) {}
+
+    override suspend fun confirmRemoval(
+        showTraktId: Int,
+        season: Int,
+        episode: Int,
+    ) {}
+
+    override suspend fun clearAllWatchedEpisodes() {}
 }

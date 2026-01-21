@@ -27,7 +27,9 @@ import com.theupnextapp.database.TvMazeDao
 import com.theupnextapp.database.UpnextDao
 import com.theupnextapp.datasource.TraktAccountDataSource
 import com.theupnextapp.datasource.TraktAuthDataSource
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.theupnextapp.datasource.TraktRecommendationsDataSource
+import com.theupnextapp.network.TraktService
 import com.theupnextapp.network.TvMazeService
 import com.theupnextapp.repository.DashboardRepository
 import com.theupnextapp.repository.DashboardRepositoryImpl

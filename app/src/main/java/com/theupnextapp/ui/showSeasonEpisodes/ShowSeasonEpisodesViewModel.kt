@@ -128,6 +128,7 @@ class ShowSeasonEpisodesViewModel
         }
 
         fun onToggleWatched(episode: ShowSeasonEpisode) {
+            if (isAuthorizedOnTrakt.value != true) return
             val showTraktId = currentShowTraktId ?: return
             val season = episode.season ?: return
             val episodeNum = episode.number ?: return

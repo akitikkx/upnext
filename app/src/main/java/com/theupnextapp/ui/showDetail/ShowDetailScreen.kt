@@ -107,6 +107,7 @@ fun ShowDetailScreen(
     val isAuthorizedOnTrakt by viewModel.isAuthorizedOnTrakt.collectAsStateWithLifecycle()
     val navigateToSeasons by viewModel.navigateToSeasons.collectAsStateWithLifecycle()
     val isLoadingGlobal by viewModel.isLoading.collectAsStateWithLifecycle()
+    val traktId by viewModel.traktId.collectAsStateWithLifecycle()
 
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
@@ -126,6 +127,7 @@ fun ShowDetailScreen(
                         showBackgroundUrl = showDetailArgs.showBackgroundUrl,
                         imdbID = showDetailArgs.imdbID,
                         isAuthorizedOnTrakt = isAuthorizedOnTrakt,
+                        showTraktId = traktId,
                     ),
                 ),
             )

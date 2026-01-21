@@ -288,11 +288,29 @@ class TraktRepositoryImpl(
     }
 
     override suspend fun getTraktShowRating(imdbID: String?) {
-        // Implementation for stats/rating needs logic in Recommendations/Account DataSource
-        // For now, leaving empty to match previous state if it wasn't there, or TODO
+        if (imdbID.isNullOrEmpty()) return
+
+        val result = traktRecommendationsDataSource.getTraktShowRating(imdbID)
+        if (result.isSuccess) {
+            _traktShowRating.value = result.getOrNull()
+        } else {
+            // Optionally handle error or clear rating
+             _traktShowRating.value = null
+        }
     }
 
     override suspend fun getTraktShowStats(imdbID: String?) {
-        // Implementation for stats
+        if (imdbID.isNullOrEmpty()) return
+
+        val result = traktRecommendationsDataSource.getTraktShowStats(imdbID)
+        if (result.isSuccess) {
+            _traktShowStats.value = result.getOrNull()
+        } else {
+             _traktShowStats.value = null
+        }
+    }
+
+    override suspend fun getTraktIdLookup(imdbID: String): Result<Int?> {
+        return traktRecommendationsDataSource.getTraktIdFromImdbId(imdbID)
     }
 }

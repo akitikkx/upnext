@@ -282,4 +282,5 @@ dependencies {
 
     // Robolectric
     testImplementation libs.robolectric
+    testImplementation libs.androidx.ui.test.junit4
 }

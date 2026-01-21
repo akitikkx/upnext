@@ -61,6 +61,8 @@ import com.theupnextapp.ui.components.PosterImage
 import com.theupnextapp.ui.components.SectionHeadingText
 import org.jsoup.Jsoup
 
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+
 @ExperimentalMaterial3Api
 @Destination<RootGraph>(navArgs = ShowSeasonEpisodesArg::class)
 @Composable
@@ -76,6 +78,8 @@ fun ShowSeasonEpisodesScreen(
 
     val isLoading = viewModel.isLoading.observeAsState()
 
+    val isAuthorizedOnTrakt = viewModel.isAuthorizedOnTrakt.collectAsStateWithLifecycle()
+
     Surface {
         Column {
             Box(modifier = Modifier.fillMaxSize()) {
@@ -87,6 +91,7 @@ fun ShowSeasonEpisodesScreen(
                             onToggleWatched = { episode ->
                                 viewModel.onToggleWatched(episode)
                             },
+                            isAuthorizedOnTrakt = isAuthorizedOnTrakt.value,
                         )
                     }
                 }
@@ -110,6 +115,7 @@ fun ShowSeasonEpisodes(
     seasonNumber: Int,
     list: List<ShowSeasonEpisode>,
     onToggleWatched: (ShowSeasonEpisode) -> Unit = {},
+    isAuthorizedOnTrakt: Boolean = false,
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         SectionHeadingText(
@@ -124,6 +130,7 @@ fun ShowSeasonEpisodes(
                 ShowSeasonEpisodeCard(
                     item = episode,
                     onToggleWatched = onToggleWatched,
+                    isAuthorizedOnTrakt = isAuthorizedOnTrakt,
                 )
             }
         }
@@ -135,6 +142,7 @@ fun ShowSeasonEpisodes(
 fun ShowSeasonEpisodeCard(
     item: ShowSeasonEpisode,
     onToggleWatched: (ShowSeasonEpisode) -> Unit = {},
+    isAuthorizedOnTrakt: Boolean = false,
 ) {
     Card(
         shape = MaterialTheme.shapes.large,
@@ -181,27 +189,29 @@ fun ShowSeasonEpisodeCard(
                         )
                     }
 
-                    IconButton(onClick = { onToggleWatched(item) }) {
-                        Icon(
-                            imageVector =
-                                if (item.isWatched) {
-                                    Icons.Filled.CheckCircle
-                                } else {
-                                    Icons.Outlined.CheckCircle
-                                },
-                            contentDescription =
-                                if (item.isWatched) {
-                                    stringResource(R.string.episode_mark_unwatched)
-                                } else {
-                                    stringResource(R.string.episode_mark_watched)
-                                },
-                            tint =
-                                if (item.isWatched) {
-                                    MaterialTheme.colorScheme.primary
-                                } else {
-                                    MaterialTheme.colorScheme.onSurfaceVariant
-                                },
-                        )
+                    if (isAuthorizedOnTrakt) {
+                        IconButton(onClick = { onToggleWatched(item) }) {
+                            Icon(
+                                imageVector =
+                                    if (item.isWatched) {
+                                        Icons.Filled.CheckCircle
+                                    } else {
+                                        Icons.Outlined.CheckCircle
+                                    },
+                                contentDescription =
+                                    if (item.isWatched) {
+                                        stringResource(R.string.episode_mark_unwatched)
+                                    } else {
+                                        stringResource(R.string.episode_mark_watched)
+                                    },
+                                tint =
+                                    if (item.isWatched) {
+                                        MaterialTheme.colorScheme.primary
+                                    } else {
+                                        MaterialTheme.colorScheme.onSurfaceVariant
+                                    },
+                            )
+                        }
                     }
                 }
 

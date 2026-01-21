@@ -22,7 +22,7 @@
 package com.theupnextapp.domain
 
 data class TraktShowRating(
-    val rating: Int?,
+    val rating: Double?,
     val votes: Int?,
     val distribution: HashMap<String, Int>?,
 )

@@ -80,4 +80,31 @@ class TraktRepositoryImplTest {
             verify(traktRecommendationsDataSource).refreshTraktTrendingShows(true)
         }
     }
+
+    @Test
+    fun getTraktShowRating_delegatesToRecommendationsDataSource() {
+        runBlocking {
+            val showId = "slug"
+            repository.getTraktShowRating(showId)
+            verify(traktRecommendationsDataSource).getTraktShowRating(showId)
+        }
+    }
+
+    @Test
+    fun getTraktShowStats_delegatesToRecommendationsDataSource() {
+        runBlocking {
+            val showId = "slug"
+            repository.getTraktShowStats(showId)
+            verify(traktRecommendationsDataSource).getTraktShowStats(showId)
+        }
+    }
+
+    @Test
+    fun getTraktIdLookup_delegatesToRecommendationsDataSource() {
+        runBlocking {
+            val imdbId = "tt123"
+            repository.getTraktIdLookup(imdbId)
+            verify(traktRecommendationsDataSource).getTraktIdFromImdbId(imdbId)
+        }
+    }
 }
