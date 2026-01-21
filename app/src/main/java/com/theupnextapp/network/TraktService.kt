@@ -39,6 +39,9 @@ import com.theupnextapp.network.models.trakt.NetworkTraktRemoveShowFromListRespo
 import com.theupnextapp.network.models.trakt.NetworkTraktRevokeAccessTokenRequest
 import com.theupnextapp.network.models.trakt.NetworkTraktRevokeAccessTokenResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktShowInfoResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktSyncHistoryRequest
+import com.theupnextapp.network.models.trakt.NetworkTraktSyncHistoryResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktWatchedShowsResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktShowRatingResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktShowStatsResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktTrendingShowsResponse
@@ -146,6 +149,23 @@ interface TraktService {
         @Header("Authorization") token: String,
         @Body networkTraktCheckInRequest: NetworkTraktCheckInRequest,
     ): Deferred<NetworkTraktCheckInResponse>
+
+    @POST("sync/history")
+    fun addToHistoryAsync(
+        @Header("Authorization") token: String,
+        @Body request: NetworkTraktSyncHistoryRequest,
+    ): Deferred<NetworkTraktSyncHistoryResponse>
+
+    @POST("sync/history/remove")
+    fun removeFromHistoryAsync(
+        @Header("Authorization") token: String,
+        @Body request: NetworkTraktSyncHistoryRequest,
+    ): Deferred<NetworkTraktSyncHistoryResponse>
+
+    @GET("sync/watched/shows")
+    fun getWatchedShowsAsync(
+        @Header("Authorization") token: String,
+    ): Deferred<List<NetworkTraktWatchedShowsResponse>>
 }
 
 object TraktNetwork {

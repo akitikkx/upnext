@@ -133,13 +133,16 @@ class ShowDetailViewModel
                     null,
                 )
 
-        val showStats: StateFlow<TraktShowStats?> =
+    val showStats: StateFlow<TraktShowStats?> =
             traktRepository.traktShowStats
                 .stateIn(
                     viewModelScope,
                     SharingStarted.WhileSubscribed(5000L),
                     null,
                 )
+
+        private val _traktId = MutableStateFlow<Int?>(null)
+        val traktId: StateFlow<Int?> = _traktId.asStateFlow()
 
         data class ShowDetailUiState(
             val showSummary: ShowDetailSummary? = null,
@@ -164,6 +167,7 @@ class ShowDetailViewModel
 
             show?.let {
                 _show.value = it
+                _traktId.value = it.showTraktId
                 _uiState.update { currentState ->
                     currentState.copy(
                         isLoadingSummary = true,
@@ -209,6 +213,7 @@ class ShowDetailViewModel
                                     getShowNextEpisode(summary.nextEpisodeHref)
                                     getTraktShowRating(summary.imdbID)
                                     getTraktShowStats(summary.imdbID)
+                                    getTraktId(summary.imdbID)
                                     // checkIfShowIsTraktFavorite(summary.imdbID) // No longer needed as Flow handles it
                                     getShowCast(showId.toInt())
                                 }
@@ -566,6 +571,26 @@ class ShowDetailViewModel
                     firebaseCrashlytics.recordException(
                         ShowDetailFetchException(
                             message = "Error fetching Trakt show stats for IMDB ID: $imdbID",
+                            cause = e,
+                        ),
+                    )
+                }
+            }
+        }
+
+        private fun getTraktId(imdbID: String?) {
+            if (imdbID.isNullOrEmpty() || _traktId.value != null) return
+
+            viewModelScope.launch {
+                try {
+                    val result = traktRepository.getTraktIdLookup(imdbID)
+                    if (result.isSuccess) {
+                        _traktId.value = result.getOrNull()
+                    }
+                } catch (e: Exception) {
+                    firebaseCrashlytics.recordException(
+                        ShowDetailFetchException(
+                            message = "Error fetching Trakt ID for IMDB ID: $imdbID",
                             cause = e,
                         ),
                     )

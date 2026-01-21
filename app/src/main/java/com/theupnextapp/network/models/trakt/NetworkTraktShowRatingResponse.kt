@@ -31,7 +31,7 @@ data class NetworkTraktShowRatingResponse(
 
 fun NetworkTraktShowRatingResponse.asDomainModel(): TraktShowRating {
     return TraktShowRating(
-        rating = rating?.toInt(),
+        rating = rating,
         votes = votes,
         distribution = distribution,
     )

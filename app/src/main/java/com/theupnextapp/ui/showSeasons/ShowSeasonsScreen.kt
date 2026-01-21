@@ -84,6 +84,7 @@ fun ShowSeasonsScreen(
                                     seasonNumber = showSeason.seasonNumber,
                                     imdbID = showDetailArg?.imdbID,
                                     isAuthorizedOnTrakt = showDetailArg?.isAuthorizedOnTrakt,
+                                    showTraktId = showDetailArg?.showTraktId,
                                 ),
                             ),
                         )

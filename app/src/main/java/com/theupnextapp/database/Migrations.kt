@@ -198,3 +198,39 @@ val MIGRATION_29_30 =
             db.execSQL("ALTER TABLE `schedule_tomorrow_new` RENAME TO `schedule_tomorrow`")
         }
     }
+
+val MIGRATION_30_31 =
+    object : Migration(
+        30,
+        31,
+    ) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            // Create watched_episodes table for tracking episode watch progress
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `watched_episodes` (
+                    `showTraktId` INTEGER NOT NULL,
+                    `showTvMazeId` INTEGER,
+                    `showImdbId` TEXT,
+                    `seasonNumber` INTEGER NOT NULL,
+                    `episodeNumber` INTEGER NOT NULL,
+                    `episodeTraktId` INTEGER,
+                    `watchedAt` INTEGER NOT NULL,
+                    `syncStatus` INTEGER NOT NULL DEFAULT 0,
+                    `lastModified` INTEGER NOT NULL,
+                    PRIMARY KEY(`showTraktId`, `seasonNumber`, `episodeNumber`)
+                )
+                """.trimIndent(),
+            )
+
+            // Create index for efficient show-level queries
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS `index_watched_episodes_showTraktId` ON `watched_episodes` (`showTraktId`)",
+            )
+
+            // Create index for sync status queries
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS `index_watched_episodes_syncStatus` ON `watched_episodes` (`syncStatus`)",
+            )
+        }
+    }

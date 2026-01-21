@@ -35,4 +35,5 @@ data class ShowSeasonEpisode(
     val airstamp: String?,
     val airtime: String?,
     var imdbID: String?,
+    val isWatched: Boolean = false,
 )

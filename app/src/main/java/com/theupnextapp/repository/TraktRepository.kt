@@ -129,4 +129,6 @@ interface TraktRepository {
         showSeasonEpisode: ShowSeasonEpisode,
         token: String?,
     )
+
+    suspend fun getTraktIdLookup(imdbID: String): Result<Int?>
 }

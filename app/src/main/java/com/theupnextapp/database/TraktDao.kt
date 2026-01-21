@@ -139,4 +139,35 @@ interface TraktDao {
 
     @Query("DELETE FROM trakt_most_anticipated WHERE id IN (:showIds)")
     suspend fun deleteSpecificMostAnticipatedShows(showIds: List<Int>)
+
+    // WATCHED EPISODES
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertWatchedEpisode(episode: DatabaseWatchedEpisode)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertWatchedEpisodes(episodes: List<DatabaseWatchedEpisode>)
+
+    @Query("DELETE FROM watched_episodes WHERE showTraktId = :showTraktId AND seasonNumber = :season AND episodeNumber = :episode")
+    suspend fun deleteWatchedEpisode(showTraktId: Int, season: Int, episode: Int)
+
+    @Query("SELECT * FROM watched_episodes WHERE showTraktId = :showTraktId")
+    fun getWatchedEpisodesForShow(showTraktId: Int): Flow<List<DatabaseWatchedEpisode>>
+
+    @Query("SELECT * FROM watched_episodes WHERE showTraktId = :showTraktId AND seasonNumber = :season AND episodeNumber = :episode LIMIT 1")
+    suspend fun getWatchedEpisode(showTraktId: Int, season: Int, episode: Int): DatabaseWatchedEpisode?
+
+    @Query("SELECT COUNT(*) FROM watched_episodes WHERE showTraktId = :showTraktId AND syncStatus = 0")
+    suspend fun getWatchedCountForShow(showTraktId: Int): Int
+
+    @Query("SELECT * FROM watched_episodes WHERE syncStatus != 0")
+    suspend fun getPendingSyncEpisodes(): List<DatabaseWatchedEpisode>
+
+    @Query("UPDATE watched_episodes SET syncStatus = :status WHERE showTraktId = :showTraktId AND seasonNumber = :season AND episodeNumber = :episode")
+    suspend fun updateSyncStatus(showTraktId: Int, season: Int, episode: Int, status: Int)
+
+    @Query("DELETE FROM watched_episodes WHERE syncStatus = 2 AND showTraktId = :showTraktId AND seasonNumber = :season AND episodeNumber = :episode")
+    suspend fun confirmRemoval(showTraktId: Int, season: Int, episode: Int)
+
+    @Query("DELETE FROM watched_episodes")
+    suspend fun clearAllWatchedEpisodes()
 }

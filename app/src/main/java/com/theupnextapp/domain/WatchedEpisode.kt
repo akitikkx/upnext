@@ -19,30 +19,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.theupnextapp.database
+package com.theupnextapp.domain
 
-import androidx.room.Database
-import androidx.room.RoomDatabase
+enum class SyncStatus {
+    SYNCED,
+    PENDING_ADD,
+    PENDING_REMOVE,
+}
 
-@Database(
-    entities = [
-        DatabaseYesterdaySchedule::class,
-        DatabaseTodaySchedule::class,
-        DatabaseTomorrowSchedule::class,
-        DatabaseShowInfo::class,
-        DatabaseTableUpdate::class,
-        DatabaseTraktPopularShows::class,
-        DatabaseTraktTrendingShows::class,
-        DatabaseTraktMostAnticipated::class,
-        DatabaseFavoriteShows::class,
-        DatabaseTraktAccess::class,
-        DatabaseWatchedEpisode::class,
-    ],
-    version = 31,
-    exportSchema = true,
+data class WatchedEpisode(
+    val showTraktId: Int,
+    val showTvMazeId: Int?,
+    val showImdbId: String?,
+    val seasonNumber: Int,
+    val episodeNumber: Int,
+    val watchedAt: Long,
+    val isSynced: Boolean,
 )
-abstract class UpnextDatabase : RoomDatabase() {
-    abstract val upnextDao: UpnextDao
-    abstract val traktDao: TraktDao
-    abstract val tvMazeDao: TvMazeDao
+
+data class ShowWatchProgress(
+    val showTraktId: Int,
+    val watchedCount: Int,
+    val totalCount: Int,
+) {
+    val progressPercentage: Float
+        get() = if (totalCount > 0) watchedCount.toFloat() / totalCount else 0f
+
+    val displayText: String
+        get() = "$watchedCount/$totalCount episodes watched"
 }

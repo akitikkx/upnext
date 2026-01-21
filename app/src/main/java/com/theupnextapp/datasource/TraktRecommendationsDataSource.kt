@@ -34,6 +34,8 @@ import com.theupnextapp.network.asDatabaseModel
 import com.theupnextapp.network.models.trakt.NetworkTraktMostAnticipatedResponseItem
 import com.theupnextapp.network.models.trakt.NetworkTraktTrendingShowsResponseItem
 import com.theupnextapp.network.models.trakt.asDatabaseModel
+import com.theupnextapp.domain.TraktShowRating
+import com.theupnextapp.domain.TraktShowStats
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -375,6 +377,39 @@ open class TraktRecommendationsDataSource
                     logTraktException("refreshTraktMostAnticipatedShows failed", e)
                     Result.failure(e)
                 }
+            }
+        }
+
+        suspend fun getTraktShowRating(imdbID: String): Result<TraktShowRating> {
+            return safeApiCall {
+                val networkResponse = traktService.getShowRatingsAsync(imdbID).await()
+                TraktShowRating(
+                    rating = networkResponse.rating,
+                    votes = networkResponse.votes,
+                    distribution = networkResponse.distribution,
+                )
+            }
+        }
+
+        suspend fun getTraktShowStats(imdbID: String): Result<TraktShowStats> {
+            return safeApiCall {
+                val networkResponse = traktService.getShowStatsAsync(imdbID).await()
+                TraktShowStats(
+                    watchers = networkResponse.watchers,
+                    plays = networkResponse.plays,
+                    collectors = networkResponse.collectors,
+                    collected_episodes = networkResponse.collected_episodes,
+                    comments = networkResponse.comments,
+                    lists = networkResponse.lists,
+                    votes = networkResponse.votes,
+                )
+            }
+        }
+
+        suspend fun getTraktIdFromImdbId(imdbID: String): Result<Int?> {
+            return safeApiCall {
+                val networkResponse = traktService.idLookupAsync("imdb", imdbID).await()
+                networkResponse.firstOrNull()?.show?.ids?.trakt
             }
         }
     }
