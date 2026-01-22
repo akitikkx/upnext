@@ -42,7 +42,11 @@ import com.theupnextapp.domain.TraktUserListItem
 import com.theupnextapp.ui.common.BaseTraktViewModel
 import com.theupnextapp.work.AddFavoriteShowWorker
 import com.theupnextapp.work.RemoveFavoriteShowWorker
+import com.theupnextapp.common.utils.TraktAuthManager
+import com.theupnextapp.network.models.trakt.NetworkTraktPersonResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktPersonShowCreditsResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -65,13 +69,15 @@ class ShowDetailViewModel
         private val workManager: WorkManager,
         private val traktRepository: TraktRepository,
         private val firebaseCrashlytics: FirebaseCrashlytics,
+        val traktAuthManager: TraktAuthManager,
     ) : BaseTraktViewModel(
             traktRepository,
             workManager,
+            traktAuthManager,
         ) {
         private val _show = MutableLiveData<ShowDetailArg>()
-        private val _showCastBottomSheet = MutableStateFlow<ShowCast?>(null)
-        val showCastBottomSheet: StateFlow<ShowCast?> = _showCastBottomSheet.asStateFlow()
+        private val _castBottomSheetUiState = MutableStateFlow(CastBottomSheetUiState())
+        val castBottomSheetUiState: StateFlow<CastBottomSheetUiState> = _castBottomSheetUiState.asStateFlow()
 
         private val _navigateToSeasons = MutableStateFlow(false)
         val navigateToSeasons: StateFlow<Boolean> = _navigateToSeasons.asStateFlow()
@@ -158,7 +164,15 @@ class ShowDetailViewModel
             val previousEpisodeErrorMessage: String? = null,
             val nextEpisodeErrorMessage: String? = null,
             val generalErrorMessage: String? = null,
-            val favoriteShow: TraktUserListItem? = null
+    val favoriteShow: TraktUserListItem? = null
+        )
+
+        data class CastBottomSheetUiState(
+            val showCast: ShowCast? = null,
+            val personSummary: NetworkTraktPersonResponse? = null,
+            val personCredits: NetworkTraktPersonShowCreditsResponse? = null,
+            val isLoading: Boolean = false,
+            val errorMessage: String? = null
         )
 
         fun selectedShow(show: ShowDetailArg?) {
@@ -601,11 +615,99 @@ class ShowDetailViewModel
         // Removed checkIfShowIsTraktFavorite as it is payload logic
 
         fun displayCastBottomSheetComplete() {
-            _showCastBottomSheet.value = null
+            _castBottomSheetUiState.value = CastBottomSheetUiState()
+        }
+
+        private val _navigateToShowDetail = MutableStateFlow<ShowDetailArg?>(null)
+        val navigateToShowDetail: StateFlow<ShowDetailArg?> = _navigateToShowDetail.asStateFlow()
+
+        fun onCreditClicked(credit: com.theupnextapp.network.models.trakt.NetworkTraktPersonShowCastCredit) {
+             viewModelScope.launch(Dispatchers.IO) {
+                 val imdbId = credit.show?.ids?.imdb
+                 val title = credit.show?.title
+                 val traktId = credit.show?.ids?.trakt
+                 
+                 if (!imdbId.isNullOrEmpty()) {
+                     _castBottomSheetUiState.update { it.copy(isLoading = true) }
+                     showDetailRepository.getShowLookup(imdbId).collect { result ->
+                         when (result) {
+                             is Result.Success -> {
+                                 val tvMazeId = result.data.id
+                                 val arg = ShowDetailArg(
+                                     showId = tvMazeId.toString(),
+                                     showTitle = title,
+                                     showImageUrl = null, // No image available from credit
+                                     showBackgroundUrl = null,
+                                     imdbID = imdbId,
+                                     isAuthorizedOnTrakt = false, // Default
+                                     showTraktId = traktId
+                                 )
+                                 _navigateToShowDetail.value = arg
+                                 _castBottomSheetUiState.update { it.copy(isLoading = false) }
+                             }
+                             is Result.Error, is Result.GenericError, is Result.NetworkError -> {
+                                 _castBottomSheetUiState.update { it.copy(isLoading = false, errorMessage = "Could not find show details") }
+                             }
+                             is Result.Loading -> { 
+                                 // Already handling loading through state if needed, but here loop acts
+                             }
+                         }
+                     }
+                 } else {
+                     _castBottomSheetUiState.update { it.copy(errorMessage = "No IMDB ID available for this show") }
+                 }
+             }
+        }
+        
+        fun onShowDetailNavigationComplete() {
+            _navigateToShowDetail.value = null
         }
 
         fun onShowCastItemClicked(showCast: ShowCast) {
-            _showCastBottomSheet.value = showCast
+            _castBottomSheetUiState.update {
+                it.copy(showCast = showCast, isLoading = true, errorMessage = null, personSummary = null, personCredits = null)
+            }
+
+            viewModelScope.launch(Dispatchers.IO) {
+                if (showCast.id != null) {
+                    // Try ID Lookup first
+                    val traktIdResult = traktRepository.getTraktPersonIdLookup(showCast.id.toString())
+                    var traktId = traktIdResult.getOrNull()
+
+                    // Fallback to Name Search if ID lookup returns null/failure
+                    if (traktId == null && !showCast.name.isNullOrEmpty()) {
+                        showCast.name?.let { name ->
+                            val searchResult = traktRepository.getTraktPersonIdSearch(name)
+                            traktId = searchResult.getOrNull()
+                        }
+                    }
+
+                    if (traktId != null) {
+                        val summaryDeferred = async { traktRepository.getTraktPersonSummary(traktId.toString()) }
+                        val creditsDeferred = async { traktRepository.getTraktPersonShowCredits(traktId.toString()) }
+
+                        val summaryResult = summaryDeferred.await()
+                        val creditsResult = creditsDeferred.await()
+
+                        _castBottomSheetUiState.update { currentState ->
+                            currentState.copy(
+                                isLoading = false,
+                                personSummary = summaryResult.getOrNull(),
+                                personCredits = creditsResult.getOrNull()
+                            )
+                        }
+                    } else {
+                        val errorMsg = if (traktIdResult.isFailure && showCast.name.isNullOrEmpty()) {
+                            "ID Lookup failed and no name for fallback"
+                        } else {
+                            "Could not find person on Trakt"
+                        }
+                        _castBottomSheetUiState.update { it.copy(isLoading = false, errorMessage = errorMsg) }
+                    }
+                } else {
+                    _castBottomSheetUiState.update { it.copy(isLoading = false, errorMessage = "Invalid Cast ID") }
+                }
+            }
         }
 
         fun onSeasonsClick() {

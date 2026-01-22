@@ -32,6 +32,7 @@ import com.theupnextapp.domain.ShowSeason
 import com.theupnextapp.domain.ShowSeasonEpisode
 import com.theupnextapp.domain.safeApiCall
 import com.theupnextapp.network.TvMazeService
+import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupResponse
 import com.theupnextapp.network.models.tvmaze.asDomainModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -50,6 +51,32 @@ class ShowDetailRepository(
             val response =
                 safeApiCall(Dispatchers.IO) {
                     tvMazeService.getShowSummaryAsync(showId.toString()).await().asDomainModel()
+                }
+
+            when (response) {
+                is Result.NetworkError -> crashlytics.recordException(response.exception)
+                is Result.GenericError -> crashlytics.recordException(response.exception)
+                is Result.Error -> response.exception?.let { crashlytics.recordException(it) }
+                else -> { /* No action for Success or Loading */ }
+            }
+
+            emit(Result.Loading(false))
+            emit(response)
+        }
+            .catch {
+                crashlytics.recordException(it)
+                emit(Result.Loading(false))
+                emit(Result.Error(it, "An unexpected error occurred in the repository flow."))
+            }
+            .flowOn(Dispatchers.IO)
+    }
+
+    fun getShowLookup(imdbId: String): Flow<Result<NetworkTvMazeShowLookupResponse>> {
+        return flow {
+            emit(Result.Loading(true))
+            val response =
+                safeApiCall(Dispatchers.IO) {
+                    tvMazeService.getShowLookupAsync(imdbId).await()
                 }
 
             when (response) {

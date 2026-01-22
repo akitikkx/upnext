@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Ahmed Tikiwa
+ * Copyright (c) 2024 Ahmed Tikiwa
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
  * associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -19,39 +19,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.theupnextapp.network.models.trakt
+package com.theupnextapp.ui.settings
 
-class NetworkTraktIdLookupResponse : ArrayList<NetworkTraktIdLookupResponseItem>()
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.theupnextapp.repository.SettingsRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-data class NetworkTraktIdLookupResponseItem(
-    val show: NetworkTraktIdLookupResponseItemShow?,
-    val person: NetworkTraktIdLookupResponseItemPerson?,
-    val score: Any?,
-    val type: String?,
-)
+@HiltViewModel
+class SettingsViewModel @Inject constructor(
+    private val settingsRepository: SettingsRepository
+) : ViewModel() {
 
-data class NetworkTraktIdLookupResponseItemShow(
-    val ids: NetworkTraktIdLookupResponseItemShowIds?,
-    val title: String?,
-    val year: Int?,
-)
+    val areNotificationsEnabled = settingsRepository.areNotificationsEnabled
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = true
+        )
 
-data class NetworkTraktIdLookupResponseItemShowIds(
-    val imdb: String?,
-    val slug: String?,
-    val tmdb: Int?,
-    val trakt: Int?,
-    val tvdb: Int?,
-)
-
-data class NetworkTraktIdLookupResponseItemPerson(
-    val ids: NetworkTraktIdLookupResponseItemPersonIds?,
-    val name: String?,
-)
-
-data class NetworkTraktIdLookupResponseItemPersonIds(
-    val imdb: String?,
-    val slug: String?,
-    val tmdb: Int?,
-    val trakt: Int?,
-)
+    fun setNotificationsEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.setNotificationsEnabled(enabled)
+        }
+    }
+}

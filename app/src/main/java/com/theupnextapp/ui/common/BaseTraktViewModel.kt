@@ -26,7 +26,9 @@ import androidx.lifecycle.viewModelScope
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
+import com.theupnextapp.common.utils.TraktAuthManager
 import com.theupnextapp.domain.TraktAccessToken
+import com.theupnextapp.domain.TraktAuthState
 import com.theupnextapp.domain.TraktUserListItem
 import com.theupnextapp.domain.isTraktAccessTokenValid
 import com.theupnextapp.repository.TraktRepository
@@ -49,6 +51,7 @@ open class BaseTraktViewModel
     constructor(
         private val traktRepository: TraktRepository,
         private val workManager: WorkManager,
+        private val traktAuthManager: TraktAuthManager,
     ) : ViewModel() {
         val traktAccessToken: StateFlow<TraktAccessToken?> =
             traktRepository.traktAccessToken
@@ -66,53 +69,16 @@ open class BaseTraktViewModel
                     initialValue = null,
                 )
 
+        val traktAuthState: StateFlow<TraktAuthState> = traktAuthManager.traktAuthState
+
         val isAuthorizedOnTrakt: StateFlow<Boolean> =
-            traktAccessToken
-                .map { accessToken ->
-                    val isTokenPresentAndNotEmpty = !accessToken?.access_token.isNullOrEmpty()
-
-                    val isTokenStructurallyValid = accessToken?.isTraktAccessTokenValid() == true
-
-                    isTokenPresentAndNotEmpty && isTokenStructurallyValid
-                }
+            traktAuthState
+                .map { it == TraktAuthState.LoggedIn }
                 .stateIn(
                     scope = viewModelScope,
                     started = SharingStarted.WhileSubscribed(5000),
                     initialValue = false,
                 )
-
-        init {
-            viewModelScope.launch {
-                traktAccessToken
-                    .onEach { accessToken ->
-                        if (accessToken != null) {
-                            if (!accessToken.isTraktAccessTokenValid()) {
-                                viewModelScope.launch(Dispatchers.IO) {
-                                    traktRepository.getTraktAccessRefreshToken(accessToken.refresh_token)
-                                }
-                            } else {
-                                val workerData =
-                                    Data.Builder().putString(
-                                        RefreshFavoriteShowsWorker.ARG_TOKEN,
-                                        accessToken.access_token,
-                                    ).build()
-
-                                val refreshFavoritesWork =
-                                    OneTimeWorkRequest.Builder(RefreshFavoriteShowsWorker::class.java)
-                                        .setInputData(workerData)
-                                        .build()
-
-                                workManager.enqueueUniqueWork(
-                                    "refresh_favorite_shows_work", // Unique Name
-                                    androidx.work.ExistingWorkPolicy.KEEP, // Don't run if already enqueued/running
-                                    refreshFavoritesWork
-                                )
-                            }
-                        }
-                    }
-                    .collect()
-            }
-        }
 
         fun revokeTraktAccessToken() {
             viewModelScope.launch(Dispatchers.IO) {
@@ -127,3 +93,5 @@ open class BaseTraktViewModel
             }
         }
     }
+
+

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Ahmed Tikiwa
+ * Copyright (c) 2024 Ahmed Tikiwa
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
  * associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -19,39 +19,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.theupnextapp.network.models.trakt
+package com.theupnextapp.domain
 
-class NetworkTraktIdLookupResponse : ArrayList<NetworkTraktIdLookupResponseItem>()
-
-data class NetworkTraktIdLookupResponseItem(
-    val show: NetworkTraktIdLookupResponseItemShow?,
-    val person: NetworkTraktIdLookupResponseItemPerson?,
-    val score: Any?,
-    val type: String?,
-)
-
-data class NetworkTraktIdLookupResponseItemShow(
-    val ids: NetworkTraktIdLookupResponseItemShowIds?,
-    val title: String?,
-    val year: Int?,
-)
-
-data class NetworkTraktIdLookupResponseItemShowIds(
-    val imdb: String?,
-    val slug: String?,
-    val tmdb: Int?,
-    val trakt: Int?,
-    val tvdb: Int?,
-)
-
-data class NetworkTraktIdLookupResponseItemPerson(
-    val ids: NetworkTraktIdLookupResponseItemPersonIds?,
-    val name: String?,
-)
-
-data class NetworkTraktIdLookupResponseItemPersonIds(
-    val imdb: String?,
-    val slug: String?,
-    val tmdb: Int?,
-    val trakt: Int?,
-)
+sealed interface TraktAuthState {
+    object Loading : TraktAuthState
+    object LoggedIn : TraktAuthState
+    object LoggedOut : TraktAuthState
+}

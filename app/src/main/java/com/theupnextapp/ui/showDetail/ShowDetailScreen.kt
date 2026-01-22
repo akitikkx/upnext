@@ -38,6 +38,8 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -71,6 +73,7 @@ import androidx.navigation.Navigator
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.ShowSeasonsScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.ShowDetailScreenDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavOptionsBuilder
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.spec.Direction
@@ -183,8 +186,25 @@ fun ShowDetailScreen(
                 )
             }
 
-            val castMemberForBottomSheet by viewModel.showCastBottomSheet.collectAsStateWithLifecycle()
-            castMemberForBottomSheet?.let {}
+            val castBottomSheetUiState by viewModel.castBottomSheetUiState.collectAsStateWithLifecycle()
+            val navigateToShowDetail by viewModel.navigateToShowDetail.collectAsStateWithLifecycle()
+
+            if (castBottomSheetUiState.showCast != null) {
+                CastBottomSheet(
+                    uiState = castBottomSheetUiState,
+                    onCreditClick = { viewModel.onCreditClicked(it) },
+                    onDismissRequest = { viewModel.displayCastBottomSheetComplete() }
+                )
+            }
+
+            LaunchedEffect(navigateToShowDetail) {
+                navigateToShowDetail?.let {
+                    navigator.navigate(
+                        ShowDetailScreenDestination(it)
+                    )
+                    viewModel.onShowDetailNavigationComplete()
+                }
+            }
         }
     }
 }
@@ -427,7 +447,11 @@ fun PreviousEpisode(uiState: ShowDetailViewModel.ShowDetailUiState) {
 
 @Composable
 fun PreviousEpisode(showPreviousEpisode: ShowPreviousEpisode) {
-    Column(modifier = Modifier.padding(top = dimensionResource(id = R.dimen.padding_standard_double))) {
+    val paddingStandardDouble = dimensionResource(id = R.dimen.padding_standard_double)
+    val paddingExtraSmall = dimensionResource(id = R.dimen.padding_extra_small)
+    val paddingStandard = dimensionResource(id = R.dimen.padding_standard)
+
+    Column(modifier = Modifier.padding(top = paddingStandardDouble)) {
         SectionHeadingText(text = stringResource(id = R.string.show_detail_previous_episode_heading))
 
         Text(
@@ -442,13 +466,29 @@ fun PreviousEpisode(showPreviousEpisode: ShowPreviousEpisode) {
                 Modifier
                     .fillMaxWidth()
                     .padding(
-                        start = dimensionResource(id = R.dimen.padding_standard_double),
-                        top = dimensionResource(id = R.dimen.padding_extra_small),
-                        end = dimensionResource(id = R.dimen.padding_standard_double),
-                        bottom = dimensionResource(id = R.dimen.padding_standard),
+                        start = paddingStandardDouble,
+                        top = paddingExtraSmall,
+                        end = paddingStandardDouble,
+                        bottom = paddingStandard,
                     ),
             style = MaterialTheme.typography.titleSmall,
         )
+
+        val airstamp = showPreviousEpisode.previousEpisodeAirstamp
+        if (airstamp != null) {
+            val relativeTime = com.theupnextapp.common.utils.DateUtils.getRelativeTimeSpanString(airstamp)
+            if (relativeTime != null) {
+                Text(
+                    text = "Aired $relativeTime",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.secondary, // Different color for past
+                    modifier = Modifier.padding(
+                        start = paddingStandardDouble,
+                        bottom = paddingExtraSmall
+                    )
+                )
+            }
+        }
 
         showPreviousEpisode.previousEpisodeSummary?.let { summary ->
             if (summary.isNotBlank()) {
@@ -476,7 +516,11 @@ fun NextEpisode(uiState: ShowDetailViewModel.ShowDetailUiState) {
 
 @Composable
 private fun NextEpisode(showNextEpisode: ShowNextEpisode) {
-    Column(modifier = Modifier.padding(top = dimensionResource(id = R.dimen.padding_standard_double))) {
+    val paddingStandardDouble = dimensionResource(id = R.dimen.padding_standard_double)
+    val paddingExtraSmall = dimensionResource(id = R.dimen.padding_extra_small)
+    val paddingStandard = dimensionResource(id = R.dimen.padding_standard)
+
+    Column(modifier = Modifier.padding(top = paddingStandardDouble)) {
         SectionHeadingText(text = stringResource(id = R.string.show_detail_next_episode_heading))
 
         Text(
@@ -491,24 +535,40 @@ private fun NextEpisode(showNextEpisode: ShowNextEpisode) {
                 Modifier
                     .fillMaxWidth()
                     .padding(
-                        start = dimensionResource(id = R.dimen.padding_standard_double),
-                        top = dimensionResource(id = R.dimen.padding_extra_small),
-                        end = dimensionResource(id = R.dimen.padding_standard_double),
-                        bottom = dimensionResource(id = R.dimen.padding_standard),
+                        start = paddingStandardDouble,
+                        top = paddingExtraSmall,
+                        end = paddingStandardDouble,
+                        bottom = paddingStandard,
                     ),
             style = MaterialTheme.typography.titleSmall,
         )
-
-        showNextEpisode.nextEpisodeSummary?.let { summary ->
-            if (summary.isNotBlank()) {
-                EpisodeSummary(summary = summary)
+        
+        val airstamp = showNextEpisode.nextEpisodeAirstamp
+        if (airstamp != null) {
+            val relativeTime = com.theupnextapp.common.utils.DateUtils.getRelativeTimeSpanString(airstamp)
+            if (relativeTime != null) {
+                Text(
+                    text = "Airing $relativeTime",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(
+                        start = paddingStandardDouble,
+                        bottom = paddingExtraSmall
+                    )
+                )
             }
+        }
+
+        val summary = showNextEpisode.nextEpisodeSummary
+        if (!summary.isNullOrBlank()) {
+             EpisodeSummary(summary = summary)
         }
     }
 }
 
 @Composable
 fun EpisodeSummary(summary: String) {
+    val paddingStandardDouble = dimensionResource(id = R.dimen.padding_standard_double)
     val cleanedSummary = Jsoup.parse(summary).text()
     Text(
         text = cleanedSummary,
@@ -517,9 +577,9 @@ fun EpisodeSummary(summary: String) {
             Modifier
                 .fillMaxWidth()
                 .padding(
-                    start = dimensionResource(id = R.dimen.padding_standard_double),
-                    end = dimensionResource(id = R.dimen.padding_standard_double),
-                    bottom = dimensionResource(id = R.dimen.padding_standard_double),
+                    start = paddingStandardDouble,
+                    end = paddingStandardDouble,
+                    bottom = paddingStandardDouble,
                 ),
     )
 }
@@ -528,19 +588,42 @@ fun EpisodeSummary(summary: String) {
 
 @Composable
 fun TraktRatingSummary(rating: TraktShowRating) {
-    Column(modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_standard_double))) {
-        SectionHeadingText(text = stringResource(R.string.show_detail_ratings_heading)) // Corrected string resource
-        Text(
-            text = "Rating: ${
-                String.format(
-                    Locale.US,
-                    "%.1f",
-                    rating.rating ?: 0.0,
-                )
-            }/10 (${rating.votes} votes)",
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(top = dimensionResource(id = R.dimen.padding_extra_small)), // Added some top padding
-        )
+    val paddingStandardDouble = dimensionResource(id = R.dimen.padding_standard_double)
+    val paddingExtraSmall = dimensionResource(id = R.dimen.padding_extra_small)
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = paddingStandardDouble),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(top = paddingExtraSmall)
+        ) {
+            androidx.compose.material3.Icon(
+                imageVector = androidx.compose.material.icons.Icons.Filled.Star,
+                contentDescription = stringResource(id = R.string.show_detail_rating_content_description),
+                tint = Color(0xFFFFC107), // Gold/Amber color
+                modifier = Modifier.size(24.dp)
+            )
+
+            Spacer(modifier = Modifier.width(paddingExtraSmall))
+
+            Text(
+                text = String.format(Locale.US, "%.1f", rating.rating ?: 0.0),
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(modifier = Modifier.width(paddingExtraSmall))
+
+            Text(
+                text = "(${rating.votes} votes on Trakt)",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }
 

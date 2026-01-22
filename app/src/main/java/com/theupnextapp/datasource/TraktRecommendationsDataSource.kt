@@ -36,6 +36,8 @@ import com.theupnextapp.network.models.trakt.NetworkTraktTrendingShowsResponseIt
 import com.theupnextapp.network.models.trakt.asDatabaseModel
 import com.theupnextapp.domain.TraktShowRating
 import com.theupnextapp.domain.TraktShowStats
+import com.theupnextapp.network.models.trakt.NetworkTraktPersonResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktPersonShowCreditsResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -410,6 +412,31 @@ open class TraktRecommendationsDataSource
             return safeApiCall {
                 val networkResponse = traktService.idLookupAsync("imdb", imdbID).await()
                 networkResponse.firstOrNull()?.show?.ids?.trakt
+            }
+        }
+
+        suspend fun getPersonSummary(id: String): Result<NetworkTraktPersonResponse> {
+            return safeApiCall {
+                traktService.getPersonSummaryAsync(id).await()
+            }
+        }
+
+        suspend fun getPersonShowCredits(id: String): Result<NetworkTraktPersonShowCreditsResponse> {
+            return safeApiCall {
+                traktService.getPersonShowCreditsAsync(id).await()
+            }
+        }
+
+        suspend fun getTraktPersonIdFromTvMazeId(tvMazeId: String): Result<Int?> {
+            return safeApiCall {
+                val networkResponse = traktService.idLookupAsync("tvmaze", tvMazeId, type = "person").await()
+                networkResponse.firstOrNull()?.person?.ids?.trakt
+            }
+        }
+        suspend fun getTraktPersonIdFromSearch(name: String): Result<Int?> {
+            return safeApiCall {
+                val networkResponse = traktService.searchPeopleAsync(name).await()
+                networkResponse.firstOrNull()?.person?.ids?.trakt
             }
         }
     }

@@ -96,6 +96,38 @@ object DateUtils {
         }
     }
 
+    fun getRelativeTimeSpanString(dateString: String): String? {
+        // Try parsing ISO 8601 first
+        var date: Date? = null
+        try {
+            val format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+            format.timeZone = java.util.TimeZone.getTimeZone("UTC")
+            date = format.parse(dateString)
+        } catch (e: Exception) {
+            // Fallback or ignore
+        }
+
+        // If that fails, try simpler format
+        if (date == null) {
+            try {
+                val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                date = format.parse(dateString)
+            } catch (e: Exception) {
+                return null
+            }
+        }
+
+        return date?.let {
+            val now = System.currentTimeMillis()
+            android.text.format.DateUtils.getRelativeTimeSpanString(
+                it.time,
+                now,
+                android.text.format.DateUtils.MINUTE_IN_MILLIS,
+                android.text.format.DateUtils.FORMAT_ABBREV_RELATIVE
+            ).toString()
+        }
+    }
+
     const val DAYS = "days"
     const val HOURS = "hours"
     const val MINUTES = "minutes"

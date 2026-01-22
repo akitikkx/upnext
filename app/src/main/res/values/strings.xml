@@ -39,6 +39,7 @@
     <string name="title_unknown">Title Unknown</string>
 
     <string name="action_navigate_up_description">Navigation arrow</string>
+    <string name="desc_back_arrow">Back</string>
 
     <!-- Notification channels -->
     <string name="notification_channel_name">App Updates</string>
@@ -83,6 +84,7 @@
     <string name="show_detail_previous_episode_airdate">Aired %1$d %2$s ago</string>
     <string name="show_detail_air_date_general">Aired on %1$s</string>
     <string name="show_detail_ratings_heading">Ratings (users on Trakt)</string>
+    <string name="show_detail_rating_content_description">Rating Star</string>
     <string name="show_detail_connect_trakt_prompt">Go to the Account screen to connect your Trakt Account so you can add this show to your favorites</string>
 
     <!-- Cast -->

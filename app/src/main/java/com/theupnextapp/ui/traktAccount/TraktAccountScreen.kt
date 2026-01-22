@@ -40,7 +40,10 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator // Changed from Linear
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
@@ -73,6 +76,7 @@ import com.theupnextapp.R
 import com.theupnextapp.common.utils.getWindowSizeClass
 import com.theupnextapp.common.utils.launchCustomTab
 import com.theupnextapp.domain.ShowDetailArg
+import com.theupnextapp.domain.TraktAuthState
 import com.theupnextapp.domain.TraktUserListItem
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -99,6 +103,7 @@ fun TraktAccountScreen(
     val scope = rememberCoroutineScope()
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val traktAuthState by viewModel.traktAuthState.collectAsStateWithLifecycle()
     val isAuthorizedOnTrakt by viewModel.isAuthorizedOnTrakt.collectAsStateWithLifecycle()
     val favoriteShowsList by viewModel.favoriteShows.collectAsStateWithLifecycle()
     val isLoadingConnection by viewModel.isLoadingConnection.collectAsStateWithLifecycle()
@@ -158,6 +163,7 @@ fun TraktAccountScreen(
     }
 
     Scaffold(
+        topBar = {}, // Empty TopAppBar as MainScreen handles the title
         snackbarHost = { SnackbarHost(snackbarHostState) },
         modifier = Modifier.fillMaxSize(),
     ) { localScaffoldPadding ->
@@ -168,6 +174,7 @@ fun TraktAccountScreen(
                     .padding(localScaffoldPadding),
         ) {
             AccountContent(
+                traktAuthState = traktAuthState,
                 isAuthorizedOnTrakt = isAuthorizedOnTrakt,
                 favoriteShowsList = favoriteShowsList,
                 isFavoriteShowsEmpty = isFavoriteShowsEmpty,
@@ -209,6 +216,7 @@ fun TraktAccountScreen(
 @ExperimentalFoundationApi
 @Composable
 internal fun AccountContent(
+    traktAuthState: TraktAuthState,
     isAuthorizedOnTrakt: Boolean,
     favoriteShowsList: List<TraktUserListItem>,
     isFavoriteShowsEmpty: Boolean,
@@ -232,34 +240,42 @@ internal fun AccountContent(
             if (isLoadingConnection) Text(text = stringResource(R.string.trakt_connecting_text))
             if (isDisconnecting) Text(text = stringResource(R.string.trakt_disconnecting_text))
         } else {
-            if (isAuthorizedOnTrakt) {
-                if (!isLoadingFavorites && !isFavoriteShowsEmpty) {
-                    FavoritesListContent(
-                        favoriteShows = favoriteShowsList,
-                        widthSizeClass = getWindowSizeClass()?.widthSizeClass,
-                        modifier = Modifier.weight(1f),
-                        lazyGridState = lazyGridState,
-                        header = {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                TraktProfileHeader(onLogoutClick = onLogoutClick)
-                                Spacer(modifier = Modifier.height(16.dp))
-                            }
-                        },
-                        onFavoriteClick = onFavoriteClick,
-                    )
-                } else {
-                    TraktProfileHeader(onLogoutClick = onLogoutClick)
-                    Spacer(modifier = Modifier.height(16.dp))
+            when (traktAuthState) {
+                TraktAuthState.Loading -> {
+                    CircularProgressIndicator(modifier = Modifier.padding(16.dp))
+                }
 
-                    if (isLoadingFavorites) {
-                        CircularProgressIndicator(modifier = Modifier.padding(16.dp))
-                        Text(text = stringResource(R.string.trakt_loading_favorites))
+                TraktAuthState.LoggedOut -> {
+                    ConnectToTrakt(onClick = onConnectToTraktClick)
+                }
+
+                TraktAuthState.LoggedIn -> {
+                    if (!isLoadingFavorites && !isFavoriteShowsEmpty) {
+                        FavoritesListContent(
+                            favoriteShows = favoriteShowsList,
+                            widthSizeClass = getWindowSizeClass()?.widthSizeClass,
+                            modifier = Modifier.weight(1f),
+                            lazyGridState = lazyGridState,
+                            header = {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    TraktProfileHeader(onLogoutClick = onLogoutClick)
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                }
+                            },
+                            onFavoriteClick = onFavoriteClick,
+                        )
                     } else {
-                        EmptyFavoritesContent()
+                        TraktProfileHeader(onLogoutClick = onLogoutClick)
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        if (isLoadingFavorites) {
+                            CircularProgressIndicator(modifier = Modifier.padding(16.dp))
+                            Text(text = stringResource(R.string.trakt_loading_favorites))
+                        } else {
+                            EmptyFavoritesContent()
+                        }
                     }
                 }
-            } else {
-                ConnectToTrakt(onClick = onConnectToTraktClick)
             }
         }
     }

@@ -23,8 +23,10 @@ package com.theupnextapp.ui.traktAccount
 
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkManager
+import com.theupnextapp.common.utils.TraktAuthManager
 import com.theupnextapp.common.utils.TraktConstants
 import com.theupnextapp.domain.TraktUserListItem
+import com.theupnextapp.domain.isTraktAccessTokenValid
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.ui.common.BaseTraktViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -47,10 +49,24 @@ class TraktAccountViewModel
     constructor(
         private val traktRepository: TraktRepository,
         workManager: WorkManager,
+        val traktAuthManager: TraktAuthManager,
     ) : BaseTraktViewModel(
             traktRepository,
             workManager,
+            traktAuthManager,
         ) {
+        
+        init {
+            viewModelScope.launch {
+                traktAccessToken.collect { token ->
+                    if (token != null && token.isTraktAccessTokenValid()) {
+                        token.access_token?.let {
+                            traktRepository.refreshFavoriteShows(it)
+                        }
+                    }
+                }
+            }
+        }
         // General loading state for initial connection/authorization processes
         val isLoadingConnection: StateFlow<Boolean> = traktRepository.isLoading
 

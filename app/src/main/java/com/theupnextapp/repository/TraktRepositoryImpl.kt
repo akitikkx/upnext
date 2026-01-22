@@ -40,6 +40,8 @@ import com.theupnextapp.domain.TraktTrendingShows
 import com.theupnextapp.domain.TraktUserList
 import com.theupnextapp.domain.TraktUserListItem
 import com.theupnextapp.domain.isTraktAccessTokenValid
+import com.theupnextapp.network.models.trakt.NetworkTraktPersonResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktPersonShowCreditsResponse
 import com.theupnextapp.network.TvMazeService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -312,5 +314,21 @@ class TraktRepositoryImpl(
 
     override suspend fun getTraktIdLookup(imdbID: String): Result<Int?> {
         return traktRecommendationsDataSource.getTraktIdFromImdbId(imdbID)
+    }
+
+    override suspend fun getTraktPersonSummary(id: String): Result<NetworkTraktPersonResponse> {
+        return traktRecommendationsDataSource.getPersonSummary(id)
+    }
+
+    override suspend fun getTraktPersonShowCredits(id: String): Result<NetworkTraktPersonShowCreditsResponse> {
+        return traktRecommendationsDataSource.getPersonShowCredits(id)
+    }
+
+    override suspend fun getTraktPersonIdLookup(tvMazeId: String): Result<Int?> {
+        return traktRecommendationsDataSource.getTraktPersonIdFromTvMazeId(tvMazeId)
+    }
+
+    override suspend fun getTraktPersonIdSearch(name: String): Result<Int?> {
+        return traktRecommendationsDataSource.getTraktPersonIdFromSearch(name)
     }
 }

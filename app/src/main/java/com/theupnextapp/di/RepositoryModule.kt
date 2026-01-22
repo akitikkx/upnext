@@ -117,4 +117,12 @@ object RepositoryModule {
             firebaseCrashlytics = firebaseCrashlytics,
         )
     }
+
+    @Singleton
+    @Provides
+    fun provideSettingsRepository(
+        dataStore: androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences>
+    ): com.theupnextapp.repository.SettingsRepository {
+        return com.theupnextapp.repository.SettingsRepositoryImpl(dataStore)
+    }
 }

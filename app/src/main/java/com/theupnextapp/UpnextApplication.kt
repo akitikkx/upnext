@@ -36,6 +36,7 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import com.theupnextapp.common.utils.TraktAuthManager
 import com.theupnextapp.common.utils.UpnextPreferenceManager
 import com.theupnextapp.common.utils.models.TableUpdateInterval
 import com.theupnextapp.database.DatabaseTraktAccess
@@ -64,6 +65,9 @@ class UpnextApplication : Application(), Configuration.Provider {
 
     @Inject
     lateinit var traktRepository: TraktRepository
+
+    @Inject
+    lateinit var traktAuthManager: TraktAuthManager
 
     @Inject
     lateinit var preferenceManager: UpnextPreferenceManager
@@ -136,7 +140,27 @@ class UpnextApplication : Application(), Configuration.Provider {
             val workManager = WorkManager.getInstance(applicationContext)
             setupFavoriteShowsWorker(workManager)
             setupDashboardWorker(workManager)
+            setupNotificationWorker(workManager)
         }
+    }
+
+    private fun setupNotificationWorker(workManager: WorkManager) {
+        val notificationRequest =
+            PeriodicWorkRequestBuilder<com.theupnextapp.work.NotificationWorker>(
+                12, // Run every 12 hours
+                TimeUnit.HOURS,
+            )
+            .setConstraints(
+                 Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
+            )
+            .build()
+
+        workManager.enqueueUniquePeriodicWork(
+            com.theupnextapp.work.NotificationWorker.WORK_NAME,
+            ExistingPeriodicWorkPolicy.KEEP,
+            notificationRequest
+        )
+        Timber.tag("UpnextApplication").d("Enqueued ${com.theupnextapp.work.NotificationWorker.WORK_NAME}")
     }
 
     private fun setupFavoriteShowsWorker(workManager: WorkManager) {

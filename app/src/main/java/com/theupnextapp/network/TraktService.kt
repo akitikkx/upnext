@@ -48,6 +48,8 @@ import com.theupnextapp.network.models.trakt.NetworkTraktTrendingShowsResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktUserListItemResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktUserListsResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktUserSettingsResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktPersonResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktPersonShowCreditsResponse
 import kotlinx.coroutines.Deferred
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -138,10 +140,16 @@ interface TraktService {
         @Body networkTraktRemoveShowFromListRequest: NetworkTraktRemoveShowFromListRequest,
     ): Deferred<NetworkTraktRemoveShowFromListResponse>
 
-    @GET("search/{id_type}/{id}?type=show")
+    @GET("search/{id_type}/{id}")
     fun idLookupAsync(
         @Path("id_type") idType: String,
         @Path("id") id: String,
+        @Query("type") type: String = "show",
+    ): Deferred<NetworkTraktIdLookupResponse>
+
+    @GET("search/people")
+    fun searchPeopleAsync(
+        @Query("query") query: String,
     ): Deferred<NetworkTraktIdLookupResponse>
 
     @POST("checkin")
@@ -166,6 +174,16 @@ interface TraktService {
     fun getWatchedShowsAsync(
         @Header("Authorization") token: String,
     ): Deferred<List<NetworkTraktWatchedShowsResponse>>
+
+    @GET("people/{id}?extended=full")
+    fun getPersonSummaryAsync(
+        @Path("id") id: String,
+    ): Deferred<NetworkTraktPersonResponse>
+
+    @GET("people/{id}/shows?extended=full")
+    fun getPersonShowCreditsAsync(
+        @Path("id") id: String,
+    ): Deferred<NetworkTraktPersonShowCreditsResponse>
 }
 
 object TraktNetwork {

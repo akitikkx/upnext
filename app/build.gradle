@@ -33,7 +33,6 @@ plugins {
     alias(libs.plugins.hilt.gradle)
     alias(libs.plugins.baseline.profiles)
 
-    id("kotlin-kapt")
     id("kotlin-parcelize")
 }
 
@@ -83,7 +82,6 @@ android {
     }
 
     buildFeatures {
-        dataBinding true
         buildConfig true
         compose true
     }
@@ -275,10 +273,12 @@ dependencies {
     // Hilt testing
     androidTestImplementation libs.hilt.android.testing
     kspAndroidTest libs.hilt.android.compiler
+    kspTest libs.hilt.android.compiler
     androidTestAnnotationProcessor libs.hilt.android.compiler
 
     // WorkManager testing
     androidTestImplementation libs.androidx.work.testing
+    testImplementation libs.androidx.work.testing
 
     // Robolectric
     testImplementation libs.robolectric
