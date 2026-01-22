@@ -117,7 +117,7 @@ class TraktRecommendationsDataSourceTest {
              val mockResponse = NetworkTraktIdLookupResponse()
              mockResponse.add(mockResponseItem)
 
-            whenever(traktService.idLookupAsync(eq("imdb"), eq("tt1234567"))).thenReturn(
+            whenever(traktService.idLookupAsync(eq("imdb"), eq("tt1234567"), eq("show"))).thenReturn(
                 CompletableDeferred(mockResponse),
             )
 

@@ -7,6 +7,8 @@ import com.theupnextapp.domain.ShowSeasonEpisode
 import com.theupnextapp.repository.ShowDetailRepository
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.WatchProgressRepository
+import com.theupnextapp.common.utils.TraktAuthManager
+import com.theupnextapp.domain.TraktAuthState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
@@ -37,12 +39,14 @@ class ShowSeasonEpisodesViewModelTest {
     private val showDetailRepository: ShowDetailRepository = mock()
     private val watchProgressRepository: WatchProgressRepository = mock()
     private val workManager: WorkManager = mock()
+    private val traktAuthManager: TraktAuthManager = mock()
 
     @Before
     fun setup() {
         // Default to not authorized/valid unless specified in test
         whenever(traktRepository.traktAccessToken).thenReturn(flowOf(null))
         whenever(traktRepository.favoriteShow).thenReturn(MutableStateFlow(null))
+        whenever(traktAuthManager.traktAuthState).thenReturn(MutableStateFlow(TraktAuthState.LoggedIn))
     }
 
     @Test
@@ -62,7 +66,8 @@ class ShowSeasonEpisodesViewModelTest {
             showDetailRepository,
             watchProgressRepository,
             workManager,
-            traktRepository
+            traktRepository,
+            traktAuthManager
         )
 
         val showTraktId = 123
@@ -135,7 +140,8 @@ class ShowSeasonEpisodesViewModelTest {
             showDetailRepository,
             watchProgressRepository,
             workManager,
-            traktRepository
+            traktRepository,
+            traktAuthManager
         )
 
         val showTraktId = 123
@@ -197,7 +203,8 @@ class ShowSeasonEpisodesViewModelTest {
             showDetailRepository,
             watchProgressRepository,
             workManager,
-            traktRepository
+            traktRepository,
+            traktAuthManager
         )
         
         val episode = ShowSeasonEpisode(
