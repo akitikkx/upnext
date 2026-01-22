@@ -20,6 +20,8 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -52,6 +54,7 @@ import com.ramcosta.composedestinations.generated.destinations.EmptyDetailScreen
 import com.ramcosta.composedestinations.generated.destinations.ShowDetailScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.ShowSeasonEpisodesScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.ShowSeasonsScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.SettingsScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.TraktAccountScreenDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.utils.rememberDestinationsNavigator
@@ -62,6 +65,7 @@ import com.theupnextapp.ui.search.SearchScreen
 import com.theupnextapp.ui.traktAccount.TraktAccountScreen
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
+import com.theupnextapp.R
 
 @OptIn(
     ExperimentalMaterial3AdaptiveApi::class,
@@ -99,6 +103,7 @@ fun MainScreen(
                     route.startsWith(ShowDetailScreenDestination.baseRoute) ||
                         route.startsWith(ShowSeasonsScreenDestination.baseRoute) ||
                         route.startsWith(ShowSeasonEpisodesScreenDestination.baseRoute) ||
+                        route.startsWith(SettingsScreenDestination.baseRoute) ||
                         route.startsWith(TraktAccountScreenDestination.baseRoute) &&
                         // Explicitly ensure EmptyDetailScreen is NOT considered part of an active detail flow
                         route != EmptyDetailScreenDestination.route
@@ -203,6 +208,22 @@ fun MainScreen(
                 ) {
                     TopAppBar(
                         title = { Text(stringResource(currentListSection.label)) },
+                        actions = {
+                            if (currentListSection == NavigationDestination.TraktAccount) {
+                                androidx.compose.material3.IconButton(
+                                    onClick = {
+                                        destinationsNavigatorForDetail.navigate(
+                                            SettingsScreenDestination
+                                        )
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = androidx.compose.material.icons.Icons.Filled.Settings,
+                                        contentDescription = stringResource(R.string.title_settings),
+                                    )
+                                }
+                            }
+                        }
                     )
                     // Content of the current list section
                     // IMPORTANT: Pass destinationsNavigatorForDetail for navigation to detail screens

@@ -24,6 +24,8 @@ import com.theupnextapp.domain.TraktShowStats
 import com.theupnextapp.domain.TraktTrendingShows
 import com.theupnextapp.domain.TraktUserList
 import com.theupnextapp.domain.TraktUserListItem
+import com.theupnextapp.network.models.trakt.NetworkTraktPersonResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktPersonShowCreditsResponse
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -131,4 +133,12 @@ interface TraktRepository {
     )
 
     suspend fun getTraktIdLookup(imdbID: String): Result<Int?>
+
+    suspend fun getTraktPersonSummary(id: String): Result<NetworkTraktPersonResponse>
+
+    suspend fun getTraktPersonShowCredits(id: String): Result<NetworkTraktPersonShowCreditsResponse>
+
+    suspend fun getTraktPersonIdLookup(tvMazeId: String): Result<Int?>
+
+    suspend fun getTraktPersonIdSearch(name: String): Result<Int?>
 }

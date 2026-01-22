@@ -26,10 +26,45 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavBackStackEntry
+import com.ramcosta.composedestinations.generated.destinations.SettingsScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.ShowDetailScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.ShowSeasonEpisodesScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.ShowSeasonsScreenDestination
 import com.theupnextapp.R
+
+@OptIn(
+    ExperimentalMaterial3WindowSizeClassApi::class,
+    ExperimentalMaterial3Api::class,
+)
+@Composable
+fun TopBar(
+    title: String,
+    onArrowClick: () -> Unit,
+    showBackArrow: Boolean,
+    modifier: Modifier = Modifier,
+    scrollBehavior: TopAppBarScrollBehavior? = null,
+) {
+    TopAppBar(
+        title = {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.headlineSmall,
+            )
+        },
+        modifier = modifier,
+        navigationIcon = {
+            if (showBackArrow) {
+                IconButton(onClick = onArrowClick) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = stringResource(R.string.action_navigate_up_description),
+                    )
+                }
+            }
+        },
+        scrollBehavior = scrollBehavior,
+    )
+}
 
 @OptIn(
     ExperimentalMaterial3WindowSizeClassApi::class,
@@ -51,6 +86,7 @@ fun TopBar(
     // The overrideUpNavigation in MainScreen handles what "back" means.
     val showBackArrow =
         when (currentRoute) {
+            SettingsScreenDestination.route,
             ShowDetailScreenDestination.route,
             ShowSeasonsScreenDestination.route,
             ShowSeasonEpisodesScreenDestination.route,
@@ -64,6 +100,7 @@ fun TopBar(
     // Prioritize passed 'title' from AppNavigation
     val currentTitle: String =
         title ?: when (currentRoute) {
+            SettingsScreenDestination.route -> stringResource(R.string.title_settings)
             ShowSeasonsScreenDestination.route -> stringResource(R.string.title_seasons)
             ShowSeasonEpisodesScreenDestination.route -> stringResource(R.string.title_season_episodes)
             // If currentRoute is ShowDetailScreenDestination but 'title' (dynamicTitle) was
@@ -73,24 +110,11 @@ fun TopBar(
             else -> ""
         }
 
-    TopAppBar(
-        title = {
-            Text(
-                text = currentTitle,
-                style = MaterialTheme.typography.headlineSmall,
-            )
-        },
+    TopBar(
+        title = currentTitle,
+        onArrowClick = onArrowClick,
+        showBackArrow = showBackArrow,
         modifier = modifier,
-        navigationIcon = {
-            if (showBackArrow) {
-                IconButton(onClick = onArrowClick) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(R.string.action_navigate_up_description),
-                    )
-                }
-            }
-        },
         scrollBehavior = scrollBehavior,
     )
 }

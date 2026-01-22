@@ -35,6 +35,7 @@ import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.WatchProgressRepository
 import com.theupnextapp.ui.common.BaseTraktViewModel
 import com.theupnextapp.work.SyncWatchProgressWorker
+import com.theupnextapp.common.utils.TraktAuthManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
@@ -49,9 +50,11 @@ class ShowSeasonEpisodesViewModel
         private val watchProgressRepository: WatchProgressRepository,
         private val localWorkManager: WorkManager,
         traktRepository: TraktRepository,
+        val traktAuthManager: TraktAuthManager,
     ) : BaseTraktViewModel(
             traktRepository,
             localWorkManager,
+            traktAuthManager,
         ) {
         private val _isLoading = MutableLiveData<Boolean>()
         val isLoading: LiveData<Boolean> = _isLoading

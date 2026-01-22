@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Ahmed Tikiwa
+ * Copyright (c) 2024 Ahmed Tikiwa
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
  * associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -19,39 +19,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.theupnextapp.network.models.trakt
+package com.theupnextapp.repository
 
-class NetworkTraktIdLookupResponse : ArrayList<NetworkTraktIdLookupResponseItem>()
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import javax.inject.Inject
 
-data class NetworkTraktIdLookupResponseItem(
-    val show: NetworkTraktIdLookupResponseItemShow?,
-    val person: NetworkTraktIdLookupResponseItemPerson?,
-    val score: Any?,
-    val type: String?,
-)
+class SettingsRepositoryImpl @Inject constructor(
+    private val dataStore: DataStore<Preferences>
+) : SettingsRepository {
 
-data class NetworkTraktIdLookupResponseItemShow(
-    val ids: NetworkTraktIdLookupResponseItemShowIds?,
-    val title: String?,
-    val year: Int?,
-)
+    private val NOTIFICATIONS_ENABLED = booleanPreferencesKey("notifications_enabled")
 
-data class NetworkTraktIdLookupResponseItemShowIds(
-    val imdb: String?,
-    val slug: String?,
-    val tmdb: Int?,
-    val trakt: Int?,
-    val tvdb: Int?,
-)
+    override val areNotificationsEnabled: Flow<Boolean> = dataStore.data
+        .map { preferences ->
+            preferences[NOTIFICATIONS_ENABLED] ?: true // Default to true
+        }
 
-data class NetworkTraktIdLookupResponseItemPerson(
-    val ids: NetworkTraktIdLookupResponseItemPersonIds?,
-    val name: String?,
-)
-
-data class NetworkTraktIdLookupResponseItemPersonIds(
-    val imdb: String?,
-    val slug: String?,
-    val tmdb: Int?,
-    val trakt: Int?,
-)
+    override suspend fun setNotificationsEnabled(enabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[NOTIFICATIONS_ENABLED] = enabled
+        }
+    }
+}

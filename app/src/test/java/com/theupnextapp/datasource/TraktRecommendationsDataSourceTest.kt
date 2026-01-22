@@ -111,13 +111,13 @@ class TraktRecommendationsDataSourceTest {
     @Test
     fun getTraktIdFromImdbId_success() =
         runBlocking {
-             val mockIds = NetworkTraktIdLookupResponseItemShowIds(trakt = 12345, slug = "slug", imdb = "tt1234567", tmdb = 2)
+             val mockIds = NetworkTraktIdLookupResponseItemShowIds(trakt = 12345, slug = "slug", imdb = "tt1234567", tmdb = 2, tvdb = 1)
              val mockShow = NetworkTraktIdLookupResponseItemShow(title = "Show Title", year = 2024, ids = mockIds)
-             val mockResponseItem = NetworkTraktIdLookupResponseItem(type = "show", score = 1.0, show = mockShow)
+             val mockResponseItem = NetworkTraktIdLookupResponseItem(type = "show", score = 1.0, show = mockShow, person = null)
              val mockResponse = NetworkTraktIdLookupResponse()
              mockResponse.add(mockResponseItem)
 
-            whenever(traktService.idLookupAsync(eq("imdb"), eq("tt1234567"))).thenReturn(
+            whenever(traktService.idLookupAsync(eq("imdb"), eq("tt1234567"), eq("show"))).thenReturn(
                 CompletableDeferred(mockResponse),
             )
 

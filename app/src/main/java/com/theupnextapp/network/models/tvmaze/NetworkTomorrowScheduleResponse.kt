@@ -26,7 +26,7 @@ fun NetworkTomorrowScheduleResponse.asDatabaseModel(): DatabaseTomorrowSchedule 
         image = this.show.image?.original,
         mediumImage = this.show.image?.medium,
         language = this.show.language,
-        name = this.name,
+        name = this.show.name,
         officialSite = this.show.officialSite,
         premiered = this.show.premiered,
         runtime = this.show.runtime.toString(),
