@@ -46,7 +46,9 @@ import com.theupnextapp.network.models.trakt.NetworkTraktUserListItemResponse
 import com.theupnextapp.network.models.trakt.TraktConflictErrorResponse
 import com.theupnextapp.network.models.trakt.TraktErrorResponse
 import com.theupnextapp.network.models.trakt.asDatabaseModel
+import com.theupnextapp.network.models.trakt.asDatabaseModel
 import com.theupnextapp.network.models.trakt.asDomainModel
+import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -471,6 +473,33 @@ open class TraktAccountDataSource
                 } catch (e: Exception) {
                     logTraktException("Generic error during Trakt check-in.", e)
                     TraktCheckInStatus(message = "An unexpected error occurred.")
+                }
+            }
+        }
+
+
+
+        suspend fun getTraktMySchedule(
+            token: String,
+            startDate: String,
+            days: Int,
+        ): Result<NetworkTraktMyScheduleResponse> {
+            if (token.isEmpty()) {
+                return Result.failure(IllegalArgumentException("Token is empty"))
+            }
+
+            return withContext(Dispatchers.IO) {
+                try {
+                    val bearerToken = "Bearer $token"
+                    val response = traktService.getMyCalendarAsync(bearerToken, startDate, days).await()
+                    Result.success(response)
+                } catch (e: HttpException) {
+                    val errorBody = e.response()?.errorBody()?.stringSuspending()
+                    val userMessage = parseTraktApiError(errorBody, "Failed to fetch calendar.", moshi)
+                    Result.failure(Exception(userMessage, e))
+                } catch (e: Exception) {
+                    logTraktException("Error fetching calendar", e)
+                    Result.failure(e)
                 }
             }
         }

@@ -34,6 +34,12 @@ import com.theupnextapp.repository.SettingsRepository
 import com.theupnextapp.repository.TraktRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import android.app.PendingIntent
+import android.content.Intent
+import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponseItem
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import kotlinx.coroutines.flow.first
 
 @HiltWorker
@@ -50,16 +56,46 @@ class NotificationWorker @AssistedInject constructor(
             return Result.success()
         }
         
-        // Logic to check for new episodes would go here.
-        // For this phase, we will just log/notify for testing purposes or implement a basic check.
-        // Assuming we would fetch favorites and check air dates.
-        
-        // Placeholder for actual logic:
-        // 1. Get Favorites
-        // 2. For each favorite, check next episode air date.
-        // 3. If air date is close (e.g. today), send notification.
+        val accessToken = traktRepository.traktAccessToken.first()
+        if (accessToken?.access_token.isNullOrEmpty()) {
+            return Result.success()
+        }
+
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+        val todayDate = dateFormat.format(Date())
+
+        val scheduleResult = traktRepository.getTraktMySchedule(
+            token = accessToken!!.access_token!!,
+            startDate = todayDate,
+            days = 1
+        )
+
+        if (scheduleResult.isSuccess) {
+            val schedule = scheduleResult.getOrNull()
+            if (!schedule.isNullOrEmpty()) {
+                schedule.forEach { item ->
+                    showNotification(item)
+                }
+            }
+        }
 
         return Result.success()
+    }
+
+    private fun showNotification(item: NetworkTraktMyScheduleResponseItem) {
+        val showTitle = item.show?.title ?: "New Episode"
+        val season = item.episode?.season
+        val episode = item.episode?.number
+        val episodeTitle = item.episode?.title
+
+        val title = "New Episode: $showTitle"
+        val message = if (season != null && episode != null) {
+            "S${season}E${episode} - $episodeTitle airing today!"
+        } else {
+            "$episodeTitle airing today!"
+        }
+
+        sendNotification(title, message)
     }
 
     private fun sendNotification(title: String, message: String) {
@@ -75,11 +111,23 @@ class NotificationWorker @AssistedInject constructor(
             notificationManager.createNotificationChannel(channel)
         }
 
+        val intent = applicationContext.packageManager.getLaunchIntentForPackage(applicationContext.packageName)?.apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        val pendingIntent: PendingIntent = PendingIntent.getActivity(
+            applicationContext,
+            0,
+            intent,
+            PendingIntent.FLAG_IMMUTABLE
+        )
+
         val notification = NotificationCompat.Builder(applicationContext, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_launcher_foreground) // Ensure this resource exists or use a generic one
             .setContentTitle(title)
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
             .build()
 
         notificationManager.notify(System.currentTimeMillis().toInt(), notification)

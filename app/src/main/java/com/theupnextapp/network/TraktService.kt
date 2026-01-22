@@ -50,6 +50,7 @@ import com.theupnextapp.network.models.trakt.NetworkTraktUserListsResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktUserSettingsResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktPersonResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktPersonShowCreditsResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponse
 import kotlinx.coroutines.Deferred
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -184,6 +185,13 @@ interface TraktService {
     fun getPersonShowCreditsAsync(
         @Path("id") id: String,
     ): Deferred<NetworkTraktPersonShowCreditsResponse>
+
+    @GET("calendars/my/shows/{start_date}/{days}")
+    fun getMyCalendarAsync(
+        @Header("Authorization") token: String,
+        @Path("start_date") startDate: String,
+        @Path("days") days: Int,
+    ): Deferred<NetworkTraktMyScheduleResponse>
 }
 
 object TraktNetwork {

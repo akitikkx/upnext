@@ -26,6 +26,7 @@ import com.theupnextapp.domain.TraktUserList
 import com.theupnextapp.domain.TraktUserListItem
 import com.theupnextapp.network.models.trakt.NetworkTraktPersonResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktPersonShowCreditsResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponse
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -141,4 +142,6 @@ interface TraktRepository {
     suspend fun getTraktPersonIdLookup(tvMazeId: String): Result<Int?>
 
     suspend fun getTraktPersonIdSearch(name: String): Result<Int?>
+
+    suspend fun getTraktMySchedule(token: String, startDate: String, days: Int): Result<NetworkTraktMyScheduleResponse>
 }
