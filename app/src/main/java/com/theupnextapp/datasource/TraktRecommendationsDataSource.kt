@@ -38,6 +38,7 @@ import com.theupnextapp.domain.TraktShowRating
 import com.theupnextapp.domain.TraktShowStats
 import com.theupnextapp.network.models.trakt.NetworkTraktPersonResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktPersonShowCreditsResponse
+import com.theupnextapp.domain.TraktCast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -437,6 +438,23 @@ open class TraktRecommendationsDataSource
             return safeApiCall {
                 val networkResponse = traktService.searchPeopleAsync(name).await()
                 networkResponse.firstOrNull()?.person?.ids?.trakt
+            }
+        }
+
+        suspend fun getShowCast(imdbID: String): Result<List<TraktCast>> {
+            return safeApiCall {
+                val networkResponse = traktService.getShowPeopleAsync(imdbID).await()
+                networkResponse.cast?.map { castMember ->
+                    TraktCast(
+                        character = castMember.characters?.firstOrNull() ?: "",
+                        name = castMember.person?.name,
+                        originalImageUrl = null, // Will need to fetch images separately if needed, or use a placeholder
+                        mediumImageUrl = null,
+                        traktId = castMember.person?.ids?.trakt,
+                        imdbId = castMember.person?.ids?.imdb,
+                        slug = castMember.person?.ids?.slug
+                    )
+                } ?: emptyList()
             }
         }
     }

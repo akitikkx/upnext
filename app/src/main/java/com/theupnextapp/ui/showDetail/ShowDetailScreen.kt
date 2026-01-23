@@ -80,7 +80,7 @@ import com.ramcosta.composedestinations.spec.Direction
 import com.ramcosta.composedestinations.spec.RouteOrDirection
 import com.theupnextapp.R
 import com.theupnextapp.common.utils.getWindowSizeClass
-import com.theupnextapp.domain.ShowCast
+import com.theupnextapp.domain.TraktCast
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.ShowNextEpisode
 import com.theupnextapp.domain.ShowPreviousEpisode
@@ -189,7 +189,7 @@ fun ShowDetailScreen(
             val castBottomSheetUiState by viewModel.castBottomSheetUiState.collectAsStateWithLifecycle()
             val navigateToShowDetail by viewModel.navigateToShowDetail.collectAsStateWithLifecycle()
 
-            if (castBottomSheetUiState.showCast != null) {
+            if (castBottomSheetUiState.traktCast != null) {
                 CastBottomSheet(
                     uiState = castBottomSheetUiState,
                     onCreditClick = { viewModel.onCreditClicked(it) },
@@ -221,7 +221,7 @@ fun DetailArea(
     showStats: TraktShowStats?,
     onSeasonsClick: () -> Unit,
     onFavoriteClick: () -> Unit,
-    onCastItemClick: (item: ShowCast) -> Unit,
+    onCastItemClick: (item: TraktCast) -> Unit,
 ) {
     val scrollState = rememberScrollState()
     val windowSizeClass = getWindowSizeClass()?.widthSizeClass ?: WindowWidthSizeClass.Compact
@@ -338,10 +338,10 @@ fun ShowDetailButtons(
 @Composable
 fun ShowCast(
     uiState: ShowDetailViewModel.ShowDetailUiState,
-    onCastItemClick: (item: ShowCast) -> Unit,
+    onCastItemClick: (item: TraktCast) -> Unit,
 ) {
-    if (!uiState.showCast.isNullOrEmpty()) {
-        ShowCastList(list = uiState.showCast, onClick = onCastItemClick)
+    if (!uiState.traktCast.isNullOrEmpty()) {
+        ShowCastList(list = uiState.traktCast, onClick = onCastItemClick)
     } else if (uiState.isCastLoading) {
         CastListPlaceholder()
     } else if (uiState.castErrorMessage != null) {
@@ -351,8 +351,8 @@ fun ShowCast(
 
 @Composable
 fun ShowCastList(
-    list: List<ShowCast>,
-    onClick: (item: ShowCast) -> Unit,
+    list: List<TraktCast>,
+    onClick: (item: TraktCast) -> Unit,
 ) {
     Column(
         modifier = Modifier.padding(top = dimensionResource(id = R.dimen.padding_standard_double)),
@@ -381,8 +381,8 @@ fun ShowCastList(
 
 @Composable
 fun ShowCastItem(
-    item: ShowCast,
-    onClick: (item: ShowCast) -> Unit,
+    item: TraktCast,
+    onClick: (item: TraktCast) -> Unit,
 ) {
     Column(
         modifier =
@@ -413,7 +413,9 @@ fun ShowCastItem(
             )
         }
 
-        item.characterName?.let { characterName ->
+
+
+        item.character?.let { characterName ->
             Text(
                 text = "as $characterName",
                 style = MaterialTheme.typography.labelMedium,

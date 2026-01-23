@@ -82,7 +82,7 @@ fun CastBottomSheet(
                 )
             }
 
-            uiState.showCast?.let { cast ->
+            uiState.traktCast?.let { cast ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -106,9 +106,9 @@ fun CastBottomSheet(
                             style = MaterialTheme.typography.headlineSmall,
                             fontWeight = FontWeight.Bold
                         )
-                        if (!cast.characterName.isNullOrEmpty()) {
+                        if (!cast.character.isNullOrEmpty()) {
                             Text(
-                                text = "as ${cast.characterName}",
+                                text = "as ${cast.character}",
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontStyle = FontStyle.Italic
                             )

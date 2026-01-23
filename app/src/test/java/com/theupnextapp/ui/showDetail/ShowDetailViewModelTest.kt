@@ -25,7 +25,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.work.WorkManager
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.theupnextapp.CoroutineTestRule
-import com.theupnextapp.domain.ShowCast
+import com.theupnextapp.domain.TraktCast
 import com.theupnextapp.common.utils.TraktAuthManager
 import com.theupnextapp.network.models.trakt.NetworkTraktPersonResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktPersonShowCreditsResponse
@@ -88,90 +88,38 @@ class ShowDetailViewModelTest {
         )
     }
 
-    private fun createShowCast(id: Int?, name: String?): ShowCast {
-        return ShowCast(
-            id = id,
+    private fun createTraktCast(traktId: Int, name: String): TraktCast {
+        return TraktCast(
+            character = "Test Character",
             name = name,
-            country = null,
-            birthday = null,
-            deathday = null,
-            gender = null,
             originalImageUrl = null,
             mediumImageUrl = null,
-            characterId = null,
-            characterUrl = null,
-            characterName = "Test Character",
-            characterMediumImageUrl = null,
-            characterOriginalImageUrl = null,
-            self = false,
-            voice = false
+            traktId = traktId,
+            imdbId = null,
+            slug = null
         )
     }
 
     @Test
-    fun `onShowCastItemClicked uses ID lookup when successful`() = runTest {
+    fun `onShowCastItemClicked uses Trakt ID directly`() = runTest {
         // Given
-        val castId = 123
         val traktId = 456
-        val showCast = createShowCast(castId, "Test Actor")
+        val actorName = "Test Actor"
+        val traktCast = createTraktCast(traktId, actorName)
 
-        `when`(traktRepository.getTraktPersonIdLookup(castId.toString())).thenReturn(Result.success(traktId))
         `when`(traktRepository.getTraktPersonSummary(traktId.toString())).thenReturn(Result.success(NetworkTraktPersonResponse(name = "Test Actor", ids = null, biography = null, birthday = null, death = null, birthplace = null, homepage = null, gender = null, known_for_department = null, social_ids = null)))
         `when`(traktRepository.getTraktPersonShowCredits(traktId.toString())).thenReturn(Result.success(NetworkTraktPersonShowCreditsResponse(cast = emptyList())))
 
         // When
-        viewModel.onShowCastItemClicked(showCast)
+        viewModel.onShowCastItemClicked(traktCast)
 
         // Then
-        verify(traktRepository, timeout(3000)).getTraktPersonIdLookup(castId.toString())
+        // Should NOT call lookups
+        verify(traktRepository, never()).getTraktPersonIdLookup(anyString())
         verify(traktRepository, never()).getTraktPersonIdSearch(anyString())
-    }
 
-    @Test
-    fun `onShowCastItemClicked uses Name Search fallback when ID lookup fails`() = runTest {
-        // Given
-        val castId = 123
-        val traktId = 789
-        val actorName = "Test Actor"
-        val showCast = createShowCast(castId, actorName)
-
-        // ID Lookup Fails
-        `when`(traktRepository.getTraktPersonIdLookup(castId.toString())).thenReturn(Result.failure(Exception("Not found")))
-        // Name Search Succeeds
-        `when`(traktRepository.getTraktPersonIdSearch(actorName)).thenReturn(Result.success(traktId))
-        
-        `when`(traktRepository.getTraktPersonSummary(traktId.toString())).thenReturn(Result.success(NetworkTraktPersonResponse(name = actorName, ids = null, biography = null, birthday = null, death = null, birthplace = null, homepage = null, gender = null, known_for_department = null, social_ids = null)))
-        `when`(traktRepository.getTraktPersonShowCredits(traktId.toString())).thenReturn(Result.success(NetworkTraktPersonShowCreditsResponse(cast = emptyList())))
-
-        // When
-        viewModel.onShowCastItemClicked(showCast)
-
-        // Then
-        verify(traktRepository, timeout(3000)).getTraktPersonIdLookup(castId.toString())
-        verify(traktRepository, timeout(3000)).getTraktPersonIdSearch(actorName)
-    }
-
-    @Test
-    @Ignore("Concurrency issue with Dispatchers.IO")
-    fun `onShowCastItemClicked sets error when both lookups fail`() = runTest {
-        // Given
-        val castId = 123
-        val actorName = "Test Actor"
-        val showCast = createShowCast(castId, actorName)
-
-        // ID Lookup Fails
-        `when`(traktRepository.getTraktPersonIdLookup(castId.toString())).thenReturn(Result.failure(Exception("Not found")))
-        // Name Search Fails
-        `when`(traktRepository.getTraktPersonIdSearch(actorName)).thenReturn(Result.failure(Exception("Not found")))
-
-        // When
-        viewModel.onShowCastItemClicked(showCast)
-
-        // Then
-        verify(traktRepository).getTraktPersonIdLookup(castId.toString())
-        verify(traktRepository).getTraktPersonIdSearch(actorName)
-        
-        // Use verify to ensure no further calls for details are made (implying failure flow)
-        verify(traktRepository, never()).getTraktPersonSummary(anyString())
+        // Should call summary and credits directly
+        verify(traktRepository, timeout(3000)).getTraktPersonSummary(traktId.toString())
+        verify(traktRepository, timeout(3000)).getTraktPersonShowCredits(traktId.toString())
     }
 }

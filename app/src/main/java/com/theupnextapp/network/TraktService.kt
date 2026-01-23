@@ -49,6 +49,7 @@ import com.theupnextapp.network.models.trakt.NetworkTraktUserListItemResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktUserListsResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktUserSettingsResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktPersonResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktShowPeopleResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktPersonShowCreditsResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponse
 import kotlinx.coroutines.Deferred
@@ -192,6 +193,11 @@ interface TraktService {
         @Path("start_date") startDate: String,
         @Path("days") days: Int,
     ): Deferred<NetworkTraktMyScheduleResponse>
+
+    @GET("shows/{id}/people?extended=full")
+    fun getShowPeopleAsync(
+        @Path("id") id: String,
+    ): Deferred<NetworkTraktShowPeopleResponse>
 }
 
 object TraktNetwork {

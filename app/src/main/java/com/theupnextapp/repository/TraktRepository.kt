@@ -16,6 +16,7 @@ import com.theupnextapp.database.DatabaseTraktAccess
 import com.theupnextapp.domain.ShowSeasonEpisode
 import com.theupnextapp.domain.TableUpdate
 import com.theupnextapp.domain.TraktAccessToken
+import com.theupnextapp.domain.TraktCast
 import com.theupnextapp.domain.TraktCheckInStatus
 import com.theupnextapp.domain.TraktMostAnticipated
 import com.theupnextapp.domain.TraktPopularShows
@@ -144,4 +145,6 @@ interface TraktRepository {
     suspend fun getTraktPersonIdSearch(name: String): Result<Int?>
 
     suspend fun getTraktMySchedule(token: String, startDate: String, days: Int): Result<NetworkTraktMyScheduleResponse>
+
+    suspend fun getShowCast(imdbID: String): Result<List<TraktCast>>
 }

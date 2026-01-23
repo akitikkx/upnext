@@ -32,6 +32,10 @@ import com.theupnextapp.network.models.trakt.NetworkTraktShowRatingResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktShowStatsResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktIdLookupResponseItemShow
 import com.theupnextapp.network.models.trakt.NetworkTraktIdLookupResponseItemShowIds
+import com.theupnextapp.network.models.trakt.NetworkTraktShowPeopleResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktCast
+import com.theupnextapp.network.models.trakt.NetworkTraktPerson
+import com.theupnextapp.network.models.trakt.NetworkTraktPersonIds
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -125,5 +129,27 @@ class TraktRecommendationsDataSourceTest {
 
             assertTrue(result.isSuccess)
             assertEquals(12345, result.getOrNull())
+        }
+
+    @Test
+    fun getShowCast_success() =
+        runBlocking {
+            val mockPersonIds = NetworkTraktPersonIds(trakt = 1, slug = "slug", imdb = "nm123", tmdb = 10, tvrage = 2)
+            val mockPerson = NetworkTraktPerson(name = "Actor Name", ids = mockPersonIds)
+            val mockCastMember = NetworkTraktCast(characters = listOf("Character Name"), person = mockPerson, episode_count = 10, series_regular = true)
+            val mockResponse = NetworkTraktShowPeopleResponse(cast = listOf(mockCastMember), crew = null)
+
+            whenever(traktService.getShowPeopleAsync(any())).thenReturn(
+                CompletableDeferred(mockResponse)
+            )
+
+            val result = dataSource.getShowCast("tt1234567")
+
+            assertTrue(result.isSuccess)
+            val castList = result.getOrNull()
+            assertTrue(castList?.isNotEmpty() == true)
+            assertEquals("Actor Name", castList?.first()?.name)
+            assertEquals("Character Name", castList?.first()?.character)
+            assertEquals(1, castList?.first()?.traktId)
         }
 }
