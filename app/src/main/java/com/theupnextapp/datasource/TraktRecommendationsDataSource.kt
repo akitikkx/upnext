@@ -23,6 +23,7 @@ package com.theupnextapp.datasource
 
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.theupnextapp.common.utils.models.DatabaseTables
+import timber.log.Timber
 import com.theupnextapp.database.DatabaseTraktMostAnticipated
 import com.theupnextapp.database.DatabaseTraktPopularShows
 import com.theupnextapp.database.DatabaseTraktTrendingShows
@@ -38,9 +39,9 @@ import com.theupnextapp.domain.TraktShowRating
 import com.theupnextapp.domain.TraktShowStats
 import com.theupnextapp.network.models.trakt.NetworkTraktPersonResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktPersonShowCreditsResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktCast
 import com.theupnextapp.domain.TraktCast
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import javax.inject.Inject
 
 open class TraktRecommendationsDataSource
@@ -443,18 +444,45 @@ open class TraktRecommendationsDataSource
 
         suspend fun getShowCast(imdbID: String): Result<List<TraktCast>> {
             return safeApiCall {
-                val networkResponse = traktService.getShowPeopleAsync(imdbID).await()
-                networkResponse.cast?.map { castMember ->
-                    TraktCast(
-                        character = castMember.characters?.firstOrNull() ?: "",
-                        name = castMember.person?.name,
-                        originalImageUrl = null, // Will need to fetch images separately if needed, or use a placeholder
-                        mediumImageUrl = null,
-                        traktId = castMember.person?.ids?.trakt,
-                        imdbId = castMember.person?.ids?.imdb,
-                        slug = castMember.person?.ids?.slug
-                    )
-                } ?: emptyList()
+                kotlinx.coroutines.coroutineScope {
+                    val traktRequest = async { traktService.getShowPeopleAsync(imdbID).await() }
+                    
+                    val tvMazeImagesRequest: kotlinx.coroutines.Deferred<Map<String, Pair<String?, String?>>> = async {
+                        try {
+                            val lookup = tvMazeService.getShowLookupAsync(imdbID).await()
+                            val tvMazeId = lookup.id
+                            if (tvMazeId != null) {
+                                val tvMazeCast = tvMazeService.getShowCastAsync(tvMazeId.toString()).await()
+                                tvMazeCast.associate { castItem -> 
+                                    (castItem.person?.name ?: "") to (castItem.person?.image?.original to castItem.person?.image?.medium) 
+                                }
+                            } else {
+                                emptyMap<String, Pair<String?, String?>>()
+                            }
+                        } catch (e: Exception) {
+                            Timber.w(e, "Failed to fetch TvMaze images for cast")
+                            emptyMap<String, Pair<String?, String?>>()
+                        }
+                    }
+
+                    val networkResponse = traktRequest.await()
+                    val imagesMap = tvMazeImagesRequest.await()
+
+                    networkResponse.cast?.map { castMember: NetworkTraktCast ->
+                        val personName = castMember.person?.name
+                        val (originalImage, mediumImage) = imagesMap[personName] ?: (null to null)
+
+                        TraktCast(
+                            character = castMember.characters?.firstOrNull() ?: "",
+                            name = personName,
+                            originalImageUrl = originalImage, 
+                            mediumImageUrl = mediumImage,
+                            traktId = castMember.person?.ids?.trakt,
+                            imdbId = castMember.person?.ids?.imdb,
+                            slug = castMember.person?.ids?.slug
+                        )
+                    } ?: emptyList()
+                }
             }
         }
     }

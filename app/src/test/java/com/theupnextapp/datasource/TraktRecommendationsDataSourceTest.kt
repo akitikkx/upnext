@@ -143,6 +143,51 @@ class TraktRecommendationsDataSourceTest {
                 CompletableDeferred(mockResponse)
             )
 
+            // Mock TvMaze calls
+            val mockTvMazeLookupResponse = com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupResponse(
+                id = 12345,
+                image = null,
+                _links = null,
+                externals = null,
+                name = "Show Title",
+                 premiered = null,
+                status = null,
+                summary = null,
+                updated = null,
+                url = null
+            )
+            whenever(tvMazeService.getShowLookupAsync(any())).thenReturn(
+                CompletableDeferred(mockTvMazeLookupResponse)
+            )
+
+            val mockTvMazeImage = com.theupnextapp.network.models.tvmaze.NetworkShowCastImage(
+                medium = "medium_url",
+                original = "original_url"
+            )
+            val mockTvMazePerson = com.theupnextapp.network.models.tvmaze.NetworkShowCastPerson(
+                name = "Actor Name",
+                image = mockTvMazeImage,
+                id = 1,
+                _links = null,
+                birthday = null,
+                country = null,
+                deathday = null,
+                gender = null,
+                url = null
+            )
+            val mockTvMazeCastItem = com.theupnextapp.network.models.tvmaze.NetworkShowCastResponseItem(
+                person = mockTvMazePerson,
+                character = null,
+                self = false,
+                voice = false
+            )
+            val mockTvMazeCastResponse = com.theupnextapp.network.models.tvmaze.NetworkShowCastResponse()
+            mockTvMazeCastResponse.add(mockTvMazeCastItem)
+
+            whenever(tvMazeService.getShowCastAsync(any())).thenReturn(
+                CompletableDeferred(mockTvMazeCastResponse)
+            )
+
             val result = dataSource.getShowCast("tt1234567")
 
             assertTrue(result.isSuccess)
@@ -151,5 +196,6 @@ class TraktRecommendationsDataSourceTest {
             assertEquals("Actor Name", castList?.first()?.name)
             assertEquals("Character Name", castList?.first()?.character)
             assertEquals(1, castList?.first()?.traktId)
+            assertEquals("original_url", castList?.first()?.originalImageUrl) // Verify image enrichment
         }
 }
