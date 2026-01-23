@@ -42,6 +42,7 @@ import com.theupnextapp.domain.TraktUserListItem
 import com.theupnextapp.domain.isTraktAccessTokenValid
 import com.theupnextapp.network.models.trakt.NetworkTraktPersonResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktPersonShowCreditsResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponse
 import com.theupnextapp.network.TvMazeService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -330,5 +331,9 @@ class TraktRepositoryImpl(
 
     override suspend fun getTraktPersonIdSearch(name: String): Result<Int?> {
         return traktRecommendationsDataSource.getTraktPersonIdFromSearch(name)
+    }
+
+    override suspend fun getTraktMySchedule(token: String, startDate: String, days: Int): Result<NetworkTraktMyScheduleResponse> {
+        return traktAccountDataSource.getTraktMySchedule(token, startDate, days)
     }
 }
