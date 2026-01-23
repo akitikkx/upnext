@@ -65,27 +65,46 @@ class TraktAuthManager @Inject constructor(
 
     init {
         scope.launch {
-            traktRepository.traktAccessToken.collect { accessToken ->
-                if (accessToken != null) {
-                    if (!accessToken.isTraktAccessTokenValid()) {
-                        traktRepository.getTraktAccessRefreshToken(accessToken.refresh_token)
-                    } else {
-                        val workerData = Data.Builder()
-                            .putString(RefreshFavoriteShowsWorker.ARG_TOKEN, accessToken.access_token)
-                            .build()
-
-                        val refreshFavoritesWork = OneTimeWorkRequest.Builder(RefreshFavoriteShowsWorker::class.java)
-                            .setInputData(workerData)
-                            .build()
-
-                        workManager.enqueueUniqueWork(
-                            "refresh_favorite_shows_work",
-                            androidx.work.ExistingWorkPolicy.KEEP,
-                            refreshFavoritesWork
-                        )
+            // Keep track of the last token we tried to refresh to prevent loops
+            var lastRefreshedToken: String? = null
+            
+            traktRepository.traktAccessToken
+                .collect { accessToken ->
+                    if (accessToken != null) {
+                        if (!accessToken.isTraktAccessTokenValid()) {
+                            val currentTokenString = accessToken.access_token
+                            
+                            // Only attempt refresh if we haven't just tried this token
+                            if (currentTokenString != lastRefreshedToken) {
+                                lastRefreshedToken = currentTokenString
+                                traktRepository.getTraktAccessRefreshToken(accessToken.refresh_token)
+                            } else {
+                                // If we are here, it means we refreshed, got a token, and it's STILL invalid.
+                                // Or we are looping on the same invalid token.
+                                // We should probably logout or stop trying.
+                                // For now, let's just log and maybe clear data if it persists?
+                                // Safe fallback: do nothing, just don't loop.
+                            }
+                        } else {
+                            // Token is valid. Reset tracker.
+                            lastRefreshedToken = null
+                            
+                            val workerData = Data.Builder()
+                                .putString(RefreshFavoriteShowsWorker.ARG_TOKEN, accessToken.access_token)
+                                .build()
+    
+                            val refreshFavoritesWork = OneTimeWorkRequest.Builder(RefreshFavoriteShowsWorker::class.java)
+                                .setInputData(workerData)
+                                .build()
+    
+                            workManager.enqueueUniqueWork(
+                                "refresh_favorite_shows_work",
+                                androidx.work.ExistingWorkPolicy.KEEP,
+                                refreshFavoritesWork
+                            )
+                        }
                     }
                 }
-            }
         }
     }
 }
