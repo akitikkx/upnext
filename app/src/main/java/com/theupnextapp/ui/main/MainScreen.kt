@@ -244,15 +244,23 @@ fun MainScreen(
                     AppNavigation(
                         navHostController = mainNavController,
                         overrideUpNavigation = {
-                            if (showDetailScreenArgs != null) {
+                            // Inspect the back stack to determine navigation behavior
+                            val navController = mainNavController
+                            val previousEntry = navController.previousBackStackEntry
+                            
+                            // If we have a previous entry in the back stack, we should pop to it.
+                            // This mimics standard system back behavior.
+                            if (previousEntry != null) {
+                                navController.popBackStack()
+                            } else {
+                                // If there is no previous entry, we are at the root of the detail pane.
+                                // In a split-pane context, "Up" should close the detail pane.
                                 destinationsNavigatorForDetail.navigate(EmptyDetailScreenDestination) {
                                     popUpTo(NavGraphs.root.startDestination) { inclusive = true }
                                     launchSingleTop = true
                                 }
-                            } else {
-                                mainNavController.popBackStack()
                             }
-                        },
+                        }
                     )
                 }
             },
