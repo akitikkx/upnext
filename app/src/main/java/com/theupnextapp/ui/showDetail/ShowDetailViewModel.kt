@@ -39,6 +39,7 @@ import com.theupnextapp.domain.emptyShowData
 import com.theupnextapp.repository.ShowDetailRepository
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.domain.TraktUserListItem
+import com.theupnextapp.domain.TraktCast
 import com.theupnextapp.ui.common.BaseTraktViewModel
 import com.theupnextapp.work.AddFavoriteShowWorker
 import com.theupnextapp.work.RemoveFavoriteShowWorker
@@ -155,6 +156,7 @@ class ShowDetailViewModel
             val showPreviousEpisode: ShowPreviousEpisode? = null,
             val showNextEpisode: ShowNextEpisode? = null,
             val showCast: List<ShowCast>? = null,
+            val traktCast: List<TraktCast>? = null,
             val isLoadingSummary: Boolean = false,
             val isCastLoading: Boolean = false,
             val isPreviousEpisodeLoading: Boolean = false,
@@ -169,6 +171,7 @@ class ShowDetailViewModel
 
         data class CastBottomSheetUiState(
             val showCast: ShowCast? = null,
+            val traktCast: TraktCast? = null,
             val personSummary: NetworkTraktPersonResponse? = null,
             val personCredits: NetworkTraktPersonShowCreditsResponse? = null,
             val isLoading: Boolean = false,
@@ -189,6 +192,7 @@ class ShowDetailViewModel
                         generalErrorMessage = null,
                         showSummary = null,
                         showCast = null,
+                        traktCast = null,
                         showPreviousEpisode = null,
                         showNextEpisode = null,
                     )
@@ -229,7 +233,7 @@ class ShowDetailViewModel
                                     getTraktShowStats(summary.imdbID)
                                     getTraktId(summary.imdbID)
                                     // checkIfShowIsTraktFavorite(summary.imdbID) // No longer needed as Flow handles it
-                                    getShowCast(showId.toInt())
+                                    getShowCast(summary.imdbID)
                                 }
 
                                 is Result.GenericError -> {
@@ -321,73 +325,22 @@ class ShowDetailViewModel
             }
         }
 
-        private fun getShowCast(showId: Int) {
+        private fun getShowCast(imdbID: String?) {
+            if (imdbID.isNullOrEmpty()) return
+
             viewModelScope.launch {
                 _uiState.update { it.copy(isCastLoading = true, castErrorMessage = null) }
-                showDetailRepository.getShowCast(showId).collect { result ->
-                    when (result) {
-                        is Result.Success -> {
-                            _uiState.update { it.copy(showCast = result.data, isCastLoading = false) }
-                        }
-
-                        is Result.GenericError -> {
-                            val errorMessage =
-                                result.error?.message
-                                    ?: "Failed to load cast (Code: ${result.code ?: "Unknown"})"
-                            firebaseCrashlytics.recordException(
-                                ShowDetailFetchException(
-                                    message = "GenericError in getShowCast: $errorMessage",
-                                    errorResponse = result.error,
-                                    cause = result.exception,
-                                ),
-                            )
-                            _uiState.update {
-                                it.copy(
-                                    isCastLoading = false,
-                                    castErrorMessage = errorMessage,
-                                )
-                            }
-                        }
-
-                        is Result.NetworkError -> {
-                            val networkErrorMessage = "Network error loading cast."
-                            firebaseCrashlytics.recordException(
-                                ShowDetailFetchException(
-                                    message = networkErrorMessage,
-                                    errorResponse = null,
-                                    cause = result.exception,
-                                        ),
-                                    )
-                            _uiState.update {
-                                it.copy(
-                                    isCastLoading = false,
-                                    castErrorMessage = networkErrorMessage,
-                                )
-                            }
-                        }
-
-                        is Result.Error -> {
-                            val errorMessage =
-                                result.message ?: "An unexpected error occurred while loading cast."
-                            firebaseCrashlytics.recordException(
-                                ShowDetailFetchException(
-                                    message = errorMessage,
-                                    cause = result.exception,
-                                ),
-                            )
-                            _uiState.update {
-                                it.copy(
-                                    isCastLoading = false,
-                                    castErrorMessage = errorMessage,
-                                )
-                            }
-                        }
-
-                        is Result.Loading -> {
-                            _uiState.update { it.copy(isCastLoading = result.status) }
-                        }
+                traktRepository.getShowCast(imdbID)
+                    .onSuccess { cast ->
+                        _uiState.update { it.copy(traktCast = cast, isCastLoading = false) }
                     }
-                }
+                    .onFailure { error ->
+                        val errorMessage = error.message ?: "Failed to load cast."
+                        _uiState.update { it.copy(isCastLoading = false, castErrorMessage = errorMessage) }
+                        firebaseCrashlytics.recordException(
+                            ShowDetailFetchException(message = "Error in getShowCast: $errorMessage", cause = error)
+                        )
+                    }
             }
         }
 
@@ -663,49 +616,30 @@ class ShowDetailViewModel
             _navigateToShowDetail.value = null
         }
 
-        fun onShowCastItemClicked(showCast: ShowCast) {
+        fun onShowCastItemClicked(castItem: TraktCast) {
             _castBottomSheetUiState.update {
-                it.copy(showCast = showCast, isLoading = true, errorMessage = null, personSummary = null, personCredits = null)
+                it.copy(traktCast = castItem, isLoading = true, errorMessage = null, personSummary = null, personCredits = null)
             }
 
             viewModelScope.launch(Dispatchers.IO) {
-                if (showCast.id != null) {
-                    // Try ID Lookup first
-                    val traktIdResult = traktRepository.getTraktPersonIdLookup(showCast.id.toString())
-                    var traktId = traktIdResult.getOrNull()
+                val traktId = castItem.traktId
 
-                    // Fallback to Name Search if ID lookup returns null/failure
-                    if (traktId == null && !showCast.name.isNullOrEmpty()) {
-                        showCast.name?.let { name ->
-                            val searchResult = traktRepository.getTraktPersonIdSearch(name)
-                            traktId = searchResult.getOrNull()
-                        }
-                    }
+                if (traktId != null) {
+                    val summaryDeferred = async { traktRepository.getTraktPersonSummary(traktId.toString()) }
+                    val creditsDeferred = async { traktRepository.getTraktPersonShowCredits(traktId.toString()) }
 
-                    if (traktId != null) {
-                        val summaryDeferred = async { traktRepository.getTraktPersonSummary(traktId.toString()) }
-                        val creditsDeferred = async { traktRepository.getTraktPersonShowCredits(traktId.toString()) }
+                    val summaryResult = summaryDeferred.await()
+                    val creditsResult = creditsDeferred.await()
 
-                        val summaryResult = summaryDeferred.await()
-                        val creditsResult = creditsDeferred.await()
-
-                        _castBottomSheetUiState.update { currentState ->
-                            currentState.copy(
-                                isLoading = false,
-                                personSummary = summaryResult.getOrNull(),
-                                personCredits = creditsResult.getOrNull()
-                            )
-                        }
-                    } else {
-                        val errorMsg = if (traktIdResult.isFailure && showCast.name.isNullOrEmpty()) {
-                            "ID Lookup failed and no name for fallback"
-                        } else {
-                            "Could not find person on Trakt"
-                        }
-                        _castBottomSheetUiState.update { it.copy(isLoading = false, errorMessage = errorMsg) }
+                    _castBottomSheetUiState.update { currentState ->
+                        currentState.copy(
+                            isLoading = false,
+                            personSummary = summaryResult.getOrNull(),
+                            personCredits = creditsResult.getOrNull()
+                        )
                     }
                 } else {
-                    _castBottomSheetUiState.update { it.copy(isLoading = false, errorMessage = "Invalid Cast ID") }
+                    _castBottomSheetUiState.update { it.copy(isLoading = false, errorMessage = "Invalid Person ID") }
                 }
             }
         }

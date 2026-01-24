@@ -32,6 +32,10 @@ import com.theupnextapp.network.models.trakt.NetworkTraktShowRatingResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktShowStatsResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktIdLookupResponseItemShow
 import com.theupnextapp.network.models.trakt.NetworkTraktIdLookupResponseItemShowIds
+import com.theupnextapp.network.models.trakt.NetworkTraktShowPeopleResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktCast
+import com.theupnextapp.network.models.trakt.NetworkTraktPerson
+import com.theupnextapp.network.models.trakt.NetworkTraktPersonIds
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -125,5 +129,93 @@ class TraktRecommendationsDataSourceTest {
 
             assertTrue(result.isSuccess)
             assertEquals(12345, result.getOrNull())
+        }
+
+    @Test
+    fun getShowCast_success() =
+        runBlocking {
+            val mockPersonIds = NetworkTraktPersonIds(trakt = 1, slug = "slug", imdb = "nm123", tmdb = 10, tvrage = 2)
+            val mockPerson = NetworkTraktPerson(name = "Actor Name", ids = mockPersonIds)
+            val mockCastMember = NetworkTraktCast(characters = listOf("Character Name"), person = mockPerson, episode_count = 10, series_regular = true)
+            val mockResponse = NetworkTraktShowPeopleResponse(cast = listOf(mockCastMember), crew = null)
+
+            whenever(traktService.getShowPeopleAsync(any())).thenReturn(
+                CompletableDeferred(mockResponse)
+            )
+
+            // Mock TvMaze calls
+            val mockTvMazeLookupResponse = com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupResponse(
+                id = 12345,
+                image = com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupImage(medium = "", original = ""),
+                _links = null,
+                externals = null,
+                name = "Show Title",
+                premiered = "2024-01-01",
+                status = "Running",
+                summary = "Summary",
+                updated = 123456789,
+                url = "http://example.com",
+                averageRuntime = 60,
+                dvdCountry = null,
+                genres = emptyList(),
+                language = "English",
+                network = com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupNetwork(
+                    id = 1,
+                    name = "Network",
+                    country = com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupCountry(code = "US", name = "United States", timezone = "America/New_York")
+                ),
+                officialSite = "http://example.com",
+                rating = com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupRating(average = 8.0),
+                runtime = 60,
+                schedule = com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupSchedule(days = emptyList(), time = "20:00"),
+                type = "Scripted",
+                webChannel = com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupWebChannel(
+                    id = 1,
+                    name = "WebChannel",
+                    country = com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupCountryX(code = "US", name = "United States", timezone = "America/New_York")
+                ),
+                weight = 100
+            )
+            whenever(tvMazeService.getShowLookupAsync(any())).thenReturn(
+                CompletableDeferred(mockTvMazeLookupResponse)
+            )
+
+            val mockTvMazeImage = com.theupnextapp.network.models.tvmaze.NetworkShowCastImage(
+                medium = "medium_url",
+                original = "original_url"
+            )
+            val mockTvMazePerson = com.theupnextapp.network.models.tvmaze.NetworkShowCastPerson(
+                name = "Actor Name",
+                image = mockTvMazeImage,
+                id = 1,
+                _links = null,
+                birthday = null,
+                country = null,
+                deathday = null,
+                gender = null,
+                url = null
+            )
+            val mockTvMazeCastItem = com.theupnextapp.network.models.tvmaze.NetworkShowCastResponseItem(
+                person = mockTvMazePerson,
+                character = null,
+                self = false,
+                voice = false
+            )
+            val mockTvMazeCastResponse = com.theupnextapp.network.models.tvmaze.NetworkShowCastResponse()
+            mockTvMazeCastResponse.add(mockTvMazeCastItem)
+
+            whenever(tvMazeService.getShowCastAsync(any())).thenReturn(
+                CompletableDeferred(mockTvMazeCastResponse)
+            )
+
+            val result = dataSource.getShowCast("tt1234567")
+
+            assertTrue(result.isSuccess)
+            val castList = result.getOrNull()
+            assertTrue(castList?.isNotEmpty() == true)
+            assertEquals("Actor Name", castList?.first()?.name)
+            assertEquals("Character Name", castList?.first()?.character)
+            assertEquals(1, castList?.first()?.traktId)
+            assertEquals("original_url", castList?.first()?.originalImageUrl) // Verify image enrichment
         }
 }
