@@ -146,15 +146,35 @@ class TraktRecommendationsDataSourceTest {
             // Mock TvMaze calls
             val mockTvMazeLookupResponse = com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupResponse(
                 id = 12345,
-                image = null,
+                image = com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupImage(medium = "", original = ""),
                 _links = null,
                 externals = null,
                 name = "Show Title",
-                 premiered = null,
-                status = null,
-                summary = null,
-                updated = null,
-                url = null
+                premiered = "2024-01-01",
+                status = "Running",
+                summary = "Summary",
+                updated = 123456789,
+                url = "http://example.com",
+                averageRuntime = 60,
+                dvdCountry = null,
+                genres = emptyList(),
+                language = "English",
+                network = com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupNetwork(
+                    id = 1,
+                    name = "Network",
+                    country = com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupCountry(code = "US", name = "United States", timezone = "America/New_York")
+                ),
+                officialSite = "http://example.com",
+                rating = com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupRating(average = 8.0),
+                runtime = 60,
+                schedule = com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupSchedule(days = emptyList(), time = "20:00"),
+                type = "Scripted",
+                webChannel = com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupWebChannel(
+                    id = 1,
+                    name = "WebChannel",
+                    country = com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupCountryX(code = "US", name = "United States", timezone = "America/New_York")
+                ),
+                weight = 100
             )
             whenever(tvMazeService.getShowLookupAsync(any())).thenReturn(
                 CompletableDeferred(mockTvMazeLookupResponse)
