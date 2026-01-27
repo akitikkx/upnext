@@ -23,24 +23,24 @@ package com.theupnextapp.work
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.theupnextapp.R
+import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponseItem
 import com.theupnextapp.repository.SettingsRepository
 import com.theupnextapp.repository.TraktRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import android.app.PendingIntent
-import android.content.Intent
-import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponseItem
+import kotlinx.coroutines.flow.first
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import kotlinx.coroutines.flow.first
 
 @HiltWorker
 class NotificationWorker @AssistedInject constructor(
@@ -55,7 +55,7 @@ class NotificationWorker @AssistedInject constructor(
         if (!areNotificationsEnabled) {
             return Result.success()
         }
-        
+
         val accessToken = traktRepository.traktAccessToken.first()
         if (accessToken?.access_token.isNullOrEmpty()) {
             return Result.success()
@@ -90,7 +90,7 @@ class NotificationWorker @AssistedInject constructor(
 
         val title = "New Episode: $showTitle"
         val message = if (season != null && episode != null) {
-            "S${season}E${episode} - $episodeTitle airing today!"
+            "S${season}E$episode - $episodeTitle airing today!"
         } else {
             "$episodeTitle airing today!"
         }
@@ -111,7 +111,9 @@ class NotificationWorker @AssistedInject constructor(
             notificationManager.createNotificationChannel(channel)
         }
 
-        val intent = applicationContext.packageManager.getLaunchIntentForPackage(applicationContext.packageName)?.apply {
+        val intent = applicationContext.packageManager.getLaunchIntentForPackage(
+            applicationContext.packageName
+        )?.apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
         val pendingIntent: PendingIntent = PendingIntent.getActivity(

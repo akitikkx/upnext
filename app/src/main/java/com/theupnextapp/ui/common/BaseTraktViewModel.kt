@@ -23,8 +23,6 @@ package com.theupnextapp.ui.common
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.work.Data
-import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.theupnextapp.common.utils.TraktAuthManager
 import com.theupnextapp.domain.TraktAccessToken
@@ -32,66 +30,60 @@ import com.theupnextapp.domain.TraktAuthState
 import com.theupnextapp.domain.TraktUserListItem
 import com.theupnextapp.domain.isTraktAccessTokenValid
 import com.theupnextapp.repository.TraktRepository
-import com.theupnextapp.work.RefreshFavoriteShowsWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 open class BaseTraktViewModel
-    @Inject
-    constructor(
-        private val traktRepository: TraktRepository,
-        private val workManager: WorkManager,
-        private val traktAuthManager: TraktAuthManager,
-    ) : ViewModel() {
-        val traktAccessToken: StateFlow<TraktAccessToken?> =
-            traktRepository.traktAccessToken
-                .stateIn(
-                    scope = viewModelScope,
-                    started = SharingStarted.WhileSubscribed(5000),
-                    initialValue = null,
-                )
+@Inject
+constructor(
+    private val traktRepository: TraktRepository,
+    private val workManager: WorkManager,
+    private val traktAuthManager: TraktAuthManager,
+) : ViewModel() {
+    val traktAccessToken: StateFlow<TraktAccessToken?> =
+        traktRepository.traktAccessToken
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = null,
+            )
 
-        val favoriteShow: StateFlow<TraktUserListItem?> =
-            traktRepository.favoriteShow
-                .stateIn(
-                    scope = viewModelScope,
-                    started = SharingStarted.WhileSubscribed(5000),
-                    initialValue = null,
-                )
+    val favoriteShow: StateFlow<TraktUserListItem?> =
+        traktRepository.favoriteShow
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = null,
+            )
 
-        val traktAuthState: StateFlow<TraktAuthState> = traktAuthManager.traktAuthState
+    val traktAuthState: StateFlow<TraktAuthState> = traktAuthManager.traktAuthState
 
-        val isAuthorizedOnTrakt: StateFlow<Boolean> =
-            traktAuthState
-                .map { it == TraktAuthState.LoggedIn }
-                .stateIn(
-                    scope = viewModelScope,
-                    started = SharingStarted.WhileSubscribed(5000),
-                    initialValue = false,
-                )
+    val isAuthorizedOnTrakt: StateFlow<Boolean> =
+        traktAuthState
+            .map { it == TraktAuthState.LoggedIn }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = false,
+            )
 
-        fun revokeTraktAccessToken() {
-            viewModelScope.launch(Dispatchers.IO) {
-                val currentToken = traktAccessToken.value
-                if (currentToken != null) {
-                    if (!currentToken.access_token.isNullOrEmpty() &&
-                        currentToken.isTraktAccessTokenValid()
-                    ) {
-                        traktRepository.revokeTraktAccessToken(currentToken)
-                    }
+    fun revokeTraktAccessToken() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val currentToken = traktAccessToken.value
+            if (currentToken != null) {
+                if (!currentToken.access_token.isNullOrEmpty() &&
+                    currentToken.isTraktAccessTokenValid()
+                ) {
+                    traktRepository.revokeTraktAccessToken(currentToken)
                 }
             }
         }
     }
-
-
+}

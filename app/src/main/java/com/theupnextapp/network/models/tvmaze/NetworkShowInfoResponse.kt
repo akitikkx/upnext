@@ -113,22 +113,22 @@ fun NetworkShowInfoResponse.asDomainModel(): ShowDetailSummary {
         previousEpisodeHref = _links?.previousepisode?.href,
         nextEpisodeHref = _links?.nextepisode?.href,
         nextEpisodeLinkedId =
-            _links?.nextepisode?.href?.substring(
-                _links.nextepisode.href.lastIndexOf("/") + 1,
-                _links.nextepisode.href.length,
-            )?.replace("/", "")?.let {
-                Integer.parseInt(
-                    it,
-                )
-            },
+        _links?.nextepisode?.href?.substring(
+            _links.nextepisode.href.lastIndexOf("/") + 1,
+            _links.nextepisode.href.length,
+        )?.replace("/", "")?.let {
+            Integer.parseInt(
+                it,
+            )
+        },
         previousEpisodeLinkedId =
-            _links?.previousepisode?.href?.substring(
-                _links.previousepisode.href.lastIndexOf("/") + 1,
-                _links.previousepisode.href.length,
-            )?.replace("/", "")?.let {
-                Integer.parseInt(
-                    it,
-                )
-            },
+        _links?.previousepisode?.href?.substring(
+            _links.previousepisode.href.lastIndexOf("/") + 1,
+            _links.previousepisode.href.length,
+        )?.replace("/", "")?.let {
+            Integer.parseInt(
+                it,
+            )
+        },
     )
 }

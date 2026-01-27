@@ -26,16 +26,16 @@ import com.theupnextapp.database.TraktDao
 import com.theupnextapp.database.UpnextDao
 import com.theupnextapp.network.TraktService
 import com.theupnextapp.network.TvMazeService
+import com.theupnextapp.network.models.trakt.NetworkTraktCast
 import com.theupnextapp.network.models.trakt.NetworkTraktIdLookupResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktIdLookupResponseItem
-import com.theupnextapp.network.models.trakt.NetworkTraktShowRatingResponse
-import com.theupnextapp.network.models.trakt.NetworkTraktShowStatsResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktIdLookupResponseItemShow
 import com.theupnextapp.network.models.trakt.NetworkTraktIdLookupResponseItemShowIds
-import com.theupnextapp.network.models.trakt.NetworkTraktShowPeopleResponse
-import com.theupnextapp.network.models.trakt.NetworkTraktCast
 import com.theupnextapp.network.models.trakt.NetworkTraktPerson
 import com.theupnextapp.network.models.trakt.NetworkTraktPersonIds
+import com.theupnextapp.network.models.trakt.NetworkTraktShowPeopleResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktShowRatingResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktShowStatsResponse
 import com.theupnextapp.network.models.tvmaze.NetworkShowCastImage
 import com.theupnextapp.network.models.tvmaze.NetworkShowCastPerson
 import com.theupnextapp.network.models.tvmaze.NetworkShowCastResponse
@@ -131,11 +131,19 @@ class TraktRecommendationsDataSourceTest {
     @Test
     fun getTraktIdFromImdbId_success() =
         runBlocking {
-             val mockIds = NetworkTraktIdLookupResponseItemShowIds(trakt = 12345, slug = "slug", imdb = "tt1234567", tmdb = 2, tvdb = 1)
-             val mockShow = NetworkTraktIdLookupResponseItemShow(title = "Show Title", year = 2024, ids = mockIds)
-             val mockResponseItem = NetworkTraktIdLookupResponseItem(type = "show", score = 1.0, show = mockShow, person = null)
-             val mockResponse = NetworkTraktIdLookupResponse()
-             mockResponse.add(mockResponseItem)
+            val mockIds =
+                NetworkTraktIdLookupResponseItemShowIds(
+                    trakt = 12345,
+                    slug = "slug",
+                    imdb = "tt1234567",
+                    tmdb = 2,
+                    tvdb = 1
+                )
+            val mockShow = NetworkTraktIdLookupResponseItemShow(title = "Show Title", year = 2024, ids = mockIds)
+            val mockResponseItem =
+                NetworkTraktIdLookupResponseItem(type = "show", score = 1.0, show = mockShow, person = null)
+            val mockResponse = NetworkTraktIdLookupResponse()
+            mockResponse.add(mockResponseItem)
 
             whenever(traktService.idLookupAsync(eq("imdb"), eq("tt1234567"), eq("show"))).thenReturn(
                 CompletableDeferred(mockResponse),
@@ -152,7 +160,13 @@ class TraktRecommendationsDataSourceTest {
         runBlocking {
             val mockPersonIds = NetworkTraktPersonIds(trakt = 1, slug = "slug", imdb = "nm123", tmdb = 10, tvrage = 2)
             val mockPerson = NetworkTraktPerson(name = "Actor Name", ids = mockPersonIds)
-            val mockCastMember = NetworkTraktCast(characters = listOf("Character Name"), person = mockPerson, episode_count = 10, series_regular = true)
+            val mockCastMember =
+                NetworkTraktCast(
+                    characters = listOf("Character Name"),
+                    person = mockPerson,
+                    episode_count = 10,
+                    series_regular = true
+                )
             val mockResponse = NetworkTraktShowPeopleResponse(cast = listOf(mockCastMember), crew = null)
 
             whenever(traktService.getShowPeopleAsync(any())).thenReturn(
@@ -178,7 +192,11 @@ class TraktRecommendationsDataSourceTest {
                 network = NetworkTvMazeShowLookupNetwork(
                     id = 1,
                     name = "Network",
-                    country = NetworkTvMazeShowLookupCountry(code = "US", name = "United States", timezone = "America/New_York")
+                    country = NetworkTvMazeShowLookupCountry(
+                        code = "US",
+                        name = "United States",
+                        timezone = "America/New_York"
+                    )
                 ),
                 officialSite = "http://example.com",
                 rating = NetworkTvMazeShowLookupRating(average = 8.0),
@@ -188,7 +206,11 @@ class TraktRecommendationsDataSourceTest {
                 webChannel = NetworkTvMazeShowLookupWebChannel(
                     id = 1,
                     name = "WebChannel",
-                    country = NetworkTvMazeShowLookupCountryX(code = "US", name = "United States", timezone = "America/New_York")
+                    country = NetworkTvMazeShowLookupCountryX(
+                        code = "US",
+                        name = "United States",
+                        timezone = "America/New_York"
+                    )
                 ),
                 weight = 100
             )
@@ -247,7 +269,7 @@ class TraktRecommendationsDataSourceTest {
                     tvdb = 2,
                     tvMazeID = null,
                 )
-            
+
             val mockRelatedShowItem =
                 com.theupnextapp.network.models.trakt.NetworkTraktRelatedShowsResponseItem(
                     title = "Related Show",
@@ -256,7 +278,7 @@ class TraktRecommendationsDataSourceTest {
                     mediumImageUrl = null,
                     originalImageUrl = null,
                 )
-            
+
             val mockShowIds2 =
                 com.theupnextapp.network.models.trakt.NetworkTraktRelatedShowsResponseItemIds(
                     trakt = 2,
@@ -266,7 +288,7 @@ class TraktRecommendationsDataSourceTest {
                     tvdb = 3,
                     tvMazeID = null,
                 )
-             val mockRelatedShowItem2 =
+            val mockRelatedShowItem2 =
                 com.theupnextapp.network.models.trakt.NetworkTraktRelatedShowsResponseItem(
                     title = "Related Show 2",
                     year = 2024,
@@ -305,7 +327,11 @@ class TraktRecommendationsDataSourceTest {
                 network = NetworkTvMazeShowLookupNetwork(
                     id = 1,
                     name = "Network",
-                    country = NetworkTvMazeShowLookupCountry(code = "US", name = "United States", timezone = "America/New_York")
+                    country = NetworkTvMazeShowLookupCountry(
+                        code = "US",
+                        name = "United States",
+                        timezone = "America/New_York"
+                    )
                 ),
                 officialSite = "site",
                 rating = NetworkTvMazeShowLookupRating(average = 8.0),
@@ -315,7 +341,11 @@ class TraktRecommendationsDataSourceTest {
                 webChannel = NetworkTvMazeShowLookupWebChannel(
                     id = 1,
                     name = "WebChannel",
-                    country = NetworkTvMazeShowLookupCountryX(code = "US", name = "United States", timezone = "America/New_York")
+                    country = NetworkTvMazeShowLookupCountryX(
+                        code = "US",
+                        name = "United States",
+                        timezone = "America/New_York"
+                    )
                 ),
                 weight = 100
             )
@@ -324,8 +354,11 @@ class TraktRecommendationsDataSourceTest {
                 CompletableDeferred(mockTvMazeLookupResponse)
             )
             // Return failure/null for second item ("tt456") to simulate missing images
-             whenever(tvMazeService.getShowLookupAsync(eq("tt456"))).thenThrow(retrofit2.HttpException(retrofit2.Response.error<Any>(404, okhttp3.ResponseBody.create(null, ""))))
-
+            whenever(
+                tvMazeService.getShowLookupAsync(eq("tt456"))
+            ).thenThrow(
+                retrofit2.HttpException(retrofit2.Response.error<Any>(404, okhttp3.ResponseBody.create(null, "")))
+            )
 
             val result = dataSource.getRelatedShows("tt1234567")
 

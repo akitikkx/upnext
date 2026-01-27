@@ -21,13 +21,13 @@
 
 package com.theupnextapp.di
 
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.theupnextapp.common.CrashlyticsHelper
 import com.theupnextapp.database.TraktDao
 import com.theupnextapp.database.TvMazeDao
 import com.theupnextapp.database.UpnextDao
 import com.theupnextapp.datasource.TraktAccountDataSource
 import com.theupnextapp.datasource.TraktAuthDataSource
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.theupnextapp.datasource.TraktRecommendationsDataSource
 import com.theupnextapp.network.TraktService
 import com.theupnextapp.network.TvMazeService

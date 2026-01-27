@@ -103,9 +103,9 @@ fun ExploreScreen(
         Surface(modifier = Modifier.fillMaxSize()) {
             Column(
                 modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .verticalScroll(scrollState),
+                Modifier
+                    .fillMaxSize()
+                    .verticalScroll(scrollState),
             ) {
                 if (isOverallLoading && !isPullRefreshing && popularShowsList.isEmpty() && trendingShowsList.isEmpty() && mostAnticipatedShowsList.isEmpty()) {
                     LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
@@ -113,10 +113,10 @@ fun ExploreScreen(
 
                 Column(
                     modifier =
-                        Modifier.padding(
-                            top = 8.dp,
-                            bottom = 16.dp,
-                        ),
+                    Modifier.padding(
+                        top = 8.dp,
+                        bottom = 16.dp,
+                    ),
                 ) {
                     // Trending Shows Section
                     if (isLoadingTrending && trendingShowsList.isEmpty()) {

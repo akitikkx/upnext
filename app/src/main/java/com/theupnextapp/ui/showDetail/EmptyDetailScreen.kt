@@ -51,10 +51,10 @@ fun EmptyDetailScreen() {
         // Content for Medium and Expanded screens
         Box(
             modifier =
-                Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
-                    .padding(16.dp),
+            Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .padding(16.dp),
             contentAlignment = Alignment.Center,
         ) {
             Column(

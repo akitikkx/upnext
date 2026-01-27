@@ -74,27 +74,27 @@ fun DashboardScreen(
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier =
-                Modifier
-                    .fillMaxSize()
-                    .testTag("dashboard_list"),
+            Modifier
+                .fillMaxSize()
+                .testTag("dashboard_list"),
         ) {
             // Show LinearProgressIndicator at the top if loading
             if (isLoading.value == true) {
                 LinearProgressIndicator(
                     modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 8.dp, vertical = 4.dp), // Adjust padding as needed
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp, vertical = 4.dp), // Adjust padding as needed
                 )
             }
 
             // Scrollable content area
             Column(
                 modifier =
-                    Modifier
-                        .weight(1f) // Allow this Column to take remaining space
-                        .verticalScroll(scrollState) // Make this part scrollable
-                        .padding(top = 8.dp),
+                Modifier
+                    .weight(1f) // Allow this Column to take remaining space
+                    .verticalScroll(scrollState) // Make this part scrollable
+                    .padding(top = 8.dp),
             ) {
                 // Yesterday Shows
                 yesterdayShowsList.value?.let { list ->
@@ -164,7 +164,7 @@ fun DashboardScreen(
             !yesterdayShowsList.value.isNullOrEmpty() ||
                 !tomorrowShowsList.value.isNullOrEmpty() ||
                 !todayShowsList.value.isNullOrEmpty()
-        ) || (isLoading.value == false)
+            ) || (isLoading.value == false)
     }
 }
 

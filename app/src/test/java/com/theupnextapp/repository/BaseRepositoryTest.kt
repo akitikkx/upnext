@@ -157,20 +157,20 @@ class BaseRepositoryTest {
     ): NetworkTvMazeShowLookupResponse {
         return NetworkTvMazeShowLookupResponse(
             _links =
-                NetworkTvMazeShowLookupLinks(
-                    self = dummyLookupSelfLink,
-                    previousepisode = dummyLookupPreviousEpisodeLink,
-                ),
+            NetworkTvMazeShowLookupLinks(
+                self = dummyLookupSelfLink,
+                previousepisode = dummyLookupPreviousEpisodeLink,
+            ),
             averageRuntime = 60,
             dvdCountry = null,
             externals = dummyLookupExternals,
             genres = listOf("Drama"),
             id = id,
             image =
-                NetworkTvMazeShowLookupImage(
-                    medium = mediumImageUrl,
-                    original = originalImageUrl,
-                ),
+            NetworkTvMazeShowLookupImage(
+                medium = mediumImageUrl,
+                original = originalImageUrl,
+            ),
             language = "English",
             name = name,
             network = dummyLookupNetwork,

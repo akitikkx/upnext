@@ -51,6 +51,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.theupnextapp.R
@@ -60,8 +61,6 @@ import com.theupnextapp.domain.ShowSeasonEpisodesArg
 import com.theupnextapp.ui.components.PosterImage
 import com.theupnextapp.ui.components.SectionHeadingText
 import org.jsoup.Jsoup
-
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @ExperimentalMaterial3Api
 @Destination<RootGraph>(navArgs = ShowSeasonEpisodesArg::class)
@@ -99,9 +98,9 @@ fun ShowSeasonEpisodesScreen(
                 if (isLoading.value == true) {
                     LinearProgressIndicator(
                         modifier =
-                            Modifier
-                                .padding(8.dp)
-                                .fillMaxWidth(),
+                        Modifier
+                            .padding(8.dp)
+                            .fillMaxWidth(),
                     )
                 }
             }
@@ -120,10 +119,10 @@ fun ShowSeasonEpisodes(
     Column(modifier = Modifier.fillMaxWidth()) {
         SectionHeadingText(
             text =
-                stringResource(
-                    R.string.show_detail_show_season_episodes_title_with_number,
-                    seasonNumber,
-                ),
+            stringResource(
+                R.string.show_detail_show_season_episodes_title_with_number,
+                seasonNumber,
+            ),
         )
         LazyColumn(Modifier.padding(8.dp)) {
             items(list) { episode ->
@@ -147,9 +146,9 @@ fun ShowSeasonEpisodeCard(
     Card(
         shape = MaterialTheme.shapes.large,
         modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
+        Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
     ) {
         Column(
             verticalArrangement = Arrangement.Top,
@@ -159,9 +158,9 @@ fun ShowSeasonEpisodeCard(
                 PosterImage(
                     url = url,
                     modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .height(dimensionResource(id = R.dimen.show_season_episode_poster_height)),
+                    Modifier
+                        .fillMaxWidth()
+                        .height(dimensionResource(id = R.dimen.show_season_episode_poster_height)),
                 )
             }
 
@@ -178,11 +177,11 @@ fun ShowSeasonEpisodeCard(
                     if (item.number.toString().isNotEmpty() && item.season.toString().isNotEmpty()) {
                         Text(
                             text =
-                                stringResource(
-                                    R.string.show_detail_season_and_episode_number,
-                                    item.season.toString(),
-                                    item.number.toString(),
-                                ),
+                            stringResource(
+                                R.string.show_detail_season_and_episode_number,
+                                item.season.toString(),
+                                item.number.toString(),
+                            ),
                             modifier = Modifier.padding(4.dp),
                             style = MaterialTheme.typography.bodyLarge,
                             fontWeight = FontWeight.Bold,
@@ -193,23 +192,23 @@ fun ShowSeasonEpisodeCard(
                         IconButton(onClick = { onToggleWatched(item) }) {
                             Icon(
                                 imageVector =
-                                    if (item.isWatched) {
-                                        Icons.Filled.CheckCircle
-                                    } else {
-                                        Icons.Outlined.CheckCircle
-                                    },
+                                if (item.isWatched) {
+                                    Icons.Filled.CheckCircle
+                                } else {
+                                    Icons.Outlined.CheckCircle
+                                },
                                 contentDescription =
-                                    if (item.isWatched) {
-                                        stringResource(R.string.episode_mark_unwatched)
-                                    } else {
-                                        stringResource(R.string.episode_mark_watched)
-                                    },
+                                if (item.isWatched) {
+                                    stringResource(R.string.episode_mark_unwatched)
+                                } else {
+                                    stringResource(R.string.episode_mark_watched)
+                                },
                                 tint =
-                                    if (item.isWatched) {
-                                        MaterialTheme.colorScheme.primary
-                                    } else {
-                                        MaterialTheme.colorScheme.onSurfaceVariant
-                                    },
+                                if (item.isWatched) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    MaterialTheme.colorScheme.onSurfaceVariant
+                                },
                             )
                         }
                     }
@@ -220,9 +219,9 @@ fun ShowSeasonEpisodeCard(
                         Text(
                             text = it,
                             modifier =
-                                Modifier
-                                    .padding(start = 4.dp)
-                                    .fillMaxWidth(),
+                            Modifier
+                                .padding(start = 4.dp)
+                                .fillMaxWidth(),
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Bold,
                         )
@@ -234,13 +233,13 @@ fun ShowSeasonEpisodeCard(
                         Text(
                             text = Jsoup.parse(it).text(),
                             modifier =
-                                Modifier
-                                    .padding(
-                                        start = 4.dp,
-                                        top = 4.dp,
-                                        bottom = 2.dp,
-                                    )
-                                    .fillMaxWidth(),
+                            Modifier
+                                .padding(
+                                    start = 4.dp,
+                                    top = 4.dp,
+                                    bottom = 2.dp,
+                                )
+                                .fillMaxWidth(),
                             style = MaterialTheme.typography.bodySmall,
                         )
                     }
@@ -250,14 +249,14 @@ fun ShowSeasonEpisodeCard(
                     val date = DateUtils.getDisplayDateFromDateStamp(item.airstamp)
                     Text(
                         text =
-                            stringResource(
-                                R.string.show_detail_air_date_general,
-                                date.toString(),
-                            ),
+                        stringResource(
+                            R.string.show_detail_air_date_general,
+                            date.toString(),
+                        ),
                         modifier =
-                            Modifier
-                                .padding(4.dp)
-                                .fillMaxWidth(),
+                        Modifier
+                            .padding(4.dp)
+                            .fillMaxWidth(),
                         style = MaterialTheme.typography.bodySmall,
                     )
                 }
@@ -266,8 +265,8 @@ fun ShowSeasonEpisodeCard(
                     Text(
                         text = stringResource(R.string.episode_watched),
                         modifier =
-                            Modifier
-                                .padding(4.dp),
+                        Modifier
+                            .padding(4.dp),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Medium,

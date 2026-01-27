@@ -77,10 +77,10 @@ class DashboardRepositoryTest {
                         NetworkTvMazeShowImageResponseItem(
                             id = 101, type = "poster", main = true,
                             resolutions =
-                                NetworkTvMazeShowImageResolutions(
-                                    original = NetworkTvMazeShowImageOriginal(url = "final_original.png"),
-                                    medium = NetworkTvMazeShowImageMedium(url = "final_medium.png"),
-                                ),
+                            NetworkTvMazeShowImageResolutions(
+                                original = NetworkTvMazeShowImageOriginal(url = "final_original.png"),
+                                medium = NetworkTvMazeShowImageMedium(url = "final_medium.png"),
+                            ),
                         ),
                     )
                 }
@@ -132,7 +132,8 @@ class DashboardRepositoryTest {
     @Test
     fun `refreshYesterdayShows - filters out shows with no image or imdb id from initial fetch`() =
         runTest {
-            val validShowNetwork = createMockYesterdayScheduleResponse(id = 1, imdb = "imdb1", image = "image.png", showId = 10)
+            val validShowNetwork =
+                createMockYesterdayScheduleResponse(id = 1, imdb = "imdb1", image = "image.png", showId = 10)
             val showWithoutImageNetwork =
                 createMockYesterdayScheduleResponse(
                     id = 2,
@@ -142,7 +143,8 @@ class DashboardRepositoryTest {
                     showImageOriginal = null,
                     showImageMedium = null,
                 )
-            val showWithoutImdbNetwork = createMockYesterdayScheduleResponse(id = 3, imdb = null, image = "image.png", showId = 30)
+            val showWithoutImdbNetwork =
+                createMockYesterdayScheduleResponse(id = 3, imdb = null, image = "image.png", showId = 30)
 
             fakeTvMazeService.mockYesterdayScheduleResponse = listOf(validShowNetwork, showWithoutImageNetwork, showWithoutImdbNetwork)
 
@@ -152,10 +154,10 @@ class DashboardRepositoryTest {
                         NetworkTvMazeShowImageResponseItem(
                             id = 101, type = "poster", main = true,
                             resolutions =
-                                NetworkTvMazeShowImageResolutions(
-                                    original = NetworkTvMazeShowImageOriginal(url = "final_original_for_show_10.png"),
-                                    medium = NetworkTvMazeShowImageMedium(url = "final_medium_for_show_10.png"),
-                                ),
+                            NetworkTvMazeShowImageResolutions(
+                                original = NetworkTvMazeShowImageOriginal(url = "final_original_for_show_10.png"),
+                                medium = NetworkTvMazeShowImageMedium(url = "final_medium_for_show_10.png"),
+                            ),
                         ),
                     )
                 }
@@ -181,10 +183,10 @@ class DashboardRepositoryTest {
                         NetworkTvMazeShowImageResponseItem(
                             id = 101, type = "poster", main = true,
                             resolutions =
-                                NetworkTvMazeShowImageResolutions(
-                                    original = NetworkTvMazeShowImageOriginal(url = "final_original.png"),
-                                    medium = NetworkTvMazeShowImageMedium(url = "final_medium.png"),
-                                ),
+                            NetworkTvMazeShowImageResolutions(
+                                original = NetworkTvMazeShowImageOriginal(url = "final_original.png"),
+                                medium = NetworkTvMazeShowImageMedium(url = "final_medium.png"),
+                            ),
                         ),
                     )
                 }
@@ -236,7 +238,8 @@ class DashboardRepositoryTest {
     @Test
     fun `refreshTodayShows - filters out shows with no image or imdb id from initial fetch`() =
         runTest {
-            val validShowNetwork = createMockTodayScheduleResponse(id = 1, imdb = "imdb1", image = "image.png", showId = 10)
+            val validShowNetwork =
+                createMockTodayScheduleResponse(id = 1, imdb = "imdb1", image = "image.png", showId = 10)
             val showWithoutImageNetwork =
                 createMockTodayScheduleResponse(
                     id = 2,
@@ -246,7 +249,8 @@ class DashboardRepositoryTest {
                     showImageOriginal = null,
                     showImageMedium = null,
                 )
-            val showWithoutImdbNetwork = createMockTodayScheduleResponse(id = 3, imdb = null, image = "image.png", showId = 30)
+            val showWithoutImdbNetwork =
+                createMockTodayScheduleResponse(id = 3, imdb = null, image = "image.png", showId = 30)
 
             fakeTvMazeService.mockTodayScheduleResponse = listOf(validShowNetwork, showWithoutImageNetwork, showWithoutImdbNetwork)
 
@@ -256,10 +260,10 @@ class DashboardRepositoryTest {
                         NetworkTvMazeShowImageResponseItem(
                             id = 101, type = "poster", main = true,
                             resolutions =
-                                NetworkTvMazeShowImageResolutions(
-                                    original = NetworkTvMazeShowImageOriginal(url = "final_original_for_show_10.png"),
-                                    medium = NetworkTvMazeShowImageMedium(url = "final_medium_for_show_10.png"),
-                                ),
+                            NetworkTvMazeShowImageResolutions(
+                                original = NetworkTvMazeShowImageOriginal(url = "final_original_for_show_10.png"),
+                                medium = NetworkTvMazeShowImageMedium(url = "final_medium_for_show_10.png"),
+                            ),
                         ),
                     )
                 }
@@ -285,10 +289,10 @@ class DashboardRepositoryTest {
                         NetworkTvMazeShowImageResponseItem(
                             id = 101, type = "poster", main = true,
                             resolutions =
-                                NetworkTvMazeShowImageResolutions(
-                                    original = NetworkTvMazeShowImageOriginal(url = "final_original.png"),
-                                    medium = NetworkTvMazeShowImageMedium(url = "final_medium.png"),
-                                ),
+                            NetworkTvMazeShowImageResolutions(
+                                original = NetworkTvMazeShowImageOriginal(url = "final_original.png"),
+                                medium = NetworkTvMazeShowImageMedium(url = "final_medium.png"),
+                            ),
                         ),
                     )
                 }
@@ -340,7 +344,8 @@ class DashboardRepositoryTest {
     @Test
     fun `refreshTomorrowShows - filters out shows with no image or imdb id from initial fetch`() =
         runTest {
-            val validShowNetwork = createMockTomorrowScheduleResponse(id = 1, imdb = "imdb1", image = "image.png", showId = 10)
+            val validShowNetwork =
+                createMockTomorrowScheduleResponse(id = 1, imdb = "imdb1", image = "image.png", showId = 10)
             val showWithoutImageNetwork =
                 createMockTomorrowScheduleResponse(
                     id = 2,
@@ -350,7 +355,8 @@ class DashboardRepositoryTest {
                     showImageOriginal = null,
                     showImageMedium = null,
                 )
-            val showWithoutImdbNetwork = createMockTomorrowScheduleResponse(id = 3, imdb = null, image = "image.png", showId = 30)
+            val showWithoutImdbNetwork =
+                createMockTomorrowScheduleResponse(id = 3, imdb = null, image = "image.png", showId = 30)
 
             fakeTvMazeService.mockTomorrowScheduleResponse = listOf(validShowNetwork, showWithoutImageNetwork, showWithoutImdbNetwork)
 
@@ -360,10 +366,10 @@ class DashboardRepositoryTest {
                         NetworkTvMazeShowImageResponseItem(
                             id = 101, type = "poster", main = true,
                             resolutions =
-                                NetworkTvMazeShowImageResolutions(
-                                    original = NetworkTvMazeShowImageOriginal(url = "final_original_for_show_10.png"),
-                                    medium = NetworkTvMazeShowImageMedium(url = "final_medium.png"),
-                                ),
+                            NetworkTvMazeShowImageResolutions(
+                                original = NetworkTvMazeShowImageOriginal(url = "final_original_for_show_10.png"),
+                                medium = NetworkTvMazeShowImageMedium(url = "final_medium.png"),
+                            ),
                         ),
                     )
                 }
@@ -414,31 +420,31 @@ class DashboardRepositoryTest {
             url = "url_episode_$id",
             _links = mockLinks,
             show =
-                NetworkScheduleShow(
-                    id = showId,
-                    name = "Test Show $showId",
-                    externals =
-                        imdb?.let {
-                            NetworkScheduleExternals(imdb = it, thetvdb = 1, tvrage = 1)
-                        },
-                    image = showImageObject,
-                    genres = emptyList(),
-                    language = "English",
-                    network = null,
-                    officialSite = null,
-                    premiered = null,
-                    rating = null,
-                    runtime = 30,
-                    schedule = null,
-                    status = "Running",
-                    summary = "summary for show $showId",
-                    type = "Scripted",
-                    updated = 123,
-                    url = "url_show_$showId",
-                    webChannel = null,
-                    weight = 1,
-                    _links = null,
-                ),
+            NetworkScheduleShow(
+                id = showId,
+                name = "Test Show $showId",
+                externals =
+                imdb?.let {
+                    NetworkScheduleExternals(imdb = it, thetvdb = 1, tvrage = 1)
+                },
+                image = showImageObject,
+                genres = emptyList(),
+                language = "English",
+                network = null,
+                officialSite = null,
+                premiered = null,
+                rating = null,
+                runtime = 30,
+                schedule = null,
+                status = "Running",
+                summary = "summary for show $showId",
+                type = "Scripted",
+                updated = 123,
+                url = "url_show_$showId",
+                webChannel = null,
+                weight = 1,
+                _links = null,
+            ),
         )
     }
 
@@ -479,31 +485,31 @@ class DashboardRepositoryTest {
             _links = mockLinks,
             imdbId = imdb,
             show =
-                NetworkScheduleShow(
-                    id = showId,
-                    name = "Test Show $showId",
-                    externals =
-                        imdb?.let {
-                            NetworkScheduleExternals(imdb = it, thetvdb = 1, tvrage = 1)
-                        },
-                    image = showImageObject,
-                    genres = emptyList(),
-                    language = "English",
-                    network = null,
-                    officialSite = null,
-                    premiered = null,
-                    rating = null,
-                    runtime = 30,
-                    schedule = null,
-                    status = "Running",
-                    summary = "summary for show $showId",
-                    type = "Scripted",
-                    updated = 123,
-                    url = "url_show_$showId",
-                    webChannel = null,
-                    weight = 1,
-                    _links = null,
-                ),
+            NetworkScheduleShow(
+                id = showId,
+                name = "Test Show $showId",
+                externals =
+                imdb?.let {
+                    NetworkScheduleExternals(imdb = it, thetvdb = 1, tvrage = 1)
+                },
+                image = showImageObject,
+                genres = emptyList(),
+                language = "English",
+                network = null,
+                officialSite = null,
+                premiered = null,
+                rating = null,
+                runtime = 30,
+                schedule = null,
+                status = "Running",
+                summary = "summary for show $showId",
+                type = "Scripted",
+                updated = 123,
+                url = "url_show_$showId",
+                webChannel = null,
+                weight = 1,
+                _links = null,
+            ),
         )
     }
 
@@ -543,31 +549,31 @@ class DashboardRepositoryTest {
             url = "url_episode_$id",
             _links = mockLinks,
             show =
-                NetworkScheduleShow(
-                    id = showId,
-                    name = "Test Show $showId",
-                    externals =
-                        imdb?.let {
-                            NetworkScheduleExternals(imdb = it, thetvdb = 1, tvrage = 1)
-                        },
-                    image = showImageObject,
-                    genres = emptyList(),
-                    language = "English",
-                    network = null,
-                    officialSite = null,
-                    premiered = null,
-                    rating = null,
-                    runtime = 30,
-                    schedule = null,
-                    status = "Running",
-                    summary = "summary for show $showId",
-                    type = "Scripted",
-                    updated = 123,
-                    url = "url_show_$showId",
-                    webChannel = null,
-                    weight = 1,
-                    _links = null,
-                ),
+            NetworkScheduleShow(
+                id = showId,
+                name = "Test Show $showId",
+                externals =
+                imdb?.let {
+                    NetworkScheduleExternals(imdb = it, thetvdb = 1, tvrage = 1)
+                },
+                image = showImageObject,
+                genres = emptyList(),
+                language = "English",
+                network = null,
+                officialSite = null,
+                premiered = null,
+                rating = null,
+                runtime = 30,
+                schedule = null,
+                status = "Running",
+                summary = "summary for show $showId",
+                type = "Scripted",
+                updated = 123,
+                url = "url_show_$showId",
+                webChannel = null,
+                weight = 1,
+                _links = null,
+            ),
         )
     }
 }

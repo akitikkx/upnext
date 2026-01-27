@@ -15,7 +15,7 @@ class ScheduleMappingTest {
     fun `verify yesterday schedule maps show name correctly`() {
         val episodeName = "Episode Title"
         val showName = "Show Title"
-        
+
         val networkResponse = NetworkYesterdayScheduleResponse(
             _links = NetworkShowEpisodeLinks(NetworkShowNextEpisodeSelf("")),
             airdate = "2023-01-01",

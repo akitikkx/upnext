@@ -73,9 +73,9 @@ fun NetworkTraktCheckInResponse.asDomainModel(): TraktCheckInStatus {
             season = this.episode?.season,
             episode = this.episode?.number,
             checkInTime =
-                this.watched_at.let {
-                    DateUtils.getDisplayDateFromDateStamp(it).toString()
-                },
+            this.watched_at.let {
+                DateUtils.getDisplayDateFromDateStamp(it).toString()
+            },
             message = "Checked into ${this.show?.title ?: "show"} S${this.episode?.season}E${this.episode?.number} successfully.",
         )
     } else {

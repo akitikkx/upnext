@@ -294,18 +294,18 @@ class WatchProgressRepositoryImpl(
                 NetworkTraktSyncHistoryShow(
                     ids = NetworkTraktSyncHistoryShowIds(trakt = showTraktId),
                     seasons =
-                        seasonsMap.map { (seasonNum, seasonEps) ->
-                            NetworkTraktSyncHistorySeason(
-                                number = seasonNum,
-                                episodes =
-                                    seasonEps.map { ep ->
-                                        NetworkTraktSyncHistoryEpisode(
-                                            number = ep.episodeNumber,
-                                            watchedAt = toIso8601(ep.watchedAt),
-                                        )
-                                    },
-                            )
-                        },
+                    seasonsMap.map { (seasonNum, seasonEps) ->
+                        NetworkTraktSyncHistorySeason(
+                            number = seasonNum,
+                            episodes =
+                            seasonEps.map { ep ->
+                                NetworkTraktSyncHistoryEpisode(
+                                    number = ep.episodeNumber,
+                                    watchedAt = toIso8601(ep.watchedAt),
+                                )
+                            },
+                        )
+                    },
                 )
             }
 
