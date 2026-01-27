@@ -218,4 +218,107 @@ class TraktRecommendationsDataSourceTest {
             assertEquals(1, castList?.first()?.traktId)
             assertEquals("original_url", castList?.first()?.originalImageUrl) // Verify image enrichment
         }
+
+    @Test
+    fun getRelatedShows_success() =
+        runBlocking {
+            val mockShowIds =
+                com.theupnextapp.network.models.trakt.NetworkTraktRelatedShowsResponseItemIds(
+                    trakt = 1,
+                    slug = "slug",
+                    imdb = "tt123",
+                    tmdb = 10,
+                    tvdb = 2,
+                    tvMazeID = null,
+                )
+            
+            val mockRelatedShowItem =
+                com.theupnextapp.network.models.trakt.NetworkTraktRelatedShowsResponseItem(
+                    title = "Related Show",
+                    year = 2024,
+                    ids = mockShowIds,
+                    mediumImageUrl = null,
+                    originalImageUrl = null,
+                )
+            
+            val mockShowIds2 =
+                com.theupnextapp.network.models.trakt.NetworkTraktRelatedShowsResponseItemIds(
+                    trakt = 2,
+                    slug = "slug2",
+                    imdb = "tt456",
+                    tmdb = 11,
+                    tvdb = 3,
+                    tvMazeID = null,
+                )
+             val mockRelatedShowItem2 =
+                com.theupnextapp.network.models.trakt.NetworkTraktRelatedShowsResponseItem(
+                    title = "Related Show 2",
+                    year = 2024,
+                    ids = mockShowIds2,
+                    mediumImageUrl = null,
+                    originalImageUrl = null,
+                )
+
+            val mockResponse =
+                com.theupnextapp.network.models.trakt.NetworkTraktRelatedShowsResponse()
+            mockResponse.add(mockRelatedShowItem)
+            mockResponse.add(mockRelatedShowItem2)
+
+            whenever(traktService.getRelatedShowsAsync(any())).thenReturn(
+                CompletableDeferred(mockResponse),
+            )
+
+            val mockTvMazeLookupResponse = com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupResponse(
+                id = 54321,
+                image = com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupImage(medium = "med_url", original = "orig_url"),
+                _links = com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupLinks(
+                    self = com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupSelf(href = "href"),
+                    previousepisode = com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupPreviousepisode(href = "href"),
+                ),
+                externals = com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupExternals(tvrage = 1, thetvdb = 2, imdb = "tt123"),
+                name = "Related Show",
+                premiered = "2024-01-01",
+                status = "Ended",
+                summary = "Summary",
+                updated = 123456789,
+                url = "url",
+                averageRuntime = 60,
+                dvdCountry = null,
+                genres = emptyList(),
+                language = "English",
+                network = com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupNetwork(
+                    id = 1,
+                    name = "Network",
+                    country = com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupCountry(code = "US", name = "United States", timezone = "America/New_York")
+                ),
+                officialSite = "site",
+                rating = com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupRating(average = 8.0),
+                runtime = 60,
+                schedule = com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupSchedule(days = emptyList(), time = "20:00"),
+                type = "Scripted",
+                webChannel = com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupWebChannel(
+                    id = 1,
+                    name = "WebChannel",
+                    country = com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupCountryX(code = "US", name = "United States", timezone = "America/New_York")
+                ),
+                weight = 100
+            )
+            // Return valid response for first item ("tt123")
+            whenever(tvMazeService.getShowLookupAsync(eq("tt123"))).thenReturn(
+                CompletableDeferred(mockTvMazeLookupResponse)
+            )
+            // Return failure/null for second item ("tt456") to simulate missing images
+             whenever(tvMazeService.getShowLookupAsync(eq("tt456"))).thenThrow(retrofit2.HttpException(retrofit2.Response.error<Any>(404, okhttp3.ResponseBody.create(null, ""))))
+
+
+            val result = dataSource.getRelatedShows("tt1234567")
+
+            assertTrue(result.isSuccess)
+            val relatedList = result.getOrNull()
+            assertTrue(relatedList?.isNotEmpty() == true)
+            assertEquals(1, relatedList?.size) // Should filter out the one with missing images
+            assertEquals("Related Show", relatedList?.first()?.title)
+            assertEquals(1, relatedList?.first()?.traktID)
+            assertEquals("orig_url", relatedList?.first()?.originalImageUrl)
+        }
 }

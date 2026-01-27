@@ -27,6 +27,7 @@ import com.theupnextapp.common.utils.TraktAuthManager
 import com.theupnextapp.common.utils.TraktConstants
 import com.theupnextapp.domain.TraktUserListItem
 import com.theupnextapp.domain.isTraktAccessTokenValid
+
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.ui.common.BaseTraktViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -145,8 +146,7 @@ class TraktAccountViewModel
 
                         if (result.isFailure) {
                             Timber.e(
-                                result.exceptionOrNull(),
-                                "Failed to revoke Trakt access token during disconnect.",
+                                "Failed to revoke Trakt access token during disconnect. Result: $result",
                             )
                             _uiState.value =
                                 _uiState.value.copy(
@@ -179,8 +179,7 @@ class TraktAccountViewModel
                     val result = traktRepository.getTraktAccessToken(code)
                     if (result.isFailure) {
                         Timber.e(
-                            result.exceptionOrNull(),
-                            "Failed to get Trakt access token with code.",
+                            "Failed to get Trakt access token with code. Result: $result",
                         )
                         _uiState.value =
                             _uiState.value.copy(

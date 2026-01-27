@@ -122,4 +122,66 @@ class ShowDetailViewModelTest {
         verify(traktRepository, timeout(3000)).getTraktPersonSummary(traktId.toString())
         verify(traktRepository, timeout(3000)).getTraktPersonShowCredits(traktId.toString())
     }
+
+    @Test
+    fun `similarShows_success`() = runTest {
+        // Given
+        val imdbId = "tt12345"
+        val showDetailArg = com.theupnextapp.domain.ShowDetailArg(
+            showId = "123",
+            showTitle = "Test Show",
+            showImageUrl = null,
+            showBackgroundUrl = null,
+            imdbID = imdbId,
+            isAuthorizedOnTrakt = false,
+            showTraktId = 1
+        )
+        val showSummary = com.theupnextapp.domain.ShowDetailSummary(
+            id = 123,
+            imdbID = imdbId,
+            name = "Test Show",
+            mediumImageUrl = null,
+            originalImageUrl = null,
+            summary = "Summary",
+            genres = null,
+            time = null,
+            previousEpisodeHref = null,
+            nextEpisodeHref = null,
+            status = null,
+            airDays = null,
+            averageRating = null,
+            language = null,
+            nextEpisodeLinkedId = null,
+            previousEpisodeLinkedId = null
+        )
+
+        `when`(showDetailRepository.getShowSummary(123)).thenReturn(kotlinx.coroutines.flow.flowOf(com.theupnextapp.domain.Result.Success(showSummary)))
+        `when`(traktRepository.getRelatedShows(imdbId)).thenReturn(
+            Result.success(
+                listOf(
+                    com.theupnextapp.domain.TraktRelatedShows(
+                        title = "Related Show",
+                        year = "2024",
+                        traktID = 2,
+                        slug = "slug",
+                        imdbID = "tt2",
+                        originalImageUrl = null,
+                        mediumImageUrl = null,
+                        tvMazeID = null,
+                        tmdbID = null,
+                        tvdbID = null,
+                        id = 2,
+                    )
+                )
+            )
+        )
+
+        // When
+        viewModel.selectedShow(showDetailArg)
+
+        // Then
+        // Verify state update (checking eventually or after delay)
+        // Since we don't have Turbine or advanced flow assertions in setup, we check after small delay or verify call
+        verify(traktRepository, timeout(3000)).getRelatedShows(imdbId)
+    }
 }

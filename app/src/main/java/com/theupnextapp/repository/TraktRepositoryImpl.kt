@@ -45,6 +45,7 @@ import com.theupnextapp.network.models.trakt.NetworkTraktPersonShowCreditsRespon
 import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponse
 import com.theupnextapp.domain.TraktCast
 import com.theupnextapp.network.TvMazeService
+import com.theupnextapp.domain.TraktRelatedShows
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -340,5 +341,9 @@ class TraktRepositoryImpl(
 
     override suspend fun getShowCast(imdbID: String): Result<List<TraktCast>> {
         return traktRecommendationsDataSource.getShowCast(imdbID)
+    }
+
+    override suspend fun getRelatedShows(imdbID: String): Result<List<TraktRelatedShows>> {
+        return traktRecommendationsDataSource.getRelatedShows(imdbID)
     }
 }

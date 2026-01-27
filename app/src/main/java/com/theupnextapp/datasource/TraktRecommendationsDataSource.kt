@@ -41,6 +41,8 @@ import com.theupnextapp.network.models.trakt.NetworkTraktPersonResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktPersonShowCreditsResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktCast
 import com.theupnextapp.domain.TraktCast
+import com.theupnextapp.domain.TraktRelatedShows
+import com.theupnextapp.network.models.trakt.asDomainModel
 import kotlinx.coroutines.*
 import javax.inject.Inject
 
@@ -482,6 +484,26 @@ open class TraktRecommendationsDataSource
                             slug = castMember.person?.ids?.slug
                         )
                     } ?: emptyList()
+                }
+            }
+        }
+
+        suspend fun getRelatedShows(imdbID: String): Result<List<TraktRelatedShows>> {
+            return safeApiCall {
+                kotlinx.coroutines.coroutineScope {
+                    val networkResponse = traktService.getRelatedShowsAsync(imdbID).await()
+                    networkResponse.map { item ->
+                        async {
+                            item.ids.imdb?.let { imdbId ->
+                                val (_, original, medium) = getImages(imdbId)
+                                item.mediumImageUrl = medium
+                                item.originalImageUrl = original
+                            }
+                            item
+                        }
+                    }.awaitAll()
+                        .filter { !it.mediumImageUrl.isNullOrEmpty() || !it.originalImageUrl.isNullOrEmpty() }
+                        .map { it.asDomainModel() }
                 }
             }
         }
