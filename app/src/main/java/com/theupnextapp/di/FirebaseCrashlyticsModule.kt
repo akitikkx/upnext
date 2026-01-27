@@ -30,12 +30,10 @@ import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
 @Module
-abstract class FirebaseCrashlyticsModule {
-    companion object {
-        @Singleton
-        @Provides
-        fun provideFirebaseCrashlytics(): FirebaseCrashlytics {
-            return FirebaseCrashlytics.getInstance()
-        }
+object FirebaseCrashlyticsModule {
+    @Singleton
+    @Provides
+    fun provideFirebaseCrashlytics(): FirebaseCrashlytics {
+        return FirebaseCrashlytics.getInstance()
     }
 }
