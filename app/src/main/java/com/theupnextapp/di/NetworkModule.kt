@@ -8,11 +8,20 @@
  * including without limitation the rights to use, copy, modify, merge, publish, distribute,
  * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included in all copies or
  * substantial portions of the Software.
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+ * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
  * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
@@ -53,13 +62,19 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
+    private const val CACHE_SIZE_BYTES = 5 * 1024 * 1024L
+    private const val CACHE_MAX_AGE_SECONDS = 60 * 5
+    private const val CHUCKER_MAX_CONTENT_LENGTH = 250_000L
+    private const val CONNECT_TIMEOUT_SECONDS = 30L
+    private const val READ_TIMEOUT_SECONDS = 30L
+
     @Singleton
     @Provides
     fun provideNetworkClient(
         @ApplicationContext context: Context,
     ): OkHttpClient {
         return OkHttpClient().newBuilder()
-            .cache(Cache(context.cacheDir, (5 * 1024 * 1024).toLong()))
+            .cache(Cache(context.cacheDir, CACHE_SIZE_BYTES))
             .addInterceptor(
                 HttpLoggingInterceptor().apply {
                     level = HttpLoggingInterceptor.Level.BODY
@@ -68,7 +83,7 @@ object NetworkModule {
             .addInterceptor { chain ->
                 var request = chain.request()
                 request =
-                    request.newBuilder().header("Cache-Control", "public, max-age=" + 60 * 5)
+                    request.newBuilder().header("Cache-Control", "public, max-age=$CACHE_MAX_AGE_SECONDS")
                         .build()
                 chain.proceed(request)
             }
@@ -81,15 +96,15 @@ object NetworkModule {
                             retentionPeriod = RetentionManager.Period.ONE_HOUR,
                         ),
                     )
-                    .maxContentLength(250_000L)
+                    .maxContentLength(CHUCKER_MAX_CONTENT_LENGTH)
                     .redactHeaders("Auth-Token", "Bearer")
                     .alwaysReadResponseBody(true)
                     .createShortcut(true)
                     .build(),
             )
-            .connectTimeout(30, TimeUnit.SECONDS)
+            .connectTimeout(CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .retryOnConnectionFailure(true)
-            .readTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .connectionPool(ConnectionPool(0, 1, TimeUnit.SECONDS))
             .build()
     }

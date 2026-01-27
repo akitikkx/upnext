@@ -62,13 +62,7 @@ class ShowSeasonEpisodesViewModelTest {
         )
         whenever(traktRepository.traktAccessToken).thenReturn(flowOf(accessToken))
 
-        viewModel = ShowSeasonEpisodesViewModel(
-            showDetailRepository,
-            watchProgressRepository,
-            workManager,
-            traktRepository,
-            traktAuthManager
-        )
+        createViewModel()
 
         val showTraktId = 123
         val seasonNum = 1
@@ -203,13 +197,7 @@ class ShowSeasonEpisodesViewModelTest {
     fun `onToggleWatched does NOT call repository if token is invalid`() = runTest {
         // Given
         whenever(traktRepository.traktAccessToken).thenReturn(flowOf(null))
-        viewModel = ShowSeasonEpisodesViewModel(
-            showDetailRepository,
-            watchProgressRepository,
-            workManager,
-            traktRepository,
-            traktAuthManager
-        )
+        createViewModel()
 
         val episode = ShowSeasonEpisode(
             id = 1,
@@ -233,5 +221,15 @@ class ShowSeasonEpisodesViewModelTest {
 
         // Then
         verifyNoInteractions(watchProgressRepository)
+    }
+
+    private fun createViewModel() {
+        viewModel = ShowSeasonEpisodesViewModel(
+            showDetailRepository,
+            watchProgressRepository,
+            workManager,
+            traktRepository,
+            traktAuthManager
+        )
     }
 }
