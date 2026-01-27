@@ -50,6 +50,7 @@ import com.theupnextapp.network.models.trakt.NetworkTraktPersonShowCreditsRespon
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -63,7 +64,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class ShowDetailViewModel
     @Inject
     constructor(
@@ -236,8 +237,6 @@ class ShowDetailViewModel
                                     getTraktShowRating(summary.imdbID)
                                     getTraktShowStats(summary.imdbID)
                                     getTraktId(summary.imdbID)
-                                    // checkIfShowIsTraktFavorite(summary.imdbID) // No longer needed as Flow handles it
-                                    // checkIfShowIsTraktFavorite(summary.imdbID) // No longer needed as Flow handles it
                                     getShowCast(summary.imdbID)
                                     getSimilarShows(summary.imdbID)
                                 }
@@ -590,8 +589,6 @@ class ShowDetailViewModel
                     }
             }
         }
-
-        // Removed checkIfShowIsTraktFavorite as it is payload logic
 
         fun displayCastBottomSheetComplete() {
             _castBottomSheetUiState.value = CastBottomSheetUiState()
