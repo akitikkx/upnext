@@ -41,6 +41,7 @@ import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.domain.TraktUserListItem
 import com.theupnextapp.domain.TraktCast
 import com.theupnextapp.ui.common.BaseTraktViewModel
+import com.theupnextapp.domain.TraktRelatedShows
 import com.theupnextapp.work.AddFavoriteShowWorker
 import com.theupnextapp.work.RemoveFavoriteShowWorker
 import com.theupnextapp.common.utils.TraktAuthManager
@@ -49,6 +50,7 @@ import com.theupnextapp.network.models.trakt.NetworkTraktPersonShowCreditsRespon
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -62,7 +64,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class ShowDetailViewModel
     @Inject
     constructor(
@@ -166,7 +168,9 @@ class ShowDetailViewModel
             val previousEpisodeErrorMessage: String? = null,
             val nextEpisodeErrorMessage: String? = null,
             val generalErrorMessage: String? = null,
-    val favoriteShow: TraktUserListItem? = null
+            val favoriteShow: TraktUserListItem? = null,
+            val similarShows: List<TraktRelatedShows>? = null,
+            val isSimilarShowsLoading: Boolean = false,
         )
 
         data class CastBottomSheetUiState(
@@ -195,6 +199,7 @@ class ShowDetailViewModel
                         traktCast = null,
                         showPreviousEpisode = null,
                         showNextEpisode = null,
+                        similarShows = null,
                     )
                 }
                 getShowSummary(it)
@@ -232,8 +237,8 @@ class ShowDetailViewModel
                                     getTraktShowRating(summary.imdbID)
                                     getTraktShowStats(summary.imdbID)
                                     getTraktId(summary.imdbID)
-                                    // checkIfShowIsTraktFavorite(summary.imdbID) // No longer needed as Flow handles it
                                     getShowCast(summary.imdbID)
+                                    getSimilarShows(summary.imdbID)
                                 }
 
                                 is Result.GenericError -> {
@@ -565,7 +570,25 @@ class ShowDetailViewModel
             }
         }
 
-        // Removed checkIfShowIsTraktFavorite as it is payload logic
+        private fun getSimilarShows(imdbID: String?) {
+            if (imdbID.isNullOrEmpty()) return
+
+            viewModelScope.launch {
+                _uiState.update { it.copy(isSimilarShowsLoading = true) }
+                traktRepository.getRelatedShows(imdbID)
+                    .onSuccess { similarShows ->
+                        _uiState.update {
+                            it.copy(
+                                similarShows = similarShows,
+                                isSimilarShowsLoading = false
+                            )
+                        }
+                    }
+                    .onFailure {
+                        _uiState.update { it.copy(isSimilarShowsLoading = false) }
+                    }
+            }
+        }
 
         fun displayCastBottomSheetComplete() {
             _castBottomSheetUiState.value = CastBottomSheetUiState()
@@ -574,12 +597,23 @@ class ShowDetailViewModel
         private val _navigateToShowDetail = MutableStateFlow<ShowDetailArg?>(null)
         val navigateToShowDetail: StateFlow<ShowDetailArg?> = _navigateToShowDetail.asStateFlow()
 
-        fun onCreditClicked(credit: com.theupnextapp.network.models.trakt.NetworkTraktPersonShowCastCredit) {
+         fun onCreditClicked(credit: com.theupnextapp.network.models.trakt.NetworkTraktPersonShowCastCredit) {
              viewModelScope.launch(Dispatchers.IO) {
                  val imdbId = credit.show?.ids?.imdb
                  val title = credit.show?.title
                  val traktId = credit.show?.ids?.trakt
                  
+                 launchShowDetail(imdbId, title, traktId)
+             }
+         }
+
+        fun onSimilarShowClicked(show: TraktRelatedShows) {
+            viewModelScope.launch(Dispatchers.IO) {
+                launchShowDetail(show.imdbID, show.title, show.traktID)
+            }
+        }
+
+        private suspend fun launchShowDetail(imdbId: String?, title: String?, traktId: Int?) {
                  if (!imdbId.isNullOrEmpty()) {
                      _castBottomSheetUiState.update { it.copy(isLoading = true) }
                      showDetailRepository.getShowLookup(imdbId).collect { result ->
@@ -589,10 +623,10 @@ class ShowDetailViewModel
                                  val arg = ShowDetailArg(
                                      showId = tvMazeId.toString(),
                                      showTitle = title,
-                                     showImageUrl = null, // No image available from credit
+                                     showImageUrl = null, 
                                      showBackgroundUrl = null,
                                      imdbID = imdbId,
-                                     isAuthorizedOnTrakt = false, // Default
+                                     isAuthorizedOnTrakt = false, 
                                      showTraktId = traktId
                                  )
                                  _navigateToShowDetail.value = arg
@@ -602,14 +636,12 @@ class ShowDetailViewModel
                                  _castBottomSheetUiState.update { it.copy(isLoading = false, errorMessage = "Could not find show details") }
                              }
                              is Result.Loading -> { 
-                                 // Already handling loading through state if needed, but here loop acts
                              }
                          }
                      }
                  } else {
                      _castBottomSheetUiState.update { it.copy(errorMessage = "No IMDB ID available for this show") }
                  }
-             }
         }
         
         fun onShowDetailNavigationComplete() {

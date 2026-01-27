@@ -198,6 +198,11 @@ interface TraktService {
     fun getShowPeopleAsync(
         @Path("id") id: String,
     ): Deferred<NetworkTraktShowPeopleResponse>
+
+    @GET("shows/{id}/related?extended=full")
+    fun getRelatedShowsAsync(
+        @Path("id") id: String,
+    ): Deferred<com.theupnextapp.network.models.trakt.NetworkTraktRelatedShowsResponse>
 }
 
 object TraktNetwork {

@@ -81,6 +81,7 @@ import com.ramcosta.composedestinations.spec.RouteOrDirection
 import com.theupnextapp.R
 import com.theupnextapp.common.utils.getWindowSizeClass
 import com.theupnextapp.domain.TraktCast
+import com.theupnextapp.domain.TraktRelatedShows
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.ShowNextEpisode
 import com.theupnextapp.domain.ShowPreviousEpisode
@@ -183,6 +184,7 @@ fun ShowDetailScreen(
                     onSeasonsClick = { viewModel.onSeasonsClick() },
                     onFavoriteClick = { viewModel.onAddRemoveFavoriteClick() },
                     onCastItemClick = { castItem -> viewModel.onShowCastItemClicked(castItem) },
+                    onSimilarShowClick = { show -> viewModel.onSimilarShowClicked(show) },
                 )
             }
 
@@ -222,6 +224,7 @@ fun DetailArea(
     onSeasonsClick: () -> Unit,
     onFavoriteClick: () -> Unit,
     onCastItemClick: (item: TraktCast) -> Unit,
+    onSimilarShowClick: (item: TraktRelatedShows) -> Unit,
 ) {
     val scrollState = rememberScrollState()
     val windowSizeClass = getWindowSizeClass()?.widthSizeClass ?: WindowWidthSizeClass.Compact
@@ -283,6 +286,10 @@ fun DetailArea(
 
         // ----- Trakt Stats Section (Optional) -----
         showStats?.let { statsData -> }
+
+        // ----- Similar Shows Section -----
+        SimilarShows(uiState = uiState, onSimilarShowClick = onSimilarShowClick)
+        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
     }
 }
 
@@ -798,6 +805,84 @@ fun ErrorState(
             Button(onClick = it) {
                 Text("Retry")
             }
+        }
+    }
+}
+
+@Composable
+fun SimilarShows(
+    uiState: ShowDetailViewModel.ShowDetailUiState,
+    onSimilarShowClick: (item: TraktRelatedShows) -> Unit,
+) {
+    if (!uiState.similarShows.isNullOrEmpty()) {
+        SimilarShowsList(list = uiState.similarShows, onClick = onSimilarShowClick)
+    } else if (uiState.isSimilarShowsLoading) {
+        CastListPlaceholder() // Use same placeholder for now or create generic one
+    }
+}
+
+@Composable
+fun SimilarShowsList(
+    list: List<TraktRelatedShows>,
+    onClick: (item: TraktRelatedShows) -> Unit,
+) {
+    Column(
+        modifier = Modifier.padding(top = dimensionResource(id = R.dimen.padding_standard_double)),
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.Start,
+    ) {
+        SectionHeadingText(text = stringResource(id = R.string.show_detail_similar_shows_heading))
+
+        LazyRow(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        horizontal = dimensionResource(id = R.dimen.padding_standard_double),
+                        vertical = dimensionResource(id = R.dimen.padding_standard),
+                    ),
+        ) {
+            items(items = list) { item ->
+                SimilarShowItem(item = item) { showItem ->
+                    onClick(showItem)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun SimilarShowItem(
+    item: TraktRelatedShows,
+    onClick: (item: TraktRelatedShows) -> Unit,
+) {
+    Column(
+        modifier =
+            Modifier
+                .padding(dimensionResource(id = R.dimen.padding_standard))
+                .width(dimensionResource(id = R.dimen.compose_show_detail_poster_width))
+                .clickable { onClick(item) },
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        PosterImage(
+            url = item.originalImageUrl ?: item.mediumImageUrl ?: "",
+            modifier =
+                Modifier
+                    .width(dimensionResource(id = R.dimen.compose_show_detail_poster_width))
+                    .height(dimensionResource(id = R.dimen.compose_show_detail_poster_height)),
+        )
+
+        item.title?.let { title ->
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyLarge,
+                modifier =
+                    Modifier
+                        .padding(top = dimensionResource(id = R.dimen.padding_extra_small))
+                        .fillMaxWidth(),
+                maxLines = 2,
+            )
         }
     }
 }

@@ -23,6 +23,8 @@ import com.theupnextapp.domain.TraktPopularShows
 import com.theupnextapp.domain.TraktShowRating
 import com.theupnextapp.domain.TraktShowStats
 import com.theupnextapp.domain.TraktTrendingShows
+import com.theupnextapp.domain.TraktRelatedShows
+
 import com.theupnextapp.domain.TraktUserList
 import com.theupnextapp.domain.TraktUserListItem
 import com.theupnextapp.network.models.trakt.NetworkTraktPersonResponse
@@ -147,4 +149,6 @@ interface TraktRepository {
     suspend fun getTraktMySchedule(token: String, startDate: String, days: Int): Result<NetworkTraktMyScheduleResponse>
 
     suspend fun getShowCast(imdbID: String): Result<List<TraktCast>>
+
+    suspend fun getRelatedShows(imdbID: String): Result<List<TraktRelatedShows>>
 }
