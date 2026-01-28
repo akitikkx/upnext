@@ -41,12 +41,13 @@ constructor(
     private val traktAuthApi: TraktAuthApi,
     private val traktDao: TraktDao,
 ) : Authenticator {
+
     override fun authenticate(
         route: Route?,
         response: Response,
     ): Request? {
-        // If we've failed 3 times, give up. - (Optional, good practice)
-        if (responseCount(response) >= 3) {
+        // If we've failed MAX_RETRY_COUNT times, give up. - (Optional, good practice)
+        if (responseCount(response) >= MAX_RETRY_COUNT) {
             return null
         }
 
@@ -89,7 +90,7 @@ constructor(
                     // Save new token to DB
                     val newDbToken =
                         DatabaseTraktAccess(
-                            id = 0,
+                            id = TRAKT_ACCESS_DB_ID,
                             access_token = refreshResponse.access_token ?: "",
                             token_type = refreshResponse.token_type,
                             expires_in = refreshResponse.expires_in,
@@ -124,5 +125,10 @@ constructor(
             priorResponse = priorResponse.priorResponse
         }
         return result
+    }
+
+    companion object {
+        private const val MAX_RETRY_COUNT = 3
+        private const val TRAKT_ACCESS_DB_ID = 0
     }
 }

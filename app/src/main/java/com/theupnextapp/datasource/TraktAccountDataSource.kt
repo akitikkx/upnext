@@ -450,7 +450,7 @@ constructor(
                 checkInApiResponse.asDomainModel()
             } catch (e: HttpException) {
                 val errorBody = e.response()?.errorBody()?.string()
-                if (e.code() == 409 && errorBody != null) {
+                if (e.code() == HTTP_CONFLICT && errorBody != null) {
                     try {
                         val conflictResponse = traktConflictErrorAdapter.fromJson(errorBody)
                         if (conflictResponse?.expiresAt != null) {
@@ -529,5 +529,6 @@ constructor(
 
     companion object {
         const val FAVORITES_LIST_NAME = "Upnext Favorites"
+        private const val HTTP_CONFLICT = 409
     }
 }

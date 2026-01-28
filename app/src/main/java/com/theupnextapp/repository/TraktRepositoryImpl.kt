@@ -70,6 +70,10 @@ class TraktRepositoryImpl(
 ) : BaseRepository(upnextDao, tvMazeService), TraktRepository {
     private val repositoryScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
+    companion object {
+        private const val FLOW_STOP_TIMEOUT_MS = 5000L
+    }
+
     override val traktAccessToken: Flow<TraktAccessToken?> =
         traktDao.getTraktAccessData().map {
             it?.asDomainModel()
@@ -266,7 +270,7 @@ class TraktRepositoryImpl(
             token?.isTraktAccessTokenValid() == true
         }.stateIn(
             scope = repositoryScope,
-            started = SharingStarted.WhileSubscribed(5000),
+            started = SharingStarted.WhileSubscribed(FLOW_STOP_TIMEOUT_MS),
             initialValue = false,
         )
     }

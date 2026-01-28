@@ -605,22 +605,36 @@ style:
     active: false
     maxJumpCount: 1
   MagicNumber:
-    active: false
+    active: true
     excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**', '**/*.kts']
     ignoreNumbers:
       - '-1'
       - '0'
       - '1'
       - '2'
+      - '3'
+      - '4'
+      - '5'
+      - '0.5'
+      - '1.0'
+      - '0f'
+      - '1f'
+      - '2f'
+      - '3f'
+      - '0.3f'
+      - '0.38f'
+      - '0.5f'
+      - '0.7f'
+      - '0.8f'
     ignoreHashCodeFunction: true
-    ignorePropertyDeclaration: false
-    ignoreLocalVariableDeclaration: false
+    ignorePropertyDeclaration: true
+    ignoreLocalVariableDeclaration: true
     ignoreConstantDeclaration: true
     ignoreCompanionObjectPropertyDeclaration: true
-    ignoreAnnotation: false
+    ignoreAnnotation: true
     ignoreNamedArgument: true
-    ignoreEnums: false
-    ignoreRanges: false
+    ignoreEnums: true
+    ignoreRanges: true
     ignoreExtensionFunctions: true
   MandatoryBracesLoops:
     active: false

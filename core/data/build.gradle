@@ -1,0 +1,89 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2022 Ahmed Tikiwa
+ */
+
+plugins {
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt.gradle)
+}
+
+android {
+    namespace = "com.theupnextapp.core.data"
+    compileSdk 36
+
+    defaultConfig {
+        minSdkVersion 24
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+        
+        ksp {
+            arg("room.schemaLocation", "$projectDir/schemas".toString())
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+}
+
+dependencies {
+    // Core modules
+    implementation project(':core:domain')
+    implementation project(':core:common')
+    
+    // Hilt
+    implementation libs.dagger.hilt.android
+    ksp libs.hilt.android.compiler
+    
+    // Coroutines
+    implementation libs.kotlinx.coroutines.core
+    implementation libs.kotlinx.coroutines.android
+    
+    // Room
+    implementation libs.room.runtime
+    implementation libs.room.ktx
+    ksp libs.room.compiler
+    
+    // Retrofit/Network
+    implementation libs.retrofit
+    implementation libs.converter.moshi
+    implementation libs.retrofit2.kotlin.coroutines.adapter
+    implementation libs.okhttp
+    implementation libs.logging.interceptor
+    
+    // Moshi
+    implementation libs.moshi
+    implementation libs.moshi.kotlin
+    
+    // Firebase Crashlytics
+    implementation libs.firebase.crashlytics
+    
+    // DataStore
+    implementation libs.datastore.preferences
+    
+    // AndroidX Browser (for auth)
+    implementation libs.browser
+    
+    // Timber
+    implementation libs.timber
+    
+    // Testing
+    testImplementation libs.junit
+    testImplementation libs.kotlinx.coroutines.test
+}
