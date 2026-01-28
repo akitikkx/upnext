@@ -94,6 +94,10 @@ import kotlinx.coroutines.launch
 import org.jsoup.Jsoup
 import java.util.Locale
 
+// UI Constants
+@Suppress("MagicNumber")
+private val RatingStarColor = Color(0xFFFFC107) // Gold/Amber
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Destination<RootGraph>(navArgs = ShowDetailArg::class)
 @Composable
@@ -609,7 +613,7 @@ fun TraktRatingSummary(rating: TraktShowRating) {
             androidx.compose.material3.Icon(
                 imageVector = androidx.compose.material.icons.Icons.Filled.Star,
                 contentDescription = stringResource(id = R.string.show_detail_rating_content_description),
-                tint = Color(0xFFFFC107), // Gold/Amber color
+                tint = RatingStarColor,
                 modifier = Modifier.size(24.dp)
             )
 
