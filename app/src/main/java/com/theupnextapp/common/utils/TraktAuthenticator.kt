@@ -36,93 +36,93 @@ import javax.inject.Singleton
 
 @Singleton
 class TraktAuthenticator
-    @Inject
-    constructor(
-        private val traktAuthApi: TraktAuthApi,
-        private val traktDao: TraktDao,
-    ) : Authenticator {
-        override fun authenticate(
-            route: Route?,
-            response: Response,
-        ): Request? {
-            // If we've failed 3 times, give up. - (Optional, good practice)
-            if (responseCount(response) >= 3) {
+@Inject
+constructor(
+    private val traktAuthApi: TraktAuthApi,
+    private val traktDao: TraktDao,
+) : Authenticator {
+    override fun authenticate(
+        route: Route?,
+        response: Response,
+    ): Request? {
+        // If we've failed 3 times, give up. - (Optional, good practice)
+        if (responseCount(response) >= 3) {
+            return null
+        }
+
+        synchronized(this) {
+            val currentToken = traktDao.getTraktAccessDataRaw()
+
+            // If we don't have a token, we can't refresh.
+            if (currentToken == null || currentToken.refresh_token.isNullOrEmpty()) {
                 return null
             }
 
-            synchronized(this) {
-                val currentToken = traktDao.getTraktAccessDataRaw()
+            // Check if the request already has the "latest" token.
+            // If the Authorization header in the request matches the current token in DB,
+            // then we need to refresh.
+            // If it DOESN'T match, it means another thread has already refreshed it.
+            val requestToken = response.request.header("Authorization")?.removePrefix("Bearer ")
 
-                // If we don't have a token, we can't refresh.
-                if (currentToken == null || currentToken.refresh_token.isNullOrEmpty()) {
-                    return null
-                }
+            if (requestToken != null && requestToken != currentToken.access_token) {
+                // Token has already been refreshed by another thread.
+                // Retry with the new token.
+                return response.request.newBuilder()
+                    .header("Authorization", "Bearer ${currentToken.access_token}")
+                    .build()
+            }
 
-                // Check if the request already has the "latest" token.
-                // If the Authorization header in the request matches the current token in DB,
-                // then we need to refresh.
-                // If it DOESN'T match, it means another thread has already refreshed it.
-                val requestToken = response.request.header("Authorization")?.removePrefix("Bearer ")
+            // Refresh the token
+            return try {
+                runBlocking {
+                    val refreshResponse =
+                        traktAuthApi.getAccessRefreshTokenAsync(
+                            NetworkTraktAccessRefreshTokenRequest(
+                                refresh_token = currentToken.refresh_token,
+                                client_id = BuildConfig.TRAKT_CLIENT_ID,
+                                client_secret = BuildConfig.TRAKT_CLIENT_SECRET,
+                                redirect_uri = BuildConfig.TRAKT_REDIRECT_URI,
+                                grant_type = "refresh_token",
+                            ),
+                        ).await()
 
-                if (requestToken != null && requestToken != currentToken.access_token) {
-                    // Token has already been refreshed by another thread.
-                    // Retry with the new token.
-                    return response.request.newBuilder()
-                        .header("Authorization", "Bearer ${currentToken.access_token}")
+                    // Save new token to DB
+                    val newDbToken =
+                        DatabaseTraktAccess(
+                            id = 0,
+                            access_token = refreshResponse.access_token ?: "",
+                            token_type = refreshResponse.token_type,
+                            expires_in = refreshResponse.expires_in,
+                            refresh_token = refreshResponse.refresh_token,
+                            scope = refreshResponse.scope,
+                            created_at = refreshResponse.created_at,
+                        )
+                    traktDao.insertAllTraktAccessData(newDbToken)
+
+                    // Retry request with new token
+                    response.request.newBuilder()
+                        .header("Authorization", "Bearer ${refreshResponse.access_token}")
                         .build()
                 }
-
-                // Refresh the token
-                return try {
-                    runBlocking {
-                        val refreshResponse =
-                            traktAuthApi.getAccessRefreshTokenAsync(
-                                NetworkTraktAccessRefreshTokenRequest(
-                                    refresh_token = currentToken.refresh_token,
-                                    client_id = BuildConfig.TRAKT_CLIENT_ID,
-                                    client_secret = BuildConfig.TRAKT_CLIENT_SECRET,
-                                    redirect_uri = BuildConfig.TRAKT_REDIRECT_URI,
-                                    grant_type = "refresh_token",
-                                ),
-                            ).await()
-
-                        // Save new token to DB
-                        val newDbToken =
-                            DatabaseTraktAccess(
-                                id = 0,
-                                access_token = refreshResponse.access_token ?: "",
-                                token_type = refreshResponse.token_type,
-                                expires_in = refreshResponse.expires_in,
-                                refresh_token = refreshResponse.refresh_token,
-                                scope = refreshResponse.scope,
-                                created_at = refreshResponse.created_at,
-                            )
-                        traktDao.insertAllTraktAccessData(newDbToken)
-
-                        // Retry request with new token
-                        response.request.newBuilder()
-                            .header("Authorization", "Bearer ${refreshResponse.access_token}")
-                            .build()
-                    }
-                } catch (e: Exception) {
-                    // Refresh failed. Logout.
-                    try {
-                        traktDao.deleteTraktAccessData()
-                    } catch (e2: Exception) {
-                        // Ignore
-                    }
-                    null
+            } catch (e: Exception) {
+                // Refresh failed. Logout.
+                try {
+                    traktDao.deleteTraktAccessData()
+                } catch (e2: Exception) {
+                    // Ignore
                 }
+                null
             }
-        }
-
-        private fun responseCount(response: Response): Int {
-            var result = 1
-            var priorResponse = response.priorResponse
-            while (priorResponse != null) {
-                result++
-                priorResponse = priorResponse.priorResponse
-            }
-            return result
         }
     }
+
+    private fun responseCount(response: Response): Int {
+        var result = 1
+        var priorResponse = response.priorResponse
+        while (priorResponse != null) {
+            result++
+            priorResponse = priorResponse.priorResponse
+        }
+        return result
+    }
+}

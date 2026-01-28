@@ -36,77 +36,77 @@ import com.theupnextapp.network.models.trakt.asDomainModel
 import javax.inject.Inject
 
 open class TraktAuthDataSource
-    @Inject
-    constructor(
-        private val traktService: TraktService,
-        private val traktDao: TraktDao,
-        upnextDao: UpnextDao,
-        tvMazeService: TvMazeService,
-        firebaseCrashlytics: FirebaseCrashlytics,
-    ) : BaseTraktDataSource(upnextDao, tvMazeService, firebaseCrashlytics) {
-        suspend fun getAccessToken(code: String): Result<TraktAccessToken> {
-            if (code.isEmpty()) {
-                val message = "Attempted to get access token with empty code."
-                logTraktException(message)
-                return Result.failure(IllegalArgumentException(message))
-            }
-
-            return safeApiCall {
-                val request =
-                    NetworkTraktAccessTokenRequest(
-                        code = code,
-                        client_id = BuildConfig.TRAKT_CLIENT_ID,
-                        client_secret = BuildConfig.TRAKT_CLIENT_SECRET,
-                        redirect_uri = BuildConfig.TRAKT_REDIRECT_URI,
-                        grant_type = "authorization_code",
-                    )
-                val response = traktService.getAccessTokenAsync(request).await()
-                traktDao.deleteTraktAccessData()
-                traktDao.insertAllTraktAccessData(response.asDatabaseModel())
-                response.asDomainModel()
-            }
+@Inject
+constructor(
+    private val traktService: TraktService,
+    private val traktDao: TraktDao,
+    upnextDao: UpnextDao,
+    tvMazeService: TvMazeService,
+    firebaseCrashlytics: FirebaseCrashlytics,
+) : BaseTraktDataSource(upnextDao, tvMazeService, firebaseCrashlytics) {
+    suspend fun getAccessToken(code: String): Result<TraktAccessToken> {
+        if (code.isEmpty()) {
+            val message = "Attempted to get access token with empty code."
+            logTraktException(message)
+            return Result.failure(IllegalArgumentException(message))
         }
 
-        suspend fun revokeAccessToken(token: String): Result<Unit> {
-            if (token.isEmpty()) {
-                val message = "Attempted to revoke access token with empty token string."
-                logTraktException(message)
-                return Result.failure(IllegalArgumentException(message))
-            }
-
-            return safeApiCall {
-                val request =
-                    NetworkTraktRevokeAccessTokenRequest(
-                        client_id = BuildConfig.TRAKT_CLIENT_ID,
-                        client_secret = BuildConfig.TRAKT_CLIENT_SECRET,
-                        token = token,
-                    )
-                traktService.revokeAccessTokenAsync(request).await()
-                traktDao.deleteTraktAccessData() // Clear local token data
-                Unit
-            }
-        }
-
-        suspend fun getAccessRefreshToken(refreshToken: String?): Result<TraktAccessToken> {
-            if (refreshToken.isNullOrEmpty()) {
-                val message = "Attempted to refresh access token with null or empty refresh token."
-                logTraktException(message)
-                return Result.failure(IllegalArgumentException(message))
-            }
-
-            return safeApiCall {
-                val request =
-                    NetworkTraktAccessRefreshTokenRequest(
-                        refresh_token = refreshToken,
-                        client_id = BuildConfig.TRAKT_CLIENT_ID,
-                        client_secret = BuildConfig.TRAKT_CLIENT_SECRET,
-                        redirect_uri = BuildConfig.TRAKT_REDIRECT_URI,
-                        grant_type = "refresh_token",
-                    )
-                val response = traktService.getAccessRefreshTokenAsync(request).await()
-                traktDao.deleteTraktAccessData()
-                traktDao.insertAllTraktAccessData(response.asDatabaseModel())
-                response.asDomainModel()
-            }
+        return safeApiCall {
+            val request =
+                NetworkTraktAccessTokenRequest(
+                    code = code,
+                    client_id = BuildConfig.TRAKT_CLIENT_ID,
+                    client_secret = BuildConfig.TRAKT_CLIENT_SECRET,
+                    redirect_uri = BuildConfig.TRAKT_REDIRECT_URI,
+                    grant_type = "authorization_code",
+                )
+            val response = traktService.getAccessTokenAsync(request).await()
+            traktDao.deleteTraktAccessData()
+            traktDao.insertAllTraktAccessData(response.asDatabaseModel())
+            response.asDomainModel()
         }
     }
+
+    suspend fun revokeAccessToken(token: String): Result<Unit> {
+        if (token.isEmpty()) {
+            val message = "Attempted to revoke access token with empty token string."
+            logTraktException(message)
+            return Result.failure(IllegalArgumentException(message))
+        }
+
+        return safeApiCall {
+            val request =
+                NetworkTraktRevokeAccessTokenRequest(
+                    client_id = BuildConfig.TRAKT_CLIENT_ID,
+                    client_secret = BuildConfig.TRAKT_CLIENT_SECRET,
+                    token = token,
+                )
+            traktService.revokeAccessTokenAsync(request).await()
+            traktDao.deleteTraktAccessData() // Clear local token data
+            Unit
+        }
+    }
+
+    suspend fun getAccessRefreshToken(refreshToken: String?): Result<TraktAccessToken> {
+        if (refreshToken.isNullOrEmpty()) {
+            val message = "Attempted to refresh access token with null or empty refresh token."
+            logTraktException(message)
+            return Result.failure(IllegalArgumentException(message))
+        }
+
+        return safeApiCall {
+            val request =
+                NetworkTraktAccessRefreshTokenRequest(
+                    refresh_token = refreshToken,
+                    client_id = BuildConfig.TRAKT_CLIENT_ID,
+                    client_secret = BuildConfig.TRAKT_CLIENT_SECRET,
+                    redirect_uri = BuildConfig.TRAKT_REDIRECT_URI,
+                    grant_type = "refresh_token",
+                )
+            val response = traktService.getAccessRefreshTokenAsync(request).await()
+            traktDao.deleteTraktAccessData()
+            traktDao.insertAllTraktAccessData(response.asDatabaseModel())
+            response.asDomainModel()
+        }
+    }
+}

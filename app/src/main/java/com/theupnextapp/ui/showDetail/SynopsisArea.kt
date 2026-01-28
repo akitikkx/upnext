@@ -67,17 +67,17 @@ private fun SynopsisAreaCompact(
     Column(modifier = modifier) {
         Row(
             modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
+            Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
         ) {
             showSummary?.originalImageUrl?.let {
                 PosterImage(
                     url = it,
                     modifier =
-                        Modifier
-                            .width(posterWidth)
-                            .height(posterHeight),
+                    Modifier
+                        .width(posterWidth)
+                        .height(posterHeight),
                 )
             }
 
@@ -86,12 +86,12 @@ private fun SynopsisAreaCompact(
         ShowSynopsis(
             showSummary = showSummary,
             modifier =
-                Modifier.padding(
-                    top = 4.dp,
-                    start = 16.dp,
-                    end = 16.dp,
-                    bottom = 4.dp,
-                ),
+            Modifier.padding(
+                top = 4.dp,
+                start = 16.dp,
+                end = 16.dp,
+                bottom = 4.dp,
+            ),
         )
     }
 }
@@ -104,36 +104,36 @@ private fun SynopsisAreaExpanded(
 ) {
     Row(
         modifier =
-            modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+        modifier
+            .fillMaxWidth()
+            .padding(16.dp),
     ) {
         showSummary?.originalImageUrl?.let {
             PosterImage(
                 url = it,
                 modifier =
-                    Modifier
-                        .width(posterWidth)
-                        .height(posterHeight),
+                Modifier
+                    .width(posterWidth)
+                    .height(posterHeight),
             )
         }
 
         ShowMetadata(
             showSummary = showSummary,
             modifier =
-                Modifier
-                    .width(150.dp)
-                    .padding(start = 16.dp),
+            Modifier
+                .width(150.dp)
+                .padding(start = 16.dp),
         )
 
         ShowSynopsis(
             showSummary = showSummary,
             modifier =
-                Modifier.padding(
-                    top = 4.dp,
-                    start = 16.dp,
-                    end = 16.dp,
-                ),
+            Modifier.padding(
+                top = 4.dp,
+                start = 16.dp,
+                end = 16.dp,
+            ),
         )
     }
 }

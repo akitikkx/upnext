@@ -51,21 +51,21 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.ramcosta.composedestinations.generated.NavGraphs
 import com.ramcosta.composedestinations.generated.destinations.EmptyDetailScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.SettingsScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.ShowDetailScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.ShowSeasonEpisodesScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.ShowSeasonsScreenDestination
-import com.ramcosta.composedestinations.generated.destinations.SettingsScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.TraktAccountScreenDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.utils.rememberDestinationsNavigator
 import com.ramcosta.composedestinations.utils.startDestination
+import com.theupnextapp.R
 import com.theupnextapp.ui.dashboard.DashboardScreen
 import com.theupnextapp.ui.explore.ExploreScreen
 import com.theupnextapp.ui.search.SearchScreen
 import com.theupnextapp.ui.traktAccount.TraktAccountScreen
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
-import com.theupnextapp.R
 
 @OptIn(
     ExperimentalMaterial3AdaptiveApi::class,
@@ -202,9 +202,9 @@ fun MainScreen(
             listPane = {
                 Column(
                     modifier =
-                        Modifier
-                            .fillMaxSize()
-                            .background(MaterialTheme.colorScheme.surface), // Ensure opaque background
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.surface), // Ensure opaque background
                 ) {
                     TopAppBar(
                         title = { Text(stringResource(currentListSection.label)) },
@@ -247,7 +247,7 @@ fun MainScreen(
                             // Inspect the back stack to determine navigation behavior
                             val navController = mainNavController
                             val previousEntry = navController.previousBackStackEntry
-                            
+
                             // If we have a previous entry in the back stack, we should pop to it.
                             // This mimics standard system back behavior.
                             if (previousEntry != null) {

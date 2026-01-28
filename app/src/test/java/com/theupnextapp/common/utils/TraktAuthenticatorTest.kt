@@ -78,7 +78,8 @@ class TraktAuthenticatorTest {
                 .message("Unauthorized")
                 .build()
 
-        val refreshResponse = NetworkTraktAccessRefreshTokenResponse("new_token", "Bearer", 3600, "new_refresh", "scope", 12345)
+        val refreshResponse =
+            NetworkTraktAccessRefreshTokenResponse("new_token", "Bearer", 3600, "new_refresh", "scope", 12345)
         fakeTraktAuthApi.responseToReturn = refreshResponse
 
         // Execute

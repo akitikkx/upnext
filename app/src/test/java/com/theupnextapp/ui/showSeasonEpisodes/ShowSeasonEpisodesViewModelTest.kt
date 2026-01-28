@@ -3,12 +3,12 @@ package com.theupnextapp.ui.showSeasonEpisodes
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.work.WorkManager
 import com.theupnextapp.CoroutineTestRule
+import com.theupnextapp.common.utils.TraktAuthManager
 import com.theupnextapp.domain.ShowSeasonEpisode
+import com.theupnextapp.domain.TraktAuthState
 import com.theupnextapp.repository.ShowDetailRepository
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.WatchProgressRepository
-import com.theupnextapp.common.utils.TraktAuthManager
-import com.theupnextapp.domain.TraktAuthState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
@@ -53,31 +53,27 @@ class ShowSeasonEpisodesViewModelTest {
     fun `onToggleWatched calls markEpisodeWatched when authorized and episode is not watched`() = runTest {
         // Given
         val accessToken = com.theupnextapp.domain.TraktAccessToken(
-             access_token = "token",
-             token_type = "bearer",
-             expires_in = 3600,
-             refresh_token = "refresh",
-             scope = "public",
-             created_at = 3000000000L // Year 2065
+            access_token = "token",
+            token_type = "bearer",
+            expires_in = 3600,
+            refresh_token = "refresh",
+            scope = "public",
+            created_at = 3000000000L // Year 2065
         )
         whenever(traktRepository.traktAccessToken).thenReturn(flowOf(accessToken))
-        
-        viewModel = ShowSeasonEpisodesViewModel(
-            showDetailRepository,
-            watchProgressRepository,
-            workManager,
-            traktRepository,
-            traktAuthManager
-        )
+
+        createViewModel()
 
         val showTraktId = 123
         val seasonNum = 1
         val episodeNum = 1
-        
+
         // Mock data loading
-        whenever(showDetailRepository.getShowSeasonEpisodes(1, seasonNum)).thenReturn(flowOf(com.theupnextapp.domain.Result.Success(emptyList())))
+        whenever(
+            showDetailRepository.getShowSeasonEpisodes(1, seasonNum)
+        ).thenReturn(flowOf(com.theupnextapp.domain.Result.Success(emptyList())))
         whenever(watchProgressRepository.getWatchedEpisodesForShow(showTraktId)).thenReturn(flowOf(emptyList()))
-        
+
         // Initialize VM state
         val args = com.theupnextapp.domain.ShowSeasonEpisodesArg(
             showId = 1,
@@ -92,7 +88,7 @@ class ShowSeasonEpisodesViewModelTest {
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
             viewModel.isAuthorizedOnTrakt.collect {}
         }
-        
+
         val episode = ShowSeasonEpisode(
             id = 1,
             number = episodeNum,
@@ -127,15 +123,15 @@ class ShowSeasonEpisodesViewModelTest {
     fun `onToggleWatched calls markEpisodeUnwatched when authorized and episode is watched`() = runTest {
         // Given
         val accessToken = com.theupnextapp.domain.TraktAccessToken(
-             access_token = "token",
-             token_type = "bearer",
-             expires_in = 3600,
-             refresh_token = "refresh",
-             scope = "public",
-             created_at = 3000000000L // Year 2065
+            access_token = "token",
+            token_type = "bearer",
+            expires_in = 3600,
+            refresh_token = "refresh",
+            scope = "public",
+            created_at = 3000000000L // Year 2065
         )
         whenever(traktRepository.traktAccessToken).thenReturn(flowOf(accessToken))
-        
+
         viewModel = ShowSeasonEpisodesViewModel(
             showDetailRepository,
             watchProgressRepository,
@@ -147,11 +143,13 @@ class ShowSeasonEpisodesViewModelTest {
         val showTraktId = 123
         val seasonNum = 1
         val episodeNum = 1
-        
+
         // Mock data loading
-        whenever(showDetailRepository.getShowSeasonEpisodes(1, seasonNum)).thenReturn(flowOf(com.theupnextapp.domain.Result.Success(emptyList())))
+        whenever(
+            showDetailRepository.getShowSeasonEpisodes(1, seasonNum)
+        ).thenReturn(flowOf(com.theupnextapp.domain.Result.Success(emptyList())))
         whenever(watchProgressRepository.getWatchedEpisodesForShow(showTraktId)).thenReturn(flowOf(emptyList()))
-        
+
         // Initialize VM state
         val args = com.theupnextapp.domain.ShowSeasonEpisodesArg(
             showId = 1,
@@ -199,14 +197,8 @@ class ShowSeasonEpisodesViewModelTest {
     fun `onToggleWatched does NOT call repository if token is invalid`() = runTest {
         // Given
         whenever(traktRepository.traktAccessToken).thenReturn(flowOf(null))
-        viewModel = ShowSeasonEpisodesViewModel(
-            showDetailRepository,
-            watchProgressRepository,
-            workManager,
-            traktRepository,
-            traktAuthManager
-        )
-        
+        createViewModel()
+
         val episode = ShowSeasonEpisode(
             id = 1,
             number = 1,
@@ -229,5 +221,15 @@ class ShowSeasonEpisodesViewModelTest {
 
         // Then
         verifyNoInteractions(watchProgressRepository)
+    }
+
+    private fun createViewModel() {
+        viewModel = ShowSeasonEpisodesViewModel(
+            showDetailRepository,
+            watchProgressRepository,
+            workManager,
+            traktRepository,
+            traktAuthManager
+        )
     }
 }

@@ -30,23 +30,23 @@ import dagger.assisted.AssistedInject
 
 @HiltWorker
 class RefreshYesterdayShowsWorker
-    @AssistedInject
-    constructor(
-        @Assisted appContext: Context,
-        @Assisted workerParameters: WorkerParameters,
-        dashboardRepository: DashboardRepository,
-    ) : BaseScheduleWorker(appContext, workerParameters, dashboardRepository) {
-        override val workerName: String = WORK_NAME
-        override val notificationId: Int = NOTIFICATION_ID
-        override val contentTitleText: String = "Refreshing yesterday's schedule"
-        override val dayOffset: Int = -1
+@AssistedInject
+constructor(
+    @Assisted appContext: Context,
+    @Assisted workerParameters: WorkerParameters,
+    dashboardRepository: DashboardRepository,
+) : BaseScheduleWorker(appContext, workerParameters, dashboardRepository) {
+    override val workerName: String = WORK_NAME
+    override val notificationId: Int = NOTIFICATION_ID
+    override val contentTitleText: String = "Refreshing yesterday's schedule"
+    override val dayOffset: Int = -1
 
-        override suspend fun refresh(date: String) {
-            dashboardRepository.refreshYesterdayShows(DEFAULT_COUNTRY_CODE, date)
-        }
-
-        companion object {
-            const val WORK_NAME = "RefreshYesterdayShowsWorker"
-            private const val NOTIFICATION_ID = 1003
-        }
+    override suspend fun refresh(date: String) {
+        dashboardRepository.refreshYesterdayShows(DEFAULT_COUNTRY_CODE, date)
     }
+
+    companion object {
+        const val WORK_NAME = "RefreshYesterdayShowsWorker"
+        private const val NOTIFICATION_ID = 1003
+    }
+}

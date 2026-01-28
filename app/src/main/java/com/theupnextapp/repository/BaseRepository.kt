@@ -101,7 +101,9 @@ abstract class BaseRepository(
         val currentDateString = DateUtils.formatTimestampToString(System.currentTimeMillis(), "yyyy-MM-dd")
 
         if (lastUpdateDateString == null || currentDateString == null) {
-            Timber.w("isUpdateNeededByDay for '$tableName': Could not format dates for comparison. Assuming update is needed to be safe.")
+            Timber.w(
+                "isUpdateNeededByDay for '$tableName': Could not format dates for comparison. Assuming update is needed to be safe."
+            )
             return true
         }
 

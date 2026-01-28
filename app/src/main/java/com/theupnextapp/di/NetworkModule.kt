@@ -53,13 +53,19 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
+    private const val CACHE_SIZE_BYTES = 5 * 1024 * 1024L
+    private const val CACHE_MAX_AGE_SECONDS = 60 * 5
+    private const val CHUCKER_MAX_CONTENT_LENGTH = 250_000L
+    private const val CONNECT_TIMEOUT_SECONDS = 30L
+    private const val READ_TIMEOUT_SECONDS = 30L
+
     @Singleton
     @Provides
     fun provideNetworkClient(
         @ApplicationContext context: Context,
     ): OkHttpClient {
         return OkHttpClient().newBuilder()
-            .cache(Cache(context.cacheDir, (5 * 1024 * 1024).toLong()))
+            .cache(Cache(context.cacheDir, CACHE_SIZE_BYTES))
             .addInterceptor(
                 HttpLoggingInterceptor().apply {
                     level = HttpLoggingInterceptor.Level.BODY
@@ -68,7 +74,7 @@ object NetworkModule {
             .addInterceptor { chain ->
                 var request = chain.request()
                 request =
-                    request.newBuilder().header("Cache-Control", "public, max-age=" + 60 * 5)
+                    request.newBuilder().header("Cache-Control", "public, max-age=$CACHE_MAX_AGE_SECONDS")
                         .build()
                 chain.proceed(request)
             }
@@ -81,15 +87,15 @@ object NetworkModule {
                             retentionPeriod = RetentionManager.Period.ONE_HOUR,
                         ),
                     )
-                    .maxContentLength(250_000L)
+                    .maxContentLength(CHUCKER_MAX_CONTENT_LENGTH)
                     .redactHeaders("Auth-Token", "Bearer")
                     .alwaysReadResponseBody(true)
                     .createShortcut(true)
                     .build(),
             )
-            .connectTimeout(30, TimeUnit.SECONDS)
+            .connectTimeout(CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .retryOnConnectionFailure(true)
-            .readTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .connectionPool(ConnectionPool(0, 1, TimeUnit.SECONDS))
             .build()
     }

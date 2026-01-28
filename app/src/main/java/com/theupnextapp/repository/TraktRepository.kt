@@ -20,16 +20,15 @@ import com.theupnextapp.domain.TraktCast
 import com.theupnextapp.domain.TraktCheckInStatus
 import com.theupnextapp.domain.TraktMostAnticipated
 import com.theupnextapp.domain.TraktPopularShows
+import com.theupnextapp.domain.TraktRelatedShows
 import com.theupnextapp.domain.TraktShowRating
 import com.theupnextapp.domain.TraktShowStats
 import com.theupnextapp.domain.TraktTrendingShows
-import com.theupnextapp.domain.TraktRelatedShows
-
 import com.theupnextapp.domain.TraktUserList
 import com.theupnextapp.domain.TraktUserListItem
+import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktPersonResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktPersonShowCreditsResponse
-import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponse
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow

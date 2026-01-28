@@ -94,9 +94,9 @@ fun ShowSeasonsScreen(
                 if (isLoading.value == true) {
                     LinearProgressIndicator(
                         modifier =
-                            Modifier
-                                .padding(8.dp)
-                                .fillMaxWidth(),
+                        Modifier
+                            .padding(8.dp)
+                            .fillMaxWidth(),
                     )
                 }
             }
@@ -131,9 +131,9 @@ fun ShowSeasonCard(
     Card(
         shape = MaterialTheme.shapes.large,
         modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(4.dp),
+        Modifier
+            .fillMaxWidth()
+            .padding(4.dp),
         onClick = onClick,
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -141,9 +141,9 @@ fun ShowSeasonCard(
                 PosterImage(
                     url = url,
                     modifier =
-                        Modifier
-                            .width(dimensionResource(id = R.dimen.compose_search_poster_width))
-                            .height(dimensionResource(id = R.dimen.compose_search_poster_height)),
+                    Modifier
+                        .width(dimensionResource(id = R.dimen.compose_search_poster_width))
+                        .height(dimensionResource(id = R.dimen.compose_search_poster_height)),
                 )
             }
             Column(
@@ -154,10 +154,10 @@ fun ShowSeasonCard(
                 if (item.seasonNumber.toString().isNotEmpty()) {
                     Text(
                         text =
-                            stringResource(
-                                R.string.show_detail_season_and_number,
-                                item.seasonNumber.toString(),
-                            ),
+                        stringResource(
+                            R.string.show_detail_season_and_number,
+                            item.seasonNumber.toString(),
+                        ),
                         modifier = Modifier.padding(4.dp),
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.Bold,
@@ -167,10 +167,10 @@ fun ShowSeasonCard(
                 if (!item.premiereDate.isNullOrEmpty()) {
                     Text(
                         text =
-                            stringResource(
-                                R.string.show_detail_season_premiere_date,
-                                item.premiereDate,
-                            ),
+                        stringResource(
+                            R.string.show_detail_season_premiere_date,
+                            item.premiereDate,
+                        ),
                         modifier = Modifier.padding(2.dp),
                         style = MaterialTheme.typography.bodyMedium,
                     )
@@ -179,10 +179,10 @@ fun ShowSeasonCard(
                 if (!item.endDate.isNullOrEmpty()) {
                     Text(
                         text =
-                            stringResource(
-                                R.string.show_detail_season_end_date,
-                                item.endDate,
-                            ),
+                        stringResource(
+                            R.string.show_detail_season_end_date,
+                            item.endDate,
+                        ),
                         modifier = Modifier.padding(2.dp),
                         style = MaterialTheme.typography.bodyMedium,
                     )
@@ -191,16 +191,16 @@ fun ShowSeasonCard(
                 if (!item.originalImageUrl.isNullOrEmpty()) {
                     Text(
                         text =
-                            stringResource(
-                                R.string.tv_maze_creative_commons_attribution_text_single,
-                            ),
+                        stringResource(
+                            R.string.tv_maze_creative_commons_attribution_text_single,
+                        ),
                         modifier =
-                            Modifier.padding(
-                                start = 2.dp,
-                                top = 4.dp,
-                                bottom = 2.dp,
-                                end = 4.dp,
-                            ),
+                        Modifier.padding(
+                            start = 2.dp,
+                            top = 4.dp,
+                            bottom = 2.dp,
+                            end = 4.dp,
+                        ),
                         style = MaterialTheme.typography.bodyMedium,
                     )
                 }

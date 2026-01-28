@@ -36,100 +36,100 @@ import timber.log.Timber
 
 @HiltWorker
 class SyncWatchProgressWorker
-    @AssistedInject
-    constructor(
-        @Assisted appContext: Context,
-        @Assisted workerParameters: WorkerParameters,
-        private val watchProgressRepository: WatchProgressRepository,
-    ) : BaseWorker(appContext, workerParameters) {
-        override val notificationId: Int = NOTIFICATION_ID
-        override val contentTitleText: String = "Syncing watch progress"
+@AssistedInject
+constructor(
+    @Assisted appContext: Context,
+    @Assisted workerParameters: WorkerParameters,
+    private val watchProgressRepository: WatchProgressRepository,
+) : BaseWorker(appContext, workerParameters) {
+    override val notificationId: Int = NOTIFICATION_ID
+    override val contentTitleText: String = "Syncing watch progress"
 
-        private val firebaseAnalytics: FirebaseAnalytics by lazy { Firebase.analytics }
+    private val firebaseAnalytics: FirebaseAnalytics by lazy { Firebase.analytics }
 
-        override suspend fun doWork(): Result =
-            coroutineScope {
+    override suspend fun doWork(): Result =
+        coroutineScope {
+            Timber
+                .tag(TAG)
+                .d("Starting $WORK_NAME.")
+            val token = inputData.getString(ARG_TOKEN)
+
+            if (token.isNullOrBlank()) {
                 Timber
                     .tag(TAG)
-                    .d("Starting $WORK_NAME.")
-                val token = inputData.getString(ARG_TOKEN)
+                    .e("$WORK_NAME failed: Missing or empty token in input data.")
+                logFailureToFirebase(
+                    errorType = "MissingInputData",
+                    errorMessage = "Auth token is missing.",
+                )
+                return@coroutineScope Result.failure()
+            }
 
-                if (token.isNullOrBlank()) {
+            return@coroutineScope try {
+                Timber
+                    .tag(TAG)
+                    .d("Syncing watch progress with Trakt.")
+
+                val result = watchProgressRepository.syncWithTrakt(token)
+
+                if (result.isSuccess) {
+                    logSuccessToFirebase()
                     Timber
                         .tag(TAG)
-                        .e("$WORK_NAME failed: Missing or empty token in input data.")
+                        .i("$WORK_NAME completed successfully.")
+                    Result.success()
+                } else {
+                    val exception = result.exceptionOrNull()
+                    Timber
+                        .tag(TAG)
+                        .e(exception, "$WORK_NAME failed during sync.")
                     logFailureToFirebase(
-                        errorType = "MissingInputData",
-                        errorMessage = "Auth token is missing.",
-                    )
-                    return@coroutineScope Result.failure()
-                }
-
-                return@coroutineScope try {
-                    Timber
-                        .tag(TAG)
-                        .d("Syncing watch progress with Trakt.")
-
-                    val result = watchProgressRepository.syncWithTrakt(token)
-
-                    if (result.isSuccess) {
-                        logSuccessToFirebase()
-                        Timber
-                            .tag(TAG)
-                            .i("$WORK_NAME completed successfully.")
-                        Result.success()
-                    } else {
-                        val exception = result.exceptionOrNull()
-                        Timber
-                            .tag(TAG)
-                            .e(exception, "$WORK_NAME failed during sync.")
-                        logFailureToFirebase(
-                            errorType = exception?.javaClass?.simpleName ?: "Unknown",
-                            errorMessage = exception?.message ?: "Unknown error during sync.",
-                        )
-                        Result.retry()
-                    }
-                } catch (e: Exception) {
-                    Timber
-                        .tag(TAG)
-                        .e(e, "$WORK_NAME failed with exception.")
-                    logFailureToFirebase(
-                        errorType = e.javaClass.simpleName,
-                        errorMessage = e.message ?: "Unknown error while syncing watch progress.",
+                        errorType = exception?.javaClass?.simpleName ?: "Unknown",
+                        errorMessage = exception?.message ?: "Unknown error during sync.",
                     )
                     Result.retry()
                 }
+            } catch (e: Exception) {
+                Timber
+                    .tag(TAG)
+                    .e(e, "$WORK_NAME failed with exception.")
+                logFailureToFirebase(
+                    errorType = e.javaClass.simpleName,
+                    errorMessage = e.message ?: "Unknown error while syncing watch progress.",
+                )
+                Result.retry()
             }
-
-        private fun logSuccessToFirebase() {
-            val bundle =
-                Bundle().apply {
-                    putBoolean("job_successful", true)
-                    putString("job_name", WORK_NAME)
-                }
-            firebaseAnalytics.logEvent("background_job_completed", bundle)
         }
 
-        private fun logFailureToFirebase(
-            errorType: String,
-            errorMessage: String,
-        ) {
-            val bundle =
-                Bundle().apply {
-                    putBoolean("job_successful", false)
-                    putString("job_name", WORK_NAME)
-                    putString("error_type", errorType)
-                    putString("error_message", errorMessage)
-                }
-            firebaseAnalytics.logEvent("background_job_failed", bundle)
-        }
-
-        companion object {
-            private const val TAG = "SyncWatchProgressWrkr"
-            const val WORK_NAME = "SyncWatchProgressWorker"
-
-            const val ARG_TOKEN = "arg_token"
-
-            private const val NOTIFICATION_ID = 1007
-        }
+    private fun logSuccessToFirebase() {
+        val bundle =
+            Bundle().apply {
+                putBoolean("job_successful", true)
+                putString("job_name", WORK_NAME)
+            }
+        firebaseAnalytics.logEvent("background_job_completed", bundle)
     }
+
+    private fun logFailureToFirebase(
+        errorType: String,
+        errorMessage: String,
+    ) {
+        val bundle =
+            Bundle().apply {
+                putBoolean("job_successful", false)
+                putString("job_name", WORK_NAME)
+                putString("error_type", errorType)
+                putString("error_message", errorMessage)
+            }
+        firebaseAnalytics.logEvent("background_job_failed", bundle)
+    }
+
+    companion object {
+        private const val TAG = "SyncWatchProgressWrkr"
+        const val WORK_NAME = "SyncWatchProgressWorker"
+
+        const val ARG_TOKEN = "arg_token"
+
+        private const val NOTIFICATION_ID = 1007
+    }
+}

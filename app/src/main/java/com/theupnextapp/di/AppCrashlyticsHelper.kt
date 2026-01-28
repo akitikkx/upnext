@@ -17,15 +17,15 @@ import com.theupnextapp.common.CrashlyticsHelper
 import javax.inject.Inject
 
 class AppCrashlyticsHelper
-    @Inject
-    constructor(
-        private val firebaseCrashlytics: FirebaseCrashlytics,
-    ) : CrashlyticsHelper {
-        override fun log(message: String) {
-            firebaseCrashlytics.log(message)
-        }
-
-        override fun recordException(e: Throwable) {
-            firebaseCrashlytics.recordException(e)
-        }
+@Inject
+constructor(
+    private val firebaseCrashlytics: FirebaseCrashlytics,
+) : CrashlyticsHelper {
+    override fun log(message: String) {
+        firebaseCrashlytics.log(message)
     }
+
+    override fun recordException(e: Throwable) {
+        firebaseCrashlytics.recordException(e)
+    }
+}

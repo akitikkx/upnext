@@ -4,21 +4,21 @@ import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.work.ListenableWorker
 import androidx.work.testing.TestListenableWorkerBuilder
+import com.google.firebase.FirebaseApp
+import com.google.firebase.FirebaseOptions
 import com.theupnextapp.repository.SettingsRepository
 import com.theupnextapp.repository.TraktRepository
 import kotlinx.coroutines.flow.flowOf
-import org.robolectric.RobolectricTestRunner
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.doReturn
-import org.junit.Ignore
-import com.google.firebase.FirebaseApp
-import com.google.firebase.FirebaseOptions
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
+import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
@@ -58,7 +58,13 @@ class NotificationWorkerTest {
                 created_at = 1234567890L
             )
             whenever(mockTraktRepository.traktAccessToken).thenReturn(flowOf(accessToken))
-            whenever(mockTraktRepository.getTraktMySchedule(org.mockito.kotlin.any(), org.mockito.kotlin.any(), org.mockito.kotlin.any()))
+            whenever(
+                mockTraktRepository.getTraktMySchedule(
+                    org.mockito.kotlin.any(),
+                    org.mockito.kotlin.any(),
+                    org.mockito.kotlin.any()
+                )
+            )
                 .thenReturn(Result.success(com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponse()))
 
             val worker = TestListenableWorkerBuilder<NotificationWorker>(context)

@@ -55,9 +55,9 @@ fun ListPosterCard(
     Card(
         shape = MaterialTheme.shapes.large,
         modifier =
-            modifier
-                .width(listPosterWidth)
-                .padding(4.dp),
+        modifier
+            .width(listPosterWidth)
+            .padding(4.dp),
         onClick = onClick,
     ) {
         Column {
@@ -65,16 +65,16 @@ fun ListPosterCard(
                 PosterImage(
                     url = it,
                     modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .height(listPosterHeight),
+                    Modifier
+                        .fillMaxWidth()
+                        .height(listPosterHeight),
                 )
             }
             Column(
                 modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
+                Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
             ) {
                 itemName?.let {
                     PosterTitleTextItem(title = it)

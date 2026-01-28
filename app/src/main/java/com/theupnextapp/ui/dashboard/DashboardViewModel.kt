@@ -31,61 +31,61 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DashboardViewModel
-    @Inject
-    constructor(
-        dashboardRepository: DashboardRepository,
-        private val workManager: WorkManager,
-    ) : ViewModel() {
-        val isLoadingYesterdayShows = dashboardRepository.isLoadingYesterdayShows
-        val isLoadingTodayShows = dashboardRepository.isLoadingTodayShows
-        val isLoadingTomorrowShows = dashboardRepository.isLoadingTomorrowShows
+@Inject
+constructor(
+    dashboardRepository: DashboardRepository,
+    private val workManager: WorkManager,
+) : ViewModel() {
+    val isLoadingYesterdayShows = dashboardRepository.isLoadingYesterdayShows
+    val isLoadingTodayShows = dashboardRepository.isLoadingTodayShows
+    val isLoadingTomorrowShows = dashboardRepository.isLoadingTomorrowShows
 
-        val yesterdayShowsList = dashboardRepository.yesterdayShows.asLiveData()
+    val yesterdayShowsList = dashboardRepository.yesterdayShows.asLiveData()
 
-        val todayShowsList = dashboardRepository.todayShows.asLiveData()
+    val todayShowsList = dashboardRepository.todayShows.asLiveData()
 
-        val tomorrowShowsList = dashboardRepository.tomorrowShows.asLiveData()
+    val tomorrowShowsList = dashboardRepository.tomorrowShows.asLiveData()
 
-        private val yesterdayShowsEmpty =
-            MediatorLiveData<Boolean>().apply {
-                addSource(yesterdayShowsList) {
-                    value = it.isNullOrEmpty() == true
-                }
+    private val yesterdayShowsEmpty =
+        MediatorLiveData<Boolean>().apply {
+            addSource(yesterdayShowsList) {
+                value = it.isNullOrEmpty() == true
+            }
+        }
+
+    private val todayShowsEmpty =
+        MediatorLiveData<Boolean>().apply {
+            addSource(todayShowsList) {
+                value = it.isNullOrEmpty() == true
+            }
+        }
+
+    private val tomorrowShowsEmpty =
+        MediatorLiveData<Boolean>().apply {
+            addSource(tomorrowShowsList) {
+                value = it.isNullOrEmpty() == true
+            }
+        }
+
+    val isLoading =
+        MediatorLiveData<Boolean>().apply {
+            val updateLoadingState = {
+                // Value is true if any of the individual loading states are true
+                // Ensure you handle nulls from the LiveData sources if they haven't emitted yet.
+                // isLoadingYesterdayShows.value could be null initially.
+                value = (isLoadingYesterdayShows.value == true) ||
+                    (isLoadingTodayShows.value == true) ||
+                    (isLoadingTomorrowShows.value == true)
             }
 
-        private val todayShowsEmpty =
-            MediatorLiveData<Boolean>().apply {
-                addSource(todayShowsList) {
-                    value = it.isNullOrEmpty() == true
-                }
+            addSource(isLoadingYesterdayShows) {
+                updateLoadingState()
             }
-
-        private val tomorrowShowsEmpty =
-            MediatorLiveData<Boolean>().apply {
-                addSource(tomorrowShowsList) {
-                    value = it.isNullOrEmpty() == true
-                }
+            addSource(isLoadingTodayShows) {
+                updateLoadingState()
             }
-
-        val isLoading =
-            MediatorLiveData<Boolean>().apply {
-                val updateLoadingState = {
-                    // Value is true if any of the individual loading states are true
-                    // Ensure you handle nulls from the LiveData sources if they haven't emitted yet.
-                    // isLoadingYesterdayShows.value could be null initially.
-                    value = (isLoadingYesterdayShows.value == true) ||
-                        (isLoadingTodayShows.value == true) ||
-                        (isLoadingTomorrowShows.value == true)
-                }
-
-                addSource(isLoadingYesterdayShows) {
-                    updateLoadingState()
-                }
-                addSource(isLoadingTodayShows) {
-                    updateLoadingState()
-                }
-                addSource(isLoadingTomorrowShows) {
-                    updateLoadingState()
-                }
+            addSource(isLoadingTomorrowShows) {
+                updateLoadingState()
             }
-    }
+        }
+}

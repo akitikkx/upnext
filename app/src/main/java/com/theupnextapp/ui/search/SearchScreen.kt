@@ -91,9 +91,9 @@ fun SearchScreen(
                 if (isLoading.value == true) {
                     LinearProgressIndicator(
                         modifier =
-                            Modifier
-                                .padding(8.dp)
-                                .fillMaxWidth(),
+                        Modifier
+                            .padding(8.dp)
+                            .fillMaxWidth(),
                     )
                 }
             }
@@ -154,9 +154,9 @@ fun SearchInputField(
         label = { Text(inputLabel) },
         singleLine = true,
         modifier =
-            modifier
-                .padding(8.dp)
-                .fillMaxWidth(),
+        modifier
+            .padding(8.dp)
+            .fillMaxWidth(),
     )
 }
 

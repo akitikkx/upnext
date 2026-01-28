@@ -27,6 +27,7 @@ plugins {
     alias(libs.plugins.kotlin.compose.compiler)
     alias(libs.plugins.ksp)
     alias(libs.plugins.ktlint)
+    alias(libs.plugins.detekt)
     alias(libs.plugins.gms)
     alias(libs.plugins.firebase.crashlytics.gradle)
     alias(libs.plugins.firebase.perf.gradle)
@@ -118,7 +119,13 @@ android {
     }
 }
 
+detekt {
+    config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
+    buildUponDefaultConfig = true
+}
+
 dependencies {
+    detektPlugins libs.detekt.formatting
     implementation libs.appcompat
     implementation libs.android.ktx
     implementation libs.constraintlayout

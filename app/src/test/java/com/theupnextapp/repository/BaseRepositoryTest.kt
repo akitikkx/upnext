@@ -82,21 +82,7 @@ class BaseRepositoryTest {
         NetworkTvMazeShowLookupSchedule(time = "22:00", days = listOf("Monday"))
 
     // Dummy data for NetworkShowInfoResponse
-    private val dummyShowInfoCountry =
-        NetworkShowInfoCountry(name = "US", code = "US", timezone = "America/New_York")
-    private val dummyShowInfoNetwork =
-        NetworkShowInfoNetwork(id = 1, name = "Fake Network", country = dummyShowInfoCountry)
-    private val dummyShowInfoExternals =
-        NetworkShowInfoExternals(tvrage = 123, thetvdb = 456, imdb = "tt1234567")
-    private val dummyShowInfoImage =
-        NetworkShowInfoImage(medium = "http://medium.jpg", original = "http://original.jpg")
-    private val dummyShowInfoRating = NetworkShowInfoRating(average = 8.0)
-    private val dummyShowInfoSchedule =
-        NetworkShowInfoSchedule(time = "20:00", days = listOf("Sunday"))
-
-    // Dummy data for NetworkShowNextEpisodeResponse
-    private val dummyNextEpisodeSelf =
-        NetworkShowNextEpisodeSelf(href = "http://api.tvmaze.com/episodes/2/self")
+    // (Unused properties removed)
 
     @Before
     fun setUp() {
@@ -157,20 +143,20 @@ class BaseRepositoryTest {
     ): NetworkTvMazeShowLookupResponse {
         return NetworkTvMazeShowLookupResponse(
             _links =
-                NetworkTvMazeShowLookupLinks(
-                    self = dummyLookupSelfLink,
-                    previousepisode = dummyLookupPreviousEpisodeLink,
-                ),
+            NetworkTvMazeShowLookupLinks(
+                self = dummyLookupSelfLink,
+                previousepisode = dummyLookupPreviousEpisodeLink,
+            ),
             averageRuntime = 60,
             dvdCountry = null,
             externals = dummyLookupExternals,
             genres = listOf("Drama"),
             id = id,
             image =
-                NetworkTvMazeShowLookupImage(
-                    medium = mediumImageUrl,
-                    original = originalImageUrl,
-                ),
+            NetworkTvMazeShowLookupImage(
+                medium = mediumImageUrl,
+                original = originalImageUrl,
+            ),
             language = "English",
             name = name,
             network = dummyLookupNetwork,

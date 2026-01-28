@@ -31,21 +31,21 @@ import com.theupnextapp.datasource.TraktRecommendationsDataSource
 import com.theupnextapp.domain.ShowSeasonEpisode
 import com.theupnextapp.domain.TableUpdate
 import com.theupnextapp.domain.TraktAccessToken
+import com.theupnextapp.domain.TraktCast
 import com.theupnextapp.domain.TraktCheckInStatus
 import com.theupnextapp.domain.TraktMostAnticipated
 import com.theupnextapp.domain.TraktPopularShows
+import com.theupnextapp.domain.TraktRelatedShows
 import com.theupnextapp.domain.TraktShowRating
 import com.theupnextapp.domain.TraktShowStats
 import com.theupnextapp.domain.TraktTrendingShows
 import com.theupnextapp.domain.TraktUserList
 import com.theupnextapp.domain.TraktUserListItem
 import com.theupnextapp.domain.isTraktAccessTokenValid
+import com.theupnextapp.network.TvMazeService
+import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktPersonResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktPersonShowCreditsResponse
-import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponse
-import com.theupnextapp.domain.TraktCast
-import com.theupnextapp.network.TvMazeService
-import com.theupnextapp.domain.TraktRelatedShows
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -300,7 +300,7 @@ class TraktRepositoryImpl(
             _traktShowRating.value = result.getOrNull()
         } else {
             // Optionally handle error or clear rating
-             _traktShowRating.value = null
+            _traktShowRating.value = null
         }
     }
 
@@ -311,7 +311,7 @@ class TraktRepositoryImpl(
         if (result.isSuccess) {
             _traktShowStats.value = result.getOrNull()
         } else {
-             _traktShowStats.value = null
+            _traktShowStats.value = null
         }
     }
 

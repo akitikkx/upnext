@@ -147,13 +147,17 @@ interface TraktDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertWatchedEpisodes(episodes: List<DatabaseWatchedEpisode>)
 
-    @Query("DELETE FROM watched_episodes WHERE showTraktId = :showTraktId AND seasonNumber = :season AND episodeNumber = :episode")
+    @Query(
+        "DELETE FROM watched_episodes WHERE showTraktId = :showTraktId AND seasonNumber = :season AND episodeNumber = :episode"
+    )
     suspend fun deleteWatchedEpisode(showTraktId: Int, season: Int, episode: Int)
 
     @Query("SELECT * FROM watched_episodes WHERE showTraktId = :showTraktId")
     fun getWatchedEpisodesForShow(showTraktId: Int): Flow<List<DatabaseWatchedEpisode>>
 
-    @Query("SELECT * FROM watched_episodes WHERE showTraktId = :showTraktId AND seasonNumber = :season AND episodeNumber = :episode LIMIT 1")
+    @Query(
+        "SELECT * FROM watched_episodes WHERE showTraktId = :showTraktId AND seasonNumber = :season AND episodeNumber = :episode LIMIT 1"
+    )
     suspend fun getWatchedEpisode(showTraktId: Int, season: Int, episode: Int): DatabaseWatchedEpisode?
 
     @Query("SELECT COUNT(*) FROM watched_episodes WHERE showTraktId = :showTraktId AND syncStatus = 0")
@@ -162,10 +166,14 @@ interface TraktDao {
     @Query("SELECT * FROM watched_episodes WHERE syncStatus != 0")
     suspend fun getPendingSyncEpisodes(): List<DatabaseWatchedEpisode>
 
-    @Query("UPDATE watched_episodes SET syncStatus = :status WHERE showTraktId = :showTraktId AND seasonNumber = :season AND episodeNumber = :episode")
+    @Query(
+        "UPDATE watched_episodes SET syncStatus = :status WHERE showTraktId = :showTraktId AND seasonNumber = :season AND episodeNumber = :episode"
+    )
     suspend fun updateSyncStatus(showTraktId: Int, season: Int, episode: Int, status: Int)
 
-    @Query("DELETE FROM watched_episodes WHERE syncStatus = 2 AND showTraktId = :showTraktId AND seasonNumber = :season AND episodeNumber = :episode")
+    @Query(
+        "DELETE FROM watched_episodes WHERE syncStatus = 2 AND showTraktId = :showTraktId AND seasonNumber = :season AND episodeNumber = :episode"
+    )
     suspend fun confirmRemoval(showTraktId: Int, season: Int, episode: Int)
 
     @Query("DELETE FROM watched_episodes")

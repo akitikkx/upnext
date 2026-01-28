@@ -24,8 +24,6 @@ package com.theupnextapp.ui.traktAccount
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,15 +33,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.LazyGridState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator // Changed from Linear
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
@@ -169,9 +163,9 @@ fun TraktAccountScreen(
     ) { localScaffoldPadding ->
         Box(
             modifier =
-                Modifier
-                    .fillMaxSize()
-                    .padding(localScaffoldPadding),
+            Modifier
+                .fillMaxSize()
+                .padding(localScaffoldPadding),
         ) {
             AccountContent(
                 traktAuthState = traktAuthState,
@@ -230,9 +224,9 @@ internal fun AccountContent(
 ) {
     Column(
         modifier =
-            Modifier
-                .fillMaxSize()
-                .padding(8.dp),
+        Modifier
+            .fillMaxSize()
+            .padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         if (isLoadingConnection || isDisconnecting) {
@@ -321,9 +315,9 @@ fun ConnectToTrakt(onClick: () -> Unit) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier =
-            Modifier
-                .fillMaxSize()
-                .padding(16.dp),
+        Modifier
+            .fillMaxSize()
+            .padding(16.dp),
     ) {
         Image(
             painter = image,
@@ -338,9 +332,9 @@ fun ConnectToTrakt(onClick: () -> Unit) {
         )
         Button(
             modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 32.dp, vertical = 8.dp),
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 32.dp, vertical = 8.dp),
             // Adjusted padding
             onClick = { onClick() },
         ) {

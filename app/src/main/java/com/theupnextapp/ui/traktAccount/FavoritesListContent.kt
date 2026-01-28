@@ -68,10 +68,10 @@ fun FavoritesListContent(
         item(span = { GridItemSpan(maxLineSpan) }) {
             SectionHeadingText(
                 modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .wrapContentWidth(Alignment.CenterHorizontally)
-                        .padding(top = 8.dp, bottom = 8.dp),
+                Modifier
+                    .fillMaxWidth()
+                    .wrapContentWidth(Alignment.CenterHorizontally)
+                    .padding(top = 8.dp, bottom = 8.dp),
                 text = stringResource(id = R.string.title_favorites_list),
             )
         }

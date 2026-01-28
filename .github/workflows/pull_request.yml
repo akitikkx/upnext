@@ -103,3 +103,44 @@ jobs:
       - name: Remove generated google-services.json file
         run: |
           rm ./app/google-services.json
+
+  detekt:
+    name: Code Quality (Detekt)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: 'zulu'
+      - name: Create a copy of the local.properties from the example file
+        run: |
+          cp "${GITHUB_WORKSPACE}/local.properties.example" "${GITHUB_WORKSPACE}/local.properties"
+          chmod u+x "${GITHUB_WORKSPACE}/local.properties"
+      - name: Create and configure google-services.json file
+        env:
+          GOOGLE_SERVICES: ${{ secrets.GOOGLE_SERVICES }}
+        run: echo $GOOGLE_SERVICES > app/google-services.json
+      - name: Update the gradle wrapper permissions
+        run: chmod +x ./gradlew
+      - name: Restore cache
+        uses: actions/cache@v4
+        with:
+          path:
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      - name: Setup the Android SDK
+        uses: android-actions/setup-android@v3
+      - name: Run Detekt
+        run: ./gradlew detekt
+      - name: Remove generated local.properties file
+        run: |
+          rm "${GITHUB_WORKSPACE}/local.properties"
+      - name: Remove generated google-services.json file
+        run: |
+          rm ./app/google-services.json

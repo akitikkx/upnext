@@ -21,6 +21,7 @@
 
 package com.theupnextapp.ui.showDetail
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -28,12 +29,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -46,15 +46,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import android.widget.Toast
-import com.theupnextapp.R
-import com.theupnextapp.ui.components.PosterImage
-
 import com.theupnextapp.network.models.trakt.NetworkTraktPersonShowCastCredit
+import com.theupnextapp.ui.components.PosterImage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -159,11 +155,11 @@ fun CastBottomSheet(
                         val showTitle = credit.show?.title ?: "Unknown Show"
                         val character = credit.character ?: credit.characters?.joinToString(", ") ?: "Unknown Character"
                         val year = credit.show?.year?.toString() ?: ""
-                        
+
                         val isClickable = !credit.show?.ids?.imdb.isNullOrEmpty()
 
                         Card(
-                            onClick = { 
+                            onClick = {
                                 if (isClickable) {
                                     onCreditClick(credit)
                                 } else {
@@ -180,7 +176,11 @@ fun CastBottomSheet(
                                     .padding(12.dp)
                                     .alpha(if (isClickable) 1f else 0.38f) // Visually dim disabled items
                             ) {
-                                Text(text = "$showTitle ($year)", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
+                                Text(
+                                    text = "$showTitle ($year)",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
                                 Text(text = "as $character", style = MaterialTheme.typography.bodySmall)
                             }
                         }

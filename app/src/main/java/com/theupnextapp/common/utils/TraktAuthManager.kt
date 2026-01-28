@@ -28,8 +28,6 @@ import com.theupnextapp.domain.TraktAuthState
 import com.theupnextapp.domain.isTraktAccessTokenValid
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.work.RefreshFavoriteShowsWorker
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -38,6 +36,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import javax.inject.Inject
+import javax.inject.Singleton
 
 @Singleton
 class TraktAuthManager @Inject constructor(
@@ -67,13 +67,13 @@ class TraktAuthManager @Inject constructor(
         scope.launch {
             // Keep track of the last token we tried to refresh to prevent loops
             var lastRefreshedToken: String? = null
-            
+
             traktRepository.traktAccessToken
                 .collect { accessToken ->
                     if (accessToken != null) {
                         if (!accessToken.isTraktAccessTokenValid()) {
                             val currentTokenString = accessToken.access_token
-                            
+
                             // Only attempt refresh if we haven't just tried this token
                             if (currentTokenString != lastRefreshedToken) {
                                 lastRefreshedToken = currentTokenString
@@ -88,15 +88,15 @@ class TraktAuthManager @Inject constructor(
                         } else {
                             // Token is valid. Reset tracker.
                             lastRefreshedToken = null
-                            
+
                             val workerData = Data.Builder()
                                 .putString(RefreshFavoriteShowsWorker.ARG_TOKEN, accessToken.access_token)
                                 .build()
-    
+
                             val refreshFavoritesWork = OneTimeWorkRequest.Builder(RefreshFavoriteShowsWorker::class.java)
                                 .setInputData(workerData)
                                 .build()
-    
+
                             workManager.enqueueUniqueWork(
                                 "refresh_favorite_shows_work",
                                 androidx.work.ExistingWorkPolicy.KEEP,

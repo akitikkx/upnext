@@ -44,9 +44,9 @@ fun ShowMetadata(
                 HeadingAndItemText(
                     item = it,
                     heading =
-                        stringResource(
-                            id = R.string.show_detail_air_days_heading,
-                        ),
+                    stringResource(
+                        id = R.string.show_detail_air_days_heading,
+                    ),
                 )
             }
         }
@@ -56,9 +56,9 @@ fun ShowMetadata(
                 HeadingAndItemText(
                     item = it,
                     heading =
-                        stringResource(
-                            id = R.string.show_detail_genres_heading,
-                        ),
+                    stringResource(
+                        id = R.string.show_detail_genres_heading,
+                    ),
                 )
             }
         }

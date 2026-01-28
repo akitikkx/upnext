@@ -25,27 +25,25 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.work.WorkManager
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.theupnextapp.CoroutineTestRule
-import com.theupnextapp.domain.TraktCast
 import com.theupnextapp.common.utils.TraktAuthManager
+import com.theupnextapp.domain.TraktAuthState
+import com.theupnextapp.domain.TraktCast
 import com.theupnextapp.network.models.trakt.NetworkTraktPersonResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktPersonShowCreditsResponse
 import com.theupnextapp.repository.ShowDetailRepository
 import com.theupnextapp.repository.TraktRepository
-import com.theupnextapp.domain.TraktAuthState
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mock
-import org.mockito.Mockito.`when`
-import org.junit.Ignore
 import org.mockito.Mockito.anyString
 import org.mockito.Mockito.never
-import org.mockito.Mockito.verify
 import org.mockito.Mockito.timeout
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 
 @ExperimentalCoroutinesApi
@@ -107,8 +105,16 @@ class ShowDetailViewModelTest {
         val actorName = "Test Actor"
         val traktCast = createTraktCast(traktId, actorName)
 
-        `when`(traktRepository.getTraktPersonSummary(traktId.toString())).thenReturn(Result.success(NetworkTraktPersonResponse(name = "Test Actor", ids = null, biography = null, birthday = null, death = null, birthplace = null, homepage = null, gender = null, known_for_department = null, social_ids = null)))
-        `when`(traktRepository.getTraktPersonShowCredits(traktId.toString())).thenReturn(Result.success(NetworkTraktPersonShowCreditsResponse(cast = emptyList())))
+        `when`(
+            traktRepository.getTraktPersonSummary(traktId.toString())
+        ).thenReturn(
+            Result.success(
+                NetworkTraktPersonResponse(name = "Test Actor", ids = null, biography = null, birthday = null, death = null, birthplace = null, homepage = null, gender = null, known_for_department = null, social_ids = null)
+            )
+        )
+        `when`(
+            traktRepository.getTraktPersonShowCredits(traktId.toString())
+        ).thenReturn(Result.success(NetworkTraktPersonShowCreditsResponse(cast = emptyList())))
 
         // When
         viewModel.onShowCastItemClicked(traktCast)
@@ -155,7 +161,9 @@ class ShowDetailViewModelTest {
             previousEpisodeLinkedId = null
         )
 
-        `when`(showDetailRepository.getShowSummary(123)).thenReturn(kotlinx.coroutines.flow.flowOf(com.theupnextapp.domain.Result.Success(showSummary)))
+        `when`(
+            showDetailRepository.getShowSummary(123)
+        ).thenReturn(kotlinx.coroutines.flow.flowOf(com.theupnextapp.domain.Result.Success(showSummary)))
         `when`(traktRepository.getRelatedShows(imdbId)).thenReturn(
             Result.success(
                 listOf(
