@@ -43,6 +43,11 @@ jobs:
       - name: Install Fastlane
         run: gem install fastlane
 
+      - name: Configure Git Identity
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
       - name: Decode Keystore
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
