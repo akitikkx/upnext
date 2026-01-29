@@ -1,6 +1,6 @@
 package com.theupnextapp.common.utils
 
-import com.theupnextapp.BuildConfig
+import com.theupnextapp.core.data.BuildConfig
 
 object TraktConstants {
     const val TRAKT_AUTH_URL =

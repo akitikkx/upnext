@@ -19,15 +19,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.theupnextapp.domain
+package com.theupnextapp.common.utils.models
 
-data class ShowDetailArg(
-    val source: String? = null,
-    val showId: String?,
-    val showTitle: String?,
-    val showImageUrl: String?,
-    val showBackgroundUrl: String?,
-    val imdbID: String? = null,
-    val isAuthorizedOnTrakt: Boolean? = false,
-    val showTraktId: Int? = null,
-)
+import com.theupnextapp.core.common.R
+import com.theupnextapp.domain.ShowSearch
+
+fun getNameAndReleaseYearResource(showSearch: ShowSearch): Int {
+    return if (!showSearch.status.isNullOrEmpty()) {
+        if (showSearch.status != "Ended") {
+            R.string.search_item_not_ended
+        } else {
+            R.string.search_item_ended
+        }
+    } else {
+        R.string.search_item_ended
+    }
+}

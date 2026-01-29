@@ -29,7 +29,7 @@ import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
-import com.theupnextapp.R
+import com.theupnextapp.core.common.R
 import timber.log.Timber
 
 abstract class BaseWorker(

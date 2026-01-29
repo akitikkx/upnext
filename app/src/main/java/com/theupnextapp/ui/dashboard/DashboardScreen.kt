@@ -38,19 +38,19 @@ import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSiz
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
-import com.ramcosta.composedestinations.generated.destinations.ShowDetailScreenDestination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import androidx.navigation.NavController
 import com.theupnextapp.R
 import com.theupnextapp.domain.ScheduleShow
+import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.extensions.ReferenceDevices
+import com.theupnextapp.navigation.Destinations
 import com.theupnextapp.ui.components.SectionHeadingText
 import com.theupnextapp.ui.widgets.ListPosterCard
 
@@ -58,11 +58,10 @@ import com.theupnextapp.ui.widgets.ListPosterCard
     ExperimentalMaterial3WindowSizeClassApi::class,
     ExperimentalMaterial3Api::class,
 )
-@Destination<RootGraph>
 @Composable
 fun DashboardScreen(
     viewModel: DashboardViewModel = hiltViewModel(),
-    navigator: DestinationsNavigator,
+    navController: NavController,
 ) {
     val yesterdayShowsList = viewModel.yesterdayShowsList.observeAsState()
     val todayShowsList = viewModel.todayShowsList.observeAsState()
@@ -103,14 +102,17 @@ fun DashboardScreen(
                             list = list,
                             rowTitle = stringResource(id = R.string.title_yesterday_shows),
                         ) {
-                            navigator.navigate(
-                                ShowDetailScreenDestination(
+                            navController.navigate(
+                                Destinations.ShowDetail(
                                     source = "dashboard",
-                                    showId = it.showId.toString(), // Updated to use showId
+                                    showId = it.showId.toString(),
                                     showTitle = it.name,
                                     showImageUrl = it.originalImage,
                                     showBackgroundUrl = it.mediumImage,
-                                ),
+                                    imdbID = null,
+                                    isAuthorizedOnTrakt = null,
+                                    showTraktId = null
+                                )
                             )
                         }
                     }
@@ -123,14 +125,17 @@ fun DashboardScreen(
                             list = list,
                             rowTitle = stringResource(id = R.string.title_today_shows),
                         ) {
-                            navigator.navigate(
-                                ShowDetailScreenDestination(
+                            navController.navigate(
+                                Destinations.ShowDetail(
                                     source = "dashboard",
-                                    showId = it.showId.toString(), // Updated to use showId
+                                    showId = it.showId.toString(),
                                     showTitle = it.name,
                                     showImageUrl = it.originalImage,
                                     showBackgroundUrl = it.mediumImage,
-                                ),
+                                    imdbID = null,
+                                    isAuthorizedOnTrakt = null,
+                                    showTraktId = null
+                                )
                             )
                         }
                     }
@@ -143,14 +148,17 @@ fun DashboardScreen(
                             list = list,
                             rowTitle = stringResource(id = R.string.title_tomorrow_shows),
                         ) {
-                            navigator.navigate(
-                                ShowDetailScreenDestination(
+                            navController.navigate(
+                                Destinations.ShowDetail(
                                     source = "dashboard",
-                                    showId = it.showId.toString(), // Updated to use showId
+                                    showId = it.showId.toString(),
                                     showTitle = it.name,
                                     showImageUrl = it.originalImage,
                                     showBackgroundUrl = it.mediumImage,
-                                ),
+                                    imdbID = null,
+                                    isAuthorizedOnTrakt = null,
+                                    showTraktId = null
+                                )
                             )
                         }
                     }
@@ -158,7 +166,6 @@ fun DashboardScreen(
             }
         }
     }
-
     ReportDrawnWhen {
         (
             !yesterdayShowsList.value.isNullOrEmpty() ||

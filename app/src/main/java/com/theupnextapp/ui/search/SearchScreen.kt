@@ -44,10 +44,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
-import com.ramcosta.composedestinations.generated.destinations.ShowDetailScreenDestination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import androidx.navigation.NavController
+import com.theupnextapp.navigation.Destinations
 import com.theupnextapp.R
 import com.theupnextapp.domain.ShowSearch
 import com.theupnextapp.ui.widgets.SearchListCard
@@ -55,11 +53,10 @@ import com.theupnextapp.ui.widgets.SearchListCard
 @ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
 @ExperimentalComposeUiApi
-@Destination<RootGraph>
 @Composable
 fun SearchScreen(
     viewModel: SearchViewModel = hiltViewModel(),
-    navigator: DestinationsNavigator,
+    navController: NavController,
 ) {
     val searchResultsList = viewModel.searchResponse.observeAsState()
 
@@ -73,14 +70,17 @@ fun SearchScreen(
                 SearchArea(
                     searchResultsList = searchResultsList.value,
                     onResultClick = {
-                        navigator.navigate(
-                            ShowDetailScreenDestination(
+                        navController.navigate(
+                            Destinations.ShowDetail(
                                 source = "search",
                                 showId = it.id.toString(),
                                 showTitle = it.name,
                                 showImageUrl = it.originalImageUrl,
                                 showBackgroundUrl = it.mediumImageUrl,
-                            ),
+                                imdbID = null,
+                                isAuthorizedOnTrakt = null,
+                                showTraktId = null
+                            )
                         )
                     },
                     onTextSubmit = {

@@ -19,19 +19,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.theupnextapp.common.utils.models
+package com.theupnextapp.common.utils
 
-import com.theupnextapp.R
-import com.theupnextapp.domain.ShowSearch
+import com.theupnextapp.core.data.BuildConfig
+import okhttp3.Interceptor
+import okhttp3.Response
 
-fun getNameAndReleaseYearResource(showSearch: ShowSearch): Int {
-    return if (!showSearch.status.isNullOrEmpty()) {
-        if (showSearch.status != "Ended") {
-            R.string.search_item_not_ended
-        } else {
-            R.string.search_item_ended
-        }
-    } else {
-        R.string.search_item_ended
+class TraktConnectionInterceptor : Interceptor {
+    override fun intercept(chain: Interceptor.Chain): Response {
+        var request = chain.request()
+        request =
+            request.newBuilder()
+                .addHeader("Content-Type", "application/json")
+                .addHeader("trakt-api-version", "2")
+                .addHeader("trakt-api-key", BuildConfig.TRAKT_CLIENT_ID)
+                .build()
+        return chain.proceed(request)
     }
 }

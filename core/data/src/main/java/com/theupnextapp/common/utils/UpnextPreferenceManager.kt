@@ -21,19 +21,21 @@
 
 package com.theupnextapp.common.utils
 
-import com.theupnextapp.BuildConfig
-import okhttp3.Interceptor
-import okhttp3.Response
+import android.app.Application
+import androidx.preference.PreferenceManager
+import com.theupnextapp.core.common.R
+import javax.inject.Inject
 
-class TraktConnectionInterceptor : Interceptor {
-    override fun intercept(chain: Interceptor.Chain): Response {
-        var request = chain.request()
-        request =
-            request.newBuilder()
-                .addHeader("Content-Type", "application/json")
-                .addHeader("trakt-api-version", "2")
-                .addHeader("trakt-api-key", BuildConfig.TRAKT_CLIENT_ID)
-                .build()
-        return chain.proceed(request)
+@Deprecated(message = "SharedPreferences no longer recommended")
+class UpnextPreferenceManager
+@Inject
+constructor(val application: Application) {
+    fun getSelectedTheme(): String? {
+        val preferences = PreferenceManager.getDefaultSharedPreferences(application)
+
+        return preferences.getString(
+            application.getString(R.string.dark_mode),
+            application.getString(R.string.dark_mode_yes),
+        )
     }
 }

@@ -21,7 +21,7 @@
 
 package com.theupnextapp.common.utils
 
-import com.theupnextapp.BuildConfig
+import com.theupnextapp.core.data.BuildConfig
 import com.theupnextapp.database.DatabaseTraktAccess
 import com.theupnextapp.database.TraktDao
 import com.theupnextapp.network.TraktAuthApi

@@ -31,7 +31,7 @@ import androidx.core.app.NotificationCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.theupnextapp.R
+import com.theupnextapp.core.common.R
 import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponseItem
 import com.theupnextapp.repository.SettingsRepository
 import com.theupnextapp.repository.TraktRepository

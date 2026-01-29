@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark Mode Preferences -->
+    <string name="dark_mode">Dark Mode</string>
+    <string name="dark_mode_default_value">MODE_NIGHT_YES</string>
+    <string name="dark_mode_follow_system">MODE_NIGHT_FOLLOW_SYSTEM</string>
+    <string name="dark_mode_no">MODE_NIGHT_NO</string>
+    <string name="dark_mode_yes">MODE_NIGHT_YES</string>
+    <string name="dark_mode_auto_battery">MODE_NIGHT_AUTO_BATTERY</string>
+
+    <!-- Search Items -->
+    <string name="search_item_not_ended">%1$s (%2$s - )</string>
+    <string name="search_item_ended">%1$s (%2$s)</string>
+
+    <!-- Notification channels -->
+    <string name="notification_channel_name">App Updates</string>
+    <string name="notification_channel_description">Notifications for app data updates and background tasks.</string>
+</resources>

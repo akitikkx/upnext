@@ -7,6 +7,8 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.serialization)
+    id 'kotlin-parcelize'
 }
 
 android {
@@ -37,8 +39,14 @@ android {
 }
 
 dependencies {
+    // Core modules
+    implementation project(':core:common')
+
     // Coroutines for Flow types in repository interfaces
     implementation libs.kotlinx.coroutines.core
+    
+    // Serialization
+    implementation libs.kotlinx.serialization.core
     
     // Testing
     testImplementation libs.junit

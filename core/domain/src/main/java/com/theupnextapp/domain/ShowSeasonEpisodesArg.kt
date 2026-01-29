@@ -21,10 +21,16 @@
 
 package com.theupnextapp.domain
 
+import kotlinx.serialization.Serializable
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Serializable
+@Parcelize
 data class ShowSeasonEpisodesArg(
     val showId: Int?,
     val seasonNumber: Int?,
     val imdbID: String? = null,
     val isAuthorizedOnTrakt: Boolean? = false,
     val showTraktId: Int? = null,
-)
+) : Parcelable

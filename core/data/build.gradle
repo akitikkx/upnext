@@ -24,12 +24,28 @@ android {
             arg("room.schemaLocation", "$projectDir/schemas".toString())
         }
     }
+    
+    buildFeatures {
+        buildConfig = true
+    }
 
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+    }
+    
+    def localProperties = new Properties()
+    def localPropertiesFile = rootProject.file("local.properties")
+    if (localPropertiesFile.exists()) {
+        localProperties.load(new FileInputStream(localPropertiesFile))
+    }
+
+    buildTypes.each {
+        it.buildConfigField('String', 'TRAKT_CLIENT_ID', localProperties.getProperty("TraktClientID") ?: "\"\"")
+        it.buildConfigField('String', 'TRAKT_CLIENT_SECRET', localProperties.getProperty("TraktClientSecret") ?: "\"\"")
+        it.buildConfigField('String', 'TRAKT_REDIRECT_URI', localProperties.getProperty("TraktRedirectURI") ?: "\"\"")
     }
 
     compileOptions {
@@ -66,16 +82,23 @@ dependencies {
     implementation libs.retrofit2.kotlin.coroutines.adapter
     implementation libs.okhttp
     implementation libs.logging.interceptor
+    debugImplementation libs.chucker.debug
+    releaseImplementation libs.chucker.release
     
+    // Gson
+    implementation libs.converter.gson
+
     // Moshi
     implementation libs.moshi
     implementation libs.moshi.kotlin
     
     // Firebase Crashlytics
     implementation libs.firebase.crashlytics
+    implementation libs.firebase.analytics.ktx
     
-    // DataStore
+    // DataStore & Prefs
     implementation libs.datastore.preferences
+    implementation libs.preference.ktx
     
     // AndroidX Browser (for auth)
     implementation libs.browser
@@ -83,6 +106,11 @@ dependencies {
     // Timber
     implementation libs.timber
     
+    // Hilt Work
+    implementation libs.android.hilt.work
+    ksp libs.android.hilt.work.compiler
+    implementation libs.work.runtime.ktx
+
     // Testing
     testImplementation libs.junit
     testImplementation libs.kotlinx.coroutines.test

@@ -19,23 +19,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.theupnextapp.common.utils
+package com.theupnextapp.domain
 
-import android.app.Application
-import androidx.preference.PreferenceManager
-import com.theupnextapp.R
-import javax.inject.Inject
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.Serializable
 
-@Deprecated(message = "SharedPreferences no longer recommended")
-class UpnextPreferenceManager
-@Inject
-constructor(val application: Application) {
-    fun getSelectedTheme(): String? {
-        val preferences = PreferenceManager.getDefaultSharedPreferences(application)
-
-        return preferences.getString(
-            application.getString(R.string.dark_mode),
-            application.getString(R.string.dark_mode_yes),
-        )
-    }
-}
+@Serializable
+@Parcelize
+data class ShowDetailArg(
+    val source: String? = null,
+    val showId: String?,
+    val showTitle: String?,
+    val showImageUrl: String?,
+    val showBackgroundUrl: String?,
+    val imdbID: String? = null,
+    val isAuthorizedOnTrakt: Boolean? = false,
+    val showTraktId: Int? = null,
+) : Parcelable

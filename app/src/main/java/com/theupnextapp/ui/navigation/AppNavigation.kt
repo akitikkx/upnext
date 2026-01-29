@@ -10,6 +10,8 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+package com.theupnextapp.ui.navigation
+
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
@@ -22,11 +24,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.ramcosta.composedestinations.DestinationsNavHost
-import com.ramcosta.composedestinations.generated.NavGraphs
-import com.ramcosta.composedestinations.generated.destinations.ShowDetailScreenDestination
+import androidx.navigation.toRoute
+import com.theupnextapp.navigation.Destinations
 import com.theupnextapp.ui.main.TopBar
+import com.theupnextapp.ui.settings.SettingsScreen
+import com.theupnextapp.ui.showDetail.EmptyDetailScreen
+import com.theupnextapp.ui.showDetail.ShowDetailScreen
+import com.theupnextapp.ui.showSeasonEpisodes.ShowSeasonEpisodesScreen
+import com.theupnextapp.ui.showSeasons.ShowSeasonsScreen
+import com.theupnextapp.ui.traktAccount.TraktAccountScreen
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @OptIn(
@@ -36,6 +45,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
     ExperimentalComposeUiApi::class,
     ExperimentalFoundationApi::class,
     ExperimentalAnimationApi::class,
+    androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi::class
 )
 @Composable
 fun AppNavigation(
@@ -46,12 +56,10 @@ fun AppNavigation(
     val currentRoute = navBackStackEntry?.destination?.route
 
     // Attempt to extract a title if ShowDetailArgs are present for ShowDetailScreen
-    val dynamicTitle =
-        if (currentRoute == ShowDetailScreenDestination.route) {
-            navBackStackEntry?.let { ShowDetailScreenDestination.argsFrom(it).showTitle }
-        } else {
-            null
-        }
+    // Note: With Type-Safe Nav, getting args from backStackEntry for title might look different
+    // For now we can try to rely on the destination label or extract from arguments if needed.
+    // Simplified for now.
+    val dynamicTitle: String? = null
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -68,13 +76,52 @@ fun AppNavigation(
                 },
                 title = dynamicTitle,
             )
-            // DestinationsNavHost uses the navHostController (mainNavController from MainScreen)
-            // It will display EmptyDetailScreen, ShowDetailScreen, etc., based on its current route.
-            DestinationsNavHost(
-                navGraph = NavGraphs.root,
+
+            NavHost(
                 navController = navHostController,
-                modifier = Modifier.weight(1f), // Ensures it takes available space
-            )
+                startDestination = Destinations.EmptyDetail,
+                modifier = Modifier.weight(1f),
+            ) {
+                composable<Destinations.EmptyDetail> {
+                    EmptyDetailScreen()
+                }
+
+                composable<Destinations.ShowDetail> { backStackEntry ->
+                    val args = backStackEntry.toRoute<Destinations.ShowDetail>()
+                    ShowDetailScreen(
+                        showDetailArgs = args.toArg(),
+                        navController = navHostController
+                    )
+                }
+
+                composable<Destinations.ShowSeasons> { backStackEntry ->
+                    val args = backStackEntry.toRoute<Destinations.ShowSeasons>()
+                    ShowSeasonsScreen(
+                        showDetailArg = args.toArg(),
+                        navController = navHostController
+                    )
+                }
+
+                composable<Destinations.ShowSeasonEpisodes> { backStackEntry ->
+                    val args = backStackEntry.toRoute<Destinations.ShowSeasonEpisodes>()
+                    ShowSeasonEpisodesScreen(
+                        showSeasonEpisodesArg = args.toArg(),
+                        navController = navHostController
+                    )
+                }
+
+                composable<Destinations.Settings> {
+                    SettingsScreen(navController = navHostController)
+                }
+
+                composable<Destinations.TraktAccount> { backStackEntry ->
+                    val args = backStackEntry.toRoute<Destinations.TraktAccount>()
+                    TraktAccountScreen(
+                        code = args.code,
+                        navController = navHostController
+                    )
+                }
+            }
         }
     }
 }

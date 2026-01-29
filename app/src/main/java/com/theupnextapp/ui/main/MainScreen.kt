@@ -12,7 +12,6 @@
 
 package com.theupnextapp.ui.main
 
-import AppNavigation
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -47,23 +46,17 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.ramcosta.composedestinations.generated.NavGraphs
-import com.ramcosta.composedestinations.generated.destinations.EmptyDetailScreenDestination
-import com.ramcosta.composedestinations.generated.destinations.SettingsScreenDestination
-import com.ramcosta.composedestinations.generated.destinations.ShowDetailScreenDestination
-import com.ramcosta.composedestinations.generated.destinations.ShowSeasonEpisodesScreenDestination
-import com.ramcosta.composedestinations.generated.destinations.ShowSeasonsScreenDestination
-import com.ramcosta.composedestinations.generated.destinations.TraktAccountScreenDestination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.utils.rememberDestinationsNavigator
-import com.ramcosta.composedestinations.utils.startDestination
 import com.theupnextapp.R
+import com.theupnextapp.navigation.Destinations
 import com.theupnextapp.ui.dashboard.DashboardScreen
 import com.theupnextapp.ui.explore.ExploreScreen
+import com.theupnextapp.ui.navigation.AppNavigation
 import com.theupnextapp.ui.search.SearchScreen
 import com.theupnextapp.ui.traktAccount.TraktAccountScreen
+import com.theupnextapp.ui.traktAccount.TraktAccountViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 
@@ -87,37 +80,17 @@ fun MainScreen(
     val windowSizeClass = activity?.let { calculateWindowSizeClass(it) }
 
     val mainNavController = rememberNavController()
-    val destinationsNavigatorForDetail: DestinationsNavigator =
-        mainNavController.rememberDestinationsNavigator()
 
     // State to track the currently active top-level list section
     var currentListSection by rememberSaveable { mutableStateOf(NavigationDestination.Dashboard) }
 
     val navBackStackEntry by mainNavController.currentBackStackEntryAsState()
-    val currentRouteForDetailPane = navBackStackEntry?.destination?.route
+    val currentDestination = navBackStackEntry?.destination
 
     val isDetailFlowActive =
-        remember(currentRouteForDetailPane) {
-            val isActive =
-                currentRouteForDetailPane?.let { route ->
-                    route.startsWith(ShowDetailScreenDestination.baseRoute) ||
-                        route.startsWith(ShowSeasonsScreenDestination.baseRoute) ||
-                        route.startsWith(ShowSeasonEpisodesScreenDestination.baseRoute) ||
-                        route.startsWith(SettingsScreenDestination.baseRoute) ||
-                        route.startsWith(TraktAccountScreenDestination.baseRoute) &&
-                        // Explicitly ensure EmptyDetailScreen is NOT considered part of an active detail flow
-                        route != EmptyDetailScreenDestination.route
-                } == true
-            isActive
-        }
-
-    val showDetailScreenArgs =
-        remember(currentRouteForDetailPane, navBackStackEntry) {
-            if (currentRouteForDetailPane?.startsWith(ShowDetailScreenDestination.baseRoute) == true) {
-                navBackStackEntry?.let { ShowDetailScreenDestination.argsFrom(it) }
-            } else {
-                null
-            }
+        remember(currentDestination) {
+            currentDestination?.hasRoute<Destinations.EmptyDetail>() == false &&
+            currentDestination.route != null // If null, maybe nothing loaded yet, but usually means not Empty
         }
 
     val listDetailNavigator = rememberSupportingPaneScaffoldNavigator<ThreePaneScaffoldRole>()
@@ -144,20 +117,26 @@ fun MainScreen(
     // Back handler for adaptive layouts
     BackHandler(enabled = listDetailNavigator.canNavigateBack() || isDetailFlowActive) {
         if (isDetailFlowActive) { // If a detail screen is active in mainNavController
-            if (showDetailScreenArgs != null) { // If at the root of detail flow (ShowDetailScreen)
-                destinationsNavigatorForDetail.navigate(EmptyDetailScreenDestination) {
-                    popUpTo(NavGraphs.root.startDestination) { inclusive = true }
-                    launchSingleTop = true
-                }
+            // If we are deeper than the "root" of detail (which is technically anything not EmptyDetail for us,
+            // but we might want to check backstack count or specific routes).
+            // For simplicity, if we are active, pop back. If that results in empty, we are done.
+            // But wait, EmptyDetail IS a destination in mainNavController.
+            // We want to go back to EmptyDetail if we are at the "top" of detail flow?
+            // Or just popBackStack().
+            // If we pop and it becomes EmptyDetail, then isDetailFlowActive becomes false.
+            
+            val previousEntry = mainNavController.previousBackStackEntry
+            if (previousEntry != null && previousEntry.destination.hasRoute<Destinations.EmptyDetail>() == false) {
+                 mainNavController.popBackStack()
             } else {
-                // Deeper in detail flow (Seasons, Episodes)
-                mainNavController.popBackStack()
+                 // If popping sends us to EmptyDetail (or there is no previous), we navigate to EmptyDetail explicitly to clear
+                 mainNavController.navigate(Destinations.EmptyDetail) {
+                     popUpTo(Destinations.EmptyDetail) { inclusive = true }
+                     launchSingleTop = true
+                 }
             }
-            // isDetailFlowActive will become false once mainNavController is on EmptyDetailScreen or similar,
-            // which will trigger the LaunchedEffect above to set listDetailNavigator to Secondary.
         } else if (listDetailNavigator.canNavigateBack()) {
             scope.launch {
-                // Handles scaffold-level back, e.g., from an extra pane if one is used.
                 listDetailNavigator.navigateBack()
             }
         }
@@ -179,15 +158,11 @@ fun MainScreen(
                         // When a new top-level section is clicked,
                         // ensure the detail pane is reset to its empty state
                         // if it's currently showing actual details.
-                        if (isDetailFlowActive || (currentRouteForDetailPane != EmptyDetailScreenDestination.route && currentRouteForDetailPane != null)) {
-                            // The second condition ensures reset even if isDetailFlowActive was
-                            // somehow false but detail pane isn't empty
-                            if (currentRouteForDetailPane != EmptyDetailScreenDestination.route) {
-                                destinationsNavigatorForDetail.navigate(EmptyDetailScreenDestination) {
-                                    popUpTo(NavGraphs.root.startDestination) { inclusive = true }
-                                    launchSingleTop = true
-                                }
-                            }
+                        if (isDetailFlowActive) {
+                             mainNavController.navigate(Destinations.EmptyDetail) {
+                                 popUpTo(Destinations.EmptyDetail) { inclusive = true }
+                                 launchSingleTop = true
+                             }
                         }
                         // isDetailFlowActive will become false if we navigated to EmptyDetailScreen,
                         // triggering listDetailNavigator to Secondary via the LaunchedEffect.
@@ -212,9 +187,7 @@ fun MainScreen(
                             if (currentListSection == NavigationDestination.TraktAccount) {
                                 androidx.compose.material3.IconButton(
                                     onClick = {
-                                        destinationsNavigatorForDetail.navigate(
-                                            SettingsScreenDestination
-                                        )
+                                        mainNavController.navigate(Destinations.Settings)
                                     }
                                 ) {
                                     Icon(
@@ -228,12 +201,12 @@ fun MainScreen(
                     // Content of the current list section
                     // IMPORTANT: Pass destinationsNavigatorForDetail for navigation to detail screens
                     when (currentListSection) {
-                        NavigationDestination.Dashboard -> DashboardScreen(navigator = destinationsNavigatorForDetail)
-                        NavigationDestination.SearchScreen -> SearchScreen(navigator = destinationsNavigatorForDetail)
-                        NavigationDestination.Explore -> ExploreScreen(navigator = destinationsNavigatorForDetail)
+                        NavigationDestination.Dashboard -> DashboardScreen(navController = mainNavController)
+                        NavigationDestination.SearchScreen -> SearchScreen(navController = mainNavController)
+                        NavigationDestination.Explore -> ExploreScreen(navController = mainNavController)
                         NavigationDestination.TraktAccount ->
                             TraktAccountScreen(
-                                navigator = destinationsNavigatorForDetail,
+                                navController = mainNavController,
                                 code = null, // Code handled by LaunchedEffect below
                             )
                     }
@@ -244,22 +217,7 @@ fun MainScreen(
                     AppNavigation(
                         navHostController = mainNavController,
                         overrideUpNavigation = {
-                            // Inspect the back stack to determine navigation behavior
-                            val navController = mainNavController
-                            val previousEntry = navController.previousBackStackEntry
-
-                            // If we have a previous entry in the back stack, we should pop to it.
-                            // This mimics standard system back behavior.
-                            if (previousEntry != null) {
-                                navController.popBackStack()
-                            } else {
-                                // If there is no previous entry, we are at the root of the detail pane.
-                                // In a split-pane context, "Up" should close the detail pane.
-                                destinationsNavigatorForDetail.navigate(EmptyDetailScreenDestination) {
-                                    popUpTo(NavGraphs.root.startDestination) { inclusive = true }
-                                    launchSingleTop = true
-                                }
-                            }
+                            mainNavController.navigateUp()
                         }
                     )
                 }
@@ -276,14 +234,8 @@ fun MainScreen(
 
             currentListSection = NavigationDestination.TraktAccount // Switch list pane
 
-            destinationsNavigatorForDetail.navigate(
-                TraktAccountScreenDestination(code = codeArg),
-            ) {
-                // Clear backstack up to start, then add Empty
-                popUpTo(NavGraphs.root.startDestination) {
-                    inclusive = true
-                    saveState = true
-                }
+            mainNavController.navigate(Destinations.TraktAccount(code = codeArg)) {
+                // Clear backstack logic if needed, or just push
                 launchSingleTop = true
             }
             // isDetailFlowActive will become true after navigation to TraktAccountScreen,

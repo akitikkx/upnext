@@ -33,6 +33,7 @@ plugins {
     alias(libs.plugins.firebase.perf.gradle)
     alias(libs.plugins.hilt.gradle)
     alias(libs.plugins.baseline.profiles)
+    alias(libs.plugins.kotlin.serialization)
 
     id("kotlin-parcelize")
 }
@@ -105,9 +106,6 @@ android {
         }
     }
 
-    ksp {
-        arg("compose-destinations.generateNavGraphs", "true")
-    }
 
     hilt {
         enableAggregatingTask = true
@@ -136,6 +134,12 @@ dependencies {
     implementation libs.android.material3.adaptive.navigation.suite
     implementation libs.androidx.adaptive.navigation.android
 
+
+    // Core modules
+    implementation project(':core:domain')
+    implementation project(':core:data')
+    implementation project(':core:common')
+
     // Compose
     // Integration with activities
     implementation libs.activity.compose
@@ -157,53 +161,25 @@ dependencies {
     // Compose Icons Extended
     implementation libs.material.icons.extended
 
-    // Coroutines for getting off the UI thread
+    // Navigation and Serialization
+    implementation libs.androidx.navigation.compose
+    implementation libs.kotlinx.serialization.json
+
+    // Coroutines
     implementation libs.kotlinx.coroutines.core
     implementation libs.kotlinx.coroutines.android
 
-    // Retrofit for networking
-    implementation libs.retrofit
-    implementation libs.converter.moshi
-    implementation libs.retrofit2.kotlin.coroutines.adapter
-
-    // Moshi for parsing the JSON format
-    implementation libs.moshi
-    implementation libs.moshi.kotlin
-
-    // OkHTTP for Retrofit
-    implementation libs.okhttp
-    implementation libs.logging.interceptor
-
-
-
-    // ViewModel and LiveData (arch components)
+    // ViewModel and LiveData
     implementation libs.lifecycle.livedata.ktx
     implementation libs.lifecycle.common.java8
     implementation libs.lifecycle.viewmodel.ktx
-
-    // Data store
-    implementation libs.datastore.preferences
-
-    // Room database
-    implementation libs.room.runtime
-    ksp libs.room.compiler
-    implementation libs.room.ktx
-
-    // Hilt Work
-    implementation libs.android.hilt.work
-    ksp libs.android.hilt.work.compiler
-    implementation libs.work.runtime.ktx
 
     // Hilt
     implementation libs.dagger.hilt.android
     ksp libs.hilt.android.compiler
 
     // Timber
-    // Logging
     implementation libs.timber
-
-    // Gson
-    implementation libs.converter.gson
 
     // Jsoup
     implementation libs.jsoup
@@ -239,11 +215,6 @@ dependencies {
     // Flexbox
     implementation libs.flexbox
 
-    // Jetpack Compose Destinations
-    implementation libs.compose.destinations.core
-    ksp libs.compose.destinations.compiler
-
-    // Accompanist Navigation Animation
     implementation libs.accompanist.navigation.animation
 
     // Shimmer
@@ -255,9 +226,6 @@ dependencies {
     // Baseline Profiles
     implementation libs.profileinstaller
     baselineProfile project(path: ':baselineprofile')
-
-    debugImplementation libs.chucker.debug
-    releaseImplementation libs.chucker.release
 
     // Test harness
     implementation libs.test.harness
@@ -286,6 +254,17 @@ dependencies {
     // WorkManager testing
     androidTestImplementation libs.androidx.work.testing
     testImplementation libs.androidx.work.testing
+
+    // WorkManager
+    implementation libs.work.runtime.ktx
+
+    // Hilt Work
+    implementation libs.android.hilt.work
+    ksp libs.android.hilt.work.compiler
+
+    // Retrofit
+    implementation libs.retrofit
+    implementation libs.converter.gson
 
     // Robolectric
     testImplementation libs.robolectric

@@ -39,16 +39,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import androidx.navigation.NavController
 import com.theupnextapp.ui.components.SectionHeadingText
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Destination<RootGraph>
 @Composable
 fun SettingsScreen(
-    navigator: DestinationsNavigator,
+    navController: NavController,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val areNotificationsEnabled by viewModel.areNotificationsEnabled.collectAsStateWithLifecycle()

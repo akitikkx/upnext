@@ -22,7 +22,7 @@
 package com.theupnextapp.datasource
 
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.theupnextapp.BuildConfig
+import com.theupnextapp.core.data.BuildConfig
 import com.theupnextapp.database.TraktDao
 import com.theupnextapp.database.UpnextDao
 import com.theupnextapp.domain.TraktAccessToken

@@ -12,6 +12,7 @@
 
 package com.theupnextapp.ui.showDetail
 
+import com.theupnextapp.R
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -35,12 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
-import com.theupnextapp.R
-
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class) // For calculateWindowSizeClass
-@Destination<RootGraph>(start = true)
 @Composable
 fun EmptyDetailScreen() {
     // Get the activity to calculate window size class

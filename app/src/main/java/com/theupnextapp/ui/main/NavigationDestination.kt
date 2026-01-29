@@ -23,28 +23,20 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.ramcosta.composedestinations.generated.destinations.DashboardScreenDestination
-import com.ramcosta.composedestinations.generated.destinations.ExploreScreenDestination
-import com.ramcosta.composedestinations.generated.destinations.SearchScreenDestination
-import com.ramcosta.composedestinations.generated.destinations.TraktAccountScreenDestination
-import com.ramcosta.composedestinations.spec.Direction
 import com.theupnextapp.R
+import com.theupnextapp.navigation.Destinations
 
 @ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
 @ExperimentalComposeUiApi
 @ExperimentalFoundationApi
 enum class NavigationDestination(
-    val direction: Direction,
     val icon: ImageVector,
     @StringRes val label: Int,
+    val route: Destinations,
 ) {
-    Dashboard(DashboardScreenDestination, Icons.Default.Home, R.string.nav_title_dashboard),
-    SearchScreen(SearchScreenDestination, Icons.Default.Search, R.string.nav_title_search),
-    Explore(ExploreScreenDestination, Icons.Filled.Explore, R.string.nav_title_explore),
-    TraktAccount(
-        TraktAccountScreenDestination(),
-        Icons.Filled.AccountBox,
-        R.string.nav_title_account,
-    ),
+    Dashboard(Icons.Default.Home, R.string.nav_title_dashboard, Destinations.Dashboard),
+    SearchScreen(Icons.Default.Search, R.string.nav_title_search, Destinations.Search),
+    Explore(Icons.Filled.Explore, R.string.nav_title_explore, Destinations.Explore),
+    TraktAccount(Icons.Filled.AccountBox, R.string.nav_title_account, Destinations.TraktAccount()),
 }
