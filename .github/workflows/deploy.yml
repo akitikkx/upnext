@@ -53,7 +53,7 @@ jobs:
         env:
           GOOGLE_PLAY_JSON_KEY: ${{ secrets.GOOGLE_PLAY_JSON_KEY }}
         run: |
-          echo "$GOOGLE_PLAY_JSON_KEY" > fastlane/google-play-key.json
+          echo "$GOOGLE_PLAY_JSON_KEY" > google-play-key.json
 
       - name: Run Fastlane
         env:
