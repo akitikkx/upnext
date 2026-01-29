@@ -27,7 +27,7 @@ platform :android do
     
     # Create a git tag
     add_git_tag(
-      tag: "v#{lane_context[SharedValues::VERSION_NAME]}"
+      tag: "v#{lane_context[SharedValues::VERSION_NAME]}-#{lane_context[SharedValues::VERSION_CODE]}"
     )
 
     # Push commit and tag to remote
