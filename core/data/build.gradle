@@ -43,9 +43,15 @@ android {
     }
 
     buildTypes.each {
-        it.buildConfigField('String', 'TRAKT_CLIENT_ID', localProperties.getProperty("TraktClientID") ?: "\"\"")
-        it.buildConfigField('String', 'TRAKT_CLIENT_SECRET', localProperties.getProperty("TraktClientSecret") ?: "\"\"")
-        it.buildConfigField('String', 'TRAKT_REDIRECT_URI', localProperties.getProperty("TraktRedirectURI") ?: "\"\"")
+        // Use local.properties if available, otherwise fall back to Environment Variables
+        // Note: local.properties strings include quotes, Env Vars do not, so we add them.
+        def clientId = localProperties.getProperty("TraktClientID") ?: "\"${System.getenv("TRAKT_CLIENT_ID") ?: ""}\""
+        def clientSecret = localProperties.getProperty("TraktClientSecret") ?: "\"${System.getenv("TRAKT_CLIENT_SECRET") ?: ""}\""
+        def redirectUri = localProperties.getProperty("TraktRedirectURI") ?: "\"${System.getenv("TRAKT_REDIRECT_URI") ?: ""}\""
+
+        it.buildConfigField('String', 'TRAKT_CLIENT_ID', clientId)
+        it.buildConfigField('String', 'TRAKT_CLIENT_SECRET', clientSecret)
+        it.buildConfigField('String', 'TRAKT_REDIRECT_URI', redirectUri)
     }
 
     compileOptions {
