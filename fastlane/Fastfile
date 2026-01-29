@@ -18,9 +18,20 @@ platform :android do
       skip_upload_screenshots: true
     )
     
-    # 4. Git Commit Verification (Optional, if you want the version bump back in repo)
-    # git_commit(path: ["version.properties"], message: "Bump version code")
-    # push_to_git_remote
+    # 4. Git Commit & Tag
+    # Commit the version bump back to the repo so we don't drift
+    git_commit(
+      path: ["version.properties"],
+      message: "Version Bump: #{lane_context[SharedValues::VERSION_NAME]} (#{lane_context[SharedValues::VERSION_CODE]}) [skip ci]"
+    )
+    
+    # Create a git tag
+    add_git_tag(
+      tag: "v#{lane_context[SharedValues::VERSION_NAME]}"
+    )
+
+    # Push commit and tag to remote
+    push_to_git_remote
   end
 
   private_lane :increment_version_properties do
