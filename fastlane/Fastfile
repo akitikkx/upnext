@@ -1,0 +1,93 @@
+default_platform(:android)
+
+platform :android do
+  desc "Deploy a new version to the Google Play Internal Track"
+  lane :deploy_internal do
+    # 1. Increment Version Code in version.properties
+    increment_version_properties
+
+    # 2. Build Release Bundle
+    gradle(task: "bundleRelease")
+
+    # 3. Upload to Play Store
+    upload_to_play_store(
+      track: "internal",
+      aab: "../app/build/outputs/bundle/release/app-release.aab",
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+    
+    # 4. Git Commit & Tag
+    # Commit the version bump back to the repo so we don't drift
+    git_commit(
+      path: ["version.properties"],
+      message: "Version Bump: #{lane_context[SharedValues::VERSION_NAME]} (#{lane_context[SharedValues::VERSION_CODE]}) [skip ci]"
+    )
+    
+    # Create a git tag
+    add_git_tag(
+      tag: "v#{lane_context[SharedValues::VERSION_NAME]}-#{lane_context[SharedValues::VERSION_CODE]}"
+    )
+
+    # Push commit and tag to remote
+    push_to_git_remote
+  end
+
+  private_lane :increment_version_properties do
+    path = File.expand_path("../version.properties")
+    if File.exist?(path)
+      content = File.read(path)
+      
+      # 1. Bump VERSION_CODE (Always increments)
+      content = content.gsub(/VERSION_CODE=(\d+)/) do |match|
+        "VERSION_CODE=#{Regexp.last_match(1).to_i + 1}"
+      end
+      
+      # 2. Bump VERSION_NAME (CalVer: YYYY.M.Count)
+      current_date = Time.now
+      current_year = current_date.year
+      current_month = current_date.month # 1-12
+      
+      # Default if not found
+      current_version_name = "0.0.0"
+      if content =~ /VERSION_NAME=(.+)/
+        current_version_name = Regexp.last_match(1).strip
+      end
+      
+      v_parts = current_version_name.split('.')
+      v_year = v_parts[0].to_i
+      v_month = v_parts[1].to_i
+      v_count = v_parts[2].to_i
+      
+      new_version_name = ""
+      
+      if v_year == current_year && v_month == current_month
+        # Same month, increment count
+        new_count = v_count + 1
+        new_version_name = "#{current_year}.#{current_month}.#{new_count}"
+        puts "Maintained month, bumped count to #{new_count}"
+      else
+        # New month/year, reset to 1
+        new_version_name = "#{current_year}.#{current_month}.1"
+        puts "New month detected! Reset version to #{new_version_name}"
+      end
+      
+      content = content.gsub(/VERSION_NAME=.+/, "VERSION_NAME=#{new_version_name}")
+      
+      # Write back
+      File.write(path, content)
+      
+      # Update lane context for tagging
+      Actions.lane_context[SharedValues::VERSION_NAME] = new_version_name
+      # We need to re-parse code because we replaced it in string but not captured var
+      if content =~ /VERSION_CODE=(\d+)/
+         Actions.lane_context[SharedValues::VERSION_CODE] = Regexp.last_match(1)
+      end
+      
+      puts "Updated version.properties to: #{new_version_name} (#{Actions.lane_context[SharedValues::VERSION_CODE]})"
+    else
+      UI.error("version.properties not found at #{path}")
+    end
+  end
+end
