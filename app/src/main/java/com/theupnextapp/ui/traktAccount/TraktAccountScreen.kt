@@ -62,13 +62,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.theupnextapp.common.utils.getWindowSizeClass
 import androidx.navigation.NavController
 import com.theupnextapp.R
-import com.theupnextapp.navigation.Destinations
+import com.theupnextapp.common.utils.getWindowSizeClass
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.TraktAuthState
 import com.theupnextapp.domain.TraktUserListItem
+import com.theupnextapp.navigation.Destinations
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 

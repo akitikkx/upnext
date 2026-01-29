@@ -43,11 +43,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.theupnextapp.navigation.Destinations
 import com.theupnextapp.R
 import com.theupnextapp.domain.TraktMostAnticipated
 import com.theupnextapp.domain.TraktPopularShows
 import com.theupnextapp.domain.TraktTrendingShows
+import com.theupnextapp.navigation.Destinations
 import com.theupnextapp.ui.components.SectionHeadingText
 import com.theupnextapp.ui.components.ShimmerPosterCardRow
 import com.theupnextapp.ui.widgets.ListPosterCard

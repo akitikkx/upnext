@@ -21,18 +21,66 @@ sealed interface Destinations {
     data object Settings : Destinations
 
     @Serializable
-    data class ShowDetail(val source: String? = null, val showId: String?, val showTitle: String?, val showImageUrl: String?, val showBackgroundUrl: String?, val imdbID: String? = null, val isAuthorizedOnTrakt: Boolean? = false, val showTraktId: Int? = null) : Destinations {
-        fun toArg() = ShowDetailArg(source, showId, showTitle, showImageUrl, showBackgroundUrl, imdbID, isAuthorizedOnTrakt, showTraktId)
+    data class ShowDetail(
+        val source: String? = null,
+        val showId: String?,
+        val showTitle: String?,
+        val showImageUrl: String?,
+        val showBackgroundUrl: String?,
+        val imdbID: String? = null,
+        val isAuthorizedOnTrakt: Boolean? = false,
+        val showTraktId: Int? = null
+    ) : Destinations {
+        fun toArg() = ShowDetailArg(
+            source,
+            showId,
+            showTitle,
+            showImageUrl,
+            showBackgroundUrl,
+            imdbID,
+            isAuthorizedOnTrakt,
+            showTraktId
+        )
     }
 
     @Serializable
-    data class ShowSeasons(val source: String? = null, val showId: String?, val showTitle: String?, val showImageUrl: String?, val showBackgroundUrl: String?, val imdbID: String? = null, val isAuthorizedOnTrakt: Boolean? = false, val showTraktId: Int? = null) : Destinations {
-        fun toArg() = ShowDetailArg(source, showId, showTitle, showImageUrl, showBackgroundUrl, imdbID, isAuthorizedOnTrakt, showTraktId)
+    data class ShowSeasons(
+        val source: String? = null,
+        val showId: String?,
+        val showTitle: String?,
+        val showImageUrl: String?,
+        val showBackgroundUrl: String?,
+        val imdbID: String? = null,
+        val isAuthorizedOnTrakt: Boolean? = false,
+        val showTraktId: Int? = null
+    ) : Destinations {
+        fun toArg() = ShowDetailArg(
+            source,
+            showId,
+            showTitle,
+            showImageUrl,
+            showBackgroundUrl,
+            imdbID,
+            isAuthorizedOnTrakt,
+            showTraktId
+        )
     }
 
     @Serializable
-    data class ShowSeasonEpisodes(val showId: Int?, val seasonNumber: Int?, val imdbID: String? = null, val isAuthorizedOnTrakt: Boolean? = false, val showTraktId: Int? = null) : Destinations {
-        fun toArg() = ShowSeasonEpisodesArg(showId, seasonNumber, imdbID, isAuthorizedOnTrakt, showTraktId)
+    data class ShowSeasonEpisodes(
+        val showId: Int?,
+        val seasonNumber: Int?,
+        val imdbID: String? = null,
+        val isAuthorizedOnTrakt: Boolean? = false,
+        val showTraktId: Int? = null
+    ) : Destinations {
+        fun toArg() = ShowSeasonEpisodesArg(
+            showId,
+            seasonNumber,
+            imdbID,
+            isAuthorizedOnTrakt,
+            showTraktId
+        )
     }
 
     @Serializable

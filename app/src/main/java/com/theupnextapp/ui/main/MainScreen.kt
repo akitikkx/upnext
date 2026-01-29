@@ -90,7 +90,7 @@ fun MainScreen(
     val isDetailFlowActive =
         remember(currentDestination) {
             currentDestination?.hasRoute<Destinations.EmptyDetail>() == false &&
-            currentDestination.route != null // If null, maybe nothing loaded yet, but usually means not Empty
+                currentDestination.route != null // If null, maybe nothing loaded yet, but usually means not Empty
         }
 
     val listDetailNavigator = rememberSupportingPaneScaffoldNavigator<ThreePaneScaffoldRole>()
@@ -124,16 +124,16 @@ fun MainScreen(
             // We want to go back to EmptyDetail if we are at the "top" of detail flow?
             // Or just popBackStack().
             // If we pop and it becomes EmptyDetail, then isDetailFlowActive becomes false.
-            
+
             val previousEntry = mainNavController.previousBackStackEntry
             if (previousEntry != null && previousEntry.destination.hasRoute<Destinations.EmptyDetail>() == false) {
-                 mainNavController.popBackStack()
+                mainNavController.popBackStack()
             } else {
-                 // If popping sends us to EmptyDetail (or there is no previous), we navigate to EmptyDetail explicitly to clear
-                 mainNavController.navigate(Destinations.EmptyDetail) {
-                     popUpTo(Destinations.EmptyDetail) { inclusive = true }
-                     launchSingleTop = true
-                 }
+                // If popping sends us to EmptyDetail (or there is no previous), we navigate to EmptyDetail explicitly to clear
+                mainNavController.navigate(Destinations.EmptyDetail) {
+                    popUpTo(Destinations.EmptyDetail) { inclusive = true }
+                    launchSingleTop = true
+                }
             }
         } else if (listDetailNavigator.canNavigateBack()) {
             scope.launch {
@@ -159,10 +159,10 @@ fun MainScreen(
                         // ensure the detail pane is reset to its empty state
                         // if it's currently showing actual details.
                         if (isDetailFlowActive) {
-                             mainNavController.navigate(Destinations.EmptyDetail) {
-                                 popUpTo(Destinations.EmptyDetail) { inclusive = true }
-                                 launchSingleTop = true
-                             }
+                            mainNavController.navigate(Destinations.EmptyDetail) {
+                                popUpTo(Destinations.EmptyDetail) { inclusive = true }
+                                launchSingleTop = true
+                            }
                         }
                         // isDetailFlowActive will become false if we navigated to EmptyDetailScreen,
                         // triggering listDetailNavigator to Secondary via the LaunchedEffect.

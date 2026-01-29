@@ -45,9 +45,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.theupnextapp.navigation.Destinations
 import com.theupnextapp.R
 import com.theupnextapp.domain.ShowSearch
+import com.theupnextapp.navigation.Destinations
 import com.theupnextapp.ui.widgets.SearchListCard
 
 @ExperimentalMaterial3WindowSizeClassApi
