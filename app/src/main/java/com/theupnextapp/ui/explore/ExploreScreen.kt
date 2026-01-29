@@ -42,14 +42,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
-import com.ramcosta.composedestinations.generated.destinations.ShowDetailScreenDestination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import androidx.navigation.NavController
 import com.theupnextapp.R
 import com.theupnextapp.domain.TraktMostAnticipated
 import com.theupnextapp.domain.TraktPopularShows
 import com.theupnextapp.domain.TraktTrendingShows
+import com.theupnextapp.navigation.Destinations
 import com.theupnextapp.ui.components.SectionHeadingText
 import com.theupnextapp.ui.components.ShimmerPosterCardRow
 import com.theupnextapp.ui.widgets.ListPosterCard
@@ -58,11 +56,10 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 @ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalCoroutinesApi
 @ExperimentalMaterial3Api
-@Destination<RootGraph>
 @Composable
 fun ExploreScreen(
     viewModel: ExploreViewModel = hiltViewModel(),
-    navigator: DestinationsNavigator,
+    navController: NavController,
 ) {
     val popularShowsList: List<TraktPopularShows>
         by viewModel.popularShows.collectAsStateWithLifecycle()
@@ -126,14 +123,17 @@ fun ExploreScreen(
                             list = trendingShowsList,
                             rowTitle = stringResource(id = R.string.explore_trending_shows_list_title),
                         ) { traktShow ->
-                            navigator.navigate(
-                                ShowDetailScreenDestination(
+                            navController.navigate(
+                                Destinations.ShowDetail(
                                     source = "trending",
                                     showId = traktShow.tvMazeID.toString(),
                                     showTitle = traktShow.title,
                                     showImageUrl = traktShow.originalImageUrl,
                                     showBackgroundUrl = traktShow.mediumImageUrl,
-                                ),
+                                    imdbID = null,
+                                    isAuthorizedOnTrakt = null,
+                                    showTraktId = null
+                                )
                             )
                         }
                     }
@@ -146,14 +146,17 @@ fun ExploreScreen(
                             list = popularShowsList,
                             rowTitle = stringResource(id = R.string.explore_popular_shows_list_title),
                         ) { traktShow ->
-                            navigator.navigate(
-                                ShowDetailScreenDestination(
+                            navController.navigate(
+                                Destinations.ShowDetail(
                                     source = "popular",
                                     showId = traktShow.tvMazeID.toString(),
                                     showTitle = traktShow.title,
                                     showImageUrl = traktShow.originalImageUrl,
                                     showBackgroundUrl = traktShow.mediumImageUrl,
-                                ),
+                                    imdbID = null,
+                                    isAuthorizedOnTrakt = null,
+                                    showTraktId = null
+                                )
                             )
                         }
                     }
@@ -166,14 +169,17 @@ fun ExploreScreen(
                             list = mostAnticipatedShowsList,
                             rowTitle = stringResource(id = R.string.explore_most_anticipated_shows_list_title),
                         ) { traktShow ->
-                            navigator.navigate(
-                                ShowDetailScreenDestination(
+                            navController.navigate(
+                                Destinations.ShowDetail(
                                     source = "most_anticipated",
                                     showId = traktShow.tvMazeID.toString(),
                                     showTitle = traktShow.title,
                                     showImageUrl = traktShow.originalImageUrl,
                                     showBackgroundUrl = traktShow.mediumImageUrl,
-                                ),
+                                    imdbID = null,
+                                    isAuthorizedOnTrakt = null,
+                                    showTraktId = null
+                                )
                             )
                         }
                     } //

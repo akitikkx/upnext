@@ -39,6 +39,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,26 +48,25 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
-import com.ramcosta.composedestinations.generated.destinations.ShowSeasonEpisodesScreenDestination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import androidx.navigation.NavController
 import com.theupnextapp.R
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.ShowSeason
 import com.theupnextapp.domain.ShowSeasonEpisodesArg
+import com.theupnextapp.navigation.Destinations
 import com.theupnextapp.ui.components.PosterImage
 import com.theupnextapp.ui.components.SectionHeadingText
 
 @ExperimentalMaterial3Api
-@Destination<RootGraph>(navArgs = ShowDetailArg::class)
 @Composable
 fun ShowSeasonsScreen(
     viewModel: ShowSeasonsViewModel = hiltViewModel(),
-    showDetailArg: ShowDetailArg?,
-    navigator: DestinationsNavigator,
+    showDetailArg: ShowDetailArg,
+    navController: NavController,
 ) {
-    viewModel.setSelectedShow(showDetailArg)
+    LaunchedEffect(showDetailArg) {
+        viewModel.setSelectedShow(showDetailArg)
+    }
 
     val showSeasonsList = viewModel.showSeasons.observeAsState()
 
@@ -77,16 +77,14 @@ fun ShowSeasonsScreen(
             Box(modifier = Modifier.fillMaxSize()) {
                 showSeasonsList.value?.let {
                     ShowSeasons(list = it) { showSeason ->
-                        navigator.navigate(
-                            ShowSeasonEpisodesScreenDestination(
-                                ShowSeasonEpisodesArg(
-                                    showId = showDetailArg?.showId?.toInt(),
-                                    seasonNumber = showSeason.seasonNumber,
-                                    imdbID = showDetailArg?.imdbID,
-                                    isAuthorizedOnTrakt = showDetailArg?.isAuthorizedOnTrakt,
-                                    showTraktId = showDetailArg?.showTraktId,
-                                ),
-                            ),
+                        navController.navigate(
+                            Destinations.ShowSeasonEpisodes(
+                                showId = showDetailArg.showId?.toInt(),
+                                seasonNumber = showSeason.seasonNumber,
+                                imdbID = showDetailArg.imdbID,
+                                isAuthorizedOnTrakt = showDetailArg.isAuthorizedOnTrakt,
+                                showTraktId = showDetailArg.showTraktId,
+                            )
                         )
                     }
                 }
@@ -164,24 +162,26 @@ fun ShowSeasonCard(
                     )
                 }
 
-                if (!item.premiereDate.isNullOrEmpty()) {
+                val premiereDate = item.premiereDate
+                if (!premiereDate.isNullOrEmpty()) {
                     Text(
                         text =
                         stringResource(
                             R.string.show_detail_season_premiere_date,
-                            item.premiereDate,
+                            premiereDate,
                         ),
                         modifier = Modifier.padding(2.dp),
                         style = MaterialTheme.typography.bodyMedium,
                     )
                 }
 
-                if (!item.endDate.isNullOrEmpty()) {
+                val endDate = item.endDate
+                if (!endDate.isNullOrEmpty()) {
                     Text(
                         text =
                         stringResource(
                             R.string.show_detail_season_end_date,
-                            item.endDate,
+                            endDate,
                         ),
                         modifier = Modifier.padding(2.dp),
                         style = MaterialTheme.typography.bodyMedium,

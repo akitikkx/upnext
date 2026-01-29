@@ -68,16 +68,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavController
 import androidx.navigation.NavOptions
 import androidx.navigation.Navigator
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
-import com.ramcosta.composedestinations.generated.destinations.ShowDetailScreenDestination
-import com.ramcosta.composedestinations.generated.destinations.ShowSeasonsScreenDestination
-import com.ramcosta.composedestinations.navigation.DestinationsNavOptionsBuilder
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.spec.Direction
-import com.ramcosta.composedestinations.spec.RouteOrDirection
 import com.theupnextapp.R
 import com.theupnextapp.common.utils.getWindowSizeClass
 import com.theupnextapp.domain.ShowDetailArg
@@ -87,6 +80,7 @@ import com.theupnextapp.domain.TraktCast
 import com.theupnextapp.domain.TraktRelatedShows
 import com.theupnextapp.domain.TraktShowRating
 import com.theupnextapp.domain.TraktShowStats
+import com.theupnextapp.navigation.Destinations
 import com.theupnextapp.ui.components.PosterImage
 import com.theupnextapp.ui.components.SectionHeadingText
 import com.valentinilk.shimmer.shimmer
@@ -94,15 +88,22 @@ import kotlinx.coroutines.launch
 import org.jsoup.Jsoup
 import java.util.Locale
 
+// UI Constants
+@Suppress("MagicNumber")
+private val RatingStarColor = Color(0xFFFFC107) // Gold/Amber
+
 @OptIn(ExperimentalMaterial3Api::class)
-@Destination<RootGraph>(navArgs = ShowDetailArg::class)
 @Composable
 fun ShowDetailScreen(
     modifier: Modifier = Modifier,
     viewModel: ShowDetailViewModel = hiltViewModel(),
     showDetailArgs: ShowDetailArg,
-    navigator: DestinationsNavigator,
+    navController: NavController,
 ) {
+    LaunchedEffect(showDetailArgs) {
+        viewModel.selectedShow(showDetailArgs)
+    }
+
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val isFavorite by viewModel.isFavoriteShow.collectAsStateWithLifecycle()
     val isFavoriteLoading by viewModel.isFavoriteLoading.collectAsStateWithLifecycle()
@@ -116,23 +117,17 @@ fun ShowDetailScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
-    LaunchedEffect(key1 = showDetailArgs) {
-        viewModel.selectedShow(showDetailArgs)
-    }
-
     LaunchedEffect(navigateToSeasons) {
         if (navigateToSeasons) {
-            navigator.navigate(
-                ShowSeasonsScreenDestination(
-                    ShowDetailArg(
-                        showId = showDetailArgs.showId,
-                        showTitle = showDetailArgs.showTitle,
-                        showImageUrl = showDetailArgs.showImageUrl,
-                        showBackgroundUrl = showDetailArgs.showBackgroundUrl,
-                        imdbID = showDetailArgs.imdbID,
-                        isAuthorizedOnTrakt = isAuthorizedOnTrakt,
-                        showTraktId = traktId,
-                    ),
+            navController.navigate(
+                Destinations.ShowSeasons(
+                    showId = showDetailArgs.showId,
+                    showTitle = showDetailArgs.showTitle,
+                    showImageUrl = showDetailArgs.showImageUrl,
+                    showBackgroundUrl = showDetailArgs.showBackgroundUrl,
+                    imdbID = showDetailArgs.imdbID,
+                    isAuthorizedOnTrakt = isAuthorizedOnTrakt,
+                    showTraktId = traktId,
                 ),
             )
             viewModel.onSeasonsNavigationComplete()
@@ -201,8 +196,16 @@ fun ShowDetailScreen(
 
             LaunchedEffect(navigateToShowDetail) {
                 navigateToShowDetail?.let {
-                    navigator.navigate(
-                        ShowDetailScreenDestination(it)
+                    navController.navigate(
+                        Destinations.ShowDetail(
+                            showId = it.showId,
+                            showTitle = it.showTitle,
+                            showImageUrl = it.showImageUrl,
+                            showBackgroundUrl = it.showBackgroundUrl,
+                            imdbID = it.imdbID,
+                            isAuthorizedOnTrakt = it.isAuthorizedOnTrakt,
+                            showTraktId = it.showTraktId,
+                        )
                     )
                     viewModel.onShowDetailNavigationComplete()
                 }
@@ -609,7 +612,7 @@ fun TraktRatingSummary(rating: TraktShowRating) {
             androidx.compose.material3.Icon(
                 imageVector = androidx.compose.material.icons.Icons.Filled.Star,
                 contentDescription = stringResource(id = R.string.show_detail_rating_content_description),
-                tint = Color(0xFFFFC107), // Gold/Amber color
+                tint = RatingStarColor,
                 modifier = Modifier.size(24.dp)
             )
 
@@ -897,47 +900,7 @@ fun ShowDetailScreenPreview() {
                 showImageUrl = "",
                 showBackgroundUrl = null,
             ),
-            navigator =
-            object : DestinationsNavigator {
-                override fun navigate(
-                    direction: Direction,
-                    builder: DestinationsNavOptionsBuilder.() -> Unit,
-                ) {
-                    // No-op for preview
-                }
-
-                override fun navigate(
-                    direction: Direction,
-                    navOptions: NavOptions?,
-                    navigatorExtras: Navigator.Extras?,
-                ) {
-                    // No-op for preview
-                }
-
-                override fun navigateUp(): Boolean {
-                    return false // No-op
-                }
-
-                override fun popBackStack(): Boolean {
-                    return false // No-op
-                }
-
-                override fun popBackStack(
-                    route: RouteOrDirection,
-                    inclusive: Boolean,
-                    saveState: Boolean,
-                ): Boolean {
-                    return false // No-op
-                }
-
-                override fun clearBackStack(route: RouteOrDirection): Boolean {
-                    return false // No-op
-                }
-
-                override fun getBackStackEntry(route: RouteOrDirection): NavBackStackEntry? {
-                    return null // No-op
-                }
-            },
+            navController = androidx.navigation.compose.rememberNavController(),
         )
     }
 }

@@ -141,8 +141,9 @@ constructor(
                 traktRepository.clearFavorites()
 
                 val currentToken = traktAccessToken.value
-                if (currentToken?.access_token != null) {
-                    val result = traktRepository.revokeTraktAccessToken(currentToken.access_token)
+                val accessToken = currentToken?.access_token
+                if (accessToken != null) {
+                    val result = traktRepository.revokeTraktAccessToken(accessToken)
 
                     if (result.isFailure) {
                         Timber.e(

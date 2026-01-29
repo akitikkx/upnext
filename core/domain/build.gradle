@@ -1,0 +1,53 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2022 Ahmed Tikiwa
+ */
+
+plugins {
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.serialization)
+    id 'kotlin-parcelize'
+}
+
+android {
+    namespace = "com.theupnextapp.core.domain"
+    compileSdk 36
+
+    defaultConfig {
+        minSdkVersion 24
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+}
+
+dependencies {
+    // Core modules
+    implementation project(':core:common')
+
+    // Coroutines for Flow types in repository interfaces
+    implementation libs.kotlinx.coroutines.core
+    
+    // Serialization
+    implementation libs.kotlinx.serialization.core
+    
+    // Testing
+    testImplementation libs.junit
+}

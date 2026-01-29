@@ -41,10 +41,6 @@
     <string name="action_navigate_up_description">Navigation arrow</string>
     <string name="desc_back_arrow">Back</string>
 
-    <!-- Notification channels -->
-    <string name="notification_channel_name">App Updates</string>
-    <string name="notification_channel_description">Notifications for app data updates and background tasks.</string>
-
     <!-- Bottom navigation -->
     <string name="nav_title_search">Search</string>
     <string name="nav_title_dashboard">Dashboard</string>
@@ -135,8 +131,6 @@
     <!-- Search -->
     <string name="search_input_hint">Search for the show</string>
     <string name="search_title">Search</string>
-    <string name="search_item_not_ended">%1$s (%2$s - )</string>
-    <string name="search_item_ended">%1$s (%2$s)</string>
 
     <string name="pref_first_time_launch">first_time_launch</string>
 
@@ -328,14 +322,16 @@
     <string name="appearance_header">Appearance</string>
     <string name="sync_header">Sync</string>
 
+    <string name="dark_mode_follow_system">System Default</string>
+    <string name="dark_mode_no">Light</string>
+    <string name="dark_mode_yes">Dark</string>
+    <string name="dark_mode_auto_battery">Battery Saver</string>
+
+    <string name="notification_channel_name">UpNext Notifications</string>
+    <string name="notification_channel_description">Notifications for new episodes and updates</string>
+
     <!-- Dark Mode Preferences -->
     <string name="signature_title">Your signature</string>
-    <string name="dark_mode">Dark Mode</string>
-    <string name="dark_mode_default_value">MODE_NIGHT_YES</string>
-    <string name="dark_mode_follow_system">MODE_NIGHT_FOLLOW_SYSTEM</string>
-    <string name="dark_mode_no">MODE_NIGHT_NO</string>
-    <string name="dark_mode_yes">MODE_NIGHT_YES</string>
-    <string name="dark_mode_auto_battery">MODE_NIGHT_AUTO_BATTERY</string>
 
     <!-- Sync Preferences -->
     <string name="sync_title">Sync email periodically</string>

@@ -43,6 +43,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,8 +53,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
+import androidx.navigation.NavController
 import com.theupnextapp.R
 import com.theupnextapp.common.utils.DateUtils
 import com.theupnextapp.domain.ShowSeasonEpisode
@@ -63,13 +63,15 @@ import com.theupnextapp.ui.components.SectionHeadingText
 import org.jsoup.Jsoup
 
 @ExperimentalMaterial3Api
-@Destination<RootGraph>(navArgs = ShowSeasonEpisodesArg::class)
 @Composable
 fun ShowSeasonEpisodesScreen(
     viewModel: ShowSeasonEpisodesViewModel = hiltViewModel(),
-    showSeasonEpisodesArg: ShowSeasonEpisodesArg?,
+    showSeasonEpisodesArg: ShowSeasonEpisodesArg,
+    navController: NavController,
 ) {
-    viewModel.selectedSeason(showSeasonEpisodesArg)
+    LaunchedEffect(showSeasonEpisodesArg) {
+        viewModel.selectedSeason(showSeasonEpisodesArg)
+    }
 
     val seasonNumber = viewModel.seasonNumber.observeAsState()
 
@@ -245,8 +247,9 @@ fun ShowSeasonEpisodeCard(
                     }
                 }
 
-                if (!item.airstamp.isNullOrEmpty()) {
-                    val date = DateUtils.getDisplayDateFromDateStamp(item.airstamp)
+                val airstamp = item.airstamp
+                if (!airstamp.isNullOrEmpty()) {
+                    val date = DateUtils.getDisplayDateFromDateStamp(airstamp)
                     Text(
                         text =
                         stringResource(

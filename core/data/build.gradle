@@ -1,0 +1,117 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2022 Ahmed Tikiwa
+ */
+
+plugins {
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt.gradle)
+}
+
+android {
+    namespace = "com.theupnextapp.core.data"
+    compileSdk 36
+
+    defaultConfig {
+        minSdkVersion 24
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+        
+        ksp {
+            arg("room.schemaLocation", "$projectDir/schemas".toString())
+        }
+    }
+    
+    buildFeatures {
+        buildConfig = true
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    
+    def localProperties = new Properties()
+    def localPropertiesFile = rootProject.file("local.properties")
+    if (localPropertiesFile.exists()) {
+        localProperties.load(new FileInputStream(localPropertiesFile))
+    }
+
+    buildTypes.each {
+        it.buildConfigField('String', 'TRAKT_CLIENT_ID', localProperties.getProperty("TraktClientID") ?: "\"\"")
+        it.buildConfigField('String', 'TRAKT_CLIENT_SECRET', localProperties.getProperty("TraktClientSecret") ?: "\"\"")
+        it.buildConfigField('String', 'TRAKT_REDIRECT_URI', localProperties.getProperty("TraktRedirectURI") ?: "\"\"")
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+}
+
+dependencies {
+    // Core modules
+    implementation project(':core:domain')
+    implementation project(':core:common')
+    
+    // Hilt
+    implementation libs.dagger.hilt.android
+    ksp libs.hilt.android.compiler
+    
+    // Coroutines
+    implementation libs.kotlinx.coroutines.core
+    implementation libs.kotlinx.coroutines.android
+    
+    // Room
+    implementation libs.room.runtime
+    implementation libs.room.ktx
+    ksp libs.room.compiler
+    
+    // Retrofit/Network
+    implementation libs.retrofit
+    implementation libs.converter.moshi
+    implementation libs.retrofit2.kotlin.coroutines.adapter
+    implementation libs.okhttp
+    implementation libs.logging.interceptor
+    debugImplementation libs.chucker.debug
+    releaseImplementation libs.chucker.release
+    
+    // Gson
+    implementation libs.converter.gson
+
+    // Moshi
+    implementation libs.moshi
+    implementation libs.moshi.kotlin
+    
+    // Firebase Crashlytics
+    implementation libs.firebase.crashlytics
+    implementation libs.firebase.analytics.ktx
+    
+    // DataStore & Prefs
+    implementation libs.datastore.preferences
+    implementation libs.preference.ktx
+    
+    // AndroidX Browser (for auth)
+    implementation libs.browser
+    
+    // Timber
+    implementation libs.timber
+    
+    // Hilt Work
+    implementation libs.android.hilt.work
+    ksp libs.android.hilt.work.compiler
+    implementation libs.work.runtime.ktx
+
+    // Testing
+    testImplementation libs.junit
+    testImplementation libs.kotlinx.coroutines.test
+}

@@ -26,11 +26,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavBackStackEntry
-import com.ramcosta.composedestinations.generated.destinations.SettingsScreenDestination
-import com.ramcosta.composedestinations.generated.destinations.ShowDetailScreenDestination
-import com.ramcosta.composedestinations.generated.destinations.ShowSeasonEpisodesScreenDestination
-import com.ramcosta.composedestinations.generated.destinations.ShowSeasonsScreenDestination
+import androidx.navigation.NavDestination.Companion.hasRoute
 import com.theupnextapp.R
+import com.theupnextapp.navigation.Destinations
 
 @OptIn(
     ExperimentalMaterial3WindowSizeClassApi::class,
@@ -78,35 +76,26 @@ fun TopBar(
     title: String? = null, // Allow passing a specific title
     scrollBehavior: TopAppBarScrollBehavior? = null,
 ) {
-    val currentRoute = navBackStackEntry?.destination?.route
+    val destination = navBackStackEntry?.destination
 
     // Determine if a back arrow should be shown.
-    // Show arrow if it's a detail screen deeper than the initial ShowDetailScreen,
-    // or if it's ShowDetailScreen itself and not the EmptyDetailScreen.
-    // The overrideUpNavigation in MainScreen handles what "back" means.
     val showBackArrow =
-        when (currentRoute) {
-            SettingsScreenDestination.route,
-            ShowDetailScreenDestination.route,
-            ShowSeasonsScreenDestination.route,
-            ShowSeasonEpisodesScreenDestination.route,
-            -> true
-            // Do not show back arrow for EmptyDetailScreen or other non-detail-flow
-            // screens in this TopBar's context
+        when {
+            destination?.hasRoute<Destinations.Settings>() == true -> true
+            destination?.hasRoute<Destinations.ShowDetail>() == true -> true
+            destination?.hasRoute<Destinations.ShowSeasons>() == true -> true
+            destination?.hasRoute<Destinations.ShowSeasonEpisodes>() == true -> true
             else -> false
         }
 
     // Determine the title to display
     // Prioritize passed 'title' from AppNavigation
     val currentTitle: String =
-        title ?: when (currentRoute) {
-            SettingsScreenDestination.route -> stringResource(R.string.title_settings)
-            ShowSeasonsScreenDestination.route -> stringResource(R.string.title_seasons)
-            ShowSeasonEpisodesScreenDestination.route -> stringResource(R.string.title_season_episodes)
-            // If currentRoute is ShowDetailScreenDestination but 'title' (dynamicTitle) was
-            // null from AppNavigation
-            // Fallback for show detail if title is missing
-            ShowDetailScreenDestination.route -> stringResource(id = R.string.title_unknown)
+        title ?: when {
+            destination?.hasRoute<Destinations.Settings>() == true -> stringResource(R.string.title_settings)
+            destination?.hasRoute<Destinations.ShowSeasons>() == true -> stringResource(R.string.title_seasons)
+            destination?.hasRoute<Destinations.ShowSeasonEpisodes>() == true -> stringResource(R.string.title_season_episodes)
+            destination?.hasRoute<Destinations.ShowDetail>() == true -> stringResource(id = R.string.title_unknown)
             else -> ""
         }
 

@@ -123,7 +123,8 @@ fun CastBottomSheet(
 
             item {
                 uiState.personSummary?.let { person ->
-                    if (!person.biography.isNullOrEmpty()) {
+                    val biography = person.biography
+                    if (!biography.isNullOrEmpty()) {
                         Text(
                             text = "Bio",
                             style = MaterialTheme.typography.titleMedium,
@@ -131,7 +132,7 @@ fun CastBottomSheet(
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                         )
                         Text(
-                            text = person.biography,
+                            text = biography,
                             style = MaterialTheme.typography.bodySmall,
                             modifier = Modifier.padding(horizontal = 16.dp)
                         )

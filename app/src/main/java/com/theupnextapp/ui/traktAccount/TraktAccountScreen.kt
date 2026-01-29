@@ -62,16 +62,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
-import com.ramcosta.composedestinations.generated.destinations.ShowDetailScreenDestination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import androidx.navigation.NavController
 import com.theupnextapp.R
 import com.theupnextapp.common.utils.getWindowSizeClass
-import com.theupnextapp.common.utils.launchCustomTab
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.TraktAuthState
 import com.theupnextapp.domain.TraktUserListItem
+import com.theupnextapp.navigation.Destinations
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 
@@ -83,11 +80,10 @@ import kotlinx.coroutines.launch
     ExperimentalComposeUiApi::class,
     ExperimentalCoroutinesApi::class,
 )
-@Destination<RootGraph>
 @Composable
 fun TraktAccountScreen(
     viewModel: TraktAccountViewModel = hiltViewModel(),
-    navigator: DestinationsNavigator,
+    navController: NavController,
     code: String? = null,
 ) {
     val lazyGridState = androidx.compose.foundation.lazy.grid.rememberLazyGridState()
@@ -180,15 +176,16 @@ fun TraktAccountScreen(
                     viewModel.onConnectToTraktClick()
                 },
                 onFavoriteClick = { item ->
-                    navigator.navigate(
-                        ShowDetailScreenDestination(
-                            ShowDetailArg(
-                                source = "favorites",
-                                showId = item.tvMazeID.toString(),
-                                showTitle = item.title,
-                                showImageUrl = item.originalImageUrl,
-                                showBackgroundUrl = item.mediumImageUrl,
-                            ),
+                    navController.navigate(
+                        Destinations.ShowDetail(
+                            source = "favorites",
+                            showId = item.tvMazeID.toString(),
+                            showTitle = item.title,
+                            showImageUrl = item.originalImageUrl,
+                            showBackgroundUrl = item.mediumImageUrl,
+                            imdbID = null,
+                            isAuthorizedOnTrakt = null,
+                            showTraktId = null,
                         ),
                     )
                 },
@@ -341,4 +338,10 @@ fun ConnectToTrakt(onClick: () -> Unit) {
             Text(text = stringResource(id = R.string.connect_to_trakt_button))
         }
     }
+}
+
+private fun launchCustomTab(context: android.content.Context, url: String) {
+    val builder = androidx.browser.customtabs.CustomTabsIntent.Builder()
+    val customTabsIntent = builder.build()
+    customTabsIntent.launchUrl(context, android.net.Uri.parse(url))
 }

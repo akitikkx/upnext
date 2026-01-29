@@ -1,0 +1,67 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2022 Ahmed Tikiwa
+ */
+
+plugins {
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt.gradle)
+}
+
+android {
+    namespace = "com.theupnextapp.core.common"
+    compileSdk 36
+
+    defaultConfig {
+        minSdkVersion 24
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+}
+
+dependencies {
+    // Coroutines
+    implementation libs.kotlinx.coroutines.core
+    implementation libs.kotlinx.coroutines.android
+    
+    // Timber for logging
+    implementation libs.timber
+
+    // Network (for Result.kt generic wrapper)
+    implementation libs.retrofit
+    implementation libs.moshi
+    implementation libs.moshi.kotlin
+
+    // Firebase Crashlytics (for CrashlyticsHelper)
+    implementation libs.firebase.crashlytics
+    implementation libs.firebase.analytics.ktx
+    
+    // Hilt
+    implementation libs.dagger.hilt.android
+    ksp libs.hilt.android.compiler
+
+    // Browser (for CustomTabs in ContextExtensions)
+    implementation libs.browser
+    
+    // Testing
+    testImplementation libs.junit
+}
