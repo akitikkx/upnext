@@ -34,3 +34,14 @@ build/
 signing.properties
 
 .kotlin
+
+# IDE and Editor files
+.claude
+.vscode
+/docs
+
+# Detekt Reports
+detekt_full_report.txt
+detekt_progress.txt
+detekt_report.txt
+detekt_report_v2.txt
