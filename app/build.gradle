@@ -46,12 +46,18 @@ android {
 
     compileSdk 36
 
+    def versionPropsFile = rootProject.file("version.properties")
+    def versionProps = new Properties()
+    if (versionPropsFile.exists()) {
+        versionProps.load(new FileInputStream(versionPropsFile))
+    }
+
     defaultConfig {
         applicationId "com.theupnextapp"
         minSdkVersion 24
         targetSdkVersion 36
-        versionCode 211
-        versionName "3.10.4"
+        versionCode versionProps['VERSION_CODE'].toInteger()
+        versionName versionProps['VERSION_NAME']
         testInstrumentationRunner "com.theupnextapp.CustomTestRunner"
 
         ksp {
@@ -71,8 +77,21 @@ android {
         }
     }
 
+    signingConfigs {
+        release {
+            def keystorePath = System.getenv("ANDROID_KEYSTORE_FILE")
+            if (keystorePath != null) {
+                storeFile = file(keystorePath)
+                storePassword = System.getenv("KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("KEY_ALIAS")
+                keyPassword = System.getenv("KEY_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
         release {
+            signingConfig signingConfigs.release
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
