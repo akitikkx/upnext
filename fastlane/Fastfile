@@ -22,12 +22,12 @@ platform :android do
     # Commit the version bump back to the repo so we don't drift
     git_commit(
       path: ["version.properties"],
-      message: "Version Bump: #{lane_context[SharedValues::VERSION_NAME]} (#{lane_context[SharedValues::VERSION_CODE]}) [skip ci]"
+      message: "Version Bump: #{lane_context[:VERSION_NAME]} (#{lane_context[:VERSION_CODE]}) [skip ci]"
     )
     
     # Create a git tag
     add_git_tag(
-      tag: "v#{lane_context[SharedValues::VERSION_NAME]}-#{lane_context[SharedValues::VERSION_CODE]}"
+      tag: "v#{lane_context[:VERSION_NAME]}-#{lane_context[:VERSION_CODE]}"
     )
 
     # Push commit and tag to remote
@@ -79,13 +79,13 @@ platform :android do
       File.write(path, content)
       
       # Update lane context for tagging
-      Actions.lane_context[SharedValues::VERSION_NAME] = new_version_name
+      Actions.lane_context[:VERSION_NAME] = new_version_name
       # We need to re-parse code because we replaced it in string but not captured var
       if content =~ /VERSION_CODE=(\d+)/
-         Actions.lane_context[SharedValues::VERSION_CODE] = Regexp.last_match(1)
+         Actions.lane_context[:VERSION_CODE] = Regexp.last_match(1)
       end
       
-      puts "Updated version.properties to: #{new_version_name} (#{Actions.lane_context[SharedValues::VERSION_CODE]})"
+      puts "Updated version.properties to: #{new_version_name} (#{Actions.lane_context[:VERSION_CODE]})"
     else
       UI.error("version.properties not found at #{path}")
     end
