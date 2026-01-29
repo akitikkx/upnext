@@ -43,6 +43,11 @@ jobs:
       - name: Install Fastlane
         run: gem install fastlane
 
+      - name: Configure Git Identity
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
       - name: Decode Keystore
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
@@ -53,7 +58,7 @@ jobs:
         env:
           GOOGLE_PLAY_JSON_KEY: ${{ secrets.GOOGLE_PLAY_JSON_KEY }}
         run: |
-          echo "$GOOGLE_PLAY_JSON_KEY" > fastlane/google-play-key.json
+          echo "$GOOGLE_PLAY_JSON_KEY" > google-play-key.json
 
       - name: Run Fastlane
         env:
