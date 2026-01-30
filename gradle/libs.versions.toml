@@ -23,7 +23,7 @@ browser = "1.8.0"
 coilCompose = "2.7.0"
 chuckerVersion = "4.1.0"
 
-composeShimmer = "1.3.2"
+composeShimmer = "1.3.3"
 constraintlayout = "2.2.1"
 daggerHilt = "2.56.2"
 datastorePreferences = "1.1.7"
