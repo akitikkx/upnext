@@ -74,7 +74,7 @@ fun MainScreen(
     valueState: MutableState<String?>,
     onTraktAuthCompleted: () -> Unit,
 ) {
-    // val scope = rememberCoroutineScope() // Removed unused scope
+    val scope = rememberCoroutineScope()
 
     val activity = LocalActivity.current
     val windowSizeClass = activity?.let { calculateWindowSizeClass(it) }
@@ -114,11 +114,17 @@ fun MainScreen(
         }
     }
 
-    // Back handler for adaptive layouts and top-level navigation
-    BackHandler(
-        enabled = isDetailFlowActive || currentListSection != NavigationDestination.Dashboard
-    ) {
+    // Back handler for adaptive layouts
+    BackHandler(enabled = isDetailFlowActive) {
         if (isDetailFlowActive) { // If a detail screen is active in mainNavController
+            // If we are deeper than the "root" of detail (which is technically anything not EmptyDetail for us,
+            // but we might want to check backstack count or specific routes).
+            // For simplicity, if we are active, pop back. If that results in empty, we are done.
+            // But wait, EmptyDetail IS a destination in mainNavController.
+            // We want to go back to EmptyDetail if we are at the "top" of detail flow?
+            // Or just popBackStack().
+            // If we pop and it becomes EmptyDetail, then isDetailFlowActive becomes false.
+
             val previousEntry = mainNavController.previousBackStackEntry
             if (previousEntry != null && previousEntry.destination.hasRoute<Destinations.EmptyDetail>() == false) {
                 mainNavController.popBackStack()
@@ -129,9 +135,10 @@ fun MainScreen(
                     launchSingleTop = true
                 }
             }
-        } else if (currentListSection != NavigationDestination.Dashboard) {
-            // If we are at a top-level section other than Dashboard, go back to Dashboard
-            currentListSection = NavigationDestination.Dashboard
+        } else if (listDetailNavigator.canNavigateBack()) {
+            scope.launch {
+                listDetailNavigator.navigateBack()
+            }
         }
     }
 
