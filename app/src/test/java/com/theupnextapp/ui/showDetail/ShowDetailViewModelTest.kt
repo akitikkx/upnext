@@ -49,7 +49,6 @@ import org.mockito.kotlin.whenever
 
 @ExperimentalCoroutinesApi
 class ShowDetailViewModelTest {
-
     @get:Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 
@@ -76,16 +75,20 @@ class ShowDetailViewModelTest {
         whenever(traktRepository.traktShowRating).thenReturn(MutableStateFlow(null))
         whenever(traktRepository.traktShowStats).thenReturn(MutableStateFlow(null))
 
-        viewModel = ShowDetailViewModel(
-            showDetailRepository,
-            workManager,
-            traktRepository,
-            firebaseCrashlytics,
-            traktAuthManager
-        )
+        viewModel =
+            ShowDetailViewModel(
+                showDetailRepository,
+                workManager,
+                traktRepository,
+                firebaseCrashlytics,
+                traktAuthManager,
+            )
     }
 
-    private fun createTraktCast(traktId: Int, name: String): TraktCast {
+    private fun createTraktCast(
+        traktId: Int,
+        name: String,
+    ): TraktCast {
         return TraktCast(
             character = "Test Character",
             name = name,
@@ -93,170 +96,181 @@ class ShowDetailViewModelTest {
             mediumImageUrl = null,
             traktId = traktId,
             imdbId = null,
-            slug = null
+            slug = null,
         )
     }
 
     @Test
-    fun `onShowCastItemClicked uses Trakt ID directly`() = runTest {
-        // Given
-        val traktId = 456
-        val actorName = "Test Actor"
-        val traktCast = createTraktCast(traktId, actorName)
+    fun `onShowCastItemClicked uses Trakt ID directly`() =
+        runTest {
+            // Given
+            val traktId = 456
+            val actorName = "Test Actor"
+            val traktCast = createTraktCast(traktId, actorName)
 
-        whenever(
-            traktRepository.getTraktPersonSummary(traktId.toString())
-        ).thenReturn(
-            Result.success(
-                NetworkTraktPersonResponse(name = "Test Actor", ids = null, biography = null, birthday = null, death = null, birthplace = null, homepage = null, gender = null, known_for_department = null, social_ids = null)
+            whenever(
+                traktRepository.getTraktPersonSummary(traktId.toString()),
+            ).thenReturn(
+                Result.success(
+                    NetworkTraktPersonResponse(name = "Test Actor", ids = null, biography = null, birthday = null, death = null, birthplace = null, homepage = null, gender = null, known_for_department = null, social_ids = null),
+                ),
             )
-        )
-        whenever(
-            traktRepository.getTraktPersonShowCredits(traktId.toString())
-        ).thenReturn(Result.success(NetworkTraktPersonShowCreditsResponse(cast = emptyList())))
+            whenever(
+                traktRepository.getTraktPersonShowCredits(traktId.toString()),
+            ).thenReturn(Result.success(NetworkTraktPersonShowCreditsResponse(cast = emptyList())))
 
-        // When
-        viewModel.onShowCastItemClicked(traktCast)
+            // When
+            viewModel.onShowCastItemClicked(traktCast)
 
-        // Then
-        // Should NOT call lookups
-        verify(traktRepository, never()).getTraktPersonIdLookup(any())
-        verify(traktRepository, never()).getTraktPersonIdSearch(any())
+            // Then
+            // Should NOT call lookups
+            verify(traktRepository, never()).getTraktPersonIdLookup(any())
+            verify(traktRepository, never()).getTraktPersonIdSearch(any())
 
-        // Should call summary and credits directly
-        verify(traktRepository, timeout(3000)).getTraktPersonSummary(traktId.toString())
-        verify(traktRepository, timeout(3000)).getTraktPersonShowCredits(traktId.toString())
-    }
+            // Should call summary and credits directly
+            verify(traktRepository, timeout(3000)).getTraktPersonSummary(traktId.toString())
+            verify(traktRepository, timeout(3000)).getTraktPersonShowCredits(traktId.toString())
+        }
 
     @Test
-    fun `similarShows_success`() = runTest {
-        // Given
-        val imdbId = "tt12345"
-        val showDetailArg = com.theupnextapp.domain.ShowDetailArg(
-            showId = "123",
-            showTitle = "Test Show",
-            showImageUrl = null,
-            showBackgroundUrl = null,
-            imdbID = imdbId,
-            isAuthorizedOnTrakt = false,
-            showTraktId = 1
-        )
-        val showSummary = com.theupnextapp.domain.ShowDetailSummary(
-            id = 123,
-            imdbID = imdbId,
-            name = "Test Show",
-            mediumImageUrl = null,
-            originalImageUrl = null,
-            summary = "Summary",
-            genres = null,
-            time = null,
-            previousEpisodeHref = null,
-            nextEpisodeHref = null,
-            status = null,
-            airDays = null,
-            averageRating = null,
-            language = null,
-            nextEpisodeLinkedId = null,
-            previousEpisodeLinkedId = null
-        )
-
-        whenever(
-            showDetailRepository.getShowSummary(123)
-        ).thenReturn(kotlinx.coroutines.flow.flowOf(com.theupnextapp.domain.Result.Success(showSummary)))
-        whenever(traktRepository.getRelatedShows(imdbId)).thenReturn(
-            Result.success(
-                listOf(
-                    com.theupnextapp.domain.TraktRelatedShows(
-                        title = "Related Show",
-                        year = "2024",
-                        traktID = 2,
-                        slug = "slug",
-                        imdbID = "tt2",
-                        originalImageUrl = null,
-                        mediumImageUrl = null,
-                        tvMazeID = null,
-                        tmdbID = null,
-                        tvdbID = null,
-                        id = 2,
-                    )
+    fun `similarShows_success`() =
+        runTest {
+            // Given
+            val imdbId = "tt12345"
+            val showDetailArg =
+                com.theupnextapp.domain.ShowDetailArg(
+                    showId = "123",
+                    showTitle = "Test Show",
+                    showImageUrl = null,
+                    showBackgroundUrl = null,
+                    imdbID = imdbId,
+                    isAuthorizedOnTrakt = false,
+                    showTraktId = 1,
                 )
+            val showSummary =
+                com.theupnextapp.domain.ShowDetailSummary(
+                    id = 123,
+                    imdbID = imdbId,
+                    name = "Test Show",
+                    mediumImageUrl = null,
+                    originalImageUrl = null,
+                    summary = "Summary",
+                    genres = null,
+                    time = null,
+                    previousEpisodeHref = null,
+                    nextEpisodeHref = null,
+                    status = null,
+                    airDays = null,
+                    averageRating = null,
+                    language = null,
+                    nextEpisodeLinkedId = null,
+                    previousEpisodeLinkedId = null,
+                )
+
+            whenever(
+                showDetailRepository.getShowSummary(123),
+            ).thenReturn(kotlinx.coroutines.flow.flowOf(com.theupnextapp.domain.Result.Success(showSummary)))
+            whenever(traktRepository.getRelatedShows(imdbId)).thenReturn(
+                Result.success(
+                    listOf(
+                        com.theupnextapp.domain.TraktRelatedShows(
+                            title = "Related Show",
+                            year = "2024",
+                            traktID = 2,
+                            slug = "slug",
+                            imdbID = "tt2",
+                            originalImageUrl = null,
+                            mediumImageUrl = null,
+                            tvMazeID = null,
+                            tmdbID = null,
+                            tvdbID = null,
+                            id = 2,
+                        ),
+                    ),
+                ),
             )
-        )
 
-        // When
-        viewModel.selectedShow(showDetailArg)
+            // When
+            viewModel.selectedShow(showDetailArg)
 
-        // Then
-        // Verify state update (checking eventually or after delay)
-        // Since we don't have Turbine or advanced flow assertions in setup, we check after small delay or verify call
-        verify(traktRepository, timeout(3000)).getRelatedShows(imdbId)
-    }
+            // Then
+            // Verify state update (checking eventually or after delay)
+            // Since we don't have Turbine or advanced flow assertions in setup, we check after small delay or verify call
+            verify(traktRepository, timeout(3000)).getRelatedShows(imdbId)
+        }
 
     @Test
-    fun `onAddRemoveFavoriteClick queues work when logged in`() = runTest {
-        // Given
-        val imdbId = "tt12345"
-        val token = "test_token"
+    fun `onAddRemoveFavoriteClick queues work when logged in`() =
+        runTest {
+            // Given
+            val imdbId = "tt12345"
+            val token = "test_token"
 
-        // Mock a valid token in the repository
-        whenever(traktRepository.traktAccessToken).thenReturn(
-            MutableStateFlow(TraktAccessToken(
-                access_token = token,
-                token_type = "bearer",
-                expires_in = 1234,
-                refresh_token = "refresh",
-                scope = "public",
-                created_at = 123
-            ))
-        )
-        // Ensure favoriteShow is NOT set (so we are Adding)
-        whenever(traktRepository.getFavoriteShowFlow(imdbId)).thenReturn(kotlinx.coroutines.flow.flowOf(null))
+            // Mock a valid token in the repository
+            whenever(traktRepository.traktAccessToken).thenReturn(
+                MutableStateFlow(
+                    TraktAccessToken(
+                        access_token = token,
+                        token_type = "bearer",
+                        expires_in = 1234,
+                        refresh_token = "refresh",
+                        scope = "public",
+                        created_at = 123,
+                    ),
+                ),
+            )
+            // Ensure favoriteShow is NOT set (so we are Adding)
+            whenever(traktRepository.getFavoriteShowFlow(imdbId)).thenReturn(kotlinx.coroutines.flow.flowOf(null))
 
-        // Re-init viewModel to pick up new mocks if needed, or just rely on flow collection
-        // Since we are testing a function call that collects, we can assume it will collect the new flow value.
-        // But we need to make sure the viewmodel is initialized with the mocks.
-        // The flows are collected in init block for favorite status, but the function under test `onAddRemoveFavoriteClick`
-        // collects `traktRepository.traktAccessToken` ON DEMAND.
+            // Re-init viewModel to pick up new mocks if needed, or just rely on flow collection
+            // Since we are testing a function call that collects, we can assume it will collect the new flow value.
+            // But we need to make sure the viewmodel is initialized with the mocks.
+            // The flows are collected in init block for favorite status, but the function under test `onAddRemoveFavoriteClick`
+            // collects `traktRepository.traktAccessToken` ON DEMAND.
 
-        // Setup UI State with valid show execution
-        val showDetailArg = com.theupnextapp.domain.ShowDetailArg(
-            showId = "123",
-            showTitle = "Test Show",
-            showImageUrl = null,
-            showBackgroundUrl = null,
-            imdbID = imdbId,
-            isAuthorizedOnTrakt = true,
-            showTraktId = 1
-        )
-        val showSummary = com.theupnextapp.domain.ShowDetailSummary(
-            id = 123,
-            imdbID = imdbId,
-            name = "Test Show",
-            mediumImageUrl = null,
-            originalImageUrl = null,
-            summary = "Summary",
-            genres = null,
-            time = null,
-            previousEpisodeHref = null,
-            nextEpisodeHref = null,
-            status = null,
-            airDays = null,
-            averageRating = null,
-            language = null,
-            nextEpisodeLinkedId = null,
-            previousEpisodeLinkedId = null
-        )
-        whenever(showDetailRepository.getShowSummary(123)).thenReturn(kotlinx.coroutines.flow.flowOf(com.theupnextapp.domain.Result.Success(showSummary)))
+            // Setup UI State with valid show execution
+            val showDetailArg =
+                com.theupnextapp.domain.ShowDetailArg(
+                    showId = "123",
+                    showTitle = "Test Show",
+                    showImageUrl = null,
+                    showBackgroundUrl = null,
+                    imdbID = imdbId,
+                    isAuthorizedOnTrakt = true,
+                    showTraktId = 1,
+                )
+            val showSummary =
+                com.theupnextapp.domain.ShowDetailSummary(
+                    id = 123,
+                    imdbID = imdbId,
+                    name = "Test Show",
+                    mediumImageUrl = null,
+                    originalImageUrl = null,
+                    summary = "Summary",
+                    genres = null,
+                    time = null,
+                    previousEpisodeHref = null,
+                    nextEpisodeHref = null,
+                    status = null,
+                    airDays = null,
+                    averageRating = null,
+                    language = null,
+                    nextEpisodeLinkedId = null,
+                    previousEpisodeLinkedId = null,
+                )
+            whenever(
+                showDetailRepository.getShowSummary(123),
+            ).thenReturn(kotlinx.coroutines.flow.flowOf(com.theupnextapp.domain.Result.Success(showSummary)))
 
-        viewModel.selectedShow(showDetailArg)
+            viewModel.selectedShow(showDetailArg)
 
-        // Wait for summary to load so imdbId is in state
-        verify(traktRepository, timeout(3000)).getRelatedShows(any()) // Wait for side effect of loading
+            // Wait for summary to load so imdbId is in state
+            verify(traktRepository, timeout(3000)).getRelatedShows(any()) // Wait for side effect of loading
 
-        // When
-        viewModel.onAddRemoveFavoriteClick()
+            // When
+            viewModel.onAddRemoveFavoriteClick()
 
-        // Then
-        verify(workManager, timeout(3000)).enqueue(any<OneTimeWorkRequest>())
-    }
+            // Then
+            verify(workManager, timeout(3000)).enqueue(any<OneTimeWorkRequest>())
+        }
 }

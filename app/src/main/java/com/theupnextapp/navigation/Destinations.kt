@@ -29,18 +29,19 @@ sealed interface Destinations {
         val showBackgroundUrl: String?,
         val imdbID: String? = null,
         val isAuthorizedOnTrakt: Boolean? = false,
-        val showTraktId: Int? = null
+        val showTraktId: Int? = null,
     ) : Destinations {
-        fun toArg() = ShowDetailArg(
-            source,
-            showId,
-            showTitle,
-            showImageUrl,
-            showBackgroundUrl,
-            imdbID,
-            isAuthorizedOnTrakt,
-            showTraktId
-        )
+        fun toArg() =
+            ShowDetailArg(
+                source,
+                showId,
+                showTitle,
+                showImageUrl,
+                showBackgroundUrl,
+                imdbID,
+                isAuthorizedOnTrakt,
+                showTraktId,
+            )
     }
 
     @Serializable
@@ -52,18 +53,19 @@ sealed interface Destinations {
         val showBackgroundUrl: String?,
         val imdbID: String? = null,
         val isAuthorizedOnTrakt: Boolean? = false,
-        val showTraktId: Int? = null
+        val showTraktId: Int? = null,
     ) : Destinations {
-        fun toArg() = ShowDetailArg(
-            source,
-            showId,
-            showTitle,
-            showImageUrl,
-            showBackgroundUrl,
-            imdbID,
-            isAuthorizedOnTrakt,
-            showTraktId
-        )
+        fun toArg() =
+            ShowDetailArg(
+                source,
+                showId,
+                showTitle,
+                showImageUrl,
+                showBackgroundUrl,
+                imdbID,
+                isAuthorizedOnTrakt,
+                showTraktId,
+            )
     }
 
     @Serializable
@@ -72,15 +74,16 @@ sealed interface Destinations {
         val seasonNumber: Int?,
         val imdbID: String? = null,
         val isAuthorizedOnTrakt: Boolean? = false,
-        val showTraktId: Int? = null
+        val showTraktId: Int? = null,
     ) : Destinations {
-        fun toArg() = ShowSeasonEpisodesArg(
-            showId,
-            seasonNumber,
-            imdbID,
-            isAuthorizedOnTrakt,
-            showTraktId
-        )
+        fun toArg() =
+            ShowSeasonEpisodesArg(
+                showId,
+                seasonNumber,
+                imdbID,
+                isAuthorizedOnTrakt,
+                showTraktId,
+            )
     }
 
     @Serializable

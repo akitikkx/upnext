@@ -17,7 +17,6 @@ import org.robolectric.shadows.ShadowLog
 @RunWith(AndroidJUnit4::class)
 @Config(sdk = [33], application = Application::class) // Bypass UpnextApplication to avoid Firebase init issues
 class ShowSeasonEpisodesScreenTest {
-
     @get:Rule
     val composeTestRule = createComposeRule()
 
@@ -25,30 +24,31 @@ class ShowSeasonEpisodesScreenTest {
     fun showSeasonEpisodes_unauthorizedUser_checkmarkHidden() {
         ShadowLog.stream = System.out // Enable logging
 
-        val episodes = listOf(
-            ShowSeasonEpisode(
-                id = 1,
-                number = 1,
-                season = 1,
-                name = "Pilot",
-                isWatched = false,
-                originalImageUrl = "",
-                mediumImageUrl = "",
-                summary = "Summary",
-                airstamp = "2023-01-01T20:00:00.000Z",
-                runtime = 60,
-                type = "scripted",
-                airdate = "2023-01-01",
-                airtime = "20:00",
-                imdbID = "tt1234567"
+        val episodes =
+            listOf(
+                ShowSeasonEpisode(
+                    id = 1,
+                    number = 1,
+                    season = 1,
+                    name = "Pilot",
+                    isWatched = false,
+                    originalImageUrl = "",
+                    mediumImageUrl = "",
+                    summary = "Summary",
+                    airstamp = "2023-01-01T20:00:00.000Z",
+                    runtime = 60,
+                    type = "scripted",
+                    airdate = "2023-01-01",
+                    airtime = "20:00",
+                    imdbID = "tt1234567",
+                ),
             )
-        )
 
         composeTestRule.setContent {
             ShowSeasonEpisodes(
                 seasonNumber = 1,
                 list = episodes,
-                isAuthorizedOnTrakt = false
+                isAuthorizedOnTrakt = false,
             )
         }
 
@@ -59,30 +59,31 @@ class ShowSeasonEpisodesScreenTest {
 
     @Test
     fun showSeasonEpisodes_authorizedUser_checkmarkVisible() {
-        val episodes = listOf(
-            ShowSeasonEpisode(
-                id = 1,
-                number = 1,
-                season = 1,
-                name = "Pilot",
-                isWatched = false,
-                originalImageUrl = "",
-                mediumImageUrl = "",
-                summary = "Summary",
-                airstamp = "2023-01-01T20:00:00.000Z",
-                runtime = 60,
-                type = "scripted",
-                airdate = "2023-01-01",
-                airtime = "20:00",
-                imdbID = "tt1234567"
+        val episodes =
+            listOf(
+                ShowSeasonEpisode(
+                    id = 1,
+                    number = 1,
+                    season = 1,
+                    name = "Pilot",
+                    isWatched = false,
+                    originalImageUrl = "",
+                    mediumImageUrl = "",
+                    summary = "Summary",
+                    airstamp = "2023-01-01T20:00:00.000Z",
+                    runtime = 60,
+                    type = "scripted",
+                    airdate = "2023-01-01",
+                    airtime = "20:00",
+                    imdbID = "tt1234567",
+                ),
             )
-        )
 
         composeTestRule.setContent {
             ShowSeasonEpisodes(
                 seasonNumber = 1,
                 list = episodes,
-                isAuthorizedOnTrakt = true
+                isAuthorizedOnTrakt = true,
             )
         }
 

@@ -59,13 +59,13 @@ fun BackdropAndTitle(
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(
-                    start = 16.dp,
-                    top = 8.dp,
-                    end = 16.dp,
-                ),
+                Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        start = 16.dp,
+                        top = 8.dp,
+                        end = 16.dp,
+                    ),
         )
     }
 
@@ -74,14 +74,14 @@ fun BackdropAndTitle(
             text = status,
             style = MaterialTheme.typography.labelMedium,
             modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(
-                    start = 16.dp,
-                    top = 4.dp,
-                    end = 16.dp,
-                    bottom = 4.dp,
-                ),
+                Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        start = 16.dp,
+                        top = 4.dp,
+                        end = 16.dp,
+                        bottom = 4.dp,
+                    ),
         )
     }
 }

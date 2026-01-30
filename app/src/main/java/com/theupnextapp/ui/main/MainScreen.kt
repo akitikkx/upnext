@@ -39,7 +39,6 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -56,9 +55,7 @@ import com.theupnextapp.ui.explore.ExploreScreen
 import com.theupnextapp.ui.navigation.AppNavigation
 import com.theupnextapp.ui.search.SearchScreen
 import com.theupnextapp.ui.traktAccount.TraktAccountScreen
-import com.theupnextapp.ui.traktAccount.TraktAccountViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.launch
 
 @OptIn(
     ExperimentalMaterial3AdaptiveApi::class,
@@ -116,7 +113,7 @@ fun MainScreen(
 
     // Back handler for adaptive layouts and top-level navigation
     BackHandler(
-        enabled = isDetailFlowActive || currentListSection != NavigationDestination.Dashboard
+        enabled = isDetailFlowActive || currentListSection != NavigationDestination.Dashboard,
     ) {
         if (isDetailFlowActive) { // If a detail screen is active in mainNavController
             val previousEntry = mainNavController.previousBackStackEntry
@@ -170,9 +167,9 @@ fun MainScreen(
             listPane = {
                 Column(
                     modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.surface), // Ensure opaque background
+                        Modifier
+                            .fillMaxSize()
+                            .background(MaterialTheme.colorScheme.surface), // Ensure opaque background
                 ) {
                     TopAppBar(
                         title = { Text(stringResource(currentListSection.label)) },
@@ -181,7 +178,7 @@ fun MainScreen(
                                 androidx.compose.material3.IconButton(
                                     onClick = {
                                         mainNavController.navigate(Destinations.Settings)
-                                    }
+                                    },
                                 ) {
                                     Icon(
                                         imageVector = androidx.compose.material.icons.Icons.Filled.Settings,
@@ -189,7 +186,7 @@ fun MainScreen(
                                     )
                                 }
                             }
-                        }
+                        },
                     )
                     // Content of the current list section
                     // IMPORTANT: Pass destinationsNavigatorForDetail for navigation to detail screens
@@ -211,7 +208,7 @@ fun MainScreen(
                         navHostController = mainNavController,
                         overrideUpNavigation = {
                             mainNavController.navigateUp()
-                        }
+                        },
                     )
                 }
             },

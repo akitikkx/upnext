@@ -35,37 +35,37 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SearchViewModel
-@Inject
-constructor(
-    application: Application,
-    private val searchRepository: SearchRepository,
-) : AndroidViewModel(application) {
-    private val _isLoading = MutableLiveData<Boolean>()
-    val isLoading: LiveData<Boolean> = _isLoading
+    @Inject
+    constructor(
+        application: Application,
+        private val searchRepository: SearchRepository,
+    ) : AndroidViewModel(application) {
+        private val _isLoading = MutableLiveData<Boolean>()
+        val isLoading: LiveData<Boolean> = _isLoading
 
-    private val _searchResponse = MutableLiveData<List<ShowSearch>>()
-    val searchResponse: LiveData<List<ShowSearch>> = _searchResponse
+        private val _searchResponse = MutableLiveData<List<ShowSearch>>()
+        val searchResponse: LiveData<List<ShowSearch>> = _searchResponse
 
-    fun onQueryTextSubmit(query: String?) {
-        handleQuery(query)
-    }
+        fun onQueryTextSubmit(query: String?) {
+            handleQuery(query)
+        }
 
-    private fun handleQuery(query: String?) {
-        viewModelScope.launch {
-            searchRepository.getShowSearchResults(query).collect { result ->
-                when (result) {
-                    is Result.Success -> {
-                        _searchResponse.value =
-                            result.data.filter {
-                                !it.originalImageUrl.isNullOrEmpty() && !it.mediumImageUrl.isNullOrEmpty()
-                            }
+        private fun handleQuery(query: String?) {
+            viewModelScope.launch {
+                searchRepository.getShowSearchResults(query).collect { result ->
+                    when (result) {
+                        is Result.Success -> {
+                            _searchResponse.value =
+                                result.data.filter {
+                                    !it.originalImageUrl.isNullOrEmpty() && !it.mediumImageUrl.isNullOrEmpty()
+                                }
+                        }
+                        is Result.Loading -> {
+                            _isLoading.value = result.status
+                        }
+                        else -> {}
                     }
-                    is Result.Loading -> {
-                        _isLoading.value = result.status
-                    }
-                    else -> {}
                 }
             }
         }
     }
-}

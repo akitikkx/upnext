@@ -54,9 +54,9 @@ fun SearchListCard(
     Card(
         shape = MaterialTheme.shapes.large,
         modifier =
-        Modifier
-            .fillMaxWidth()
-            .padding(4.dp),
+            Modifier
+                .fillMaxWidth()
+                .padding(4.dp),
         onClick = onClick,
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -64,9 +64,9 @@ fun SearchListCard(
                 PosterImage(
                     url = url,
                     modifier =
-                    Modifier
-                        .width(dimensionResource(id = R.dimen.compose_search_poster_width))
-                        .height(dimensionResource(id = R.dimen.compose_search_poster_height)),
+                        Modifier
+                            .width(dimensionResource(id = R.dimen.compose_search_poster_width))
+                            .height(dimensionResource(id = R.dimen.compose_search_poster_height)),
                 )
             }
             Column(
@@ -76,11 +76,11 @@ fun SearchListCard(
             ) {
                 Text(
                     text =
-                    stringResource(
-                        getNameAndReleaseYearResource(item),
-                        item.name.toString(),
-                        item.premiered?.substring(0, 4).toString(),
-                    ),
+                        stringResource(
+                            getNameAndReleaseYearResource(item),
+                            item.name.toString(),
+                            item.premiered?.substring(0, 4).toString(),
+                        ),
                     modifier = Modifier.padding(4.dp),
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Bold,

@@ -52,7 +52,6 @@ import androidx.navigation.NavController
 import com.theupnextapp.R
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.ShowSeason
-import com.theupnextapp.domain.ShowSeasonEpisodesArg
 import com.theupnextapp.navigation.Destinations
 import com.theupnextapp.ui.components.PosterImage
 import com.theupnextapp.ui.components.SectionHeadingText
@@ -84,7 +83,7 @@ fun ShowSeasonsScreen(
                                 imdbID = showDetailArg.imdbID,
                                 isAuthorizedOnTrakt = showDetailArg.isAuthorizedOnTrakt,
                                 showTraktId = showDetailArg.showTraktId,
-                            )
+                            ),
                         )
                     }
                 }
@@ -92,9 +91,9 @@ fun ShowSeasonsScreen(
                 if (isLoading.value == true) {
                     LinearProgressIndicator(
                         modifier =
-                        Modifier
-                            .padding(8.dp)
-                            .fillMaxWidth(),
+                            Modifier
+                                .padding(8.dp)
+                                .fillMaxWidth(),
                     )
                 }
             }
@@ -129,9 +128,9 @@ fun ShowSeasonCard(
     Card(
         shape = MaterialTheme.shapes.large,
         modifier =
-        Modifier
-            .fillMaxWidth()
-            .padding(4.dp),
+            Modifier
+                .fillMaxWidth()
+                .padding(4.dp),
         onClick = onClick,
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -139,9 +138,9 @@ fun ShowSeasonCard(
                 PosterImage(
                     url = url,
                     modifier =
-                    Modifier
-                        .width(dimensionResource(id = R.dimen.compose_search_poster_width))
-                        .height(dimensionResource(id = R.dimen.compose_search_poster_height)),
+                        Modifier
+                            .width(dimensionResource(id = R.dimen.compose_search_poster_width))
+                            .height(dimensionResource(id = R.dimen.compose_search_poster_height)),
                 )
             }
             Column(
@@ -152,10 +151,10 @@ fun ShowSeasonCard(
                 if (item.seasonNumber.toString().isNotEmpty()) {
                     Text(
                         text =
-                        stringResource(
-                            R.string.show_detail_season_and_number,
-                            item.seasonNumber.toString(),
-                        ),
+                            stringResource(
+                                R.string.show_detail_season_and_number,
+                                item.seasonNumber.toString(),
+                            ),
                         modifier = Modifier.padding(4.dp),
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.Bold,
@@ -166,10 +165,10 @@ fun ShowSeasonCard(
                 if (!premiereDate.isNullOrEmpty()) {
                     Text(
                         text =
-                        stringResource(
-                            R.string.show_detail_season_premiere_date,
-                            premiereDate,
-                        ),
+                            stringResource(
+                                R.string.show_detail_season_premiere_date,
+                                premiereDate,
+                            ),
                         modifier = Modifier.padding(2.dp),
                         style = MaterialTheme.typography.bodyMedium,
                     )
@@ -179,10 +178,10 @@ fun ShowSeasonCard(
                 if (!endDate.isNullOrEmpty()) {
                     Text(
                         text =
-                        stringResource(
-                            R.string.show_detail_season_end_date,
-                            endDate,
-                        ),
+                            stringResource(
+                                R.string.show_detail_season_end_date,
+                                endDate,
+                            ),
                         modifier = Modifier.padding(2.dp),
                         style = MaterialTheme.typography.bodyMedium,
                     )
@@ -191,16 +190,16 @@ fun ShowSeasonCard(
                 if (!item.originalImageUrl.isNullOrEmpty()) {
                     Text(
                         text =
-                        stringResource(
-                            R.string.tv_maze_creative_commons_attribution_text_single,
-                        ),
+                            stringResource(
+                                R.string.tv_maze_creative_commons_attribution_text_single,
+                            ),
                         modifier =
-                        Modifier.padding(
-                            start = 2.dp,
-                            top = 4.dp,
-                            bottom = 2.dp,
-                            end = 4.dp,
-                        ),
+                            Modifier.padding(
+                                start = 2.dp,
+                                top = 4.dp,
+                                bottom = 2.dp,
+                                end = 4.dp,
+                            ),
                         style = MaterialTheme.typography.bodyMedium,
                     )
                 }

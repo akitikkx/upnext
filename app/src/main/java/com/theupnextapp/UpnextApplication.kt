@@ -104,8 +104,8 @@ class UpnextApplication : Application(), Configuration.Provider {
                         .tag("UpnextApplication")
                         .w(
                             message =
-                            "Unknown theme preference: $selectedTheme. " +
-                                "Defaulting to MODE_NIGHT_YES.",
+                                "Unknown theme preference: $selectedTheme. " +
+                                    "Defaulting to MODE_NIGHT_YES.",
                         )
                     AppCompatDelegate.MODE_NIGHT_YES
                 }
@@ -151,14 +151,14 @@ class UpnextApplication : Application(), Configuration.Provider {
                 TimeUnit.HOURS,
             )
                 .setConstraints(
-                    Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
+                    Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build(),
                 )
                 .build()
 
         workManager.enqueueUniquePeriodicWork(
             com.theupnextapp.work.NotificationWorker.WORK_NAME,
             ExistingPeriodicWorkPolicy.KEEP,
-            notificationRequest
+            notificationRequest,
         )
         Timber.tag("UpnextApplication").d("Enqueued ${com.theupnextapp.work.NotificationWorker.WORK_NAME}")
     }

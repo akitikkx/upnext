@@ -38,12 +38,12 @@ fun PosterAttributionItem() {
     Text(
         text = stringResource(id = R.string.tv_maze_creative_commons_attribution_text_single),
         modifier =
-        Modifier.padding(
-            start = 4.dp,
-            top = 8.dp,
-            bottom = 8.dp,
-            end = 4.dp,
-        ),
+            Modifier.padding(
+                start = 4.dp,
+                top = 8.dp,
+                bottom = 8.dp,
+                end = 4.dp,
+            ),
         maxLines = 5,
         style = MaterialTheme.typography.labelMedium,
     )
@@ -57,12 +57,12 @@ fun PosterTitleTextItem(title: String) {
         style = MaterialTheme.typography.labelMedium,
         maxLines = 1,
         modifier =
-        Modifier.padding(
-            start = 4.dp,
-            top = 8.dp,
-            bottom = 8.dp,
-            end = 4.dp,
-        ),
+            Modifier.padding(
+                start = 4.dp,
+                top = 8.dp,
+                bottom = 8.dp,
+                end = 4.dp,
+            ),
     )
 }
 
@@ -74,13 +74,13 @@ fun SectionHeadingText(
     Text(
         text = text,
         modifier =
-        modifier
-            .padding(
-                start = 16.dp,
-                top = 4.dp,
-                end = 16.dp,
-                bottom = 4.dp,
-            ),
+            modifier
+                .padding(
+                    start = 16.dp,
+                    top = 4.dp,
+                    end = 16.dp,
+                    bottom = 4.dp,
+                ),
         style = MaterialTheme.typography.headlineMedium,
         fontWeight = FontWeight.Bold,
     )

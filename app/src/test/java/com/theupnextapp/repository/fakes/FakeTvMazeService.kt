@@ -125,37 +125,38 @@ class FakeTvMazeService : TvMazeService {
                 premiered = "2021-04-07",
                 rating = Rating(average = 8.8),
                 image =
-                NetworkShowSearchResponseImage(
-                    original = "https://static.tvmaze.com/uploads/images/original_untouched/324/811968.jpg",
-                    medium = "https://static.tvmaze.com/uploads/images/medium_portrait/324/811968.jpg",
-                ),
+                    NetworkShowSearchResponseImage(
+                        original = "https://static.tvmaze.com/uploads/images/original_untouched/324/811968.jpg",
+                        medium = "https://static.tvmaze.com/uploads/images/medium_portrait/324/811968.jpg",
+                    ),
                 summary =
-                """
+                    """
                     Teresa flees Mexico after her drug-runner boyfriend is murdered.
                     Settling in Dallas, she looks to become the country's reigning drug
                     smuggler and to avenge her lover's murder.
-                """.trimIndent(),
+                    """.trimIndent(),
                 updated = 1620422,
                 network =
-                NetworkShowSeasonsResponseNetwork(
-                    country =
-                    NetworkShowSeasonsResponseCountry(
-                        name = "United States",
-                        code = "US",
-                        timezone = "America/New_York",
+                    NetworkShowSeasonsResponseNetwork(
+                        country =
+                            NetworkShowSeasonsResponseCountry(
+                                name = "United States",
+                                code = "US",
+                                timezone = "America/New_York",
+                            ),
+                        id = 2,
+                        name = "USA Network",
                     ),
-                    id = 2,
-                    name = "USA Network",
-                ),
                 schedule = Schedule(time = "22:00", days = arrayListOf("Wednesday")),
                 url = "https://www.tvmaze.com/shows/13158/queen-of-the-south",
                 _links =
-                NetworkShowSearchReponseLinks(
-                    previousepisode = NetworkShowSearchResponsePreviousepisode(
-                        href = "http://api.tvmaze.com/episodes/2059593"
+                    NetworkShowSearchReponseLinks(
+                        previousepisode =
+                            NetworkShowSearchResponsePreviousepisode(
+                                href = "http://api.tvmaze.com/episodes/2059593",
+                            ),
+                        self = NetworkShowSearchResponseSelf(href = "http://api.tvmaze.com/shows/1"),
                     ),
-                    self = NetworkShowSearchResponseSelf(href = "http://api.tvmaze.com/shows/1"),
-                ),
                 externals = Externals(imdb = "tt4352842", thetvdb = 300998, tvrage = null),
                 language = "English",
                 officialSite = "http://www.usanetwork.com/queen-of-the-south",
@@ -212,7 +213,7 @@ class FakeTvMazeService : TvMazeService {
         seasonEpisodesError?.let { throw it }
         mockTvMazeEpisodesResponse?.let { return CompletableDeferred(it) }
         throw NotImplementedError(
-            "mockTvMazeEpisodesResponse not set for this test, or seasonEpisodesError not specified."
+            "mockTvMazeEpisodesResponse not set for this test, or seasonEpisodesError not specified.",
         )
     }
 

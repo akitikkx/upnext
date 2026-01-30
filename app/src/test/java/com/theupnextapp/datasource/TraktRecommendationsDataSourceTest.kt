@@ -137,7 +137,7 @@ class TraktRecommendationsDataSourceTest {
                     slug = "slug",
                     imdb = "tt1234567",
                     tmdb = 2,
-                    tvdb = 1
+                    tvdb = 1,
                 )
             val mockShow = NetworkTraktIdLookupResponseItemShow(title = "Show Title", year = 2024, ids = mockIds)
             val mockResponseItem =
@@ -165,85 +165,93 @@ class TraktRecommendationsDataSourceTest {
                     characters = listOf("Character Name"),
                     person = mockPerson,
                     episode_count = 10,
-                    series_regular = true
+                    series_regular = true,
                 )
             val mockResponse = NetworkTraktShowPeopleResponse(cast = listOf(mockCastMember), crew = null)
 
             whenever(traktService.getShowPeopleAsync(any())).thenReturn(
-                CompletableDeferred(mockResponse)
+                CompletableDeferred(mockResponse),
             )
 
             // Mock TvMaze calls
-            val mockTvMazeLookupResponse = NetworkTvMazeShowLookupResponse(
-                id = 12345,
-                image = NetworkTvMazeShowLookupImage(medium = "", original = ""),
-                _links = null,
-                externals = null,
-                name = "Show Title",
-                premiered = "2024-01-01",
-                status = "Running",
-                summary = "Summary",
-                updated = 123456789,
-                url = "http://example.com",
-                averageRuntime = 60,
-                dvdCountry = null,
-                genres = emptyList(),
-                language = "English",
-                network = NetworkTvMazeShowLookupNetwork(
-                    id = 1,
-                    name = "Network",
-                    country = NetworkTvMazeShowLookupCountry(
-                        code = "US",
-                        name = "United States",
-                        timezone = "America/New_York"
-                    )
-                ),
-                officialSite = "http://example.com",
-                rating = NetworkTvMazeShowLookupRating(average = 8.0),
-                runtime = 60,
-                schedule = NetworkTvMazeShowLookupSchedule(days = emptyList(), time = "20:00"),
-                type = "Scripted",
-                webChannel = NetworkTvMazeShowLookupWebChannel(
-                    id = 1,
-                    name = "WebChannel",
-                    country = NetworkTvMazeShowLookupCountryX(
-                        code = "US",
-                        name = "United States",
-                        timezone = "America/New_York"
-                    )
-                ),
-                weight = 100
-            )
+            val mockTvMazeLookupResponse =
+                NetworkTvMazeShowLookupResponse(
+                    id = 12345,
+                    image = NetworkTvMazeShowLookupImage(medium = "", original = ""),
+                    _links = null,
+                    externals = null,
+                    name = "Show Title",
+                    premiered = "2024-01-01",
+                    status = "Running",
+                    summary = "Summary",
+                    updated = 123456789,
+                    url = "http://example.com",
+                    averageRuntime = 60,
+                    dvdCountry = null,
+                    genres = emptyList(),
+                    language = "English",
+                    network =
+                        NetworkTvMazeShowLookupNetwork(
+                            id = 1,
+                            name = "Network",
+                            country =
+                                NetworkTvMazeShowLookupCountry(
+                                    code = "US",
+                                    name = "United States",
+                                    timezone = "America/New_York",
+                                ),
+                        ),
+                    officialSite = "http://example.com",
+                    rating = NetworkTvMazeShowLookupRating(average = 8.0),
+                    runtime = 60,
+                    schedule = NetworkTvMazeShowLookupSchedule(days = emptyList(), time = "20:00"),
+                    type = "Scripted",
+                    webChannel =
+                        NetworkTvMazeShowLookupWebChannel(
+                            id = 1,
+                            name = "WebChannel",
+                            country =
+                                NetworkTvMazeShowLookupCountryX(
+                                    code = "US",
+                                    name = "United States",
+                                    timezone = "America/New_York",
+                                ),
+                        ),
+                    weight = 100,
+                )
             whenever(tvMazeService.getShowLookupAsync(any())).thenReturn(
-                CompletableDeferred(mockTvMazeLookupResponse)
+                CompletableDeferred(mockTvMazeLookupResponse),
             )
 
-            val mockTvMazeImage = NetworkShowCastImage(
-                medium = "medium_url",
-                original = "original_url"
-            )
-            val mockTvMazePerson = NetworkShowCastPerson(
-                name = "Actor Name",
-                image = mockTvMazeImage,
-                id = 1,
-                _links = null,
-                birthday = null,
-                country = null,
-                deathday = null,
-                gender = null,
-                url = null
-            )
-            val mockTvMazeCastItem = NetworkShowCastResponseItem(
-                person = mockTvMazePerson,
-                character = null,
-                self = false,
-                voice = false
-            )
+            val mockTvMazeImage =
+                NetworkShowCastImage(
+                    medium = "medium_url",
+                    original = "original_url",
+                )
+            val mockTvMazePerson =
+                NetworkShowCastPerson(
+                    name = "Actor Name",
+                    image = mockTvMazeImage,
+                    id = 1,
+                    _links = null,
+                    birthday = null,
+                    country = null,
+                    deathday = null,
+                    gender = null,
+                    url = null,
+                )
+            val mockTvMazeCastItem =
+                NetworkShowCastResponseItem(
+                    person = mockTvMazePerson,
+                    character = null,
+                    self = false,
+                    voice = false,
+                )
             val mockTvMazeCastResponse = NetworkShowCastResponse()
             mockTvMazeCastResponse.add(mockTvMazeCastItem)
 
             whenever(tvMazeService.getShowCastAsync(any())).thenReturn(
-                CompletableDeferred(mockTvMazeCastResponse)
+                CompletableDeferred(mockTvMazeCastResponse),
             )
 
             val result = dataSource.getShowCast("tt1234567")
@@ -306,58 +314,64 @@ class TraktRecommendationsDataSourceTest {
                 CompletableDeferred(mockResponse),
             )
 
-            val mockTvMazeLookupResponse = NetworkTvMazeShowLookupResponse(
-                id = 54321,
-                image = NetworkTvMazeShowLookupImage(medium = "med_url", original = "orig_url"),
-                _links = NetworkTvMazeShowLookupLinks(
-                    self = NetworkTvMazeShowLookupSelf(href = "href"),
-                    previousepisode = NetworkTvMazeShowLookupPreviousepisode(href = "href"),
-                ),
-                externals = NetworkTvMazeShowLookupExternals(tvrage = 1, thetvdb = 2, imdb = "tt123"),
-                name = "Related Show",
-                premiered = "2024-01-01",
-                status = "Ended",
-                summary = "Summary",
-                updated = 123456789,
-                url = "url",
-                averageRuntime = 60,
-                dvdCountry = null,
-                genres = emptyList(),
-                language = "English",
-                network = NetworkTvMazeShowLookupNetwork(
-                    id = 1,
-                    name = "Network",
-                    country = NetworkTvMazeShowLookupCountry(
-                        code = "US",
-                        name = "United States",
-                        timezone = "America/New_York"
-                    )
-                ),
-                officialSite = "site",
-                rating = NetworkTvMazeShowLookupRating(average = 8.0),
-                runtime = 60,
-                schedule = NetworkTvMazeShowLookupSchedule(days = emptyList(), time = "20:00"),
-                type = "Scripted",
-                webChannel = NetworkTvMazeShowLookupWebChannel(
-                    id = 1,
-                    name = "WebChannel",
-                    country = NetworkTvMazeShowLookupCountryX(
-                        code = "US",
-                        name = "United States",
-                        timezone = "America/New_York"
-                    )
-                ),
-                weight = 100
-            )
+            val mockTvMazeLookupResponse =
+                NetworkTvMazeShowLookupResponse(
+                    id = 54321,
+                    image = NetworkTvMazeShowLookupImage(medium = "med_url", original = "orig_url"),
+                    _links =
+                        NetworkTvMazeShowLookupLinks(
+                            self = NetworkTvMazeShowLookupSelf(href = "href"),
+                            previousepisode = NetworkTvMazeShowLookupPreviousepisode(href = "href"),
+                        ),
+                    externals = NetworkTvMazeShowLookupExternals(tvrage = 1, thetvdb = 2, imdb = "tt123"),
+                    name = "Related Show",
+                    premiered = "2024-01-01",
+                    status = "Ended",
+                    summary = "Summary",
+                    updated = 123456789,
+                    url = "url",
+                    averageRuntime = 60,
+                    dvdCountry = null,
+                    genres = emptyList(),
+                    language = "English",
+                    network =
+                        NetworkTvMazeShowLookupNetwork(
+                            id = 1,
+                            name = "Network",
+                            country =
+                                NetworkTvMazeShowLookupCountry(
+                                    code = "US",
+                                    name = "United States",
+                                    timezone = "America/New_York",
+                                ),
+                        ),
+                    officialSite = "site",
+                    rating = NetworkTvMazeShowLookupRating(average = 8.0),
+                    runtime = 60,
+                    schedule = NetworkTvMazeShowLookupSchedule(days = emptyList(), time = "20:00"),
+                    type = "Scripted",
+                    webChannel =
+                        NetworkTvMazeShowLookupWebChannel(
+                            id = 1,
+                            name = "WebChannel",
+                            country =
+                                NetworkTvMazeShowLookupCountryX(
+                                    code = "US",
+                                    name = "United States",
+                                    timezone = "America/New_York",
+                                ),
+                        ),
+                    weight = 100,
+                )
             // Return valid response for first item ("tt123")
             whenever(tvMazeService.getShowLookupAsync(eq("tt123"))).thenReturn(
-                CompletableDeferred(mockTvMazeLookupResponse)
+                CompletableDeferred(mockTvMazeLookupResponse),
             )
             // Return failure/null for second item ("tt456") to simulate missing images
             whenever(
-                tvMazeService.getShowLookupAsync(eq("tt456"))
+                tvMazeService.getShowLookupAsync(eq("tt456")),
             ).thenThrow(
-                retrofit2.HttpException(retrofit2.Response.error<Any>(404, okhttp3.ResponseBody.create(null, "")))
+                retrofit2.HttpException(retrofit2.Response.error<Any>(404, okhttp3.ResponseBody.create(null, ""))),
             )
 
             val result = dataSource.getRelatedShows("tt1234567")

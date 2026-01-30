@@ -25,7 +25,6 @@ import org.robolectric.annotation.Config
 @Config(sdk = [34])
 @Ignore("FirebaseApp initialization failure in Robolectric environment - Needs TestApplication")
 class NotificationWorkerTest {
-
     private lateinit var context: Context
     private lateinit var mockSettingsRepository: SettingsRepository
     private lateinit var mockTraktRepository: TraktRepository
@@ -34,11 +33,12 @@ class NotificationWorkerTest {
     fun setUp() {
         context = ApplicationProvider.getApplicationContext()
         if (FirebaseApp.getApps(context).isEmpty()) {
-            val options = FirebaseOptions.Builder()
-                .setApiKey("TestApiKey")
-                .setApplicationId("TestAppId")
-                .setProjectId("TestProjectId")
-                .build()
+            val options =
+                FirebaseOptions.Builder()
+                    .setApiKey("TestApiKey")
+                    .setApplicationId("TestAppId")
+                    .setProjectId("TestProjectId")
+                    .build()
             FirebaseApp.initializeApp(context, options)
         }
         mockSettingsRepository = mock()
@@ -49,42 +49,44 @@ class NotificationWorkerTest {
     fun testNotificationWorker_returnsSuccess_whenNotificationsEnabled() {
         runBlocking {
             whenever(mockSettingsRepository.areNotificationsEnabled).doReturn(flowOf(true))
-            val accessToken = com.theupnextapp.domain.TraktAccessToken(
-                access_token = "token",
-                token_type = "bearer",
-                expires_in = 3600,
-                refresh_token = "refresh",
-                scope = "public",
-                created_at = 1234567890L
-            )
+            val accessToken =
+                com.theupnextapp.domain.TraktAccessToken(
+                    access_token = "token",
+                    token_type = "bearer",
+                    expires_in = 3600,
+                    refresh_token = "refresh",
+                    scope = "public",
+                    created_at = 1234567890L,
+                )
             whenever(mockTraktRepository.traktAccessToken).thenReturn(flowOf(accessToken))
             whenever(
                 mockTraktRepository.getTraktMySchedule(
                     org.mockito.kotlin.any(),
                     org.mockito.kotlin.any(),
-                    org.mockito.kotlin.any()
-                )
+                    org.mockito.kotlin.any(),
+                ),
             )
                 .thenReturn(Result.success(com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponse()))
 
-            val worker = TestListenableWorkerBuilder<NotificationWorker>(context)
-                .setWorkerFactory(
-                    object : androidx.work.WorkerFactory() {
-                        override fun createWorker(
-                            appContext: Context,
-                            workerClassName: String,
-                            workerParameters: androidx.work.WorkerParameters
-                        ): ListenableWorker? {
-                            return NotificationWorker(
-                                appContext,
-                                workerParameters,
-                                mockTraktRepository,
-                                mockSettingsRepository
-                            )
-                        }
-                    }
-                )
-                .build()
+            val worker =
+                TestListenableWorkerBuilder<NotificationWorker>(context)
+                    .setWorkerFactory(
+                        object : androidx.work.WorkerFactory() {
+                            override fun createWorker(
+                                appContext: Context,
+                                workerClassName: String,
+                                workerParameters: androidx.work.WorkerParameters,
+                            ): ListenableWorker? {
+                                return NotificationWorker(
+                                    appContext,
+                                    workerParameters,
+                                    mockTraktRepository,
+                                    mockSettingsRepository,
+                                )
+                            }
+                        },
+                    )
+                    .build()
 
             val result = worker.doWork()
             assertEquals(ListenableWorker.Result.success(), result)
@@ -96,24 +98,25 @@ class NotificationWorkerTest {
         runBlocking {
             whenever(mockSettingsRepository.areNotificationsEnabled).doReturn(flowOf(false))
 
-            val worker = TestListenableWorkerBuilder<NotificationWorker>(context)
-                .setWorkerFactory(
-                    object : androidx.work.WorkerFactory() {
-                        override fun createWorker(
-                            appContext: Context,
-                            workerClassName: String,
-                            workerParameters: androidx.work.WorkerParameters
-                        ): ListenableWorker? {
-                            return NotificationWorker(
-                                appContext,
-                                workerParameters,
-                                mockTraktRepository,
-                                mockSettingsRepository
-                            )
-                        }
-                    }
-                )
-                .build()
+            val worker =
+                TestListenableWorkerBuilder<NotificationWorker>(context)
+                    .setWorkerFactory(
+                        object : androidx.work.WorkerFactory() {
+                            override fun createWorker(
+                                appContext: Context,
+                                workerClassName: String,
+                                workerParameters: androidx.work.WorkerParameters,
+                            ): ListenableWorker? {
+                                return NotificationWorker(
+                                    appContext,
+                                    workerParameters,
+                                    mockTraktRepository,
+                                    mockSettingsRepository,
+                                )
+                            }
+                        },
+                    )
+                    .build()
 
             val result = worker.doWork()
             assertEquals(ListenableWorker.Result.success(), result)

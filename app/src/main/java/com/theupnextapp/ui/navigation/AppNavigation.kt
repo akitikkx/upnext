@@ -45,7 +45,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
     ExperimentalComposeUiApi::class,
     ExperimentalFoundationApi::class,
     ExperimentalAnimationApi::class,
-    androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi::class
+    androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi::class,
 )
 @Composable
 fun AppNavigation(
@@ -90,7 +90,7 @@ fun AppNavigation(
                     val args = backStackEntry.toRoute<Destinations.ShowDetail>()
                     ShowDetailScreen(
                         showDetailArgs = args.toArg(),
-                        navController = navHostController
+                        navController = navHostController,
                     )
                 }
 
@@ -98,7 +98,7 @@ fun AppNavigation(
                     val args = backStackEntry.toRoute<Destinations.ShowSeasons>()
                     ShowSeasonsScreen(
                         showDetailArg = args.toArg(),
-                        navController = navHostController
+                        navController = navHostController,
                     )
                 }
 
@@ -106,7 +106,7 @@ fun AppNavigation(
                     val args = backStackEntry.toRoute<Destinations.ShowSeasonEpisodes>()
                     ShowSeasonEpisodesScreen(
                         showSeasonEpisodesArg = args.toArg(),
-                        navController = navHostController
+                        navController = navHostController,
                     )
                 }
 
@@ -118,7 +118,7 @@ fun AppNavigation(
                     val args = backStackEntry.toRoute<Destinations.TraktAccount>()
                     TraktAccountScreen(
                         code = args.code,
-                        navController = navHostController
+                        navController = navHostController,
                     )
                 }
             }

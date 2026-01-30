@@ -67,10 +67,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
-import androidx.navigation.NavOptions
-import androidx.navigation.Navigator
 import com.theupnextapp.R
 import com.theupnextapp.common.utils.getWindowSizeClass
 import com.theupnextapp.domain.ShowDetailArg
@@ -157,9 +154,9 @@ fun ShowDetailScreen(
     ) { innerPadding ->
         Box(
             modifier =
-            Modifier
-                .padding(innerPadding)
-                .fillMaxSize(),
+                Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize(),
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
                 if (showTopLinearProgress) {
@@ -190,7 +187,7 @@ fun ShowDetailScreen(
                 CastBottomSheet(
                     uiState = castBottomSheetUiState,
                     onCreditClick = { viewModel.onCreditClicked(it) },
-                    onDismissRequest = { viewModel.displayCastBottomSheetComplete() }
+                    onDismissRequest = { viewModel.displayCastBottomSheetComplete() },
                 )
             }
 
@@ -205,7 +202,7 @@ fun ShowDetailScreen(
                             imdbID = it.imdbID,
                             isAuthorizedOnTrakt = it.isAuthorizedOnTrakt,
                             showTraktId = it.showTraktId,
-                        )
+                        ),
                     )
                     viewModel.onShowDetailNavigationComplete()
                 }
@@ -234,10 +231,10 @@ fun DetailArea(
 
     Column(
         modifier =
-        Modifier
-            .fillMaxSize()
-            .verticalScroll(scrollState)
-            .padding(bottom = 16.dp),
+            Modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+                .padding(bottom = 16.dp),
     ) {
         if (uiState.isLoadingSummary && uiState.showSummary == null) { // Show placeholder only if no data yet
             SummaryPlaceholder() // Or a simpler version, or nothing if LinearProgress is enough
@@ -308,36 +305,37 @@ fun ShowDetailButtons(
 ) {
     Row(
         modifier =
-        Modifier
-            .fillMaxWidth()
-            .padding(dimensionResource(id = R.dimen.padding_standard_double)),
+            Modifier
+                .fillMaxWidth()
+                .padding(dimensionResource(id = R.dimen.padding_standard_double)),
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
             text = "Seasons",
             modifier =
-            Modifier
-                .clickable { onSeasonsClick() }
-                .padding(8.dp),
+                Modifier
+                    .clickable { onSeasonsClick() }
+                    .padding(8.dp),
             color = MaterialTheme.colorScheme.primary,
         )
         if (isAuthorizedOnTrakt == true) {
             if (isLoading) {
                 androidx.compose.material3.CircularProgressIndicator(
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .size(24.dp),
+                    modifier =
+                        Modifier
+                            .padding(8.dp)
+                            .size(24.dp),
                     strokeWidth = 2.dp,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.primary,
                 )
             } else {
                 Text(
                     text = if (isFavorite == true) "Remove Favorite" else "Add Favorite",
                     modifier =
-                    Modifier
-                        .clickable { onFavoriteClick() }
-                        .padding(8.dp),
+                        Modifier
+                            .clickable { onFavoriteClick() }
+                            .padding(8.dp),
                     color = MaterialTheme.colorScheme.primary,
                 )
             }
@@ -373,12 +371,12 @@ fun ShowCastList(
 
         LazyRow(
             modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(
-                    horizontal = dimensionResource(id = R.dimen.padding_standard_double),
-                    vertical = dimensionResource(id = R.dimen.padding_standard),
-                ),
+                Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        horizontal = dimensionResource(id = R.dimen.padding_standard_double),
+                        vertical = dimensionResource(id = R.dimen.padding_standard),
+                    ),
         ) {
             items(items = list) { item ->
                 ShowCastItem(item = item) { showCastItem ->
@@ -396,19 +394,19 @@ fun ShowCastItem(
 ) {
     Column(
         modifier =
-        Modifier
-            .padding(dimensionResource(id = R.dimen.padding_standard))
-            .width(dimensionResource(id = R.dimen.compose_show_detail_poster_width))
-            .clickable { onClick(item) },
+            Modifier
+                .padding(dimensionResource(id = R.dimen.padding_standard))
+                .width(dimensionResource(id = R.dimen.compose_show_detail_poster_width))
+                .clickable { onClick(item) },
         verticalArrangement = Arrangement.Top, // Align content to top
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         PosterImage(
             url = item.originalImageUrl ?: "",
             modifier =
-            Modifier
-                .width(dimensionResource(id = R.dimen.compose_show_detail_poster_width))
-                .height(dimensionResource(id = R.dimen.compose_show_detail_poster_height)),
+                Modifier
+                    .width(dimensionResource(id = R.dimen.compose_show_detail_poster_width))
+                    .height(dimensionResource(id = R.dimen.compose_show_detail_poster_height)),
         )
 
         item.name?.let { name ->
@@ -416,9 +414,9 @@ fun ShowCastItem(
                 text = name,
                 style = MaterialTheme.typography.bodyLarge,
                 modifier =
-                Modifier
-                    .padding(top = dimensionResource(id = R.dimen.padding_extra_small))
-                    .fillMaxWidth(),
+                    Modifier
+                        .padding(top = dimensionResource(id = R.dimen.padding_extra_small))
+                        .fillMaxWidth(),
                 maxLines = 2,
             )
         }
@@ -429,8 +427,8 @@ fun ShowCastItem(
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.Thin,
                 modifier =
-                Modifier
-                    .fillMaxWidth(),
+                    Modifier
+                        .fillMaxWidth(),
                 maxLines = 1,
             )
         }
@@ -443,7 +441,7 @@ fun PreviousEpisode(uiState: ShowDetailViewModel.ShowDetailUiState) {
         (
             uiState.showPreviousEpisode.previousEpisodeName?.isNotBlank() == true ||
                 uiState.showPreviousEpisode.previousEpisodeAirdate?.isNotBlank() == true
-            ) // Check if there's actual data
+        ) // Check if there's actual data
     ) {
         PreviousEpisode(showPreviousEpisode = uiState.showPreviousEpisode)
     } else if (uiState.isPreviousEpisodeLoading) {
@@ -466,21 +464,21 @@ fun PreviousEpisode(showPreviousEpisode: ShowPreviousEpisode) {
 
         Text(
             text =
-            stringResource(
-                R.string.show_detail_episode_season_info,
-                showPreviousEpisode.previousEpisodeSeason ?: "N/A",
-                showPreviousEpisode.previousEpisodeNumber ?: "N/A",
-                showPreviousEpisode.previousEpisodeName ?: stringResource(R.string.title_unknown),
-            ),
-            modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(
-                    start = paddingStandardDouble,
-                    top = paddingExtraSmall,
-                    end = paddingStandardDouble,
-                    bottom = paddingStandard,
+                stringResource(
+                    R.string.show_detail_episode_season_info,
+                    showPreviousEpisode.previousEpisodeSeason ?: "N/A",
+                    showPreviousEpisode.previousEpisodeNumber ?: "N/A",
+                    showPreviousEpisode.previousEpisodeName ?: stringResource(R.string.title_unknown),
                 ),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        start = paddingStandardDouble,
+                        top = paddingExtraSmall,
+                        end = paddingStandardDouble,
+                        bottom = paddingStandard,
+                    ),
             style = MaterialTheme.typography.titleSmall,
         )
 
@@ -492,10 +490,11 @@ fun PreviousEpisode(showPreviousEpisode: ShowPreviousEpisode) {
                     text = "Aired $relativeTime",
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.secondary, // Different color for past
-                    modifier = Modifier.padding(
-                        start = paddingStandardDouble,
-                        bottom = paddingExtraSmall
-                    )
+                    modifier =
+                        Modifier.padding(
+                            start = paddingStandardDouble,
+                            bottom = paddingExtraSmall,
+                        ),
                 )
             }
         }
@@ -514,7 +513,7 @@ fun NextEpisode(uiState: ShowDetailViewModel.ShowDetailUiState) {
         (
             uiState.showNextEpisode.nextEpisodeName?.isNotBlank() == true ||
                 uiState.showNextEpisode.nextEpisodeAirdate?.isNotBlank() == true
-            ) // Check if there's actual data
+        ) // Check if there's actual data
     ) {
         NextEpisode(showNextEpisode = uiState.showNextEpisode)
     } else if (uiState.isNextEpisodeLoading) {
@@ -535,21 +534,21 @@ private fun NextEpisode(showNextEpisode: ShowNextEpisode) {
 
         Text(
             text =
-            stringResource(
-                R.string.show_detail_episode_season_info,
-                showNextEpisode.nextEpisodeSeason ?: "N/A",
-                showNextEpisode.nextEpisodeNumber ?: "N/A",
-                showNextEpisode.nextEpisodeName ?: stringResource(R.string.title_unknown),
-            ),
-            modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(
-                    start = paddingStandardDouble,
-                    top = paddingExtraSmall,
-                    end = paddingStandardDouble,
-                    bottom = paddingStandard,
+                stringResource(
+                    R.string.show_detail_episode_season_info,
+                    showNextEpisode.nextEpisodeSeason ?: "N/A",
+                    showNextEpisode.nextEpisodeNumber ?: "N/A",
+                    showNextEpisode.nextEpisodeName ?: stringResource(R.string.title_unknown),
                 ),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        start = paddingStandardDouble,
+                        top = paddingExtraSmall,
+                        end = paddingStandardDouble,
+                        bottom = paddingStandard,
+                    ),
             style = MaterialTheme.typography.titleSmall,
         )
 
@@ -561,10 +560,11 @@ private fun NextEpisode(showNextEpisode: ShowNextEpisode) {
                     text = "Airing $relativeTime",
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(
-                        start = paddingStandardDouble,
-                        bottom = paddingExtraSmall
-                    )
+                    modifier =
+                        Modifier.padding(
+                            start = paddingStandardDouble,
+                            bottom = paddingExtraSmall,
+                        ),
                 )
             }
         }
@@ -584,13 +584,13 @@ fun EpisodeSummary(summary: String) {
         text = cleanedSummary,
         style = MaterialTheme.typography.bodyMedium,
         modifier =
-        Modifier
-            .fillMaxWidth()
-            .padding(
-                start = paddingStandardDouble,
-                end = paddingStandardDouble,
-                bottom = paddingStandardDouble,
-            ),
+            Modifier
+                .fillMaxWidth()
+                .padding(
+                    start = paddingStandardDouble,
+                    end = paddingStandardDouble,
+                    bottom = paddingStandardDouble,
+                ),
     )
 }
 
@@ -600,20 +600,21 @@ fun TraktRatingSummary(rating: TraktShowRating) {
     val paddingExtraSmall = dimensionResource(id = R.dimen.padding_extra_small)
 
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = paddingStandardDouble),
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = paddingStandardDouble),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(top = paddingExtraSmall)
+            modifier = Modifier.padding(top = paddingExtraSmall),
         ) {
             androidx.compose.material3.Icon(
                 imageVector = androidx.compose.material.icons.Icons.Filled.Star,
                 contentDescription = stringResource(id = R.string.show_detail_rating_content_description),
                 tint = RatingStarColor,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(24.dp),
             )
 
             Spacer(modifier = Modifier.width(paddingExtraSmall))
@@ -621,7 +622,7 @@ fun TraktRatingSummary(rating: TraktShowRating) {
             Text(
                 text = String.format(Locale.US, "%.1f", rating.rating ?: 0.0),
                 style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
             )
 
             Spacer(modifier = Modifier.width(paddingExtraSmall))
@@ -629,7 +630,7 @@ fun TraktRatingSummary(rating: TraktShowRating) {
             Text(
                 text = "(${rating.votes} votes on Trakt)",
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }
@@ -640,38 +641,38 @@ fun SummaryPlaceholder() {
     Column(modifier = Modifier.shimmer()) {
         Box(
             modifier =
-            Modifier
-                .fillMaxWidth()
-                .height(200.dp)
-                .background(Color.LightGray.copy(alpha = 0.3f)),
+                Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+                    .background(Color.LightGray.copy(alpha = 0.3f)),
         )
         Spacer(modifier = Modifier.height(16.dp))
         Box(
             modifier =
-            Modifier
-                .fillMaxWidth(0.7f)
-                .height(24.dp)
-                .padding(horizontal = 16.dp)
-                .background(Color.LightGray.copy(alpha = 0.3f)),
+                Modifier
+                    .fillMaxWidth(0.7f)
+                    .height(24.dp)
+                    .padding(horizontal = 16.dp)
+                    .background(Color.LightGray.copy(alpha = 0.3f)),
         )
         Spacer(modifier = Modifier.height(8.dp))
         Box(
             modifier =
-            Modifier
-                .fillMaxWidth(0.5f)
-                .height(16.dp)
-                .padding(horizontal = 16.dp)
-                .background(Color.LightGray.copy(alpha = 0.3f)),
+                Modifier
+                    .fillMaxWidth(0.5f)
+                    .height(16.dp)
+                    .padding(horizontal = 16.dp)
+                    .background(Color.LightGray.copy(alpha = 0.3f)),
         )
         Spacer(modifier = Modifier.height(16.dp))
         Column(Modifier.padding(horizontal = 16.dp)) {
             repeat(4) {
                 Box(
                     modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .height(12.dp)
-                        .background(Color.LightGray.copy(alpha = 0.3f)),
+                        Modifier
+                            .fillMaxWidth()
+                            .height(12.dp)
+                            .background(Color.LightGray.copy(alpha = 0.3f)),
                 )
                 Spacer(modifier = Modifier.height(8.dp))
             }
@@ -679,22 +680,22 @@ fun SummaryPlaceholder() {
         Spacer(modifier = Modifier.height(16.dp))
         Row(
             modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
             Box(
                 modifier =
-                Modifier
-                    .size(100.dp, 40.dp)
-                    .background(Color.LightGray.copy(alpha = 0.3f)),
+                    Modifier
+                        .size(100.dp, 40.dp)
+                        .background(Color.LightGray.copy(alpha = 0.3f)),
             )
             Box(
                 modifier =
-                Modifier
-                    .size(100.dp, 40.dp)
-                    .background(Color.LightGray.copy(alpha = 0.3f)),
+                    Modifier
+                        .size(100.dp, 40.dp)
+                        .background(Color.LightGray.copy(alpha = 0.3f)),
             )
         }
         Spacer(modifier = Modifier.height(16.dp))
@@ -705,33 +706,33 @@ fun SummaryPlaceholder() {
 fun CastListPlaceholder() {
     LazyRow(
         modifier =
-        Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .shimmer(), // Make sure you have the shimmer dependency and import
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .shimmer(), // Make sure you have the shimmer dependency and import
     ) {
         items(5) {
             Column(
                 modifier =
-                Modifier
-                    .padding(end = 8.dp)
-                    .width(dimensionResource(id = R.dimen.compose_show_detail_poster_width)),
+                    Modifier
+                        .padding(end = 8.dp)
+                        .width(dimensionResource(id = R.dimen.compose_show_detail_poster_width)),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Box( // Poster placeholder
                     modifier =
-                    Modifier
-                        .width(dimensionResource(id = R.dimen.compose_show_detail_poster_width))
-                        .height(dimensionResource(id = R.dimen.compose_show_detail_poster_height))
-                        .background(Color.LightGray.copy(alpha = 0.3f)),
+                        Modifier
+                            .width(dimensionResource(id = R.dimen.compose_show_detail_poster_width))
+                            .height(dimensionResource(id = R.dimen.compose_show_detail_poster_height))
+                            .background(Color.LightGray.copy(alpha = 0.3f)),
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Box( // Name placeholder
                     modifier =
-                    Modifier
-                        .fillMaxWidth(0.8f)
-                        .height(12.dp)
-                        .background(Color.LightGray.copy(alpha = 0.3f)),
+                        Modifier
+                            .fillMaxWidth(0.8f)
+                            .height(12.dp)
+                            .background(Color.LightGray.copy(alpha = 0.3f)),
                 )
             }
         }
@@ -742,36 +743,36 @@ fun CastListPlaceholder() {
 fun EpisodePlaceholder() {
     ElevatedCard(
         modifier =
-        Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .shimmer(),
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .shimmer(),
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Box( // Episode Title placeholder
                 modifier =
-                Modifier
-                    .fillMaxWidth(0.7f)
-                    .height(20.dp)
-                    .background(Color.LightGray.copy(alpha = 0.3f)),
+                    Modifier
+                        .fillMaxWidth(0.7f)
+                        .height(20.dp)
+                        .background(Color.LightGray.copy(alpha = 0.3f)),
             )
             Spacer(modifier = Modifier.height(8.dp))
             Box(
                 modifier =
-                Modifier
-                    .fillMaxWidth(0.5f)
-                    .height(14.dp)
-                    .background(Color.LightGray.copy(alpha = 0.3f)),
+                    Modifier
+                        .fillMaxWidth(0.5f)
+                        .height(14.dp)
+                        .background(Color.LightGray.copy(alpha = 0.3f)),
             )
             Spacer(modifier = Modifier.height(12.dp))
             Column { // Summary lines
                 repeat(3) {
                     Box(
                         modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .height(10.dp)
-                            .background(Color.LightGray.copy(alpha = 0.3f)),
+                            Modifier
+                                .fillMaxWidth()
+                                .height(10.dp)
+                                .background(Color.LightGray.copy(alpha = 0.3f)),
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                 }
@@ -787,9 +788,9 @@ fun ErrorState(
 ) {
     Column(
         modifier =
-        Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
+            Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
@@ -834,12 +835,12 @@ fun SimilarShowsList(
 
         LazyRow(
             modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(
-                    horizontal = dimensionResource(id = R.dimen.padding_standard_double),
-                    vertical = dimensionResource(id = R.dimen.padding_standard),
-                ),
+                Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        horizontal = dimensionResource(id = R.dimen.padding_standard_double),
+                        vertical = dimensionResource(id = R.dimen.padding_standard),
+                    ),
         ) {
             items(items = list) { item ->
                 SimilarShowItem(item = item) { showItem ->
@@ -857,19 +858,19 @@ fun SimilarShowItem(
 ) {
     Column(
         modifier =
-        Modifier
-            .padding(dimensionResource(id = R.dimen.padding_standard))
-            .width(dimensionResource(id = R.dimen.compose_show_detail_poster_width))
-            .clickable { onClick(item) },
+            Modifier
+                .padding(dimensionResource(id = R.dimen.padding_standard))
+                .width(dimensionResource(id = R.dimen.compose_show_detail_poster_width))
+                .clickable { onClick(item) },
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         PosterImage(
             url = item.originalImageUrl ?: item.mediumImageUrl ?: "",
             modifier =
-            Modifier
-                .width(dimensionResource(id = R.dimen.compose_show_detail_poster_width))
-                .height(dimensionResource(id = R.dimen.compose_show_detail_poster_height)),
+                Modifier
+                    .width(dimensionResource(id = R.dimen.compose_show_detail_poster_width))
+                    .height(dimensionResource(id = R.dimen.compose_show_detail_poster_height)),
         )
 
         item.title?.let { title ->
@@ -877,9 +878,9 @@ fun SimilarShowItem(
                 text = title,
                 style = MaterialTheme.typography.bodyLarge,
                 modifier =
-                Modifier
-                    .padding(top = dimensionResource(id = R.dimen.padding_extra_small))
-                    .fillMaxWidth(),
+                    Modifier
+                        .padding(top = dimensionResource(id = R.dimen.padding_extra_small))
+                        .fillMaxWidth(),
                 maxLines = 2,
             )
         }
@@ -894,12 +895,12 @@ fun ShowDetailScreenPreview() {
         ShowDetailScreen(
             viewModel = hiltViewModel(), // This won't work well in Preview without Hilt setup for previews
             showDetailArgs =
-            ShowDetailArg(
-                showId = "1",
-                showTitle = "Preview Show Title",
-                showImageUrl = "",
-                showBackgroundUrl = null,
-            ),
+                ShowDetailArg(
+                    showId = "1",
+                    showTitle = "Preview Show Title",
+                    showImageUrl = "",
+                    showBackgroundUrl = null,
+                ),
             navController = androidx.navigation.compose.rememberNavController(),
         )
     }

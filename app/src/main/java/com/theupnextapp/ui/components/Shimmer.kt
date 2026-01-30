@@ -38,26 +38,26 @@ val shimmerBackgroundColor = Color.LightGray.copy(alpha = 0.2f)
 fun ShimmerPosterCard(modifier: Modifier = Modifier) {
     Column(
         modifier =
-        modifier
-            .padding(end = 8.dp)
-            .width(130.dp),
+            modifier
+                .padding(end = 8.dp)
+                .width(130.dp),
     ) {
         Box(
             modifier =
-            Modifier
-                .fillMaxWidth()
-                .aspectRatio(2f / 3f)
-                .clip(RoundedCornerShape(8.dp))
-                .background(shimmerBackgroundColor),
+                Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(2f / 3f)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(shimmerBackgroundColor),
         )
         Spacer(modifier = Modifier.height(4.dp))
         Box(
             modifier =
-            Modifier
-                .fillMaxWidth(0.8f)
-                .height(16.dp)
-                .clip(RoundedCornerShape(4.dp))
-                .background(shimmerBackgroundColor),
+                Modifier
+                    .fillMaxWidth(0.8f)
+                    .height(16.dp)
+                    .clip(RoundedCornerShape(4.dp))
+                    .background(shimmerBackgroundColor),
         )
     }
 }
@@ -70,11 +70,11 @@ fun ShimmerPosterCardRow(
     Column(modifier = modifier.shimmer()) {
         Box(
             modifier =
-            Modifier
-                .padding(start = 8.dp, top = 16.dp, bottom = 8.dp)
-                .width(150.dp)
-                .height(20.dp)
-                .background(shimmerBackgroundColor),
+                Modifier
+                    .padding(start = 8.dp, top = 16.dp, bottom = 8.dp)
+                    .width(150.dp)
+                    .height(20.dp)
+                    .background(shimmerBackgroundColor),
         )
         LazyRow(
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),

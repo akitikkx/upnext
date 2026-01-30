@@ -58,7 +58,7 @@ fun CastBottomSheet(
     uiState: ShowDetailViewModel.CastBottomSheetUiState,
     sheetState: SheetState = rememberModalBottomSheetState(),
     onCreditClick: (NetworkTraktPersonShowCastCredit) -> Unit,
-    onDismissRequest: () -> Unit
+    onDismissRequest: () -> Unit,
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
@@ -67,10 +67,11 @@ fun CastBottomSheet(
         val context = LocalContext.current
 
         LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 32.dp),
-            contentPadding = PaddingValues(bottom = 16.dp)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 32.dp),
+            contentPadding = PaddingValues(bottom = 16.dp),
         ) {
             item {
                 if (uiState.isLoading) {
@@ -81,39 +82,41 @@ fun CastBottomSheet(
                     Text(
                         text = it,
                         color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.padding(16.dp)
+                        modifier = Modifier.padding(16.dp),
                     )
                 }
 
                 uiState.traktCast?.let { cast ->
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
                         horizontalArrangement = Arrangement.Start,
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
                         PosterImage(
                             url = cast.originalImageUrl ?: "",
-                            modifier = Modifier
-                                .width(80.dp)
-                                .height(120.dp)
-                                .padding(end = 16.dp)
+                            modifier =
+                                Modifier
+                                    .width(80.dp)
+                                    .height(120.dp)
+                                    .padding(end = 16.dp),
                         )
 
                         Column(
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
                         ) {
                             Text(
                                 text = cast.name ?: "",
                                 style = MaterialTheme.typography.headlineSmall,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
                             )
                             if (!cast.character.isNullOrEmpty()) {
                                 Text(
                                     text = "as ${cast.character}",
                                     style = MaterialTheme.typography.bodyMedium,
-                                    fontStyle = FontStyle.Italic
+                                    fontStyle = FontStyle.Italic,
                                 )
                             }
                         }
@@ -129,12 +132,12 @@ fun CastBottomSheet(
                             text = "Bio",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                         )
                         Text(
                             text = biography,
                             style = MaterialTheme.typography.bodySmall,
-                            modifier = Modifier.padding(horizontal = 16.dp)
+                            modifier = Modifier.padding(horizontal = 16.dp),
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                     }
@@ -148,7 +151,7 @@ fun CastBottomSheet(
                             text = "Filmography (Shows)",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                         )
                     }
 
@@ -167,20 +170,22 @@ fun CastBottomSheet(
                                     Toast.makeText(context, "Show details unavailable", Toast.LENGTH_SHORT).show()
                                 }
                             },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 4.dp),
-                            enabled = true // Always enabled to capture click for Toast
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 4.dp),
+                            enabled = true, // Always enabled to capture click for Toast
                         ) {
                             Column(
-                                modifier = Modifier
-                                    .padding(12.dp)
-                                    .alpha(if (isClickable) 1f else 0.38f) // Visually dim disabled items
+                                modifier =
+                                    Modifier
+                                        .padding(12.dp)
+                                        .alpha(if (isClickable) 1f else 0.38f), // Visually dim disabled items
                             ) {
                                 Text(
                                     text = "$showTitle ($year)",
                                     style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = FontWeight.Bold
+                                    fontWeight = FontWeight.Bold,
                                 )
                                 Text(text = "as $character", style = MaterialTheme.typography.bodySmall)
                             }

@@ -14,13 +14,6 @@ package com.theupnextapp.repository
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.theupnextapp.database.DatabaseTableUpdate
-import com.theupnextapp.network.models.tvmaze.NetworkShowInfoCountry
-import com.theupnextapp.network.models.tvmaze.NetworkShowInfoExternals
-import com.theupnextapp.network.models.tvmaze.NetworkShowInfoImage
-import com.theupnextapp.network.models.tvmaze.NetworkShowInfoNetwork
-import com.theupnextapp.network.models.tvmaze.NetworkShowInfoRating
-import com.theupnextapp.network.models.tvmaze.NetworkShowInfoSchedule
-import com.theupnextapp.network.models.tvmaze.NetworkShowNextEpisodeSelf
 import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupCountry
 import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupCountryX
 import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupExternals
@@ -143,20 +136,20 @@ class BaseRepositoryTest {
     ): NetworkTvMazeShowLookupResponse {
         return NetworkTvMazeShowLookupResponse(
             _links =
-            NetworkTvMazeShowLookupLinks(
-                self = dummyLookupSelfLink,
-                previousepisode = dummyLookupPreviousEpisodeLink,
-            ),
+                NetworkTvMazeShowLookupLinks(
+                    self = dummyLookupSelfLink,
+                    previousepisode = dummyLookupPreviousEpisodeLink,
+                ),
             averageRuntime = 60,
             dvdCountry = null,
             externals = dummyLookupExternals,
             genres = listOf("Drama"),
             id = id,
             image =
-            NetworkTvMazeShowLookupImage(
-                medium = mediumImageUrl,
-                original = originalImageUrl,
-            ),
+                NetworkTvMazeShowLookupImage(
+                    medium = mediumImageUrl,
+                    original = originalImageUrl,
+                ),
             language = "English",
             name = name,
             network = dummyLookupNetwork,
