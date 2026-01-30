@@ -27,9 +27,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
-import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole
+import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
+import androidx.compose.material3.adaptive.navigation.BackNavigationBehavior
 import androidx.compose.material3.adaptive.navigation.NavigableListDetailPaneScaffold
-import androidx.compose.material3.adaptive.navigation.rememberSupportingPaneScaffoldNavigator
+import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
@@ -93,24 +94,18 @@ fun MainScreen(
                 currentDestination.route != null // If null, maybe nothing loaded yet, but usually means not Empty
         }
 
-    val listDetailNavigator = rememberSupportingPaneScaffoldNavigator<ThreePaneScaffoldRole>()
+    // Use the correct navigator type for NavigableListDetailPaneScaffold
+    val listDetailNavigator = rememberListDetailPaneScaffoldNavigator<Any>()
 
-    LaunchedEffect(
-        isDetailFlowActive,
-        listDetailNavigator.currentDestination,
-    ) {
-        val currentPaneRole = listDetailNavigator.currentDestination?.pane
-
-        // Common logic for determining target pane based on isDetailFlowActive
-        val targetPaneRole =
-            if (isDetailFlowActive) {
-                ThreePaneScaffoldRole.Primary // Show detail
-            } else {
-                ThreePaneScaffoldRole.Secondary // Show list
+    // Sync scaffold pane state with isDetailFlowActive
+    LaunchedEffect(isDetailFlowActive) {
+        if (isDetailFlowActive) {
+            listDetailNavigator.navigateTo(ListDetailPaneScaffoldRole.Detail)
+        } else {
+            // When detail is cleared, navigate back to list pane
+            if (listDetailNavigator.canNavigateBack()) {
+                listDetailNavigator.navigateBack(BackNavigationBehavior.PopUntilScaffoldValueChange)
             }
-
-        if (currentPaneRole != targetPaneRole) {
-            listDetailNavigator.navigateTo(targetPaneRole)
         }
     }
 
