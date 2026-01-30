@@ -34,7 +34,6 @@ import com.theupnextapp.network.models.trakt.NetworkTraktPersonResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktPersonShowCreditsResponse
 import com.theupnextapp.repository.ShowDetailRepository
 import com.theupnextapp.repository.TraktRepository
-import com.theupnextapp.work.AddFavoriteShowWorker
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
@@ -42,11 +41,11 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.kotlin.any
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.whenever
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.timeout
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 
 @ExperimentalCoroutinesApi
 class ShowDetailViewModelTest {
@@ -70,13 +69,13 @@ class ShowDetailViewModelTest {
         whenever(traktAuthManager.traktAuthState).thenReturn(MutableStateFlow(TraktAuthState.LoggedIn))
         // Stub the repository flow to return an empty flow by default, but mutable for tests
         // But for constructor it's fine.
-        
+
         // Mock default behavior for other flows to prevent NPE in init
         whenever(traktRepository.traktAccessToken).thenReturn(MutableStateFlow(null))
         whenever(traktRepository.favoriteShow).thenReturn(MutableStateFlow(null))
         whenever(traktRepository.traktShowRating).thenReturn(MutableStateFlow(null))
         whenever(traktRepository.traktShowStats).thenReturn(MutableStateFlow(null))
-        
+
         viewModel = ShowDetailViewModel(
             showDetailRepository,
             workManager,
@@ -189,6 +188,7 @@ class ShowDetailViewModelTest {
 
         // Then
         // Verify state update (checking eventually or after delay)
+        // Since we don't have Turbine or advanced flow assertions in setup, we check after small delay or verify call
         verify(traktRepository, timeout(3000)).getRelatedShows(imdbId)
     }
 
@@ -197,7 +197,7 @@ class ShowDetailViewModelTest {
         // Given
         val imdbId = "tt12345"
         val token = "test_token"
-        
+
         // Mock a valid token in the repository
         whenever(traktRepository.traktAccessToken).thenReturn(
             MutableStateFlow(TraktAccessToken(
@@ -217,7 +217,7 @@ class ShowDetailViewModelTest {
         // But we need to make sure the viewmodel is initialized with the mocks.
         // The flows are collected in init block for favorite status, but the function under test `onAddRemoveFavoriteClick`
         // collects `traktRepository.traktAccessToken` ON DEMAND.
-        
+
         // Setup UI State with valid show execution
         val showDetailArg = com.theupnextapp.domain.ShowDetailArg(
             showId = "123",
@@ -247,16 +247,16 @@ class ShowDetailViewModelTest {
             previousEpisodeLinkedId = null
         )
         whenever(showDetailRepository.getShowSummary(123)).thenReturn(kotlinx.coroutines.flow.flowOf(com.theupnextapp.domain.Result.Success(showSummary)))
-        
+
         viewModel.selectedShow(showDetailArg)
-        
+
         // Wait for summary to load so imdbId is in state
         verify(traktRepository, timeout(3000)).getRelatedShows(any()) // Wait for side effect of loading
-        
+
         // When
         viewModel.onAddRemoveFavoriteClick()
-        
+
         // Then
-        verify(workManager).enqueue(any<OneTimeWorkRequest>())
+        verify(workManager, timeout(3000)).enqueue(any<OneTimeWorkRequest>())
     }
 }
