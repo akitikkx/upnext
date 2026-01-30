@@ -115,7 +115,7 @@ fun MainScreen(
     }
 
     // Back handler for adaptive layouts
-    BackHandler(enabled = listDetailNavigator.canNavigateBack() || isDetailFlowActive) {
+    BackHandler(enabled = isDetailFlowActive) {
         if (isDetailFlowActive) { // If a detail screen is active in mainNavController
             // If we are deeper than the "root" of detail (which is technically anything not EmptyDetail for us,
             // but we might want to check backstack count or specific routes).

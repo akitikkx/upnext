@@ -56,6 +56,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -691,7 +692,7 @@ constructor(
 
     fun onAddRemoveFavoriteClick() {
         viewModelScope.launch(Dispatchers.IO) {
-            val currentAccessToken = traktAccessToken.value
+            val currentAccessToken = traktRepository.traktAccessToken.firstOrNull()
             val currentFavoriteShow = observedFavoriteShow.value // Use source of truth
             val currentShowSummary = uiState.value.showSummary
             val imdbID = currentShowSummary?.imdbID

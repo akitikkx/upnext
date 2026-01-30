@@ -22,16 +22,19 @@
 package com.theupnextapp.ui.showDetail
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.theupnextapp.CoroutineTestRule
 import com.theupnextapp.common.utils.TraktAuthManager
+import com.theupnextapp.domain.TraktAccessToken
 import com.theupnextapp.domain.TraktAuthState
 import com.theupnextapp.domain.TraktCast
 import com.theupnextapp.network.models.trakt.NetworkTraktPersonResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktPersonShowCreditsResponse
 import com.theupnextapp.repository.ShowDetailRepository
 import com.theupnextapp.repository.TraktRepository
+import com.theupnextapp.work.AddFavoriteShowWorker
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
@@ -39,6 +42,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mock
+import org.mockito.Mockito.any
 import org.mockito.Mockito.anyString
 import org.mockito.Mockito.never
 import org.mockito.Mockito.timeout
@@ -76,11 +80,19 @@ class ShowDetailViewModelTest {
     fun setup() {
         MockitoAnnotations.openMocks(this)
         `when`(traktAuthManager.traktAuthState).thenReturn(MutableStateFlow(TraktAuthState.LoggedIn))
+        // Stub the repository flow to return an empty flow by default, but mutable for tests
+        // But for constructor it's fine.
+        
+        // Mock default behavior for other flows to prevent NPE in init
+        `when`(traktRepository.traktAccessToken).thenReturn(MutableStateFlow(null))
+        `when`(traktRepository.favoriteShow).thenReturn(MutableStateFlow(null))
+        `when`(traktRepository.traktShowRating).thenReturn(MutableStateFlow(null))
+        `when`(traktRepository.traktShowStats).thenReturn(MutableStateFlow(null))
+        
         viewModel = ShowDetailViewModel(
             showDetailRepository,
             workManager,
             traktRepository,
-
             firebaseCrashlytics,
             traktAuthManager
         )
@@ -189,7 +201,74 @@ class ShowDetailViewModelTest {
 
         // Then
         // Verify state update (checking eventually or after delay)
-        // Since we don't have Turbine or advanced flow assertions in setup, we check after small delay or verify call
         verify(traktRepository, timeout(3000)).getRelatedShows(imdbId)
+    }
+
+    @Test
+    fun `onAddRemoveFavoriteClick queues work when logged in`() = runTest {
+        // Given
+        val imdbId = "tt12345"
+        val token = "test_token"
+        
+        // Mock a valid token in the repository
+        `when`(traktRepository.traktAccessToken).thenReturn(
+            MutableStateFlow(TraktAccessToken(
+                access_token = token,
+                token_type = "bearer",
+                expires_in = 1234,
+                refresh_token = "refresh",
+                scope = "public",
+                created_at = 123
+            ))
+        )
+        // Ensure favoriteShow is NOT set (so we are Adding)
+        `when`(traktRepository.getFavoriteShowFlow(imdbId)).thenReturn(kotlinx.coroutines.flow.flowOf(null))
+
+        // Re-init viewModel to pick up new mocks if needed, or just rely on flow collection
+        // Since we are testing a function call that collects, we can assume it will collect the new flow value.
+        // But we need to make sure the viewmodel is initialized with the mocks.
+        // The flows are collected in init block for favorite status, but the function under test `onAddRemoveFavoriteClick`
+        // collects `traktRepository.traktAccessToken` ON DEMAND.
+        
+        // Setup UI State with valid show execution
+        val showDetailArg = com.theupnextapp.domain.ShowDetailArg(
+            showId = "123",
+            showTitle = "Test Show",
+            showImageUrl = null,
+            showBackgroundUrl = null,
+            imdbID = imdbId,
+            isAuthorizedOnTrakt = true,
+            showTraktId = 1
+        )
+        val showSummary = com.theupnextapp.domain.ShowDetailSummary(
+            id = 123,
+            imdbID = imdbId,
+            name = "Test Show",
+            mediumImageUrl = null,
+            originalImageUrl = null,
+            summary = "Summary",
+            genres = null,
+            time = null,
+            previousEpisodeHref = null,
+            nextEpisodeHref = null,
+            status = null,
+            airDays = null,
+            averageRating = null,
+            language = null,
+            nextEpisodeLinkedId = null,
+            previousEpisodeLinkedId = null
+        )
+        `when`(showDetailRepository.getShowSummary(123)).thenReturn(kotlinx.coroutines.flow.flowOf(com.theupnextapp.domain.Result.Success(showSummary)))
+        
+        viewModel.selectedShow(showDetailArg)
+        
+        // Wait for summary to load so imdbId is in state
+        verify(traktRepository, timeout(3000)).getRelatedShows(anyString()) // Wait for side effect of loading
+        
+        // When
+        viewModel.onAddRemoveFavoriteClick()
+        
+        // Then
+        verify(workManager).enqueue(any<OneTimeWorkRequest>())
     }
 }
