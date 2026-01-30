@@ -71,7 +71,7 @@ testHarness = "0.36.0"
 timber = "5.0.1"
 uiTestManifest = "1.8.2"
 workRuntimeKtx = "2.10.3"
-workTesting = "2.10.1"
+workTesting = "2.11.1"
 turbine = "1.0.0"
 
 [libraries]
