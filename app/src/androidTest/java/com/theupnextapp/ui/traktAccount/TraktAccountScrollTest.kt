@@ -12,45 +12,44 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performScrollToIndex
 import com.theupnextapp.domain.TraktUserListItem
-import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class, ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 class TraktAccountScrollTest {
-
     @get:Rule
     val composeTestRule = createComposeRule()
 
     @Test
     fun favoritesList_persistsScrollPosition_afterRecreation() {
         val restorationTester = StateRestorationTester(composeTestRule)
-        
+
         // Generate a list large enough to scroll
-        val items = List(50) { index ->
-            TraktUserListItem(
-                id = index,
-                traktID = index,
-                title = "Show $index",
-                originalImageUrl = "",
-                mediumImageUrl = "",
-                imdbID = "",
-                slug = "",
-                tmdbID = index,
-                tvdbID = index,
-                tvMazeID = index,
-                year = "2024"
-            )
-        }
+        val items =
+            List(50) { index ->
+                TraktUserListItem(
+                    id = index,
+                    traktID = index,
+                    title = "Show $index",
+                    originalImageUrl = "",
+                    mediumImageUrl = "",
+                    imdbID = "",
+                    slug = "",
+                    tmdbID = index,
+                    tvdbID = index,
+                    tvMazeID = index,
+                    year = "2024",
+                )
+            }
 
         restorationTester.setContent {
             val lazyGridState = rememberLazyGridState()
-            
+
             FavoritesListContent(
                 favoriteShows = items,
                 widthSizeClass = WindowWidthSizeClass.Compact,
                 lazyGridState = lazyGridState,
-                onFavoriteClick = {}
+                onFavoriteClick = {},
             )
         }
 
@@ -62,7 +61,7 @@ class TraktAccountScrollTest {
         restorationTester.emulateSavedInstanceStateRestore()
 
         // Verify that the item at index 20 is visible.
-        // If scroll position was lost (reset to 0), this item would likely not be visible 
+        // If scroll position was lost (reset to 0), this item would likely not be visible
         // (depending on screen size, but 20 items is likely offscreen for a grid).
         composeTestRule.onNodeWithText("Show 20").assertIsDisplayed()
     }

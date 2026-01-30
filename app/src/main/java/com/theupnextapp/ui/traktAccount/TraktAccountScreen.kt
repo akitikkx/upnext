@@ -65,7 +65,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.theupnextapp.R
 import com.theupnextapp.common.utils.getWindowSizeClass
-import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.TraktAuthState
 import com.theupnextapp.domain.TraktUserListItem
 import com.theupnextapp.navigation.Destinations
@@ -159,9 +158,9 @@ fun TraktAccountScreen(
     ) { localScaffoldPadding ->
         Box(
             modifier =
-            Modifier
-                .fillMaxSize()
-                .padding(localScaffoldPadding),
+                Modifier
+                    .fillMaxSize()
+                    .padding(localScaffoldPadding),
         ) {
             AccountContent(
                 traktAuthState = traktAuthState,
@@ -221,9 +220,9 @@ internal fun AccountContent(
 ) {
     Column(
         modifier =
-        Modifier
-            .fillMaxSize()
-            .padding(8.dp),
+            Modifier
+                .fillMaxSize()
+                .padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         if (isLoadingConnection || isDisconnecting) {
@@ -312,9 +311,9 @@ fun ConnectToTrakt(onClick: () -> Unit) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier =
-        Modifier
-            .fillMaxSize()
-            .padding(16.dp),
+            Modifier
+                .fillMaxSize()
+                .padding(16.dp),
     ) {
         Image(
             painter = image,
@@ -329,9 +328,9 @@ fun ConnectToTrakt(onClick: () -> Unit) {
         )
         Button(
             modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 32.dp, vertical = 8.dp),
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 32.dp, vertical = 8.dp),
             // Adjusted padding
             onClick = { onClick() },
         ) {
@@ -340,7 +339,10 @@ fun ConnectToTrakt(onClick: () -> Unit) {
     }
 }
 
-private fun launchCustomTab(context: android.content.Context, url: String) {
+private fun launchCustomTab(
+    context: android.content.Context,
+    url: String,
+) {
     val builder = androidx.browser.customtabs.CustomTabsIntent.Builder()
     val customTabsIntent = builder.build()
     customTabsIntent.launchUrl(context, android.net.Uri.parse(url))

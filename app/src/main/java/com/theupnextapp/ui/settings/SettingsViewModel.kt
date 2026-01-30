@@ -31,20 +31,22 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SettingsViewModel @Inject constructor(
-    private val settingsRepository: SettingsRepository
-) : ViewModel() {
+class SettingsViewModel
+    @Inject
+    constructor(
+        private val settingsRepository: SettingsRepository,
+    ) : ViewModel() {
+        val areNotificationsEnabled =
+            settingsRepository.areNotificationsEnabled
+                .stateIn(
+                    scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(5_000),
+                    initialValue = true,
+                )
 
-    val areNotificationsEnabled = settingsRepository.areNotificationsEnabled
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = true
-        )
-
-    fun setNotificationsEnabled(enabled: Boolean) {
-        viewModelScope.launch {
-            settingsRepository.setNotificationsEnabled(enabled)
+        fun setNotificationsEnabled(enabled: Boolean) {
+            viewModelScope.launch {
+                settingsRepository.setNotificationsEnabled(enabled)
+            }
         }
     }
-}

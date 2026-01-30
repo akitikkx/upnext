@@ -69,15 +69,16 @@ class DashboardRepositoryTest {
     @Test
     fun `refreshYesterdayShows - network call and db insert happen when update is needed`() =
         runTest {
-            val mockResponse = listOf(
-                createMockYesterdayScheduleResponse(
-                    MockScheduleConfig(
-                        1,
-                        "imdb1",
-                        "image.png"
-                    )
+            val mockResponse =
+                listOf(
+                    createMockYesterdayScheduleResponse(
+                        MockScheduleConfig(
+                            1,
+                            "imdb1",
+                            "image.png",
+                        ),
+                    ),
                 )
-            )
             fakeTvMazeService.mockYesterdayScheduleResponse = mockResponse
             fakeTvMazeService.mockShowImagesResponse =
                 NetworkTvMazeShowImageResponse().apply {
@@ -85,10 +86,10 @@ class DashboardRepositoryTest {
                         NetworkTvMazeShowImageResponseItem(
                             id = 101, type = "poster", main = true,
                             resolutions =
-                            NetworkTvMazeShowImageResolutions(
-                                original = NetworkTvMazeShowImageOriginal(url = "final_original.png"),
-                                medium = NetworkTvMazeShowImageMedium(url = "final_medium.png"),
-                            ),
+                                NetworkTvMazeShowImageResolutions(
+                                    original = NetworkTvMazeShowImageOriginal(url = "final_original.png"),
+                                    medium = NetworkTvMazeShowImageMedium(url = "final_medium.png"),
+                                ),
                         ),
                     )
                 }
@@ -146,8 +147,8 @@ class DashboardRepositoryTest {
                         id = 1,
                         imdb = "imdb1",
                         image = "image.png",
-                        showId = 10
-                    )
+                        showId = 10,
+                    ),
                 )
             val showWithoutImageNetwork =
                 createMockYesterdayScheduleResponse(
@@ -158,7 +159,7 @@ class DashboardRepositoryTest {
                         showId = 20,
                         showImageOriginal = null,
                         showImageMedium = null,
-                    )
+                    ),
                 )
             val showWithoutImdbNetwork =
                 createMockYesterdayScheduleResponse(
@@ -166,8 +167,8 @@ class DashboardRepositoryTest {
                         id = 3,
                         imdb = null,
                         image = "image.png",
-                        showId = 30
-                    )
+                        showId = 30,
+                    ),
                 )
 
             fakeTvMazeService.mockYesterdayScheduleResponse = listOf(validShowNetwork, showWithoutImageNetwork, showWithoutImdbNetwork)
@@ -178,10 +179,10 @@ class DashboardRepositoryTest {
                         NetworkTvMazeShowImageResponseItem(
                             id = 101, type = "poster", main = true,
                             resolutions =
-                            NetworkTvMazeShowImageResolutions(
-                                original = NetworkTvMazeShowImageOriginal(url = "final_original_for_show_10.png"),
-                                medium = NetworkTvMazeShowImageMedium(url = "final_medium_for_show_10.png"),
-                            ),
+                                NetworkTvMazeShowImageResolutions(
+                                    original = NetworkTvMazeShowImageOriginal(url = "final_original_for_show_10.png"),
+                                    medium = NetworkTvMazeShowImageMedium(url = "final_medium_for_show_10.png"),
+                                ),
                         ),
                     )
                 }
@@ -199,15 +200,16 @@ class DashboardRepositoryTest {
     @Test
     fun `refreshTodayShows - network call and db insert happen when update is needed`() =
         runTest {
-            val mockResponse = listOf(
-                createMockTodayScheduleResponse(
-                    MockScheduleConfig(
-                        1,
-                        "imdb1",
-                        "image.png"
-                    )
+            val mockResponse =
+                listOf(
+                    createMockTodayScheduleResponse(
+                        MockScheduleConfig(
+                            1,
+                            "imdb1",
+                            "image.png",
+                        ),
+                    ),
                 )
-            )
             fakeTvMazeService.mockTodayScheduleResponse = mockResponse
             fakeTvMazeService.mockShowImagesResponse =
                 NetworkTvMazeShowImageResponse().apply {
@@ -215,10 +217,10 @@ class DashboardRepositoryTest {
                         NetworkTvMazeShowImageResponseItem(
                             id = 101, type = "poster", main = true,
                             resolutions =
-                            NetworkTvMazeShowImageResolutions(
-                                original = NetworkTvMazeShowImageOriginal(url = "final_original.png"),
-                                medium = NetworkTvMazeShowImageMedium(url = "final_medium.png"),
-                            ),
+                                NetworkTvMazeShowImageResolutions(
+                                    original = NetworkTvMazeShowImageOriginal(url = "final_original.png"),
+                                    medium = NetworkTvMazeShowImageMedium(url = "final_medium.png"),
+                                ),
                         ),
                     )
                 }
@@ -276,8 +278,8 @@ class DashboardRepositoryTest {
                         id = 1,
                         imdb = "imdb1",
                         image = "image.png",
-                        showId = 10
-                    )
+                        showId = 10,
+                    ),
                 )
             val showWithoutImageNetwork =
                 createMockTodayScheduleResponse(
@@ -288,7 +290,7 @@ class DashboardRepositoryTest {
                         showId = 20,
                         showImageOriginal = null,
                         showImageMedium = null,
-                    )
+                    ),
                 )
             val showWithoutImdbNetwork =
                 createMockTodayScheduleResponse(
@@ -296,8 +298,8 @@ class DashboardRepositoryTest {
                         id = 3,
                         imdb = null,
                         image = "image.png",
-                        showId = 30
-                    )
+                        showId = 30,
+                    ),
                 )
 
             fakeTvMazeService.mockTodayScheduleResponse = listOf(validShowNetwork, showWithoutImageNetwork, showWithoutImdbNetwork)
@@ -308,10 +310,10 @@ class DashboardRepositoryTest {
                         NetworkTvMazeShowImageResponseItem(
                             id = 101, type = "poster", main = true,
                             resolutions =
-                            NetworkTvMazeShowImageResolutions(
-                                original = NetworkTvMazeShowImageOriginal(url = "final_original_for_show_10.png"),
-                                medium = NetworkTvMazeShowImageMedium(url = "final_medium_for_show_10.png"),
-                            ),
+                                NetworkTvMazeShowImageResolutions(
+                                    original = NetworkTvMazeShowImageOriginal(url = "final_original_for_show_10.png"),
+                                    medium = NetworkTvMazeShowImageMedium(url = "final_medium_for_show_10.png"),
+                                ),
                         ),
                     )
                 }
@@ -329,15 +331,16 @@ class DashboardRepositoryTest {
     @Test
     fun `refreshTomorrowShows - network call and db insert happen when update is needed`() =
         runTest {
-            val mockResponse = listOf(
-                createMockTomorrowScheduleResponse(
-                    MockScheduleConfig(
-                        1,
-                        "imdb1",
-                        "image.png"
-                    )
+            val mockResponse =
+                listOf(
+                    createMockTomorrowScheduleResponse(
+                        MockScheduleConfig(
+                            1,
+                            "imdb1",
+                            "image.png",
+                        ),
+                    ),
                 )
-            )
             fakeTvMazeService.mockTomorrowScheduleResponse = mockResponse
             fakeTvMazeService.mockShowImagesResponse =
                 NetworkTvMazeShowImageResponse().apply {
@@ -345,10 +348,10 @@ class DashboardRepositoryTest {
                         NetworkTvMazeShowImageResponseItem(
                             id = 101, type = "poster", main = true,
                             resolutions =
-                            NetworkTvMazeShowImageResolutions(
-                                original = NetworkTvMazeShowImageOriginal(url = "final_original.png"),
-                                medium = NetworkTvMazeShowImageMedium(url = "final_medium.png"),
-                            ),
+                                NetworkTvMazeShowImageResolutions(
+                                    original = NetworkTvMazeShowImageOriginal(url = "final_original.png"),
+                                    medium = NetworkTvMazeShowImageMedium(url = "final_medium.png"),
+                                ),
                         ),
                     )
                 }
@@ -406,8 +409,8 @@ class DashboardRepositoryTest {
                         id = 1,
                         imdb = "imdb1",
                         image = "image.png",
-                        showId = 10
-                    )
+                        showId = 10,
+                    ),
                 )
             val showWithoutImageNetwork =
                 createMockTomorrowScheduleResponse(
@@ -418,7 +421,7 @@ class DashboardRepositoryTest {
                         showId = 20,
                         showImageOriginal = null,
                         showImageMedium = null,
-                    )
+                    ),
                 )
             val showWithoutImdbNetwork =
                 createMockTomorrowScheduleResponse(
@@ -426,8 +429,8 @@ class DashboardRepositoryTest {
                         id = 3,
                         imdb = null,
                         image = "image.png",
-                        showId = 30
-                    )
+                        showId = 30,
+                    ),
                 )
 
             fakeTvMazeService.mockTomorrowScheduleResponse = listOf(validShowNetwork, showWithoutImageNetwork, showWithoutImdbNetwork)
@@ -438,10 +441,10 @@ class DashboardRepositoryTest {
                         NetworkTvMazeShowImageResponseItem(
                             id = 101, type = "poster", main = true,
                             resolutions =
-                            NetworkTvMazeShowImageResolutions(
-                                original = NetworkTvMazeShowImageOriginal(url = "final_original_for_show_10.png"),
-                                medium = NetworkTvMazeShowImageMedium(url = "final_medium.png"),
-                            ),
+                                NetworkTvMazeShowImageResolutions(
+                                    original = NetworkTvMazeShowImageOriginal(url = "final_original_for_show_10.png"),
+                                    medium = NetworkTvMazeShowImageMedium(url = "final_medium.png"),
+                                ),
                         ),
                     )
                 }
@@ -494,31 +497,31 @@ class DashboardRepositoryTest {
             url = "url_episode_${config.id}",
             _links = mockLinks,
             show =
-            NetworkScheduleShow(
-                id = config.showId,
-                name = "Test Show ${config.showId}",
-                externals =
-                config.imdb?.let {
-                    NetworkScheduleExternals(imdb = it, thetvdb = 1, tvrage = 1)
-                },
-                image = showImageObject,
-                genres = emptyList(),
-                language = "English",
-                network = null,
-                officialSite = null,
-                premiered = null,
-                rating = null,
-                runtime = 30,
-                schedule = null,
-                status = "Running",
-                summary = "summary for show ${config.showId}",
-                type = "Scripted",
-                updated = 123,
-                url = "url_show_${config.showId}",
-                webChannel = null,
-                weight = 1,
-                _links = null,
-            ),
+                NetworkScheduleShow(
+                    id = config.showId,
+                    name = "Test Show ${config.showId}",
+                    externals =
+                        config.imdb?.let {
+                            NetworkScheduleExternals(imdb = it, thetvdb = 1, tvrage = 1)
+                        },
+                    image = showImageObject,
+                    genres = emptyList(),
+                    language = "English",
+                    network = null,
+                    officialSite = null,
+                    premiered = null,
+                    rating = null,
+                    runtime = 30,
+                    schedule = null,
+                    status = "Running",
+                    summary = "summary for show ${config.showId}",
+                    type = "Scripted",
+                    updated = 123,
+                    url = "url_show_${config.showId}",
+                    webChannel = null,
+                    weight = 1,
+                    _links = null,
+                ),
         )
     }
 
@@ -552,31 +555,31 @@ class DashboardRepositoryTest {
             _links = mockLinks,
             imdbId = config.imdb,
             show =
-            NetworkScheduleShow(
-                id = config.showId,
-                name = "Test Show ${config.showId}",
-                externals =
-                config.imdb?.let {
-                    NetworkScheduleExternals(imdb = it, thetvdb = 1, tvrage = 1)
-                },
-                image = showImageObject,
-                genres = emptyList(),
-                language = "English",
-                network = null,
-                officialSite = null,
-                premiered = null,
-                rating = null,
-                runtime = 30,
-                schedule = null,
-                status = "Running",
-                summary = "summary for show ${config.showId}",
-                type = "Scripted",
-                updated = 123,
-                url = "url_show_${config.showId}",
-                webChannel = null,
-                weight = 1,
-                _links = null,
-            ),
+                NetworkScheduleShow(
+                    id = config.showId,
+                    name = "Test Show ${config.showId}",
+                    externals =
+                        config.imdb?.let {
+                            NetworkScheduleExternals(imdb = it, thetvdb = 1, tvrage = 1)
+                        },
+                    image = showImageObject,
+                    genres = emptyList(),
+                    language = "English",
+                    network = null,
+                    officialSite = null,
+                    premiered = null,
+                    rating = null,
+                    runtime = 30,
+                    schedule = null,
+                    status = "Running",
+                    summary = "summary for show ${config.showId}",
+                    type = "Scripted",
+                    updated = 123,
+                    url = "url_show_${config.showId}",
+                    webChannel = null,
+                    weight = 1,
+                    _links = null,
+                ),
         )
     }
 
@@ -609,31 +612,31 @@ class DashboardRepositoryTest {
             url = "url_episode_${config.id}",
             _links = mockLinks,
             show =
-            NetworkScheduleShow(
-                id = config.showId,
-                name = "Test Show ${config.showId}",
-                externals =
-                config.imdb?.let {
-                    NetworkScheduleExternals(imdb = it, thetvdb = 1, tvrage = 1)
-                },
-                image = showImageObject,
-                genres = emptyList(),
-                language = "English",
-                network = null,
-                officialSite = null,
-                premiered = null,
-                rating = null,
-                runtime = 30,
-                schedule = null,
-                status = "Running",
-                summary = "summary for show ${config.showId}",
-                type = "Scripted",
-                updated = 123,
-                url = "url_show_${config.showId}",
-                webChannel = null,
-                weight = 1,
-                _links = null,
-            ),
+                NetworkScheduleShow(
+                    id = config.showId,
+                    name = "Test Show ${config.showId}",
+                    externals =
+                        config.imdb?.let {
+                            NetworkScheduleExternals(imdb = it, thetvdb = 1, tvrage = 1)
+                        },
+                    image = showImageObject,
+                    genres = emptyList(),
+                    language = "English",
+                    network = null,
+                    officialSite = null,
+                    premiered = null,
+                    rating = null,
+                    runtime = 30,
+                    schedule = null,
+                    status = "Running",
+                    summary = "summary for show ${config.showId}",
+                    type = "Scripted",
+                    updated = 123,
+                    url = "url_show_${config.showId}",
+                    webChannel = null,
+                    weight = 1,
+                    _links = null,
+                ),
         )
     }
 }

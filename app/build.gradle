@@ -94,7 +94,12 @@ android {
 
     buildTypes {
         release {
-            signingConfig signingConfigs.release
+            if (signingConfigs.release.storeFile != null) {
+                signingConfig signingConfigs.release
+            } else {
+                println "Release keystore not found, using debug signing config."
+                signingConfig signingConfigs.debug
+            }
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
@@ -222,8 +227,6 @@ dependencies {
 
     // Recyclerview
     implementation libs.android.recyclerview
-    // For control over item selection of both touch and mouse driven selection
-    implementation libs.recyclerview.selection
 
     // Performance Monitoring
     implementation libs.firebase.perf
@@ -243,20 +246,13 @@ dependencies {
     // Flexbox
     implementation libs.flexbox
 
-    implementation libs.accompanist.navigation.animation
-
     // Shimmer
     implementation libs.compose.shimmer
-
-    // SwipeRefresh
-    implementation libs.accompanist.swiperefresh
 
     // Baseline Profiles
     implementation libs.profileinstaller
     baselineProfile project(path: ':baselineprofile')
 
-    // Test harness
-    implementation libs.test.harness
     debugImplementation(libs.androidx.ui.test.manifest)
 
     testImplementation libs.junit

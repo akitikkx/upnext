@@ -81,46 +81,46 @@ class ShowDetailRepositoryTest {
                     premiered = "2023-01-01",
                     officialSite = "http://fakeofficial.com",
                     schedule =
-                    NetworkShowInfoSchedule(
-                        time = "20:00",
-                        days = listOf("Monday"),
-                    ),
+                        NetworkShowInfoSchedule(
+                            time = "20:00",
+                            days = listOf("Monday"),
+                        ),
                     rating = NetworkShowInfoRating(average = 8.5),
                     weight = 100,
                     network =
-                    NetworkShowInfoNetwork(
-                        id = 1,
-                        name = "Fake Network",
-                        country =
-                        NetworkShowInfoCountry(
-                            name = "Fake Country",
-                            code = "FC",
-                            timezone = "Fake/Timezone",
+                        NetworkShowInfoNetwork(
+                            id = 1,
+                            name = "Fake Network",
+                            country =
+                                NetworkShowInfoCountry(
+                                    name = "Fake Country",
+                                    code = "FC",
+                                    timezone = "Fake/Timezone",
+                                ),
                         ),
-                    ),
                     webChannel = Any(),
                     externals =
-                    NetworkShowInfoExternals(
-                        tvrage = 0,
-                        thetvdb = 0,
-                        imdb = "tt1234567",
-                    ),
+                        NetworkShowInfoExternals(
+                            tvrage = 0,
+                            thetvdb = 0,
+                            imdb = "tt1234567",
+                        ),
                     image =
-                    NetworkShowInfoImage(
-                        medium = "http://fakeimage.com/medium.jpg",
-                        original = "http://fakeimage.com/original.jpg",
-                    ),
+                        NetworkShowInfoImage(
+                            medium = "http://fakeimage.com/medium.jpg",
+                            original = "http://fakeimage.com/original.jpg",
+                        ),
                     summary = "This is a fake show summary.",
                     updated = (System.currentTimeMillis() / 1000L).toInt(),
                     _links =
-                    NetworkShowInfoLinks(
-                        self =
-                        NetworkShowInfoSelf(
-                            href = "http://fakeurl.com/show/$showId/self",
+                        NetworkShowInfoLinks(
+                            self =
+                                NetworkShowInfoSelf(
+                                    href = "http://fakeurl.com/show/$showId/self",
+                                ),
+                            nextepisode = null,
+                            previousepisode = null,
                         ),
-                        nextepisode = null,
-                        previousepisode = null,
-                    ),
                 )
             fakeTvMazeService.mockShowInfoResponse = fakeNetworkResponse
             fakeTvMazeService.showSummaryError = null
@@ -207,18 +207,18 @@ class ShowDetailRepositoryTest {
                     airstamp = "2023-01-01T20:00:00Z",
                     runtime = 30,
                     image =
-                    NetworkShowPreviousEpisodeImage(
-                        medium = "http://fakeimage.com/medium.jpg",
-                        original = "http://fakeimage.com/original.jpg",
-                    ),
+                        NetworkShowPreviousEpisodeImage(
+                            medium = "http://fakeimage.com/medium.jpg",
+                            original = "http://fakeimage.com/original.jpg",
+                        ),
                     summary = "This is a fake previous episode summary.",
                     _links =
-                    NetworkShowPreviousEpisodeLinks(
-                        self =
-                        NetworkShowPreviousEpisodeSelf(
-                            href = "http://fakeurl.com/episode/$previousEpisodeId/self",
+                        NetworkShowPreviousEpisodeLinks(
+                            self =
+                                NetworkShowPreviousEpisodeSelf(
+                                    href = "http://fakeurl.com/episode/$previousEpisodeId/self",
+                                ),
                         ),
-                    ),
                 )
             fakeTvMazeService.mockPreviousEpisodeResponse = fakeNetworkPreviousEpisodeResponse
             fakeTvMazeService.previousEpisodeError = null
@@ -325,7 +325,7 @@ class ShowDetailRepositoryTest {
                     results.first() is Result.Loading &&
                         (
                             results.first() as Result.Loading
-                            ).status,
+                        ).status,
                 )
                 if (results.size > 1) {
                     assertTrue(
@@ -333,7 +333,7 @@ class ShowDetailRepositoryTest {
                         results.last() is Result.Loading &&
                             !(
                                 results.last() as Result.Loading
-                                ).status,
+                            ).status,
                     )
                 }
             }
@@ -365,7 +365,7 @@ class ShowDetailRepositoryTest {
                     results.first() is Result.Loading &&
                         (
                             results.first() as Result.Loading
-                            ).status,
+                        ).status,
                 )
                 if (results.size > 1) {
                     assertTrue(
@@ -373,7 +373,7 @@ class ShowDetailRepositoryTest {
                         results.last() is Result.Loading &&
                             !(
                                 results.last() as Result.Loading
-                                ).status,
+                            ).status,
                     )
                 }
             }

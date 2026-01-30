@@ -46,7 +46,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
     ExperimentalComposeUiApi::class,
     ExperimentalFoundationApi::class,
     ExperimentalAnimationApi::class,
-    androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi::class
+    androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi::class,
 )
 @Composable
 fun AppNavigation(
@@ -58,23 +58,24 @@ fun AppNavigation(
 
     // Extract title from navigation arguments for detail screens
     val currentEntry = navBackStackEntry
-    val dynamicTitle: String? = when {
-        currentEntry?.destination?.hasRoute<Destinations.ShowDetail>() == true -> {
-            try {
-                currentEntry.toRoute<Destinations.ShowDetail>().showTitle
-            } catch (e: Exception) {
-                null
+    val dynamicTitle: String? =
+        when {
+            currentEntry?.destination?.hasRoute<Destinations.ShowDetail>() == true -> {
+                try {
+                    currentEntry.toRoute<Destinations.ShowDetail>().showTitle
+                } catch (e: Exception) {
+                    null
+                }
             }
-        }
-        currentEntry?.destination?.hasRoute<Destinations.ShowSeasons>() == true -> {
-            try {
-                currentEntry.toRoute<Destinations.ShowSeasons>().showTitle
-            } catch (e: Exception) {
-                null
+            currentEntry?.destination?.hasRoute<Destinations.ShowSeasons>() == true -> {
+                try {
+                    currentEntry.toRoute<Destinations.ShowSeasons>().showTitle
+                } catch (e: Exception) {
+                    null
+                }
             }
+            else -> null
         }
-        else -> null
-    }
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -105,7 +106,7 @@ fun AppNavigation(
                     val args = backStackEntry.toRoute<Destinations.ShowDetail>()
                     ShowDetailScreen(
                         showDetailArgs = args.toArg(),
-                        navController = navHostController
+                        navController = navHostController,
                     )
                 }
 
@@ -113,7 +114,7 @@ fun AppNavigation(
                     val args = backStackEntry.toRoute<Destinations.ShowSeasons>()
                     ShowSeasonsScreen(
                         showDetailArg = args.toArg(),
-                        navController = navHostController
+                        navController = navHostController,
                     )
                 }
 
@@ -121,7 +122,7 @@ fun AppNavigation(
                     val args = backStackEntry.toRoute<Destinations.ShowSeasonEpisodes>()
                     ShowSeasonEpisodesScreen(
                         showSeasonEpisodesArg = args.toArg(),
-                        navController = navHostController
+                        navController = navHostController,
                     )
                 }
 
@@ -133,7 +134,7 @@ fun AppNavigation(
                     val args = backStackEntry.toRoute<Destinations.TraktAccount>()
                     TraktAccountScreen(
                         code = args.code,
-                        navController = navHostController
+                        navController = navHostController,
                     )
                 }
             }

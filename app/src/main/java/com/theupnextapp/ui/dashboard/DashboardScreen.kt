@@ -38,7 +38,6 @@ import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSiz
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -48,7 +47,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.theupnextapp.R
 import com.theupnextapp.domain.ScheduleShow
-import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.extensions.ReferenceDevices
 import com.theupnextapp.navigation.Destinations
 import com.theupnextapp.ui.components.SectionHeadingText
@@ -73,27 +71,27 @@ fun DashboardScreen(
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier =
-            Modifier
-                .fillMaxSize()
-                .testTag("dashboard_list"),
+                Modifier
+                    .fillMaxSize()
+                    .testTag("dashboard_list"),
         ) {
             // Show LinearProgressIndicator at the top if loading
             if (isLoading.value == true) {
                 LinearProgressIndicator(
                     modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp, vertical = 4.dp), // Adjust padding as needed
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp, vertical = 4.dp), // Adjust padding as needed
                 )
             }
 
             // Scrollable content area
             Column(
                 modifier =
-                Modifier
-                    .weight(1f) // Allow this Column to take remaining space
-                    .verticalScroll(scrollState) // Make this part scrollable
-                    .padding(top = 8.dp),
+                    Modifier
+                        .weight(1f) // Allow this Column to take remaining space
+                        .verticalScroll(scrollState) // Make this part scrollable
+                        .padding(top = 8.dp),
             ) {
                 // Yesterday Shows
                 yesterdayShowsList.value?.let { list ->
@@ -111,8 +109,8 @@ fun DashboardScreen(
                                     showBackgroundUrl = it.mediumImage,
                                     imdbID = null,
                                     isAuthorizedOnTrakt = null,
-                                    showTraktId = null
-                                )
+                                    showTraktId = null,
+                                ),
                             )
                         }
                     }
@@ -134,8 +132,8 @@ fun DashboardScreen(
                                     showBackgroundUrl = it.mediumImage,
                                     imdbID = null,
                                     isAuthorizedOnTrakt = null,
-                                    showTraktId = null
-                                )
+                                    showTraktId = null,
+                                ),
                             )
                         }
                     }
@@ -157,8 +155,8 @@ fun DashboardScreen(
                                     showBackgroundUrl = it.mediumImage,
                                     imdbID = null,
                                     isAuthorizedOnTrakt = null,
-                                    showTraktId = null
-                                )
+                                    showTraktId = null,
+                                ),
                             )
                         }
                     }
@@ -171,7 +169,7 @@ fun DashboardScreen(
             !yesterdayShowsList.value.isNullOrEmpty() ||
                 !tomorrowShowsList.value.isNullOrEmpty() ||
                 !todayShowsList.value.isNullOrEmpty()
-            ) || (isLoading.value == false)
+        ) || (isLoading.value == false)
     }
 }
 

@@ -39,16 +39,16 @@ fun StatsScreen() {
         Surface {
             Column(
                 modifier =
-                Modifier
-                    .fillMaxSize()
-                    .padding(8.dp),
+                    Modifier
+                        .fillMaxSize()
+                        .padding(8.dp),
             ) {
                 SectionHeadingText(text = "Summary")
                 Card(
                     modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
                 ) {
                     Column(modifier = Modifier.padding(8.dp)) {
                         Text(text = "Total Time Watched")
@@ -59,9 +59,9 @@ fun StatsScreen() {
                 SectionHeadingText(text = "Top Genres")
                 Card(
                     modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
                 ) {
                     Column(modifier = Modifier.padding(8.dp)) {
                         Text(text = "Chart placeholder")
@@ -72,12 +72,12 @@ fun StatsScreen() {
                 LazyRow {
                     items(
                         items =
-                        listOf(
-                            "The Last of Us" to "https://image.tmdb.org/t/p/w342/uKvVjHNqB5VmOrdxqAt2F72kflB.jpg",
-                            "Succession" to "https://image.tmdb.org/t/p/w342/jZgOkzD65Rj2vopSjWl2W3zP5Y.jpg",
-                            "The Mandalorian" to "https://image.tmdb.org/t/p/w342/eU1i6eHX6g7C0a5eL2DprqQ0q4.jpg",
-                            "Ted Lasso" to "https://image.tmdb.org/t/p/w342/v9ie7tI5K2h9eQh4g3o4r6bS7u.jpg",
-                        ),
+                            listOf(
+                                "The Last of Us" to "https://image.tmdb.org/t/p/w342/uKvVjHNqB5VmOrdxqAt2F72kflB.jpg",
+                                "Succession" to "https://image.tmdb.org/t/p/w342/jZgOkzD65Rj2vopSjWl2W3zP5Y.jpg",
+                                "The Mandalorian" to "https://image.tmdb.org/t/p/w342/eU1i6eHX6g7C0a5eL2DprqQ0q4.jpg",
+                                "Ted Lasso" to "https://image.tmdb.org/t/p/w342/v9ie7tI5K2h9eQh4g3o4r6bS7u.jpg",
+                            ),
                     ) {
                         ListPosterCard(
                             itemName = it.first,

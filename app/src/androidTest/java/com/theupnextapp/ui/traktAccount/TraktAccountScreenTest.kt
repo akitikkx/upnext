@@ -1,6 +1,7 @@
 package com.theupnextapp.ui.traktAccount
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.ui.test.assertIsDisplayed
@@ -11,7 +12,6 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeUp
 import com.theupnextapp.domain.TraktUserListItem
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import org.junit.Rule
 import org.junit.Test
 

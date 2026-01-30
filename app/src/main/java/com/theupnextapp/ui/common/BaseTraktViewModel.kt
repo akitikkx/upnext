@@ -41,49 +41,49 @@ import javax.inject.Inject
 
 @HiltViewModel
 open class BaseTraktViewModel
-@Inject
-constructor(
-    private val traktRepository: TraktRepository,
-    private val workManager: WorkManager,
-    private val traktAuthManager: TraktAuthManager,
-) : ViewModel() {
-    val traktAccessToken: StateFlow<TraktAccessToken?> =
-        traktRepository.traktAccessToken
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5000),
-                initialValue = null,
-            )
+    @Inject
+    constructor(
+        private val traktRepository: TraktRepository,
+        private val workManager: WorkManager,
+        private val traktAuthManager: TraktAuthManager,
+    ) : ViewModel() {
+        val traktAccessToken: StateFlow<TraktAccessToken?> =
+            traktRepository.traktAccessToken
+                .stateIn(
+                    scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(5000),
+                    initialValue = null,
+                )
 
-    val favoriteShow: StateFlow<TraktUserListItem?> =
-        traktRepository.favoriteShow
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5000),
-                initialValue = null,
-            )
+        val favoriteShow: StateFlow<TraktUserListItem?> =
+            traktRepository.favoriteShow
+                .stateIn(
+                    scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(5000),
+                    initialValue = null,
+                )
 
-    val traktAuthState: StateFlow<TraktAuthState> = traktAuthManager.traktAuthState
+        val traktAuthState: StateFlow<TraktAuthState> = traktAuthManager.traktAuthState
 
-    val isAuthorizedOnTrakt: StateFlow<Boolean> =
-        traktAuthState
-            .map { it == TraktAuthState.LoggedIn }
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5000),
-                initialValue = false,
-            )
+        val isAuthorizedOnTrakt: StateFlow<Boolean> =
+            traktAuthState
+                .map { it == TraktAuthState.LoggedIn }
+                .stateIn(
+                    scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(5000),
+                    initialValue = false,
+                )
 
-    fun revokeTraktAccessToken() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val currentToken = traktAccessToken.value
-            if (currentToken != null) {
-                if (!currentToken.access_token.isNullOrEmpty() &&
-                    currentToken.isTraktAccessTokenValid()
-                ) {
-                    traktRepository.revokeTraktAccessToken(currentToken)
+        fun revokeTraktAccessToken() {
+            viewModelScope.launch(Dispatchers.IO) {
+                val currentToken = traktAccessToken.value
+                if (currentToken != null) {
+                    if (!currentToken.access_token.isNullOrEmpty() &&
+                        currentToken.isTraktAccessTokenValid()
+                    ) {
+                        traktRepository.revokeTraktAccessToken(currentToken)
+                    }
                 }
             }
         }
     }
-}

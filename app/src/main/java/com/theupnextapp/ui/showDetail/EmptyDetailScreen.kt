@@ -36,6 +36,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.theupnextapp.R
+
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class) // For calculateWindowSizeClass
 @Composable
 fun EmptyDetailScreen() {
@@ -47,10 +48,10 @@ fun EmptyDetailScreen() {
         // Content for Medium and Expanded screens
         Box(
             modifier =
-            Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surfaceVariant)
-                .padding(16.dp),
+                Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .padding(16.dp),
             contentAlignment = Alignment.Center,
         ) {
             Column(

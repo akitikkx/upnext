@@ -1,16 +1,8 @@
 name: Deploy to Google Play (Internal)
 
 on:
-  push:
-    branches: [ "main" ]
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - '.gitignore'
-      - '.editorconfig'
-      - 'LICENSE'
-      - 'CODE_OF_CONDUCT.md'
-      - 'CONTRIBUTING.md'
+  schedule:
+    - cron: '0 2 * * *' # Daily at 2 AM UTC
   workflow_dispatch:
 
 permissions:
