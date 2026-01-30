@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -55,11 +56,25 @@ fun AppNavigation(
     val navBackStackEntry by navHostController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    // Attempt to extract a title if ShowDetailArgs are present for ShowDetailScreen
-    // Note: With Type-Safe Nav, getting args from backStackEntry for title might look different
-    // For now we can try to rely on the destination label or extract from arguments if needed.
-    // Simplified for now.
-    val dynamicTitle: String? = null
+    // Extract title from navigation arguments for detail screens
+    val currentEntry = navBackStackEntry
+    val dynamicTitle: String? = when {
+        currentEntry?.destination?.hasRoute<Destinations.ShowDetail>() == true -> {
+            try {
+                currentEntry.toRoute<Destinations.ShowDetail>().showTitle
+            } catch (e: Exception) {
+                null
+            }
+        }
+        currentEntry?.destination?.hasRoute<Destinations.ShowSeasons>() == true -> {
+            try {
+                currentEntry.toRoute<Destinations.ShowSeasons>().showTitle
+            } catch (e: Exception) {
+                null
+            }
+        }
+        else -> null
+    }
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
