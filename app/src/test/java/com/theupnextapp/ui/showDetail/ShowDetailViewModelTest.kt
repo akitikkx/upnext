@@ -41,14 +41,12 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.Mock
-import org.mockito.Mockito.any
-import org.mockito.Mockito.anyString
-import org.mockito.Mockito.never
-import org.mockito.Mockito.timeout
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.`when`
-import org.mockito.MockitoAnnotations
+import org.mockito.kotlin.any
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
+import org.mockito.kotlin.timeout
 
 @ExperimentalCoroutinesApi
 class ShowDetailViewModelTest {
@@ -59,35 +57,25 @@ class ShowDetailViewModelTest {
     @get:Rule
     val coroutineTestRule = CoroutineTestRule()
 
-    @Mock
-    lateinit var showDetailRepository: ShowDetailRepository
-
-    @Mock
-    lateinit var workManager: WorkManager
-
-    @Mock
-    lateinit var traktRepository: TraktRepository
-
-    @Mock
-    lateinit var firebaseCrashlytics: FirebaseCrashlytics
-
-    @Mock
-    lateinit var traktAuthManager: TraktAuthManager
+    val showDetailRepository: ShowDetailRepository = mock()
+    val workManager: WorkManager = mock()
+    val traktRepository: TraktRepository = mock()
+    val firebaseCrashlytics: FirebaseCrashlytics = mock()
+    val traktAuthManager: TraktAuthManager = mock()
 
     private lateinit var viewModel: ShowDetailViewModel
 
     @Before
     fun setup() {
-        MockitoAnnotations.openMocks(this)
-        `when`(traktAuthManager.traktAuthState).thenReturn(MutableStateFlow(TraktAuthState.LoggedIn))
+        whenever(traktAuthManager.traktAuthState).thenReturn(MutableStateFlow(TraktAuthState.LoggedIn))
         // Stub the repository flow to return an empty flow by default, but mutable for tests
         // But for constructor it's fine.
         
         // Mock default behavior for other flows to prevent NPE in init
-        `when`(traktRepository.traktAccessToken).thenReturn(MutableStateFlow(null))
-        `when`(traktRepository.favoriteShow).thenReturn(MutableStateFlow(null))
-        `when`(traktRepository.traktShowRating).thenReturn(MutableStateFlow(null))
-        `when`(traktRepository.traktShowStats).thenReturn(MutableStateFlow(null))
+        whenever(traktRepository.traktAccessToken).thenReturn(MutableStateFlow(null))
+        whenever(traktRepository.favoriteShow).thenReturn(MutableStateFlow(null))
+        whenever(traktRepository.traktShowRating).thenReturn(MutableStateFlow(null))
+        whenever(traktRepository.traktShowStats).thenReturn(MutableStateFlow(null))
         
         viewModel = ShowDetailViewModel(
             showDetailRepository,
@@ -117,14 +105,14 @@ class ShowDetailViewModelTest {
         val actorName = "Test Actor"
         val traktCast = createTraktCast(traktId, actorName)
 
-        `when`(
+        whenever(
             traktRepository.getTraktPersonSummary(traktId.toString())
         ).thenReturn(
             Result.success(
                 NetworkTraktPersonResponse(name = "Test Actor", ids = null, biography = null, birthday = null, death = null, birthplace = null, homepage = null, gender = null, known_for_department = null, social_ids = null)
             )
         )
-        `when`(
+        whenever(
             traktRepository.getTraktPersonShowCredits(traktId.toString())
         ).thenReturn(Result.success(NetworkTraktPersonShowCreditsResponse(cast = emptyList())))
 
@@ -133,8 +121,8 @@ class ShowDetailViewModelTest {
 
         // Then
         // Should NOT call lookups
-        verify(traktRepository, never()).getTraktPersonIdLookup(anyString())
-        verify(traktRepository, never()).getTraktPersonIdSearch(anyString())
+        verify(traktRepository, never()).getTraktPersonIdLookup(any())
+        verify(traktRepository, never()).getTraktPersonIdSearch(any())
 
         // Should call summary and credits directly
         verify(traktRepository, timeout(3000)).getTraktPersonSummary(traktId.toString())
@@ -173,10 +161,10 @@ class ShowDetailViewModelTest {
             previousEpisodeLinkedId = null
         )
 
-        `when`(
+        whenever(
             showDetailRepository.getShowSummary(123)
         ).thenReturn(kotlinx.coroutines.flow.flowOf(com.theupnextapp.domain.Result.Success(showSummary)))
-        `when`(traktRepository.getRelatedShows(imdbId)).thenReturn(
+        whenever(traktRepository.getRelatedShows(imdbId)).thenReturn(
             Result.success(
                 listOf(
                     com.theupnextapp.domain.TraktRelatedShows(
@@ -211,7 +199,7 @@ class ShowDetailViewModelTest {
         val token = "test_token"
         
         // Mock a valid token in the repository
-        `when`(traktRepository.traktAccessToken).thenReturn(
+        whenever(traktRepository.traktAccessToken).thenReturn(
             MutableStateFlow(TraktAccessToken(
                 access_token = token,
                 token_type = "bearer",
@@ -222,7 +210,7 @@ class ShowDetailViewModelTest {
             ))
         )
         // Ensure favoriteShow is NOT set (so we are Adding)
-        `when`(traktRepository.getFavoriteShowFlow(imdbId)).thenReturn(kotlinx.coroutines.flow.flowOf(null))
+        whenever(traktRepository.getFavoriteShowFlow(imdbId)).thenReturn(kotlinx.coroutines.flow.flowOf(null))
 
         // Re-init viewModel to pick up new mocks if needed, or just rely on flow collection
         // Since we are testing a function call that collects, we can assume it will collect the new flow value.
@@ -258,12 +246,12 @@ class ShowDetailViewModelTest {
             nextEpisodeLinkedId = null,
             previousEpisodeLinkedId = null
         )
-        `when`(showDetailRepository.getShowSummary(123)).thenReturn(kotlinx.coroutines.flow.flowOf(com.theupnextapp.domain.Result.Success(showSummary)))
+        whenever(showDetailRepository.getShowSummary(123)).thenReturn(kotlinx.coroutines.flow.flowOf(com.theupnextapp.domain.Result.Success(showSummary)))
         
         viewModel.selectedShow(showDetailArg)
         
         // Wait for summary to load so imdbId is in state
-        verify(traktRepository, timeout(3000)).getRelatedShows(anyString()) // Wait for side effect of loading
+        verify(traktRepository, timeout(3000)).getRelatedShows(any()) // Wait for side effect of loading
         
         // When
         viewModel.onAddRemoveFavoriteClick()
