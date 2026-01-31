@@ -21,6 +21,7 @@
 
 package com.theupnextapp.ui.showDetail
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -184,6 +185,9 @@ fun ShowDetailScreen(
             val navigateToShowDetail by viewModel.navigateToShowDetail.collectAsStateWithLifecycle()
 
             if (castBottomSheetUiState.traktCast != null) {
+                BackHandler {
+                    viewModel.displayCastBottomSheetComplete()
+                }
                 CastBottomSheet(
                     uiState = castBottomSheetUiState,
                     onCreditClick = { viewModel.onCreditClicked(it) },
