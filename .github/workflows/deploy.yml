@@ -65,10 +65,17 @@ jobs:
           TRAKT_REDIRECT_URI: ${{ secrets.TRAKT_REDIRECT_URI }}
         run: fastlane deploy_internal
 
+      - name: Read Version Info
+        id: version
+        run: |
+          VERSION_NAME=$(grep "VERSION_NAME" version.properties | cut -d'=' -f2)
+          VERSION_CODE=$(grep "VERSION_CODE" version.properties | cut -d'=' -f2)
+          echo "tag=v${VERSION_NAME}-${VERSION_CODE}" >> $GITHUB_OUTPUT
+
       - name: Create GitHub Release
-        if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: ${{ steps.version.outputs.tag }}
           generate_release_notes: true
           draft: false
           prerelease: false
