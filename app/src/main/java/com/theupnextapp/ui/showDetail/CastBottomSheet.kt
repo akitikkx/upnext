@@ -46,6 +46,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -70,6 +71,7 @@ fun CastBottomSheet(
             modifier =
                 Modifier
                     .fillMaxWidth()
+                    .testTag("cast_bottom_sheet")
                     .padding(bottom = 32.dp),
             contentPadding = PaddingValues(bottom = 16.dp),
         ) {
@@ -173,7 +175,8 @@ fun CastBottomSheet(
                             modifier =
                                 Modifier
                                     .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 4.dp),
+                                    .padding(horizontal = 16.dp, vertical = 4.dp)
+                                    .testTag("bottom_sheet_credit_item"),
                             enabled = true, // Always enabled to capture click for Toast
                         ) {
                             Column(
