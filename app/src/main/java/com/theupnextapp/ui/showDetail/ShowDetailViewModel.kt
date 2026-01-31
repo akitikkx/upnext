@@ -635,8 +635,9 @@ class ShowDetailViewModel
                                     isAuthorizedOnTrakt = false,
                                     showTraktId = traktId,
                                 )
+                            // Dismiss the bottom sheet so it's not there when the user returns
+                            displayCastBottomSheetComplete()
                             _navigateToShowDetail.value = arg
-                            _castBottomSheetUiState.update { it.copy(isLoading = false) }
                         }
                         is Result.Error, is Result.GenericError, is Result.NetworkError -> {
                             _castBottomSheetUiState.update {
