@@ -24,6 +24,14 @@ Automated deployments run daily at **2:00 AM UTC** via `.github/workflows/deploy
 3.  **Distribution:** Fastlane uploads to **Google Play Internal Track**.
 4.  **Tagging:** Pushes a git tag (e.g., `v2025.1.4-215`).
 
+> **Critical Implementation Detail (GitHub Releases):**
+> For scheduled builds, the workflow runs on the `main` branch ref (`refs/heads/main`), not the tag ref.
+> To ensure a GitHub Release is attached to the newly created tag:
+> 1. Fastlane updates `version.properties`.
+> 2. The workflow explicitly reads `VERSION_NAME` and `VERSION_CODE` from the updated file.
+> 3. It constructs the tag name (`v{NAME}-{CODE}`) and passes it to the `softprops/action-gh-release` action.
+> *Do not rely on `github.ref` for scheduled release tagging.*
+
 ### 2. Pull Request Verification (CI)
 Every Pull Request to `main` undergoes strict quality checks via `.github/workflows/pull_request.yml`.
 
