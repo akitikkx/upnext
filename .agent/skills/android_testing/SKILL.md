@@ -214,8 +214,11 @@ The workflow uses `reactivecircus/android-emulator-runner`:
     target: google_apis
     emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
     disable-animations: true
-    script: ./gradlew connectedDebugAndroidTest --continue
+    script: ./gradlew :app:connectedDebugAndroidTest --continue
 ```
+
+> [!WARNING]
+> **Always scope to `:app:` module** when running instrumented tests. Running `connectedDebugAndroidTest` without module prefix will execute tests in **all modules** (including `core:common`, `core:data`), which may have different test configurations and cause failures.
 
 ### Key Notes
 
