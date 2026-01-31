@@ -14,7 +14,11 @@ import org.junit.Test
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
+import org.junit.Ignore
 
+// TODO: This test duplicates /test/java/.../NotificationWorkerTest.kt which uses Robolectric.
+// Remove this androidTest version and keep the unit test version for better reliability.
+@Ignore("Duplicate of unit test. Use the /test/ version with Robolectric instead.")
 class NotificationWorkerTest {
     private lateinit var context: Context
     private lateinit var mockSettingsRepository: SettingsRepository

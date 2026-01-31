@@ -12,6 +12,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeUp
 import com.theupnextapp.domain.TraktUserListItem
+import com.theupnextapp.domain.TraktAuthState
 import org.junit.Rule
 import org.junit.Test
 
@@ -30,6 +31,7 @@ class TraktAccountScreenTest {
 
         rule.setContent {
             AccountContent(
+                traktAuthState = TraktAuthState.LoggedOut,
                 isAuthorizedOnTrakt = false,
                 favoriteShowsList = emptyList(),
                 isFavoriteShowsEmpty = true,
@@ -53,6 +55,7 @@ class TraktAccountScreenTest {
     fun accountContent_isAuthorized_showsProfileHeader() {
         rule.setContent {
             AccountContent(
+                traktAuthState = TraktAuthState.LoggedIn,
                 isAuthorizedOnTrakt = true,
                 favoriteShowsList = emptyList(),
                 isFavoriteShowsEmpty = true,
@@ -92,6 +95,7 @@ class TraktAccountScreenTest {
 
         rule.setContent {
             AccountContent(
+                traktAuthState = TraktAuthState.LoggedIn,
                 isAuthorizedOnTrakt = true,
                 favoriteShowsList = favoriteShows,
                 isFavoriteShowsEmpty = false,
