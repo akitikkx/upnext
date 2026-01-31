@@ -56,7 +56,7 @@ import com.theupnextapp.ui.components.PosterImage
 @Composable
 fun CastBottomSheet(
     uiState: ShowDetailViewModel.CastBottomSheetUiState,
-    sheetState: SheetState = rememberModalBottomSheetState(),
+    sheetState: SheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
     onCreditClick: (NetworkTraktPersonShowCastCredit) -> Unit,
     onDismissRequest: () -> Unit,
 ) {
