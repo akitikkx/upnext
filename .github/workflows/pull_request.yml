@@ -311,7 +311,7 @@ jobs:
           target: google_apis
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
-          script: ./gradlew connectedDebugAndroidTest --continue
+          script: ./gradlew :app:connectedDebugAndroidTest --continue
       - name: Upload Test Results
         if: ${{ failure() }}
         uses: actions/upload-artifact@v4
