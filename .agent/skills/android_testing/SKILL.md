@@ -196,8 +196,39 @@ When Hilt generates stale files:
 
 ---
 
+## 🚀 CI/CD Integration
+
+UI tests run automatically on Pull Requests via `.github/workflows/pull_request.yml`.
+
+### Configuration
+
+The workflow uses `reactivecircus/android-emulator-runner`:
+
+```yaml
+- name: Run Instrumented Tests
+  uses: reactivecircus/android-emulator-runner@v2
+  with:
+    api-level: 30
+    arch: x86_64
+    profile: pixel_6
+    target: google_apis
+    emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+    disable-animations: true
+    script: ./gradlew connectedDebugAndroidTest --continue
+```
+
+### Key Notes
+
+- **KVM acceleration** is enabled for faster emulator performance
+- **45 minute timeout** prevents hung tests from blocking PRs
+- **Test reports** are uploaded as artifacts on failure
+- Tests using `assumeTrue` will show as **skipped** (not failed) when data is unavailable
+
+---
+
 ## 📁 Key Files
 
 - [app/build.gradle](file:///Users/ahmedtikiwa/upnext4/app/build.gradle) - Test dependencies
 - [libs.versions.toml](file:///Users/ahmedtikiwa/upnext4/gradle/libs.versions.toml) - Version catalog
 - [CustomTestRunner.kt](file:///Users/ahmedtikiwa/upnext4/app/src/androidTest/java/com/theupnextapp/CustomTestRunner.kt) - Hilt test runner
+- [pull_request.yml](file:///Users/ahmedtikiwa/upnext4/.github/workflows/pull_request.yml) - CI workflow with UI tests
