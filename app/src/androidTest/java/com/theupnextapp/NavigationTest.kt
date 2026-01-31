@@ -1,7 +1,14 @@
 package com.theupnextapp
 
-import androidx.compose.ui.test.*
+import androidx.compose.ui.test.ComposeTimeoutException
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.fetchSemanticsNodes
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onFirst
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -24,7 +31,7 @@ import org.junit.runner.RunWith
     androidx.compose.ui.test.ExperimentalTestApi::class,
     androidx.compose.ui.ExperimentalComposeUiApi::class,
     androidx.compose.material3.ExperimentalMaterial3Api::class,
-    androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi::class
+    androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi::class,
 )
 class NavigationTest {
     @get:Rule(order = 0)
@@ -42,18 +49,19 @@ class NavigationTest {
     fun verifyBackNavigation_fromNestedShowDetail_returnsToPreviousShow() {
         // Wait for data to load (skip test if no data available)
         composeTestRule.waitForIdle()
-        
+
         // Check if shows are available - skip test gracefully if not
-        val hasShows = try {
-            composeTestRule.waitUntil(timeoutMillis = 10000) {
-                composeTestRule.onAllNodesWithContentDescription("Show poster")
-                    .fetchSemanticsNodes().isNotEmpty()
+        val hasShows =
+            try {
+                composeTestRule.waitUntil(timeoutMillis = 10000) {
+                    composeTestRule.onAllNodesWithContentDescription("Show poster")
+                        .fetchSemanticsNodes().isNotEmpty()
+                }
+                true
+            } catch (e: ComposeTimeoutException) {
+                false
             }
-            true
-        } catch (e: ComposeTimeoutException) {
-            false
-        }
-        
+
         assumeTrue("Skipping test: No shows loaded (requires network/cached data)", hasShows)
 
         // Click on the first show to open Show Detail
@@ -61,16 +69,17 @@ class NavigationTest {
         composeTestRule.waitForIdle()
 
         // Verify we are on Show Detail - wait for it to load
-        val showDetailLoaded = try {
-            composeTestRule.waitUntil(timeoutMillis = 5000) {
-                composeTestRule.onAllNodesWithText("Seasons")
-                    .fetchSemanticsNodes().isNotEmpty()
+        val showDetailLoaded =
+            try {
+                composeTestRule.waitUntil(timeoutMillis = 5000) {
+                    composeTestRule.onAllNodesWithText("Seasons")
+                        .fetchSemanticsNodes().isNotEmpty()
+                }
+                true
+            } catch (e: ComposeTimeoutException) {
+                false
             }
-            true
-        } catch (e: ComposeTimeoutException) {
-            false
-        }
-        
+
         assumeTrue("Skipping test: Show detail did not load", showDetailLoaded)
         composeTestRule.onNodeWithText("Seasons").assertIsDisplayed()
     }

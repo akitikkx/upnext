@@ -11,8 +11,8 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeUp
-import com.theupnextapp.domain.TraktUserListItem
 import com.theupnextapp.domain.TraktAuthState
+import com.theupnextapp.domain.TraktUserListItem
 import org.junit.Rule
 import org.junit.Test
 

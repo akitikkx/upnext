@@ -10,11 +10,11 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
-import org.junit.Ignore
 
 // TODO: This test duplicates /test/java/.../NotificationWorkerTest.kt which uses Robolectric.
 // Remove this androidTest version and keep the unit test version for better reliability.
