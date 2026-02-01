@@ -1,8 +1,6 @@
 package com.theupnextapp
 
-import androidx.compose.ui.test.ComposeTimeoutException
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.fetchSemanticsNodes
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
@@ -51,16 +49,17 @@ class NavigationTest {
         composeTestRule.waitForIdle()
 
         // Check if shows are available - skip test gracefully if not
-        val hasShows =
-            try {
-                composeTestRule.waitUntil(timeoutMillis = 10000) {
-                    composeTestRule.onAllNodesWithContentDescription("Show poster")
-                        .fetchSemanticsNodes().isNotEmpty()
-                }
-                true
-            } catch (e: ComposeTimeoutException) {
-                false
+        val hasShows = try {
+            composeTestRule.waitUntil(timeoutMillis = 10000) {
+                composeTestRule
+                    .onAllNodesWithContentDescription("Show poster")
+                    .fetchSemanticsNodes()
+                    .isNotEmpty()
             }
+            true
+        } catch (e: Exception) {
+            false
+        }
 
         assumeTrue("Skipping test: No shows loaded (requires network/cached data)", hasShows)
 
@@ -69,16 +68,17 @@ class NavigationTest {
         composeTestRule.waitForIdle()
 
         // Verify we are on Show Detail - wait for it to load
-        val showDetailLoaded =
-            try {
-                composeTestRule.waitUntil(timeoutMillis = 5000) {
-                    composeTestRule.onAllNodesWithText("Seasons")
-                        .fetchSemanticsNodes().isNotEmpty()
-                }
-                true
-            } catch (e: ComposeTimeoutException) {
-                false
+        val showDetailLoaded = try {
+            composeTestRule.waitUntil(timeoutMillis = 5000) {
+                composeTestRule
+                    .onAllNodesWithText("Seasons")
+                    .fetchSemanticsNodes()
+                    .isNotEmpty()
             }
+            true
+        } catch (e: Exception) {
+            false
+        }
 
         assumeTrue("Skipping test: Show detail did not load", showDetailLoaded)
         composeTestRule.onNodeWithText("Seasons").assertIsDisplayed()

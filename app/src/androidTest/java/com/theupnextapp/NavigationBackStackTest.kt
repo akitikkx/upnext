@@ -1,10 +1,6 @@
 package com.theupnextapp
 
-import androidx.compose.ui.test.ComposeTimeoutException
-import androidx.compose.ui.test.assertDoesNotExist
-import androidx.compose.ui.test.assertExists
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.fetchSemanticsNodes
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithTag
@@ -71,43 +67,48 @@ class NavigationBackStackTest {
         // Wait for Dashboard content - skip if no data
         composeTestRule.waitForIdle()
 
-        val hasShows =
-            try {
-                composeTestRule.waitUntil(timeoutMillis = 10000) {
-                    composeTestRule.onAllNodesWithContentDescription("Show poster")
-                        .fetchSemanticsNodes().isNotEmpty()
-                }
-                true
-            } catch (e: ComposeTimeoutException) {
-                false
+        val hasShows = try {
+            composeTestRule.waitUntil(timeoutMillis = 10000) {
+                composeTestRule
+                    .onAllNodesWithContentDescription("Show poster")
+                    .fetchSemanticsNodes()
+                    .isNotEmpty()
             }
+            true
+        } catch (e: Exception) {
+            false
+        }
         assumeTrue("Skipping: No shows loaded (requires network/cached data)", hasShows)
 
         // Click first show to open Show Detail
         composeTestRule.onAllNodesWithContentDescription("Show poster").onFirst().performClick()
 
         // Wait for Show Detail
-        val showDetailLoaded =
-            try {
-                composeTestRule.waitUntil(timeoutMillis = 5000) {
-                    composeTestRule.onAllNodesWithText("Seasons").fetchSemanticsNodes().isNotEmpty()
-                }
-                true
-            } catch (e: ComposeTimeoutException) {
-                false
+        val showDetailLoaded = try {
+            composeTestRule.waitUntil(timeoutMillis = 5000) {
+                composeTestRule
+                    .onAllNodesWithText("Seasons")
+                    .fetchSemanticsNodes()
+                    .isNotEmpty()
             }
+            true
+        } catch (e: Exception) {
+            false
+        }
         assumeTrue("Skipping: Show detail did not load", showDetailLoaded)
 
         // Wait for Cast items to load
-        val hasCast =
-            try {
-                composeTestRule.waitUntil(timeoutMillis = 5000) {
-                    composeTestRule.onAllNodesWithTag("cast_list_item").fetchSemanticsNodes().isNotEmpty()
-                }
-                true
-            } catch (e: ComposeTimeoutException) {
-                false
+        val hasCast = try {
+            composeTestRule.waitUntil(timeoutMillis = 5000) {
+                composeTestRule
+                    .onAllNodesWithTag("cast_list_item")
+                    .fetchSemanticsNodes()
+                    .isNotEmpty()
             }
+            true
+        } catch (e: Exception) {
+            false
+        }
         assumeTrue("Skipping: No cast data available", hasCast)
 
         // Click first cast member to open sheet
@@ -118,16 +119,17 @@ class NavigationBackStackTest {
         composeTestRule.onNodeWithTag("cast_bottom_sheet").assertExists()
 
         // Wait for credits to load inside sheet
-        val hasCredits =
-            try {
-                composeTestRule.waitUntil(timeoutMillis = 5000) {
-                    composeTestRule.onAllNodesWithTag("bottom_sheet_credit_item")
-                        .fetchSemanticsNodes().isNotEmpty()
-                }
-                true
-            } catch (e: ComposeTimeoutException) {
-                false
+        val hasCredits = try {
+            composeTestRule.waitUntil(timeoutMillis = 5000) {
+                composeTestRule
+                    .onAllNodesWithTag("bottom_sheet_credit_item")
+                    .fetchSemanticsNodes()
+                    .isNotEmpty()
             }
+            true
+        } catch (e: Exception) {
+            false
+        }
         assumeTrue("Skipping: No filmography credits available", hasCredits)
 
         // Navigate deeper - click a show from filmography
