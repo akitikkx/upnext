@@ -165,6 +165,35 @@ class MyComposeTest {
 
 ---
 
+## 🧩 Compose Testing Imports
+
+### The Problem: Unresolved References in CI
+
+Top-level imports for extension functions like `assertExists` or `fetchSemanticsNodes` can fail to resolve in CI environments (e.g., GitHub Actions) despite working locally.
+
+```kotlin
+// ❌ RISKY: May fail in CI
+import androidx.compose.ui.test.assertExists
+import androidx.compose.ui.test.fetchSemanticsNodes
+
+composeTestRule.onNodeWithTag("tag").assertExists()
+```
+
+### Solution: Method Chaining
+
+Use standard method chaining syntax instead of relying on static imports for extension functions. This ensures the compiler resolves the function on the object type directly.
+
+```kotlin
+// ✅ SAFE: Resolves reliably
+import androidx.compose.ui.test.onNodeWithTag
+
+composeTestRule
+    .onNodeWithTag("tag")
+    .assertExists() // Resolved as method call on SemanticsNodeInteraction
+```
+
+---
+
 ## 🔧 Troubleshooting
 
 ### Common Issues
