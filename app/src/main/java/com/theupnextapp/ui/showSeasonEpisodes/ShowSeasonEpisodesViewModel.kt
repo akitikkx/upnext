@@ -157,6 +157,38 @@ class ShowSeasonEpisodesViewModel
             }
         }
 
+        fun markSeasonAsWatched() {
+            if (isAuthorizedOnTrakt.value != true) return
+            val showTraktId = currentShowTraktId ?: return
+            val season = currentSeasonNumber ?: return
+            val episodesList = _episodes.value ?: return
+
+            viewModelScope.launch {
+                watchProgressRepository.markSeasonWatched(
+                    showTraktId = showTraktId,
+                    showTvMazeId = currentShowTvMazeId,
+                    showImdbId = currentShowImdbId,
+                    seasonNumber = season,
+                    episodes = episodesList,
+                )
+                triggerSyncIfAuthenticated()
+            }
+        }
+
+        fun markSeasonAsUnwatched() {
+            if (isAuthorizedOnTrakt.value != true) return
+            val showTraktId = currentShowTraktId ?: return
+            val season = currentSeasonNumber ?: return
+
+            viewModelScope.launch {
+                watchProgressRepository.markSeasonUnwatched(
+                    showTraktId = showTraktId,
+                    seasonNumber = season,
+                )
+                triggerSyncIfAuthenticated()
+            }
+        }
+
         private fun triggerSyncIfAuthenticated() {
             traktAccessToken.value?.access_token?.let { token ->
                 val syncWork =

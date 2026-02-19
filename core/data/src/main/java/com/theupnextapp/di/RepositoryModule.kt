@@ -23,6 +23,7 @@ package com.theupnextapp.di
 
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.theupnextapp.common.CrashlyticsHelper
+import com.theupnextapp.database.RecentSearchDao
 import com.theupnextapp.database.TraktDao
 import com.theupnextapp.database.TvMazeDao
 import com.theupnextapp.database.UpnextDao
@@ -84,8 +85,14 @@ object RepositoryModule {
 
     @Singleton
     @Provides
-    fun provideSearchRepository(tvMazeService: TvMazeService): SearchRepository {
-        return SearchRepository(tvMazeService)
+    fun provideSearchRepository(
+        tvMazeService: TvMazeService,
+        recentSearchDao: RecentSearchDao,
+    ): SearchRepository {
+        return SearchRepository(
+            tvMazeService = tvMazeService,
+            recentSearchDao = recentSearchDao,
+        )
     }
 
     @Singleton

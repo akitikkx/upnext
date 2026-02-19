@@ -59,6 +59,72 @@ class WatchProgressRepositoryImpl(
     private val _syncError = MutableStateFlow<String?>(null)
     override val syncError: StateFlow<String?> = _syncError.asStateFlow()
 
+    override suspend fun markSeasonWatched(
+        showTraktId: Int,
+        showTvMazeId: Int?,
+        showImdbId: String?,
+        seasonNumber: Int,
+        episodes: List<com.theupnextapp.domain.ShowSeasonEpisode>,
+    ): Result<Unit> =
+        withContext(Dispatchers.IO) {
+            try {
+                val dbEpisodes = episodes.mapNotNull { episode ->
+                    episode.number?.let { episodeNumber ->
+                        DatabaseWatchedEpisode(
+                            showTraktId = showTraktId,
+                            showTvMazeId = showTvMazeId,
+                            showImdbId = showImdbId,
+                            seasonNumber = seasonNumber,
+                            episodeNumber = episodeNumber,
+                            episodeTraktId = null,
+                            watchedAt = System.currentTimeMillis(),
+                            syncStatus = SyncStatus.PENDING_ADD.ordinal,
+                            lastModified = System.currentTimeMillis(),
+                        )
+                    }
+                }
+
+                if (dbEpisodes.isNotEmpty()) {
+                    traktDao.insertWatchedEpisodes(dbEpisodes)
+                    Timber.d("Marked season $seasonNumber as watched for show $showTraktId (${dbEpisodes.size} episodes)")
+                }
+                Result.success(Unit)
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to mark season as watched")
+                firebaseCrashlytics.recordException(e)
+                Result.failure(e)
+            }
+        }
+
+    override suspend fun markSeasonUnwatched(
+        showTraktId: Int,
+        seasonNumber: Int,
+    ): Result<Unit> =
+        withContext(Dispatchers.IO) {
+            try {
+                val existingEpisodes = traktDao.getWatchedEpisodesForSeason(showTraktId, seasonNumber)
+
+                existingEpisodes.forEach { episode ->
+                    if (episode.syncStatus == SyncStatus.SYNCED.ordinal) {
+                        traktDao.updateSyncStatus(
+                            showTraktId,
+                            seasonNumber,
+                            episode.episodeNumber,
+                            SyncStatus.PENDING_REMOVE.ordinal,
+                        )
+                    } else {
+                        traktDao.deleteWatchedEpisode(showTraktId, seasonNumber, episode.episodeNumber)
+                    }
+                }
+                Timber.d("Marked season $seasonNumber as unwatched for show $showTraktId")
+                Result.success(Unit)
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to mark season as unwatched")
+                firebaseCrashlytics.recordException(e)
+                Result.failure(e)
+            }
+        }
+
     override suspend fun markEpisodeWatched(
         showTraktId: Int,
         showTvMazeId: Int?,

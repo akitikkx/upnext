@@ -34,9 +34,6 @@ jobs:
           GOOGLE_SERVICES: ${{ secrets.GOOGLE_SERVICES }}
         run: echo $GOOGLE_SERVICES > app/google-services.json
 
-      - name: Install Fastlane
-        run: gem install fastlane
-
       - name: Configure Git Identity
         run: |
           git config --global user.name "GitHub Actions"
@@ -63,7 +60,7 @@ jobs:
           TRAKT_CLIENT_ID: ${{ secrets.TRAKT_CLIENT_ID }}
           TRAKT_CLIENT_SECRET: ${{ secrets.TRAKT_CLIENT_SECRET }}
           TRAKT_REDIRECT_URI: ${{ secrets.TRAKT_REDIRECT_URI }}
-        run: fastlane deploy_internal
+        run: bundle exec fastlane deploy_internal
 
       - name: Read Version Info
         id: version

@@ -2,6 +2,7 @@ package com.theupnextapp.repository
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.theupnextapp.CoroutineTestRule
+import com.theupnextapp.database.RecentSearchDao
 import com.theupnextapp.domain.Result
 import com.theupnextapp.domain.ShowSearch
 import com.theupnextapp.network.TvMazeService
@@ -31,12 +32,13 @@ class SearchRepositoryTest {
     var coroutineTestRule = CoroutineTestRule()
 
     private val tvMazeService: TvMazeService = mock()
+    private val recentSearchDao: RecentSearchDao = mock()
 
     private lateinit var repository: SearchRepository
 
     @Before
     fun setup() {
-        repository = SearchRepository(tvMazeService)
+        repository = SearchRepository(tvMazeService, recentSearchDao)
     }
 
     @Test

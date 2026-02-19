@@ -25,6 +25,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 import java.util.concurrent.TimeUnit
 
 object DateUtils {
@@ -70,9 +71,31 @@ object DateUtils {
         return diff
     }
 
+    fun getDisplayDate(airstamp: String): String? {
+        val date = parseDate(airstamp) ?: return null
+        val displayFormat = SimpleDateFormat("MMM d, yyyy", Locale.getDefault())
+        return displayFormat.format(date)
+    }
+
+    private fun parseDate(dateString: String): Date? {
+        // Try ISO 8601 first
+        try {
+            val format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US)
+            format.timeZone = TimeZone.getTimeZone("UTC")
+            return format.parse(dateString)
+        } catch (e: Exception) {
+            // Fallback to simple date
+             try {
+                val format = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+                return format.parse(dateString)
+            } catch (e: Exception) {
+                return null
+            }
+        }
+    }
+
     fun getDisplayDateFromDateStamp(dateStamp: String): Date? {
-        val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        return format.parse(dateStamp)
+        return parseDate(dateStamp)
     }
 
     /**

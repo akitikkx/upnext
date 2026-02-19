@@ -21,6 +21,7 @@
 
 package com.theupnextapp.repository
 
+import com.theupnextapp.domain.ShowSeasonEpisode
 import com.theupnextapp.domain.ShowWatchProgress
 import com.theupnextapp.domain.WatchedEpisode
 import kotlinx.coroutines.flow.Flow
@@ -36,6 +37,19 @@ interface WatchProgressRepository {
         showImdbId: String?,
         seasonNumber: Int,
         episodeNumber: Int,
+    ): Result<Unit>
+
+    suspend fun markSeasonWatched(
+        showTraktId: Int,
+        showTvMazeId: Int?,
+        showImdbId: String?,
+        seasonNumber: Int,
+        episodes: List<ShowSeasonEpisode>,
+    ): Result<Unit>
+
+    suspend fun markSeasonUnwatched(
+        showTraktId: Int,
+        seasonNumber: Int,
     ): Result<Unit>
 
     suspend fun markEpisodeUnwatched(

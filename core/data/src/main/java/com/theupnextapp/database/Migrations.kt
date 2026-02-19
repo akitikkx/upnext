@@ -234,3 +234,21 @@ val MIGRATION_30_31 =
             )
         }
     }
+
+val MIGRATION_31_32 =
+    object : Migration(
+        31,
+        32,
+    ) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `recent_searches` (
+                    `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    `query` TEXT NOT NULL,
+                    `searchTime` INTEGER NOT NULL
+                )
+                """.trimIndent(),
+            )
+        }
+    }

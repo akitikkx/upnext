@@ -21,6 +21,10 @@
 
 package com.theupnextapp.repository
 
+import com.theupnextapp.database.DatabaseRecentSearch
+import com.theupnextapp.database.RecentSearchDao
+import com.theupnextapp.database.asDomainModel
+import com.theupnextapp.domain.RecentSearch
 import com.theupnextapp.domain.Result
 import com.theupnextapp.domain.ShowSearch
 import com.theupnextapp.domain.safeApiCall
@@ -30,9 +34,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 
-class SearchRepository(
+open class SearchRepository(
     private val tvMazeService: TvMazeService,
+    private val recentSearchDao: RecentSearchDao,
 ) {
     suspend fun getShowSearchResults(name: String?): Flow<Result<List<ShowSearch>>?> {
         return flow {
@@ -50,5 +56,22 @@ class SearchRepository(
                 emit(Result.Success(emptyList()))
             }
         }.flowOn(Dispatchers.IO)
+    }
+
+    open fun getRecentSearches(): Flow<List<RecentSearch>> {
+        return recentSearchDao.getRecentSearches().map { it.asDomainModel() }
+    }
+
+    open suspend fun saveSearchQuery(query: String) {
+        recentSearchDao.insertRecentSearch(
+            DatabaseRecentSearch(
+                query = query,
+                searchTime = System.currentTimeMillis(),
+            ),
+        )
+    }
+
+    open suspend fun clearRecentSearches() {
+        recentSearchDao.clearAll()
     }
 }

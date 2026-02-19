@@ -34,6 +34,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.outlined.CheckCircle
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -92,6 +93,12 @@ fun ShowSeasonEpisodesScreen(
                             onToggleWatched = { episode ->
                                 viewModel.onToggleWatched(episode)
                             },
+                            onMarkSeasonWatched = {
+                                viewModel.markSeasonAsWatched()
+                            },
+                            onMarkSeasonUnwatched = {
+                                viewModel.markSeasonAsUnwatched()
+                            },
                             isAuthorizedOnTrakt = isAuthorizedOnTrakt.value,
                         )
                     }
@@ -116,6 +123,8 @@ fun ShowSeasonEpisodes(
     seasonNumber: Int,
     list: List<ShowSeasonEpisode>,
     onToggleWatched: (ShowSeasonEpisode) -> Unit = {},
+    onMarkSeasonWatched: () -> Unit = {},
+    onMarkSeasonUnwatched: () -> Unit = {},
     isAuthorizedOnTrakt: Boolean = false,
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -126,6 +135,33 @@ fun ShowSeasonEpisodes(
                     seasonNumber,
                 ),
         )
+
+        if (isAuthorizedOnTrakt && list.isNotEmpty()) {
+            val allWatched = list.all { it.isWatched }
+            val buttonText = if (allWatched) "Mark Season Unwatched" else "Mark Season Watched"
+            val buttonIcon = if (allWatched) Icons.Outlined.CheckCircle else Icons.Filled.CheckCircle
+
+            Button(
+                onClick = {
+                    if (allWatched) {
+                        onMarkSeasonUnwatched()
+                    } else {
+                        onMarkSeasonWatched()
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 4.dp),
+            ) {
+                Icon(
+                    imageVector = buttonIcon,
+                    contentDescription = null,
+                    modifier = Modifier.padding(end = 8.dp)
+                )
+                Text(text = buttonText)
+            }
+        }
+
         LazyColumn(Modifier.padding(8.dp)) {
             items(list) { episode ->
                 ShowSeasonEpisodeCard(
@@ -249,19 +285,21 @@ fun ShowSeasonEpisodeCard(
 
                 val airstamp = item.airstamp
                 if (!airstamp.isNullOrEmpty()) {
-                    val date = DateUtils.getDisplayDateFromDateStamp(airstamp)
-                    Text(
-                        text =
+                    val date = DateUtils.getDisplayDate(airstamp)
+                    if (date != null) {
+                        Text(
+                            text =
                             stringResource(
                                 R.string.show_detail_air_date_general,
-                                date.toString(),
+                                date,
                             ),
-                        modifier =
+                            modifier =
                             Modifier
                                 .padding(4.dp)
                                 .fillMaxWidth(),
-                        style = MaterialTheme.typography.bodySmall,
-                    )
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
                 }
 
                 if (item.isWatched) {

@@ -160,6 +160,19 @@ interface TraktDao {
     )
     suspend fun getWatchedEpisode(showTraktId: Int, season: Int, episode: Int): DatabaseWatchedEpisode?
 
+    @Query("SELECT * FROM watched_episodes WHERE showTraktId = :showTraktId AND seasonNumber = :season")
+    suspend fun getWatchedEpisodesForSeason(showTraktId: Int, season: Int): List<DatabaseWatchedEpisode>
+
+    @Query(
+        "UPDATE watched_episodes SET syncStatus = :status WHERE showTraktId = :showTraktId AND seasonNumber = :season"
+    )
+    suspend fun updateSyncStatusForSeason(showTraktId: Int, season: Int, status: Int)
+
+    @Query(
+        "DELETE FROM watched_episodes WHERE showTraktId = :showTraktId AND seasonNumber = :season"
+    )
+    suspend fun deleteWatchedEpisodesForSeason(showTraktId: Int, season: Int)
+
     @Query("SELECT COUNT(*) FROM watched_episodes WHERE showTraktId = :showTraktId AND syncStatus = 0")
     suspend fun getWatchedCountForShow(showTraktId: Int): Int
 
@@ -175,6 +188,11 @@ interface TraktDao {
         "DELETE FROM watched_episodes WHERE syncStatus = 2 AND showTraktId = :showTraktId AND seasonNumber = :season AND episodeNumber = :episode"
     )
     suspend fun confirmRemoval(showTraktId: Int, season: Int, episode: Int)
+
+    @Query(
+        "DELETE FROM watched_episodes WHERE syncStatus = 2 AND showTraktId = :showTraktId AND seasonNumber = :season"
+    )
+    suspend fun confirmRemovalForSeason(showTraktId: Int, season: Int)
 
     @Query("DELETE FROM watched_episodes")
     suspend fun clearAllWatchedEpisodes()

@@ -21,30 +21,24 @@
 
 package com.theupnextapp.database
 
-import androidx.room.Database
-import androidx.room.RoomDatabase
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import com.theupnextapp.domain.RecentSearch
 
-@Database(
-    entities = [
-        DatabaseYesterdaySchedule::class,
-        DatabaseTodaySchedule::class,
-        DatabaseTomorrowSchedule::class,
-        DatabaseShowInfo::class,
-        DatabaseTableUpdate::class,
-        DatabaseTraktPopularShows::class,
-        DatabaseTraktTrendingShows::class,
-        DatabaseTraktMostAnticipated::class,
-        DatabaseFavoriteShows::class,
-        DatabaseTraktAccess::class,
-        DatabaseWatchedEpisode::class,
-        DatabaseRecentSearch::class,
-    ],
-    version = 32,
-    exportSchema = true,
+@Entity(tableName = "recent_searches")
+data class DatabaseRecentSearch(
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
+    val query: String,
+    val searchTime: Long,
 )
-abstract class UpnextDatabase : RoomDatabase() {
-    abstract val upnextDao: UpnextDao
-    abstract val traktDao: TraktDao
-    abstract val tvMazeDao: TvMazeDao
-    abstract val recentSearchDao: RecentSearchDao
+
+fun List<DatabaseRecentSearch>.asDomainModel(): List<RecentSearch> {
+    return map {
+        RecentSearch(
+            id = it.id,
+            query = it.query,
+            searchTime = it.searchTime,
+        )
+    }
 }

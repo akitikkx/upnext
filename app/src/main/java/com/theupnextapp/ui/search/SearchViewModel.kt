@@ -25,6 +25,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.theupnextapp.domain.Result
 import com.theupnextapp.domain.ShowSearch
@@ -49,6 +50,20 @@ class SearchViewModel
         fun onQueryTextSubmit(query: String?) {
             handleQuery(query)
         }
+
+        fun onQuerySaved(query: String) {
+            viewModelScope.launch {
+                searchRepository.saveSearchQuery(query)
+            }
+        }
+
+        fun onClearRecentSearches() {
+            viewModelScope.launch {
+                searchRepository.clearRecentSearches()
+            }
+        }
+
+        val recentSearches = searchRepository.getRecentSearches().asLiveData()
 
         private fun handleQuery(query: String?) {
             viewModelScope.launch {

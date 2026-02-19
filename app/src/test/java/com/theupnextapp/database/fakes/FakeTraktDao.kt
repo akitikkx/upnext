@@ -153,4 +153,25 @@ class FakeTraktDao : TraktDao {
     ) {}
 
     override suspend fun clearAllWatchedEpisodes() {}
+
+    override suspend fun getWatchedEpisodesForSeason(
+        showTraktId: Int,
+        season: Int,
+    ): List<com.theupnextapp.database.DatabaseWatchedEpisode> = emptyList()
+
+    override suspend fun updateSyncStatusForSeason(
+        showTraktId: Int,
+        season: Int,
+        status: Int,
+    ) {}
+
+    override suspend fun deleteWatchedEpisodesForSeason(
+        showTraktId: Int,
+        season: Int,
+    ) {}
+
+    override suspend fun confirmRemovalForSeason(
+        showTraktId: Int,
+        season: Int,
+    ) {}
 }

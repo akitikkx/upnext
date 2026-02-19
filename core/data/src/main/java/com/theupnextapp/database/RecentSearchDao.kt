@@ -21,30 +21,20 @@
 
 package com.theupnextapp.database
 
-import androidx.room.Database
-import androidx.room.RoomDatabase
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 
-@Database(
-    entities = [
-        DatabaseYesterdaySchedule::class,
-        DatabaseTodaySchedule::class,
-        DatabaseTomorrowSchedule::class,
-        DatabaseShowInfo::class,
-        DatabaseTableUpdate::class,
-        DatabaseTraktPopularShows::class,
-        DatabaseTraktTrendingShows::class,
-        DatabaseTraktMostAnticipated::class,
-        DatabaseFavoriteShows::class,
-        DatabaseTraktAccess::class,
-        DatabaseWatchedEpisode::class,
-        DatabaseRecentSearch::class,
-    ],
-    version = 32,
-    exportSchema = true,
-)
-abstract class UpnextDatabase : RoomDatabase() {
-    abstract val upnextDao: UpnextDao
-    abstract val traktDao: TraktDao
-    abstract val tvMazeDao: TvMazeDao
-    abstract val recentSearchDao: RecentSearchDao
+@Dao
+interface RecentSearchDao {
+    @Query("SELECT * FROM recent_searches ORDER BY searchTime DESC")
+    fun getRecentSearches(): Flow<List<DatabaseRecentSearch>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertRecentSearch(recentSearch: DatabaseRecentSearch)
+
+    @Query("DELETE FROM recent_searches")
+    suspend fun clearAll()
 }
