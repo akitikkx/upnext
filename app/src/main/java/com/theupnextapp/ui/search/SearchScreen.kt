@@ -217,21 +217,22 @@ fun RecentSearchesList(
 ) {
     Column {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Text(
                 text = stringResource(id = R.string.search_recent_searches),
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
             )
             TextButton(onClick = onClearRecentSearches) {
                 Text(
                     text = stringResource(id = R.string.search_clear_recent),
-                    style = MaterialTheme.typography.labelMedium
+                    style = MaterialTheme.typography.labelMedium,
                 )
             }
         }
@@ -240,7 +241,7 @@ fun RecentSearchesList(
                 ListItem(
                     headlineContent = { Text(recentSearch.query) },
                     leadingContent = { Icon(Icons.Default.History, contentDescription = null) },
-                    modifier = Modifier.clickable { onRecentSearchClick(recentSearch.query) }
+                    modifier = Modifier.clickable { onRecentSearchClick(recentSearch.query) },
                 )
             }
         }

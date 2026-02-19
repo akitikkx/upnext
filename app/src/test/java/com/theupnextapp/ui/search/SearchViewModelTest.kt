@@ -24,7 +24,6 @@ package com.theupnextapp.ui.search
 import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.theupnextapp.CoroutineTestRule
-import com.theupnextapp.domain.RecentSearch
 import com.theupnextapp.repository.SearchRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -56,15 +55,17 @@ class SearchViewModelTest {
     }
 
     @Test
-    fun `onQuerySaved calls repository saveSearchQuery`() = runTest {
-        val query = "Test Query"
-        viewModel.onQuerySaved(query)
-        verify(searchRepository).saveSearchQuery(query)
-    }
+    fun `onQuerySaved calls repository saveSearchQuery`() =
+        runTest {
+            val query = "Test Query"
+            viewModel.onQuerySaved(query)
+            verify(searchRepository).saveSearchQuery(query)
+        }
 
     @Test
-    fun `onClearRecentSearches calls repository clearRecentSearches`() = runTest {
-        viewModel.onClearRecentSearches()
-        verify(searchRepository).clearRecentSearches()
-    }
+    fun `onClearRecentSearches calls repository clearRecentSearches`() =
+        runTest {
+            viewModel.onClearRecentSearches()
+            verify(searchRepository).clearRecentSearches()
+        }
 }
