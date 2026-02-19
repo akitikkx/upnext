@@ -34,7 +34,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -55,6 +54,7 @@ import com.theupnextapp.domain.ShowSeason
 import com.theupnextapp.navigation.Destinations
 import com.theupnextapp.ui.components.PosterImage
 import com.theupnextapp.ui.components.SectionHeadingText
+import com.theupnextapp.ui.components.ShimmerSeasons
 
 @ExperimentalMaterial3Api
 @Composable
@@ -89,12 +89,7 @@ fun ShowSeasonsScreen(
                 }
 
                 if (isLoading.value == true) {
-                    LinearProgressIndicator(
-                        modifier =
-                            Modifier
-                                .padding(8.dp)
-                                .fillMaxWidth(),
-                    )
+                    ShimmerSeasons(modifier = Modifier.padding(top = 70.dp))
                 }
             }
         }

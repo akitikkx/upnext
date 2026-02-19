@@ -122,7 +122,6 @@ fun AppNavigation(
                     val args = backStackEntry.toRoute<Destinations.ShowSeasonEpisodes>()
                     ShowSeasonEpisodesScreen(
                         showSeasonEpisodesArg = args.toArg(),
-                        navController = navHostController,
                     )
                 }
 

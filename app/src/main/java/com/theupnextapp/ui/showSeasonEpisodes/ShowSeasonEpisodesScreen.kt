@@ -39,7 +39,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -54,13 +53,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
+
 import com.theupnextapp.R
 import com.theupnextapp.common.utils.DateUtils
 import com.theupnextapp.domain.ShowSeasonEpisode
 import com.theupnextapp.domain.ShowSeasonEpisodesArg
 import com.theupnextapp.ui.components.PosterImage
 import com.theupnextapp.ui.components.SectionHeadingText
+import com.theupnextapp.ui.components.ShimmerSeasonEpisodes
 import org.jsoup.Jsoup
 
 @ExperimentalMaterial3Api
@@ -68,7 +68,7 @@ import org.jsoup.Jsoup
 fun ShowSeasonEpisodesScreen(
     viewModel: ShowSeasonEpisodesViewModel = hiltViewModel(),
     showSeasonEpisodesArg: ShowSeasonEpisodesArg,
-    navController: NavController,
+
 ) {
     LaunchedEffect(showSeasonEpisodesArg) {
         viewModel.selectedSeason(showSeasonEpisodesArg)
@@ -105,12 +105,7 @@ fun ShowSeasonEpisodesScreen(
                 }
 
                 if (isLoading.value == true) {
-                    LinearProgressIndicator(
-                        modifier =
-                            Modifier
-                                .padding(8.dp)
-                                .fillMaxWidth(),
-                    )
+                    ShimmerSeasonEpisodes(modifier = Modifier.padding(top = 70.dp))
                 }
             }
         }
