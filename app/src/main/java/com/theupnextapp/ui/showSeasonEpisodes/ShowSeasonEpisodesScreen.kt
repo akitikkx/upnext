@@ -53,7 +53,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-
 import com.theupnextapp.R
 import com.theupnextapp.common.utils.DateUtils
 import com.theupnextapp.domain.ShowSeasonEpisode
@@ -68,7 +67,6 @@ import org.jsoup.Jsoup
 fun ShowSeasonEpisodesScreen(
     viewModel: ShowSeasonEpisodesViewModel = hiltViewModel(),
     showSeasonEpisodesArg: ShowSeasonEpisodesArg,
-
 ) {
     LaunchedEffect(showSeasonEpisodesArg) {
         viewModel.selectedSeason(showSeasonEpisodesArg)
@@ -144,14 +142,15 @@ fun ShowSeasonEpisodes(
                         onMarkSeasonWatched()
                     }
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 4.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 4.dp),
             ) {
                 Icon(
                     imageVector = buttonIcon,
                     contentDescription = null,
-                    modifier = Modifier.padding(end = 8.dp)
+                    modifier = Modifier.padding(end = 8.dp),
                 )
                 Text(text = buttonText)
             }
@@ -284,14 +283,14 @@ fun ShowSeasonEpisodeCard(
                     if (date != null) {
                         Text(
                             text =
-                            stringResource(
-                                R.string.show_detail_air_date_general,
-                                date,
-                            ),
+                                stringResource(
+                                    R.string.show_detail_air_date_general,
+                                    date,
+                                ),
                             modifier =
-                            Modifier
-                                .padding(4.dp)
-                                .fillMaxWidth(),
+                                Modifier
+                                    .padding(4.dp)
+                                    .fillMaxWidth(),
                             style = MaterialTheme.typography.bodySmall,
                         )
                     }

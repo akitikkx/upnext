@@ -97,42 +97,48 @@ fun ShimmerSeasons(
     Column(modifier = modifier.shimmer()) {
         repeat(numberOfItems) {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
             ) {
                 Box(
-                    modifier = Modifier
-                        .width(dimensionResource(id = R.dimen.compose_search_poster_width))
-                        .height(dimensionResource(id = R.dimen.compose_search_poster_height))
-                        .clip(RoundedCornerShape(4.dp))
-                        .background(shimmerBackgroundColor)
+                    modifier =
+                        Modifier
+                            .width(dimensionResource(id = R.dimen.compose_search_poster_width))
+                            .height(dimensionResource(id = R.dimen.compose_search_poster_height))
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(shimmerBackgroundColor),
                 )
 
                 Column(
-                    modifier = Modifier
-                        .padding(start = 8.dp)
-                        .fillMaxWidth()
+                    modifier =
+                        Modifier
+                            .padding(start = 8.dp)
+                            .fillMaxWidth(),
                 ) {
                     Box(
-                        modifier = Modifier
-                            .width(100.dp)
-                            .height(16.dp)
-                            .background(shimmerBackgroundColor)
+                        modifier =
+                            Modifier
+                                .width(100.dp)
+                                .height(16.dp)
+                                .background(shimmerBackgroundColor),
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Box(
-                        modifier = Modifier
-                            .width(150.dp)
-                            .height(12.dp)
-                            .background(shimmerBackgroundColor)
+                        modifier =
+                            Modifier
+                                .width(150.dp)
+                                .height(12.dp)
+                                .background(shimmerBackgroundColor),
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Box(
-                        modifier = Modifier
-                            .width(120.dp)
-                            .height(12.dp)
-                            .background(shimmerBackgroundColor)
+                        modifier =
+                            Modifier
+                                .width(120.dp)
+                                .height(12.dp)
+                                .background(shimmerBackgroundColor),
                     )
                 }
             }
@@ -148,42 +154,48 @@ fun ShimmerSeasonEpisodes(
     Column(modifier = modifier.shimmer()) {
         repeat(numberOfItems) {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
             ) {
                 Box(
-                    modifier = Modifier
-                        .fillMaxWidth(0.4f)
-                        .height(dimensionResource(id = R.dimen.show_season_episode_poster_height))
-                        .clip(RoundedCornerShape(4.dp))
-                        .background(shimmerBackgroundColor)
+                    modifier =
+                        Modifier
+                            .fillMaxWidth(SHIMMER_SEASON_EPISODE_POSTER_WIDTH_FACTOR)
+                            .height(dimensionResource(id = R.dimen.show_season_episode_poster_height))
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(shimmerBackgroundColor),
                 )
 
                 Column(
-                    modifier = Modifier
-                        .padding(start = 8.dp)
-                        .fillMaxWidth()
+                    modifier =
+                        Modifier
+                            .padding(start = 8.dp)
+                            .fillMaxWidth(),
                 ) {
                     Box(
-                        modifier = Modifier
-                            .fillMaxWidth(0.6f)
-                            .height(16.dp)
-                            .background(shimmerBackgroundColor)
+                        modifier =
+                            Modifier
+                                .fillMaxWidth(SHIMMER_SEASON_EPISODE_TITLE_WIDTH_FACTOR)
+                                .height(16.dp)
+                                .background(shimmerBackgroundColor),
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Box(
-                        modifier = Modifier
-                            .fillMaxWidth(0.9f)
-                            .height(12.dp)
-                            .background(shimmerBackgroundColor)
+                        modifier =
+                            Modifier
+                                .fillMaxWidth(SHIMMER_SEASON_EPISODE_DATE_WIDTH_FACTOR)
+                                .height(12.dp)
+                                .background(shimmerBackgroundColor),
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Box(
-                        modifier = Modifier
-                            .fillMaxWidth(0.4f)
-                            .height(12.dp)
-                            .background(shimmerBackgroundColor)
+                        modifier =
+                            Modifier
+                                .fillMaxWidth(SHIMMER_SEASON_EPISODE_RATING_WIDTH_FACTOR)
+                                .height(12.dp)
+                                .background(shimmerBackgroundColor),
                     )
                 }
             }
