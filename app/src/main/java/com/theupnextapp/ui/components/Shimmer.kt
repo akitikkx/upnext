@@ -15,6 +15,7 @@ package com.theupnextapp.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,11 +29,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.theupnextapp.R
 import com.valentinilk.shimmer.shimmer
 
 val shimmerBackgroundColor = Color.LightGray.copy(alpha = 0.2f)
+
+private const val SHIMMER_SEASON_EPISODE_POSTER_WIDTH_FACTOR = 0.4f
+private const val SHIMMER_SEASON_EPISODE_TITLE_WIDTH_FACTOR = 0.6f
+private const val SHIMMER_SEASON_EPISODE_DATE_WIDTH_FACTOR = 0.9f
+private const val SHIMMER_SEASON_EPISODE_RATING_WIDTH_FACTOR = 0.4f
 
 @Composable
 fun ShimmerPosterCard(modifier: Modifier = Modifier) {
@@ -81,6 +89,120 @@ fun ShimmerPosterCardRow(
         ) {
             items(numberOfItems) {
                 ShimmerPosterCard()
+            }
+        }
+    }
+}
+
+@Composable
+fun ShimmerSeasons(
+    modifier: Modifier = Modifier,
+    numberOfItems: Int = 5,
+) {
+    Column(modifier = modifier.shimmer()) {
+        repeat(numberOfItems) {
+            Row(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+            ) {
+                Box(
+                    modifier =
+                        Modifier
+                            .width(dimensionResource(id = R.dimen.compose_search_poster_width))
+                            .height(dimensionResource(id = R.dimen.compose_search_poster_height))
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(shimmerBackgroundColor),
+                )
+
+                Column(
+                    modifier =
+                        Modifier
+                            .padding(start = 8.dp)
+                            .fillMaxWidth(),
+                ) {
+                    Box(
+                        modifier =
+                            Modifier
+                                .width(100.dp)
+                                .height(16.dp)
+                                .background(shimmerBackgroundColor),
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Box(
+                        modifier =
+                            Modifier
+                                .width(150.dp)
+                                .height(12.dp)
+                                .background(shimmerBackgroundColor),
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Box(
+                        modifier =
+                            Modifier
+                                .width(120.dp)
+                                .height(12.dp)
+                                .background(shimmerBackgroundColor),
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ShimmerSeasonEpisodes(
+    modifier: Modifier = Modifier,
+    numberOfItems: Int = 5,
+) {
+    Column(modifier = modifier.shimmer()) {
+        repeat(numberOfItems) {
+            Row(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+            ) {
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth(SHIMMER_SEASON_EPISODE_POSTER_WIDTH_FACTOR)
+                            .height(dimensionResource(id = R.dimen.show_season_episode_poster_height))
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(shimmerBackgroundColor),
+                )
+
+                Column(
+                    modifier =
+                        Modifier
+                            .padding(start = 8.dp)
+                            .fillMaxWidth(),
+                ) {
+                    Box(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth(SHIMMER_SEASON_EPISODE_TITLE_WIDTH_FACTOR)
+                                .height(16.dp)
+                                .background(shimmerBackgroundColor),
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Box(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth(SHIMMER_SEASON_EPISODE_DATE_WIDTH_FACTOR)
+                                .height(12.dp)
+                                .background(shimmerBackgroundColor),
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Box(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth(SHIMMER_SEASON_EPISODE_RATING_WIDTH_FACTOR)
+                                .height(12.dp)
+                                .background(shimmerBackgroundColor),
+                    )
+                }
             }
         }
     }
