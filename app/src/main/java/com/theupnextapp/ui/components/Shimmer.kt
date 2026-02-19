@@ -37,6 +37,11 @@ import com.valentinilk.shimmer.shimmer
 
 val shimmerBackgroundColor = Color.LightGray.copy(alpha = 0.2f)
 
+private const val SHIMMER_SEASON_EPISODE_POSTER_WIDTH_FACTOR = 0.4f
+private const val SHIMMER_SEASON_EPISODE_TITLE_WIDTH_FACTOR = 0.6f
+private const val SHIMMER_SEASON_EPISODE_DATE_WIDTH_FACTOR = 0.9f
+private const val SHIMMER_SEASON_EPISODE_RATING_WIDTH_FACTOR = 0.4f
+
 @Composable
 fun ShimmerPosterCard(modifier: Modifier = Modifier) {
     Column(
