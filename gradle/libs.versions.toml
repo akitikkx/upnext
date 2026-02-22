@@ -34,7 +34,7 @@ firebasePerf = "21.0.5"
 firebasePerfGradlePlugin = "1.4.2"
 flexbox = "3.0.0"
 
-gmsPlugin = "4.4.2"
+gmsPlugin = "4.4.4"
 hiltCompiler = "1.2.0"
 hiltAndroidTesting = "2.56.2"
 hiltWork = "1.2.0"
