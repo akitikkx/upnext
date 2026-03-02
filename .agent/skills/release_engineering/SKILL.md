@@ -47,6 +47,25 @@ Every Pull Request to `main` undergoes strict quality checks via `.github/workfl
 
 ---
 
+## ⏱️ CI/CD Minute Optimization
+
+To prevent excessive consumption of GitHub Actions minutes, especially from automated dependency bots like Renovate, the following strategies are implemented:
+
+### 1. Conditional Deployment (`deploy.yml`)
+The nightly scheduled build incorporates a `check_changes` pre-job. 
+- It evaluates the commit history over the last 24 hours.
+- If no new commits were merged into `main`, it skips the expensive `deploy` job entirely.
+- Manual triggers (`workflow_dispatch`) bypass this check and force a deployment.
+
+### 2. Renovate & PR Auto-Cancellation (`renovate.json` & `pull_request.yml`)
+Dependency updates can cause massive CI fan-out. To mitigate this:
+- **`rebaseWhen: conflicted`**: Renovate is configured to only rebase PRs if there is a git conflict, preventing it from auto-rebasing 10+ PRs whenever a single PR is merged into `main`.
+- **Update Grouping**: Minor and patch dependency updates are grouped into a single PR (`all-minor-patch`), reducing PR volume.
+- **`prConcurrentLimit: 3`**: Restricts the maximum number of simultaneous Renovate PRs.
+- **Concurrency Cancellation**: `pull_request.yml` includes a `concurrency` block (`cancel-in-progress: true`). If a PR receives new commits (e.g. during a manual rebase), GitHub instantly cancels the running tests for the old commit, saving minutes.
+
+---
+
 ## 🛠 Manual Release & Debugging
 
 You can run the release logic locally using Fastlane to verify builds before pushing.
