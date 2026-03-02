@@ -9,7 +9,37 @@ permissions:
   contents: write
 
 jobs:
+  check_changes:
+    runs-on: ubuntu-latest
+    outputs:
+      has_changes: ${{ steps.check.outputs.has_changes }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT || github.token }}
+      - name: Check for recent commits
+        id: check
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "Workflow dispatch triggered. Forcing deploy."
+          else
+            LATEST_COMMIT_TIMESTAMP=$(git log -1 --format="%ct")
+            CURRENT_TIMESTAMP=$(date +%s)
+            DIFF=$((CURRENT_TIMESTAMP - LATEST_COMMIT_TIMESTAMP))
+            if [ "$DIFF" -le 86400 ]; then
+              echo "has_changes=true" >> $GITHUB_OUTPUT
+              echo "Latest commit is within the last 24 hours ($DIFF seconds ago). Proceeding with deploy."
+            else
+              echo "has_changes=false" >> $GITHUB_OUTPUT
+              echo "Latest commit is older than 24 hours ($DIFF seconds ago). Skipping deploy."
+            fi
+          fi
+
   deploy:
+    needs: check_changes
+    if: needs.check_changes.outputs.has_changes == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
