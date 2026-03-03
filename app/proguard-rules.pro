@@ -99,3 +99,6 @@
 
 -keep class com.theupnextapp.domain.** { *; }
 -keep class com.theupnextapp.network.** { *; }
+
+# Jsoup
+-dontwarn com.google.re2j.**
