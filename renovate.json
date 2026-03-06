@@ -5,11 +5,29 @@
   ],
   "rebaseWhen": "conflicted",
   "timezone": "UTC",
-  "schedule": ["at any time"],
+  "schedule": [
+    "at any time"
+  ],
   "prConcurrentLimit": 3,
+  "ignoreDeps": [
+    "com.google.dagger:hilt-android",
+    "com.google.dagger:hilt-android-compiler",
+    "com.google.dagger:hilt-android-testing",
+    "com.google.devtools.ksp",
+    "org.jetbrains.kotlin.android",
+    "org.jetbrains.kotlin.plugin.compose",
+    "org.jetbrains.kotlin.plugin.serialization",
+    "com.github.chuckerteam.chucker:library",
+    "com.github.chuckerteam.chucker:library-no-op",
+    "androidx.test.ext:junit",
+    "androidx.test:runner"
+  ],
   "packageRules": [
     {
-      "matchUpdateTypes": ["minor", "patch"],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
       "groupName": "all non-major dependencies",
       "groupSlug": "all-minor-patch"
     }
