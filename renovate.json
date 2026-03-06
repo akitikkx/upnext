@@ -19,6 +19,7 @@
     "org.jetbrains.kotlin.plugin.serialization",
     "com.github.chuckerteam.chucker:library",
     "com.github.chuckerteam.chucker:library-no-op",
+    "androidx.test.ext:junit",
     "androidx.test:runner",
     "com.google.dagger.hilt.android",
     "org.jetbrains.kotlinx:kotlinx-serialization-json",
