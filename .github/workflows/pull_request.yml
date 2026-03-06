@@ -33,7 +33,7 @@ jobs:
       - name: Update the gradle wrapper permissions
         run: chmod +x ./gradlew
       - name: Restore cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path:
             ~/.gradle/caches
@@ -72,7 +72,7 @@ jobs:
       - name: Print Java version
         run: javac -version
       - name: Restore cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path:
             ~/.gradle/caches
@@ -128,7 +128,7 @@ jobs:
       - name: Update the gradle wrapper permissions
         run: chmod +x ./gradlew
       - name: Restore cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.gradle/caches
@@ -169,7 +169,7 @@ jobs:
       - name: Update the gradle wrapper permissions
         run: chmod +x ./gradlew
       - name: Restore cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.gradle/caches
@@ -210,7 +210,7 @@ jobs:
       - name: Update the gradle wrapper permissions
         run: chmod +x ./gradlew
       - name: Restore cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.gradle/caches
@@ -241,7 +241,7 @@ jobs:
           java-version: 17
           distribution: 'zulu'
       - name: Restore cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.gradle/caches
@@ -293,7 +293,7 @@ jobs:
       - name: Update the gradle wrapper permissions
         run: chmod +x ./gradlew
       - name: Restore cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.gradle/caches
