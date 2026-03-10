@@ -54,6 +54,7 @@ import com.theupnextapp.navigation.Destinations
 import com.theupnextapp.ui.dashboard.DashboardScreen
 import com.theupnextapp.ui.explore.ExploreScreen
 import com.theupnextapp.ui.navigation.AppNavigation
+import com.theupnextapp.ui.schedule.ScheduleScreen
 import com.theupnextapp.ui.search.SearchScreen
 import com.theupnextapp.ui.traktAccount.TraktAccountScreen
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -187,6 +188,7 @@ fun MainScreen(
                     // IMPORTANT: Pass destinationsNavigatorForDetail for navigation to detail screens
                     when (currentListSection) {
                         NavigationDestination.Dashboard -> DashboardScreen(navController = mainNavController)
+                        NavigationDestination.Schedule -> ScheduleScreen(navController = mainNavController)
                         NavigationDestination.SearchScreen -> SearchScreen(navController = mainNavController)
                         NavigationDestination.Explore -> ExploreScreen(navController = mainNavController)
                         NavigationDestination.TraktAccount ->
