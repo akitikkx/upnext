@@ -19,8 +19,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.theupnextapp.ui.widgets
+package com.theupnextapp.core.designsystem.ui.widgets
 
+import com.theupnextapp.core.designsystem.R
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -39,10 +40,9 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.theupnextapp.R
-import com.theupnextapp.common.utils.models.getNameAndReleaseYearResource
+import com.theupnextapp.core.designsystem.ui.models.getNameAndReleaseYearResource
 import com.theupnextapp.domain.ShowSearch
-import com.theupnextapp.ui.components.PosterImage
+import com.theupnextapp.core.designsystem.ui.components.PosterImage
 
 @ExperimentalMaterial3Api
 @Composable

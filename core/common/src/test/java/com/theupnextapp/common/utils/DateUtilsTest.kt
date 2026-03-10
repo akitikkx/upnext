@@ -1,4 +1,4 @@
-package com.theupnextapp.common.utils
+package com.theupnextapp.core.designsystem.ui
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull

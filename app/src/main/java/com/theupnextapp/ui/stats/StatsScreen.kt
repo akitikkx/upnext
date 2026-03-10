@@ -27,9 +27,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.theupnextapp.ui.components.SectionHeadingText
-import com.theupnextapp.ui.theme.UpnextTheme
-import com.theupnextapp.ui.widgets.ListPosterCard
+import com.theupnextapp.core.designsystem.ui.components.SectionHeadingText
+import com.theupnextapp.core.designsystem.ui.theme.UpnextTheme
+import com.theupnextapp.core.designsystem.ui.widgets.ListPosterCard
 
 @ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api

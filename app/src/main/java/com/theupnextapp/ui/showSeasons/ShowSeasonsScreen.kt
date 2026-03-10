@@ -52,9 +52,9 @@ import com.theupnextapp.R
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.ShowSeason
 import com.theupnextapp.navigation.Destinations
-import com.theupnextapp.ui.components.PosterImage
-import com.theupnextapp.ui.components.SectionHeadingText
-import com.theupnextapp.ui.components.ShimmerSeasons
+import com.theupnextapp.core.designsystem.ui.components.PosterImage
+import com.theupnextapp.core.designsystem.ui.components.SectionHeadingText
+import com.theupnextapp.core.designsystem.ui.components.ShimmerSeasons
 
 @ExperimentalMaterial3Api
 @Composable

@@ -48,9 +48,9 @@ import com.theupnextapp.domain.TraktMostAnticipated
 import com.theupnextapp.domain.TraktPopularShows
 import com.theupnextapp.domain.TraktTrendingShows
 import com.theupnextapp.navigation.Destinations
-import com.theupnextapp.ui.components.SectionHeadingText
-import com.theupnextapp.ui.components.ShimmerPosterCardRow
-import com.theupnextapp.ui.widgets.ListPosterCard
+import com.theupnextapp.core.designsystem.ui.components.SectionHeadingText
+import com.theupnextapp.core.designsystem.ui.components.ShimmerPosterCardRow
+import com.theupnextapp.core.designsystem.ui.widgets.ListPosterCard
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalMaterial3WindowSizeClassApi

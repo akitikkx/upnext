@@ -33,9 +33,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.theupnextapp.R
 import com.theupnextapp.domain.TraktUserListItem
-import com.theupnextapp.extensions.ReferenceDevices
-import com.theupnextapp.ui.components.SectionHeadingText
-import com.theupnextapp.ui.widgets.ListPosterCard
+import com.theupnextapp.core.designsystem.ui.ReferenceDevices
+import com.theupnextapp.core.designsystem.ui.components.SectionHeadingText
+import com.theupnextapp.core.designsystem.ui.widgets.ListPosterCard
 
 @ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api

@@ -60,7 +60,7 @@ import com.theupnextapp.R
 import com.theupnextapp.domain.RecentSearch
 import com.theupnextapp.domain.ShowSearch
 import com.theupnextapp.navigation.Destinations
-import com.theupnextapp.ui.widgets.SearchListCard
+import com.theupnextapp.core.designsystem.ui.widgets.SearchListCard
 
 @ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api

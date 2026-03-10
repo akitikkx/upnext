@@ -47,10 +47,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.theupnextapp.R
 import com.theupnextapp.domain.ScheduleShow
-import com.theupnextapp.extensions.ReferenceDevices
+import com.theupnextapp.core.designsystem.ui.ReferenceDevices
 import com.theupnextapp.navigation.Destinations
-import com.theupnextapp.ui.components.SectionHeadingText
-import com.theupnextapp.ui.widgets.ListPosterCard
+import com.theupnextapp.core.designsystem.ui.components.SectionHeadingText
+import com.theupnextapp.core.designsystem.ui.widgets.ListPosterCard
 
 @OptIn(
     ExperimentalMaterial3WindowSizeClassApi::class,

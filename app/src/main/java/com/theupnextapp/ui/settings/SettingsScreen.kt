@@ -40,7 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.theupnextapp.ui.components.SectionHeadingText
+import com.theupnextapp.core.designsystem.ui.components.SectionHeadingText
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

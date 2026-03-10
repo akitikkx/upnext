@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.theupnextapp.ui.widgets
+package com.theupnextapp.core.designsystem.ui.widgets
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -35,13 +35,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.theupnextapp.common.utils.getWindowSizeClass
-import com.theupnextapp.extensions.ReferenceDevices
-import com.theupnextapp.ui.components.PosterAttributionItem
-import com.theupnextapp.ui.components.PosterImage
-import com.theupnextapp.ui.components.PosterTitleTextItem
-import com.theupnextapp.ui.widgets.ListPosterCardConfig.listPosterHeight
-import com.theupnextapp.ui.widgets.ListPosterCardConfig.listPosterWidth
+import com.theupnextapp.core.designsystem.ui.getWindowSizeClass
+import com.theupnextapp.core.designsystem.ui.ReferenceDevices
+import com.theupnextapp.core.designsystem.ui.components.PosterAttributionItem
+import com.theupnextapp.core.designsystem.ui.components.PosterImage
+import com.theupnextapp.core.designsystem.ui.components.PosterTitleTextItem
+import com.theupnextapp.core.designsystem.ui.widgets.ListPosterCardConfig.listPosterHeight
+import com.theupnextapp.core.designsystem.ui.widgets.ListPosterCardConfig.listPosterWidth
 
 @ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api

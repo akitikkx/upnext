@@ -41,7 +41,7 @@ import com.theupnextapp.common.utils.TraktConstants
 import com.theupnextapp.common.utils.customTab.CustomTabComponent
 import com.theupnextapp.common.utils.customTab.TabConnectionCallback
 import com.theupnextapp.ui.main.MainScreen
-import com.theupnextapp.ui.theme.UpnextTheme
+import com.theupnextapp.core.designsystem.ui.theme.UpnextTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 

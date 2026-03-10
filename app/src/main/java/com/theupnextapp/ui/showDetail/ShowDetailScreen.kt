@@ -71,7 +71,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.theupnextapp.R
-import com.theupnextapp.common.utils.getWindowSizeClass
+import com.theupnextapp.core.designsystem.ui.getWindowSizeClass
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.ShowNextEpisode
 import com.theupnextapp.domain.ShowPreviousEpisode
@@ -80,8 +80,8 @@ import com.theupnextapp.domain.TraktRelatedShows
 import com.theupnextapp.domain.TraktShowRating
 import com.theupnextapp.domain.TraktShowStats
 import com.theupnextapp.navigation.Destinations
-import com.theupnextapp.ui.components.PosterImage
-import com.theupnextapp.ui.components.SectionHeadingText
+import com.theupnextapp.core.designsystem.ui.components.PosterImage
+import com.theupnextapp.core.designsystem.ui.components.SectionHeadingText
 import com.valentinilk.shimmer.shimmer
 import kotlinx.coroutines.launch
 import org.jsoup.Jsoup
