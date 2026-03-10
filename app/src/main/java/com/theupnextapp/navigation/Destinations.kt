@@ -9,9 +9,6 @@ sealed interface Destinations {
     data object Dashboard : Destinations
 
     @Serializable
-    data object Schedule : Destinations
-
-    @Serializable
     data object Search : Destinations
 
     @Serializable
