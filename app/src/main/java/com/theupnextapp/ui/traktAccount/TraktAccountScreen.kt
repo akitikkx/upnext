@@ -64,7 +64,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.theupnextapp.R
-import com.theupnextapp.common.utils.getWindowSizeClass
+import com.theupnextapp.core.designsystem.ui.getWindowSizeClass
 import com.theupnextapp.domain.TraktAuthState
 import com.theupnextapp.domain.TraktUserListItem
 import com.theupnextapp.navigation.Destinations

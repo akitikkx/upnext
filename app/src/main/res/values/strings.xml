@@ -44,6 +44,7 @@
     <!-- Bottom navigation -->
     <string name="nav_title_search">Search</string>
     <string name="nav_title_dashboard">Dashboard</string>
+    <string name="nav_title_schedule">Schedule</string>
     <string name="nav_title_history">History</string>
     <string name="nav_title_watchlist">Watchlist</string>
     <string name="nav_title_library">Library</string>

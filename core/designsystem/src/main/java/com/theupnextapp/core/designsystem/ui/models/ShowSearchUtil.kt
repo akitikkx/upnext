@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.theupnextapp.common.utils.models
+package com.theupnextapp.core.designsystem.ui.models
 
 import com.theupnextapp.core.common.R
 import com.theupnextapp.domain.ShowSearch

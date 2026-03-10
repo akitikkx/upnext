@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources><dimen name="compose_shows_list_poster_height">238dp</dimen>
+
+    
+    <dimen name="compose_search_poster_width">90dp</dimen>
+    <dimen name="compose_search_poster_height">130dp</dimen>
+
+    
+    <dimen name="show_season_episode_poster_height">160dp</dimen>
+
+    
+    </resources>

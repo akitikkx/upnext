@@ -57,10 +57,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.theupnextapp.R
+import com.theupnextapp.core.designsystem.ui.widgets.SearchListCard
 import com.theupnextapp.domain.RecentSearch
 import com.theupnextapp.domain.ShowSearch
 import com.theupnextapp.navigation.Destinations
-import com.theupnextapp.ui.widgets.SearchListCard
 
 @ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api

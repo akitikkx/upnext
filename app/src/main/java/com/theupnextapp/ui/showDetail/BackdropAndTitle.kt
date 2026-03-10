@@ -23,10 +23,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.theupnextapp.common.utils.getWindowSizeClass
+import com.theupnextapp.core.designsystem.ui.components.PosterImage
+import com.theupnextapp.core.designsystem.ui.getWindowSizeClass
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.ShowDetailSummary
-import com.theupnextapp.ui.components.PosterImage
 import com.theupnextapp.ui.showDetail.BackdropAndTitleConfig.backdropHeight
 
 @ExperimentalMaterial3WindowSizeClassApi

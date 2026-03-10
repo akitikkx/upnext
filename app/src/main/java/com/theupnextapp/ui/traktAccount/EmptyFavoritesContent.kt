@@ -27,7 +27,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.theupnextapp.R
-import com.theupnextapp.extensions.ReferenceDevices
+import com.theupnextapp.core.designsystem.ui.ReferenceDevices
 
 @Composable
 fun EmptyFavoritesContent(modifier: Modifier = Modifier) {

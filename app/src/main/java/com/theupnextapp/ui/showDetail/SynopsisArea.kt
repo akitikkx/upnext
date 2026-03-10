@@ -27,9 +27,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.theupnextapp.common.utils.getWindowSizeClass
+import com.theupnextapp.core.designsystem.ui.components.PosterImage
+import com.theupnextapp.core.designsystem.ui.getWindowSizeClass
 import com.theupnextapp.domain.ShowDetailSummary
-import com.theupnextapp.ui.components.PosterImage
 import com.theupnextapp.ui.previewdata.ShowDetailSummaryProvider
 import com.theupnextapp.ui.showDetail.SynopsisAreaConfig.posterHeight
 import com.theupnextapp.ui.showDetail.SynopsisAreaConfig.posterWidth

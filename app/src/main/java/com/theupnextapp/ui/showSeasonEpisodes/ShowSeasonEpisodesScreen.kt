@@ -55,11 +55,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.theupnextapp.R
 import com.theupnextapp.common.utils.DateUtils
+import com.theupnextapp.core.designsystem.ui.components.PosterImage
+import com.theupnextapp.core.designsystem.ui.components.SectionHeadingText
+import com.theupnextapp.core.designsystem.ui.components.ShimmerSeasonEpisodes
 import com.theupnextapp.domain.ShowSeasonEpisode
 import com.theupnextapp.domain.ShowSeasonEpisodesArg
-import com.theupnextapp.ui.components.PosterImage
-import com.theupnextapp.ui.components.SectionHeadingText
-import com.theupnextapp.ui.components.ShimmerSeasonEpisodes
 import org.jsoup.Jsoup
 
 @ExperimentalMaterial3Api

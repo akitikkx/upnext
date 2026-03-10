@@ -10,6 +10,8 @@ This skill encapsulates the critical patterns for implementing adaptive layouts 
 ## 📱 Adaptive Layouts (List-Detail)
 
 Upnext uses `NavigableListDetailPaneScaffold` to support phones, tablets, and foldables.
+> [!NOTE]
+> Adaptive UI utilities, such as `WindowSizeClassUtil` and the `@ReferenceDevices` Preview annotation, are now centralized in the `:core:designsystem` module to prevent circular dependencies. Ensure feature modules depend on `:core:designsystem` to use them.
 
 ### ⚠️ Critical Rule: Navigator Mismatch
 **NEVER** use `rememberSupportingPaneScaffoldNavigator` with `NavigableListDetailPaneScaffold`. This causes back navigation conflicts and UI flickering.
