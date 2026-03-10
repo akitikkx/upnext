@@ -12,7 +12,6 @@
 
 package com.theupnextapp.core.designsystem.ui.components
 
-import com.theupnextapp.core.designsystem.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,6 +32,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.theupnextapp.core.designsystem.R
 import com.valentinilk.shimmer.shimmer
 
 val shimmerBackgroundColor = Color.LightGray.copy(alpha = 0.2f)

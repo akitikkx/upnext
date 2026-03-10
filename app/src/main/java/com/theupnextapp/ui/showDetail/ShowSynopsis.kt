@@ -17,8 +17,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewParameter
-import com.theupnextapp.domain.ShowDetailSummary
 import com.theupnextapp.core.designsystem.ui.ReferenceDevices
+import com.theupnextapp.domain.ShowDetailSummary
 import com.theupnextapp.ui.previewdata.ShowDetailSummaryProvider
 import org.jsoup.Jsoup
 

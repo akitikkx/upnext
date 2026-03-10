@@ -17,7 +17,6 @@ import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
-import com.theupnextapp.core.designsystem.ui.getActivity
 
 @ExperimentalMaterial3WindowSizeClassApi
 @Composable

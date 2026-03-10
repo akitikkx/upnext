@@ -24,9 +24,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import com.theupnextapp.R
-import com.theupnextapp.domain.ShowDetailSummary
 import com.theupnextapp.core.designsystem.ui.ReferenceDevices
 import com.theupnextapp.core.designsystem.ui.components.HeadingAndItemText
+import com.theupnextapp.domain.ShowDetailSummary
 import com.theupnextapp.ui.previewdata.ShowDetailSummaryProvider
 
 @Composable

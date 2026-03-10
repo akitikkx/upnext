@@ -21,7 +21,7 @@ android {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }
@@ -51,11 +51,13 @@ dependencies {
     implementation(libs.android.material3.adaptive.layout)
     implementation(libs.android.material3.adaptive.navigation)
     implementation(libs.android.material3.adaptive.navigation.suite)
-    
+
     implementation(libs.material.icons.extended)
     implementation(libs.animation)
     implementation(libs.compose.shimmer)
     implementation(libs.coil.compose)
+
+    detektPlugins(libs.detekt.formatting)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)

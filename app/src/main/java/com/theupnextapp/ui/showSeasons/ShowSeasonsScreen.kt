@@ -49,12 +49,12 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.theupnextapp.R
-import com.theupnextapp.domain.ShowDetailArg
-import com.theupnextapp.domain.ShowSeason
-import com.theupnextapp.navigation.Destinations
 import com.theupnextapp.core.designsystem.ui.components.PosterImage
 import com.theupnextapp.core.designsystem.ui.components.SectionHeadingText
 import com.theupnextapp.core.designsystem.ui.components.ShimmerSeasons
+import com.theupnextapp.domain.ShowDetailArg
+import com.theupnextapp.domain.ShowSeason
+import com.theupnextapp.navigation.Destinations
 
 @ExperimentalMaterial3Api
 @Composable
