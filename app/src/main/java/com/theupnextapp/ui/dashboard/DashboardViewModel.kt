@@ -39,6 +39,32 @@ class DashboardViewModel
         private val _isLoadingAiringSoon = MutableStateFlow(false)
         val isLoadingAiringSoon: StateFlow<Boolean> = _isLoadingAiringSoon.asStateFlow()
 
+        val trendingShows: StateFlow<List<com.theupnextapp.domain.TraktTrendingShows>?> =
+            traktRepository.traktTrendingShows
+                .stateIn(
+                    scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(5000),
+                    initialValue = null,
+                )
+
+        val popularShows: StateFlow<List<com.theupnextapp.domain.TraktPopularShows>?> =
+            traktRepository.traktPopularShows
+                .stateIn(
+                    scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(5000),
+                    initialValue = null,
+                )
+
+        val isLoadingTrending: StateFlow<Boolean> = traktRepository.isLoadingTraktTrending
+        val isLoadingPopular: StateFlow<Boolean> = traktRepository.isLoadingTraktPopular
+
+        init {
+            viewModelScope.launch {
+                traktRepository.refreshTraktTrendingShows(forceRefresh = false)
+                traktRepository.refreshTraktPopularShows(forceRefresh = false)
+            }
+        }
+
         fun fetchAiringSoonForYou(token: String) {
             viewModelScope.launch {
                 _isLoadingAiringSoon.value = true
