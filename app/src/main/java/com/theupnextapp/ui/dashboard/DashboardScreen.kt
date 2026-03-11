@@ -111,8 +111,9 @@ fun DashboardScreen(
                     val pagerState = rememberPagerState(pageCount = { todayShows!!.size })
                     HorizontalPager(
                         state = pagerState,
-                        contentPadding = PaddingValues(horizontal = 48.dp),
-                        modifier = Modifier.fillMaxWidth().height(400.dp),
+                        pageSize = androidx.compose.foundation.pager.PageSize.Fixed(260.dp),
+                        pageSpacing = 16.dp,
+                        modifier = Modifier.fillMaxWidth(),
                     ) { page ->
                         val show = todayShows!![page]
                         val pageOffset = (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
@@ -136,8 +137,7 @@ fun DashboardScreen(
                                         scaleX = scale
                                         scaleY = scale
                                         alpha = alphaOffset
-                                    }
-                                    .padding(horizontal = 8.dp),
+                                    },
                             contentAlignment = Alignment.Center,
                         ) {
                             Card(
@@ -146,7 +146,7 @@ fun DashboardScreen(
                                 modifier =
                                     Modifier
                                         .fillMaxWidth()
-                                        .height(400.dp)
+                                        .aspectRatio(2f / 3f)
                                         .clickable {
                                             val direction =
                                                 Destinations.ShowDetail(
