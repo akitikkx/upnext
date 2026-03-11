@@ -69,6 +69,8 @@ interface DashboardRepository {
         countryCode: String,
         date: String?,
     )
+
+    suspend fun getShowImageAndTvmazeId(imdbId: String?): Pair<String?, Int?>
 }
 
 class DashboardRepositoryImpl(
@@ -283,6 +285,11 @@ class DashboardRepositoryImpl(
                 firebaseCrashlytics.recordException(e)
             }
         }
+    }
+
+    override suspend fun getShowImageAndTvmazeId(imdbId: String?): Pair<String?, Int?> {
+        val (tvmazeId, original, medium) = super.getImages(imdbId)
+        return Pair(medium ?: original, tvmazeId)
     }
 
     /**

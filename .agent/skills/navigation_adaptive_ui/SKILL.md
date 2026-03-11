@@ -33,6 +33,16 @@ The scaffold handles back navigation between panes (Detail -> List) automaticall
 *   **Do NOT** manually intercept back presses for pane navigation using `BackHandler` if the scaffold can handle it.
 *   **Do** use `BackHandler` only for top-level destination changes (e.g., Explore -> Dashboard).
 
+### Resetting Pane State (OAuth / Deep Links)
+When returning to the list view from an external intent (like an OAuth browser callback), the navigation graphs may become out of sync, leading to `IllegalArgumentException: Destination with route cannot be found`.
+*   **Fix:** Route the detail pane to the `EmptyDetail` destination to gracefully clear the view. The scaffold will interpret the empty detail state and automatically jump back to the list cleanly logic!
+```kotlin
+// Example callback reset
+mainNavController.navigate(Destinations.EmptyDetail) {
+    popUpTo(Destinations.EmptyDetail) { inclusive = true }
+}
+```
+
 ---
 
 ## 🧭 Type-Safe Navigation (Nav 3)

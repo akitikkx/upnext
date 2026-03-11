@@ -126,13 +126,13 @@ fun ExploreScreen(
                             navController.navigate(
                                 Destinations.ShowDetail(
                                     source = "trending",
-                                    showId = traktShow.tvMazeID.toString(),
+                                    showId = traktShow.tvMazeID?.toString(),
                                     showTitle = traktShow.title,
                                     showImageUrl = traktShow.originalImageUrl,
                                     showBackgroundUrl = traktShow.mediumImageUrl,
-                                    imdbID = null,
+                                    imdbID = traktShow.imdbID,
                                     isAuthorizedOnTrakt = null,
-                                    showTraktId = null,
+                                    showTraktId = traktShow.traktID,
                                 ),
                             )
                         }
@@ -149,13 +149,13 @@ fun ExploreScreen(
                             navController.navigate(
                                 Destinations.ShowDetail(
                                     source = "popular",
-                                    showId = traktShow.tvMazeID.toString(),
+                                    showId = traktShow.tvMazeID?.toString(),
                                     showTitle = traktShow.title,
                                     showImageUrl = traktShow.originalImageUrl,
                                     showBackgroundUrl = traktShow.mediumImageUrl,
-                                    imdbID = null,
+                                    imdbID = traktShow.imdbID,
                                     isAuthorizedOnTrakt = null,
-                                    showTraktId = null,
+                                    showTraktId = traktShow.traktID,
                                 ),
                             )
                         }
@@ -172,13 +172,13 @@ fun ExploreScreen(
                             navController.navigate(
                                 Destinations.ShowDetail(
                                     source = "most_anticipated",
-                                    showId = traktShow.tvMazeID.toString(),
+                                    showId = traktShow.tvMazeID?.toString(),
                                     showTitle = traktShow.title,
                                     showImageUrl = traktShow.originalImageUrl,
                                     showBackgroundUrl = traktShow.mediumImageUrl,
-                                    imdbID = null,
+                                    imdbID = traktShow.imdbID,
                                     isAuthorizedOnTrakt = null,
-                                    showTraktId = null,
+                                    showTraktId = traktShow.traktID,
                                 ),
                             )
                         }

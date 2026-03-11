@@ -57,6 +57,7 @@ import com.theupnextapp.ui.navigation.AppNavigation
 import com.theupnextapp.ui.schedule.ScheduleScreen
 import com.theupnextapp.ui.search.SearchScreen
 import com.theupnextapp.ui.traktAccount.TraktAccountScreen
+import com.theupnextapp.ui.traktAccount.TraktAccountViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @OptIn(
@@ -72,6 +73,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 fun MainScreen(
     valueState: MutableState<String?>,
     onTraktAuthCompleted: () -> Unit,
+    traktAccountViewModel: TraktAccountViewModel = androidx.hilt.navigation.compose.hiltViewModel(),
 ) {
     // val scope = rememberCoroutineScope() // Removed unused scope
 
@@ -219,14 +221,14 @@ fun MainScreen(
             valueState.value = null
             onTraktAuthCompleted()
 
-            currentListSection = NavigationDestination.TraktAccount // Switch list pane
+            traktAccountViewModel.onCodeReceived(codeArg!!)
 
-            mainNavController.navigate(Destinations.TraktAccount(code = codeArg)) {
-                // Clear backstack logic if needed, or just push
+            currentListSection = NavigationDestination.Dashboard // Switch list pane
+
+            mainNavController.navigate(Destinations.EmptyDetail) {
+                popUpTo(Destinations.EmptyDetail) { inclusive = true }
                 launchSingleTop = true
             }
-            // isDetailFlowActive will become true after navigation to TraktAccountScreen,
-            // and listDetailNavigator will switch to Primary.
         }
     }
 }

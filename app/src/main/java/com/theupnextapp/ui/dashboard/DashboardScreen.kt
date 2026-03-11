@@ -22,6 +22,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.livedata.observeAsState
@@ -30,6 +31,9 @@ import androidx.compose.ui.util.lerp
 import kotlin.math.absoluteValue
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -41,7 +45,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.theupnextapp.core.designsystem.ui.widgets.ListPosterCard
 import com.theupnextapp.core.designsystem.ui.widgets.UpNextEpisodeCard
+import com.theupnextapp.domain.TraktAccessToken
 import com.theupnextapp.navigation.Destinations
+import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponseItem
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import androidx.compose.foundation.background
@@ -61,17 +67,18 @@ fun DashboardScreen(
     viewModel: DashboardViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
-    val token by viewModel.traktAccessToken.collectAsState()
-    val airingSoonShows by viewModel.airingSoonShows.collectAsState()
-    val isLoadingAiringSoon by viewModel.isLoadingAiringSoon.collectAsState()
+    val traktAccessToken by viewModel.traktAccessToken.collectAsStateWithLifecycle()
+    val airingSoonShows by viewModel.airingSoonShows.collectAsStateWithLifecycle()
+    val airingSoonImages by viewModel.airingSoonImages.collectAsStateWithLifecycle()
+    val isLoadingAiringSoon by viewModel.isLoadingAiringSoon.collectAsStateWithLifecycle()
 
     val todayShows by viewModel.todayShows.collectAsState()
     val mostAnticipatedShows by viewModel.mostAnticipatedShows.collectAsState()
     val isLoadingTodayShows by viewModel.isLoadingTodayShows.observeAsState(false)
     val isLoadingMostAnticipated by viewModel.isLoadingMostAnticipated.collectAsState()
 
-    LaunchedEffect(token) {
-        token?.access_token?.let {
+    LaunchedEffect(traktAccessToken) {
+        traktAccessToken?.access_token?.let {
             viewModel.fetchAiringSoonForYou(it)
         }
     }
@@ -80,7 +87,7 @@ fun DashboardScreen(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
     ) {
-        if (token != null) {
+        if (traktAccessToken != null) {
             item {
                 Text(
                     text = "My Upnext",
@@ -91,7 +98,7 @@ fun DashboardScreen(
             }
         }
 
-        if (token == null) {
+        if (traktAccessToken == null) {
             item {
                 Text(
                     text = "Tonight on TV",
@@ -143,7 +150,7 @@ fun DashboardScreen(
                                     .clickable {
                                         val direction = Destinations.ShowDetail(
                                             source = "today",
-                                            showId = show.id.toString(),
+                                            showId = show.showId.toString(),
                                             showTitle = show.name,
                                             showImageUrl = show.originalImage,
                                             showBackgroundUrl = show.mediumImage,
@@ -247,10 +254,13 @@ fun DashboardScreen(
                                 onClick = {
                                     val direction = Destinations.ShowDetail(
                                         source = "anticipated",
-                                        showId = show.id.toString(),
+                                        showId = show.tvMazeID?.toString(),
                                         showTitle = show.title,
                                         showImageUrl = show.originalImageUrl,
                                         showBackgroundUrl = show.mediumImageUrl,
+                                        imdbID = show.imdbID,
+                                        isAuthorizedOnTrakt = traktAccessToken != null,
+                                        showTraktId = show.traktID,
                                     )
                                     navController.navigate(direction)
                                 },
@@ -278,14 +288,79 @@ fun DashboardScreen(
                 } else if (airingSoonShows.isNullOrEmpty()) {
                     Text("No shows airing soon.", style = MaterialTheme.typography.bodyMedium)
                 } else {
-                    LazyRow {
-                        items(airingSoonShows!!) { showResponse ->
+                    val pagerState = rememberPagerState(pageCount = { airingSoonShows!!.size })
+                    HorizontalPager(
+                        state = pagerState,
+                        pageSize = androidx.compose.foundation.pager.PageSize.Fixed(260.dp),
+                        pageSpacing = 16.dp,
+                        modifier = Modifier.fillMaxWidth()
+                    ) { page ->
+                        val showResponse = airingSoonShows!!.toList()[page]
+                        val pageOffset = (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
+                        val scale = lerp(
+                            start = 0.85f,
+                            stop = 1f,
+                            fraction = 1f - pageOffset.absoluteValue.coerceIn(0f, 1f)
+                        )
+                        val alphaOffset = lerp(
+                            start = 0.5f,
+                            stop = 1f,
+                            fraction = 1f - pageOffset.absoluteValue.coerceIn(0f, 1f)
+                        )
+
+                        val imdbId = showResponse.show?.ids?.imdb
+                        val traktId = showResponse.show?.ids?.trakt
+                        val extractedInfo = traktId?.let { airingSoonImages[it] }
+                        val imageUrl = extractedInfo?.imageUrl
+                        val tvmazeId = extractedInfo?.tvmazeId
+
+                        val airDateTxt = try {
+                            showResponse.first_aired?.let {
+                                val parsed = ZonedDateTime.parse(it)
+                                val timeMillis = parsed.toInstant().toEpochMilli()
+                                android.text.format.DateUtils.getRelativeTimeSpanString(
+                                    timeMillis,
+                                    System.currentTimeMillis(),
+                                    android.text.format.DateUtils.MINUTE_IN_MILLIS,
+                                    android.text.format.DateUtils.FORMAT_ABBREV_RELATIVE
+                                ).toString()
+                            } ?: "TBA"
+                        } catch(e: Exception) {
+                            "TBA"
+                        }
+                        
+                        val episodeInfoText = "S${showResponse.episode?.season ?: 0} E${showResponse.episode?.number ?: 0} • ${showResponse.episode?.title ?: "TBA"}"
+
+                        Box(
+                            modifier = Modifier
+                                .graphicsLayer {
+                                    scaleX = scale
+                                    scaleY = scale
+                                    alpha = alphaOffset
+                                }
+                                .padding(horizontal = 8.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
                             UpNextEpisodeCard(
                                 showTitle = showResponse.show?.title ?: "Unknown",
-                                episodeSummary = "S${showResponse.episode?.season ?: 0} E${showResponse.episode?.number ?: 0} • ${showResponse.episode?.title ?: "TBA"}",
-                                imageUrl = null, // Trakt schedule doesn't include images directly
-                                modifier = Modifier.padding(end = 16.dp),
-                                onCardClick = { /* Handle card click here to go to Show Detail */ },
+                                episodeInfo = episodeInfoText,
+                                airDateRibbon = airDateTxt,
+                                imageUrl = imageUrl,
+                                modifier = Modifier.fillMaxWidth(),
+                                onCardClick = { 
+                                    
+                                    val direction = Destinations.ShowDetail(
+                                        source = "airing_soon",
+                                        showId = tvmazeId?.toString(),
+                                        showTitle = showResponse.show?.title,
+                                        showImageUrl = imageUrl,
+                                        showBackgroundUrl = null,
+                                        imdbID = imdbId,
+                                        isAuthorizedOnTrakt = traktAccessToken != null,
+                                        showTraktId = traktId,
+                                    )
+                                    navController.navigate(direction)
+                                },
                                 onMarkAsWatchedClick = { /* Mark episode watched logic */ },
                             )
                         }
