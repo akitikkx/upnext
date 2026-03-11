@@ -21,7 +21,9 @@
 
 package com.theupnextapp.network.models.trakt
 
+import androidx.annotation.Keep
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 data class NetworkTraktSyncHistoryResponse(
     val added: NetworkTraktSyncHistoryResponseAdded?,
@@ -42,6 +44,8 @@ data class NetworkTraktSyncHistoryResponseNotFound(
     val episodes: List<Any>?,
 )
 
+@Keep
+@JsonClass(generateAdapter = true)
 data class NetworkTraktWatchedShowsResponse(
     val plays: Int?,
     @Json(name = "last_watched_at")
@@ -54,12 +58,16 @@ data class NetworkTraktWatchedShowsResponse(
     val seasons: List<NetworkTraktWatchedSeason>?,
 )
 
+@Keep
+@JsonClass(generateAdapter = true)
 data class NetworkTraktWatchedShowInfo(
     val title: String?,
     val year: Int?,
     val ids: NetworkTraktWatchedShowIds?,
 )
 
+@Keep
+@JsonClass(generateAdapter = true)
 data class NetworkTraktWatchedShowIds(
     val trakt: Int?,
     val slug: String?,
@@ -68,13 +76,19 @@ data class NetworkTraktWatchedShowIds(
     val tmdb: Int?,
 )
 
+@Keep
+@JsonClass(generateAdapter = true)
 data class NetworkTraktWatchedSeason(
     val number: Int?,
     val episodes: List<NetworkTraktWatchedEpisode>?,
 )
 
+@Keep
+@JsonClass(generateAdapter = true)
 data class NetworkTraktWatchedEpisode(
+    val season: Int?,
     val number: Int?,
+    val title: String?,
     val plays: Int?,
     @Json(name = "last_watched_at")
     val lastWatchedAt: String?,

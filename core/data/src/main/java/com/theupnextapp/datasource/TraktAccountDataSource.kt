@@ -46,6 +46,12 @@ import com.theupnextapp.network.models.trakt.NetworkTraktRemoveShowFromListReque
 import com.theupnextapp.network.models.trakt.NetworkTraktUserListItemResponse
 import com.theupnextapp.network.models.trakt.TraktConflictErrorResponse
 import com.theupnextapp.network.models.trakt.TraktErrorResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktWatchedShowsResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktShowProgressResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktWatchedShowInfo
+import com.theupnextapp.network.models.trakt.NetworkTraktWatchedShowIds
+import com.theupnextapp.network.models.trakt.NetworkTraktWatchedSeason
+import com.theupnextapp.network.models.trakt.NetworkTraktWatchedEpisode
 import com.theupnextapp.network.models.trakt.asDatabaseModel
 import com.theupnextapp.network.models.trakt.asDomainModel
 import kotlinx.coroutines.Dispatchers
@@ -498,6 +504,108 @@ constructor(
                 Result.failure(Exception(userMessage, e))
             } catch (e: Exception) {
                 logTraktException("Error fetching calendar", e)
+                Result.failure(e)
+            }
+        }
+    }
+
+    suspend fun getTraktPlaybackProgress(token: String): Result<List<com.theupnextapp.network.models.trakt.NetworkTraktPlaybackResponse>> {
+        if (token.isEmpty()) return Result.failure(IllegalArgumentException("Token is empty"))
+        return withContext(Dispatchers.IO) {
+            try {
+                val bearerToken = "Bearer $token"
+                val pausedDeferred = traktService.getPlaybackProgressAsync(bearerToken)
+                val watchedDeferred = traktService.getWatchedShowsAsync(bearerToken)
+
+                val pausedItems: List<com.theupnextapp.network.models.trakt.NetworkTraktPlaybackResponse> = try {
+                    pausedDeferred.await()
+                } catch (e: Exception) {
+                    emptyList<com.theupnextapp.network.models.trakt.NetworkTraktPlaybackResponse>()
+                }
+                val watchedShowsResponse: List<com.theupnextapp.network.models.trakt.NetworkTraktWatchedShowsResponse> = try {
+                    watchedDeferred.await()
+                } catch (e: Exception) {
+                    emptyList<com.theupnextapp.network.models.trakt.NetworkTraktWatchedShowsResponse>()
+                }
+
+                val topWatched = watchedShowsResponse
+                    .sortedByDescending { it.lastUpdatedAt ?: it.lastWatchedAt ?: "" }
+                    .take(15)
+
+                val progressDeferreds = topWatched.mapNotNull { showItem ->
+                    showItem.show?.ids?.trakt?.let { traktId ->
+                        async {
+                            try {
+                                val progress = traktService.getShowProgressAsync(
+                                    token = bearerToken,
+                                    id = traktId.toString(),
+                                ).await()
+                                Pair<com.theupnextapp.network.models.trakt.NetworkTraktWatchedShowsResponse, com.theupnextapp.network.models.trakt.NetworkTraktShowProgressResponse>(showItem, progress)
+                            } catch (e: Exception) {
+                                null
+                            }
+                        }
+                    }
+                }
+
+                val progressResults = progressDeferreds.awaitAll().filterNotNull()
+                val upNextItems = mutableListOf<com.theupnextapp.network.models.trakt.NetworkTraktPlaybackResponse>()
+                val pausedShowIds = pausedItems.mapNotNull { it.show?.ids?.trakt }.toSet()
+                
+                upNextItems.addAll(pausedItems)
+
+                for ((watchedShow, progress) in progressResults) {
+                    val traktId = watchedShow.show?.ids?.trakt
+                    if (traktId != null && !pausedShowIds.contains(traktId)) {
+                        val nextEp = progress.nextEpisode
+                        if (nextEp != null) {
+                            val computedProgress = if ((progress.aired ?: 0) > 0 && progress.completed != null) {
+                                (progress.completed!!.toFloat() / progress.aired!!.toFloat()) * 100f
+                            } else {
+                                0f
+                            }
+                            upNextItems.add(
+                                com.theupnextapp.network.models.trakt.NetworkTraktPlaybackResponse(
+                                    progress = computedProgress,
+                                    action = null,
+                                    type = "episode",
+                                    show = watchedShow.show,
+                                    episode = nextEp
+                                )
+                            )
+                        }
+                    }
+                }
+                
+                Result.success(upNextItems.take(20))
+            } catch (e: Exception) {
+                logTraktException("Error fetching playback progress", e)
+                Result.failure(e)
+            }
+        }
+    }
+
+    suspend fun getTraktRecentHistory(token: String): Result<List<com.theupnextapp.network.models.trakt.NetworkTraktHistoryResponse>> {
+        if (token.isEmpty()) return Result.failure(IllegalArgumentException("Token is empty"))
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = traktService.getRecentHistoryAsync("Bearer $token").await()
+                Result.success(response)
+            } catch (e: Exception) {
+                logTraktException("Error fetching recent history", e)
+                Result.failure(e)
+            }
+        }
+    }
+
+    suspend fun getTraktShowProgress(token: String, showId: String): Result<com.theupnextapp.network.models.trakt.NetworkTraktShowProgressResponse> {
+        if (token.isEmpty()) return Result.failure(IllegalArgumentException("Token is empty"))
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = traktService.getShowProgressAsync("Bearer $token", showId).await()
+                Result.success(response)
+            } catch (e: Exception) {
+                logTraktException("Error fetching show progress", e)
                 Result.failure(e)
             }
         }

@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -13,11 +14,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material3.Button
@@ -36,6 +39,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -43,6 +47,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -51,12 +56,13 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.theupnextapp.common.utils.TraktConstants
+import com.theupnextapp.core.designsystem.ui.widgets.ContinueWatchingCard
 import com.theupnextapp.core.designsystem.ui.widgets.ListPosterCard
 import com.theupnextapp.core.designsystem.ui.widgets.UpNextEpisodeCard
 import com.theupnextapp.navigation.Destinations
 import kotlin.math.absoluteValue
 
-@Suppress("LongMethod")
+@Suppress("LongMethod", "CyclomaticComplexMethod", "MagicNumber")
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
@@ -69,6 +75,14 @@ fun DashboardScreen(
     val airingSoonImages by viewModel.airingSoonImages.collectAsStateWithLifecycle()
     val isLoadingAiringSoon by viewModel.isLoadingAiringSoon.collectAsStateWithLifecycle()
 
+    val playbackProgress by viewModel.playbackProgress.collectAsStateWithLifecycle()
+    val playbackImages by viewModel.playbackImages.collectAsStateWithLifecycle()
+    val isLoadingPlayback by viewModel.isLoadingPlayback.collectAsStateWithLifecycle()
+
+    val recentHistory by viewModel.recentHistory.collectAsStateWithLifecycle()
+    val historyImages by viewModel.historyImages.collectAsStateWithLifecycle()
+    val isLoadingHistory by viewModel.isLoadingHistory.collectAsStateWithLifecycle()
+
     val todayShows by viewModel.todayShows.collectAsState()
     val mostAnticipatedShows by viewModel.mostAnticipatedShows.collectAsState()
     val isLoadingTodayShows by viewModel.isLoadingTodayShows.observeAsState(false)
@@ -76,7 +90,7 @@ fun DashboardScreen(
 
     LaunchedEffect(traktAccessToken) {
         traktAccessToken?.access_token?.let {
-            viewModel.fetchAiringSoonForYou(it)
+            viewModel.fetchDashboardData(it)
         }
     }
 
@@ -278,6 +292,82 @@ fun DashboardScreen(
                 Spacer(modifier = Modifier.height(24.dp))
             }
         } else {
+            // Continue Watching Section
+            item {
+                Text(
+                    text = "Continue Watching",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.padding(bottom = 8.dp),
+                )
+
+                if (isLoadingPlayback) {
+                    Box(modifier = Modifier.fillMaxWidth().height(150.dp), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                } else if (playbackProgress.isNullOrEmpty()) {
+                    Text(
+                        "No in-progress shows found.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(bottom = 16.dp),
+                    )
+                } else {
+                    val pagerState = rememberPagerState(pageCount = { playbackProgress!!.size })
+                    HorizontalPager(
+                        state = pagerState,
+                        pageSize = androidx.compose.foundation.pager.PageSize.Fixed(280.dp),
+                        pageSpacing = 16.dp,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) { page ->
+                        val item = playbackProgress!![page]
+                        val traktId = item.show?.ids?.trakt
+                        val imdbId = item.show?.ids?.imdb
+                        val extractedInfo = traktId?.let { playbackImages[it] }
+                        val imageUrl = extractedInfo?.imageUrl
+                        val tvmazeId = extractedInfo?.tvmazeId
+
+                        val progressVal = (item.progress ?: 0f) / 100f
+
+                        Column(modifier = Modifier.padding(horizontal = 8.dp)) {
+                            ContinueWatchingCard(
+                                showTitle = item.show?.title ?: "Unknown",
+                                episodeTitle = item.episode?.title ?: "Episode ${item.episode?.number ?: 0}",
+                                seasonNumber = item.episode?.season ?: 0,
+                                episodeNumber = item.episode?.number ?: 0,
+                                imageUrl = imageUrl,
+                                progressPercentage = progressVal,
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .aspectRatio(16f / 9f),
+                                onClick = {
+                                    val direction =
+                                        Destinations.ShowDetail(
+                                            source = "continue_watching",
+                                            showId = tvmazeId?.toString(),
+                                            showTitle = item.show?.title,
+                                            showImageUrl = imageUrl,
+                                            showBackgroundUrl = null,
+                                            imdbID = imdbId,
+                                            isAuthorizedOnTrakt = true,
+                                            showTraktId = traktId,
+                                        )
+                                    navController.navigate(direction)
+                                },
+                            )
+                            Text(
+                                text = "${item.show?.title ?: "Unknown"} • S${item.episode?.season ?: 0} E${item.episode?.number ?: 0}",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.SemiBold,
+                                modifier = Modifier.padding(top = 8.dp, bottom = 4.dp),
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+
             // Airing Soon Section
             item {
                 Text(
@@ -381,6 +471,105 @@ fun DashboardScreen(
                     }
                 }
                 Spacer(modifier = Modifier.height(24.dp))
+            }
+
+            // Recent Activity Section
+            item {
+                Text(
+                    text = "Recent Activity",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.padding(bottom = 8.dp),
+                )
+
+                if (isLoadingHistory) {
+                    Box(modifier = Modifier.fillMaxWidth().height(100.dp), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                } else if (recentHistory.isNullOrEmpty()) {
+                    Text(
+                        "No recent activity found.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(bottom = 16.dp),
+                    )
+                }
+            }
+
+            if (!recentHistory.isNullOrEmpty()) {
+                item {
+                    // Recent Activity Carousel
+                    LazyRow(
+                        contentPadding = PaddingValues(end = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                    ) {
+                        items(recentHistory!!.take(5)) { historyItem ->
+                            val traktId = historyItem.show?.ids?.trakt
+                            val imdbId = historyItem.show?.ids?.imdb
+                            val extractedInfo = traktId?.let { historyImages[it] }
+                            val imageUrl = extractedInfo?.imageUrl
+                            val tvmazeId = extractedInfo?.tvmazeId
+
+                            Column(
+                                modifier =
+                                    Modifier
+                                        .width(160.dp)
+                                        .clickable {
+                                            val direction =
+                                                Destinations.ShowSeasonEpisodes(
+                                                    showId = tvmazeId,
+                                                    seasonNumber = historyItem.episode?.season,
+                                                    imdbID = imdbId,
+                                                    isAuthorizedOnTrakt = true,
+                                                    showTraktId = traktId,
+                                                )
+                                            navController.navigate(direction)
+                                        },
+                            ) {
+                                AsyncImage(
+                                    model =
+                                        ImageRequest.Builder(LocalContext.current)
+                                            .data(imageUrl)
+                                            .crossfade(true)
+                                            .build(),
+                                    contentDescription = historyItem.show?.title ?: "Show Poster",
+                                    contentScale = ContentScale.Crop,
+                                    modifier =
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .aspectRatio(16f / 9f)
+                                            .clip(RoundedCornerShape(8.dp)),
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = historyItem.show?.title ?: "Unknown Show",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                                Text(
+                                    text = "Season ${historyItem.episode?.season ?: 0} • Episode ${historyItem.episode?.number ?: 0}",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                                Text(
+                                    text = "Watched",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                            }
+                        }
+                    }
+                }
+                item {
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
             }
         }
     }

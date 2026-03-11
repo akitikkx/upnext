@@ -350,4 +350,20 @@ class TraktRepositoryImpl(
     override suspend fun getRelatedShows(imdbID: String): Result<List<TraktRelatedShows>> {
         return traktRecommendationsDataSource.getRelatedShows(imdbID)
     }
+
+    override suspend fun getTraktPlaybackProgress(token: String): Result<List<com.theupnextapp.network.models.trakt.NetworkTraktPlaybackResponse>> {
+        return traktAccountDataSource.getTraktPlaybackProgress(token)
+    }
+
+    override suspend fun getTraktRecentHistory(token: String): Result<List<com.theupnextapp.network.models.trakt.NetworkTraktHistoryResponse>> {
+        return traktAccountDataSource.getTraktRecentHistory(token)
+    }
+
+    override suspend fun getTraktShowProgress(token: String, showId: String): Result<com.theupnextapp.network.models.trakt.NetworkTraktShowProgressResponse> {
+        return traktAccountDataSource.getTraktShowProgress(token, showId)
+    }
+
+    override suspend fun getTraktWatchedShows(token: String): Result<List<com.theupnextapp.network.models.trakt.NetworkTraktWatchedShowsResponse>> {
+        return Result.failure(Exception("Not utilized via DashboardViewModel directly"))
+    }
 }
