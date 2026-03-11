@@ -14,10 +14,16 @@ package com.theupnextapp.core.designsystem.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Teal500 = Color(0xFF009688)
-val Purple500 = Color(0xFF6200EE)
-val Teal600 = Color(0xFF00897B)
-
+// Light Theme Equivalents
 val Teal200 = Color(0xFF80CBC4)
 val Purple200 = Color(0xFFBB86FC)
 val Teal700 = Color(0xFF00796B)
+
+// Premium 1M+ User UX Dark Theme
+val UpnextBackgroundDark = Color(0xFF0F1115) // Extremely dark slate for AMOLED-friendly deep backgrounds
+val UpnextSurfaceDark = Color(0xFF1C1E26) // Elevated slate for cards and dialogs
+val UpnextSurfaceVariantDark = Color(0xFF2B2D38) // Lighter surface for selected items/chips
+val UpnextPrimaryCyan = Color(0xFF00E5FF) // A high-contrast vibrant cyan for primary brand action
+val UpnextSecondaryPurple = Color(0xFF7C4DFF) // Deep rich purple secondary accents
+val UpnextTextPrimary = Color(0xFFF8F9FA) // High-contrast but soft white text
+val UpnextTextSecondary = Color(0xFF9E9E9E) // Dimmed gray for secondary/body info

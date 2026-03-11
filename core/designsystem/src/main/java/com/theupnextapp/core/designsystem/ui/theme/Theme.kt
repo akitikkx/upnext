@@ -24,9 +24,17 @@ import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorTheme =
     darkColorScheme(
-        primary = Teal500,
-        secondary = Purple500,
-        tertiary = Teal600,
+        primary = UpnextPrimaryCyan,
+        onPrimary = UpnextTextPrimary,
+        secondary = UpnextSecondaryPurple,
+        onSecondary = UpnextTextPrimary,
+        background = UpnextBackgroundDark,
+        onBackground = UpnextTextPrimary,
+        surface = UpnextSurfaceDark,
+        onSurface = UpnextTextSecondary,
+        surfaceVariant = UpnextSurfaceVariantDark,
+        onSurfaceVariant = UpnextTextPrimary,
+        tertiary = UpnextPrimaryCyan,
     )
 
 private val LightColorTheme =
