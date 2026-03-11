@@ -16,6 +16,7 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
@@ -36,6 +37,7 @@ enum class NavigationDestination(
     val route: Destinations,
 ) {
     Dashboard(Icons.Default.Home, R.string.nav_title_dashboard, Destinations.Dashboard),
+    Schedule(Icons.Default.DateRange, R.string.nav_title_schedule, Destinations.Schedule),
     SearchScreen(Icons.Default.Search, R.string.nav_title_search, Destinations.Search),
     Explore(Icons.Filled.Explore, R.string.nav_title_explore, Destinations.Explore),
     TraktAccount(Icons.Filled.AccountBox, R.string.nav_title_account, Destinations.TraktAccount()),
