@@ -79,7 +79,7 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
                     valueState = dataString,
                     onTraktAuthCompleted = {
                         dataString.value = null
-                    }
+                    },
                 )
             }
         }

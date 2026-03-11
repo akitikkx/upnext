@@ -8,14 +8,14 @@ import com.theupnextapp.repository.DashboardRepository
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.WatchProgressRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -23,7 +23,7 @@ import javax.inject.Inject
 
 data class ExtractedTraktInfo(
     val imageUrl: String?,
-    val tvmazeId: Int?
+    val tvmazeId: Int?,
 )
 
 @HiltViewModel
@@ -95,18 +95,19 @@ class DashboardViewModel
                         val shows = response.getOrNull()
                         _airingSoonShows.value = shows
                         shows?.let { scheduleList ->
-                            val deferredImages = scheduleList.mapNotNull { scheduleItem ->
-                                val traktId = scheduleItem.show?.ids?.trakt
-                                val imdbId = scheduleItem.show?.ids?.imdb
-                                if (traktId != null && imdbId != null) {
-                                    async {
-                                        val (url, tvmazeId) = dashboardRepository.getShowImageAndTvmazeId(imdbId)
-                                        traktId to ExtractedTraktInfo(imageUrl = url, tvmazeId = tvmazeId)
+                            val deferredImages =
+                                scheduleList.mapNotNull { scheduleItem ->
+                                    val traktId = scheduleItem.show?.ids?.trakt
+                                    val imdbId = scheduleItem.show?.ids?.imdb
+                                    if (traktId != null && imdbId != null) {
+                                        async {
+                                            val (url, tvmazeId) = dashboardRepository.getShowImageAndTvmazeId(imdbId)
+                                            traktId to ExtractedTraktInfo(imageUrl = url, tvmazeId = tvmazeId)
+                                        }
+                                    } else {
+                                        null
                                     }
-                                } else {
-                                    null
                                 }
-                            }
                             val newImages = deferredImages.awaitAll().filterNotNull().toMap()
                             _airingSoonImages.value = newImages
                         }

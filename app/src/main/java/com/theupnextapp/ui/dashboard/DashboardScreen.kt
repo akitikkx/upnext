@@ -1,5 +1,9 @@
 package com.theupnextapp.ui.dashboard
 
+import android.net.Uri
+import androidx.browser.customtabs.CustomTabsIntent
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -11,6 +15,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material3.Button
@@ -22,44 +28,35 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.util.lerp
-import kotlin.math.absoluteValue
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.lerp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.theupnextapp.core.designsystem.ui.widgets.ListPosterCard
-import com.theupnextapp.core.designsystem.ui.widgets.UpNextEpisodeCard
-import com.theupnextapp.domain.TraktAccessToken
-import com.theupnextapp.navigation.Destinations
-import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponseItem
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.browser.customtabs.CustomTabsIntent
-import android.net.Uri
 import com.theupnextapp.common.utils.TraktConstants
+import com.theupnextapp.core.designsystem.ui.widgets.ListPosterCard
+import com.theupnextapp.core.designsystem.ui.widgets.UpNextEpisodeCard
+import com.theupnextapp.navigation.Destinations
+import java.time.ZonedDateTime
+import kotlin.math.absoluteValue
 
+@Suppress("LongMethod")
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
@@ -116,77 +113,85 @@ fun DashboardScreen(
                     HorizontalPager(
                         state = pagerState,
                         contentPadding = PaddingValues(horizontal = 48.dp),
-                        modifier = Modifier.fillMaxWidth().height(400.dp)
+                        modifier = Modifier.fillMaxWidth().height(400.dp),
                     ) { page ->
                         val show = todayShows!![page]
                         val pageOffset = (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
-                        val scale = lerp(
-                            start = 0.85f,
-                            stop = 1f,
-                            fraction = 1f - pageOffset.absoluteValue.coerceIn(0f, 1f)
-                        )
-                        val alphaOffset = lerp(
-                            start = 0.5f,
-                            stop = 1f,
-                            fraction = 1f - pageOffset.absoluteValue.coerceIn(0f, 1f)
-                        )
+                        val scale =
+                            lerp(
+                                start = 0.85f,
+                                stop = 1f,
+                                fraction = 1f - pageOffset.absoluteValue.coerceIn(0f, 1f),
+                            )
+                        val alphaOffset =
+                            lerp(
+                                start = 0.5f,
+                                stop = 1f,
+                                fraction = 1f - pageOffset.absoluteValue.coerceIn(0f, 1f),
+                            )
 
                         Box(
-                            modifier = Modifier
-                                .graphicsLayer {
-                                    scaleX = scale
-                                    scaleY = scale
-                                    alpha = alphaOffset
-                                }
-                                .padding(horizontal = 8.dp),
-                            contentAlignment = Alignment.Center
+                            modifier =
+                                Modifier
+                                    .graphicsLayer {
+                                        scaleX = scale
+                                        scaleY = scale
+                                        alpha = alphaOffset
+                                    }
+                                    .padding(horizontal = 8.dp),
+                            contentAlignment = Alignment.Center,
                         ) {
                             Card(
                                 shape = MaterialTheme.shapes.extraLarge,
                                 elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(400.dp)
-                                    .clickable {
-                                        val direction = Destinations.ShowDetail(
-                                            source = "today",
-                                            showId = show.showId.toString(),
-                                            showTitle = show.name,
-                                            showImageUrl = show.originalImage,
-                                            showBackgroundUrl = show.mediumImage,
-                                        )
-                                        navController.navigate(direction)
-                                    }
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .height(400.dp)
+                                        .clickable {
+                                            val direction =
+                                                Destinations.ShowDetail(
+                                                    source = "today",
+                                                    showId = show.showId.toString(),
+                                                    showTitle = show.name,
+                                                    showImageUrl = show.originalImage,
+                                                    showBackgroundUrl = show.mediumImage,
+                                                )
+                                            navController.navigate(direction)
+                                        },
                             ) {
                                 Box(modifier = Modifier.fillMaxSize()) {
                                     AsyncImage(
-                                        model = ImageRequest.Builder(LocalContext.current)
-                                            .data(show.originalImage ?: show.mediumImage)
-                                            .crossfade(true)
-                                            .build(),
+                                        model =
+                                            ImageRequest.Builder(LocalContext.current)
+                                                .data(show.originalImage ?: show.mediumImage)
+                                                .crossfade(true)
+                                                .build(),
                                         contentDescription = show.name,
                                         contentScale = ContentScale.Crop,
-                                        modifier = Modifier.fillMaxSize()
+                                        modifier = Modifier.fillMaxSize(),
                                     )
                                     Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(160.dp)
-                                            .align(Alignment.BottomCenter)
-                                            .background(
-                                                Brush.verticalGradient(
-                                                    colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.9f))
-                                                )
-                                            )
+                                        modifier =
+                                            Modifier
+                                                .fillMaxWidth()
+                                                .height(160.dp)
+                                                .align(Alignment.BottomCenter)
+                                                .background(
+                                                    Brush.verticalGradient(
+                                                        colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.9f)),
+                                                    ),
+                                                ),
                                     )
                                     Text(
                                         text = show.name ?: "",
                                         style = MaterialTheme.typography.headlineSmall,
                                         color = Color.White,
                                         fontWeight = FontWeight.Bold,
-                                        modifier = Modifier
-                                            .align(Alignment.BottomStart)
-                                            .padding(16.dp)
+                                        modifier =
+                                            Modifier
+                                                .align(Alignment.BottomStart)
+                                                .padding(16.dp),
                                     )
                                 }
                             }
@@ -198,7 +203,7 @@ fun DashboardScreen(
 
                 Card(
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
                 ) {
                     Box(modifier = Modifier.fillMaxWidth().padding(24.dp), contentAlignment = Alignment.Center) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -206,22 +211,22 @@ fun DashboardScreen(
                                 imageVector = Icons.Default.AccountBox,
                                 contentDescription = "Connect Trakt",
                                 modifier = Modifier.padding(bottom = 8.dp),
-                                tint = MaterialTheme.colorScheme.onSecondaryContainer
+                                tint = MaterialTheme.colorScheme.onSecondaryContainer,
                             )
                             Text(
                                 "Unlock your personal TV tracker",
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                                color = MaterialTheme.colorScheme.onSecondaryContainer,
                             )
                             Text(
                                 "Connect your Trakt account to track your progress and get personalized recommendations.",
                                 style = MaterialTheme.typography.bodyMedium,
                                 textAlign = TextAlign.Center,
                                 color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                modifier = Modifier.padding(top = 4.dp, bottom = 12.dp)
+                                modifier = Modifier.padding(top = 4.dp, bottom = 12.dp),
                             )
-                            Button(onClick = { 
+                            Button(onClick = {
                                 val builder = CustomTabsIntent.Builder()
                                 val customTabsIntent = builder.build()
                                 customTabsIntent.launchUrl(context, Uri.parse(TraktConstants.TRAKT_AUTH_URL))
@@ -252,23 +257,24 @@ fun DashboardScreen(
                                 itemName = show.title,
                                 itemUrl = show.originalImageUrl ?: show.mediumImageUrl,
                                 onClick = {
-                                    val direction = Destinations.ShowDetail(
-                                        source = "anticipated",
-                                        showId = show.tvMazeID?.toString(),
-                                        showTitle = show.title,
-                                        showImageUrl = show.originalImageUrl,
-                                        showBackgroundUrl = show.mediumImageUrl,
-                                        imdbID = show.imdbID,
-                                        isAuthorizedOnTrakt = traktAccessToken != null,
-                                        showTraktId = show.traktID,
-                                    )
+                                    val direction =
+                                        Destinations.ShowDetail(
+                                            source = "anticipated",
+                                            showId = show.tvMazeID?.toString(),
+                                            showTitle = show.title,
+                                            showImageUrl = show.originalImageUrl,
+                                            showBackgroundUrl = show.mediumImageUrl,
+                                            imdbID = show.imdbID,
+                                            isAuthorizedOnTrakt = traktAccessToken != null,
+                                            showTraktId = show.traktID,
+                                        )
                                     navController.navigate(direction)
                                 },
                             )
                         }
                     }
                 }
-                
+
                 Spacer(modifier = Modifier.height(24.dp))
             }
         } else {
@@ -293,20 +299,22 @@ fun DashboardScreen(
                         state = pagerState,
                         pageSize = androidx.compose.foundation.pager.PageSize.Fixed(260.dp),
                         pageSpacing = 16.dp,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
                     ) { page ->
                         val showResponse = airingSoonShows!!.toList()[page]
                         val pageOffset = (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
-                        val scale = lerp(
-                            start = 0.85f,
-                            stop = 1f,
-                            fraction = 1f - pageOffset.absoluteValue.coerceIn(0f, 1f)
-                        )
-                        val alphaOffset = lerp(
-                            start = 0.5f,
-                            stop = 1f,
-                            fraction = 1f - pageOffset.absoluteValue.coerceIn(0f, 1f)
-                        )
+                        val scale =
+                            lerp(
+                                start = 0.85f,
+                                stop = 1f,
+                                fraction = 1f - pageOffset.absoluteValue.coerceIn(0f, 1f),
+                            )
+                        val alphaOffset =
+                            lerp(
+                                start = 0.5f,
+                                stop = 1f,
+                                fraction = 1f - pageOffset.absoluteValue.coerceIn(0f, 1f),
+                            )
 
                         val imdbId = showResponse.show?.ids?.imdb
                         val traktId = showResponse.show?.ids?.trakt
@@ -314,32 +322,34 @@ fun DashboardScreen(
                         val imageUrl = extractedInfo?.imageUrl
                         val tvmazeId = extractedInfo?.tvmazeId
 
-                        val airDateTxt = try {
-                            showResponse.first_aired?.let {
-                                val parsed = ZonedDateTime.parse(it)
-                                val timeMillis = parsed.toInstant().toEpochMilli()
-                                android.text.format.DateUtils.getRelativeTimeSpanString(
-                                    timeMillis,
-                                    System.currentTimeMillis(),
-                                    android.text.format.DateUtils.MINUTE_IN_MILLIS,
-                                    android.text.format.DateUtils.FORMAT_ABBREV_RELATIVE
-                                ).toString()
-                            } ?: "TBA"
-                        } catch(e: Exception) {
-                            "TBA"
-                        }
-                        
+                        val airDateTxt =
+                            try {
+                                showResponse.first_aired?.let {
+                                    val parsed = ZonedDateTime.parse(it)
+                                    val timeMillis = parsed.toInstant().toEpochMilli()
+                                    android.text.format.DateUtils.getRelativeTimeSpanString(
+                                        timeMillis,
+                                        System.currentTimeMillis(),
+                                        android.text.format.DateUtils.MINUTE_IN_MILLIS,
+                                        android.text.format.DateUtils.FORMAT_ABBREV_RELATIVE,
+                                    ).toString()
+                                } ?: "TBA"
+                            } catch (e: Exception) {
+                                "TBA"
+                            }
+
                         val episodeInfoText = "S${showResponse.episode?.season ?: 0} E${showResponse.episode?.number ?: 0} • ${showResponse.episode?.title ?: "TBA"}"
 
                         Box(
-                            modifier = Modifier
-                                .graphicsLayer {
-                                    scaleX = scale
-                                    scaleY = scale
-                                    alpha = alphaOffset
-                                }
-                                .padding(horizontal = 8.dp),
-                            contentAlignment = Alignment.Center
+                            modifier =
+                                Modifier
+                                    .graphicsLayer {
+                                        scaleX = scale
+                                        scaleY = scale
+                                        alpha = alphaOffset
+                                    }
+                                    .padding(horizontal = 8.dp),
+                            contentAlignment = Alignment.Center,
                         ) {
                             UpNextEpisodeCard(
                                 showTitle = showResponse.show?.title ?: "Unknown",
@@ -347,18 +357,18 @@ fun DashboardScreen(
                                 airDateRibbon = airDateTxt,
                                 imageUrl = imageUrl,
                                 modifier = Modifier.fillMaxWidth(),
-                                onCardClick = { 
-                                    
-                                    val direction = Destinations.ShowDetail(
-                                        source = "airing_soon",
-                                        showId = tvmazeId?.toString(),
-                                        showTitle = showResponse.show?.title,
-                                        showImageUrl = imageUrl,
-                                        showBackgroundUrl = null,
-                                        imdbID = imdbId,
-                                        isAuthorizedOnTrakt = traktAccessToken != null,
-                                        showTraktId = traktId,
-                                    )
+                                onCardClick = {
+                                    val direction =
+                                        Destinations.ShowDetail(
+                                            source = "airing_soon",
+                                            showId = tvmazeId?.toString(),
+                                            showTitle = showResponse.show?.title,
+                                            showImageUrl = imageUrl,
+                                            showBackgroundUrl = null,
+                                            imdbID = imdbId,
+                                            isAuthorizedOnTrakt = traktAccessToken != null,
+                                            showTraktId = traktId,
+                                        )
                                     navController.navigate(direction)
                                 },
                                 onMarkAsWatchedClick = { /* Mark episode watched logic */ },

@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
@@ -77,13 +76,13 @@ fun UpNextEpisodeCard(
                         Surface(
                             shape = RoundedCornerShape(topStart = 4.dp, bottomEnd = 8.dp, bottomStart = 2.dp, topEnd = 2.dp),
                             color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.95f),
-                            modifier = Modifier.align(Alignment.TopStart)
+                            modifier = Modifier.align(Alignment.TopStart),
                         ) {
                             Text(
                                 text = airDateRibbon,
                                 style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
                                 color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                             )
                         }
                     }

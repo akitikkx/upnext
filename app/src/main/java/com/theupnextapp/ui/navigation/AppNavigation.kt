@@ -13,12 +13,12 @@
 package com.theupnextapp.ui.navigation
 
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -44,6 +44,7 @@ import com.theupnextapp.ui.showSeasons.ShowSeasonsScreen
 import com.theupnextapp.ui.traktAccount.TraktAccountScreen
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
+@Suppress("MagicNumber")
 @OptIn(
     ExperimentalCoroutinesApi::class,
     ExperimentalMaterial3WindowSizeClassApi::class,
@@ -84,7 +85,7 @@ fun AppNavigation(
 
     val showTopBar =
         currentEntry?.destination?.hasRoute<Destinations.ShowDetail>() == false &&
-        currentEntry.destination.hasRoute<Destinations.EmptyDetail>() == false
+            currentEntry.destination.hasRoute<Destinations.EmptyDetail>() == false
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -111,25 +112,25 @@ fun AppNavigation(
                 enterTransition = {
                     slideInHorizontally(
                         initialOffsetX = { 300 },
-                        animationSpec = tween(300)
+                        animationSpec = tween(300),
                     ) + fadeIn(animationSpec = tween(300))
                 },
                 exitTransition = {
                     slideOutHorizontally(
                         targetOffsetX = { -300 },
-                        animationSpec = tween(300)
+                        animationSpec = tween(300),
                     ) + fadeOut(animationSpec = tween(300))
                 },
                 popEnterTransition = {
                     slideInHorizontally(
                         initialOffsetX = { -300 },
-                        animationSpec = tween(300)
+                        animationSpec = tween(300),
                     ) + fadeIn(animationSpec = tween(300))
                 },
                 popExitTransition = {
                     slideOutHorizontally(
                         targetOffsetX = { 300 },
-                        animationSpec = tween(300)
+                        animationSpec = tween(300),
                     ) + fadeOut(animationSpec = tween(300))
                 },
             ) {
