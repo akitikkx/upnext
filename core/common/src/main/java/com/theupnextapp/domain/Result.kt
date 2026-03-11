@@ -71,7 +71,9 @@ suspend fun <T> safeApiCall(
 private fun parseHttpException(httpException: HttpException): ErrorResponse? {
     return try {
         httpException.response()?.errorBody()?.source()?.let { errorSource ->
-            val moshi = Moshi.Builder().build()
+            val moshi = Moshi.Builder()
+                .add(com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory())
+                .build()
             val adapter = moshi.adapter(ErrorResponse::class.java)
             adapter.fromJson(errorSource)
         }

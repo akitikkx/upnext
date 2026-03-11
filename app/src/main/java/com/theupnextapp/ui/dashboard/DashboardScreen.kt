@@ -50,6 +50,9 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.browser.customtabs.CustomTabsIntent
+import android.net.Uri
+import com.theupnextapp.common.utils.TraktConstants
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -57,6 +60,7 @@ fun DashboardScreen(
     navController: NavController,
     viewModel: DashboardViewModel = hiltViewModel(),
 ) {
+    val context = LocalContext.current
     val token by viewModel.traktAccessToken.collectAsState()
     val airingSoonShows by viewModel.airingSoonShows.collectAsState()
     val isLoadingAiringSoon by viewModel.isLoadingAiringSoon.collectAsState()
@@ -210,7 +214,11 @@ fun DashboardScreen(
                                 color = MaterialTheme.colorScheme.onSecondaryContainer,
                                 modifier = Modifier.padding(top = 4.dp, bottom = 12.dp)
                             )
-                            Button(onClick = { navController.navigate(Destinations.TraktAccount()) }) {
+                            Button(onClick = { 
+                                val builder = CustomTabsIntent.Builder()
+                                val customTabsIntent = builder.build()
+                                customTabsIntent.launchUrl(context, Uri.parse(TraktConstants.TRAKT_AUTH_URL))
+                            }) {
                                 Text("Connect Trakt")
                             }
                         }
