@@ -42,6 +42,14 @@ import androidx.navigation.NavController
 import com.theupnextapp.core.designsystem.ui.widgets.ListPosterCard
 import com.theupnextapp.core.designsystem.ui.widgets.UpNextEpisodeCard
 import com.theupnextapp.navigation.Destinations
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -68,13 +76,15 @@ fun DashboardScreen(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
     ) {
-        item {
-            Text(
-                text = "My Upnext",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 16.dp),
-            )
+        if (token != null) {
+            item {
+                Text(
+                    text = "My Upnext",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 16.dp),
+                )
+            }
         }
 
         if (token == null) {
@@ -87,15 +97,15 @@ fun DashboardScreen(
                 )
 
                 if (isLoadingTodayShows) {
-                    Box(modifier = Modifier.fillMaxWidth().height(250.dp), contentAlignment = Alignment.Center) {
+                    Box(modifier = Modifier.fillMaxWidth().height(400.dp), contentAlignment = Alignment.Center) {
                         CircularProgressIndicator()
                     }
                 } else if (!todayShows.isNullOrEmpty()) {
                     val pagerState = rememberPagerState(pageCount = { todayShows!!.size })
                     HorizontalPager(
                         state = pagerState,
-                        contentPadding = PaddingValues(horizontal = 64.dp),
-                        modifier = Modifier.fillMaxWidth().height(250.dp)
+                        contentPadding = PaddingValues(horizontal = 48.dp),
+                        modifier = Modifier.fillMaxWidth().height(400.dp)
                     ) { page ->
                         val show = todayShows!![page]
                         val pageOffset = (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
@@ -116,23 +126,59 @@ fun DashboardScreen(
                                     scaleX = scale
                                     scaleY = scale
                                     alpha = alphaOffset
-                                },
+                                }
+                                .padding(horizontal = 8.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            ListPosterCard(
-                                itemName = show.name,
-                                itemUrl = show.originalImage ?: show.mediumImage,
-                                onClick = {
-                                    val direction = Destinations.ShowDetail(
-                                        source = "today",
-                                        showId = show.id.toString(),
-                                        showTitle = show.name,
-                                        showImageUrl = show.originalImage,
-                                        showBackgroundUrl = show.mediumImage,
+                            Card(
+                                shape = MaterialTheme.shapes.extraLarge,
+                                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(400.dp)
+                                    .clickable {
+                                        val direction = Destinations.ShowDetail(
+                                            source = "today",
+                                            showId = show.id.toString(),
+                                            showTitle = show.name,
+                                            showImageUrl = show.originalImage,
+                                            showBackgroundUrl = show.mediumImage,
+                                        )
+                                        navController.navigate(direction)
+                                    }
+                            ) {
+                                Box(modifier = Modifier.fillMaxSize()) {
+                                    AsyncImage(
+                                        model = ImageRequest.Builder(LocalContext.current)
+                                            .data(show.originalImage ?: show.mediumImage)
+                                            .crossfade(true)
+                                            .build(),
+                                        contentDescription = show.name,
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier.fillMaxSize()
                                     )
-                                    navController.navigate(direction)
-                                },
-                            )
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(160.dp)
+                                            .align(Alignment.BottomCenter)
+                                            .background(
+                                                Brush.verticalGradient(
+                                                    colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.9f))
+                                                )
+                                            )
+                                    )
+                                    Text(
+                                        text = show.name ?: "",
+                                        style = MaterialTheme.typography.headlineSmall,
+                                        color = Color.White,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier
+                                            .align(Alignment.BottomStart)
+                                            .padding(16.dp)
+                                    )
+                                }
+                            }
                         }
                     }
                 }
