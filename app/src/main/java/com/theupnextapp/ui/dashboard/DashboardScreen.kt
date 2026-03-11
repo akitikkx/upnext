@@ -53,7 +53,6 @@ import com.theupnextapp.common.utils.TraktConstants
 import com.theupnextapp.core.designsystem.ui.widgets.ListPosterCard
 import com.theupnextapp.core.designsystem.ui.widgets.UpNextEpisodeCard
 import com.theupnextapp.navigation.Destinations
-import java.time.ZonedDateTime
 import kotlin.math.absoluteValue
 
 @Suppress("LongMethod")
@@ -325,8 +324,12 @@ fun DashboardScreen(
                         val airDateTxt =
                             try {
                                 showResponse.first_aired?.let {
-                                    val parsed = ZonedDateTime.parse(it)
-                                    val timeMillis = parsed.toInstant().toEpochMilli()
+                                    val format =
+                                        java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault()).apply {
+                                            timeZone = java.util.TimeZone.getTimeZone("UTC")
+                                        }
+                                    val parsed = format.parse(it)
+                                    val timeMillis = parsed?.time ?: System.currentTimeMillis()
                                     android.text.format.DateUtils.getRelativeTimeSpanString(
                                         timeMillis,
                                         System.currentTimeMillis(),
