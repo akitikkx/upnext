@@ -22,6 +22,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.util.lerp
+import kotlin.math.absoluteValue
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -47,10 +53,10 @@ fun DashboardScreen(
     val airingSoonShows by viewModel.airingSoonShows.collectAsState()
     val isLoadingAiringSoon by viewModel.isLoadingAiringSoon.collectAsState()
 
-    val trendingShows by viewModel.trendingShows.collectAsState()
-    val popularShows by viewModel.popularShows.collectAsState()
-    val isLoadingTrending by viewModel.isLoadingTrending.collectAsState()
-    val isLoadingPopular by viewModel.isLoadingPopular.collectAsState()
+    val todayShows by viewModel.todayShows.collectAsState()
+    val mostAnticipatedShows by viewModel.mostAnticipatedShows.collectAsState()
+    val isLoadingTodayShows by viewModel.isLoadingTodayShows.observeAsState(false)
+    val isLoadingMostAnticipated by viewModel.isLoadingMostAnticipated.collectAsState()
 
     LaunchedEffect(token) {
         token?.access_token?.let {
@@ -74,29 +80,55 @@ fun DashboardScreen(
         if (token == null) {
             item {
                 Text(
-                    text = "Trending Shows",
+                    text = "Tonight on TV",
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.padding(bottom = 8.dp),
                 )
 
-                if (isLoadingTrending) {
-                    Box(modifier = Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
+                if (isLoadingTodayShows) {
+                    Box(modifier = Modifier.fillMaxWidth().height(250.dp), contentAlignment = Alignment.Center) {
                         CircularProgressIndicator()
                     }
-                } else if (!trendingShows.isNullOrEmpty()) {
-                    LazyRow {
-                        items(trendingShows!!) { show ->
+                } else if (!todayShows.isNullOrEmpty()) {
+                    val pagerState = rememberPagerState(pageCount = { todayShows!!.size })
+                    HorizontalPager(
+                        state = pagerState,
+                        contentPadding = PaddingValues(horizontal = 64.dp),
+                        modifier = Modifier.fillMaxWidth().height(250.dp)
+                    ) { page ->
+                        val show = todayShows!![page]
+                        val pageOffset = (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
+                        val scale = lerp(
+                            start = 0.85f,
+                            stop = 1f,
+                            fraction = 1f - pageOffset.absoluteValue.coerceIn(0f, 1f)
+                        )
+                        val alphaOffset = lerp(
+                            start = 0.5f,
+                            stop = 1f,
+                            fraction = 1f - pageOffset.absoluteValue.coerceIn(0f, 1f)
+                        )
+
+                        Box(
+                            modifier = Modifier
+                                .graphicsLayer {
+                                    scaleX = scale
+                                    scaleY = scale
+                                    alpha = alphaOffset
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
                             ListPosterCard(
-                                itemName = show.title,
-                                itemUrl = show.originalImageUrl ?: show.mediumImageUrl,
+                                itemName = show.name,
+                                itemUrl = show.originalImage ?: show.mediumImage,
                                 onClick = {
                                     val direction = Destinations.ShowDetail(
-                                        source = "trending",
+                                        source = "today",
                                         showId = show.id.toString(),
-                                        showTitle = show.title,
-                                        showImageUrl = show.originalImageUrl,
-                                        showBackgroundUrl = show.mediumImageUrl,
+                                        showTitle = show.name,
+                                        showImageUrl = show.originalImage,
+                                        showBackgroundUrl = show.mediumImage,
                                     )
                                     navController.navigate(direction)
                                 },
@@ -142,25 +174,25 @@ fun DashboardScreen(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Text(
-                    text = "Popular Shows",
+                    text = "Most Anticipated",
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.padding(bottom = 8.dp),
                 )
 
-                if (isLoadingPopular) {
+                if (isLoadingMostAnticipated) {
                     Box(modifier = Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
                         CircularProgressIndicator()
                     }
-                } else if (!popularShows.isNullOrEmpty()) {
+                } else if (!mostAnticipatedShows.isNullOrEmpty()) {
                     LazyRow {
-                        items(popularShows!!) { show ->
+                        items(mostAnticipatedShows!!) { show ->
                             ListPosterCard(
                                 itemName = show.title,
                                 itemUrl = show.originalImageUrl ?: show.mediumImageUrl,
                                 onClick = {
                                     val direction = Destinations.ShowDetail(
-                                        source = "popular",
+                                        source = "anticipated",
                                         showId = show.id.toString(),
                                         showTitle = show.title,
                                         showImageUrl = show.originalImageUrl,
