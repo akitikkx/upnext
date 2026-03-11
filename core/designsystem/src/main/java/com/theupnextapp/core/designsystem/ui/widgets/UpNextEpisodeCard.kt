@@ -34,7 +34,8 @@ import coil.compose.AsyncImage
 @Composable
 fun UpNextEpisodeCard(
     showTitle: String,
-    episodeSummary: String,
+    episodeInfo: String? = null,
+    airDateRibbon: String? = null,
     imageUrl: String?,
     modifier: Modifier = Modifier,
     onCardClick: () -> Unit = {},
@@ -48,7 +49,6 @@ fun UpNextEpisodeCard(
             ),
         modifier =
             modifier
-                .width(260.dp)
                 .clickable(onClick = onCardClick),
     ) {
         Column {
@@ -56,7 +56,7 @@ fun UpNextEpisodeCard(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .aspectRatio(16f / 9f),
+                        .aspectRatio(2f / 3f),
             ) {
                 // Background image
                 AsyncImage(
@@ -72,12 +72,26 @@ fun UpNextEpisodeCard(
                         Modifier
                             .fillMaxSize()
                             .padding(8.dp),
-                    contentAlignment = Alignment.BottomEnd,
                 ) {
+                    if (airDateRibbon != null) {
+                        Surface(
+                            shape = RoundedCornerShape(topStart = 4.dp, bottomEnd = 8.dp, bottomStart = 2.dp, topEnd = 2.dp),
+                            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.95f),
+                            modifier = Modifier.align(Alignment.TopStart)
+                        ) {
+                            Text(
+                                text = airDateRibbon,
+                                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            )
+                        }
+                    }
+
                     Surface(
                         shape = RoundedCornerShape(50),
                         color = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
-                        modifier = Modifier.size(36.dp),
+                        modifier = Modifier.size(36.dp).align(Alignment.BottomEnd),
                     ) {
                         IconButton(onClick = onMarkAsWatchedClick) {
                             Icon(
@@ -99,19 +113,21 @@ fun UpNextEpisodeCard(
             ) {
                 Text(
                     text = showTitle,
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = episodeSummary, // e.g. "S1 E4 • The One With The Sonogram"
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
+                if (episodeInfo != null) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = episodeInfo,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
             }
         }
     }

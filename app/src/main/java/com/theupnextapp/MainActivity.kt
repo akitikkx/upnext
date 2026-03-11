@@ -77,9 +77,10 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
             UpnextTheme {
                 MainScreen(
                     valueState = dataString,
-                ) {
-                    dataString.value = null
-                }
+                    onTraktAuthCompleted = {
+                        dataString.value = null
+                    }
+                )
             }
         }
 

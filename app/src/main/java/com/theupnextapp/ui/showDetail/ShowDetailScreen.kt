@@ -157,7 +157,7 @@ fun ShowDetailScreen(
         Box(
             modifier =
                 Modifier
-                    .padding(innerPadding)
+                    .padding(bottom = innerPadding.calculateBottomPadding())
                     .fillMaxSize(),
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
@@ -179,6 +179,8 @@ fun ShowDetailScreen(
                     onFavoriteClick = { viewModel.onAddRemoveFavoriteClick() },
                     onCastItemClick = { castItem -> viewModel.onShowCastItemClicked(castItem) },
                     onSimilarShowClick = { show -> viewModel.onSimilarShowClicked(show) },
+                    onRetry = { viewModel.selectedShow(showDetailArgs) },
+                    onBack = { navController.navigateUp() }
                 )
             }
 
@@ -230,6 +232,8 @@ fun DetailArea(
     onFavoriteClick: () -> Unit,
     onCastItemClick: (item: TraktCast) -> Unit,
     onSimilarShowClick: (item: TraktRelatedShows) -> Unit,
+    onRetry: () -> Unit,
+    onBack: () -> Unit,
 ) {
     val scrollState = rememberScrollState()
     val windowSizeClass = getWindowSizeClass()?.widthSizeClass ?: WindowWidthSizeClass.Compact
@@ -245,12 +249,13 @@ fun DetailArea(
             SummaryPlaceholder() // Or a simpler version, or nothing if LinearProgress is enough
         } else if (uiState.summaryErrorMessage != null) {
             ErrorState(message = uiState.summaryErrorMessage) {
-                // Retry
+                onRetry()
             }
         } else if (uiState.showSummary != null) {
             BackdropAndTitle(
                 showDetailArgs = showDetailArgs,
                 showSummary = uiState.showSummary,
+                onBack = onBack,
             )
             SynopsisArea(
                 showSummary = uiState.showSummary,
@@ -267,7 +272,7 @@ fun DetailArea(
             }
         } else if (showDetailArgs.showImageUrl != null || showDetailArgs.showBackgroundUrl != null) {
             // Fallback for initial state with args but no summary yet
-            BackdropAndTitle(showDetailArgs = showDetailArgs, showSummary = null)
+            BackdropAndTitle(showDetailArgs = showDetailArgs, showSummary = null, onBack = onBack)
         }
 
         showRating?.let { ratingData ->
