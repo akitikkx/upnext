@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.theupnextapp.domain.TraktAccessToken
 import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponse
+import com.theupnextapp.repository.DashboardRepository
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.WatchProgressRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,6 +24,7 @@ class DashboardViewModel
     @Inject
     constructor(
         private val traktRepository: TraktRepository,
+        private val dashboardRepository: DashboardRepository,
         private val watchProgressRepository: WatchProgressRepository,
     ) : ViewModel() {
         val traktAccessToken: StateFlow<TraktAccessToken?> =
@@ -39,29 +41,32 @@ class DashboardViewModel
         private val _isLoadingAiringSoon = MutableStateFlow(false)
         val isLoadingAiringSoon: StateFlow<Boolean> = _isLoadingAiringSoon.asStateFlow()
 
-        val trendingShows: StateFlow<List<com.theupnextapp.domain.TraktTrendingShows>?> =
-            traktRepository.traktTrendingShows
+        val todayShows: StateFlow<List<com.theupnextapp.domain.ScheduleShow>?> =
+            dashboardRepository.todayShows
                 .stateIn(
                     scope = viewModelScope,
                     started = SharingStarted.WhileSubscribed(5000),
                     initialValue = null,
                 )
 
-        val popularShows: StateFlow<List<com.theupnextapp.domain.TraktPopularShows>?> =
-            traktRepository.traktPopularShows
+        val mostAnticipatedShows: StateFlow<List<com.theupnextapp.domain.TraktMostAnticipated>?> =
+            traktRepository.traktMostAnticipatedShows
                 .stateIn(
                     scope = viewModelScope,
                     started = SharingStarted.WhileSubscribed(5000),
                     initialValue = null,
                 )
 
-        val isLoadingTrending: StateFlow<Boolean> = traktRepository.isLoadingTraktTrending
-        val isLoadingPopular: StateFlow<Boolean> = traktRepository.isLoadingTraktPopular
+        val isLoadingTodayShows = dashboardRepository.isLoadingTodayShows
+        val isLoadingMostAnticipated: StateFlow<Boolean> = traktRepository.isLoadingTraktMostAnticipated
 
         init {
             viewModelScope.launch {
-                traktRepository.refreshTraktTrendingShows(forceRefresh = false)
-                traktRepository.refreshTraktPopularShows(forceRefresh = false)
+                traktRepository.refreshTraktMostAnticipatedShows(forceRefresh = false)
+                dashboardRepository.refreshTodayShows(
+                    countryCode = "US",
+                    date = null,
+                )
             }
         }
 
