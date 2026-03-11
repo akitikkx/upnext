@@ -180,7 +180,7 @@ fun ShowDetailScreen(
                     onCastItemClick = { castItem -> viewModel.onShowCastItemClicked(castItem) },
                     onSimilarShowClick = { show -> viewModel.onSimilarShowClicked(show) },
                     onRetry = { viewModel.selectedShow(showDetailArgs) },
-                    onBack = { navController.navigateUp() }
+                    onBack = { navController.navigateUp() },
                 )
             }
 

@@ -14,7 +14,6 @@ import org.junit.Test
     ExperimentalFoundationApi::class,
 )
 class ShowDetailScreenTest {
-
     @get:Rule
     val rule = createComposeRule()
 

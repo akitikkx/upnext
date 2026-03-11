@@ -14,18 +14,17 @@ package com.theupnextapp.ui.dashboard
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.theupnextapp.CoroutineTestRule
-import com.theupnextapp.domain.TraktAccessToken
 import com.theupnextapp.repository.DashboardRepository
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.WatchProgressRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
+import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
-import org.junit.Assert.assertNotNull
+import org.mockito.Mockito.`when`
 
 @ExperimentalCoroutinesApi
 class DashboardViewModelTest {
@@ -51,11 +50,12 @@ class DashboardViewModelTest {
         `when`(traktRepository.traktMostAnticipatedShows).thenReturn(flowOf(emptyList()))
         `when`(dashboardRepository.todayShows).thenReturn(flowOf(emptyList()))
 
-        viewModel = DashboardViewModel(
-            traktRepository = traktRepository,
-            dashboardRepository = dashboardRepository,
-            watchProgressRepository = watchProgressRepository
-        )
+        viewModel =
+            DashboardViewModel(
+                traktRepository = traktRepository,
+                dashboardRepository = dashboardRepository,
+                watchProgressRepository = watchProgressRepository,
+            )
     }
 
     @Test
