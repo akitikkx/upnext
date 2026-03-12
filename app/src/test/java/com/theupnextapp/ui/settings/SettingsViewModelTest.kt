@@ -7,7 +7,11 @@ import com.theupnextapp.repository.TraktRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -75,6 +79,12 @@ class SettingsViewModelTest {
     @Test
     fun `onDisconnectTrakt revokes token and clears history`() =
         runTest {
+            backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+                viewModel.traktAccessToken.collect {}
+            }
+            
+            testDispatcher.scheduler.advanceUntilIdle()
+
             viewModel.onDisconnectTrakt()
             testDispatcher.scheduler.advanceUntilIdle()
             verify(mockTraktRepository).clearFavorites()
