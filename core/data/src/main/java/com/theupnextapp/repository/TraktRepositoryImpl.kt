@@ -366,4 +366,8 @@ class TraktRepositoryImpl(
     override suspend fun getTraktWatchedShows(token: String): Result<List<com.theupnextapp.network.models.trakt.NetworkTraktWatchedShowsResponse>> {
         return traktAccountDataSource.getTraktWatchedShows(token)
     }
+
+    override suspend fun getTraktRecommendations(token: String): Result<com.theupnextapp.network.models.trakt.NetworkTraktRecommendationsResponse> {
+        return traktAccountDataSource.getTraktRecommendations(token)
+    }
 }

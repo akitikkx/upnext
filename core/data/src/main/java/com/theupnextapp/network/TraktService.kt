@@ -224,6 +224,13 @@ interface TraktService {
     fun getRelatedShowsAsync(
         @Path("id") id: String,
     ): Deferred<com.theupnextapp.network.models.trakt.NetworkTraktRelatedShowsResponse>
+
+    @GET("recommendations/shows")
+    fun getRecommendationsAsync(
+        @Header("Authorization") token: String,
+        @Query("limit") limit: Int = 20,
+        @Query("extended") extended: String = "full",
+    ): Deferred<com.theupnextapp.network.models.trakt.NetworkTraktRecommendationsResponse>
 }
 
 object TraktNetwork {

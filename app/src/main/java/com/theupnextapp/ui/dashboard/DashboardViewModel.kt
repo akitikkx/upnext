@@ -61,6 +61,16 @@ class DashboardViewModel
         private val _isLoadingHistory = MutableStateFlow(false)
         val isLoadingHistory: StateFlow<Boolean> = _isLoadingHistory.asStateFlow()
 
+        private val _recommendedShows =
+            MutableStateFlow<com.theupnextapp.network.models.trakt.NetworkTraktRecommendationsResponse?>(null)
+        val recommendedShows: StateFlow<com.theupnextapp.network.models.trakt.NetworkTraktRecommendationsResponse?> = _recommendedShows.asStateFlow()
+
+        private val _recommendedShowsImages = MutableStateFlow<Map<String, ExtractedTraktInfo>>(emptyMap())
+        val recommendedShowsImages: StateFlow<Map<String, ExtractedTraktInfo>> = _recommendedShowsImages.asStateFlow()
+
+        private val _isLoadingRecommendations = MutableStateFlow(false)
+        val isLoadingRecommendations: StateFlow<Boolean> = _isLoadingRecommendations.asStateFlow()
+
         val todayShows: StateFlow<List<com.theupnextapp.domain.ScheduleShow>?> =
             dashboardRepository.todayShows
                 .stateIn(
@@ -93,6 +103,7 @@ class DashboardViewModel
         fun fetchDashboardData(token: String) {
             val bearerToken = token
             fetchAiringSoonShows(bearerToken)
+            fetchRecommendations(bearerToken)
             fetchRecentHistory(bearerToken)
         }
 
@@ -145,6 +156,48 @@ class DashboardViewModel
                     _airingSoonShows.value = null
                 } finally {
                     _isLoadingAiringSoon.value = false
+                }
+            }
+        }
+
+        private fun fetchRecommendations(bearerToken: String) {
+            viewModelScope.launch {
+                _isLoadingRecommendations.value = true
+                try {
+                    val response = traktRepository.getTraktRecommendations(bearerToken)
+                    if (response.isSuccess) {
+                        val shows = response.getOrNull()
+                        _recommendedShows.value = shows
+
+                        shows?.let { recommendedList ->
+                            val deferredImages =
+                                recommendedList.mapNotNull { item ->
+                                    val traktId = item.show?.ids?.trakt
+                                    val imdbId = item.show?.ids?.imdb
+                                    if (traktId != null && imdbId != null) {
+                                        async {
+                                            try {
+                                                val (url, tvmazeId) = dashboardRepository.getShowImageAndTvmazeId(imdbId)
+                                                val uniqueKey = traktId.toString()
+                                                uniqueKey to ExtractedTraktInfo(imageUrl = url, tvmazeId = tvmazeId)
+                                            } catch (e: Exception) {
+                                                null
+                                            }
+                                        }
+                                    } else {
+                                        null
+                                    }
+                                }
+                            val newImages = deferredImages.awaitAll().filterNotNull().toMap()
+                            _recommendedShowsImages.value = newImages
+                        }
+                    } else {
+                        _recommendedShows.value = null
+                    }
+                } catch (e: Exception) {
+                    _recommendedShows.value = null
+                } finally {
+                    _isLoadingRecommendations.value = false
                 }
             }
         }

@@ -624,6 +624,18 @@ constructor(
         }
     }
 
+    suspend fun getTraktRecommendations(token: String): Result<com.theupnextapp.network.models.trakt.NetworkTraktRecommendationsResponse> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = traktService.getRecommendationsAsync(token = token).await()
+                Result.success(response)
+            } catch (e: Exception) {
+                logTraktException("Error fetching recommendations", e)
+                Result.failure(e)
+            }
+        }
+    }
+
     private suspend fun ResponseBody?.stringSuspending(charset: Charset = Charsets.UTF_8): String? {
         return this?.source()?.use { source ->
             withContext(Dispatchers.IO) {

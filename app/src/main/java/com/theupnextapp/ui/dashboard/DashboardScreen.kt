@@ -78,6 +78,10 @@ fun DashboardScreen(
     val historyImages by viewModel.historyImages.collectAsStateWithLifecycle()
     val isLoadingHistory by viewModel.isLoadingHistory.collectAsStateWithLifecycle()
 
+    val recommendedShows by viewModel.recommendedShows.collectAsStateWithLifecycle()
+    val recommendedShowsImages by viewModel.recommendedShowsImages.collectAsStateWithLifecycle()
+    val isLoadingRecommendations by viewModel.isLoadingRecommendations.collectAsStateWithLifecycle()
+
     val todayShows by viewModel.todayShows.collectAsState()
     val mostAnticipatedShows by viewModel.mostAnticipatedShows.collectAsState()
     val isLoadingTodayShows by viewModel.isLoadingTodayShows.observeAsState(false)
@@ -287,28 +291,29 @@ fun DashboardScreen(
                 Spacer(modifier = Modifier.height(24.dp))
             }
         } else {
-            // Tonight on TV Section (Replaced Continue Watching)
+            // Recommended for You Section
             item {
                 Text(
-                    text = "Tonight on TV",
+                    text = "Recommended for You",
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.padding(bottom = 8.dp),
                 )
 
-                if (isLoadingTodayShows) {
+                if (isLoadingRecommendations) {
                     Box(modifier = Modifier.fillMaxWidth().height(400.dp), contentAlignment = Alignment.Center) {
                         CircularProgressIndicator()
                     }
-                } else if (!todayShows.isNullOrEmpty()) {
-                    val pagerState = rememberPagerState(pageCount = { todayShows!!.size })
+                } else if (!recommendedShows.isNullOrEmpty()) {
+                    val pagerState = rememberPagerState(pageCount = { recommendedShows!!.size })
                     HorizontalPager(
                         state = pagerState,
                         pageSize = androidx.compose.foundation.pager.PageSize.Fixed(260.dp),
                         pageSpacing = 16.dp,
                         modifier = Modifier.fillMaxWidth(),
                     ) { page ->
-                        val show = todayShows!![page]
+                        val showResponse = recommendedShows!![page]
+                        val show = showResponse.show
                         val pageOffset = (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
                         val scale =
                             lerp(
@@ -322,6 +327,12 @@ fun DashboardScreen(
                                 stop = 1f,
                                 fraction = 1f - pageOffset.absoluteValue.coerceIn(0f, 1f),
                             )
+
+                        val traktId = show?.ids?.trakt
+                        val imdbId = show?.ids?.imdb
+                        val extractedInfo = traktId?.let { recommendedShowsImages[it.toString()] }
+                        val imageUrl = extractedInfo?.imageUrl
+                        val tvmazeId = extractedInfo?.tvmazeId
 
                         Box(
                             modifier =
@@ -343,11 +354,14 @@ fun DashboardScreen(
                                         .clickable {
                                             val direction =
                                                 Destinations.ShowDetail(
-                                                    source = "today",
-                                                    showId = show.showId.toString(),
-                                                    showTitle = show.name,
-                                                    showImageUrl = show.originalImage,
-                                                    showBackgroundUrl = show.mediumImage,
+                                                    source = "recommended",
+                                                    showId = tvmazeId?.toString(),
+                                                    showTitle = show?.title,
+                                                    showImageUrl = imageUrl,
+                                                    showBackgroundUrl = null,
+                                                    imdbID = imdbId,
+                                                    isAuthorizedOnTrakt = true,
+                                                    showTraktId = traktId,
                                                 )
                                             navController.navigate(direction)
                                         },
@@ -356,10 +370,10 @@ fun DashboardScreen(
                                     AsyncImage(
                                         model =
                                             ImageRequest.Builder(LocalContext.current)
-                                                .data(show.originalImage ?: show.mediumImage)
+                                                .data(imageUrl)
                                                 .crossfade(true)
                                                 .build(),
-                                        contentDescription = show.name,
+                                        contentDescription = show?.title ?: "Show Poster",
                                         contentScale = ContentScale.Crop,
                                         modifier = Modifier.fillMaxSize(),
                                     )
@@ -376,7 +390,7 @@ fun DashboardScreen(
                                                 ),
                                     )
                                     Text(
-                                        text = show.name ?: "",
+                                        text = show?.title ?: "",
                                         style = MaterialTheme.typography.headlineSmall,
                                         color = Color.White,
                                         fontWeight = FontWeight.Bold,
