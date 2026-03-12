@@ -12,7 +12,12 @@
 
 package com.theupnextapp.ui.traktAccount
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
@@ -22,10 +27,18 @@ import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -36,6 +49,7 @@ import com.theupnextapp.core.designsystem.ui.ReferenceDevices
 import com.theupnextapp.core.designsystem.ui.components.SectionHeadingText
 import com.theupnextapp.core.designsystem.ui.widgets.ListPosterCard
 import com.theupnextapp.domain.TraktUserListItem
+import kotlinx.coroutines.launch
 
 @ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
@@ -56,35 +70,67 @@ fun FavoritesListContent(
             else -> GridCells.Adaptive(minSize = 140.dp)
         }
 
-    LazyVerticalGrid(
-        columns = columns,
-        modifier = modifier.testTag("favorites_grid"),
-        state = lazyGridState,
-    ) {
-        item(span = { GridItemSpan(maxLineSpan) }) {
-            header()
+    val coroutineScope = rememberCoroutineScope()
+    val showScrollToTop by remember {
+        derivedStateOf {
+            lazyGridState.firstVisibleItemIndex > 5
+        }
+    }
+
+    Box(modifier = modifier.fillMaxSize()) {
+        LazyVerticalGrid(
+            columns = columns,
+            modifier = Modifier.fillMaxSize().testTag("favorites_grid"),
+            state = lazyGridState,
+        ) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                header()
+            }
+
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                SectionHeadingText(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .wrapContentWidth(Alignment.CenterHorizontally)
+                            .padding(top = 8.dp, bottom = 8.dp),
+                    text = stringResource(id = R.string.title_favorites_list),
+                )
+            }
+
+            items(
+                items = favoriteShows,
+                key = { item -> item.traktID ?: item.id ?: item.hashCode() },
+            ) { favoriteShow ->
+                ListPosterCard(
+                    itemName = favoriteShow.title,
+                    itemUrl = favoriteShow.originalImageUrl,
+                ) {
+                    onFavoriteClick(favoriteShow)
+                }
+            }
         }
 
-        item(span = { GridItemSpan(maxLineSpan) }) {
-            SectionHeadingText(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .wrapContentWidth(Alignment.CenterHorizontally)
-                        .padding(top = 8.dp, bottom = 8.dp),
-                text = stringResource(id = R.string.title_favorites_list),
-            )
-        }
-
-        items(
-            items = favoriteShows,
-            key = { item -> item.traktID ?: item.id ?: item.hashCode() },
-        ) { favoriteShow ->
-            ListPosterCard(
-                itemName = favoriteShow.title,
-                itemUrl = favoriteShow.originalImageUrl,
+        AnimatedVisibility(
+            visible = showScrollToTop,
+            enter = fadeIn(),
+            exit = fadeOut(),
+            modifier =
+                Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp),
+        ) {
+            FloatingActionButton(
+                onClick = {
+                    coroutineScope.launch {
+                        lazyGridState.animateScrollToItem(0)
+                    }
+                },
             ) {
-                onFavoriteClick(favoriteShow)
+                Icon(
+                    imageVector = Icons.Default.ArrowUpward,
+                    contentDescription = stringResource(id = R.string.scroll_to_top),
+                )
             }
         }
     }
