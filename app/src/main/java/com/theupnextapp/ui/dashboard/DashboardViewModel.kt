@@ -51,16 +51,6 @@ class DashboardViewModel
         private val _isLoadingAiringSoon = MutableStateFlow(false)
         val isLoadingAiringSoon: StateFlow<Boolean> = _isLoadingAiringSoon.asStateFlow()
 
-        private val _playbackProgress =
-            MutableStateFlow<List<com.theupnextapp.network.models.trakt.NetworkTraktPlaybackResponse>?>(null)
-        val playbackProgress: StateFlow<List<com.theupnextapp.network.models.trakt.NetworkTraktPlaybackResponse>?> = _playbackProgress.asStateFlow()
-
-        private val _playbackImages = MutableStateFlow<Map<String, ExtractedTraktInfo>>(emptyMap())
-        val playbackImages: StateFlow<Map<String, ExtractedTraktInfo>> = _playbackImages.asStateFlow()
-
-        private val _isLoadingPlayback = MutableStateFlow(false)
-        val isLoadingPlayback: StateFlow<Boolean> = _isLoadingPlayback.asStateFlow()
-
         private val _recentHistory =
             MutableStateFlow<List<com.theupnextapp.network.models.trakt.NetworkTraktHistoryResponse>?>(null)
         val recentHistory: StateFlow<List<com.theupnextapp.network.models.trakt.NetworkTraktHistoryResponse>?> = _recentHistory.asStateFlow()
@@ -103,7 +93,6 @@ class DashboardViewModel
         fun fetchDashboardData(token: String) {
             val bearerToken = token
             fetchAiringSoonShows(bearerToken)
-            fetchContinueWatching(bearerToken)
             fetchRecentHistory(bearerToken)
         }
 
@@ -156,95 +145,6 @@ class DashboardViewModel
                     _airingSoonShows.value = null
                 } finally {
                     _isLoadingAiringSoon.value = false
-                }
-            }
-        }
-
-        private fun fetchContinueWatching(bearerToken: String) {
-            viewModelScope.launch {
-                _isLoadingPlayback.value = true
-                try {
-                    val historyResponse = traktRepository.getTraktWatchedShows(bearerToken)
-                    if (historyResponse.isSuccess) {
-                        val historyItems = historyResponse.getOrNull() ?: emptyList()
-                        val sortedShows =
-                            historyItems.sortedByDescending { it.lastWatchedAt }.mapNotNull { it.show }.take(10)
-
-                        val deferredProgress =
-                            sortedShows.mapNotNull { showItem ->
-                                showItem.ids?.trakt?.let { traktId ->
-                                    async {
-                                        try {
-                                            val progressResult = traktRepository.getTraktShowProgress(bearerToken, traktId.toString())
-                                            val progress = progressResult.getOrNull()
-
-                                            if (progress != null && progress.nextEpisode != null) {
-                                                val computedProgress =
-                                                    if ((progress.aired ?: 0) > 0 && progress.completed != null) {
-                                                        (progress.completed!!.toFloat() / progress.aired!!.toFloat()) * 100f
-                                                    } else {
-                                                        0f
-                                                    }
-
-                                                val nextEp = progress.nextEpisode
-                                                val playbackItem =
-                                                    com.theupnextapp.network.models.trakt.NetworkTraktPlaybackResponse(
-                                                        progress = computedProgress,
-                                                        action = "watch",
-                                                        type = "episode",
-                                                        show = showItem,
-                                                        episode = nextEp,
-                                                    )
-                                                Pair(playbackItem, Pair(showItem.ids?.imdb, nextEp))
-                                            } else {
-                                                null
-                                            }
-                                        } catch (e: Exception) {
-                                            null
-                                        }
-                                    }
-                                }
-                            }
-
-                        val progressResults = deferredProgress.awaitAll().filterNotNull()
-                        val playbackItems = progressResults.map { it.first }
-                        _playbackProgress.value = playbackItems
-
-                        val deferredImages =
-                            progressResults.mapNotNull { (playbackItem, info) ->
-                                val traktId = playbackItem.show?.ids?.trakt
-                                val imdbId = info.first
-                                val nextEp = info.second
-                                if (traktId != null && imdbId != null) {
-                                    async {
-                                        try {
-                                            val season = nextEp?.season
-                                            val number = nextEp?.number
-                                            val (url, tvmazeId) =
-                                                if (season != null && number != null) {
-                                                    dashboardRepository.getEpisodeImageAndTvmazeId(imdbId, season, number)
-                                                } else {
-                                                    dashboardRepository.getShowImageAndTvmazeId(imdbId)
-                                                }
-                                            val uniqueKey = "$traktId-${season ?: 0}-${number ?: 0}"
-                                            uniqueKey to ExtractedTraktInfo(imageUrl = url, tvmazeId = tvmazeId)
-                                        } catch (e: Exception) {
-                                            null
-                                        }
-                                    }
-                                } else {
-                                    null
-                                }
-                            }
-
-                        _playbackImages.value = deferredImages.awaitAll().filterNotNull().toMap()
-                    } else {
-                        _playbackProgress.value = null
-                    }
-                } catch (e: Exception) {
-                    _playbackProgress.value = null
-                } finally {
-                    _isLoadingPlayback.value = false
                 }
             }
         }

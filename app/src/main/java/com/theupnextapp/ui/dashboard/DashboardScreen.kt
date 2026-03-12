@@ -56,7 +56,6 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.theupnextapp.common.utils.TraktConstants
-import com.theupnextapp.core.designsystem.ui.widgets.ContinueWatchingCard
 import com.theupnextapp.core.designsystem.ui.widgets.ListPosterCard
 import com.theupnextapp.core.designsystem.ui.widgets.UpNextEpisodeCard
 import com.theupnextapp.navigation.Destinations
@@ -74,10 +73,6 @@ fun DashboardScreen(
     val airingSoonShows by viewModel.airingSoonShows.collectAsStateWithLifecycle()
     val airingSoonImages by viewModel.airingSoonImages.collectAsStateWithLifecycle()
     val isLoadingAiringSoon by viewModel.isLoadingAiringSoon.collectAsStateWithLifecycle()
-
-    val playbackProgress by viewModel.playbackProgress.collectAsStateWithLifecycle()
-    val playbackImages by viewModel.playbackImages.collectAsStateWithLifecycle()
-    val isLoadingPlayback by viewModel.isLoadingPlayback.collectAsStateWithLifecycle()
 
     val recentHistory by viewModel.recentHistory.collectAsStateWithLifecycle()
     val historyImages by viewModel.historyImages.collectAsStateWithLifecycle()
@@ -292,82 +287,110 @@ fun DashboardScreen(
                 Spacer(modifier = Modifier.height(24.dp))
             }
         } else {
-            // Continue Watching Section
+            // Tonight on TV Section (Replaced Continue Watching)
             item {
                 Text(
-                    text = "Continue Watching",
+                    text = "Tonight on TV",
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.padding(bottom = 8.dp),
                 )
 
-                if (isLoadingPlayback) {
-                    Box(modifier = Modifier.fillMaxWidth().height(150.dp), contentAlignment = Alignment.Center) {
+                if (isLoadingTodayShows) {
+                    Box(modifier = Modifier.fillMaxWidth().height(400.dp), contentAlignment = Alignment.Center) {
                         CircularProgressIndicator()
                     }
-                } else if (playbackProgress.isNullOrEmpty()) {
-                    Text(
-                        "No in-progress shows found.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(bottom = 16.dp),
-                    )
-                } else {
-                    val pagerState = rememberPagerState(pageCount = { playbackProgress!!.size })
+                } else if (!todayShows.isNullOrEmpty()) {
+                    val pagerState = rememberPagerState(pageCount = { todayShows!!.size })
                     HorizontalPager(
                         state = pagerState,
-                        pageSize = androidx.compose.foundation.pager.PageSize.Fixed(280.dp),
+                        pageSize = androidx.compose.foundation.pager.PageSize.Fixed(260.dp),
                         pageSpacing = 16.dp,
                         modifier = Modifier.fillMaxWidth(),
                     ) { page ->
-                        val item = playbackProgress!![page]
-                        val traktId = item.show?.ids?.trakt
-                        val imdbId = item.show?.ids?.imdb
-                        val season = item.episode?.season
-                        val number = item.episode?.number
-                        val uniqueKey = "$traktId-${season ?: 0}-${number ?: 0}"
-                        val extractedInfo = traktId?.let { playbackImages[uniqueKey] }
-                        val imageUrl = extractedInfo?.imageUrl
-                        val tvmazeId = extractedInfo?.tvmazeId
+                        val show = todayShows!![page]
+                        val pageOffset = (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
+                        val scale =
+                            lerp(
+                                start = 0.85f,
+                                stop = 1f,
+                                fraction = 1f - pageOffset.absoluteValue.coerceIn(0f, 1f),
+                            )
+                        val alphaOffset =
+                            lerp(
+                                start = 0.5f,
+                                stop = 1f,
+                                fraction = 1f - pageOffset.absoluteValue.coerceIn(0f, 1f),
+                            )
 
-                        val progressVal = (item.progress ?: 0f) / 100f
-
-                        Column(modifier = Modifier.padding(horizontal = 8.dp)) {
-                            ContinueWatchingCard(
-                                showTitle = item.show?.title ?: "Unknown",
-                                episodeTitle = item.episode?.title ?: "Episode ${item.episode?.number ?: 0}",
-                                seasonNumber = item.episode?.season ?: 0,
-                                episodeNumber = item.episode?.number ?: 0,
-                                imageUrl = imageUrl,
-                                progressPercentage = progressVal,
+                        Box(
+                            modifier =
+                                Modifier
+                                    .graphicsLayer {
+                                        scaleX = scale
+                                        scaleY = scale
+                                        alpha = alphaOffset
+                                    },
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Card(
+                                shape = MaterialTheme.shapes.extraLarge,
+                                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
                                 modifier =
                                     Modifier
                                         .fillMaxWidth()
-                                        .aspectRatio(16f / 9f),
-                                onClick = {
-                                    val direction =
-                                        Destinations.ShowDetail(
-                                            source = "continue_watching",
-                                            showId = tvmazeId?.toString(),
-                                            showTitle = item.show?.title,
-                                            showImageUrl = imageUrl,
-                                            showBackgroundUrl = null,
-                                            imdbID = imdbId,
-                                            isAuthorizedOnTrakt = true,
-                                            showTraktId = traktId,
-                                        )
-                                    navController.navigate(direction)
-                                },
-                            )
-                            Text(
-                                text = "${item.show?.title ?: "Unknown"} • S${item.episode?.season ?: 0} E${item.episode?.number ?: 0}",
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.SemiBold,
-                                modifier = Modifier.padding(top = 8.dp, bottom = 4.dp),
-                                color = MaterialTheme.colorScheme.onSurface,
-                            )
+                                        .aspectRatio(2f / 3f)
+                                        .clickable {
+                                            val direction =
+                                                Destinations.ShowDetail(
+                                                    source = "today",
+                                                    showId = show.showId.toString(),
+                                                    showTitle = show.name,
+                                                    showImageUrl = show.originalImage,
+                                                    showBackgroundUrl = show.mediumImage,
+                                                )
+                                            navController.navigate(direction)
+                                        },
+                            ) {
+                                Box(modifier = Modifier.fillMaxSize()) {
+                                    AsyncImage(
+                                        model =
+                                            ImageRequest.Builder(LocalContext.current)
+                                                .data(show.originalImage ?: show.mediumImage)
+                                                .crossfade(true)
+                                                .build(),
+                                        contentDescription = show.name,
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier.fillMaxSize(),
+                                    )
+                                    Box(
+                                        modifier =
+                                            Modifier
+                                                .fillMaxWidth()
+                                                .height(160.dp)
+                                                .align(Alignment.BottomCenter)
+                                                .background(
+                                                    Brush.verticalGradient(
+                                                        colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.9f)),
+                                                    ),
+                                                ),
+                                    )
+                                    Text(
+                                        text = show.name ?: "",
+                                        style = MaterialTheme.typography.headlineSmall,
+                                        color = Color.White,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier =
+                                            Modifier
+                                                .align(Alignment.BottomStart)
+                                                .padding(16.dp),
+                                    )
+                                }
+                            }
                         }
                     }
                 }
+
                 Spacer(modifier = Modifier.height(24.dp))
             }
 
