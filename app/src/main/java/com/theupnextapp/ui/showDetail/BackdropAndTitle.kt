@@ -48,15 +48,10 @@ fun BackdropAndTitle(
     onBack: () -> Unit,
 ) {
     val imageUrl: String? =
-        showDetailArgs?.let { args -> // Use let to scope on non-null showDetailArgs
-            if (!args.showBackgroundUrl.isNullOrEmpty()) {
-                args.showBackgroundUrl
-            } else if (!args.showImageUrl.isNullOrEmpty()) {
-                args.showImageUrl
-            } else {
-                null
-            }
-        } ?: showSummary?.originalImageUrl
+        showSummary?.originalImageUrl
+            ?: showSummary?.mediumImageUrl
+            ?: showDetailArgs?.showBackgroundUrl?.takeIf { it.isNotEmpty() }
+            ?: showDetailArgs?.showImageUrl?.takeIf { it.isNotEmpty() }
 
     Box {
         imageUrl?.let {

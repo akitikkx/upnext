@@ -68,6 +68,14 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 
 @ExperimentalMaterial3Api
 @Composable
@@ -105,6 +113,9 @@ fun ShowSeasonsScreen(
                                     showTraktId = showDetailArg.showTraktId
                                 )
                             )
+                        },
+                        onBackClick = {
+                            navController.navigateUp()
                         }
                     ) { showSeason ->
                         navController.navigate(
@@ -115,7 +126,7 @@ fun ShowSeasonsScreen(
                                 isAuthorizedOnTrakt = showDetailArg.isAuthorizedOnTrakt,
                                 showTraktId = showDetailArg.showTraktId,
                                 showTitle = showDetailArg.showTitle,
-                                showImageUrl = showDetailArg.showImageUrl,
+                                showImageUrl = showSeason.originalImageUrl ?: showDetailArg.showImageUrl,
                                 showBackgroundUrl = showDetailArg.showBackgroundUrl,
                             ),
                         )
@@ -137,6 +148,7 @@ fun ShowSeasons(
     showBackgroundUrl: String? = null,
     list: List<ShowSeason>,
     onShowTitleClick: () -> Unit = {},
+    onBackClick: () -> Unit = {},
     onClick: (item: ShowSeason) -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -172,12 +184,28 @@ fun ShowSeasons(
                         Brush.verticalGradient(
                             colors = listOf(
                                 Color.Transparent,
-                                MaterialTheme.colorScheme.background.copy(alpha = 0.9f),
+                                MaterialTheme.colorScheme.background.copy(alpha = 0.5f),
                                 MaterialTheme.colorScheme.background
                             )
                         )
                     )
             )
+            IconButton(
+                onClick = onBackClick,
+                modifier =
+                    Modifier
+                        .padding(
+                            top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 8.dp,
+                            start = 16.dp,
+                        )
+                        .background(color = Color.Black.copy(alpha = 0.5f), shape = CircleShape),
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Back",
+                    tint = Color.White,
+                )
+            }
             Column(
                 modifier = Modifier
                     .align(Alignment.BottomStart)

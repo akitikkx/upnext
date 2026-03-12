@@ -54,6 +54,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.theupnextapp.R
@@ -75,6 +76,8 @@ fun SearchScreen(
     val isLoading = viewModel.isLoading.observeAsState()
 
     val recentSearches = viewModel.recentSearches.observeAsState()
+    
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -85,6 +88,7 @@ fun SearchScreen(
                     searchResultsList = searchResultsList.value,
                     recentSearches = recentSearches.value,
                     onResultClick = {
+                        keyboardController?.hide()
                         it.name?.let { name ->
                             viewModel.onQuerySaved(name)
                         }
@@ -102,6 +106,7 @@ fun SearchScreen(
                         )
                     },
                     onRecentSearchClick = {
+                        keyboardController?.hide()
                         viewModel.onQueryTextSubmit(it)
                     },
                     onTextSubmit = {
