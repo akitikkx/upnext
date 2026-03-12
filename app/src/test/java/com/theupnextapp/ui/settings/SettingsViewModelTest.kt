@@ -82,7 +82,7 @@ class SettingsViewModelTest {
             backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
                 viewModel.traktAccessToken.collect {}
             }
-            
+
             testDispatcher.scheduler.advanceUntilIdle()
 
             viewModel.onDisconnectTrakt()
