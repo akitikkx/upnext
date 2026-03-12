@@ -165,7 +165,7 @@ fun AppNavigation(
                 }
 
                 composable<Destinations.Settings> {
-                    SettingsScreen(navController = navHostController)
+                    SettingsScreen(onBackClick = { navHostController.navigateUp() })
                 }
 
                 composable<Destinations.TraktAccount> { backStackEntry ->

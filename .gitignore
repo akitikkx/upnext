@@ -44,4 +44,8 @@ signing.properties
 detekt_full_report.txt
 detekt_progress.txt
 detekt_report.txt
-detekt_report_v2.txtvendor/
+detekt_report_v2.txt
+vendor/
+screenshots/
+playstore_generated/
+.agent/scripts/playstore_gen/

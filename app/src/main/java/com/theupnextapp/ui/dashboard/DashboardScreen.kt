@@ -23,6 +23,9 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
+import androidx.compose.material.icons.filled.EventNote
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Tv
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -59,6 +62,7 @@ import com.theupnextapp.common.utils.TraktConstants
 import com.theupnextapp.core.designsystem.ui.widgets.ListPosterCard
 import com.theupnextapp.core.designsystem.ui.widgets.UpNextEpisodeCard
 import com.theupnextapp.navigation.Destinations
+import com.theupnextapp.ui.components.EmptyState
 import kotlin.math.absoluteValue
 
 @Suppress("LongMethod", "CyclomaticComplexMethod", "MagicNumber")
@@ -210,6 +214,13 @@ fun DashboardScreen(
                             }
                         }
                     }
+                } else {
+                    EmptyState(
+                        icon = Icons.Default.Tv,
+                        title = "No TV Schedule",
+                        message = "It looks like the schedules are empty. Check back later.",
+                        modifier = Modifier.fillMaxWidth().height(250.dp),
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -305,7 +316,12 @@ fun DashboardScreen(
                         CircularProgressIndicator()
                     }
                 } else if (airingSoonShows.isNullOrEmpty()) {
-                    Text("No shows airing soon.", style = MaterialTheme.typography.bodyMedium)
+                    EmptyState(
+                        icon = Icons.Default.EventNote,
+                        title = "Nothing Airing Soon",
+                        message = "Check back later for upcoming episodes.",
+                        modifier = Modifier.fillMaxWidth().height(250.dp),
+                    )
                 } else {
                     val pagerState = rememberPagerState(pageCount = { airingSoonShows!!.size })
                     HorizontalPager(
@@ -413,10 +429,11 @@ fun DashboardScreen(
                         CircularProgressIndicator()
                     }
                 } else if (recentHistory.isNullOrEmpty()) {
-                    Text(
-                        "No recent activity found.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(bottom = 16.dp),
+                    EmptyState(
+                        icon = Icons.Default.History,
+                        title = "No Recent Activity",
+                        message = "When you mark episodes as watched, they will appear here.",
+                        modifier = Modifier.fillMaxWidth().height(250.dp).padding(bottom = 16.dp),
                     )
                 }
             }

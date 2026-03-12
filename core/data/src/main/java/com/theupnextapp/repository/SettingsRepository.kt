@@ -21,9 +21,15 @@
 
 package com.theupnextapp.repository
 
+import com.theupnextapp.domain.Theme
 import kotlinx.coroutines.flow.Flow
 
 interface SettingsRepository {
     val areNotificationsEnabled: Flow<Boolean>
+    val themeStream: Flow<Theme>
+    val dataSaverStream: Flow<Boolean>
+
     suspend fun setNotificationsEnabled(enabled: Boolean)
+    suspend fun setTheme(theme: Theme)
+    suspend fun setDataSaverEnabled(enabled: Boolean)
 }

@@ -25,6 +25,8 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import com.theupnextapp.domain.Theme
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -34,15 +36,48 @@ class SettingsRepositoryImpl @Inject constructor(
 ) : SettingsRepository {
 
     private val NOTIFICATIONS_ENABLED = booleanPreferencesKey("notifications_enabled")
+    private val THEME_STATE = stringPreferencesKey("theme_state")
+    private val DATA_SAVER_ENABLED = booleanPreferencesKey("data_saver_enabled")
 
     override val areNotificationsEnabled: Flow<Boolean> = dataStore.data
         .map { preferences ->
             preferences[NOTIFICATIONS_ENABLED] ?: true // Default to true
         }
 
+    override val themeStream: Flow<Theme> = dataStore.data
+        .map { preferences ->
+            val themeName = preferences[THEME_STATE]
+            if (themeName != null) {
+                try {
+                    Theme.valueOf(themeName)
+                } catch (e: IllegalArgumentException) {
+                    Theme.SYSTEM
+                }
+            } else {
+                Theme.SYSTEM
+            }
+        }
+
+    override val dataSaverStream: Flow<Boolean> = dataStore.data
+        .map { preferences ->
+            preferences[DATA_SAVER_ENABLED] ?: false // Default to false
+        }
+
     override suspend fun setNotificationsEnabled(enabled: Boolean) {
         dataStore.edit { preferences ->
             preferences[NOTIFICATIONS_ENABLED] = enabled
+        }
+    }
+
+    override suspend fun setTheme(theme: Theme) {
+        dataStore.edit { preferences ->
+            preferences[THEME_STATE] = theme.name
+        }
+    }
+
+    override suspend fun setDataSaverEnabled(enabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[DATA_SAVER_ENABLED] = enabled
         }
     }
 }
