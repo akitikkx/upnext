@@ -93,8 +93,8 @@ fun TopBar(
     val currentTitle: String =
         title ?: when {
             destination?.hasRoute<Destinations.Settings>() == true -> stringResource(R.string.title_settings)
-            destination?.hasRoute<Destinations.ShowSeasons>() == true -> stringResource(R.string.title_seasons)
-            destination?.hasRoute<Destinations.ShowSeasonEpisodes>() == true -> stringResource(R.string.title_season_episodes)
+            destination?.hasRoute<Destinations.ShowSeasons>() == true -> ""
+            destination?.hasRoute<Destinations.ShowSeasonEpisodes>() == true -> ""
             destination?.hasRoute<Destinations.ShowDetail>() == true -> stringResource(id = R.string.title_unknown)
             else -> ""
         }

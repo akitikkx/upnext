@@ -224,7 +224,7 @@ fun ShowSeasonEpisodes(
             val buttonText = if (allWatched) "Mark Season Unwatched" else "Mark Season Watched"
             val buttonIcon = if (allWatched) Icons.Outlined.CheckCircle else Icons.Filled.CheckCircle
 
-            OutlinedButton(
+            androidx.compose.material3.FilledTonalButton(
                 onClick = {
                     if (allWatched) {
                         onMarkSeasonUnwatched()
@@ -345,7 +345,7 @@ fun ShowSeasonEpisodeCard(
                                 Modifier
                                     .padding(start = 4.dp)
                                     .fillMaxWidth(),
-                            style = MaterialTheme.typography.bodyMedium,
+                            style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                         )
                     }
