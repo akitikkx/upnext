@@ -312,8 +312,7 @@ fun DashboardScreen(
                         pageSpacing = 16.dp,
                         modifier = Modifier.fillMaxWidth(),
                     ) { page ->
-                        val showResponse = recommendedShows!![page]
-                        val show = showResponse.show
+                        val show = recommendedShows!![page]
                         val pageOffset = (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
                         val scale =
                             lerp(

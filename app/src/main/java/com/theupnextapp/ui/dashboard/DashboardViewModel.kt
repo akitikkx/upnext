@@ -172,8 +172,8 @@ class DashboardViewModel
                         shows?.let { recommendedList ->
                             val deferredImages =
                                 recommendedList.mapNotNull { item ->
-                                    val traktId = item.show?.ids?.trakt
-                                    val imdbId = item.show?.ids?.imdb
+                                    val traktId = item.ids?.trakt
+                                    val imdbId = item.ids?.imdb
                                     if (traktId != null && imdbId != null) {
                                         async {
                                             try {

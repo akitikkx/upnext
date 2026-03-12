@@ -5,10 +5,6 @@ import com.google.gson.annotations.SerializedName
 class NetworkTraktRecommendationsResponse : ArrayList<NetworkTraktRecommendationsResponseItem>()
 
 data class NetworkTraktRecommendationsResponseItem(
-    val show: NetworkTraktRecommendationsResponseItemShow?
-)
-
-data class NetworkTraktRecommendationsResponseItemShow(
     val title: String?,
     val year: Int?,
     val ids: NetworkTraktRecommendationsResponseItemIds?
