@@ -85,7 +85,9 @@ fun AppNavigation(
 
     val showTopBar =
         currentEntry?.destination?.hasRoute<Destinations.ShowDetail>() == false &&
-            currentEntry.destination.hasRoute<Destinations.EmptyDetail>() == false
+            currentEntry.destination.hasRoute<Destinations.EmptyDetail>() == false &&
+            currentEntry.destination.hasRoute<Destinations.ShowSeasons>() == false &&
+            currentEntry.destination.hasRoute<Destinations.ShowSeasonEpisodes>() == false
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -158,6 +160,7 @@ fun AppNavigation(
                     val args = backStackEntry.toRoute<Destinations.ShowSeasonEpisodes>()
                     ShowSeasonEpisodesScreen(
                         showSeasonEpisodesArg = args.toArg(),
+                        navController = navHostController,
                     )
                 }
 

@@ -145,6 +145,48 @@ class DeprecatedTest {
 
 ---
 
+## 🚦 ViewModel & Coroutine Testing
+
+### Testing Unidirectional Data Flow & StateFlows
+
+When testing ViewModels handling modern Kotlin `StateFlow` and Coroutines:
+
+1. Use `.thenReturn(flowOf(data))` for Repositories instead of standard returns.
+2. Ensure you initialize the `runTest` context and use `UnconfinedTestDispatcher` if you need to actively collect underlying `StateFlow` streams.
+3. Don't forget `InstantTaskExecutorRule()` for `LiveData` and `CoroutineTestRule()` for dispatchers.
+
+```kotlin
+@Test
+fun `repository state triggers side-effects`() = runTest {
+    // Mock upstream StateFlow
+    whenever(repository.flowData).thenReturn(flowOf(mockData))
+    
+    // Create viewmodel under test
+    val viewModel = MyViewModel(repository)
+
+    // IMPORTANT: Collect the hot flow so stateIn() bindings actually execute
+    backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+        viewModel.isAuthorized.collect {}
+    }
+    
+    // Act
+    viewModel.onEventFire()
+    
+    // Assert
+    verify(repository).saveData()
+}
+```
+
+### Mocking WorkManager & Remote API Calls
+
+Don't launch real HTTP calls or real `WorkManager` workers in Unit Tests. Rather:
+
+1. Inject an interface or fully mock the `WorkManager` object.
+2. Validate the `OneTimeWorkRequestBuilder` execution parameters using `.enqueue(any())`.
+3. If an API returns `Result.Success`, make sure to wrap your mock inside `flowOf(Result.Success())`.
+
+---
+
 ## 📋 Compose Testing OptIns
 
 For Compose UI tests, add required experimental annotations:

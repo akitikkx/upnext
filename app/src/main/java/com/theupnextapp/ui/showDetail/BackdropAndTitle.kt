@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -48,21 +49,17 @@ fun BackdropAndTitle(
     onBack: () -> Unit,
 ) {
     val imageUrl: String? =
-        showDetailArgs?.let { args -> // Use let to scope on non-null showDetailArgs
-            if (!args.showBackgroundUrl.isNullOrEmpty()) {
-                args.showBackgroundUrl
-            } else if (!args.showImageUrl.isNullOrEmpty()) {
-                args.showImageUrl
-            } else {
-                null
-            }
-        } ?: showSummary?.originalImageUrl
+        showSummary?.originalImageUrl
+            ?: showSummary?.mediumImageUrl
+            ?: showDetailArgs?.showBackgroundUrl?.takeIf { it.isNotEmpty() }
+            ?: showDetailArgs?.showImageUrl?.takeIf { it.isNotEmpty() }
 
     Box {
         imageUrl?.let {
             PosterImage(
                 url = it,
                 height = backdropHeight,
+                alignment = Alignment.TopCenter,
             )
         }
 

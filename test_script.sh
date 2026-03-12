@@ -1,0 +1,2 @@
+sed -i '' 's/composeTestRule.onNodeWithContentDescription("Mark as watched").assertIsDisplayed()/composeTestRule.onRoot(useUnmergedTree = true).printToLog("MY_TAG")\n        composeTestRule.onNodeWithContentDescription("Mark as watched").assertIsDisplayed()/' app/src/test/java/com/theupnextapp/ui/showSeasonEpisodes/ShowSeasonEpisodesScreenTest.kt
+./gradlew testDebugUnitTest --tests '*ShowSeasonEpisodesScreenTest.showSeasonEpisodes_authorizedUser_checkmarkVisible*'

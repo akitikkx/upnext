@@ -28,6 +28,7 @@ import com.theupnextapp.domain.TraktAuthState
 import com.theupnextapp.domain.isTraktAccessTokenValid
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.work.RefreshFavoriteShowsWorker
+import com.theupnextapp.work.RefreshWatchedProgressWorker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -101,6 +102,20 @@ class TraktAuthManager @Inject constructor(
                                 "refresh_favorite_shows_work",
                                 androidx.work.ExistingWorkPolicy.KEEP,
                                 refreshFavoritesWork
+                            )
+                            
+                            val workerDataWatchBase = Data.Builder()
+                                .putString(RefreshWatchedProgressWorker.ARG_TOKEN, accessToken.access_token)
+                                .build()
+                                
+                            val refreshWatchedWork = OneTimeWorkRequest.Builder(RefreshWatchedProgressWorker::class.java)
+                                .setInputData(workerDataWatchBase)
+                                .build()
+                                
+                            workManager.enqueueUniqueWork(
+                                "refresh_watched_progress_work",
+                                androidx.work.ExistingWorkPolicy.KEEP,
+                                refreshWatchedWork
                             )
                         }
                     }

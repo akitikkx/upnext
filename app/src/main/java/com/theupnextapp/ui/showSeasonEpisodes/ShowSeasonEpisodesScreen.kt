@@ -21,20 +21,31 @@
 
 package com.theupnextapp.ui.showSeasonEpisodes
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.outlined.CheckCircle
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -47,19 +58,26 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import com.theupnextapp.R
 import com.theupnextapp.common.utils.DateUtils
 import com.theupnextapp.core.designsystem.ui.components.PosterImage
-import com.theupnextapp.core.designsystem.ui.components.SectionHeadingText
 import com.theupnextapp.core.designsystem.ui.components.ShimmerSeasonEpisodes
 import com.theupnextapp.domain.ShowSeasonEpisode
 import com.theupnextapp.domain.ShowSeasonEpisodesArg
+import com.theupnextapp.navigation.Destinations
 import org.jsoup.Jsoup
 
 @ExperimentalMaterial3Api
@@ -67,6 +85,7 @@ import org.jsoup.Jsoup
 fun ShowSeasonEpisodesScreen(
     viewModel: ShowSeasonEpisodesViewModel = hiltViewModel(),
     showSeasonEpisodesArg: ShowSeasonEpisodesArg,
+    navController: NavController,
 ) {
     LaunchedEffect(showSeasonEpisodesArg) {
         viewModel.selectedSeason(showSeasonEpisodesArg)
@@ -86,6 +105,8 @@ fun ShowSeasonEpisodesScreen(
                 seasonNumber.value?.let { season ->
                     episodeList.value?.let { episodes ->
                         ShowSeasonEpisodes(
+                            showTitle = showSeasonEpisodesArg.showTitle,
+                            showImageUrl = showSeasonEpisodesArg.showImageUrl,
                             seasonNumber = season,
                             list = episodes,
                             onToggleWatched = { episode ->
@@ -98,6 +119,23 @@ fun ShowSeasonEpisodesScreen(
                                 viewModel.markSeasonAsUnwatched()
                             },
                             isAuthorizedOnTrakt = isAuthorizedOnTrakt.value,
+                            onShowTitleClick = {
+                                navController.navigate(
+                                    Destinations.ShowDetail(
+                                        source = "season_episodes",
+                                        showId = showSeasonEpisodesArg.showId?.toString(),
+                                        showTitle = showSeasonEpisodesArg.showTitle,
+                                        showImageUrl = showSeasonEpisodesArg.showImageUrl,
+                                        showBackgroundUrl = showSeasonEpisodesArg.showBackgroundUrl,
+                                        imdbID = showSeasonEpisodesArg.imdbID,
+                                        isAuthorizedOnTrakt = showSeasonEpisodesArg.isAuthorizedOnTrakt,
+                                        showTraktId = showSeasonEpisodesArg.showTraktId,
+                                    ),
+                                )
+                            },
+                            onBackClick = {
+                                navController.navigateUp()
+                            },
                         )
                     }
                 }
@@ -110,31 +148,113 @@ fun ShowSeasonEpisodesScreen(
     }
 }
 
+@Suppress("MagicNumber")
 @ExperimentalMaterial3Api
 @Composable
 fun ShowSeasonEpisodes(
+    showTitle: String? = null,
+    showImageUrl: String? = null,
     seasonNumber: Int,
     list: List<ShowSeasonEpisode>,
     onToggleWatched: (ShowSeasonEpisode) -> Unit = {},
     onMarkSeasonWatched: () -> Unit = {},
     onMarkSeasonUnwatched: () -> Unit = {},
     isAuthorizedOnTrakt: Boolean = false,
+    onShowTitleClick: () -> Unit = {},
+    onBackClick: () -> Unit = {},
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        SectionHeadingText(
-            text =
-                stringResource(
-                    R.string.show_detail_show_season_episodes_title_with_number,
-                    seasonNumber,
-                ),
-        )
+        AnimatedVisibility(
+            visible = true,
+            enter =
+                fadeIn(animationSpec = tween(700)) +
+                    slideInVertically(
+                        initialOffsetY = { -50 },
+                        animationSpec = tween(700),
+                    ),
+        ) {
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(260.dp),
+            ) {
+                showImageUrl?.let { url ->
+                    Image(
+                        painter =
+                            rememberAsyncImagePainter(
+                                ImageRequest.Builder(LocalContext.current)
+                                    .data(url)
+                                    .crossfade(true)
+                                    .build(),
+                            ),
+                        contentDescription = showTitle,
+                        contentScale = ContentScale.Crop,
+                        alignment = Alignment.TopCenter,
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .background(
+                                Brush.verticalGradient(
+                                    colors =
+                                        listOf(
+                                            Color.Transparent,
+                                            MaterialTheme.colorScheme.background.copy(alpha = 0.5f),
+                                            MaterialTheme.colorScheme.background,
+                                        ),
+                                ),
+                            ),
+                )
+                IconButton(
+                    onClick = onBackClick,
+                    modifier =
+                        Modifier
+                            .padding(
+                                top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 8.dp,
+                                start = 16.dp,
+                            )
+                            .background(color = Color.Black.copy(alpha = 0.5f), shape = CircleShape),
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back",
+                        tint = Color.White,
+                    )
+                }
+                Column(
+                    modifier =
+                        Modifier
+                            .align(Alignment.BottomStart)
+                            .padding(16.dp),
+                ) {
+                    showTitle?.let { title ->
+                        Text(
+                            text = title,
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onBackground,
+                            modifier = Modifier.clickable { onShowTitleClick() },
+                        )
+                    }
+                    Text(
+                        text = "Season $seasonNumber",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
+                    )
+                }
+            }
+        }
 
         if (isAuthorizedOnTrakt && list.isNotEmpty()) {
             val allWatched = list.all { it.isWatched }
             val buttonText = if (allWatched) "Mark Season Unwatched" else "Mark Season Watched"
             val buttonIcon = if (allWatched) Icons.Outlined.CheckCircle else Icons.Filled.CheckCircle
 
-            Button(
+            androidx.compose.material3.FilledTonalButton(
                 onClick = {
                     if (allWatched) {
                         onMarkSeasonUnwatched()
@@ -145,14 +265,14 @@ fun ShowSeasonEpisodes(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 4.dp),
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
             ) {
                 Icon(
                     imageVector = buttonIcon,
                     contentDescription = null,
                     modifier = Modifier.padding(end = 8.dp),
                 )
-                Text(text = buttonText)
+                Text(text = buttonText, fontWeight = FontWeight.Bold)
             }
         }
 
@@ -177,6 +297,14 @@ fun ShowSeasonEpisodeCard(
 ) {
     Card(
         shape = MaterialTheme.shapes.large,
+        colors =
+            androidx.compose.material3.CardDefaults.cardColors(
+                containerColor = androidx.compose.ui.graphics.Color.Transparent,
+            ),
+        elevation =
+            androidx.compose.material3.CardDefaults.cardElevation(
+                defaultElevation = 0.dp,
+            ),
         modifier =
             Modifier
                 .fillMaxWidth()
@@ -206,14 +334,9 @@ fun ShowSeasonEpisodeCard(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    if (item.number.toString().isNotEmpty() && item.season.toString().isNotEmpty()) {
+                    if (item.number.toString().isNotEmpty()) {
                         Text(
-                            text =
-                                stringResource(
-                                    R.string.show_detail_season_and_episode_number,
-                                    item.season.toString(),
-                                    item.number.toString(),
-                                ),
+                            text = "Episode ${item.number}",
                             modifier = Modifier.padding(4.dp),
                             style = MaterialTheme.typography.bodyLarge,
                             fontWeight = FontWeight.Bold,
@@ -254,7 +377,7 @@ fun ShowSeasonEpisodeCard(
                                 Modifier
                                     .padding(start = 4.dp)
                                     .fillMaxWidth(),
-                            style = MaterialTheme.typography.bodyMedium,
+                            style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                         )
                     }

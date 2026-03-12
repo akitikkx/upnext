@@ -291,122 +291,6 @@ fun DashboardScreen(
                 Spacer(modifier = Modifier.height(24.dp))
             }
         } else {
-            // Recommended for You Section
-            item {
-                Text(
-                    text = "Recommended for You",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.padding(bottom = 8.dp),
-                )
-
-                if (isLoadingRecommendations) {
-                    Box(modifier = Modifier.fillMaxWidth().height(400.dp), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
-                    }
-                } else if (!recommendedShows.isNullOrEmpty()) {
-                    val pagerState = rememberPagerState(pageCount = { recommendedShows!!.size })
-                    HorizontalPager(
-                        state = pagerState,
-                        pageSize = androidx.compose.foundation.pager.PageSize.Fixed(260.dp),
-                        pageSpacing = 16.dp,
-                        modifier = Modifier.fillMaxWidth(),
-                    ) { page ->
-                        val show = recommendedShows!![page]
-                        val pageOffset = (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
-                        val scale =
-                            lerp(
-                                start = 0.85f,
-                                stop = 1f,
-                                fraction = 1f - pageOffset.absoluteValue.coerceIn(0f, 1f),
-                            )
-                        val alphaOffset =
-                            lerp(
-                                start = 0.5f,
-                                stop = 1f,
-                                fraction = 1f - pageOffset.absoluteValue.coerceIn(0f, 1f),
-                            )
-
-                        val traktId = show?.ids?.trakt
-                        val imdbId = show?.ids?.imdb
-                        val extractedInfo = traktId?.let { recommendedShowsImages[it.toString()] }
-                        val imageUrl = extractedInfo?.imageUrl
-                        val tvmazeId = extractedInfo?.tvmazeId
-
-                        Box(
-                            modifier =
-                                Modifier
-                                    .graphicsLayer {
-                                        scaleX = scale
-                                        scaleY = scale
-                                        alpha = alphaOffset
-                                    },
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Card(
-                                shape = MaterialTheme.shapes.extraLarge,
-                                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-                                modifier =
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .aspectRatio(2f / 3f)
-                                        .clickable {
-                                            val direction =
-                                                Destinations.ShowDetail(
-                                                    source = "recommended",
-                                                    showId = tvmazeId?.toString(),
-                                                    showTitle = show?.title,
-                                                    showImageUrl = imageUrl,
-                                                    showBackgroundUrl = null,
-                                                    imdbID = imdbId,
-                                                    isAuthorizedOnTrakt = true,
-                                                    showTraktId = traktId,
-                                                )
-                                            navController.navigate(direction)
-                                        },
-                            ) {
-                                Box(modifier = Modifier.fillMaxSize()) {
-                                    AsyncImage(
-                                        model =
-                                            ImageRequest.Builder(LocalContext.current)
-                                                .data(imageUrl)
-                                                .crossfade(true)
-                                                .build(),
-                                        contentDescription = show?.title ?: "Show Poster",
-                                        contentScale = ContentScale.Crop,
-                                        modifier = Modifier.fillMaxSize(),
-                                    )
-                                    Box(
-                                        modifier =
-                                            Modifier
-                                                .fillMaxWidth()
-                                                .height(160.dp)
-                                                .align(Alignment.BottomCenter)
-                                                .background(
-                                                    Brush.verticalGradient(
-                                                        colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.9f)),
-                                                    ),
-                                                ),
-                                    )
-                                    Text(
-                                        text = show?.title ?: "",
-                                        style = MaterialTheme.typography.headlineSmall,
-                                        color = Color.White,
-                                        fontWeight = FontWeight.Bold,
-                                        modifier =
-                                            Modifier
-                                                .align(Alignment.BottomStart)
-                                                .padding(16.dp),
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(24.dp))
-            }
-
             // Airing Soon Section
             item {
                 Text(
@@ -567,6 +451,8 @@ fun DashboardScreen(
                                                     imdbID = imdbId,
                                                     isAuthorizedOnTrakt = true,
                                                     showTraktId = traktId,
+                                                    showTitle = historyItem.show?.title,
+                                                    showImageUrl = imageUrl,
                                                 )
                                             navController.navigate(direction)
                                         },
@@ -615,6 +501,123 @@ fun DashboardScreen(
                 item {
                     Spacer(modifier = Modifier.height(24.dp))
                 }
+            }
+
+            // Recommended for You Section
+            item {
+                Text(
+                    text = "Recommended for You",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.padding(bottom = 8.dp),
+                )
+
+                if (isLoadingRecommendations) {
+                    Box(modifier = Modifier.fillMaxWidth().height(400.dp), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                } else if (!recommendedShows.isNullOrEmpty()) {
+                    val pagerState = rememberPagerState(pageCount = { recommendedShows!!.size })
+                    HorizontalPager(
+                        state = pagerState,
+                        pageSize = androidx.compose.foundation.pager.PageSize.Fixed(260.dp),
+                        pageSpacing = 16.dp,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) { page ->
+                        val show = recommendedShows!![page]
+                        val pageOffset = (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
+                        val scale =
+                            lerp(
+                                start = 0.85f,
+                                stop = 1f,
+                                fraction = 1f - pageOffset.absoluteValue.coerceIn(0f, 1f),
+                            )
+                        val alphaOffset =
+                            lerp(
+                                start = 0.5f,
+                                stop = 1f,
+                                fraction = 1f - pageOffset.absoluteValue.coerceIn(0f, 1f),
+                            )
+
+                        val traktId = show?.ids?.trakt
+                        val imdbId = show?.ids?.imdb
+                        val extractedInfo = traktId?.let { recommendedShowsImages[it.toString()] }
+                        val imageUrl = extractedInfo?.imageUrl
+                        val tvmazeId = extractedInfo?.tvmazeId
+
+                        Box(
+                            modifier =
+                                Modifier
+                                    .graphicsLayer {
+                                        scaleX = scale
+                                        scaleY = scale
+                                        alpha = alphaOffset
+                                    },
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Card(
+                                shape = MaterialTheme.shapes.extraLarge,
+                                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .aspectRatio(2f / 3f)
+                                        .clickable {
+                                            val direction =
+                                                Destinations.ShowDetail(
+                                                    source = "recommended",
+                                                    showId = tvmazeId?.toString(),
+                                                    showTitle = show?.title,
+                                                    showImageUrl = imageUrl,
+                                                    showBackgroundUrl = null,
+                                                    imdbID = imdbId,
+                                                    isAuthorizedOnTrakt = true,
+                                                    showTraktId = traktId,
+                                                )
+                                            navController.navigate(direction)
+                                        },
+                            ) {
+                                Box(modifier = Modifier.fillMaxSize()) {
+                                    AsyncImage(
+                                        model =
+                                            ImageRequest.Builder(LocalContext.current)
+                                                .data(imageUrl)
+                                                .crossfade(true)
+                                                .build(),
+                                        contentDescription = show?.title ?: "Show Poster",
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier.fillMaxSize(),
+                                    )
+                                    Box(
+                                        modifier =
+                                            Modifier
+                                                .fillMaxWidth()
+                                                .height(160.dp)
+                                                .align(Alignment.BottomCenter)
+                                                .background(
+                                                    Brush.verticalGradient(
+                                                        colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.9f)),
+                                                    ),
+                                                ),
+                                    )
+                                    Text(
+                                        text = show?.title ?: "",
+                                        style = MaterialTheme.typography.headlineSmall,
+                                        color = Color.White,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier =
+                                            Modifier
+                                                .align(Alignment.BottomStart)
+                                                .padding(16.dp),
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(24.dp))
             }
         }
     }

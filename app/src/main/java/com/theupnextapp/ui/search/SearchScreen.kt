@@ -51,6 +51,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -76,6 +77,8 @@ fun SearchScreen(
 
     val recentSearches = viewModel.recentSearches.observeAsState()
 
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier.padding(8.dp),
@@ -85,6 +88,7 @@ fun SearchScreen(
                     searchResultsList = searchResultsList.value,
                     recentSearches = recentSearches.value,
                     onResultClick = {
+                        keyboardController?.hide()
                         it.name?.let { name ->
                             viewModel.onQuerySaved(name)
                         }
@@ -102,6 +106,7 @@ fun SearchScreen(
                         )
                     },
                     onRecentSearchClick = {
+                        keyboardController?.hide()
                         viewModel.onQueryTextSubmit(it)
                     },
                     onTextSubmit = {

@@ -55,7 +55,7 @@
     <dimen name="compose_search_poster_height">130dp</dimen>
 
     <!-- Show season episodes -->
-    <dimen name="show_season_episode_poster_height">160dp</dimen>
+    <dimen name="show_season_episode_poster_height">200dp</dimen>
 
     <!-- Trakt Account -->
     <dimen name="trakt_account_authorized_logo_height">30dp</dimen>

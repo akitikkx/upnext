@@ -78,14 +78,20 @@ sealed interface Destinations {
         val imdbID: String? = null,
         val isAuthorizedOnTrakt: Boolean? = false,
         val showTraktId: Int? = null,
+        val showTitle: String? = null,
+        val showImageUrl: String? = null,
+        val showBackgroundUrl: String? = null,
     ) : Destinations {
         fun toArg() =
             ShowSeasonEpisodesArg(
-                showId,
-                seasonNumber,
-                imdbID,
-                isAuthorizedOnTrakt,
-                showTraktId,
+                showId = showId,
+                seasonNumber = seasonNumber,
+                imdbID = imdbID,
+                isAuthorizedOnTrakt = isAuthorizedOnTrakt,
+                showTraktId = showTraktId,
+                showTitle = showTitle,
+                showImageUrl = showImageUrl,
+                showBackgroundUrl = showBackgroundUrl,
             )
     }
 
