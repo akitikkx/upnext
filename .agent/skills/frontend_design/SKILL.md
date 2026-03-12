@@ -29,3 +29,7 @@ NEVER use generic AI-generated aesthetics like overused font families (Inter, Ro
 Interpret creatively and make unexpected choices that feel genuinely designed for the context. No design should be the same.
 
 **IMPORTANT**: Match implementation complexity to the aesthetic vision. Maximalist designs need elaborate code with extensive animations and effects. Minimalist or refined designs need restraint, precision, and careful attention to spacing, typography, and subtle details.
+
+## Android UI Patterns
+- **Dynamic Carousels**: When building Jetpack Compose `HorizontalPager` loops, apply `graphicsLayer` interpolation. Scaling inactive items (e.g. `0.85f`) while fading opacity `0.5f` based on `currentPageOffsetFraction` creates a significantly more premium cinematic feel than static lists.
+- **Asset Prioritization**: Always scrutinize API fallback parameters (such as TVMaze's `original` vs `medium` formats) in the Data mapping layer. A premium UI requires pristine poster fidelity. It's significantly better to stretch a high-resolution `original` image than it is to up-scale a `medium` thumbnail into Jetpack Compose cards.
