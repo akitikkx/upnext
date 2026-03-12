@@ -322,7 +322,10 @@ fun DashboardScreen(
                         val item = playbackProgress!![page]
                         val traktId = item.show?.ids?.trakt
                         val imdbId = item.show?.ids?.imdb
-                        val extractedInfo = traktId?.let { playbackImages[it] }
+                        val season = item.episode?.season
+                        val number = item.episode?.number
+                        val uniqueKey = "$traktId-${season ?: 0}-${number ?: 0}"
+                        val extractedInfo = traktId?.let { playbackImages[uniqueKey] }
                         val imageUrl = extractedInfo?.imageUrl
                         val tvmazeId = extractedInfo?.tvmazeId
 
@@ -408,7 +411,10 @@ fun DashboardScreen(
 
                         val imdbId = showResponse.show?.ids?.imdb
                         val traktId = showResponse.show?.ids?.trakt
-                        val extractedInfo = traktId?.let { airingSoonImages[it] }
+                        val season = showResponse.episode?.season
+                        val number = showResponse.episode?.number
+                        val uniqueKey = "$traktId-${season ?: 0}-${number ?: 0}"
+                        val extractedInfo = traktId?.let { airingSoonImages[uniqueKey] }
                         val imageUrl = extractedInfo?.imageUrl
                         val tvmazeId = extractedInfo?.tvmazeId
 
@@ -506,7 +512,10 @@ fun DashboardScreen(
                         items(recentHistory!!.take(5)) { historyItem ->
                             val traktId = historyItem.show?.ids?.trakt
                             val imdbId = historyItem.show?.ids?.imdb
-                            val extractedInfo = traktId?.let { historyImages[it] }
+                            val season = historyItem.episode?.season
+                            val number = historyItem.episode?.number
+                            val uniqueKey = "$traktId-${season ?: 0}-${number ?: 0}"
+                            val extractedInfo = traktId?.let { historyImages[uniqueKey] }
                             val imageUrl = extractedInfo?.imageUrl
                             val tvmazeId = extractedInfo?.tvmazeId
 

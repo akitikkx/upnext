@@ -62,6 +62,14 @@ class FakeDashboardRepository : DashboardRepository {
         return Pair(null, null)
     }
 
+    override suspend fun getEpisodeImageAndTvmazeId(
+        imdbId: String?,
+        season: Int,
+        number: Int,
+    ): Pair<String?, Int?> {
+        return Pair(null, null)
+    }
+
     // Helper methods for testing
     fun setLoadingYesterday(isLoading: Boolean) {
         _isLoadingYesterdayShows.value = isLoading

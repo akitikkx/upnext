@@ -45,8 +45,8 @@ class DashboardViewModel
         private val _airingSoonShows = MutableStateFlow<NetworkTraktMyScheduleResponse?>(null)
         val airingSoonShows: StateFlow<NetworkTraktMyScheduleResponse?> = _airingSoonShows.asStateFlow()
 
-        private val _airingSoonImages = MutableStateFlow<Map<Int, ExtractedTraktInfo>>(emptyMap())
-        val airingSoonImages: StateFlow<Map<Int, ExtractedTraktInfo>> = _airingSoonImages.asStateFlow()
+        private val _airingSoonImages = MutableStateFlow<Map<String, ExtractedTraktInfo>>(emptyMap())
+        val airingSoonImages: StateFlow<Map<String, ExtractedTraktInfo>> = _airingSoonImages.asStateFlow()
 
         private val _isLoadingAiringSoon = MutableStateFlow(false)
         val isLoadingAiringSoon: StateFlow<Boolean> = _isLoadingAiringSoon.asStateFlow()
@@ -55,8 +55,8 @@ class DashboardViewModel
             MutableStateFlow<List<com.theupnextapp.network.models.trakt.NetworkTraktPlaybackResponse>?>(null)
         val playbackProgress: StateFlow<List<com.theupnextapp.network.models.trakt.NetworkTraktPlaybackResponse>?> = _playbackProgress.asStateFlow()
 
-        private val _playbackImages = MutableStateFlow<Map<Int, ExtractedTraktInfo>>(emptyMap())
-        val playbackImages: StateFlow<Map<Int, ExtractedTraktInfo>> = _playbackImages.asStateFlow()
+        private val _playbackImages = MutableStateFlow<Map<String, ExtractedTraktInfo>>(emptyMap())
+        val playbackImages: StateFlow<Map<String, ExtractedTraktInfo>> = _playbackImages.asStateFlow()
 
         private val _isLoadingPlayback = MutableStateFlow(false)
         val isLoadingPlayback: StateFlow<Boolean> = _isLoadingPlayback.asStateFlow()
@@ -65,8 +65,8 @@ class DashboardViewModel
             MutableStateFlow<List<com.theupnextapp.network.models.trakt.NetworkTraktHistoryResponse>?>(null)
         val recentHistory: StateFlow<List<com.theupnextapp.network.models.trakt.NetworkTraktHistoryResponse>?> = _recentHistory.asStateFlow()
 
-        private val _historyImages = MutableStateFlow<Map<Int, ExtractedTraktInfo>>(emptyMap())
-        val historyImages: StateFlow<Map<Int, ExtractedTraktInfo>> = _historyImages.asStateFlow()
+        private val _historyImages = MutableStateFlow<Map<String, ExtractedTraktInfo>>(emptyMap())
+        val historyImages: StateFlow<Map<String, ExtractedTraktInfo>> = _historyImages.asStateFlow()
 
         private val _isLoadingHistory = MutableStateFlow(false)
         val isLoadingHistory: StateFlow<Boolean> = _isLoadingHistory.asStateFlow()
@@ -130,11 +130,14 @@ class DashboardViewModel
                                 scheduleList.mapNotNull { scheduleItem ->
                                     val traktId = scheduleItem.show?.ids?.trakt
                                     val imdbId = scheduleItem.show?.ids?.imdb
+                                    val season = scheduleItem.episode?.season
+                                    val number = scheduleItem.episode?.number
                                     if (traktId != null && imdbId != null) {
                                         async {
                                             try {
                                                 val (url, tvmazeId) = dashboardRepository.getShowImageAndTvmazeId(imdbId)
-                                                traktId to ExtractedTraktInfo(imageUrl = url, tvmazeId = tvmazeId)
+                                                val uniqueKey = "$traktId-${season ?: 0}-${number ?: 0}"
+                                                uniqueKey to ExtractedTraktInfo(imageUrl = url, tvmazeId = tvmazeId)
                                             } catch (e: Exception) {
                                                 null
                                             }
@@ -161,14 +164,15 @@ class DashboardViewModel
             viewModelScope.launch {
                 _isLoadingPlayback.value = true
                 try {
-                    val historyResponse = traktRepository.getTraktRecentHistory(bearerToken)
+                    val historyResponse = traktRepository.getTraktWatchedShows(bearerToken)
                     if (historyResponse.isSuccess) {
                         val historyItems = historyResponse.getOrNull() ?: emptyList()
-                        val uniqueShows = historyItems.distinctBy { it.show?.ids?.trakt }.take(10)
+                        val sortedShows =
+                            historyItems.sortedByDescending { it.lastWatchedAt }.mapNotNull { it.show }.take(10)
 
                         val deferredProgress =
-                            uniqueShows.mapNotNull { showItem ->
-                                showItem.show?.ids?.trakt?.let { traktId ->
+                            sortedShows.mapNotNull { showItem ->
+                                showItem.ids?.trakt?.let { traktId ->
                                     async {
                                         try {
                                             val progressResult = traktRepository.getTraktShowProgress(bearerToken, traktId.toString())
@@ -188,10 +192,10 @@ class DashboardViewModel
                                                         progress = computedProgress,
                                                         action = "watch",
                                                         type = "episode",
-                                                        show = showItem.show,
+                                                        show = showItem,
                                                         episode = nextEp,
                                                     )
-                                                Pair(playbackItem, Pair(showItem.show?.ids?.imdb, nextEp))
+                                                Pair(playbackItem, Pair(showItem.ids?.imdb, nextEp))
                                             } else {
                                                 null
                                             }
@@ -222,7 +226,8 @@ class DashboardViewModel
                                                 } else {
                                                     dashboardRepository.getShowImageAndTvmazeId(imdbId)
                                                 }
-                                            traktId to ExtractedTraktInfo(imageUrl = url, tvmazeId = tvmazeId)
+                                            val uniqueKey = "$traktId-${season ?: 0}-${number ?: 0}"
+                                            uniqueKey to ExtractedTraktInfo(imageUrl = url, tvmazeId = tvmazeId)
                                         } catch (e: Exception) {
                                             null
                                         }
@@ -268,7 +273,8 @@ class DashboardViewModel
                                                     } else {
                                                         dashboardRepository.getShowImageAndTvmazeId(imdbId)
                                                     }
-                                                traktId to ExtractedTraktInfo(imageUrl = url, tvmazeId = tvmazeId)
+                                                val uniqueKey = "$traktId-${season ?: 0}-${number ?: 0}"
+                                                uniqueKey to ExtractedTraktInfo(imageUrl = url, tvmazeId = tvmazeId)
                                             } catch (e: Exception) {
                                                 null
                                             }

@@ -364,6 +364,6 @@ class TraktRepositoryImpl(
     }
 
     override suspend fun getTraktWatchedShows(token: String): Result<List<com.theupnextapp.network.models.trakt.NetworkTraktWatchedShowsResponse>> {
-        return Result.failure(Exception("Not utilized via DashboardViewModel directly"))
+        return traktAccountDataSource.getTraktWatchedShows(token)
     }
 }

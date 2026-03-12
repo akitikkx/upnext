@@ -585,6 +585,19 @@ constructor(
         }
     }
 
+    suspend fun getTraktWatchedShows(token: String): Result<List<com.theupnextapp.network.models.trakt.NetworkTraktWatchedShowsResponse>> {
+        if (token.isEmpty()) return Result.failure(IllegalArgumentException("Token is empty"))
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = traktService.getWatchedShowsAsync("Bearer $token").await()
+                Result.success(response)
+            } catch (e: Exception) {
+                logTraktException("Error fetching watched shows", e)
+                Result.failure(e)
+            }
+        }
+    }
+
     suspend fun getTraktRecentHistory(token: String): Result<List<com.theupnextapp.network.models.trakt.NetworkTraktHistoryResponse>> {
         if (token.isEmpty()) return Result.failure(IllegalArgumentException("Token is empty"))
         return withContext(Dispatchers.IO) {
