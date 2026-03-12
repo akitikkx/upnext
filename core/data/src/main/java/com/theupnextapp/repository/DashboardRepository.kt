@@ -291,7 +291,7 @@ class DashboardRepositoryImpl(
 
     override suspend fun getShowImageAndTvmazeId(imdbId: String?): Pair<String?, Int?> {
         val (tvmazeId, original, medium) = super.getImages(imdbId)
-        return Pair(medium ?: original, tvmazeId)
+        return Pair(original ?: medium, tvmazeId)
     }
 
     override suspend fun getEpisodeImageAndTvmazeId(
@@ -319,7 +319,7 @@ class DashboardRepositoryImpl(
                 firebaseCrashlytics.recordException(e)
             }
         }
-        return Pair(mediumImage ?: originalImage, tvmazeId)
+        return Pair(originalImage ?: mediumImage, tvmazeId)
     }
 
     /**
