@@ -15,8 +15,6 @@ package com.theupnextapp.ui.traktAccount
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.height
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,8 +30,5 @@ fun TraktProfileHeader(onLogoutClick: () -> Unit) {
             contentDescription = "Trakt Logo",
             modifier = Modifier.height(40.dp), // Adjust size
         )
-        TextButton(onClick = onLogoutClick) {
-            Text("Logout")
-        }
     }
 }

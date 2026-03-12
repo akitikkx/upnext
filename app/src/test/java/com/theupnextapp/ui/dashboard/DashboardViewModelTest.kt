@@ -67,25 +67,27 @@ class DashboardViewModelTest {
     }
 
     @Test
-    fun `when trakt access token is null, dependent flows handle gracefully`() = runTest {
-        // Ensure the mock returns null explicitly for access token
-        `when`(traktRepository.traktAccessToken).thenReturn(flowOf(null))
+    fun `when trakt access token is null, dependent flows handle gracefully`() =
+        runTest {
+            // Ensure the mock returns null explicitly for access token
+            `when`(traktRepository.traktAccessToken).thenReturn(flowOf(null))
 
-        // Create viewModel fresh inside the scope to trigger the init block collection
-        val testViewModel = DashboardViewModel(
-            traktRepository = traktRepository,
-            dashboardRepository = dashboardRepository,
-            watchProgressRepository = watchProgressRepository,
-        )
+            // Create viewModel fresh inside the scope to trigger the init block collection
+            val testViewModel =
+                DashboardViewModel(
+                    traktRepository = traktRepository,
+                    dashboardRepository = dashboardRepository,
+                    watchProgressRepository = watchProgressRepository,
+                )
 
-        // Give flows time to emit initial states
-        val accessTokenValue = testViewModel.traktAccessToken.value
-        val airingSoonValue = testViewModel.airingSoonShows.value
-        val recentHistoryValue = testViewModel.recentHistory.value
+            // Give flows time to emit initial states
+            val accessTokenValue = testViewModel.traktAccessToken.value
+            val airingSoonValue = testViewModel.airingSoonShows.value
+            val recentHistoryValue = testViewModel.recentHistory.value
 
-        // Validate that null access token safely maps to null/empty dependent structures, not crashes
-        assertNull("Access token should be null", accessTokenValue)
-        assertTrue("Airing soon shows should be empty when unauthorized", airingSoonValue.isNullOrEmpty())
-        assertTrue("Recent history should be empty when unauthorized", recentHistoryValue.isNullOrEmpty())
-    }
+            // Validate that null access token safely maps to null/empty dependent structures, not crashes
+            assertNull("Access token should be null", accessTokenValue)
+            assertTrue("Airing soon shows should be empty when unauthorized", airingSoonValue.isNullOrEmpty())
+            assertTrue("Recent history should be empty when unauthorized", recentHistoryValue.isNullOrEmpty())
+        }
 }
