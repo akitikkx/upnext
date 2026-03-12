@@ -6,6 +6,12 @@ This pull request completely revamps the initial landing experience of Upnext. W
 - **Recommendations Schema Hotfix:** Redefined `NetworkTraktRecommendationsResponseItem` from nesting properties under a generic `show` object to explicitly mirroring the unwrapped JSON arrays returned natively by Trakt.
 - **Image Resolution Hotfix:** Inverted the fallback prioritization logic inside the `DashboardRepository` methods so `original` high-definition posters from TVMaze are queried preferenced before falling back to `medium`.
 
+---
+
+## CI/CD Optimization (Phase 11)
+- Consolidate the 6 individual GitHub Action verification jobs (`testDebugUnitTest`, `assembleDebug`, `ktlintCheck`, `lintDebug`, `detekt`, `assembleRelease`) into a single unified `verify` workflow. By combining them under a shared dependency graph, Gradle evaluates the baseline `:app:compileDebugKotlin` step once instead of concurrently spinning up 6 isolated Virtual Machine instances.
+- Replaced custom `actions/cache@v3` step configuration with the robust `gradle/actions/setup-gradle@v4` official marketplace action.
+
 ## Validation
 
 - Tested unit test suite utilizing Mockito configurations with the `testDebugUnitTest` gradle task. Passed successfully.
