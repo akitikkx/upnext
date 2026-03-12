@@ -12,12 +12,14 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -27,9 +29,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.theupnextapp.R
 import com.theupnextapp.common.utils.TraktConstants
 import com.theupnextapp.domain.Theme
 
@@ -94,6 +98,9 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
         // Account Section
         SettingsSectionHeader(title = "Account")
 
+        // Disconnect confirmation state
+        var showDisconnectDialog by remember { mutableStateOf(false) }
+
         if (traktToken != null) {
             ListItem(
                 headlineContent = { Text("Trakt.tv Connection") },
@@ -102,10 +109,20 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
                     Text(
                         text = "Disconnect",
                         color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.clickable { viewModel.onDisconnectTrakt() },
+                        modifier = Modifier.clickable { showDisconnectDialog = true },
                     )
                 },
             )
+
+            if (showDisconnectDialog) {
+                DisconnectTraktDialog(
+                    onDismissed = { showDisconnectDialog = false },
+                    onConfirmed = {
+                        viewModel.onDisconnectTrakt()
+                        showDisconnectDialog = false
+                    },
+                )
+            }
         } else {
             ListItem(
                 headlineContent = { Text("Trakt.tv Connection") },
@@ -144,5 +161,35 @@ fun SettingsSectionHeader(title: String) {
         color = MaterialTheme.colorScheme.primary,
         fontWeight = FontWeight.Bold,
         modifier = Modifier.padding(start = 16.dp, top = 24.dp, bottom = 8.dp),
+    )
+}
+
+@Composable
+private fun DisconnectTraktDialog(
+    onDismissed: () -> Unit,
+    onConfirmed: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = { onDismissed() },
+        title = {
+            Text(
+                text = stringResource(id = R.string.disconnect_from_trakt_dialog_title),
+            )
+        },
+        text = {
+            Text(
+                text = stringResource(id = R.string.disconnect_from_trakt_dialog_message),
+            )
+        },
+        confirmButton = {
+            TextButton(onClick = { onConfirmed() }) {
+                Text(text = stringResource(id = R.string.disconnect_from_trakt_dialog_confirm))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = { onDismissed() }) {
+                Text(text = stringResource(id = R.string.disconnect_from_trakt_dialog_cancel))
+            }
+        },
     )
 }

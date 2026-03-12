@@ -172,17 +172,15 @@ fun MainScreen(
                     TopAppBar(
                         title = { Text(stringResource(currentListSection.label)) },
                         actions = {
-                            if (currentListSection == NavigationDestination.TraktAccount) {
-                                androidx.compose.material3.IconButton(
-                                    onClick = {
-                                        mainNavController.navigate(Destinations.Settings)
-                                    },
-                                ) {
-                                    Icon(
-                                        imageVector = androidx.compose.material.icons.Icons.Filled.Settings,
-                                        contentDescription = stringResource(R.string.title_settings),
-                                    )
-                                }
+                            androidx.compose.material3.IconButton(
+                                onClick = {
+                                    mainNavController.navigate(Destinations.Settings)
+                                },
+                            ) {
+                                Icon(
+                                    imageVector = androidx.compose.material.icons.Icons.Filled.Settings,
+                                    contentDescription = stringResource(R.string.title_settings),
+                                )
                             }
                         },
                     )
