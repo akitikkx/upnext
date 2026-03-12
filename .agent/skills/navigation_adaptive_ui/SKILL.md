@@ -94,6 +94,10 @@ val showTitle = if (currentEntry?.destination?.hasRoute<Destinations.ShowDetail>
 *   **Cause:** Updating state (like `isDetailFlowActive`) inside a `LaunchedEffect` that observes that same state without proper checks.
 *   **Fix:** Ensure state updates only happen when the *target* state differs from *current* state.
 
+### Lazy Grid Null Pointer Exceptions (Stream Drops)
+*   **Cause:** Using aggressive non-null assertions (`!!`) on `LazyRow` or `LazyVerticalGrid` `items(list!!)` when the underlying data stream is briefly interrupted (e.g. during a Trakt logout where the Database momentarily clears its snapshot before the Viewmodel drops the authorization state).
+*   **Fix:** Always use safe-unwrapping `.orEmpty()` on Compose list arguments, like `items(list.orEmpty())`, ensuring Compose safely renders zero items instead of instantly crashing the active Activity during auth transitions.
+
 ### Bottom Bar Visibility
 *   **Rule:** The `NavigationSuiteScaffold` (Bottom Bar / Rail) should wrap the content.
 *   **Logic:** The list-detail scaffold lives *inside* the navigation suite.
