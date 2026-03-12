@@ -71,11 +71,20 @@ import androidx.compose.ui.platform.LocalContext
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 
+import androidx.navigation.NavController
+import com.theupnextapp.navigation.Destinations
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
+import androidx.compose.foundation.clickable
+
 @ExperimentalMaterial3Api
 @Composable
 fun ShowSeasonEpisodesScreen(
     viewModel: ShowSeasonEpisodesViewModel = hiltViewModel(),
     showSeasonEpisodesArg: ShowSeasonEpisodesArg,
+    navController: NavController,
 ) {
     LaunchedEffect(showSeasonEpisodesArg) {
         viewModel.selectedSeason(showSeasonEpisodesArg)
@@ -109,6 +118,20 @@ fun ShowSeasonEpisodesScreen(
                                 viewModel.markSeasonAsUnwatched()
                             },
                             isAuthorizedOnTrakt = isAuthorizedOnTrakt.value,
+                            onShowTitleClick = {
+                                navController.navigate(
+                                    Destinations.ShowDetail(
+                                        source = "season_episodes",
+                                        showId = showSeasonEpisodesArg.showId?.toString(),
+                                        showTitle = showSeasonEpisodesArg.showTitle,
+                                        showImageUrl = showSeasonEpisodesArg.showImageUrl,
+                                        showBackgroundUrl = showSeasonEpisodesArg.showBackgroundUrl,
+                                        imdbID = showSeasonEpisodesArg.imdbID,
+                                        isAuthorizedOnTrakt = showSeasonEpisodesArg.isAuthorizedOnTrakt,
+                                        showTraktId = showSeasonEpisodesArg.showTraktId
+                                    )
+                                )
+                            }
                         )
                     }
                 }
@@ -132,9 +155,17 @@ fun ShowSeasonEpisodes(
     onMarkSeasonWatched: () -> Unit = {},
     onMarkSeasonUnwatched: () -> Unit = {},
     isAuthorizedOnTrakt: Boolean = false,
+    onShowTitleClick: () -> Unit = {},
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        Box(
+        AnimatedVisibility(
+            visible = true,
+            enter = fadeIn(animationSpec = tween(700)) + slideInVertically(
+                initialOffsetY = { -50 },
+                animationSpec = tween(700)
+            )
+        ) {
+            Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(260.dp)
@@ -175,7 +206,8 @@ fun ShowSeasonEpisodes(
                         text = title,
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground
+                        color = MaterialTheme.colorScheme.onBackground,
+                        modifier = Modifier.clickable { onShowTitleClick() }
                     )
                 }
                 Text(
@@ -184,6 +216,7 @@ fun ShowSeasonEpisodes(
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f)
                 )
             }
+        }
         }
 
         if (isAuthorizedOnTrakt && list.isNotEmpty()) {

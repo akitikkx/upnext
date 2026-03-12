@@ -63,6 +63,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
+import androidx.compose.foundation.clickable
 
 @ExperimentalMaterial3Api
 @Composable
@@ -86,7 +91,21 @@ fun ShowSeasonsScreen(
                     ShowSeasons(
                         showTitle = showDetailArg.showTitle,
                         showBackgroundUrl = showDetailArg.showBackgroundUrl ?: showDetailArg.showImageUrl,
-                        list = it
+                        list = it,
+                        onShowTitleClick = {
+                            navController.navigate(
+                                Destinations.ShowDetail(
+                                    source = "seasons",
+                                    showId = showDetailArg.showId,
+                                    showTitle = showDetailArg.showTitle,
+                                    showImageUrl = showDetailArg.showImageUrl,
+                                    showBackgroundUrl = showDetailArg.showBackgroundUrl,
+                                    imdbID = showDetailArg.imdbID,
+                                    isAuthorizedOnTrakt = showDetailArg.isAuthorizedOnTrakt,
+                                    showTraktId = showDetailArg.showTraktId
+                                )
+                            )
+                        }
                     ) { showSeason ->
                         navController.navigate(
                             Destinations.ShowSeasonEpisodes(
@@ -117,10 +136,18 @@ fun ShowSeasons(
     showTitle: String? = null,
     showBackgroundUrl: String? = null,
     list: List<ShowSeason>,
+    onShowTitleClick: () -> Unit = {},
     onClick: (item: ShowSeason) -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        Box(
+        AnimatedVisibility(
+            visible = true,
+            enter = fadeIn(animationSpec = tween(700)) + slideInVertically(
+                initialOffsetY = { -50 },
+                animationSpec = tween(700)
+            )
+        ) {
+            Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(260.dp)
@@ -161,7 +188,8 @@ fun ShowSeasons(
                         text = title,
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground
+                        color = MaterialTheme.colorScheme.onBackground,
+                        modifier = Modifier.clickable { onShowTitleClick() }
                     )
                 }
                 Text(
@@ -170,6 +198,7 @@ fun ShowSeasons(
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f)
                 )
             }
+        }
         }
         LazyColumn(modifier = Modifier.padding(8.dp)) {
             items(list) { showSeason ->
