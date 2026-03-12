@@ -21,19 +21,38 @@
 
 package com.theupnextapp.ui.showSeasons
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.outlined.CheckCircle
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -42,40 +61,24 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import com.theupnextapp.R
 import com.theupnextapp.core.designsystem.ui.components.PosterImage
-import com.theupnextapp.core.designsystem.ui.components.SectionHeadingText
 import com.theupnextapp.core.designsystem.ui.components.ShimmerSeasons
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.ShowSeason
 import com.theupnextapp.navigation.Destinations
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import coil.compose.rememberAsyncImagePainter
-import coil.request.ImageRequest
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.slideInVertically
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 
 @ExperimentalMaterial3Api
 @Composable
@@ -100,6 +103,7 @@ fun ShowSeasonsScreen(
                         showTitle = showDetailArg.showTitle,
                         showBackgroundUrl = showDetailArg.showBackgroundUrl ?: showDetailArg.showImageUrl,
                         list = it,
+                        isAuthorizedOnTrakt = showDetailArg.isAuthorizedOnTrakt == true,
                         onShowTitleClick = {
                             navController.navigate(
                                 Destinations.ShowDetail(
@@ -110,20 +114,23 @@ fun ShowSeasonsScreen(
                                     showBackgroundUrl = showDetailArg.showBackgroundUrl,
                                     imdbID = showDetailArg.imdbID,
                                     isAuthorizedOnTrakt = showDetailArg.isAuthorizedOnTrakt,
-                                    showTraktId = showDetailArg.showTraktId
-                                )
+                                    showTraktId = showDetailArg.showTraktId,
+                                ),
                             )
                         },
                         onBackClick = {
                             navController.navigateUp()
-                        }
+                        },
+                        onToggleWatched = { season ->
+                            viewModel.onToggleSeasonWatched(season)
+                        },
                     ) { showSeason ->
                         navController.navigate(
                             Destinations.ShowSeasonEpisodes(
                                 showId = showDetailArg.showId?.toInt(),
                                 seasonNumber = showSeason.seasonNumber,
                                 imdbID = showDetailArg.imdbID,
-                                isAuthorizedOnTrakt = showDetailArg.isAuthorizedOnTrakt,
+                                isAuthorizedOnTrakt = showDetailArg.isAuthorizedOnTrakt ?: false,
                                 showTraktId = showDetailArg.showTraktId,
                                 showTitle = showDetailArg.showTitle,
                                 showImageUrl = showSeason.originalImageUrl ?: showDetailArg.showImageUrl,
@@ -141,96 +148,112 @@ fun ShowSeasonsScreen(
     }
 }
 
+@Suppress("MagicNumber")
 @ExperimentalMaterial3Api
 @Composable
 fun ShowSeasons(
     showTitle: String? = null,
     showBackgroundUrl: String? = null,
     list: List<ShowSeason>,
+    isAuthorizedOnTrakt: Boolean = false,
     onShowTitleClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
+    onToggleWatched: (ShowSeason) -> Unit = {},
     onClick: (item: ShowSeason) -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         AnimatedVisibility(
             visible = true,
-            enter = fadeIn(animationSpec = tween(700)) + slideInVertically(
-                initialOffsetY = { -50 },
-                animationSpec = tween(700)
-            )
-        ) {
-            Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(260.dp)
-        ) {
-            showBackgroundUrl?.let { url ->
-                Image(
-                    painter = rememberAsyncImagePainter(
-                        ImageRequest.Builder(LocalContext.current)
-                            .data(url)
-                            .crossfade(true)
-                            .build()
+            enter =
+                fadeIn(animationSpec = tween(700)) +
+                    slideInVertically(
+                        initialOffsetY = { -50 },
+                        animationSpec = tween(700),
                     ),
-                    contentDescription = showTitle ?: "Show background backdrop",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
-                )
-            }
+        ) {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        Brush.verticalGradient(
-                            colors = listOf(
-                                Color.Transparent,
-                                MaterialTheme.colorScheme.background.copy(alpha = 0.5f),
-                                MaterialTheme.colorScheme.background
-                            )
-                        )
-                    )
-            )
-            IconButton(
-                onClick = onBackClick,
                 modifier =
                     Modifier
-                        .padding(
-                            top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 8.dp,
-                            start = 16.dp,
-                        )
-                        .background(color = Color.Black.copy(alpha = 0.5f), shape = CircleShape),
+                        .fillMaxWidth()
+                        .height(260.dp),
             ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
-                    tint = Color.White,
-                )
-            }
-            Column(
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(16.dp)
-            ) {
-                showTitle?.let { title ->
-                    Text(
-                        text = title,
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground,
-                        modifier = Modifier.clickable { onShowTitleClick() }
+                showBackgroundUrl?.let { url ->
+                    Image(
+                        painter =
+                            rememberAsyncImagePainter(
+                                ImageRequest.Builder(LocalContext.current)
+                                    .data(url)
+                                    .crossfade(true)
+                                    .build(),
+                            ),
+                        contentDescription = showTitle ?: "Show background backdrop",
+                        contentScale = ContentScale.Crop,
+                        alignment = Alignment.TopCenter,
+                        modifier = Modifier.fillMaxSize(),
                     )
                 }
-                Text(
-                    text = "Seasons",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f)
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .background(
+                                Brush.verticalGradient(
+                                    colors =
+                                        listOf(
+                                            Color.Transparent,
+                                            MaterialTheme.colorScheme.background.copy(alpha = 0.5f),
+                                            MaterialTheme.colorScheme.background,
+                                        ),
+                                ),
+                            ),
                 )
+                IconButton(
+                    onClick = onBackClick,
+                    modifier =
+                        Modifier
+                            .padding(
+                                top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 8.dp,
+                                start = 16.dp,
+                            )
+                            .background(color = Color.Black.copy(alpha = 0.5f), shape = CircleShape),
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back",
+                        tint = Color.White,
+                    )
+                }
+                Column(
+                    modifier =
+                        Modifier
+                            .align(Alignment.BottomStart)
+                            .padding(16.dp),
+                ) {
+                    showTitle?.let { title ->
+                        Text(
+                            text = title,
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onBackground,
+                            modifier = Modifier.clickable { onShowTitleClick() },
+                        )
+                    }
+                    Text(
+                        text = "Seasons",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
+                    )
+                }
             }
-        }
         }
         LazyColumn(modifier = Modifier.padding(8.dp)) {
             items(list) { showSeason ->
-                ShowSeasonCard(item = showSeason) {
+                ShowSeasonCard(
+                    item = showSeason,
+                    fallbackImageUrl = showBackgroundUrl,
+                    isAuthorizedOnTrakt = isAuthorizedOnTrakt,
+                    onToggleWatched = { onToggleWatched(showSeason) },
+                ) {
                     onClick(showSeason)
                 }
             }
@@ -242,6 +265,9 @@ fun ShowSeasons(
 @Composable
 fun ShowSeasonCard(
     item: ShowSeason,
+    fallbackImageUrl: String? = null,
+    isAuthorizedOnTrakt: Boolean = false,
+    onToggleWatched: () -> Unit = {},
     onClick: () -> Unit,
 ) {
     Card(
@@ -252,14 +278,19 @@ fun ShowSeasonCard(
                 .padding(4.dp),
         onClick = onClick,
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            item.originalImageUrl?.let { url ->
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.defaultMinSize(minHeight = 120.dp),
+        ) {
+            val imageUrl = item.originalImageUrl ?: fallbackImageUrl
+            imageUrl?.let { url ->
                 PosterImage(
                     url = url,
                     modifier =
                         Modifier
                             .width(dimensionResource(id = R.dimen.compose_search_poster_width))
                             .height(dimensionResource(id = R.dimen.compose_search_poster_height)),
+                    alignment = Alignment.TopCenter,
                 )
             }
             Column(
@@ -268,16 +299,28 @@ fun ShowSeasonCard(
                 modifier = Modifier.padding(8.dp),
             ) {
                 if (item.seasonNumber.toString().isNotEmpty()) {
-                    Text(
-                        text =
-                            stringResource(
-                                R.string.show_detail_season_and_number,
-                                item.seasonNumber.toString(),
-                            ),
-                        modifier = Modifier.padding(4.dp),
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Bold,
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        Text(
+                            text =
+                                stringResource(
+                                    R.string.show_detail_season_and_number,
+                                    item.seasonNumber.toString(),
+                                ),
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        if (item.isWatched == true) {
+                            Icon(
+                                imageVector = Icons.Outlined.CheckCircle,
+                                contentDescription = "Watched",
+                                tint = MaterialTheme.colorScheme.secondary,
+                            )
+                        }
+                    }
                 }
 
                 val premiereDate = item.premiereDate
@@ -304,6 +347,30 @@ fun ShowSeasonCard(
                         modifier = Modifier.padding(2.dp),
                         style = MaterialTheme.typography.bodyMedium,
                     )
+                }
+
+                if (isAuthorizedOnTrakt) {
+                    Button(
+                        onClick = onToggleWatched,
+                        modifier = Modifier.padding(top = 8.dp),
+                        colors =
+                            if (item.isWatched == true) {
+                                ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                                )
+                            } else {
+                                ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                )
+                            },
+                    ) {
+                        Text(
+                            text = if (item.isWatched == true) "Mark Season Unwatched" else "Mark Season Watched",
+                            style = MaterialTheme.typography.labelMedium,
+                        )
+                    }
                 }
             }
         }

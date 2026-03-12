@@ -123,7 +123,7 @@ fun ShowDetailScreen(
                     showId = showDetailArgs.showId,
                     showTitle = showDetailArgs.showTitle,
                     showImageUrl = showDetailArgs.showImageUrl,
-                    showBackgroundUrl = showDetailArgs.showBackgroundUrl,
+                    showBackgroundUrl = uiState.showSummary?.originalImageUrl ?: showDetailArgs.showBackgroundUrl,
                     imdbID = showDetailArgs.imdbID,
                     isAuthorizedOnTrakt = isAuthorizedOnTrakt,
                     showTraktId = traktId,

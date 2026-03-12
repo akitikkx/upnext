@@ -24,6 +24,7 @@ package com.theupnextapp.core.designsystem.ui.components
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -39,6 +40,7 @@ fun PosterImage(
     url: String,
     modifier: Modifier = Modifier,
     height: Dp = dimensionResource(id = R.dimen.compose_shows_list_poster_height),
+    alignment: Alignment = Alignment.Center,
 ) {
     AsyncImage(
         model =
@@ -50,6 +52,7 @@ fun PosterImage(
                 .build(),
         placeholder = painterResource(id = R.drawable.poster_placeholder),
         contentDescription = null,
+        alignment = alignment,
         contentScale = ContentScale.Crop,
         modifier =
             modifier

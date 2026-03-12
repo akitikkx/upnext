@@ -33,6 +33,7 @@ data class ShowSeason(
     val endDate: String?,
     val mediumImageUrl: String?,
     val originalImageUrl: String?,
+    var isWatched: Boolean? = false,
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readValue(Int::class.java.classLoader) as? Int,
@@ -43,6 +44,7 @@ data class ShowSeason(
         parcel.readString(),
         parcel.readString(),
         parcel.readString(),
+        parcel.readValue(Boolean::class.java.classLoader) as? Boolean,
     )
 
     override fun writeToParcel(
@@ -57,6 +59,7 @@ data class ShowSeason(
         parcel.writeString(endDate)
         parcel.writeString(mediumImageUrl)
         parcel.writeString(originalImageUrl)
+        parcel.writeValue(isWatched)
     }
 
     override fun describeContents(): Int {
@@ -112,6 +115,10 @@ data class ShowSeason(
             return false
         }
 
+        if (isWatched != other.isWatched) {
+            return false
+        }
+
         return true
     }
 
@@ -124,6 +131,7 @@ data class ShowSeason(
         result = 31 * result + (endDate?.hashCode() ?: 0)
         result = 31 * result + (mediumImageUrl?.hashCode() ?: 0)
         result = 31 * result + (originalImageUrl?.hashCode() ?: 0)
+        result = 31 * result + (isWatched?.hashCode() ?: 0)
         return result
     }
 }
