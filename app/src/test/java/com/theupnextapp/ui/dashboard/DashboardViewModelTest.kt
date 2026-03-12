@@ -19,7 +19,10 @@ import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.WatchProgressRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -61,5 +64,28 @@ class DashboardViewModelTest {
     @Test
     fun `viewModel initializes correctly`() {
         assertNotNull(viewModel)
+    }
+
+    @Test
+    fun `when trakt access token is null, dependent flows handle gracefully`() = runTest {
+        // Ensure the mock returns null explicitly for access token
+        `when`(traktRepository.traktAccessToken).thenReturn(flowOf(null))
+
+        // Create viewModel fresh inside the scope to trigger the init block collection
+        val testViewModel = DashboardViewModel(
+            traktRepository = traktRepository,
+            dashboardRepository = dashboardRepository,
+            watchProgressRepository = watchProgressRepository,
+        )
+
+        // Give flows time to emit initial states
+        val accessTokenValue = testViewModel.traktAccessToken.value
+        val airingSoonValue = testViewModel.airingSoonShows.value
+        val recentHistoryValue = testViewModel.recentHistory.value
+
+        // Validate that null access token safely maps to null/empty dependent structures, not crashes
+        assertNull("Access token should be null", accessTokenValue)
+        assertTrue("Airing soon shows should be empty when unauthorized", airingSoonValue.isNullOrEmpty())
+        assertTrue("Recent history should be empty when unauthorized", recentHistoryValue.isNullOrEmpty())
     }
 }
