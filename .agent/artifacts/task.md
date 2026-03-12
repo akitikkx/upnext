@@ -62,3 +62,14 @@ In this phase, we will transform the generic schedule-based Dashboard into a per
 - [x] Map `ExtractedTraktInfo` lookup to seamlessly default back to the Show Poster if a designated TVMaze Episode Screenshot is missing in the database.
 - [x] Align horizontal `contentPadding` on the Recent Activity `LazyRow` to fix layout bleed via specifying `PaddingValues(end = 16.dp)`.
 - [x] Refactor massive initialization blocks inside `DashboardViewModel.kt` (`fetchDashboardData`) down into explicit scoped functions to respect `detekt` CI Cyclomatic Complexity constraints.
+
+## 10: Personalized Recommendations
+- [x] Create `NetworkTraktRecommendationsResponse` model.
+- [x] Add `getRecommendationsAsync` to `TraktService`.
+- [x] Integrate endpoint into `TraktRepository` and fetch composite TVMaze thumbnails.
+- [x] Integrate into `DashboardViewModel` via `fetchRecommendations`.
+- [x] Swap out `Tonight on TV` for authenticated users with `Recommended for You` section in `DashboardScreen`.
+
+## 11: CI/CD Optimization
+- [x] Consolidate the 6 individual GitHub Action verify jobs (`testDebugUnitTest`, `assembleDebug`, `ktlintCheck`, `lintDebug`, `detekt`, `assembleRelease`) into a single execution workflow to eliminate duplicated virtual environments and redundant Kotlin compilations.
+- [x] Replace custom `$HOME/.gradle/caches` with `gradle/actions/setup-gradle@v3` inside `pull_request.yml` for robust state preservation.

@@ -35,12 +35,14 @@ Automated deployments run daily at **2:00 AM UTC** via `.github/workflows/deploy
 ### 2. Pull Request Verification (CI)
 Every Pull Request to `main` undergoes strict quality checks via `.github/workflows/pull_request.yml`.
 
-**Checks Run:**
-- **KtLint:** `ktlintCheck` (Code Style)
-- **Detekt:** `detekt` (Static Analysis)
-- **Android Lint:** `lintDebug` (Android best practices, permissions, security)
-- **Unit Tests:** `testDebugUnitTest`
-- **Release Integrity:** `assembleRelease` (Verifies R8/ProGuard shrinking without crashing)
+**Unified `verify` Job:**
+To radically optimize GitHub Actions minutes consumption, all verification tasks are executed within a single runner matrix step using Gradle's internal dependency graph to share Daemon state and avoid redundant `:app:compileDebugKotlin` invocations:
+- `ktlintCheck` (Code Style)
+- `detekt` (Static Analysis)
+- `lintDebug` (Android best practices, permissions, security)
+- `testDebugUnitTest` (Unit Tests)
+- `assembleDebug` (Compilation validation)
+- `assembleRelease` (Verifies R8/ProGuard shrinking without crashing)
 
 > **Note on Signing in Pull Requests:**
 > PR builds do not have access to production signing keys. `app/build.gradle` is configured to **fallback to debug signing** automatically when the release keystore is missing. This allows `assembleRelease` to verify compilation and shrinking logic in CI without needing secrets.

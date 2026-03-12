@@ -1,47 +1,24 @@
-# Replacing 'Tonight on TV' with Personalized Recommendations
+# CI/CD Github Actions Optimization
 
-The "Tonight on TV" calendar logic currently duplicates the user-specific "Airing Soon" behavior when authenticated. To provide better UX, we'll replace the redundant UI with Trakt's personalized `/recommendations/shows` endpoint.
+The current `pull_request.yml` spins up 7 disparate GitHub Action virtual environments (Runners) to execute Gradle tasks in parallel (`test`, `build`, `ktlint`, `lint`, `detekt`, `build-release`, `ui-tests`). 
+
+Because they run in isolated environments, **every single job must download dependencies, spin up the Gradle Daemon, setup the Android SDK, and re-compile the entire application codebase.** This exponentially inflates GitHub minute consumption (e.g. `testDebugUnitTest`, `assembleDebug` and `lintDebug` all independently compile `compileDebugKotlin`, compounding 3x the computational cost).
 
 ## Proposed Changes
 
-### 1. Network Layer (`TraktService`)
-We will create a specific model mapping for Trakt's personalized recommendations module and inject it into the network interface.
+### [MODIFY] `.github/workflows/pull_request.yml`
+- **Job Consolidation:** Merge the isolated jobs `test`, `build`, `ktlint`, `lint`, `detekt`, and `build-release` into a single unified `verify` job.
+- **Dependency Execution Graph:** We will run `./gradlew ktlintCheck detekt lintDebug testDebugUnitTest assembleDebug assembleRelease --build-cache --continue`. Gradle's internal dependency graph will guarantee that `compileDebugKotlin` only executes **once**, dramatically speeding up the workflow. The `--continue` flag ensures all static checks run, even if one fails initially, preventing hidden failures.
+- **Superior Caching:** Swap out the legacy `actions/cache` and custom `chmod +x ./gradlew` steps for the officially maintained `gradle/actions/setup-gradle@v3` Action. This automatically caches Daemon state, build cache, and dependencies optimally.
+- **Isolated UI Tests:** The InstrumentedTests (`ui-tests`) utilizing the Pixel emulator will remain as their own dedicated isolated job, maintaining their massive timeout allowance and KVM hardware acceleration rules securely undisturbed.
 
-#### [NEW] `NetworkTraktRecommendationsResponse.kt`
-- Create a list response to map the returned array of Trakt `Show` objects (structurally identical to `NetworkTraktPopularShowsResponse`).
+## User Review Required
 
-#### [MODIFY] `TraktService.kt`
-- Add `@GET("recommendations/shows") fun getRecommendationsAsync(@Header("Authorization") token: String, @Query("limit") limit: Int = 20, @Query("extended") extended: String = "full"): Deferred<NetworkTraktRecommendationsResponse>`
-
----
-### 2. Repository Layer
-We will build the repository bridge to hit the recommendations endpoint and bundle TvMaze thumbnail images alongside the results.
-
-#### [MODIFY] `TraktRepository.kt` & `TraktRepositoryImpl.kt`
-- Add a suspend function `getTraktRecommendations(token: String)` that delegates to a newly appended method inside `TraktAccountDataSource.kt` or directly in `TraktRepositoryImpl`, fetching and resolving image URLs safely.
-
----
-### 3. ViewModel & State (`DashboardViewModel.kt`)
-We will integrate the newly defined repository function into the Dashboard's async dispatch loop.
-
-#### [MODIFY] `DashboardViewModel.kt`
-- Define `_recommendedShows` and `recommendedShowsImages` `StateFlow` structures.
-- Implement `fetchRecommendations(bearerToken: String)` to retrieve from the repository and map `getShowImageAndTvmazeId` concurrently, just like `fetchAiringSoonShows`.
-- Invoke it during `fetchDashboardData(token: String)`.
-
----
-### 4. User Interface (`DashboardScreen.kt`)
-We will replace the duplicated UI block with a custom "Recommended for You" horizontal row tailored for authenticated Trakt users.
-
-#### [MODIFY] `DashboardScreen.kt`
-- Remove the `Tonight on TV` module conditional block for authenticated users, explicitly replacing it with a `Recommended for You` section.
-- Iterate over `recommendedShows` and display a horizontal list of shows using `DashboardCard` or similar components with poster images and title.
+> [!IMPORTANT]
+> Because the formatting, linting, and unit-test checks are combined, they will no longer appear as 6 separate individual `Checkmarks` under the GitHub `Merge` dialog. They will simply be one major check known as `Verify Code and Build`. 
+> 
+> Are you okay making this tradeoff for the significant decrease in GitHub Minutes consumption?
 
 ## Verification Plan
-
-### Automated Tests
-- Run Gradle Detekt and Ktlint format checks.
-- Build and ensure `testDebugUnitTest` passes for mocked DataSources.
-
-### Manual Verification
-- Compile `assembleDebug` and visually verify that an authenticated emulator now shows "Recommended for You" instead of "Tonight on TV" on the Dashboard.
+1. Push the consolidated YAML formatting check directly to a new tracking branch.
+2. Monitor Github Actions to affirm minute expenditures have drastically dropped.
