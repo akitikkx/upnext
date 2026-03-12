@@ -104,6 +104,11 @@ fun AppNavigation(
                         }
                     },
                     title = dynamicTitle,
+                    onSettingsClick = {
+                        navHostController.navigate(Destinations.Settings) {
+                            launchSingleTop = true
+                        }
+                    },
                 )
             }
 
@@ -165,7 +170,7 @@ fun AppNavigation(
                 }
 
                 composable<Destinations.Settings> {
-                    SettingsScreen(onBackClick = { navHostController.navigateUp() })
+                    SettingsScreen()
                 }
 
                 composable<Destinations.TraktAccount> { backStackEntry ->
