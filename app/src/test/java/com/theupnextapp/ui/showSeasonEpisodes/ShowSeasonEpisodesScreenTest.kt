@@ -5,6 +5,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.theupnextapp.domain.ShowSeasonEpisode
 import org.junit.Rule
@@ -88,6 +89,6 @@ class ShowSeasonEpisodesScreenTest {
         }
 
         // Checkmark for "Mark as watched" SHOULD be displayed (because isWatched is false)
-        composeTestRule.onNodeWithContentDescription("Mark as watched").assertIsDisplayed()
+        composeTestRule.onNodeWithContentDescription("Mark as watched").performScrollTo().assertIsDisplayed()
     }
 }
