@@ -2,6 +2,15 @@
 
 ## Objective
 This pull request completely revamps the initial landing experience of Upnext. We transitioned from a generic, unauthenticated "Yesterday / Today / Tomorrow" TV schedule into a personalized "My Upnext" hub, utilizing Trakt integration to provide "Tonight on TV", "Most Anticipated", and "Airing Soon for You" features.
+- **Trakt Personalized Recommendations**: Authenticated users will now see a `Recommended for You` section at the top of their dashboard dynamically fetched across the `recommendations/shows` API and populated with TVMaze metadata, utilizing Jetpack Compose `HorizontalPager`.
+- **Recommendations Schema Hotfix:** Redefined `NetworkTraktRecommendationsResponseItem` from nesting properties under a generic `show` object to explicitly mirroring the unwrapped JSON arrays returned natively by Trakt.
+- **Image Resolution Hotfix:** Inverted the fallback prioritization logic inside the `DashboardRepository` methods so `original` high-definition posters from TVMaze are queried preferenced before falling back to `medium`.
+
+## Validation
+
+- Tested unit test suite utilizing Mockito configurations with the `testDebugUnitTest` gradle task. Passed successfully.
+- Ran static Kotlin analyzer logic format suite using `./gradlew detekt ktlintFormat`. Passed without warnings.
+- Compiles properly natively with `assembleDebug`.
 
 Concurrently, the aesthetic design language of the application was completely overhauled into a premium "Cinematic Luxury" dark theme, abandoning the generic Material neon defaults.
 
