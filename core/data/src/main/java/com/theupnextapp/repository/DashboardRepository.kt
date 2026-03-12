@@ -69,6 +69,10 @@ interface DashboardRepository {
         countryCode: String,
         date: String?,
     )
+
+    suspend fun getShowImageAndTvmazeId(imdbId: String?): Pair<String?, Int?>
+
+    suspend fun getEpisodeImageAndTvmazeId(imdbId: String?, season: Int, number: Int): Pair<String?, Int?>
 }
 
 class DashboardRepositoryImpl(
@@ -283,6 +287,39 @@ class DashboardRepositoryImpl(
                 firebaseCrashlytics.recordException(e)
             }
         }
+    }
+
+    override suspend fun getShowImageAndTvmazeId(imdbId: String?): Pair<String?, Int?> {
+        val (tvmazeId, original, medium) = super.getImages(imdbId)
+        return Pair(original ?: medium, tvmazeId)
+    }
+
+    override suspend fun getEpisodeImageAndTvmazeId(
+        imdbId: String?,
+        season: Int,
+        number: Int,
+    ): Pair<String?, Int?> {
+        var tvmazeId: Int? = null
+        var originalImage: String? = null
+        var mediumImage: String? = null
+
+        if (imdbId != null) {
+            try {
+                // Lookup TVMaze ID from IMDB ID
+                val showLookup = tvMazeService.getShowLookupAsync(imdbId).await()
+                tvmazeId = showLookup.id
+                
+                val episode =
+                    tvMazeService.getEpisodeByNumberAsync(tvmazeId.toString(), season, number).await()
+                
+                originalImage = episode.image?.original ?: showLookup.image?.original
+                mediumImage = episode.image?.medium ?: showLookup.image?.medium
+            } catch (e: Exception) {
+                Timber.d(e)
+                firebaseCrashlytics.recordException(e)
+            }
+        }
+        return Pair(originalImage ?: mediumImage, tvmazeId)
     }
 
     /**

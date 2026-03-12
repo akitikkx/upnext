@@ -1,91 +1,252 @@
-/*
- * MIT License
- *
- * Copyright (c) 2022 Ahmed Tikiwa
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
- * BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
-
 package com.theupnextapp.ui.dashboard
 
-import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
-import androidx.work.WorkManager
+import androidx.lifecycle.viewModelScope
+import com.theupnextapp.domain.TraktAccessToken
+import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponse
 import com.theupnextapp.repository.DashboardRepository
+import com.theupnextapp.repository.TraktRepository
+import com.theupnextapp.repository.WatchProgressRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 import javax.inject.Inject
+
+data class ExtractedTraktInfo(
+    val imageUrl: String?,
+    val tvmazeId: Int?,
+)
 
 @HiltViewModel
 class DashboardViewModel
     @Inject
     constructor(
-        dashboardRepository: DashboardRepository,
-        private val workManager: WorkManager,
+        private val traktRepository: TraktRepository,
+        private val dashboardRepository: DashboardRepository,
+        private val watchProgressRepository: WatchProgressRepository,
     ) : ViewModel() {
-        val isLoadingYesterdayShows = dashboardRepository.isLoadingYesterdayShows
+        val traktAccessToken: StateFlow<TraktAccessToken?> =
+            traktRepository.traktAccessToken
+                .stateIn(
+                    scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(5000),
+                    initialValue = null,
+                )
+
+        private val _airingSoonShows = MutableStateFlow<NetworkTraktMyScheduleResponse?>(null)
+        val airingSoonShows: StateFlow<NetworkTraktMyScheduleResponse?> = _airingSoonShows.asStateFlow()
+
+        private val _airingSoonImages = MutableStateFlow<Map<String, ExtractedTraktInfo>>(emptyMap())
+        val airingSoonImages: StateFlow<Map<String, ExtractedTraktInfo>> = _airingSoonImages.asStateFlow()
+
+        private val _isLoadingAiringSoon = MutableStateFlow(false)
+        val isLoadingAiringSoon: StateFlow<Boolean> = _isLoadingAiringSoon.asStateFlow()
+
+        private val _recentHistory =
+            MutableStateFlow<List<com.theupnextapp.network.models.trakt.NetworkTraktHistoryResponse>?>(null)
+        val recentHistory: StateFlow<List<com.theupnextapp.network.models.trakt.NetworkTraktHistoryResponse>?> = _recentHistory.asStateFlow()
+
+        private val _historyImages = MutableStateFlow<Map<String, ExtractedTraktInfo>>(emptyMap())
+        val historyImages: StateFlow<Map<String, ExtractedTraktInfo>> = _historyImages.asStateFlow()
+
+        private val _isLoadingHistory = MutableStateFlow(false)
+        val isLoadingHistory: StateFlow<Boolean> = _isLoadingHistory.asStateFlow()
+
+        private val _recommendedShows =
+            MutableStateFlow<com.theupnextapp.network.models.trakt.NetworkTraktRecommendationsResponse?>(null)
+        val recommendedShows: StateFlow<com.theupnextapp.network.models.trakt.NetworkTraktRecommendationsResponse?> = _recommendedShows.asStateFlow()
+
+        private val _recommendedShowsImages = MutableStateFlow<Map<String, ExtractedTraktInfo>>(emptyMap())
+        val recommendedShowsImages: StateFlow<Map<String, ExtractedTraktInfo>> = _recommendedShowsImages.asStateFlow()
+
+        private val _isLoadingRecommendations = MutableStateFlow(false)
+        val isLoadingRecommendations: StateFlow<Boolean> = _isLoadingRecommendations.asStateFlow()
+
+        val todayShows: StateFlow<List<com.theupnextapp.domain.ScheduleShow>?> =
+            dashboardRepository.todayShows
+                .stateIn(
+                    scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(5000),
+                    initialValue = null,
+                )
+
+        val mostAnticipatedShows: StateFlow<List<com.theupnextapp.domain.TraktMostAnticipated>?> =
+            traktRepository.traktMostAnticipatedShows
+                .stateIn(
+                    scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(5000),
+                    initialValue = null,
+                )
+
         val isLoadingTodayShows = dashboardRepository.isLoadingTodayShows
-        val isLoadingTomorrowShows = dashboardRepository.isLoadingTomorrowShows
+        val isLoadingMostAnticipated: StateFlow<Boolean> = traktRepository.isLoadingTraktMostAnticipated
 
-        val yesterdayShowsList = dashboardRepository.yesterdayShows.asLiveData()
+        init {
+            viewModelScope.launch {
+                traktRepository.refreshTraktMostAnticipatedShows(forceRefresh = false)
+                dashboardRepository.refreshTodayShows(
+                    countryCode = "US",
+                    date = null,
+                )
+            }
+        }
 
-        val todayShowsList = dashboardRepository.todayShows.asLiveData()
+        fun fetchDashboardData(token: String) {
+            val bearerToken = token
+            fetchAiringSoonShows(bearerToken)
+            fetchRecommendations(bearerToken)
+            fetchRecentHistory(bearerToken)
+        }
 
-        val tomorrowShowsList = dashboardRepository.tomorrowShows.asLiveData()
+        private fun fetchAiringSoonShows(bearerToken: String) {
+            viewModelScope.launch {
+                _isLoadingAiringSoon.value = true
+                try {
+                    val cal = Calendar.getInstance()
+                    val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                    val today = format.format(cal.time)
 
-        private val yesterdayShowsEmpty =
-            MediatorLiveData<Boolean>().apply {
-                addSource(yesterdayShowsList) {
-                    value = it.isNullOrEmpty() == true
+                    val response = traktRepository.getTraktMySchedule("Bearer $bearerToken", today, 14)
+                    if (response.isSuccess) {
+                        val shows =
+                            response.getOrNull()?.let { responseList ->
+                                val filtered = responseList.filter { it.episode?.season != 0 }
+                                com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponse().apply {
+                                    addAll(filtered)
+                                }
+                            }
+                        _airingSoonShows.value = shows
+                        shows?.let { scheduleList ->
+                            val deferredImages =
+                                scheduleList.mapNotNull { scheduleItem ->
+                                    val traktId = scheduleItem.show?.ids?.trakt
+                                    val imdbId = scheduleItem.show?.ids?.imdb
+                                    val season = scheduleItem.episode?.season
+                                    val number = scheduleItem.episode?.number
+                                    if (traktId != null && imdbId != null) {
+                                        async {
+                                            try {
+                                                val (url, tvmazeId) = dashboardRepository.getShowImageAndTvmazeId(imdbId)
+                                                val uniqueKey = "$traktId-${season ?: 0}-${number ?: 0}"
+                                                uniqueKey to ExtractedTraktInfo(imageUrl = url, tvmazeId = tvmazeId)
+                                            } catch (e: Exception) {
+                                                null
+                                            }
+                                        }
+                                    } else {
+                                        null
+                                    }
+                                }
+                            val newImages = deferredImages.awaitAll().filterNotNull().toMap()
+                            _airingSoonImages.value = newImages
+                        }
+                    } else {
+                        _airingSoonShows.value = null
+                    }
+                } catch (e: Exception) {
+                    _airingSoonShows.value = null
+                } finally {
+                    _isLoadingAiringSoon.value = false
                 }
             }
+        }
 
-        private val todayShowsEmpty =
-            MediatorLiveData<Boolean>().apply {
-                addSource(todayShowsList) {
-                    value = it.isNullOrEmpty() == true
+        private fun fetchRecommendations(bearerToken: String) {
+            viewModelScope.launch {
+                _isLoadingRecommendations.value = true
+                try {
+                    val response = traktRepository.getTraktRecommendations(bearerToken)
+                    if (response.isSuccess) {
+                        val shows = response.getOrNull()
+                        _recommendedShows.value = shows
+
+                        shows?.let { recommendedList ->
+                            val deferredImages =
+                                recommendedList.mapNotNull { item ->
+                                    val traktId = item.ids?.trakt
+                                    val imdbId = item.ids?.imdb
+                                    if (traktId != null && imdbId != null) {
+                                        async {
+                                            try {
+                                                val (url, tvmazeId) = dashboardRepository.getShowImageAndTvmazeId(imdbId)
+                                                val uniqueKey = traktId.toString()
+                                                uniqueKey to ExtractedTraktInfo(imageUrl = url, tvmazeId = tvmazeId)
+                                            } catch (e: Exception) {
+                                                null
+                                            }
+                                        }
+                                    } else {
+                                        null
+                                    }
+                                }
+                            val newImages = deferredImages.awaitAll().filterNotNull().toMap()
+                            _recommendedShowsImages.value = newImages
+                        }
+                    } else {
+                        _recommendedShows.value = null
+                    }
+                } catch (e: Exception) {
+                    _recommendedShows.value = null
+                } finally {
+                    _isLoadingRecommendations.value = false
                 }
             }
+        }
 
-        private val tomorrowShowsEmpty =
-            MediatorLiveData<Boolean>().apply {
-                addSource(tomorrowShowsList) {
-                    value = it.isNullOrEmpty() == true
+        private fun fetchRecentHistory(bearerToken: String) {
+            viewModelScope.launch {
+                _isLoadingHistory.value = true
+                try {
+                    val response = traktRepository.getTraktRecentHistory(bearerToken)
+                    if (response.isSuccess) {
+                        val items = response.getOrNull()
+                        _recentHistory.value = items
+                        items?.let { historyList ->
+                            val deferredImages =
+                                historyList.mapNotNull { item ->
+                                    val traktId = item.show?.ids?.trakt
+                                    val imdbId = item.show?.ids?.imdb
+                                    if (traktId != null && imdbId != null) {
+                                        async {
+                                            try {
+                                                val season = item.episode?.season
+                                                val number = item.episode?.number
+                                                val (url, tvmazeId) =
+                                                    if (season != null && number != null) {
+                                                        dashboardRepository.getEpisodeImageAndTvmazeId(imdbId, season, number)
+                                                    } else {
+                                                        dashboardRepository.getShowImageAndTvmazeId(imdbId)
+                                                    }
+                                                val uniqueKey = "$traktId-${season ?: 0}-${number ?: 0}"
+                                                uniqueKey to ExtractedTraktInfo(imageUrl = url, tvmazeId = tvmazeId)
+                                            } catch (e: Exception) {
+                                                null
+                                            }
+                                        }
+                                    } else {
+                                        null
+                                    }
+                                }
+                            val newImages = deferredImages.awaitAll().filterNotNull().toMap()
+                            _historyImages.value = newImages
+                        }
+                    } else {
+                        _recentHistory.value = null
+                    }
+                } catch (e: Exception) {
+                    _recentHistory.value = null
+                } finally {
+                    _isLoadingHistory.value = false
                 }
             }
-
-        val isLoading =
-            MediatorLiveData<Boolean>().apply {
-                val updateLoadingState = {
-                    // Value is true if any of the individual loading states are true
-                    // Ensure you handle nulls from the LiveData sources if they haven't emitted yet.
-                    // isLoadingYesterdayShows.value could be null initially.
-                    value = (isLoadingYesterdayShows.value == true) ||
-                        (isLoadingTodayShows.value == true) ||
-                        (isLoadingTomorrowShows.value == true)
-                }
-
-                addSource(isLoadingYesterdayShows) {
-                    updateLoadingState()
-                }
-                addSource(isLoadingTodayShows) {
-                    updateLoadingState()
-                }
-                addSource(isLoadingTomorrowShows) {
-                    updateLoadingState()
-                }
-            }
+        }
     }

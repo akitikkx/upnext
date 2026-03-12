@@ -26,6 +26,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -57,6 +58,7 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
 
         setContent {
             val dataString: MutableState<String?> = rememberSaveable { mutableStateOf("") }
@@ -77,9 +79,10 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
             UpnextTheme {
                 MainScreen(
                     valueState = dataString,
-                ) {
-                    dataString.value = null
-                }
+                    onTraktAuthCompleted = {
+                        dataString.value = null
+                    },
+                )
             }
         }
 

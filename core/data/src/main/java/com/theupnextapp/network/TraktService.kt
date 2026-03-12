@@ -177,6 +177,27 @@ interface TraktService {
         @Header("Authorization") token: String,
     ): Deferred<List<NetworkTraktWatchedShowsResponse>>
 
+    @GET("sync/playback/episodes")
+    fun getPlaybackProgressAsync(
+        @Header("Authorization") token: String,
+        @Query("limit") limit: Int = 20,
+    ): Deferred<List<com.theupnextapp.network.models.trakt.NetworkTraktPlaybackResponse>>
+
+    @GET("shows/{id}/progress/watched")
+    fun getShowProgressAsync(
+        @Header("Authorization") token: String,
+        @Path("id") id: String,
+        @Query("hidden") hidden: Boolean = false,
+        @Query("specials") specials: Boolean = false,
+        @Query("count_specials") countSpecials: Boolean = false,
+    ): Deferred<com.theupnextapp.network.models.trakt.NetworkTraktShowProgressResponse>
+
+    @GET("sync/history/episodes")
+    fun getRecentHistoryAsync(
+        @Header("Authorization") token: String,
+        @Query("limit") limit: Int = 20,
+    ): Deferred<List<com.theupnextapp.network.models.trakt.NetworkTraktHistoryResponse>>
+
     @GET("people/{id}?extended=full")
     fun getPersonSummaryAsync(
         @Path("id") id: String,
@@ -203,6 +224,13 @@ interface TraktService {
     fun getRelatedShowsAsync(
         @Path("id") id: String,
     ): Deferred<com.theupnextapp.network.models.trakt.NetworkTraktRelatedShowsResponse>
+
+    @GET("recommendations/shows")
+    fun getRecommendationsAsync(
+        @Header("Authorization") token: String,
+        @Query("limit") limit: Int = 20,
+        @Query("extended") extended: String = "full",
+    ): Deferred<com.theupnextapp.network.models.trakt.NetworkTraktRecommendationsResponse>
 }
 
 object TraktNetwork {

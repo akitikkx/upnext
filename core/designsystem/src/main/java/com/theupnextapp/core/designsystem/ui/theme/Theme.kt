@@ -24,9 +24,17 @@ import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorTheme =
     darkColorScheme(
-        primary = Teal500,
-        secondary = Purple500,
-        tertiary = Teal600,
+        primary = UpnextPrimaryGold,
+        onPrimary = UpnextTextInverse,
+        secondary = UpnextSecondarySlate,
+        onSecondary = UpnextTextInverse,
+        background = UpnextBackgroundDark,
+        onBackground = UpnextTextPrimary,
+        surface = UpnextSurfaceDark,
+        onSurface = UpnextTextSecondary,
+        surfaceVariant = UpnextSurfaceVariantDark,
+        onSurfaceVariant = UpnextTextPrimary,
+        tertiary = UpnextPrimaryGold,
     )
 
 private val LightColorTheme =
@@ -39,7 +47,7 @@ private val LightColorTheme =
 @Composable
 fun UpnextTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit,
 ) {
     val colorScheme =

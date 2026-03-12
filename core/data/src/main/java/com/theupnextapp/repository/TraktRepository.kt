@@ -150,4 +150,14 @@ interface TraktRepository {
     suspend fun getShowCast(imdbID: String): Result<List<TraktCast>>
 
     suspend fun getRelatedShows(imdbID: String): Result<List<TraktRelatedShows>>
+
+    suspend fun getTraktPlaybackProgress(token: String): Result<List<com.theupnextapp.network.models.trakt.NetworkTraktPlaybackResponse>>
+
+    suspend fun getTraktWatchedShows(token: String): Result<List<com.theupnextapp.network.models.trakt.NetworkTraktWatchedShowsResponse>>
+
+    suspend fun getTraktShowProgress(token: String, showId: String): Result<com.theupnextapp.network.models.trakt.NetworkTraktShowProgressResponse>
+
+    suspend fun getTraktRecentHistory(token: String): Result<List<com.theupnextapp.network.models.trakt.NetworkTraktHistoryResponse>>
+
+    suspend fun getTraktRecommendations(token: String): Result<com.theupnextapp.network.models.trakt.NetworkTraktRecommendationsResponse>
 }

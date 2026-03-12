@@ -186,6 +186,16 @@ class FakeTvMazeService : TvMazeService {
         throw NotImplementedError("mockNextEpisodeResponse not set for this test, or nextEpisodeError not specified.")
     }
 
+    override fun getEpisodeByNumberAsync(
+        id: String?,
+        season: Int,
+        number: Int,
+    ): Deferred<NetworkShowNextEpisodeResponse> {
+        nextEpisodeError?.let { throw it }
+        mockNextEpisodeResponse?.let { return CompletableDeferred(it) }
+        throw NotImplementedError("mockNextEpisodeResponse not set for this test for getEpisodeByNumberAsync.")
+    }
+
     override fun getPreviousEpisodeAsync(name: String?): Deferred<NetworkShowPreviousEpisodeResponse> {
         previousEpisodeError?.let { throw it }
         if (shouldThrowGetPreviousEpisodeError) {

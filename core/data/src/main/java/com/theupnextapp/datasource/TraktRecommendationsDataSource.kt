@@ -56,15 +56,15 @@ constructor(
     firebaseCrashlytics: FirebaseCrashlytics,
 ) : BaseTraktDataSource(upnextDao, tvMazeService, firebaseCrashlytics) {
     suspend fun refreshTraktTrendingShows(forceRefresh: Boolean): Result<Unit> {
-        val tableName = DatabaseTables.TABLE_TRAKT_TRENDING.tableName
-        val isEmpty = traktDao.checkIfTrendingShowsIsEmpty()
-        val needsUpdate = isEmpty || isUpdateNeededByDay(tableName) || forceRefresh
-
-        if (!needsUpdate) {
-            return Result.success(Unit)
-        }
-
         return withContext(Dispatchers.IO) {
+            val tableName = DatabaseTables.TABLE_TRAKT_TRENDING.tableName
+            val isEmpty = traktDao.checkIfTrendingShowsIsEmpty()
+            val needsUpdate = isEmpty || isUpdateNeededByDay(tableName) || forceRefresh
+
+            if (!needsUpdate) {
+                return@withContext Result.success(Unit)
+            }
+
             try {
                 val networkTrendingShowsResponse = traktService.getTrendingShowsAsync().await()
                 if (networkTrendingShowsResponse.isEmpty()) {
@@ -167,15 +167,15 @@ constructor(
     }
 
     suspend fun refreshTraktPopularShows(forceRefresh: Boolean): Result<Unit> {
-        val tableName = DatabaseTables.TABLE_TRAKT_POPULAR.tableName
-        val isEmpty = traktDao.checkIfPopularShowsIsEmpty()
-        val needsUpdate = isEmpty || isUpdateNeededByDay(tableName) || forceRefresh
-
-        if (!needsUpdate) {
-            return Result.success(Unit)
-        }
-
         return withContext(Dispatchers.IO) {
+            val tableName = DatabaseTables.TABLE_TRAKT_POPULAR.tableName
+            val isEmpty = traktDao.checkIfPopularShowsIsEmpty()
+            val needsUpdate = isEmpty || isUpdateNeededByDay(tableName) || forceRefresh
+
+            if (!needsUpdate) {
+                return@withContext Result.success(Unit)
+            }
+
             try {
                 val networkPopularShows = traktService.getPopularShowsAsync().await()
                 if (networkPopularShows.isEmpty()) {
@@ -271,15 +271,15 @@ constructor(
     }
 
     suspend fun refreshTraktMostAnticipatedShows(forceRefresh: Boolean): Result<Unit> {
-        val tableName = DatabaseTables.TABLE_TRAKT_MOST_ANTICIPATED.tableName
-        val isEmpty = traktDao.checkIfMostAnticipatedShowsIsEmpty()
-        val needsUpdate = isEmpty || isUpdateNeededByDay(tableName) || forceRefresh
-
-        if (!needsUpdate) {
-            return Result.success(Unit)
-        }
-
         return withContext(Dispatchers.IO) {
+            val tableName = DatabaseTables.TABLE_TRAKT_MOST_ANTICIPATED.tableName
+            val isEmpty = traktDao.checkIfMostAnticipatedShowsIsEmpty()
+            val needsUpdate = isEmpty || isUpdateNeededByDay(tableName) || forceRefresh
+
+            if (!needsUpdate) {
+                return@withContext Result.success(Unit)
+            }
+
             try {
                 val networkResponseItems: List<NetworkTraktMostAnticipatedResponseItem> =
                     traktService.getMostAnticipatedShowsAsync().await()

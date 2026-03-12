@@ -84,6 +84,13 @@ interface TvMazeService {
         @Path("id") name: String?,
     ): Deferred<NetworkShowNextEpisodeResponse>
 
+    @GET("shows/{id}/episodebynumber")
+    fun getEpisodeByNumberAsync(
+        @Path("id") id: String?,
+        @Query("season") season: Int,
+        @Query("number") number: Int,
+    ): Deferred<NetworkShowNextEpisodeResponse>
+
     @GET("/episodes/{id}")
     fun getPreviousEpisodeAsync(
         @Path("id") name: String?,
