@@ -61,6 +61,15 @@ import com.theupnextapp.core.designsystem.ui.components.ShimmerSeasonEpisodes
 import com.theupnextapp.domain.ShowSeasonEpisode
 import com.theupnextapp.domain.ShowSeasonEpisodesArg
 import org.jsoup.Jsoup
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 
 @ExperimentalMaterial3Api
 @Composable
@@ -86,6 +95,8 @@ fun ShowSeasonEpisodesScreen(
                 seasonNumber.value?.let { season ->
                     episodeList.value?.let { episodes ->
                         ShowSeasonEpisodes(
+                            showTitle = showSeasonEpisodesArg.showTitle,
+                            showImageUrl = showSeasonEpisodesArg.showImageUrl,
                             seasonNumber = season,
                             list = episodes,
                             onToggleWatched = { episode ->
@@ -113,6 +124,8 @@ fun ShowSeasonEpisodesScreen(
 @ExperimentalMaterial3Api
 @Composable
 fun ShowSeasonEpisodes(
+    showTitle: String? = null,
+    showImageUrl: String? = null,
     seasonNumber: Int,
     list: List<ShowSeasonEpisode>,
     onToggleWatched: (ShowSeasonEpisode) -> Unit = {},
@@ -121,20 +134,64 @@ fun ShowSeasonEpisodes(
     isAuthorizedOnTrakt: Boolean = false,
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        SectionHeadingText(
-            text =
-                stringResource(
-                    R.string.show_detail_show_season_episodes_title_with_number,
-                    seasonNumber,
-                ),
-        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(260.dp)
+        ) {
+            showImageUrl?.let { url ->
+                Image(
+                    painter = rememberAsyncImagePainter(
+                        ImageRequest.Builder(LocalContext.current)
+                            .data(url)
+                            .crossfade(true)
+                            .build()
+                    ),
+                    contentDescription = showTitle,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(
+                                Color.Transparent,
+                                MaterialTheme.colorScheme.background.copy(alpha = 0.9f),
+                                MaterialTheme.colorScheme.background
+                            )
+                        )
+                    )
+            )
+            Column(
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(16.dp)
+            ) {
+                showTitle?.let { title ->
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+                Text(
+                    text = "Season $seasonNumber",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f)
+                )
+            }
+        }
 
         if (isAuthorizedOnTrakt && list.isNotEmpty()) {
             val allWatched = list.all { it.isWatched }
             val buttonText = if (allWatched) "Mark Season Unwatched" else "Mark Season Watched"
             val buttonIcon = if (allWatched) Icons.Outlined.CheckCircle else Icons.Filled.CheckCircle
 
-            Button(
+            OutlinedButton(
                 onClick = {
                     if (allWatched) {
                         onMarkSeasonUnwatched()
@@ -145,14 +202,14 @@ fun ShowSeasonEpisodes(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 4.dp),
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
             ) {
                 Icon(
                     imageVector = buttonIcon,
                     contentDescription = null,
                     modifier = Modifier.padding(end = 8.dp),
                 )
-                Text(text = buttonText)
+                Text(text = buttonText, fontWeight = FontWeight.Bold)
             }
         }
 
@@ -177,6 +234,12 @@ fun ShowSeasonEpisodeCard(
 ) {
     Card(
         shape = MaterialTheme.shapes.large,
+        colors = androidx.compose.material3.CardDefaults.cardColors(
+            containerColor = androidx.compose.ui.graphics.Color.Transparent
+        ),
+        elevation = androidx.compose.material3.CardDefaults.cardElevation(
+            defaultElevation = 0.dp
+        ),
         modifier =
             Modifier
                 .fillMaxWidth()
@@ -206,14 +269,9 @@ fun ShowSeasonEpisodeCard(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    if (item.number.toString().isNotEmpty() && item.season.toString().isNotEmpty()) {
+                    if (item.number.toString().isNotEmpty()) {
                         Text(
-                            text =
-                                stringResource(
-                                    R.string.show_detail_season_and_episode_number,
-                                    item.season.toString(),
-                                    item.number.toString(),
-                                ),
+                            text = "Episode ${item.number}",
                             modifier = Modifier.padding(4.dp),
                             style = MaterialTheme.typography.bodyLarge,
                             fontWeight = FontWeight.Bold,

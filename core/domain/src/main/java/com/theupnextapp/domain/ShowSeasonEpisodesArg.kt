@@ -33,4 +33,7 @@ data class ShowSeasonEpisodesArg(
     val imdbID: String? = null,
     val isAuthorizedOnTrakt: Boolean? = false,
     val showTraktId: Int? = null,
+    val showTitle: String? = null,
+    val showImageUrl: String? = null,
+    val showBackgroundUrl: String? = null,
 ) : Parcelable

@@ -567,6 +567,8 @@ fun DashboardScreen(
                                                     imdbID = imdbId,
                                                     isAuthorizedOnTrakt = true,
                                                     showTraktId = traktId,
+                                                    showTitle = historyItem.show?.title,
+                                                    showImageUrl = imageUrl,
                                                 )
                                             navController.navigate(direction)
                                         },

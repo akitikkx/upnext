@@ -55,6 +55,14 @@ import com.theupnextapp.core.designsystem.ui.components.ShimmerSeasons
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.ShowSeason
 import com.theupnextapp.navigation.Destinations
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 
 @ExperimentalMaterial3Api
 @Composable
@@ -75,7 +83,11 @@ fun ShowSeasonsScreen(
         Column {
             Box(modifier = Modifier.fillMaxSize()) {
                 showSeasonsList.value?.let {
-                    ShowSeasons(list = it) { showSeason ->
+                    ShowSeasons(
+                        showTitle = showDetailArg.showTitle,
+                        showBackgroundUrl = showDetailArg.showBackgroundUrl ?: showDetailArg.showImageUrl,
+                        list = it
+                    ) { showSeason ->
                         navController.navigate(
                             Destinations.ShowSeasonEpisodes(
                                 showId = showDetailArg.showId?.toInt(),
@@ -83,6 +95,9 @@ fun ShowSeasonsScreen(
                                 imdbID = showDetailArg.imdbID,
                                 isAuthorizedOnTrakt = showDetailArg.isAuthorizedOnTrakt,
                                 showTraktId = showDetailArg.showTraktId,
+                                showTitle = showDetailArg.showTitle,
+                                showImageUrl = showDetailArg.showImageUrl,
+                                showBackgroundUrl = showDetailArg.showBackgroundUrl,
                             ),
                         )
                     }
@@ -99,11 +114,63 @@ fun ShowSeasonsScreen(
 @ExperimentalMaterial3Api
 @Composable
 fun ShowSeasons(
+    showTitle: String? = null,
+    showBackgroundUrl: String? = null,
     list: List<ShowSeason>,
     onClick: (item: ShowSeason) -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        SectionHeadingText(text = stringResource(id = R.string.title_seasons))
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(260.dp)
+        ) {
+            showBackgroundUrl?.let { url ->
+                Image(
+                    painter = rememberAsyncImagePainter(
+                        ImageRequest.Builder(LocalContext.current)
+                            .data(url)
+                            .crossfade(true)
+                            .build()
+                    ),
+                    contentDescription = showTitle ?: "Show background backdrop",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(
+                                Color.Transparent,
+                                MaterialTheme.colorScheme.background.copy(alpha = 0.9f),
+                                MaterialTheme.colorScheme.background
+                            )
+                        )
+                    )
+            )
+            Column(
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(16.dp)
+            ) {
+                showTitle?.let { title ->
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+                Text(
+                    text = "Seasons",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f)
+                )
+            }
+        }
         LazyColumn(modifier = Modifier.padding(8.dp)) {
             items(list) { showSeason ->
                 ShowSeasonCard(item = showSeason) {
@@ -178,23 +245,6 @@ fun ShowSeasonCard(
                                 endDate,
                             ),
                         modifier = Modifier.padding(2.dp),
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                }
-
-                if (!item.originalImageUrl.isNullOrEmpty()) {
-                    Text(
-                        text =
-                            stringResource(
-                                R.string.tv_maze_creative_commons_attribution_text_single,
-                            ),
-                        modifier =
-                            Modifier.padding(
-                                start = 2.dp,
-                                top = 4.dp,
-                                bottom = 2.dp,
-                                end = 4.dp,
-                            ),
                         style = MaterialTheme.typography.bodyMedium,
                     )
                 }
