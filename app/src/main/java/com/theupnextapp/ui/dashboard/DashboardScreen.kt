@@ -126,14 +126,14 @@ fun DashboardScreen(
                         CircularProgressIndicator()
                     }
                 } else if (!todayShows.isNullOrEmpty()) {
-                    val pagerState = rememberPagerState(pageCount = { todayShows!!.size })
+                    val pagerState = rememberPagerState(pageCount = { todayShows.orEmpty().size })
                     HorizontalPager(
                         state = pagerState,
                         pageSize = androidx.compose.foundation.pager.PageSize.Fixed(260.dp),
                         pageSpacing = 16.dp,
                         modifier = Modifier.fillMaxWidth(),
                     ) { page ->
-                        val show = todayShows!![page]
+                        val show = todayShows.orEmpty().getOrNull(page) ?: return@HorizontalPager
                         val pageOffset = (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
                         val scale =
                             lerp(
@@ -276,7 +276,7 @@ fun DashboardScreen(
                     }
                 } else if (!mostAnticipatedShows.isNullOrEmpty()) {
                     LazyRow {
-                        items(mostAnticipatedShows!!) { show ->
+                        items(mostAnticipatedShows.orEmpty()) { show ->
                             ListPosterCard(
                                 itemName = show.title,
                                 itemUrl = show.originalImageUrl ?: show.mediumImageUrl,
@@ -323,14 +323,14 @@ fun DashboardScreen(
                         modifier = Modifier.fillMaxWidth().height(250.dp),
                     )
                 } else {
-                    val pagerState = rememberPagerState(pageCount = { airingSoonShows!!.size })
+                    val pagerState = rememberPagerState(pageCount = { airingSoonShows.orEmpty().size })
                     HorizontalPager(
                         state = pagerState,
                         pageSize = androidx.compose.foundation.pager.PageSize.Fixed(260.dp),
                         pageSpacing = 16.dp,
                         modifier = Modifier.fillMaxWidth(),
                     ) { page ->
-                        val showResponse = airingSoonShows!!.toList()[page]
+                        val showResponse = airingSoonShows.orEmpty().toList().getOrNull(page) ?: return@HorizontalPager
                         val pageOffset = (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
                         val scale =
                             lerp(
@@ -446,7 +446,7 @@ fun DashboardScreen(
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
                         modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
                     ) {
-                        items(recentHistory!!.take(5)) { historyItem ->
+                        items(recentHistory.orEmpty().take(5)) { historyItem ->
                             val traktId = historyItem.show?.ids?.trakt
                             val imdbId = historyItem.show?.ids?.imdb
                             val season = historyItem.episode?.season
@@ -534,14 +534,14 @@ fun DashboardScreen(
                         CircularProgressIndicator()
                     }
                 } else if (!recommendedShows.isNullOrEmpty()) {
-                    val pagerState = rememberPagerState(pageCount = { recommendedShows!!.size })
+                    val pagerState = rememberPagerState(pageCount = { recommendedShows.orEmpty().size })
                     HorizontalPager(
                         state = pagerState,
                         pageSize = androidx.compose.foundation.pager.PageSize.Fixed(260.dp),
                         pageSpacing = 16.dp,
                         modifier = Modifier.fillMaxWidth(),
                     ) { page ->
-                        val show = recommendedShows!![page]
+                        val show = recommendedShows.orEmpty().getOrNull(page) ?: return@HorizontalPager
                         val pageOffset = (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
                         val scale =
                             lerp(
