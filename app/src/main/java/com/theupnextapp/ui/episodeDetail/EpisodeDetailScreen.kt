@@ -18,14 +18,18 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
@@ -35,8 +39,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -69,26 +71,7 @@ fun EpisodeDetailScreen(
     val uiState by viewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(text = episodeDetailArg?.showTitle ?: stringResource(id = R.string.title_episode_detail)) },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = stringResource(id = R.string.back_arrow_content_description),
-                        )
-                    }
-                },
-                colors =
-                    TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color.Transparent,
-                        scrolledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
-                    ),
-            )
-        },
-    ) { paddingValues ->
+    Scaffold { paddingValues ->
         Box(
             modifier =
                 Modifier
@@ -165,6 +148,15 @@ fun EpisodeDetailScreen(
                                     modifier = Modifier.padding(24.dp),
                                     verticalArrangement = Arrangement.spacedBy(16.dp),
                                 ) {
+                                    episodeDetailArg?.showTitle?.let { showTitle ->
+                                        Text(
+                                            text = showTitle,
+                                            style = MaterialTheme.typography.titleMedium,
+                                            color = MaterialTheme.colorScheme.primary,
+                                            fontWeight = FontWeight.SemiBold,
+                                        )
+                                    }
+
                                     Text(
                                         text = uiState.episodeDetail?.title ?: stringResource(id = R.string.title_unknown),
                                         style = MaterialTheme.typography.headlineMedium,
@@ -228,6 +220,23 @@ fun EpisodeDetailScreen(
                         }
                     }
                 }
+            }
+
+            IconButton(
+                onClick = { navController.popBackStack() },
+                modifier =
+                    Modifier
+                        .padding(
+                            top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 8.dp,
+                            start = 16.dp,
+                        )
+                        .background(color = Color.Black.copy(alpha = 0.5f), shape = CircleShape),
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = stringResource(id = R.string.back_arrow_content_description),
+                    tint = Color.White,
+                )
             }
         }
     }
