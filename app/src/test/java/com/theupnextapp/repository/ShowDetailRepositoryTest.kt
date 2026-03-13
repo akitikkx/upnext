@@ -15,6 +15,7 @@ package com.theupnextapp.repository
 import com.theupnextapp.domain.Result
 import com.theupnextapp.domain.ShowDetailSummary
 import com.theupnextapp.domain.ShowPreviousEpisode
+import com.theupnextapp.network.TraktService
 import com.theupnextapp.network.models.tvmaze.NetworkShowInfoCountry
 import com.theupnextapp.network.models.tvmaze.NetworkShowInfoExternals
 import com.theupnextapp.network.models.tvmaze.NetworkShowInfoImage
@@ -39,6 +40,7 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import org.mockito.kotlin.mock
 import java.io.IOException
 
 @ExperimentalCoroutinesApi
@@ -46,6 +48,7 @@ class ShowDetailRepositoryTest {
     private lateinit var fakeUpnextDao: FakeUpnextDao
     private lateinit var fakeTvMazeService: FakeTvMazeService
     private lateinit var fakeCrashlytics: FakeCrashlytics
+    private lateinit var traktService: TraktService
 
     private lateinit var showDetailRepository: ShowDetailRepository
 
@@ -55,11 +58,13 @@ class ShowDetailRepositoryTest {
         fakeTvMazeService = FakeTvMazeService()
         fakeCrashlytics = FakeCrashlytics()
         fakeCrashlytics.clear()
+        traktService = mock()
 
         showDetailRepository =
             ShowDetailRepository(
                 upnextDao = fakeUpnextDao,
                 tvMazeService = fakeTvMazeService,
+                traktService = traktService,
                 crashlytics = fakeCrashlytics,
             )
     }

@@ -74,6 +74,7 @@ class ShowDetailViewModelTest {
         whenever(traktRepository.favoriteShow).thenReturn(MutableStateFlow(null))
         whenever(traktRepository.traktShowRating).thenReturn(MutableStateFlow(null))
         whenever(traktRepository.traktShowStats).thenReturn(MutableStateFlow(null))
+        whenever(showDetailRepository.getShowWatchProviders(any(), any())).thenReturn(kotlinx.coroutines.flow.emptyFlow())
 
         viewModel =
             ShowDetailViewModel(
