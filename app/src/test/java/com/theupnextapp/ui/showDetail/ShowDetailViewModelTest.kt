@@ -160,10 +160,10 @@ class ShowDetailViewModelTest {
                     nextEpisodeHref = null,
                     status = null,
                     airDays = null,
-                    averageRating = null,
                     language = null,
                     nextEpisodeLinkedId = null,
                     previousEpisodeLinkedId = null,
+                    tmdbID = 123,
                 )
 
             whenever(
@@ -252,10 +252,10 @@ class ShowDetailViewModelTest {
                     nextEpisodeHref = null,
                     status = null,
                     airDays = null,
-                    averageRating = null,
                     language = null,
                     nextEpisodeLinkedId = null,
                     previousEpisodeLinkedId = null,
+                    tmdbID = 123,
                 )
             whenever(
                 showDetailRepository.getShowSummary(123),

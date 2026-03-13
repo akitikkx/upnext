@@ -41,6 +41,7 @@ data class ShowDetailSummary(
     val nextEpisodeHref: String?,
     val nextEpisodeLinkedId: Int?,
     val previousEpisodeLinkedId: Int?,
+    val tmdbID: Int?,
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readString(),
@@ -57,6 +58,7 @@ data class ShowDetailSummary(
         parcel.readString(),
         parcel.readString(),
         parcel.readString(),
+        parcel.readValue(Int::class.java.classLoader) as? Int,
         parcel.readValue(Int::class.java.classLoader) as? Int,
         parcel.readValue(Int::class.java.classLoader) as? Int,
     ) {
@@ -82,6 +84,7 @@ data class ShowDetailSummary(
         parcel.writeString(nextEpisodeHref)
         parcel.writeValue(nextEpisodeLinkedId)
         parcel.writeValue(previousEpisodeLinkedId)
+        parcel.writeValue(tmdbID)
     }
 
     override fun describeContents(): Int {
@@ -117,5 +120,6 @@ fun emptyShowData(): ShowDetailSummary {
         nextEpisodeHref = null,
         nextEpisodeLinkedId = null,
         previousEpisodeLinkedId = null,
+        tmdbID = null,
     )
 }

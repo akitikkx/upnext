@@ -68,6 +68,7 @@ data class NetworkShowInfoExternals(
     val imdb: String?,
     val thetvdb: Int?,
     val tvrage: Int?,
+    val themoviedb: Int?,
 )
 
 data class NetworkShowInfoImage(
@@ -130,5 +131,6 @@ fun NetworkShowInfoResponse.asDomainModel(): ShowDetailSummary {
                 it,
             )
         },
+        tmdbID = externals?.themoviedb,
     )
 }

@@ -43,6 +43,7 @@ object SampleShowDetailSummary {
             nextEpisodeHref = "/episodes/124",
             nextEpisodeLinkedId = 124,
             previousEpisodeLinkedId = 122,
+            tmdbID = null,
         )
 
     val summaryWithMissingData =
@@ -63,6 +64,7 @@ object SampleShowDetailSummary {
             nextEpisodeHref = null,
             nextEpisodeLinkedId = null,
             previousEpisodeLinkedId = null,
+            tmdbID = null,
         )
 
     val summaryLongText =
@@ -83,5 +85,6 @@ object SampleShowDetailSummary {
             nextEpisodeHref = "/episodes/1024",
             nextEpisodeLinkedId = 1024,
             previousEpisodeLinkedId = 1022,
+            tmdbID = null,
         )
 }
