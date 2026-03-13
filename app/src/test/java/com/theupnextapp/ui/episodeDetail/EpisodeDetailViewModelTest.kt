@@ -81,7 +81,7 @@ class EpisodeDetailViewModelTest {
                 flowOf(Result.Loading(true), Result.Success(mockEpisode)),
             )
             `when`(showDetailRepository.getEpisodePeople(anyInt(), anyInt(), anyInt())).thenReturn(
-                kotlinx.coroutines.flow.emptyFlow()
+                kotlinx.coroutines.flow.emptyFlow(),
             )
 
             viewModel = EpisodeDetailViewModel(savedStateHandle, showDetailRepository)
@@ -104,7 +104,7 @@ class EpisodeDetailViewModelTest {
                 flowOf(Result.Loading(true), Result.GenericError(404, null, mockException)),
             )
             `when`(showDetailRepository.getEpisodePeople(anyInt(), anyInt(), anyInt())).thenReturn(
-                kotlinx.coroutines.flow.emptyFlow()
+                kotlinx.coroutines.flow.emptyFlow(),
             )
 
             viewModel = EpisodeDetailViewModel(savedStateHandle, showDetailRepository)

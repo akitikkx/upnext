@@ -308,8 +308,12 @@ private fun formatRelativeDate(dateString: String): String {
                 date.time,
                 System.currentTimeMillis(),
                 android.text.format.DateUtils.DAY_IN_MILLIS,
-            )
-        "Aired: $relativeTime ($formattedDate)"
+            ).toString()
+        if (relativeTime == formattedDate) {
+            "Aired: $formattedDate"
+        } else {
+            "Aired: $relativeTime ($formattedDate)"
+        }
     } catch (e: Exception) {
         "Aired: $dateString"
     }
