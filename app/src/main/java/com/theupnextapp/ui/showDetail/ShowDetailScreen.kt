@@ -265,6 +265,9 @@ fun DetailArea(
                 widthSizeClass = windowSizeClass,
             )
             if (uiState.showSummary.id != -1) {
+                // ----- Watch Providers Section -----
+                WatchProvidersSection(uiState = uiState)
+
                 ShowDetailButtons(
                     isAuthorizedOnTrakt = isAuthorizedOnTrakt,
                     isFavorite = isFavorite,
@@ -284,10 +287,6 @@ fun DetailArea(
                 Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
             }
         }
-
-        // ----- Watch Providers Section -----
-        WatchProvidersSection(uiState = uiState)
-        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
 
         // ----- Show Cast Section -----
         ShowCast(uiState = uiState, onCastItemClick = onCastItemClick)
@@ -324,37 +323,37 @@ fun ShowDetailButtons(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .padding(dimensionResource(id = R.dimen.padding_standard_double)),
-        horizontalArrangement = Arrangement.SpaceEvenly,
+                .padding(
+                    horizontal = dimensionResource(id = R.dimen.padding_standard_double),
+                    vertical = dimensionResource(id = R.dimen.padding_standard),
+                ),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(
-            text = "Seasons",
-            modifier =
-                Modifier
-                    .clickable { onSeasonsClick() }
-                    .padding(8.dp),
-            color = MaterialTheme.colorScheme.primary,
-        )
+        androidx.compose.material3.OutlinedButton(
+            onClick = { onSeasonsClick() },
+            modifier = Modifier.weight(1f),
+        ) {
+            Text(text = "Seasons")
+        }
         if (isAuthorizedOnTrakt == true) {
             if (isLoading) {
-                androidx.compose.material3.CircularProgressIndicator(
-                    modifier =
-                        Modifier
-                            .padding(8.dp)
-                            .size(24.dp),
-                    strokeWidth = 2.dp,
-                    color = MaterialTheme.colorScheme.primary,
-                )
+                Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                    androidx.compose.material3.CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
             } else {
-                Text(
-                    text = if (isFavorite == true) "Remove Favorite" else "Add Favorite",
-                    modifier =
-                        Modifier
-                            .clickable { onFavoriteClick() }
-                            .padding(8.dp),
-                    color = MaterialTheme.colorScheme.primary,
-                )
+                Button(
+                    onClick = { onFavoriteClick() },
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Text(
+                        text = if (isFavorite == true) "Remove" else "Add Favorite",
+                    )
+                }
             }
         }
     }
