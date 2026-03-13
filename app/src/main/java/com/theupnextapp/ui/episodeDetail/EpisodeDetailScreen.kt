@@ -18,13 +18,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -98,7 +95,7 @@ fun EpisodeDetailScreen(
                     .fillMaxSize()
                     .padding(bottom = paddingValues.calculateBottomPadding()),
         ) {
-            val backdropUrl = episodeDetailArg?.showBackgroundUrl ?: episodeDetailArg?.showImageUrl
+            val backdropUrl = episodeDetailArg?.episodeImageUrl ?: episodeDetailArg?.showBackgroundUrl ?: episodeDetailArg?.showImageUrl
             if (!backdropUrl.isNullOrEmpty()) {
                 AsyncImage(
                     model =
@@ -135,7 +132,7 @@ fun EpisodeDetailScreen(
                 modifier =
                     Modifier
                         .fillMaxSize()
-                        .padding(top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 56.dp),
+                        .padding(top = paddingValues.calculateTopPadding()),
             ) {
                 when {
                     uiState.isLoading -> {
@@ -191,12 +188,13 @@ fun EpisodeDetailScreen(
                                                     imageVector = Icons.Default.Star,
                                                     contentDescription = "Rating",
                                                     tint = Color(0xFFFFC107),
-                                                    modifier = Modifier.padding(end = 4.dp),
+                                                    modifier = Modifier.padding(end = 4.dp).height(20.dp),
                                                 )
+                                                val scaledRating = ((uiState.episodeDetail?.rating ?: 0.0) * 10).toInt()
                                                 Text(
-                                                    text = String.format(Locale.getDefault(), "%.1f", uiState.episodeDetail?.rating),
-                                                    style = MaterialTheme.typography.bodyLarge,
-                                                    fontWeight = FontWeight.Medium,
+                                                    text = "$scaledRating%",
+                                                    style = MaterialTheme.typography.titleMedium,
+                                                    fontWeight = FontWeight.Bold,
                                                 )
                                             }
                                         }

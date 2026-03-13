@@ -107,6 +107,7 @@ sealed interface Destinations {
         val isAuthorizedOnTrakt: Boolean? = false,
         val showImageUrl: String? = null,
         val showBackgroundUrl: String? = null,
+        val episodeImageUrl: String? = null,
     ) : Destinations {
         fun toArg() =
             EpisodeDetailArg(
@@ -119,6 +120,7 @@ sealed interface Destinations {
                 isAuthorizedOnTrakt = isAuthorizedOnTrakt,
                 showImageUrl = showImageUrl,
                 showBackgroundUrl = showBackgroundUrl,
+                episodeImageUrl = episodeImageUrl,
             )
     }
 

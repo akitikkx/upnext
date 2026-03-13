@@ -471,6 +471,7 @@ fun DashboardScreen(
                                                     imdbID = imdbId,
                                                     isAuthorizedOnTrakt = true,
                                                     showImageUrl = imageUrl,
+                                                    episodeImageUrl = imageUrl,
                                                 )
                                             navController.navigate(direction)
                                         },
