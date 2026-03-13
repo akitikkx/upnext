@@ -88,7 +88,6 @@ import com.theupnextapp.navigation.Destinations
 import com.valentinilk.shimmer.shimmer
 import kotlinx.coroutines.launch
 import org.jsoup.Jsoup
-import java.util.Locale
 
 // UI Constants
 @Suppress("MagicNumber")
@@ -351,7 +350,7 @@ fun ShowDetailButtons(
                     modifier = Modifier.weight(1f),
                 ) {
                     Text(
-                        text = if (isFavorite == true) "Remove" else "Add Favorite",
+                        text = if (isFavorite == true) "Remove Favorite" else "Add Favorite",
                     )
                 }
             }
@@ -375,7 +374,7 @@ fun WatchProvidersSection(uiState: ShowDetailViewModel.ShowDetailUiState) {
                     Modifier
                         .fillMaxWidth()
                         .padding(
-                            horizontal = dimensionResource(id = R.dimen.padding_standard_double),
+                            horizontal = 16.dp,
                             vertical = dimensionResource(id = R.dimen.padding_standard),
                         ),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -405,7 +404,7 @@ fun WatchProvidersSection(uiState: ShowDetailViewModel.ShowDetailUiState) {
                     Modifier
                         .fillMaxWidth()
                         .padding(
-                            horizontal = dimensionResource(id = R.dimen.padding_standard_double),
+                            horizontal = 16.dp,
                             vertical = dimensionResource(id = R.dimen.padding_standard),
                         ),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -689,32 +688,49 @@ fun TraktRatingSummary(rating: TraktShowRating) {
                 .padding(horizontal = paddingStandardDouble),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
+        androidx.compose.material3.Surface(
+            shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp),
+            color = MaterialTheme.colorScheme.surfaceVariant,
             modifier = Modifier.padding(top = paddingExtraSmall),
         ) {
-            androidx.compose.material3.Icon(
-                imageVector = androidx.compose.material.icons.Icons.Filled.Star,
-                contentDescription = stringResource(id = R.string.show_detail_rating_content_description),
-                tint = RatingStarColor,
-                modifier = Modifier.size(24.dp),
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+            ) {
+                androidx.compose.material3.Icon(
+                    imageVector = androidx.compose.material.icons.Icons.Filled.Star,
+                    contentDescription = stringResource(id = R.string.show_detail_rating_content_description),
+                    tint = RatingStarColor,
+                    modifier = Modifier.size(20.dp),
+                )
 
-            Spacer(modifier = Modifier.width(paddingExtraSmall))
+                Spacer(modifier = Modifier.width(paddingExtraSmall))
 
-            Text(
-                text = String.format(Locale.US, "%.1f", rating.rating ?: 0.0),
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-            )
+                val scaledRating = ((rating.rating ?: 0.0) * 10).toInt()
 
-            Spacer(modifier = Modifier.width(paddingExtraSmall))
+                Text(
+                    text = "$scaledRating%",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
 
-            Text(
-                text = "(${rating.votes} votes on Trakt)",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Text(
+                    text = "User Score",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                )
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Text(
+                    text = "(${rating.votes} votes)",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                )
+            }
         }
     }
 }
