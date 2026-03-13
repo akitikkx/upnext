@@ -32,7 +32,6 @@ class TraktAccountScreenTest {
         rule.setContent {
             AccountContent(
                 traktAuthState = TraktAuthState.LoggedOut,
-                isAuthorizedOnTrakt = false,
                 favoriteShowsList = emptyList(),
                 isFavoriteShowsEmpty = true,
                 isLoadingConnection = false,
@@ -56,7 +55,6 @@ class TraktAccountScreenTest {
         rule.setContent {
             AccountContent(
                 traktAuthState = TraktAuthState.LoggedIn,
-                isAuthorizedOnTrakt = true,
                 favoriteShowsList = emptyList(),
                 isFavoriteShowsEmpty = true,
                 isLoadingConnection = false,
@@ -96,7 +94,6 @@ class TraktAccountScreenTest {
         rule.setContent {
             AccountContent(
                 traktAuthState = TraktAuthState.LoggedIn,
-                isAuthorizedOnTrakt = true,
                 favoriteShowsList = favoriteShows,
                 isFavoriteShowsEmpty = false,
                 isLoadingConnection = false,

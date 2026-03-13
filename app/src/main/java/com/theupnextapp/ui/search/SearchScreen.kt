@@ -33,6 +33,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
@@ -62,6 +63,7 @@ import com.theupnextapp.core.designsystem.ui.widgets.SearchListCard
 import com.theupnextapp.domain.RecentSearch
 import com.theupnextapp.domain.ShowSearch
 import com.theupnextapp.navigation.Destinations
+import com.theupnextapp.ui.components.EmptyState
 
 @ExperimentalMaterial3WindowSizeClassApi
 @ExperimentalMaterial3Api
@@ -141,39 +143,38 @@ fun SearchArea(
     onRecentSearchClick: (query: String) -> Unit,
     onClearRecentSearches: () -> Unit,
 ) {
+    val searchQueryState = rememberSaveable { mutableStateOf("") }
+
     Column(modifier = Modifier.padding(top = 8.dp)) {
-        SearchForm {
-            onTextSubmit(it)
-        }
+        SearchInputField(
+            inputLabel = stringResource(id = R.string.search_input_hint),
+            valueState = searchQueryState,
+            onValueChange = {
+                onTextSubmit(searchQueryState.value.trim())
+            },
+        )
 
         if (!searchResultsList.isNullOrEmpty()) {
             SearchResultsList(list = searchResultsList) {
                 onResultClick(it)
             }
-        } else if (!recentSearches.isNullOrEmpty()) {
+        } else if (!recentSearches.isNullOrEmpty() && searchQueryState.value.trim().isEmpty()) {
             RecentSearchesList(
                 list = recentSearches,
                 onRecentSearchClick = onRecentSearchClick,
                 onClearRecentSearches = onClearRecentSearches,
             )
+        } else if (searchResultsList?.isEmpty() == true && searchQueryState.value.trim().isNotEmpty()) {
+            EmptyState(
+                icon = Icons.Default.Search,
+                title = stringResource(id = R.string.search_empty_title),
+                message = stringResource(id = R.string.search_empty_message),
+            )
         }
     }
 }
 
-@ExperimentalMaterial3Api
-@ExperimentalComposeUiApi
-@Composable
-fun SearchForm(onSearch: (String) -> Unit) {
-    val searchQueryState = rememberSaveable { mutableStateOf("") }
-
-    SearchInputField(
-        inputLabel = stringResource(id = R.string.search_input_hint),
-        valueState = searchQueryState,
-        onValueChange = {
-            onSearch(searchQueryState.value.trim())
-        },
-    )
-}
+// Removed old SearchForm block as it was flattened into SearchArea
 
 @ExperimentalMaterial3Api
 @Composable

@@ -55,7 +55,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -164,7 +163,6 @@ fun TraktAccountScreen(
         ) {
             AccountContent(
                 traktAuthState = traktAuthState,
-                isAuthorizedOnTrakt = isAuthorizedOnTrakt,
                 favoriteShowsList = favoriteShowsList,
                 isFavoriteShowsEmpty = isFavoriteShowsEmpty,
                 isLoadingConnection = isLoadingConnection,
@@ -207,7 +205,6 @@ fun TraktAccountScreen(
 @Composable
 internal fun AccountContent(
     traktAuthState: TraktAuthState,
-    isAuthorizedOnTrakt: Boolean,
     favoriteShowsList: List<TraktUserListItem>,
     isFavoriteShowsEmpty: Boolean,
     isLoadingConnection: Boolean,
@@ -307,34 +304,62 @@ private fun DisconnectTraktDialog(
 @Composable
 fun ConnectToTrakt(onClick: () -> Unit) {
     val image: Painter = painterResource(id = R.drawable.ic_trakt_wide_red_white)
-    Column(
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .padding(16.dp),
+    Box(
+        modifier = Modifier.fillMaxSize().padding(24.dp),
+        contentAlignment = Alignment.Center,
     ) {
-        Image(
-            painter = image,
-            stringResource(id = R.string.trakt_logo_description),
-            modifier = Modifier.height(dimensionResource(id = R.dimen.trakt_account_not_authorized_logo_height)),
-        )
-        Text(
-            text = stringResource(id = R.string.trakt_connect_description),
-            modifier = Modifier.padding(16.dp), // Increased padding
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.bodyLarge,
-        )
-        Button(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 32.dp, vertical = 8.dp),
-            // Adjusted padding
-            onClick = { onClick() },
+        androidx.compose.material3.Card(
+            shape = MaterialTheme.shapes.extraLarge,
+            colors =
+                androidx.compose.material3.CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                ),
+            modifier = Modifier.fillMaxWidth(),
         ) {
-            Text(text = stringResource(id = R.string.connect_to_trakt_button))
+            Column(
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(32.dp),
+            ) {
+                Image(
+                    painter = image,
+                    contentDescription = stringResource(id = R.string.trakt_logo_description),
+                    modifier = Modifier.height(56.dp),
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Text(
+                    text = "Unlock Personalization",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = "Connect your Trakt account to automatically track your watch progress, sync your history securely, and manage your favorites seamlessly.",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                Button(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = { onClick() },
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.connect_to_trakt_button),
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                    )
+                }
+            }
         }
     }
 }

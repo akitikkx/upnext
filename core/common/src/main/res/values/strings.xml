@@ -15,4 +15,5 @@
     <!-- Notification channels -->
     <string name="notification_channel_name">App Updates</string>
     <string name="notification_channel_description">Notifications for app data updates and background tasks.</string>
+    <string name="scroll_to_top">Scroll to top</string>
 </resources>

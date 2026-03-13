@@ -23,6 +23,9 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
+import androidx.compose.material.icons.filled.EventNote
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Tv
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -59,6 +62,7 @@ import com.theupnextapp.common.utils.TraktConstants
 import com.theupnextapp.core.designsystem.ui.widgets.ListPosterCard
 import com.theupnextapp.core.designsystem.ui.widgets.UpNextEpisodeCard
 import com.theupnextapp.navigation.Destinations
+import com.theupnextapp.ui.components.EmptyState
 import kotlin.math.absoluteValue
 
 @Suppress("LongMethod", "CyclomaticComplexMethod", "MagicNumber")
@@ -122,14 +126,14 @@ fun DashboardScreen(
                         CircularProgressIndicator()
                     }
                 } else if (!todayShows.isNullOrEmpty()) {
-                    val pagerState = rememberPagerState(pageCount = { todayShows!!.size })
+                    val pagerState = rememberPagerState(pageCount = { todayShows.orEmpty().size })
                     HorizontalPager(
                         state = pagerState,
                         pageSize = androidx.compose.foundation.pager.PageSize.Fixed(260.dp),
                         pageSpacing = 16.dp,
                         modifier = Modifier.fillMaxWidth(),
                     ) { page ->
-                        val show = todayShows!![page]
+                        val show = todayShows.orEmpty().getOrNull(page) ?: return@HorizontalPager
                         val pageOffset = (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
                         val scale =
                             lerp(
@@ -210,6 +214,13 @@ fun DashboardScreen(
                             }
                         }
                     }
+                } else {
+                    EmptyState(
+                        icon = Icons.Default.Tv,
+                        title = "No TV Schedule",
+                        message = "It looks like the schedules are empty. Check back later.",
+                        modifier = Modifier.fillMaxWidth().height(250.dp),
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -265,7 +276,7 @@ fun DashboardScreen(
                     }
                 } else if (!mostAnticipatedShows.isNullOrEmpty()) {
                     LazyRow {
-                        items(mostAnticipatedShows!!) { show ->
+                        items(mostAnticipatedShows.orEmpty()) { show ->
                             ListPosterCard(
                                 itemName = show.title,
                                 itemUrl = show.originalImageUrl ?: show.mediumImageUrl,
@@ -305,16 +316,21 @@ fun DashboardScreen(
                         CircularProgressIndicator()
                     }
                 } else if (airingSoonShows.isNullOrEmpty()) {
-                    Text("No shows airing soon.", style = MaterialTheme.typography.bodyMedium)
+                    EmptyState(
+                        icon = Icons.Default.EventNote,
+                        title = "Nothing Airing Soon",
+                        message = "Check back later for upcoming episodes.",
+                        modifier = Modifier.fillMaxWidth().height(250.dp),
+                    )
                 } else {
-                    val pagerState = rememberPagerState(pageCount = { airingSoonShows!!.size })
+                    val pagerState = rememberPagerState(pageCount = { airingSoonShows.orEmpty().size })
                     HorizontalPager(
                         state = pagerState,
                         pageSize = androidx.compose.foundation.pager.PageSize.Fixed(260.dp),
                         pageSpacing = 16.dp,
                         modifier = Modifier.fillMaxWidth(),
                     ) { page ->
-                        val showResponse = airingSoonShows!!.toList()[page]
+                        val showResponse = airingSoonShows.orEmpty().toList().getOrNull(page) ?: return@HorizontalPager
                         val pageOffset = (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
                         val scale =
                             lerp(
@@ -413,10 +429,11 @@ fun DashboardScreen(
                         CircularProgressIndicator()
                     }
                 } else if (recentHistory.isNullOrEmpty()) {
-                    Text(
-                        "No recent activity found.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(bottom = 16.dp),
+                    EmptyState(
+                        icon = Icons.Default.History,
+                        title = "No Recent Activity",
+                        message = "When you mark episodes as watched, they will appear here.",
+                        modifier = Modifier.fillMaxWidth().height(250.dp).padding(bottom = 16.dp),
                     )
                 }
             }
@@ -429,7 +446,7 @@ fun DashboardScreen(
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
                         modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
                     ) {
-                        items(recentHistory!!.take(5)) { historyItem ->
+                        items(recentHistory.orEmpty().take(5)) { historyItem ->
                             val traktId = historyItem.show?.ids?.trakt
                             val imdbId = historyItem.show?.ids?.imdb
                             val season = historyItem.episode?.season
@@ -517,14 +534,14 @@ fun DashboardScreen(
                         CircularProgressIndicator()
                     }
                 } else if (!recommendedShows.isNullOrEmpty()) {
-                    val pagerState = rememberPagerState(pageCount = { recommendedShows!!.size })
+                    val pagerState = rememberPagerState(pageCount = { recommendedShows.orEmpty().size })
                     HorizontalPager(
                         state = pagerState,
                         pageSize = androidx.compose.foundation.pager.PageSize.Fixed(260.dp),
                         pageSpacing = 16.dp,
                         modifier = Modifier.fillMaxWidth(),
                     ) { page ->
-                        val show = recommendedShows!![page]
+                        val show = recommendedShows.orEmpty().getOrNull(page) ?: return@HorizontalPager
                         val pageOffset = (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
                         val scale =
                             lerp(

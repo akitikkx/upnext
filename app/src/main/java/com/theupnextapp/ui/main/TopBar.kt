@@ -14,6 +14,7 @@ package com.theupnextapp.ui.main
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -41,6 +42,7 @@ fun TopBar(
     showBackArrow: Boolean,
     modifier: Modifier = Modifier,
     scrollBehavior: TopAppBarScrollBehavior? = null,
+    onSettingsClick: (() -> Unit)? = null,
 ) {
     TopAppBar(
         title = {
@@ -60,6 +62,16 @@ fun TopBar(
                 }
             }
         },
+        actions = {
+            if (onSettingsClick != null) {
+                IconButton(onClick = onSettingsClick) {
+                    Icon(
+                        imageVector = Icons.Default.Settings,
+                        contentDescription = stringResource(R.string.title_settings),
+                    )
+                }
+            }
+        },
         scrollBehavior = scrollBehavior,
     )
 }
@@ -75,6 +87,7 @@ fun TopBar(
     modifier: Modifier = Modifier,
     title: String? = null, // Allow passing a specific title
     scrollBehavior: TopAppBarScrollBehavior? = null,
+    onSettingsClick: (() -> Unit)? = null,
 ) {
     val destination = navBackStackEntry?.destination
 
@@ -99,11 +112,14 @@ fun TopBar(
             else -> ""
         }
 
+    val showSettingsIcon = destination?.hasRoute<Destinations.Settings>() == false
+
     TopBar(
         title = currentTitle,
         onArrowClick = onArrowClick,
         showBackArrow = showBackArrow,
         modifier = modifier,
         scrollBehavior = scrollBehavior,
+        onSettingsClick = if (showSettingsIcon) onSettingsClick else null,
     )
 }

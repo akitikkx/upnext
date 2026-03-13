@@ -36,7 +36,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.theupnextapp.core.designsystem.ui.ReferenceDevices
-import com.theupnextapp.core.designsystem.ui.components.PosterAttributionItem
 import com.theupnextapp.core.designsystem.ui.components.PosterImage
 import com.theupnextapp.core.designsystem.ui.components.PosterTitleTextItem
 import com.theupnextapp.core.designsystem.ui.getWindowSizeClass
@@ -79,7 +78,6 @@ fun ListPosterCard(
                 itemName?.let {
                     PosterTitleTextItem(title = it)
                 }
-                PosterAttributionItem()
             }
         }
     }

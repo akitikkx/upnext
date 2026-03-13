@@ -21,6 +21,7 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import com.theupnextapp.domain.Theme
 
 private val DarkColorTheme =
     darkColorScheme(
@@ -46,10 +47,17 @@ private val LightColorTheme =
 
 @Composable
 fun UpnextTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    themeState: Theme = Theme.SYSTEM,
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit,
 ) {
+    val darkTheme =
+        when (themeState) {
+            Theme.LIGHT -> false
+            Theme.DARK -> true
+            Theme.SYSTEM -> isSystemInDarkTheme()
+        }
+
     val colorScheme =
         when {
             dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {

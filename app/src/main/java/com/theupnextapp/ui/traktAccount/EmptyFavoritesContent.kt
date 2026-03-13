@@ -12,47 +12,23 @@
 
 package com.theupnextapp.ui.traktAccount
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import com.theupnextapp.R
 import com.theupnextapp.core.designsystem.ui.ReferenceDevices
+import com.theupnextapp.ui.components.EmptyState
 
 @Composable
 fun EmptyFavoritesContent(modifier: Modifier = Modifier) {
-    Column(
-        modifier =
-            modifier
-                .fillMaxSize()
-                .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top,
-    ) {
-        Text(
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.headlineSmall,
-            text = stringResource(id = R.string.trakt_no_favorites_message),
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.bodyLarge,
-            text = stringResource(id = R.string.trakt_account_favorites_empty),
-        )
-
-        Spacer(modifier = Modifier.weight(1f))
-    }
+    EmptyState(
+        icon = Icons.Default.FavoriteBorder,
+        title = stringResource(id = R.string.trakt_no_favorites_message),
+        message = stringResource(id = R.string.trakt_account_favorites_empty),
+        modifier = modifier,
+    )
 }
 
 @ReferenceDevices()

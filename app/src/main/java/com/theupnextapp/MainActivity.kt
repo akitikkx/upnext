@@ -34,15 +34,19 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.core.util.Consumer
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.theupnextapp.common.utils.TraktConstants
 import com.theupnextapp.common.utils.customTab.CustomTabComponent
 import com.theupnextapp.common.utils.customTab.TabConnectionCallback
 import com.theupnextapp.core.designsystem.ui.theme.UpnextTheme
 import com.theupnextapp.ui.main.MainScreen
+import com.theupnextapp.ui.settings.SettingsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -76,7 +80,10 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
                 }
             }
 
-            UpnextTheme {
+            val settingsViewModel: SettingsViewModel = hiltViewModel()
+            val themeState by settingsViewModel.themeStream.collectAsState()
+
+            UpnextTheme(themeState = themeState) {
                 MainScreen(
                     valueState = dataString,
                     onTraktAuthCompleted = {

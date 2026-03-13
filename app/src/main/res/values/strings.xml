@@ -134,6 +134,8 @@
     <string name="search_title">Search</string>
     <string name="search_recent_searches">Recent Searches</string>
     <string name="search_clear_recent">Clear</string>
+    <string name="search_empty_title">No results found</string>
+    <string name="search_empty_message">We couldn\'t find any shows matching your search query. Try searching for a different term.</string>
 
     <string name="pref_first_time_launch">first_time_launch</string>
 
@@ -342,4 +344,5 @@
     <string name="attachment_summary_on">Automatically download attachments for incoming emails
     </string>
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
+    <string name="scroll_to_top">Scroll to top</string>
 </resources>
