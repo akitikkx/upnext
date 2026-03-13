@@ -33,8 +33,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.navDeepLink
 import androidx.navigation.toRoute
 import com.theupnextapp.navigation.Destinations
+import com.theupnextapp.ui.episodeDetail.EpisodeDetailScreen
 import com.theupnextapp.ui.main.TopBar
 import com.theupnextapp.ui.settings.SettingsScreen
 import com.theupnextapp.ui.showDetail.EmptyDetailScreen
@@ -87,7 +89,8 @@ fun AppNavigation(
         currentEntry?.destination?.hasRoute<Destinations.ShowDetail>() == false &&
             currentEntry.destination.hasRoute<Destinations.EmptyDetail>() == false &&
             currentEntry.destination.hasRoute<Destinations.ShowSeasons>() == false &&
-            currentEntry.destination.hasRoute<Destinations.ShowSeasonEpisodes>() == false
+            currentEntry.destination.hasRoute<Destinations.ShowSeasonEpisodes>() == false &&
+            currentEntry.destination.hasRoute<Destinations.EpisodeDetail>() == false
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -165,6 +168,19 @@ fun AppNavigation(
                     val args = backStackEntry.toRoute<Destinations.ShowSeasonEpisodes>()
                     ShowSeasonEpisodesScreen(
                         showSeasonEpisodesArg = args.toArg(),
+                        navController = navHostController,
+                    )
+                }
+
+                composable<Destinations.EpisodeDetail>(
+                    deepLinks =
+                        listOf(
+                            navDeepLink<Destinations.EpisodeDetail>(basePath = "theupnextapp://episode"),
+                        ),
+                ) { backStackEntry ->
+                    val args = backStackEntry.toRoute<Destinations.EpisodeDetail>()
+                    EpisodeDetailScreen(
+                        episodeDetailArg = args.toArg(),
                         navController = navHostController,
                     )
                 }

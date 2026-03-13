@@ -59,6 +59,9 @@
                 <data
                     android:host="callback"
                     android:scheme="theupnextapp" />
+                <data
+                    android:host="episode"
+                    android:scheme="theupnextapp" />
             </intent-filter>
         </activity>
         <meta-data

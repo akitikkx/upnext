@@ -1,5 +1,6 @@
 package com.theupnextapp.navigation
 
+import com.theupnextapp.domain.EpisodeDetailArg
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.ShowSeasonEpisodesArg
 import kotlinx.serialization.Serializable
@@ -92,6 +93,28 @@ sealed interface Destinations {
                 showTitle = showTitle,
                 showImageUrl = showImageUrl,
                 showBackgroundUrl = showBackgroundUrl,
+            )
+    }
+
+    @Serializable
+    data class EpisodeDetail(
+        val showTraktId: Int,
+        val seasonNumber: Int,
+        val episodeNumber: Int,
+        val showTitle: String? = null,
+        val showId: Int? = null,
+        val imdbID: String? = null,
+        val isAuthorizedOnTrakt: Boolean? = false,
+    ) : Destinations {
+        fun toArg() =
+            EpisodeDetailArg(
+                showTraktId = showTraktId,
+                seasonNumber = seasonNumber,
+                episodeNumber = episodeNumber,
+                showTitle = showTitle,
+                showId = showId,
+                imdbID = imdbID,
+                isAuthorizedOnTrakt = isAuthorizedOnTrakt,
             )
     }
 

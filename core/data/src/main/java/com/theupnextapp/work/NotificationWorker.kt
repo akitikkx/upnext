@@ -117,18 +117,32 @@ class NotificationWorker @AssistedInject constructor(
             builder.setContentTitle(title)
                 .setContentText(message)
 
-            // Deep link directly to the episode if it's a single show
-            val deepLinkUri = android.net.Uri.parse("theupnextapp://show/${traktId}/season/${seasonNumber}/episode/${episodeNumber}")
-            val intent = Intent(Intent.ACTION_VIEW, deepLinkUri).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            if (traktId != null && seasonNumber != null && episodeNumber != null) {
+                val deepLinkUri = android.net.Uri.parse("theupnextapp://episode/$traktId/$seasonNumber/$episodeNumber")
+                val intent = Intent(Intent.ACTION_VIEW, deepLinkUri).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                }
+                val pendingIntent: PendingIntent = PendingIntent.getActivity(
+                    applicationContext,
+                    0,
+                    intent,
+                    PendingIntent.FLAG_IMMUTABLE
+                )
+                builder.setContentIntent(pendingIntent)
+            } else {
+                val intent = applicationContext.packageManager.getLaunchIntentForPackage(applicationContext.packageName)?.apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                }
+                if (intent != null) {
+                    val pendingIntent: PendingIntent = PendingIntent.getActivity(
+                        applicationContext,
+                        0,
+                        intent,
+                        PendingIntent.FLAG_IMMUTABLE
+                    )
+                    builder.setContentIntent(pendingIntent)
+                }
             }
-            val pendingIntent: PendingIntent = PendingIntent.getActivity(
-                applicationContext,
-                0,
-                intent,
-                PendingIntent.FLAG_IMMUTABLE
-            )
-            builder.setContentIntent(pendingIntent)
 
         } else {
             // Multiple Shows Formatting (InboxStyle Digest)
