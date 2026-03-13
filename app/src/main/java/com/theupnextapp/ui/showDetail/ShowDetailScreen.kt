@@ -59,7 +59,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -70,6 +72,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.theupnextapp.R
 import com.theupnextapp.core.designsystem.ui.components.PosterImage
 import com.theupnextapp.core.designsystem.ui.components.SectionHeadingText
@@ -282,6 +285,10 @@ fun DetailArea(
             }
         }
 
+        // ----- Watch Providers Section -----
+        WatchProvidersSection(uiState = uiState)
+        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
+
         // ----- Show Cast Section -----
         ShowCast(uiState = uiState, onCastItemClick = onCastItemClick)
         Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
@@ -348,6 +355,72 @@ fun ShowDetailButtons(
                             .padding(8.dp),
                     color = MaterialTheme.colorScheme.primary,
                 )
+            }
+        }
+    }
+}
+
+@Composable
+fun WatchProvidersSection(uiState: ShowDetailViewModel.ShowDetailUiState) {
+    val providersList = uiState.watchProviders?.providers
+    if (!providersList.isNullOrEmpty()) {
+        Column(
+            modifier = Modifier.padding(top = dimensionResource(id = R.dimen.padding_standard_double)),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.Start,
+        ) {
+            SectionHeadingText(text = "Where to Watch")
+
+            LazyRow(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            horizontal = dimensionResource(id = R.dimen.padding_standard_double),
+                            vertical = dimensionResource(id = R.dimen.padding_standard),
+                        ),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                items(providersList) { provider ->
+                    AsyncImage(
+                        model = "https://image.tmdb.org/t/p/w200${provider.logoUrl}",
+                        contentDescription = provider.name,
+                        modifier =
+                            Modifier
+                                .size(60.dp)
+                                .clip(androidx.compose.foundation.shape.RoundedCornerShape(12.dp)),
+                        contentScale = ContentScale.Crop,
+                    )
+                }
+            }
+        }
+    } else if (uiState.isWatchProvidersLoading) {
+        Column(
+            modifier = Modifier.padding(top = dimensionResource(id = R.dimen.padding_standard_double)),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.Start,
+        ) {
+            SectionHeadingText(text = "Where to Watch")
+            LazyRow(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            horizontal = dimensionResource(id = R.dimen.padding_standard_double),
+                            vertical = dimensionResource(id = R.dimen.padding_standard),
+                        ),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                items(5) {
+                    Box(
+                        modifier =
+                            Modifier
+                                .size(60.dp)
+                                .clip(androidx.compose.foundation.shape.RoundedCornerShape(12.dp))
+                                .shimmer()
+                                .background(MaterialTheme.colorScheme.surfaceVariant),
+                    )
+                }
             }
         }
     }

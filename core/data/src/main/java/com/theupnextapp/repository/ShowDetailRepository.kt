@@ -32,6 +32,9 @@ import com.theupnextapp.domain.ShowPreviousEpisode
 import com.theupnextapp.domain.ShowSeason
 import com.theupnextapp.domain.ShowSeasonEpisode
 import com.theupnextapp.domain.safeApiCall
+import com.theupnextapp.domain.TmdbWatchProvider
+import com.theupnextapp.domain.TmdbWatchProviders
+import com.theupnextapp.network.TmdbService
 import com.theupnextapp.network.TvMazeService
 import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupResponse
 import com.theupnextapp.network.models.trakt.asDomainModel
@@ -46,6 +49,7 @@ class ShowDetailRepository(
     upnextDao: UpnextDao,
     tvMazeService: TvMazeService,
     private val traktService: com.theupnextapp.network.TraktService,
+    private val tmdbService: TmdbService,
     private val crashlytics: CrashlyticsHelper,
 ) : BaseRepository(upnextDao = upnextDao, tvMazeService = tvMazeService) {
     fun getShowSummary(showId: Int): Flow<Result<ShowDetailSummary>> {
@@ -258,6 +262,94 @@ class ShowDetailRepository(
             .flowOn(Dispatchers.IO)
     }
 
+    fun getShowWatchProviders(
+        imdbID: String?,
+        countryCode: String = "US"
+    ): Flow<Result<TmdbWatchProviders>> {
+        return flow {
+            emit(Result.Loading(true))
+            if (imdbID.isNullOrBlank()) {
+                emit(Result.Loading(false))
+                emit(Result.Success(TmdbWatchProviders(id = null, providers = emptyList())))
+                return@flow
+            }
+
+            // Extract TMDb ID using Trakt idLookup
+            val idLookupResponse = safeApiCall(Dispatchers.IO) {
+                traktService.idLookupAsync(idType = "imdb", id = imdbID).await()
+            }
+            var tmdbId: Int? = null
+            if (idLookupResponse is Result.Success) {
+                tmdbId = idLookupResponse.data?.firstOrNull()?.show?.ids?.tmdb
+            }
+            
+            // Fallback to getShowInfoAsync if lookup failed
+            if (tmdbId == null) {
+                 val fallbackResponse = safeApiCall(Dispatchers.IO) {
+                    traktService.getShowInfoAsync(imdbID).await()
+                 }
+                 if (fallbackResponse is Result.Success) {
+                     tmdbId = fallbackResponse.data?.ids?.tmdb
+                 }
+            }
+
+            if (tmdbId == null) {
+                emit(Result.Loading(false))
+                emit(Result.Success(TmdbWatchProviders(id = null, providers = emptyList())))
+                return@flow
+            }
+
+            // With valid TMDb ID retrieved, fetch the providers
+            val tmdbProvidersResponse = safeApiCall(Dispatchers.IO) {
+                tmdbService.getShowWatchProvidersAsync(tmdbId).await()
+            }
+
+            when (tmdbProvidersResponse) {
+                is Result.NetworkError -> crashlytics.recordException(tmdbProvidersResponse.exception)
+                is Result.GenericError -> crashlytics.recordException(tmdbProvidersResponse.exception)
+                is Result.Error -> tmdbProvidersResponse.exception?.let { crashlytics.recordException(it) }
+
+                is Result.Success -> {
+                    val results = tmdbProvidersResponse.data?.results ?: emptyMap()
+                    
+                    val key = results.keys.firstOrNull { it.equals(countryCode, ignoreCase = true) }
+                    val countryNode = if (key != null) results[key] else null
+                    
+                    val parsedProvidersList = mutableListOf<TmdbWatchProvider>()
+                    
+                    countryNode?.flatrate?.forEach {
+                        if (it.provider_id != null && it.provider_name != null && it.logo_path != null) {
+                            parsedProvidersList.add(
+                                TmdbWatchProvider(
+                                    id = it.provider_id,
+                                    name = it.provider_name,
+                                    logoUrl = it.logo_path,
+                                    tier = "Flatrate"
+                                )
+                            )
+                        }
+                    }
+                    
+                    emit(Result.Loading(false))
+                    emit(Result.Success(TmdbWatchProviders(
+                        id = tmdbId,
+                        providers = parsedProvidersList.distinctBy { it.id }
+                    )))
+                    return@flow
+                }
+                else -> {}
+            }
+
+            emit(Result.Loading(false))
+            emit(Result.Success(TmdbWatchProviders(id = tmdbId, providers = emptyList())))
+        }
+        .catch {
+            crashlytics.recordException(it)
+            emit(Result.Loading(false))
+            emit(Result.Error(it, "An unexpected error occurred in the watch providers repository flow."))
+        }
+        .flowOn(Dispatchers.IO)
+    }
 
     fun getEpisodeDetails(
         traktId: Int,

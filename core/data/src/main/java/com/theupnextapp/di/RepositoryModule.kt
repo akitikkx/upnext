@@ -30,6 +30,7 @@ import com.theupnextapp.database.UpnextDao
 import com.theupnextapp.datasource.TraktAccountDataSource
 import com.theupnextapp.datasource.TraktAuthDataSource
 import com.theupnextapp.datasource.TraktRecommendationsDataSource
+import com.theupnextapp.network.TmdbService
 import com.theupnextapp.network.TraktService
 import com.theupnextapp.network.TvMazeService
 import com.theupnextapp.repository.DashboardRepository
@@ -55,12 +56,14 @@ object RepositoryModule {
         upnextDao: UpnextDao,
         tvMazeService: TvMazeService,
         traktService: TraktService,
+        tmdbService: TmdbService,
         crashlyticsHelper: CrashlyticsHelper,
     ): ShowDetailRepository {
         return ShowDetailRepository(
             upnextDao = upnextDao,
             tvMazeService = tvMazeService,
             traktService = traktService,
+            tmdbService = tmdbService,
             crashlytics = crashlyticsHelper,
         )
     }
