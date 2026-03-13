@@ -52,6 +52,7 @@ fun NetworkTraktEpisodeResponse.asDomainModel(): com.theupnextapp.domain.Episode
         rating = rating,
         tvdbId = ids?.tvdb,
         imdbId = ids?.imdb,
-        tmdbId = ids?.tmdb
+        tmdbId = ids?.tmdb,
+        votes = votes
     )
 }

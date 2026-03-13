@@ -240,6 +240,13 @@ interface TraktService {
         @Path("season") season: Int,
         @Path("episode") episode: Int,
     ): Deferred<NetworkTraktEpisodeResponse>
+
+    @GET("shows/{id}/seasons/{season}/episodes/{episode}/people?extended=full")
+    fun getEpisodePeopleAsync(
+        @Path("id") id: String,
+        @Path("season") season: Int,
+        @Path("episode") episode: Int,
+    ): Deferred<com.theupnextapp.network.models.trakt.NetworkTraktEpisodePeopleResponse>
 }
 
 object TraktNetwork {

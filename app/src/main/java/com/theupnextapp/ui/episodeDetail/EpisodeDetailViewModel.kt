@@ -17,6 +17,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.theupnextapp.domain.EpisodeDetail
+import com.theupnextapp.domain.EpisodePeople
 import com.theupnextapp.domain.Result
 import com.theupnextapp.navigation.Destinations
 import com.theupnextapp.repository.ShowDetailRepository
@@ -41,6 +42,7 @@ class EpisodeDetailViewModel
 
         init {
             getEpisodeDetails()
+            getEpisodePeople()
         }
 
         private fun getEpisodeDetails() {
@@ -80,10 +82,50 @@ class EpisodeDetailViewModel
                 }
             }
         }
+
+        private fun getEpisodePeople() {
+            viewModelScope.launch {
+                showDetailRepository.getEpisodePeople(
+                    traktId = route.showTraktId,
+                    seasonNumber = route.seasonNumber,
+                    episodeNumber = route.episodeNumber,
+                ).collect { result ->
+                    when (result) {
+                        is Result.Loading -> {
+                            _uiState.value = _uiState.value.copy(isPeopleLoading = result.status)
+                        }
+                        is Result.Success -> {
+                            _uiState.value =
+                                _uiState.value.copy(
+                                    isPeopleLoading = false,
+                                    episodePeople = result.data,
+                                )
+                        }
+                        is Result.GenericError -> {
+                            _uiState.value =
+                                _uiState.value.copy(
+                                    isPeopleLoading = false,
+                                    error = result.error?.message ?: result.exception.message,
+                                )
+                        }
+                        is Result.NetworkError -> {
+                            _uiState.value =
+                                _uiState.value.copy(
+                                    isPeopleLoading = false,
+                                    error = "Network Error",
+                                )
+                        }
+                        else -> {}
+                    }
+                }
+            }
+        }
     }
 
 data class EpisodeDetailState(
     val isLoading: Boolean = false,
+    val isPeopleLoading: Boolean = false,
     val episodeDetail: EpisodeDetail? = null,
+    val episodePeople: EpisodePeople? = null,
     val error: String? = null,
 )

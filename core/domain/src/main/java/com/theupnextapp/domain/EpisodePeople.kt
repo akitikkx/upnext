@@ -12,16 +12,7 @@
 
 package com.theupnextapp.domain
 
-data class EpisodeDetail(
-    val title: String?,
-    val overview: String?,
-    val season: Int?,
-    val number: Int?,
-    val firstAired: String?,
-    val runtime: Int?,
-    val rating: Double?,
-    val tvdbId: Int?,
-    val imdbId: String?,
-    val tmdbId: Int?,
-    val votes: Int?
+data class EpisodePeople(
+    val guestStars: List<TraktCast>?,
+    val crew: List<TraktCrew>?
 )

@@ -74,10 +74,14 @@ class EpisodeDetailViewModelTest {
                     tvdbId = null,
                     imdbId = null,
                     tmdbId = null,
+                    votes = 100,
                 )
 
             `when`(showDetailRepository.getEpisodeDetails(anyInt(), anyInt(), anyInt())).thenReturn(
                 flowOf(Result.Loading(true), Result.Success(mockEpisode)),
+            )
+            `when`(showDetailRepository.getEpisodePeople(anyInt(), anyInt(), anyInt())).thenReturn(
+                kotlinx.coroutines.flow.emptyFlow()
             )
 
             viewModel = EpisodeDetailViewModel(savedStateHandle, showDetailRepository)
@@ -98,6 +102,9 @@ class EpisodeDetailViewModelTest {
 
             `when`(showDetailRepository.getEpisodeDetails(anyInt(), anyInt(), anyInt())).thenReturn(
                 flowOf(Result.Loading(true), Result.GenericError(404, null, mockException)),
+            )
+            `when`(showDetailRepository.getEpisodePeople(anyInt(), anyInt(), anyInt())).thenReturn(
+                kotlinx.coroutines.flow.emptyFlow()
             )
 
             viewModel = EpisodeDetailViewModel(savedStateHandle, showDetailRepository)

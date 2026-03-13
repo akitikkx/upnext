@@ -382,4 +382,36 @@ class ShowDetailRepository(
             emit(Result.Error(it, "An unexpected error occurred in the repository flow."))
         }.flowOn(Dispatchers.IO)
     }
+
+    fun getEpisodePeople(
+        traktId: Int,
+        seasonNumber: Int,
+        episodeNumber: Int,
+    ): Flow<Result<com.theupnextapp.domain.EpisodePeople>> {
+        return flow {
+            emit(Result.Loading(true))
+            val response =
+                safeApiCall(Dispatchers.IO) {
+                    traktService.getEpisodePeopleAsync(
+                        id = traktId.toString(),
+                        season = seasonNumber,
+                        episode = episodeNumber,
+                    ).await().asDomainModel()
+                }
+
+            when (response) {
+                is Result.NetworkError -> crashlytics.recordException(response.exception)
+                is Result.GenericError -> crashlytics.recordException(response.exception)
+                is Result.Error -> response.exception?.let { crashlytics.recordException(it) }
+                else -> { /* No action for Success or Loading */ }
+            }
+
+            emit(Result.Loading(false))
+            emit(response)
+        }.catch {
+            crashlytics.recordException(it)
+            emit(Result.Loading(false))
+            emit(Result.Error(it, "An unexpected error occurred in the repository flow."))
+        }.flowOn(Dispatchers.IO)
+    }
 }
