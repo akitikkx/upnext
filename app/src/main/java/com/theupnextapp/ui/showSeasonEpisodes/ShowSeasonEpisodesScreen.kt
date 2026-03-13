@@ -119,6 +119,26 @@ fun ShowSeasonEpisodesScreen(
                                 viewModel.markSeasonAsUnwatched()
                             },
                             isAuthorizedOnTrakt = isAuthorizedOnTrakt.value,
+                            onEpisodeClick = { episode ->
+                                val showTraktId = showSeasonEpisodesArg.showTraktId
+                                val season = episode.season
+                                val number = episode.number
+                                if (showTraktId != null && season != null && number != null) {
+                                    navController.navigate(
+                                        Destinations.EpisodeDetail(
+                                            showTraktId = showTraktId,
+                                            seasonNumber = season,
+                                            episodeNumber = number,
+                                            showTitle = showSeasonEpisodesArg.showTitle,
+                                            showId = showSeasonEpisodesArg.showId,
+                                            imdbID = showSeasonEpisodesArg.imdbID,
+                                            isAuthorizedOnTrakt = showSeasonEpisodesArg.isAuthorizedOnTrakt,
+                                            showImageUrl = showSeasonEpisodesArg.showImageUrl,
+                                            showBackgroundUrl = showSeasonEpisodesArg.showBackgroundUrl,
+                                        ),
+                                    )
+                                }
+                            },
                             onShowTitleClick = {
                                 navController.navigate(
                                     Destinations.ShowDetail(
@@ -157,6 +177,7 @@ fun ShowSeasonEpisodes(
     seasonNumber: Int,
     list: List<ShowSeasonEpisode>,
     onToggleWatched: (ShowSeasonEpisode) -> Unit = {},
+    onEpisodeClick: (ShowSeasonEpisode) -> Unit = {},
     onMarkSeasonWatched: () -> Unit = {},
     onMarkSeasonUnwatched: () -> Unit = {},
     isAuthorizedOnTrakt: Boolean = false,
@@ -281,6 +302,7 @@ fun ShowSeasonEpisodes(
                 ShowSeasonEpisodeCard(
                     item = episode,
                     onToggleWatched = onToggleWatched,
+                    onEpisodeClick = onEpisodeClick,
                     isAuthorizedOnTrakt = isAuthorizedOnTrakt,
                 )
             }
@@ -293,6 +315,7 @@ fun ShowSeasonEpisodes(
 fun ShowSeasonEpisodeCard(
     item: ShowSeasonEpisode,
     onToggleWatched: (ShowSeasonEpisode) -> Unit = {},
+    onEpisodeClick: (ShowSeasonEpisode) -> Unit = {},
     isAuthorizedOnTrakt: Boolean = false,
 ) {
     Card(
@@ -308,7 +331,8 @@ fun ShowSeasonEpisodeCard(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .padding(8.dp),
+                .padding(8.dp)
+                .clickable { onEpisodeClick(item) },
     ) {
         Column(
             verticalArrangement = Arrangement.Top,

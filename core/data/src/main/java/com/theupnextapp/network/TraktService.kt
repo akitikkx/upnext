@@ -233,11 +233,6 @@ interface TraktService {
         @Query("extended") extended: String = "full",
     ): Deferred<com.theupnextapp.network.models.trakt.NetworkTraktRecommendationsResponse>
 
-    @GET("shows/{id}/watch/providers")
-    fun getShowWatchProvidersAsync(
-        @Path("id") id: String,
-        @Query("country") country: String = "us",
-    ): Deferred<com.theupnextapp.network.models.trakt.NetworkTraktWatchProvidersResponse>
 
     @GET("shows/{id}/seasons/{season}/episodes/{episode}?extended=full")
     fun getEpisodeAsync(

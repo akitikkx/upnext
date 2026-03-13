@@ -32,5 +32,7 @@ data class EpisodeDetailArg(
     val showTitle: String? = null,
     val showId: Int? = null,
     val imdbID: String? = null,
-    val isAuthorizedOnTrakt: Boolean? = false
+    val isAuthorizedOnTrakt: Boolean? = false,
+    val showImageUrl: String? = null,
+    val showBackgroundUrl: String? = null,
 ) : Parcelable

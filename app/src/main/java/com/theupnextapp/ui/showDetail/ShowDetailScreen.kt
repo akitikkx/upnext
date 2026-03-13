@@ -282,8 +282,6 @@ fun DetailArea(
             }
         }
 
-        WatchProvidersSection(uiState = uiState)
-
         // ----- Show Cast Section -----
         ShowCast(uiState = uiState, onCastItemClick = onCastItemClick)
         Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
@@ -896,65 +894,6 @@ fun SimilarShowItem(
                         .fillMaxWidth(),
                 maxLines = 2,
             )
-        }
-    }
-}
-
-@Composable
-fun WatchProvidersSection(uiState: ShowDetailViewModel.ShowDetailUiState) {
-    if (uiState.isWatchProvidersLoading) {
-        // We could reuse CastListPlaceholder here if a loading state is strongly requested
-    } else if (uiState.watchProviders != null) {
-        val providers = mutableListOf<com.theupnextapp.domain.TraktWatchProvider>()
-        uiState.watchProviders.flatrate?.let { providers.addAll(it) }
-        uiState.watchProviders.free?.let { providers.addAll(it) }
-        uiState.watchProviders.rent?.let { providers.addAll(it) }
-        uiState.watchProviders.buy?.let { providers.addAll(it) }
-
-        val uniqueProviders = providers.distinctBy { it.id }
-
-        if (uniqueProviders.isNotEmpty()) {
-            Column(
-                modifier = Modifier.padding(top = dimensionResource(id = R.dimen.padding_standard_double)),
-                verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.Start,
-            ) {
-                SectionHeadingText(text = "Where to Watch")
-
-                LazyRow(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(
-                                horizontal = dimensionResource(id = R.dimen.padding_standard_double),
-                                vertical = dimensionResource(id = R.dimen.padding_standard),
-                            ),
-                ) {
-                    items(items = uniqueProviders) { provider ->
-                        Column(
-                            modifier =
-                                Modifier
-                                    .padding(end = dimensionResource(id = R.dimen.padding_standard))
-                                    .width(60.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                        ) {
-                            com.theupnextapp.core.designsystem.ui.components.PosterImage(
-                                url = "https://image.tmdb.org/t/p/w200${provider.logoPath}",
-                                modifier = Modifier.size(60.dp),
-                            )
-                            provider.name?.let {
-                                Text(
-                                    text = it,
-                                    style = MaterialTheme.typography.labelSmall,
-                                    textAlign = TextAlign.Center,
-                                    maxLines = 2,
-                                    modifier = Modifier.padding(top = 4.dp).fillMaxWidth(),
-                                )
-                            }
-                        }
-                    }
-                }
-            }
         }
     }
 }

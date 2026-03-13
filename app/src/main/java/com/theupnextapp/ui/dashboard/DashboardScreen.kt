@@ -462,13 +462,14 @@ fun DashboardScreen(
                                         .width(160.dp)
                                         .clickable {
                                             val direction =
-                                                Destinations.ShowSeasonEpisodes(
+                                                Destinations.EpisodeDetail(
+                                                    showTraktId = traktId ?: 0,
+                                                    seasonNumber = season ?: 0,
+                                                    episodeNumber = number ?: 0,
+                                                    showTitle = historyItem.show?.title,
                                                     showId = tvmazeId,
-                                                    seasonNumber = historyItem.episode?.season,
                                                     imdbID = imdbId,
                                                     isAuthorizedOnTrakt = true,
-                                                    showTraktId = traktId,
-                                                    showTitle = historyItem.show?.title,
                                                     showImageUrl = imageUrl,
                                                 )
                                             navController.navigate(direction)

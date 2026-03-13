@@ -258,35 +258,6 @@ class ShowDetailRepository(
             .flowOn(Dispatchers.IO)
     }
 
-    fun getShowWatchProviders(traktId: String, country: String): Flow<Result<com.theupnextapp.domain.TraktWatchProviders>> {
-        return flow {
-            emit(Result.Loading(true))
-            val response = safeApiCall(Dispatchers.IO) {
-                val networkProviders = traktService.getShowWatchProvidersAsync(traktId, country).await()
-                com.theupnextapp.domain.TraktWatchProviders(
-                    link = networkProviders.link,
-                    flatrate = networkProviders.flatrate?.map { com.theupnextapp.domain.TraktWatchProvider(it.name, it.id, it.logo_path) },
-                    rent = networkProviders.rent?.map { com.theupnextapp.domain.TraktWatchProvider(it.name, it.id, it.logo_path) },
-                    buy = networkProviders.buy?.map { com.theupnextapp.domain.TraktWatchProvider(it.name, it.id, it.logo_path) },
-                    free = networkProviders.free?.map { com.theupnextapp.domain.TraktWatchProvider(it.name, it.id, it.logo_path) },
-                )
-            }
-
-            when (response) {
-                is Result.NetworkError -> crashlytics.recordException(response.exception)
-                is Result.GenericError -> crashlytics.recordException(response.exception)
-                is Result.Error -> response.exception?.let { crashlytics.recordException(it) }
-                else -> { /* No action for Success or Loading */ }
-            }
-
-            emit(Result.Loading(false))
-            emit(response)
-        }.catch {
-            crashlytics.recordException(it)
-            emit(Result.Loading(false))
-            emit(Result.Error(it, "An unexpected error occurred in the repository flow."))
-        }.flowOn(Dispatchers.IO)
-    }
 
     fun getEpisodeDetails(
         traktId: Int,
