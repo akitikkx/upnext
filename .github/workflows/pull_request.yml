@@ -42,6 +42,8 @@ jobs:
         uses: android-actions/setup-android@v3
         
       - name: Verify and Build
+        env:
+          TMDB_ACCESS_TOKEN: ${{ secrets.TMDB_ACCESS_TOKEN }}
         run: ./gradlew ktlintCheck detekt lintDebug testDebugUnitTest assembleDebug assembleRelease --build-cache --continue
         
       - name: Upload Test Results
@@ -100,6 +102,8 @@ jobs:
           
       - name: Run Instrumented Tests
         uses: reactivecircus/android-emulator-runner@v2
+        env:
+          TMDB_ACCESS_TOKEN: ${{ secrets.TMDB_ACCESS_TOKEN }}
         with:
           api-level: 30
           arch: x86_64
