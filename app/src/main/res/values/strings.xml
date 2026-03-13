@@ -345,4 +345,9 @@
     </string>
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
     <string name="scroll_to_top">Scroll to top</string>
+    <string name="title_episode_detail">Episode Details</string>
+    <string name="back_arrow_content_description">Back</string>
+    <string name="error_fetching_episode_details">Failed to load episode details.</string>
+    <string name="no_overview_available">No overview available for this episode.</string>
+
 </resources>

@@ -31,6 +31,7 @@ import com.theupnextapp.network.models.trakt.NetworkTraktCheckInRequest
 import com.theupnextapp.network.models.trakt.NetworkTraktCheckInResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktCreateCustomListRequest
 import com.theupnextapp.network.models.trakt.NetworkTraktCreateCustomListResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktEpisodeResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktIdLookupResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktMostAnticipatedResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponse
@@ -231,6 +232,14 @@ interface TraktService {
         @Query("limit") limit: Int = 20,
         @Query("extended") extended: String = "full",
     ): Deferred<com.theupnextapp.network.models.trakt.NetworkTraktRecommendationsResponse>
+
+
+    @GET("shows/{id}/seasons/{season}/episodes/{episode}?extended=full")
+    fun getEpisodeAsync(
+        @Path("id") id: String,
+        @Path("season") season: Int,
+        @Path("episode") episode: Int,
+    ): Deferred<NetworkTraktEpisodeResponse>
 }
 
 object TraktNetwork {

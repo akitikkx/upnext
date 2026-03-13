@@ -74,7 +74,6 @@ class ShowDetailViewModelTest {
         whenever(traktRepository.favoriteShow).thenReturn(MutableStateFlow(null))
         whenever(traktRepository.traktShowRating).thenReturn(MutableStateFlow(null))
         whenever(traktRepository.traktShowStats).thenReturn(MutableStateFlow(null))
-
         viewModel =
             ShowDetailViewModel(
                 showDetailRepository,

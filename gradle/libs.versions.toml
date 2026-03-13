@@ -21,6 +21,7 @@ baselineProfile = "1.4.1"
 browser = "1.9.0"
 coilCompose = "2.7.0"
 chuckerVersion = "4.1.0"
+accompanistPermissions = "0.36.0"
 
 composeShimmer = "1.3.3"
 constraintlayout = "2.2.1"
@@ -100,6 +101,7 @@ appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat"
 browser = { module = "androidx.browser:browser", version.ref = "browser" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
 
 detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
 chucker-debug = { module = "com.github.chuckerteam.chucker:library", version.ref ="chuckerVersion" }

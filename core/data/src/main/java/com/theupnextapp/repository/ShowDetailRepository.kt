@@ -23,6 +23,7 @@ package com.theupnextapp.repository
 
 import com.theupnextapp.common.CrashlyticsHelper
 import com.theupnextapp.database.UpnextDao
+import com.theupnextapp.domain.EpisodeDetail
 import com.theupnextapp.domain.Result
 import com.theupnextapp.domain.ShowCast
 import com.theupnextapp.domain.ShowDetailSummary
@@ -33,6 +34,7 @@ import com.theupnextapp.domain.ShowSeasonEpisode
 import com.theupnextapp.domain.safeApiCall
 import com.theupnextapp.network.TvMazeService
 import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupResponse
+import com.theupnextapp.network.models.trakt.asDomainModel
 import com.theupnextapp.network.models.tvmaze.asDomainModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -43,6 +45,7 @@ import kotlinx.coroutines.flow.flowOn
 class ShowDetailRepository(
     upnextDao: UpnextDao,
     tvMazeService: TvMazeService,
+    private val traktService: com.theupnextapp.network.TraktService,
     private val crashlytics: CrashlyticsHelper,
 ) : BaseRepository(upnextDao = upnextDao, tvMazeService = tvMazeService) {
     fun getShowSummary(showId: Int): Flow<Result<ShowDetailSummary>> {
@@ -253,5 +256,38 @@ class ShowDetailRepository(
                 emit(Result.Error(it, "An unexpected error occurred in the repository flow."))
             }
             .flowOn(Dispatchers.IO)
+    }
+
+
+    fun getEpisodeDetails(
+        traktId: Int,
+        seasonNumber: Int,
+        episodeNumber: Int,
+    ): Flow<Result<EpisodeDetail>> {
+        return flow {
+            emit(Result.Loading(true))
+            val response =
+                safeApiCall(Dispatchers.IO) {
+                    traktService.getEpisodeAsync(
+                        id = traktId.toString(),
+                        season = seasonNumber,
+                        episode = episodeNumber,
+                    ).await().asDomainModel()
+                }
+
+            when (response) {
+                is Result.NetworkError -> crashlytics.recordException(response.exception)
+                is Result.GenericError -> crashlytics.recordException(response.exception)
+                is Result.Error -> response.exception?.let { crashlytics.recordException(it) }
+                else -> { /* No action for Success or Loading */ }
+            }
+
+            emit(Result.Loading(false))
+            emit(response)
+        }.catch {
+            crashlytics.recordException(it)
+            emit(Result.Loading(false))
+            emit(Result.Error(it, "An unexpected error occurred in the repository flow."))
+        }.flowOn(Dispatchers.IO)
     }
 }

@@ -1,6 +1,8 @@
 package com.theupnextapp.ui.settings
 
+import android.Manifest
 import android.net.Uri
+import android.os.Build
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -21,6 +23,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,16 +36,34 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
 import com.theupnextapp.R
 import com.theupnextapp.common.utils.TraktConstants
 import com.theupnextapp.domain.Theme
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
     val theme by viewModel.themeStream.collectAsState()
     val dataSaver by viewModel.dataSaverStream.collectAsState()
+    val notificationsEnabled by viewModel.areNotificationsEnabled.collectAsState()
     val traktToken by viewModel.traktAccessToken.collectAsState()
     val context = LocalContext.current
+
+    val notificationsPermissionState =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            rememberPermissionState(Manifest.permission.POST_NOTIFICATIONS)
+        } else {
+            null
+        }
+
+    LaunchedEffect(notificationsPermissionState?.status) {
+        if (notificationsPermissionState?.status?.isGranted == false && notificationsEnabled) {
+            viewModel.onNotificationsToggled(false)
+        }
+    }
 
     Column(
         modifier =
@@ -53,6 +74,27 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
     ) {
         // General Section
         SettingsSectionHeader(title = "General")
+
+        ListItem(
+            headlineContent = { Text("Episode Notifications") },
+            supportingContent = { Text("Get alerted when tracked shows air locally") },
+            trailingContent = {
+                Switch(
+                    checked = notificationsEnabled,
+                    onCheckedChange = { isChecked ->
+                        if (isChecked) {
+                            if (notificationsPermissionState != null && !notificationsPermissionState.status.isGranted) {
+                                notificationsPermissionState.launchPermissionRequest()
+                            } else {
+                                viewModel.onNotificationsToggled(true)
+                            }
+                        } else {
+                            viewModel.onNotificationsToggled(false)
+                        }
+                    },
+                )
+            },
+        )
 
         // Theme Setting
         var showThemeDialog by remember { mutableStateOf(false) }

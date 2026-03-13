@@ -558,7 +558,8 @@ class ShowDetailViewModel
                 try {
                     val result = traktRepository.getTraktIdLookup(imdbID)
                     if (result.isSuccess) {
-                        _traktId.value = result.getOrNull()
+                        val traktId = result.getOrNull()
+                        _traktId.value = traktId
                     }
                 } catch (e: Exception) {
                     firebaseCrashlytics.recordException(

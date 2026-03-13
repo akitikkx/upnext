@@ -54,11 +54,13 @@ object RepositoryModule {
     fun provideShowDetailRepository(
         upnextDao: UpnextDao,
         tvMazeService: TvMazeService,
+        traktService: TraktService,
         crashlyticsHelper: CrashlyticsHelper,
     ): ShowDetailRepository {
         return ShowDetailRepository(
             upnextDao = upnextDao,
             tvMazeService = tvMazeService,
+            traktService = traktService,
             crashlytics = crashlyticsHelper,
         )
     }
