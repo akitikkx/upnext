@@ -19,8 +19,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.theupnextapp.domain
+package com.theupnextapp.network
 
-data class ErrorResponse(
-    val message: String? = null,
-)
+import com.theupnextapp.network.models.tmdb.NetworkTmdbWatchProvidersResponse
+import kotlinx.coroutines.Deferred
+import retrofit2.http.GET
+import retrofit2.http.Path
+
+interface TmdbService {
+    @GET("tv/{series_id}/watch/providers")
+    fun getShowWatchProvidersAsync(
+        @Path("series_id") tmdbId: Int
+    ): Deferred<NetworkTmdbWatchProvidersResponse>
+}

@@ -31,6 +31,7 @@ import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import com.theupnextapp.common.utils.TraktAuthInterceptor
 import com.theupnextapp.common.utils.TraktAuthenticator
 import com.theupnextapp.common.utils.TraktConnectionInterceptor
+import com.theupnextapp.network.TmdbService
 import com.theupnextapp.network.TraktAuthApi
 import com.theupnextapp.network.TraktNetwork
 import com.theupnextapp.network.TraktService
@@ -43,6 +44,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.Cache
 import okhttp3.ConnectionPool
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -156,5 +158,31 @@ object NetworkModule {
         return Moshi.Builder()
             .add(KotlinJsonAdapterFactory())
             .build()
+    }
+
+    @Singleton
+    @Provides
+    fun provideTmdbService(networkClient: OkHttpClient): TmdbService {
+        return Retrofit.Builder()
+            .client(
+                networkClient.newBuilder()
+                    .addInterceptor(
+                        Interceptor { chain ->
+                            val original = chain.request()
+                            val originalHttpUrl = original.url
+                            val url = originalHttpUrl.newBuilder()
+                                .addQueryParameter("api_key", com.theupnextapp.core.data.BuildConfig.TMDB_ACCESS_TOKEN)
+                                .build()
+                            val requestBuilder = original.newBuilder().url(url)
+                            chain.proceed(requestBuilder.build())
+                        }
+                    )
+                    .build(),
+            )
+            .baseUrl("https://api.themoviedb.org/3/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .addCallAdapterFactory(CoroutineCallAdapterFactory())
+            .build()
+            .create(TmdbService::class.java)
     }
 }

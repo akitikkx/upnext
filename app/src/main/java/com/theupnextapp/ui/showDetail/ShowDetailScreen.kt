@@ -59,7 +59,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -70,6 +72,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.theupnextapp.R
 import com.theupnextapp.core.designsystem.ui.components.PosterImage
 import com.theupnextapp.core.designsystem.ui.components.SectionHeadingText
@@ -85,7 +88,6 @@ import com.theupnextapp.navigation.Destinations
 import com.valentinilk.shimmer.shimmer
 import kotlinx.coroutines.launch
 import org.jsoup.Jsoup
-import java.util.Locale
 
 // UI Constants
 @Suppress("MagicNumber")
@@ -262,6 +264,9 @@ fun DetailArea(
                 widthSizeClass = windowSizeClass,
             )
             if (uiState.showSummary.id != -1) {
+                // ----- Watch Providers Section -----
+                WatchProvidersSection(uiState = uiState)
+
                 ShowDetailButtons(
                     isAuthorizedOnTrakt = isAuthorizedOnTrakt,
                     isFavorite = isFavorite,
@@ -317,37 +322,103 @@ fun ShowDetailButtons(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .padding(dimensionResource(id = R.dimen.padding_standard_double)),
-        horizontalArrangement = Arrangement.SpaceEvenly,
+                .padding(
+                    horizontal = dimensionResource(id = R.dimen.padding_standard_double),
+                    vertical = dimensionResource(id = R.dimen.padding_standard),
+                ),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(
-            text = "Seasons",
-            modifier =
-                Modifier
-                    .clickable { onSeasonsClick() }
-                    .padding(8.dp),
-            color = MaterialTheme.colorScheme.primary,
-        )
+        androidx.compose.material3.OutlinedButton(
+            onClick = { onSeasonsClick() },
+            modifier = Modifier.weight(1f),
+        ) {
+            Text(text = "Seasons")
+        }
         if (isAuthorizedOnTrakt == true) {
             if (isLoading) {
-                androidx.compose.material3.CircularProgressIndicator(
-                    modifier =
-                        Modifier
-                            .padding(8.dp)
-                            .size(24.dp),
-                    strokeWidth = 2.dp,
-                    color = MaterialTheme.colorScheme.primary,
-                )
+                Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                    androidx.compose.material3.CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
             } else {
-                Text(
-                    text = if (isFavorite == true) "Remove Favorite" else "Add Favorite",
-                    modifier =
-                        Modifier
-                            .clickable { onFavoriteClick() }
-                            .padding(8.dp),
-                    color = MaterialTheme.colorScheme.primary,
-                )
+                Button(
+                    onClick = { onFavoriteClick() },
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Text(
+                        text = if (isFavorite == true) "Remove Favorite" else "Add Favorite",
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun WatchProvidersSection(uiState: ShowDetailViewModel.ShowDetailUiState) {
+    val providersList = uiState.watchProviders?.providers
+    if (!providersList.isNullOrEmpty()) {
+        Column(
+            modifier = Modifier.padding(top = dimensionResource(id = R.dimen.padding_standard_double)),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.Start,
+        ) {
+            SectionHeadingText(text = "Where to Watch")
+
+            LazyRow(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            horizontal = 16.dp,
+                            vertical = dimensionResource(id = R.dimen.padding_standard),
+                        ),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                items(providersList) { provider ->
+                    AsyncImage(
+                        model = "https://image.tmdb.org/t/p/w200${provider.logoUrl}",
+                        contentDescription = provider.name,
+                        modifier =
+                            Modifier
+                                .size(60.dp)
+                                .clip(androidx.compose.foundation.shape.RoundedCornerShape(12.dp)),
+                        contentScale = ContentScale.Crop,
+                    )
+                }
+            }
+        }
+    } else if (uiState.isWatchProvidersLoading) {
+        Column(
+            modifier = Modifier.padding(top = dimensionResource(id = R.dimen.padding_standard_double)),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.Start,
+        ) {
+            SectionHeadingText(text = "Where to Watch")
+            LazyRow(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            horizontal = 16.dp,
+                            vertical = dimensionResource(id = R.dimen.padding_standard),
+                        ),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                items(5) {
+                    Box(
+                        modifier =
+                            Modifier
+                                .size(60.dp)
+                                .clip(androidx.compose.foundation.shape.RoundedCornerShape(12.dp))
+                                .shimmer()
+                                .background(MaterialTheme.colorScheme.surfaceVariant),
+                    )
+                }
             }
         }
     }
@@ -617,32 +688,49 @@ fun TraktRatingSummary(rating: TraktShowRating) {
                 .padding(horizontal = paddingStandardDouble),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
+        androidx.compose.material3.Surface(
+            shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp),
+            color = MaterialTheme.colorScheme.surfaceVariant,
             modifier = Modifier.padding(top = paddingExtraSmall),
         ) {
-            androidx.compose.material3.Icon(
-                imageVector = androidx.compose.material.icons.Icons.Filled.Star,
-                contentDescription = stringResource(id = R.string.show_detail_rating_content_description),
-                tint = RatingStarColor,
-                modifier = Modifier.size(24.dp),
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+            ) {
+                androidx.compose.material3.Icon(
+                    imageVector = androidx.compose.material.icons.Icons.Filled.Star,
+                    contentDescription = stringResource(id = R.string.show_detail_rating_content_description),
+                    tint = RatingStarColor,
+                    modifier = Modifier.size(20.dp),
+                )
 
-            Spacer(modifier = Modifier.width(paddingExtraSmall))
+                Spacer(modifier = Modifier.width(paddingExtraSmall))
 
-            Text(
-                text = String.format(Locale.US, "%.1f", rating.rating ?: 0.0),
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-            )
+                val scaledRating = ((rating.rating ?: 0.0) * 10).toInt()
 
-            Spacer(modifier = Modifier.width(paddingExtraSmall))
+                Text(
+                    text = "$scaledRating%",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
 
-            Text(
-                text = "(${rating.votes} votes on Trakt)",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Text(
+                    text = "User Score",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                )
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Text(
+                    text = "(${rating.votes} votes)",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                )
+            }
         }
     }
 }

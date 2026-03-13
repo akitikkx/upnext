@@ -15,6 +15,7 @@ package com.theupnextapp.repository
 import com.theupnextapp.domain.Result
 import com.theupnextapp.domain.ShowDetailSummary
 import com.theupnextapp.domain.ShowPreviousEpisode
+import com.theupnextapp.network.TmdbService
 import com.theupnextapp.network.TraktService
 import com.theupnextapp.network.models.tvmaze.NetworkShowInfoCountry
 import com.theupnextapp.network.models.tvmaze.NetworkShowInfoExternals
@@ -49,6 +50,7 @@ class ShowDetailRepositoryTest {
     private lateinit var fakeTvMazeService: FakeTvMazeService
     private lateinit var fakeCrashlytics: FakeCrashlytics
     private lateinit var traktService: TraktService
+    private lateinit var tmdbService: TmdbService
 
     private lateinit var showDetailRepository: ShowDetailRepository
 
@@ -59,12 +61,14 @@ class ShowDetailRepositoryTest {
         fakeCrashlytics = FakeCrashlytics()
         fakeCrashlytics.clear()
         traktService = mock()
+        tmdbService = mock()
 
         showDetailRepository =
             ShowDetailRepository(
                 upnextDao = fakeUpnextDao,
                 tvMazeService = fakeTvMazeService,
                 traktService = traktService,
+                tmdbService = tmdbService,
                 crashlytics = fakeCrashlytics,
             )
     }
@@ -109,6 +113,7 @@ class ShowDetailRepositoryTest {
                             tvrage = 0,
                             thetvdb = 0,
                             imdb = "tt1234567",
+                            themoviedb = null,
                         ),
                     image =
                         NetworkShowInfoImage(

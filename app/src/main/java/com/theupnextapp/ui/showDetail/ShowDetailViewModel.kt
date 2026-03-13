@@ -172,6 +172,8 @@ class ShowDetailViewModel
             val favoriteShow: TraktUserListItem? = null,
             val similarShows: List<TraktRelatedShows>? = null,
             val isSimilarShowsLoading: Boolean = false,
+            val watchProviders: com.theupnextapp.domain.TmdbWatchProviders? = null,
+            val isWatchProvidersLoading: Boolean = false,
         )
 
         data class CastBottomSheetUiState(
@@ -201,6 +203,7 @@ class ShowDetailViewModel
                         showPreviousEpisode = null,
                         showNextEpisode = null,
                         similarShows = null,
+                        watchProviders = null,
                     )
                 }
                 getShowSummary(it)
@@ -240,6 +243,7 @@ class ShowDetailViewModel
                                     getTraktId(summary.imdbID)
                                     getShowCast(summary.imdbID)
                                     getSimilarShows(summary.imdbID)
+                                    getShowWatchProviders(summary.imdbID)
                                 }
 
                                 is Result.GenericError -> {
@@ -433,6 +437,45 @@ class ShowDetailViewModel
                     it.copy(
                         showPreviousEpisode = null,
                         isPreviousEpisodeLoading = false,
+                    )
+                }
+            }
+        }
+
+        private fun getShowWatchProviders(imdbID: String?) {
+            viewModelScope.launch {
+                _uiState.update {
+                    it.copy(isWatchProvidersLoading = true)
+                }
+                imdbID?.takeIf { it.isNotEmpty() }?.let { id ->
+                    showDetailRepository.getShowWatchProviders(id).collect { result ->
+                        when (result) {
+                            is Result.Success -> {
+                                _uiState.update { currentState ->
+                                    currentState.copy(
+                                        watchProviders = result.data,
+                                        isWatchProvidersLoading = false,
+                                    )
+                                }
+                            }
+                            is Result.Error, is Result.GenericError, is Result.NetworkError -> {
+                                // Gracefully fail and show empty providers if lookup fails
+                                _uiState.update {
+                                    it.copy(
+                                        isWatchProvidersLoading = false,
+                                        watchProviders = com.theupnextapp.domain.TmdbWatchProviders(id = null, providers = emptyList()),
+                                    )
+                                }
+                            }
+                            is Result.Loading -> {
+                                _uiState.update { it.copy(isWatchProvidersLoading = result.status) }
+                            }
+                        }
+                    }
+                } ?: _uiState.update {
+                    it.copy(
+                        watchProviders = null,
+                        isWatchProvidersLoading = false,
                     )
                 }
             }

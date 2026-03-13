@@ -21,6 +21,14 @@
 
 package com.theupnextapp.domain
 
-data class ErrorResponse(
-    val message: String? = null,
+data class TmdbWatchProviders(
+    val id: Int?,
+    val providers: List<TmdbWatchProvider>?
+)
+
+data class TmdbWatchProvider(
+    val id: Int,
+    val name: String,
+    val logoUrl: String,
+    val tier: String
 )

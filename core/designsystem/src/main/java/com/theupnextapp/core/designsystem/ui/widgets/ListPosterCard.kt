@@ -39,6 +39,7 @@ import com.theupnextapp.core.designsystem.ui.ReferenceDevices
 import com.theupnextapp.core.designsystem.ui.components.PosterImage
 import com.theupnextapp.core.designsystem.ui.components.PosterTitleTextItem
 import com.theupnextapp.core.designsystem.ui.getWindowSizeClass
+import com.theupnextapp.core.designsystem.ui.modifiers.bounceClick
 import com.theupnextapp.core.designsystem.ui.widgets.ListPosterCardConfig.listPosterHeight
 import com.theupnextapp.core.designsystem.ui.widgets.ListPosterCardConfig.listPosterWidth
 
@@ -56,8 +57,8 @@ fun ListPosterCard(
         modifier =
             modifier
                 .width(listPosterWidth)
-                .padding(4.dp),
-        onClick = onClick,
+                .padding(4.dp)
+                .bounceClick(onClick = onClick),
     ) {
         Column {
             itemUrl?.let {

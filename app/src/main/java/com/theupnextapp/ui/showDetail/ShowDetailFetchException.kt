@@ -22,7 +22,7 @@ class ShowDetailFetchException(
 ) : RuntimeException(message, cause) {
     init {
         errorResponse?.let {
-            FirebaseCrashlytics.getInstance().setCustomKey("error_response_message", it.message)
+            FirebaseCrashlytics.getInstance().setCustomKey("error_response_message", it.message ?: "Unknown Error")
         }
     }
 }

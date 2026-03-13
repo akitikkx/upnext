@@ -75,6 +75,7 @@ import com.theupnextapp.R
 import com.theupnextapp.common.utils.DateUtils
 import com.theupnextapp.core.designsystem.ui.components.PosterImage
 import com.theupnextapp.core.designsystem.ui.components.ShimmerSeasonEpisodes
+import com.theupnextapp.core.designsystem.ui.modifiers.bounceClick
 import com.theupnextapp.domain.ShowSeasonEpisode
 import com.theupnextapp.domain.ShowSeasonEpisodesArg
 import com.theupnextapp.navigation.Destinations
@@ -135,6 +136,7 @@ fun ShowSeasonEpisodesScreen(
                                             isAuthorizedOnTrakt = showSeasonEpisodesArg.isAuthorizedOnTrakt,
                                             showImageUrl = showSeasonEpisodesArg.showImageUrl,
                                             showBackgroundUrl = showSeasonEpisodesArg.showBackgroundUrl,
+                                            episodeImageUrl = episode.originalImageUrl, // Inject specific episode image
                                         ),
                                     )
                                 }
@@ -332,7 +334,7 @@ fun ShowSeasonEpisodeCard(
             Modifier
                 .fillMaxWidth()
                 .padding(8.dp)
-                .clickable { onEpisodeClick(item) },
+                .bounceClick { onEpisodeClick(item) },
     ) {
         Column(
             verticalArrangement = Arrangement.Top,

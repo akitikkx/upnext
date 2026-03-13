@@ -59,6 +59,9 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.theupnextapp.common.utils.TraktConstants
+import com.theupnextapp.core.designsystem.ui.components.ShimmerAiringSoon
+import com.theupnextapp.core.designsystem.ui.components.ShimmerPosterCardRow
+import com.theupnextapp.core.designsystem.ui.components.ShimmerRecommended
 import com.theupnextapp.core.designsystem.ui.widgets.ListPosterCard
 import com.theupnextapp.core.designsystem.ui.widgets.UpNextEpisodeCard
 import com.theupnextapp.navigation.Destinations
@@ -271,9 +274,7 @@ fun DashboardScreen(
                 )
 
                 if (isLoadingMostAnticipated) {
-                    Box(modifier = Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
-                    }
+                    ShimmerPosterCardRow()
                 } else if (!mostAnticipatedShows.isNullOrEmpty()) {
                     LazyRow {
                         items(mostAnticipatedShows.orEmpty()) { show ->
@@ -312,9 +313,7 @@ fun DashboardScreen(
                 )
 
                 if (isLoadingAiringSoon) {
-                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
-                    }
+                    ShimmerAiringSoon()
                 } else if (airingSoonShows.isNullOrEmpty()) {
                     EmptyState(
                         icon = Icons.Default.EventNote,
@@ -425,9 +424,7 @@ fun DashboardScreen(
                 )
 
                 if (isLoadingHistory) {
-                    Box(modifier = Modifier.fillMaxWidth().height(100.dp), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
-                    }
+                    ShimmerPosterCardRow()
                 } else if (recentHistory.isNullOrEmpty()) {
                     EmptyState(
                         icon = Icons.Default.History,
@@ -471,6 +468,7 @@ fun DashboardScreen(
                                                     imdbID = imdbId,
                                                     isAuthorizedOnTrakt = true,
                                                     showImageUrl = imageUrl,
+                                                    episodeImageUrl = imageUrl,
                                                 )
                                             navController.navigate(direction)
                                         },
@@ -531,9 +529,7 @@ fun DashboardScreen(
                 )
 
                 if (isLoadingRecommendations) {
-                    Box(modifier = Modifier.fillMaxWidth().height(400.dp), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
-                    }
+                    ShimmerRecommended()
                 } else if (!recommendedShows.isNullOrEmpty()) {
                     val pagerState = rememberPagerState(pageCount = { recommendedShows.orEmpty().size })
                     HorizontalPager(

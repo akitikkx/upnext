@@ -19,8 +19,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.theupnextapp.domain
+package com.theupnextapp.network.models.tmdb
 
-data class ErrorResponse(
-    val message: String? = null,
+data class NetworkTmdbWatchProvidersResponse(
+    val id: Int?,
+    val results: Map<String, NetworkTmdbWatchProviderRegion>?
+)
+
+data class NetworkTmdbWatchProviderRegion(
+    val link: String?,
+    val flatrate: List<NetworkTmdbWatchProvider>?,
+    val rent: List<NetworkTmdbWatchProvider>?,
+    val buy: List<NetworkTmdbWatchProvider>?,
+    val free: List<NetworkTmdbWatchProvider>?
+)
+
+data class NetworkTmdbWatchProvider(
+    val provider_id: Int?,
+    val provider_name: String?,
+    val logo_path: String?,
+    val display_priority: Int?
 )

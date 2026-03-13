@@ -1,6 +1,5 @@
 package com.theupnextapp.core.designsystem.ui.widgets
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -28,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.theupnextapp.core.designsystem.ui.modifiers.bounceClick
 
 @Suppress("MagicNumber")
 @Composable
@@ -48,7 +48,7 @@ fun UpNextEpisodeCard(
             ),
         modifier =
             modifier
-                .clickable(onClick = onCardClick),
+                .bounceClick(onClick = onCardClick),
     ) {
         Column {
             Box(
