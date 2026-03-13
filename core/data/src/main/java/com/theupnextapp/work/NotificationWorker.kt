@@ -73,36 +73,14 @@ class NotificationWorker @AssistedInject constructor(
         if (scheduleResult.isSuccess) {
             val schedule = scheduleResult.getOrNull()
             if (!schedule.isNullOrEmpty()) {
-                schedule.forEach { item ->
-                    showNotification(item)
-                }
+                sendConsolidatedNotification(schedule)
             }
         }
 
         return Result.success()
     }
 
-    private fun showNotification(item: NetworkTraktMyScheduleResponseItem) {
-        val showTitle = item.show?.title ?: "New Episode"
-        val season = item.episode?.season
-        val episode = item.episode?.number
-        val episodeTitle = item.episode?.title
-
-        val title = "New Episode: $showTitle"
-        val message = if (season != null && episode != null) {
-            "S${season}E$episode - $episodeTitle airing today!"
-        } else {
-            "$episodeTitle airing today!"
-        }
-
-        sendNotification(title, message, item)
-    }
-
-    private fun sendNotification(
-        title: String,
-        message: String,
-        item: NetworkTraktMyScheduleResponseItem
-    ) {
+    private fun sendConsolidatedNotification(schedule: List<NetworkTraktMyScheduleResponseItem>) {
         val notificationManager =
             applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
@@ -115,34 +93,85 @@ class NotificationWorker @AssistedInject constructor(
             notificationManager.createNotificationChannel(channel)
         }
 
-        val traktId = item.show?.ids?.trakt
-        val seasonNumber = item.episode?.season
-        val episodeNumber = item.episode?.number
-        
-        val deepLinkUri = android.net.Uri.parse("theupnextapp://show/${traktId}/season/${seasonNumber}/episode/${episodeNumber}")
-        val intent = Intent(
-            Intent.ACTION_VIEW,
-            deepLinkUri
-        ).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        }
-        val pendingIntent: PendingIntent = PendingIntent.getActivity(
-            applicationContext,
-            0,
-            intent,
-            PendingIntent.FLAG_IMMUTABLE
-        )
-
-        val notification = NotificationCompat.Builder(applicationContext, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_foreground) // Ensure this resource exists or use a generic one
-            .setContentTitle(title)
-            .setContentText(message)
+        val builder = NotificationCompat.Builder(applicationContext, CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setContentIntent(pendingIntent)
             .setAutoCancel(true)
-            .build()
 
-        notificationManager.notify(System.currentTimeMillis().toInt(), notification)
+        if (schedule.size == 1) {
+            // Single Show Formatting
+            val item = schedule.first()
+            val showTitle = item.show?.title ?: "New Episode"
+            val seasonNumber = item.episode?.season
+            val episodeNumber = item.episode?.number
+            val episodeTitle = item.episode?.title
+            val traktId = item.show?.ids?.trakt
+            
+            val title = "New Episode: $showTitle"
+            val message = if (seasonNumber != null && episodeNumber != null) {
+                "S${seasonNumber}E$episodeNumber - $episodeTitle airing today!"
+            } else {
+                "$episodeTitle airing today!"
+            }
+
+            builder.setContentTitle(title)
+                .setContentText(message)
+
+            // Deep link directly to the episode if it's a single show
+            val deepLinkUri = android.net.Uri.parse("theupnextapp://show/${traktId}/season/${seasonNumber}/episode/${episodeNumber}")
+            val intent = Intent(Intent.ACTION_VIEW, deepLinkUri).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            }
+            val pendingIntent: PendingIntent = PendingIntent.getActivity(
+                applicationContext,
+                0,
+                intent,
+                PendingIntent.FLAG_IMMUTABLE
+            )
+            builder.setContentIntent(pendingIntent)
+
+        } else {
+            // Multiple Shows Formatting (InboxStyle Digest)
+            val inboxStyle = NotificationCompat.InboxStyle()
+            inboxStyle.setBigContentTitle("${schedule.size} New Episodes Airing Today!")
+
+            schedule.take(5).forEach { item ->
+                val showTitle = item.show?.title ?: "Unknown Show"
+                val season = item.episode?.season
+                val episode = item.episode?.number
+                val line = if (season != null && episode != null) {
+                    "$showTitle (S${season}E$episode)"
+                } else {
+                    showTitle
+                }
+                inboxStyle.addLine(line)
+            }
+            
+            if (schedule.size > 5) {
+                inboxStyle.setSummaryText("+${schedule.size - 5} more shows")
+            }
+
+            builder.setContentTitle("${schedule.size} shows are returning today!")
+                .setContentText("Expand to see your daily watchlist.")
+                .setStyle(inboxStyle)
+
+            // Deep link opens the app dashboard for the digest
+            val intent = applicationContext.packageManager.getLaunchIntentForPackage(applicationContext.packageName)?.apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            }
+            if (intent != null) {
+                val pendingIntent: PendingIntent = PendingIntent.getActivity(
+                    applicationContext,
+                    0,
+                    intent,
+                    PendingIntent.FLAG_IMMUTABLE
+                )
+                builder.setContentIntent(pendingIntent)
+            }
+        }
+
+        // Use a static ID (e.g., 1) so it overrides previous daily digests instead of stacking
+        notificationManager.notify(1, builder.build())
     }
 
     companion object {
