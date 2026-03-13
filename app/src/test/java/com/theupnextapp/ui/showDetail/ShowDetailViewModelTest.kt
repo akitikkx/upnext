@@ -41,6 +41,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.kotlin.any
+import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.timeout
@@ -69,11 +70,11 @@ class ShowDetailViewModelTest {
         // Stub the repository flow to return an empty flow by default, but mutable for tests
         // But for constructor it's fine.
 
-        // Mock default behavior for other flows to prevent NPE in init
         whenever(traktRepository.traktAccessToken).thenReturn(MutableStateFlow(null))
         whenever(traktRepository.favoriteShow).thenReturn(MutableStateFlow(null))
         whenever(traktRepository.traktShowRating).thenReturn(MutableStateFlow(null))
         whenever(traktRepository.traktShowStats).thenReturn(MutableStateFlow(null))
+        whenever(showDetailRepository.getShowWatchProviders(anyOrNull(), any())).thenReturn(kotlinx.coroutines.flow.emptyFlow())
         viewModel =
             ShowDetailViewModel(
                 showDetailRepository,
@@ -151,6 +152,7 @@ class ShowDetailViewModelTest {
                     id = 123,
                     imdbID = imdbId,
                     name = "Test Show",
+                    averageRating = null,
                     mediumImageUrl = null,
                     originalImageUrl = null,
                     summary = "Summary",
@@ -243,6 +245,7 @@ class ShowDetailViewModelTest {
                     id = 123,
                     imdbID = imdbId,
                     name = "Test Show",
+                    averageRating = null,
                     mediumImageUrl = null,
                     originalImageUrl = null,
                     summary = "Summary",

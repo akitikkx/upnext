@@ -113,6 +113,7 @@ class ShowDetailRepositoryTest {
                             tvrage = 0,
                             thetvdb = 0,
                             imdb = "tt1234567",
+                            themoviedb = null,
                         ),
                     image =
                         NetworkShowInfoImage(

@@ -208,6 +208,34 @@ fun ShimmerSeasonEpisodes(
     }
 }
 
+@Composable
+fun ShimmerAiringSoon(modifier: Modifier = Modifier) {
+    Box(
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .height(260.dp)
+                .padding(horizontal = 32.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(shimmerBackgroundColor)
+                .shimmer(),
+    )
+}
+
+@Composable
+fun ShimmerRecommended(modifier: Modifier = Modifier) {
+    Box(
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .height(400.dp)
+                .padding(horizontal = 32.dp)
+                .clip(MaterialTheme.shapes.extraLarge)
+                .background(shimmerBackgroundColor)
+                .shimmer(),
+    )
+}
+
 @Preview(showBackground = true)
 @Composable
 fun ShimmerPosterCardPreview() {
