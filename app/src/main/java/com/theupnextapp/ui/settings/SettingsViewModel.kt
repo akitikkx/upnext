@@ -41,6 +41,13 @@ class SettingsViewModel
                 initialValue = null,
             )
 
+        val areNotificationsEnabled: StateFlow<Boolean> =
+            settingsRepository.areNotificationsEnabled.stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = false,
+            )
+
         fun onThemeSelected(theme: Theme) {
             viewModelScope.launch {
                 settingsRepository.setTheme(theme)
@@ -50,6 +57,12 @@ class SettingsViewModel
         fun onDataSaverToggled(enabled: Boolean) {
             viewModelScope.launch {
                 settingsRepository.setDataSaverEnabled(enabled)
+            }
+        }
+
+        fun onNotificationsToggled(enabled: Boolean) {
+            viewModelScope.launch {
+                settingsRepository.setNotificationsEnabled(enabled)
             }
         }
 

@@ -172,6 +172,8 @@ class ShowDetailViewModel
             val favoriteShow: TraktUserListItem? = null,
             val similarShows: List<TraktRelatedShows>? = null,
             val isSimilarShowsLoading: Boolean = false,
+            val watchProviders: com.theupnextapp.domain.TraktWatchProviders? = null,
+            val isWatchProvidersLoading: Boolean = false,
         )
 
         data class CastBottomSheetUiState(
@@ -201,9 +203,13 @@ class ShowDetailViewModel
                         showPreviousEpisode = null,
                         showNextEpisode = null,
                         similarShows = null,
+                        watchProviders = null,
                     )
                 }
                 getShowSummary(it)
+                it.showTraktId?.let { traktId ->
+                    getWatchProviders(traktId.toString())
+                }
             } ?: run {
                 _isLoading.value = false
                 _uiState.update { currentState ->
@@ -558,7 +564,9 @@ class ShowDetailViewModel
                 try {
                     val result = traktRepository.getTraktIdLookup(imdbID)
                     if (result.isSuccess) {
-                        _traktId.value = result.getOrNull()
+                        val traktId = result.getOrNull()
+                        _traktId.value = traktId
+                        traktId?.let { getWatchProviders(it.toString()) }
                     }
                 } catch (e: Exception) {
                     firebaseCrashlytics.recordException(
@@ -593,6 +601,31 @@ class ShowDetailViewModel
 
         fun displayCastBottomSheetComplete() {
             _castBottomSheetUiState.value = CastBottomSheetUiState()
+        }
+
+        private fun getWatchProviders(traktId: String) {
+            viewModelScope.launch {
+                _uiState.update { it.copy(isWatchProvidersLoading = true) }
+                val countryCode = java.util.Locale.getDefault().country.lowercase().takeIf { it.isNotEmpty() } ?: "us"
+                showDetailRepository.getShowWatchProviders(traktId, countryCode).collect { result ->
+                    when (result) {
+                        is Result.Success -> {
+                            _uiState.update {
+                                it.copy(
+                                    watchProviders = result.data,
+                                    isWatchProvidersLoading = false,
+                                )
+                            }
+                        }
+                        is Result.Error, is Result.GenericError, is Result.NetworkError -> {
+                            _uiState.update { it.copy(isWatchProvidersLoading = false) }
+                        }
+                        is Result.Loading -> {
+                            _uiState.update { it.copy(isWatchProvidersLoading = result.status) }
+                        }
+                    }
+                }
+            }
         }
 
         private val _navigateToShowDetail = MutableStateFlow<ShowDetailArg?>(null)

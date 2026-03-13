@@ -198,6 +198,7 @@ dependencies {
     // Navigation and Serialization
     implementation libs.androidx.navigation.compose
     implementation libs.kotlinx.serialization.json
+    implementation libs.accompanist.permissions
 
     // Coroutines
     implementation libs.kotlinx.coroutines.core

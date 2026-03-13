@@ -95,10 +95,14 @@ class NotificationWorker @AssistedInject constructor(
             "$episodeTitle airing today!"
         }
 
-        sendNotification(title, message)
+        sendNotification(title, message, item)
     }
 
-    private fun sendNotification(title: String, message: String) {
+    private fun sendNotification(
+        title: String,
+        message: String,
+        item: NetworkTraktMyScheduleResponseItem
+    ) {
         val notificationManager =
             applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
@@ -111,9 +115,15 @@ class NotificationWorker @AssistedInject constructor(
             notificationManager.createNotificationChannel(channel)
         }
 
-        val intent = applicationContext.packageManager.getLaunchIntentForPackage(
-            applicationContext.packageName
-        )?.apply {
+        val traktId = item.show?.ids?.trakt
+        val seasonNumber = item.episode?.season
+        val episodeNumber = item.episode?.number
+        
+        val deepLinkUri = android.net.Uri.parse("theupnextapp://show/${traktId}/season/${seasonNumber}/episode/${episodeNumber}")
+        val intent = Intent(
+            Intent.ACTION_VIEW,
+            deepLinkUri
+        ).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
         val pendingIntent: PendingIntent = PendingIntent.getActivity(

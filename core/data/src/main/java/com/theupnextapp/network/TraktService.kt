@@ -231,6 +231,12 @@ interface TraktService {
         @Query("limit") limit: Int = 20,
         @Query("extended") extended: String = "full",
     ): Deferred<com.theupnextapp.network.models.trakt.NetworkTraktRecommendationsResponse>
+
+    @GET("shows/{id}/watch/providers")
+    fun getShowWatchProvidersAsync(
+        @Path("id") id: String,
+        @Query("country") country: String = "us",
+    ): Deferred<com.theupnextapp.network.models.trakt.NetworkTraktWatchProvidersResponse>
 }
 
 object TraktNetwork {
