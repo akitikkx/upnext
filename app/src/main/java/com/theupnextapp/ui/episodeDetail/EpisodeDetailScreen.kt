@@ -93,7 +93,9 @@ fun EpisodeDetailScreen(
         },
     ) { paddingValues ->
         Box(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = paddingValues.calculateBottomPadding()),
         ) {
             val backdropUrl = episodeDetailArg?.showBackgroundUrl ?: episodeDetailArg?.showImageUrl
             if (!backdropUrl.isNullOrEmpty()) {
