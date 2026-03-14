@@ -483,6 +483,7 @@ constructor(
                         mediumImageUrl = mediumImage,
                         traktId = castMember.person?.ids?.trakt,
                         imdbId = castMember.person?.ids?.imdb,
+                        tmdbId = castMember.person?.ids?.tmdb,
                         slug = castMember.person?.ids?.slug
                     )
                 } ?: emptyList()

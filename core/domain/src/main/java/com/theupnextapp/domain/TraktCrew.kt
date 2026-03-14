@@ -19,5 +19,6 @@ data class TraktCrew(
     val mediumImageUrl: String?,
     val traktId: Int?,
     val imdbId: String?,
+    val tmdbId: Int?,
     val slug: String?
 )

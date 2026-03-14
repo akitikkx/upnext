@@ -28,5 +28,6 @@ data class TraktCast(
     val mediumImageUrl: String?,
     val traktId: Int?,
     val imdbId: String?,
+    val tmdbId: Int?,
     val slug: String?
 )

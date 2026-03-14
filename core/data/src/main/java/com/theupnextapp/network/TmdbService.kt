@@ -31,4 +31,9 @@ interface TmdbService {
     fun getShowWatchProvidersAsync(
         @Path("series_id") tmdbId: Int
     ): Deferred<NetworkTmdbWatchProvidersResponse>
+
+    @GET("person/{person_id}/images")
+    fun getPersonImagesAsync(
+        @Path("person_id") personId: Int
+    ): Deferred<com.theupnextapp.network.models.tmdb.NetworkTmdbPersonImagesResponse>
 }

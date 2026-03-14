@@ -63,6 +63,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import com.theupnextapp.R
 import com.theupnextapp.domain.EpisodeDetailArg
@@ -333,7 +334,11 @@ fun GuestStarsRow(guestStars: List<TraktCast>) {
             horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             items(guestStars) { star ->
-                PersonItem(name = star.name, role = star.character)
+                PersonItem(
+                    name = star.name,
+                    role = star.character,
+                    originalImageUrl = star.originalImageUrl,
+                )
             }
         }
     }
@@ -353,7 +358,11 @@ fun CrewRow(crew: List<TraktCrew>) {
             horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             items(crew) { member ->
-                PersonItem(name = member.name, role = member.job)
+                PersonItem(
+                    name = member.name,
+                    role = member.job,
+                    originalImageUrl = member.originalImageUrl,
+                )
             }
         }
     }
@@ -363,25 +372,60 @@ fun CrewRow(crew: List<TraktCrew>) {
 fun PersonItem(
     name: String?,
     role: String?,
+    originalImageUrl: String? = null,
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.width(100.dp),
     ) {
-        Box(
-            modifier =
-                Modifier
-                    .height(100.dp)
-                    .width(100.dp)
-                    .background(MaterialTheme.colorScheme.surfaceVariant, shape = CircleShape),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                imageVector = Icons.Default.Person,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.fillMaxSize(0.5f),
+        if (!originalImageUrl.isNullOrEmpty()) {
+            SubcomposeAsyncImage(
+                model =
+                    ImageRequest.Builder(LocalContext.current)
+                        .data("https://image.tmdb.org/t/p/w200$originalImageUrl")
+                        .crossfade(true)
+                        .build(),
+                contentDescription = name,
+                modifier =
+                    Modifier
+                        .height(100.dp)
+                        .width(100.dp)
+                        .background(MaterialTheme.colorScheme.surfaceVariant, shape = CircleShape),
+                contentScale = ContentScale.Crop,
+                error = {
+                    Box(
+                        modifier =
+                            Modifier
+                                .height(100.dp)
+                                .width(100.dp)
+                                .background(MaterialTheme.colorScheme.surfaceVariant, shape = CircleShape),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.fillMaxSize(0.5f),
+                        )
+                    }
+                },
             )
+        } else {
+            Box(
+                modifier =
+                    Modifier
+                        .height(100.dp)
+                        .width(100.dp)
+                        .background(MaterialTheme.colorScheme.surfaceVariant, shape = CircleShape),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.fillMaxSize(0.5f),
+                )
+            }
         }
         Spacer(modifier = Modifier.height(8.dp))
         Text(

@@ -40,6 +40,9 @@ import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupResponse
 import com.theupnextapp.network.models.trakt.asDomainModel
 import com.theupnextapp.network.models.tvmaze.asDomainModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
@@ -388,30 +391,55 @@ class ShowDetailRepository(
         seasonNumber: Int,
         episodeNumber: Int,
     ): Flow<Result<com.theupnextapp.domain.EpisodePeople>> {
-        return flow {
-            emit(Result.Loading(true))
-            val response =
-                safeApiCall(Dispatchers.IO) {
-                    traktService.getEpisodePeopleAsync(
-                        id = traktId.toString(),
-                        season = seasonNumber,
-                        episode = episodeNumber,
-                    ).await().asDomainModel()
+        return flow<Result<com.theupnextapp.domain.EpisodePeople>> {
+            try {
+                emit(Result.Loading(true))
+                val episodePeople = traktService.getEpisodePeopleAsync(
+                    id = traktId.toString(),
+                    season = seasonNumber,
+                    episode = episodeNumber,
+                ).await().asDomainModel()
+
+                val updatedGuestStars = mutableListOf<com.theupnextapp.domain.TraktCast>()
+                episodePeople.guestStars?.forEach { star ->
+                    val updatedStar = if (star.tmdbId != null) {
+                        try {
+                            val imagesResponse = tmdbService.getPersonImagesAsync(star.tmdbId!!).await()
+                            val imagePath = imagesResponse.profiles?.firstOrNull()?.filePath
+                            star.copy(originalImageUrl = imagePath)
+                        } catch (e: Exception) {
+                            star
+                        }
+                    } else {
+                        star
+                    }
+                    updatedGuestStars.add(updatedStar)
                 }
 
-            when (response) {
-                is Result.NetworkError -> crashlytics.recordException(response.exception)
-                is Result.GenericError -> crashlytics.recordException(response.exception)
-                is Result.Error -> response.exception?.let { crashlytics.recordException(it) }
-                else -> { /* No action for Success or Loading */ }
-            }
+                val updatedCrew = mutableListOf<com.theupnextapp.domain.TraktCrew>()
+                episodePeople.crew?.forEach { member ->
+                    val updatedMember = if (member.tmdbId != null) {
+                        try {
+                            val imagesResponse = tmdbService.getPersonImagesAsync(member.tmdbId!!).await()
+                            val imagePath = imagesResponse.profiles?.firstOrNull()?.filePath
+                            member.copy(originalImageUrl = imagePath)
+                        } catch (e: Exception) {
+                            member
+                        }
+                    } else {
+                        member
+                    }
+                    updatedCrew.add(updatedMember)
+                }
 
-            emit(Result.Loading(false))
-            emit(response)
-        }.catch {
-            crashlytics.recordException(it)
-            emit(Result.Loading(false))
-            emit(Result.Error(it, "An unexpected error occurred in the repository flow."))
+                val result = com.theupnextapp.domain.EpisodePeople(guestStars = updatedGuestStars, crew = updatedCrew)
+                emit(Result.Success(result))
+                emit(Result.Loading(false))
+            } catch (e: Exception) {
+                crashlytics.recordException(e)
+                emit(Result.Loading(false))
+                emit(Result.Error(e, "An unexpected error occurred in the repository flow."))
+            }
         }.flowOn(Dispatchers.IO)
     }
 }
