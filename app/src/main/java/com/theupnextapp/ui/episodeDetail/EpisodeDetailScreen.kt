@@ -50,6 +50,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -390,6 +391,7 @@ fun PersonItem(
                     Modifier
                         .height(100.dp)
                         .width(100.dp)
+                        .clip(CircleShape)
                         .background(MaterialTheme.colorScheme.surfaceVariant, shape = CircleShape),
                 contentScale = ContentScale.Crop,
                 error = {
