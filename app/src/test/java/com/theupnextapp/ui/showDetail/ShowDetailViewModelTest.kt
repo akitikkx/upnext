@@ -96,6 +96,7 @@ class ShowDetailViewModelTest {
             mediumImageUrl = null,
             traktId = traktId,
             imdbId = null,
+            tmdbId = null,
             slug = null,
         )
     }

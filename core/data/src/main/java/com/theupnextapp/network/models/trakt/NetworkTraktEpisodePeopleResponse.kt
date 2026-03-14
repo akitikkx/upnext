@@ -24,6 +24,18 @@ data class NetworkTraktEpisodePeopleResponse(
 
 fun NetworkTraktEpisodePeopleResponse.asDomainModel(): EpisodePeople {
     return EpisodePeople(
+        cast = cast?.map {
+            TraktCast(
+                character = it.characters?.firstOrNull(),
+                name = it.person?.name,
+                originalImageUrl = null,
+                mediumImageUrl = null,
+                traktId = it.person?.ids?.trakt,
+                imdbId = it.person?.ids?.imdb,
+                tmdbId = it.person?.ids?.tmdb,
+                slug = it.person?.ids?.slug
+            )
+        },
         guestStars = guest_stars?.map {
             TraktCast(
                 character = it.characters?.firstOrNull(),
@@ -32,16 +44,17 @@ fun NetworkTraktEpisodePeopleResponse.asDomainModel(): EpisodePeople {
                 mediumImageUrl = null,
                 traktId = it.person?.ids?.trakt,
                 imdbId = it.person?.ids?.imdb,
+                tmdbId = it.person?.ids?.tmdb,
                 slug = it.person?.ids?.slug
             )
         },
         crew = crew?.let { crewOpt ->
             val crewList = mutableListOf<TraktCrew>()
             crewOpt.directing?.forEach { member ->
-                crewList.add(TraktCrew(job = member.jobs?.firstOrNull(), name = member.person?.name, originalImageUrl = null, mediumImageUrl = null, traktId = member.person?.ids?.trakt, imdbId = member.person?.ids?.imdb, slug = member.person?.ids?.slug))
+                crewList.add(TraktCrew(job = member.jobs?.firstOrNull(), name = member.person?.name, originalImageUrl = null, mediumImageUrl = null, traktId = member.person?.ids?.trakt, imdbId = member.person?.ids?.imdb, tmdbId = member.person?.ids?.tmdb, slug = member.person?.ids?.slug))
             }
             crewOpt.writing?.forEach { member ->
-                 crewList.add(TraktCrew(job = member.jobs?.firstOrNull(), name = member.person?.name, originalImageUrl = null, mediumImageUrl = null, traktId = member.person?.ids?.trakt, imdbId = member.person?.ids?.imdb, slug = member.person?.ids?.slug))
+                 crewList.add(TraktCrew(job = member.jobs?.firstOrNull(), name = member.person?.name, originalImageUrl = null, mediumImageUrl = null, traktId = member.person?.ids?.trakt, imdbId = member.person?.ids?.imdb, tmdbId = member.person?.ids?.tmdb, slug = member.person?.ids?.slug))
             }
             crewList
         }
