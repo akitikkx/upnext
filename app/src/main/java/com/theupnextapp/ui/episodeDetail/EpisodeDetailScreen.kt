@@ -257,10 +257,17 @@ fun EpisodeDetailScreen(
                             }
 
                             if (uiState.isPeopleLoading) {
+                                PersonPlaceholderRow(title = "Cast")
+                                Spacer(modifier = Modifier.height(16.dp))
                                 PersonPlaceholderRow(title = "Guest Stars")
                                 Spacer(modifier = Modifier.height(16.dp))
                                 PersonPlaceholderRow(title = "Crew")
                             } else {
+                                uiState.episodePeople?.cast?.let { cast ->
+                                    if (cast.isNotEmpty()) {
+                                        CastRow(cast = cast)
+                                    }
+                                }
                                 uiState.episodePeople?.guestStars?.let { guestStars ->
                                     if (guestStars.isNotEmpty()) {
                                         GuestStarsRow(guestStars = guestStars)
@@ -318,6 +325,30 @@ private fun formatRelativeDate(dateString: String): String {
         }
     } catch (e: Exception) {
         "Aired: $dateString"
+    }
+}
+
+@Composable
+fun CastRow(cast: List<TraktCast>) {
+    Column(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
+        Text(
+            text = "Cast",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+        )
+        LazyRow(
+            contentPadding = PaddingValues(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            items(cast) { star ->
+                PersonItem(
+                    name = star.name,
+                    role = star.character,
+                    originalImageUrl = star.originalImageUrl,
+                )
+            }
+        }
     }
 }
 

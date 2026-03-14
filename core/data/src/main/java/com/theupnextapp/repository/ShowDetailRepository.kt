@@ -47,6 +47,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import timber.log.Timber
 
 class ShowDetailRepository(
     upnextDao: UpnextDao,
@@ -400,17 +401,43 @@ class ShowDetailRepository(
                     episode = episodeNumber,
                 ).await().asDomainModel()
 
+                val updatedCast = mutableListOf<com.theupnextapp.domain.TraktCast>()
+                episodePeople.cast?.forEach { star ->
+                    val updatedStar = if (star.tmdbId != null) {
+                        try {
+                            Timber.d("Searching for images for CAST tmdbId: ${star.tmdbId}")
+                            val imagesResponse = tmdbService.getPersonImagesAsync(star.tmdbId!!).await()
+                            Timber.d("Images found. Count: ${imagesResponse.profiles?.size}")
+                            val imagePath = imagesResponse.profiles?.firstOrNull()?.filePath
+                            Timber.d("Calculated image path: $imagePath")
+                            star.copy(originalImageUrl = imagePath)
+                        } catch (e: Exception) {
+                            Timber.e(e, "Error fetching person images for CAST ${star.tmdbId}")
+                            star
+                        }
+                    } else {
+                        Timber.d("No tmdbId available for CAST actor: ${star.name}")
+                        star
+                    }
+                    updatedCast.add(updatedStar)
+                }
+
                 val updatedGuestStars = mutableListOf<com.theupnextapp.domain.TraktCast>()
                 episodePeople.guestStars?.forEach { star ->
                     val updatedStar = if (star.tmdbId != null) {
                         try {
+                            Timber.d("Searching for images for tmdbId: ${star.tmdbId}")
                             val imagesResponse = tmdbService.getPersonImagesAsync(star.tmdbId!!).await()
+                            Timber.d("Images found. Count: ${imagesResponse.profiles?.size}")
                             val imagePath = imagesResponse.profiles?.firstOrNull()?.filePath
+                            Timber.d("Calculated image path: $imagePath")
                             star.copy(originalImageUrl = imagePath)
                         } catch (e: Exception) {
+                            Timber.e(e, "Error fetching person images for ${star.tmdbId}")
                             star
                         }
                     } else {
+                        Timber.d("No tmdbId available for actor: ${star.name}")
                         star
                     }
                     updatedGuestStars.add(updatedStar)
@@ -420,19 +447,24 @@ class ShowDetailRepository(
                 episodePeople.crew?.forEach { member ->
                     val updatedMember = if (member.tmdbId != null) {
                         try {
+                            Timber.d("Searching for images for CREW tmdbId: ${member.tmdbId}")
                             val imagesResponse = tmdbService.getPersonImagesAsync(member.tmdbId!!).await()
+                            Timber.d("Images found. Count: ${imagesResponse.profiles?.size}")
                             val imagePath = imagesResponse.profiles?.firstOrNull()?.filePath
+                            Timber.d("Calculated image path: $imagePath")
                             member.copy(originalImageUrl = imagePath)
                         } catch (e: Exception) {
+                            Timber.e(e, "Error fetching person images for ${member.tmdbId}")
                             member
                         }
                     } else {
+                        Timber.d("No tmdbId available for crew member: ${member.name}")
                         member
                     }
                     updatedCrew.add(updatedMember)
                 }
 
-                val result = com.theupnextapp.domain.EpisodePeople(guestStars = updatedGuestStars, crew = updatedCrew)
+                val result = com.theupnextapp.domain.EpisodePeople(cast = updatedCast, guestStars = updatedGuestStars, crew = updatedCrew)
                 emit(Result.Success(result))
                 emit(Result.Loading(false))
             } catch (e: Exception) {

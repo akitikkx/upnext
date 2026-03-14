@@ -24,6 +24,18 @@ data class NetworkTraktEpisodePeopleResponse(
 
 fun NetworkTraktEpisodePeopleResponse.asDomainModel(): EpisodePeople {
     return EpisodePeople(
+        cast = cast?.map {
+            TraktCast(
+                character = it.characters?.firstOrNull(),
+                name = it.person?.name,
+                originalImageUrl = null,
+                mediumImageUrl = null,
+                traktId = it.person?.ids?.trakt,
+                imdbId = it.person?.ids?.imdb,
+                tmdbId = it.person?.ids?.tmdb,
+                slug = it.person?.ids?.slug
+            )
+        },
         guestStars = guest_stars?.map {
             TraktCast(
                 character = it.characters?.firstOrNull(),

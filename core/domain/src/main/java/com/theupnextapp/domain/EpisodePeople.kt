@@ -13,6 +13,7 @@
 package com.theupnextapp.domain
 
 data class EpisodePeople(
+    val cast: List<TraktCast>?,
     val guestStars: List<TraktCast>?,
     val crew: List<TraktCrew>?
 )
