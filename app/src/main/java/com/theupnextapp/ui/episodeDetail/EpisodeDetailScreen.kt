@@ -94,37 +94,7 @@ fun EpisodeDetailScreen(
                     .padding(bottom = paddingValues.calculateBottomPadding()),
         ) {
             val backdropUrl = episodeDetailArg?.episodeImageUrl ?: episodeDetailArg?.showBackgroundUrl ?: episodeDetailArg?.showImageUrl
-            if (!backdropUrl.isNullOrEmpty()) {
-                AsyncImage(
-                    model =
-                        ImageRequest.Builder(LocalContext.current)
-                            .data(backdropUrl)
-                            .crossfade(true)
-                            .build(),
-                    contentDescription = "Show Backdrop",
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .height(350.dp),
-                    contentScale = ContentScale.Crop,
-                )
-                Box(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .height(350.dp)
-                            .background(
-                                Brush.verticalGradient(
-                                    colors =
-                                        listOf(
-                                            Color.Transparent,
-                                            MaterialTheme.colorScheme.background,
-                                        ),
-                                    startY = 100f,
-                                ),
-                            ),
-                )
-            }
+            EpisodeBackdrop(backdropUrl = backdropUrl)
 
             Box(
                 modifier =
@@ -152,109 +122,11 @@ fun EpisodeDetailScreen(
                         ) {
                             Spacer(modifier = Modifier.height(if (!backdropUrl.isNullOrEmpty()) 140.dp else 16.dp))
 
-                            ElevatedCard(
-                                modifier =
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 16.dp, vertical = 16.dp),
-                                shape = MaterialTheme.shapes.extraLarge,
-                            ) {
-                                Column(
-                                    modifier = Modifier.padding(24.dp),
-                                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                                ) {
-                                    episodeDetailArg?.showTitle?.let { showTitle ->
-                                        Text(
-                                            text = showTitle,
-                                            style = MaterialTheme.typography.titleMedium,
-                                            color = MaterialTheme.colorScheme.primary,
-                                            fontWeight = FontWeight.SemiBold,
-                                        )
-                                    }
-
-                                    Text(
-                                        text = uiState.episodeDetail?.title ?: stringResource(id = R.string.title_unknown),
-                                        style = MaterialTheme.typography.headlineMedium,
-                                        fontWeight = FontWeight.Bold,
-                                    )
-
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                        verticalAlignment = Alignment.CenterVertically,
-                                    ) {
-                                        Text(
-                                            text = "Season ${uiState.episodeDetail?.season} • Episode ${uiState.episodeDetail?.number}",
-                                            style = MaterialTheme.typography.titleMedium,
-                                            color = MaterialTheme.colorScheme.secondary,
-                                        )
-
-                                        if (uiState.episodeDetail?.rating != null && uiState.episodeDetail?.rating!! > 0.0) {
-                                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                                Icon(
-                                                    imageVector = Icons.Default.Star,
-                                                    contentDescription = "Rating",
-                                                    tint = Color(0xFFFFC107),
-                                                    modifier = Modifier.padding(end = 4.dp).height(20.dp),
-                                                )
-                                                val scaledRating = ((uiState.episodeDetail?.rating ?: 0.0) * 10).toInt()
-                                                val votes = uiState.episodeDetail?.votes ?: 0
-                                                val votesString =
-                                                    if (votes > 0) {
-                                                        java.text.NumberFormat.getNumberInstance(
-                                                            Locale.getDefault(),
-                                                        ).format(votes)
-                                                    } else {
-                                                        "0"
-                                                    }
-                                                Text(
-                                                    text = "$scaledRating% ($votesString votes)",
-                                                    style = MaterialTheme.typography.titleMedium,
-                                                    fontWeight = FontWeight.Bold,
-                                                )
-                                            }
-                                        }
-                                    }
-
-                                    uiState.episodeDetail?.firstAired?.let { aired ->
-                                        Text(
-                                            text = formatRelativeDate(aired),
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        )
-                                    }
-
-                                    Spacer(modifier = Modifier.height(8.dp))
-
-                                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                        uiState.episodeDetail?.imdbId?.let { imdb ->
-                                            OutlinedButton(onClick = { uriHandler.openUri("https://www.imdb.com/title/$imdb") }) {
-                                                Text("IMDB")
-                                            }
-                                        }
-                                        uiState.episodeDetail?.tvdbId?.let { tvdb ->
-                                            OutlinedButton(onClick = { uriHandler.openUri("https://thetvdb.com/episodes/$tvdb") }) {
-                                                Text("TVDB")
-                                            }
-                                        }
-                                    }
-
-                                    Spacer(modifier = Modifier.height(16.dp))
-
-                                    Text(
-                                        text = "Overview",
-                                        style = MaterialTheme.typography.titleMedium,
-                                        fontWeight = FontWeight.SemiBold,
-                                    )
-
-                                    Text(
-                                        text = uiState.episodeDetail?.overview ?: stringResource(id = R.string.no_overview_available),
-                                        style = MaterialTheme.typography.bodyLarge,
-                                        lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * 1.5f,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    )
-                                }
-                            }
+                            EpisodeSummaryCard(
+                                episodeDetailArg = episodeDetailArg,
+                                episodeDetail = uiState.episodeDetail,
+                                uriHandler = uriHandler,
+                            )
 
                             if (uiState.isPeopleLoading) {
                                 PersonPlaceholderRow(title = "Cast")
@@ -483,6 +355,7 @@ fun PersonItem(
     }
 }
 
+@Suppress("MagicNumber")
 @Composable
 fun PersonPlaceholderRow(title: String) {
     Column(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
@@ -529,6 +402,153 @@ fun PersonPlaceholderRow(title: String) {
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun EpisodeBackdrop(backdropUrl: String?) {
+    if (!backdropUrl.isNullOrEmpty()) {
+        AsyncImage(
+            model =
+                ImageRequest.Builder(LocalContext.current)
+                    .data(backdropUrl)
+                    .crossfade(true)
+                    .build(),
+            contentDescription = "Show Backdrop",
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(350.dp),
+            contentScale = ContentScale.Crop,
+        )
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(350.dp)
+                    .background(
+                        Brush.verticalGradient(
+                            colors =
+                                listOf(
+                                    Color.Transparent,
+                                    MaterialTheme.colorScheme.background,
+                                ),
+                            startY = 100f,
+                        ),
+                    ),
+        )
+    }
+}
+
+@Suppress("MagicNumber")
+@Composable
+fun EpisodeSummaryCard(
+    episodeDetailArg: EpisodeDetailArg?,
+    episodeDetail: com.theupnextapp.domain.EpisodeDetail?,
+    uriHandler: androidx.compose.ui.platform.UriHandler,
+) {
+    ElevatedCard(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 16.dp),
+        shape = MaterialTheme.shapes.extraLarge,
+    ) {
+        Column(
+            modifier = Modifier.padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            episodeDetailArg?.showTitle?.let { showTitle ->
+                Text(
+                    text = showTitle,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.SemiBold,
+                )
+            }
+
+            Text(
+                text = episodeDetail?.title ?: stringResource(id = R.string.title_unknown),
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = "Season ${episodeDetail?.season} • Episode ${episodeDetail?.number}",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.secondary,
+                )
+
+                if (episodeDetail?.rating != null && episodeDetail.rating!! > 0.0) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Star,
+                            contentDescription = "Rating",
+                            tint = Color(0xFFFFC107),
+                            modifier = Modifier.padding(end = 4.dp).height(20.dp),
+                        )
+                        val scaledRating = ((episodeDetail.rating ?: 0.0) * 10).toInt()
+                        val votes = episodeDetail.votes ?: 0
+                        val votesString =
+                            if (votes > 0) {
+                                java.text.NumberFormat.getNumberInstance(
+                                    Locale.getDefault(),
+                                ).format(votes)
+                            } else {
+                                "0"
+                            }
+                        Text(
+                            text = "$scaledRating% ($votesString votes)",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    }
+                }
+            }
+
+            episodeDetail?.firstAired?.let { aired ->
+                Text(
+                    text = formatRelativeDate(aired),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                episodeDetail?.imdbId?.let { imdb ->
+                    OutlinedButton(onClick = { uriHandler.openUri("https://www.imdb.com/title/$imdb") }) {
+                        Text("IMDB")
+                    }
+                }
+                episodeDetail?.tvdbId?.let { tvdb ->
+                    OutlinedButton(onClick = { uriHandler.openUri("https://thetvdb.com/episodes/$tvdb") }) {
+                        Text("TVDB")
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = "Overview",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+            )
+
+            Text(
+                text = episodeDetail?.overview ?: stringResource(id = R.string.no_overview_available),
+                style = MaterialTheme.typography.bodyLarge,
+                lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * 1.5f,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
     }
 }
