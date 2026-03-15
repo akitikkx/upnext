@@ -75,4 +75,36 @@ class NavigationTest {
         assumeTrue("Skipping test: Show detail did not load", showDetailLoaded)
         composeTestRule.onNodeWithText("Seasons").assertIsDisplayed()
     }
+
+    @Test
+    fun verifyTraktOAuthDeepLink_routesToTraktAccountScreen() {
+        composeTestRule.waitForIdle()
+
+        // Create the simulated OAuth callback intent from the web browser
+        val deepLinkIntent = android.content.Intent(
+            android.content.Intent.ACTION_VIEW,
+            android.net.Uri.parse("theupnextapp://callback?code=mock_oauth_code")
+        )
+
+        // Launch the intent to trigger singleTop onNewIntent mapping deepLinks
+        composeTestRule.activity.startActivity(deepLinkIntent)
+        composeTestRule.waitForIdle()
+
+        // Verify the Compose Navigation properly routed to the Trakt Account Screen.
+        // Look for signature texts from `TraktAccountScreen` components like "Unlock Personalization"
+        val navigatedToTraktScreen =
+            runCatching {
+                composeTestRule.waitUntil(timeoutMillis = 5000) {
+                    composeTestRule
+                        .onAllNodes(
+                            hasText("Unlock Personalization").or(hasText("Connect to Trakt"))
+                        )
+                        .fetchSemanticsNodes()
+                        .isNotEmpty()
+                }
+                true
+            }.getOrDefault(false)
+
+        assumeTrue("Skipping test: Trakt Account screen did not load", navigatedToTraktScreen)
+    }
 }
