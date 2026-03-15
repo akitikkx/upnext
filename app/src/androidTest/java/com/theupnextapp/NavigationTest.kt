@@ -81,10 +81,11 @@ class NavigationTest {
         composeTestRule.waitForIdle()
 
         // Create the simulated OAuth callback intent from the web browser
-        val deepLinkIntent = android.content.Intent(
-            android.content.Intent.ACTION_VIEW,
-            android.net.Uri.parse("theupnextapp://callback?code=mock_oauth_code")
-        )
+        val deepLinkIntent =
+            android.content.Intent(
+                android.content.Intent.ACTION_VIEW,
+                android.net.Uri.parse("theupnextapp://callback?code=mock_oauth_code"),
+            )
 
         // Launch the intent to trigger singleTop onNewIntent mapping deepLinks
         composeTestRule.activity.startActivity(deepLinkIntent)
@@ -97,7 +98,7 @@ class NavigationTest {
                 composeTestRule.waitUntil(timeoutMillis = 5000) {
                     composeTestRule
                         .onAllNodes(
-                            hasText("Unlock Personalization").or(hasText("Connect to Trakt"))
+                            hasText("Unlock Personalization").or(hasText("Connect to Trakt")),
                         )
                         .fetchSemanticsNodes()
                         .isNotEmpty()
