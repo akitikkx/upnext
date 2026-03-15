@@ -189,7 +189,12 @@ fun AppNavigation(
                     SettingsScreen()
                 }
 
-                composable<Destinations.TraktAccount> { backStackEntry ->
+                composable<Destinations.TraktAccount>(
+                    deepLinks =
+                        listOf(
+                            navDeepLink<Destinations.TraktAccount>(basePath = "theupnextapp://callback"),
+                        ),
+                ) { backStackEntry ->
                     val args = backStackEntry.toRoute<Destinations.TraktAccount>()
                     TraktAccountScreen(
                         code = args.code,
