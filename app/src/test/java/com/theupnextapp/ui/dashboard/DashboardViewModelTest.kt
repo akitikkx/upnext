@@ -103,14 +103,15 @@ class DashboardViewModelTest {
     @Test
     fun `when marking episode as watched with auth, triggers sync worker`() =
         runTest {
-            val token = com.theupnextapp.domain.TraktAccessToken(
-                access_token = "mock_token",
-                created_at = 1234567890L,
-                expires_in = 3600L,
-                refresh_token = "mock_refresh",
-                scope = "public",
-                token_type = "bearer"
-            )
+            val token =
+                com.theupnextapp.domain.TraktAccessToken(
+                    access_token = "mock_token",
+                    created_at = 1234567890L,
+                    expires_in = 3600L,
+                    refresh_token = "mock_refresh",
+                    scope = "public",
+                    token_type = "bearer",
+                )
             `when`(traktRepository.traktAccessToken).thenReturn(flowOf(token))
 
             val testViewModel =
@@ -141,14 +142,15 @@ class DashboardViewModelTest {
     @Test
     fun `when receiving new isSyncing state completion, requests fresh history`() =
         runTest {
-            val token = com.theupnextapp.domain.TraktAccessToken(
-                access_token = "mock_token",
-                created_at = 1234567890L,
-                expires_in = 3600L,
-                refresh_token = "mock_refresh",
-                scope = "public",
-                token_type = "bearer"
-            )
+            val token =
+                com.theupnextapp.domain.TraktAccessToken(
+                    access_token = "mock_token",
+                    created_at = 1234567890L,
+                    expires_in = 3600L,
+                    refresh_token = "mock_refresh",
+                    scope = "public",
+                    token_type = "bearer",
+                )
             `when`(traktRepository.traktAccessToken).thenReturn(flowOf(token))
 
             val syncStateFlow = MutableStateFlow(false)
