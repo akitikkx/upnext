@@ -182,7 +182,7 @@ fun `repository state triggers side-effects`() = runTest {
 Don't launch real HTTP calls or real `WorkManager` workers in Unit Tests. Rather:
 
 1. Inject an interface or fully mock the `WorkManager` object.
-2. Validate the `OneTimeWorkRequestBuilder` execution parameters using `.enqueue(any())`.
+2. Validate the `OneTimeWorkRequestBuilder` execution parameters explicitly. Because `WorkManager.enqueue()` is overloaded (it accepts single requests OR lists), standard `Mockito.any()` will cause a Kotlin compilation error `Overload resolution ambiguity`. You **must** use `mockito-kotlin`'s reified type parameters: `verify(workManager).enqueue(org.mockito.kotlin.any<androidx.work.WorkRequest>())`.
 3. If an API returns `Result.Success`, make sure to wrap your mock inside `flowOf(Result.Success())`.
 
 ---
