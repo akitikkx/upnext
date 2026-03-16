@@ -109,7 +109,7 @@ class DashboardViewModel
                 var wasSyncing = false
                 watchProgressRepository.isSyncing.collect { isSyncing ->
                     if (wasSyncing && !isSyncing) {
-                        traktAccessToken.value?.access_token?.let { token ->
+                        traktRepository.traktAccessToken.firstOrNull()?.access_token?.let { token ->
                             fetchRecentHistory(token)
                         }
                     }

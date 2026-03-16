@@ -21,6 +21,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
@@ -109,6 +110,8 @@ class ShowSeasonsViewModelTest {
                 showTraktId = 123,
                 seasonNumber = 1,
             )
+
+            verify(workManager).enqueue(any<androidx.work.WorkRequest>())
         }
 
     @Test
@@ -174,5 +177,7 @@ class ShowSeasonsViewModelTest {
                 seasonNumber = 1,
                 episodes = episodes,
             )
+
+            verify(workManager).enqueue(any<androidx.work.WorkRequest>())
         }
 }

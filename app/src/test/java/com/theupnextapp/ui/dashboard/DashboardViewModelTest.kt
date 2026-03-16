@@ -29,7 +29,9 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
+import org.mockito.kotlin.any
 
 @ExperimentalCoroutinesApi
 class DashboardViewModelTest {
@@ -96,5 +98,77 @@ class DashboardViewModelTest {
             assertNull("Access token should be null", accessTokenValue)
             assertTrue("Airing soon shows should be empty when unauthorized", airingSoonValue.isNullOrEmpty())
             assertTrue("Recent history should be empty when unauthorized", recentHistoryValue.isNullOrEmpty())
+        }
+
+    @Test
+    fun `when marking episode as watched with auth, triggers sync worker`() =
+        runTest {
+            val token = com.theupnextapp.domain.TraktAccessToken(
+                access_token = "mock_token",
+                created_at = 1234567890L,
+                expires_in = 3600L,
+                refresh_token = "mock_refresh",
+                scope = "public",
+                token_type = "bearer"
+            )
+            `when`(traktRepository.traktAccessToken).thenReturn(flowOf(token))
+
+            val testViewModel =
+                DashboardViewModel(
+                    traktRepository = traktRepository,
+                    dashboardRepository = dashboardRepository,
+                    watchProgressRepository = watchProgressRepository,
+                    localWorkManager = localWorkManager,
+                )
+
+            // Use a specific non-null invocation since workManager.enqueue expects a non-null WorkRequest
+            // Because WorkManager enqueue returns an Operation, we must mock it so it doesn't crash on execution via lazy eval
+            val mockOperation = mock(androidx.work.Operation::class.java)
+            `when`(localWorkManager.enqueue(any<androidx.work.WorkRequest>())).thenReturn(mockOperation)
+
+            testViewModel.onMarkEpisodeWatched(
+                showTvMazeId = 1,
+                imdbId = "tt123",
+                showTraktId = 123,
+                season = 1,
+                number = 1,
+            )
+
+            // Verify work manager was told to enqueue the sync
+            verify(localWorkManager).enqueue(any<androidx.work.WorkRequest>())
+        }
+
+    @Test
+    fun `when receiving new isSyncing state completion, requests fresh history`() =
+        runTest {
+            val token = com.theupnextapp.domain.TraktAccessToken(
+                access_token = "mock_token",
+                created_at = 1234567890L,
+                expires_in = 3600L,
+                refresh_token = "mock_refresh",
+                scope = "public",
+                token_type = "bearer"
+            )
+            `when`(traktRepository.traktAccessToken).thenReturn(flowOf(token))
+
+            val syncStateFlow = MutableStateFlow(false)
+            `when`(watchProgressRepository.isSyncing).thenReturn(syncStateFlow)
+
+            val testViewModel =
+                DashboardViewModel(
+                    traktRepository = traktRepository,
+                    dashboardRepository = dashboardRepository,
+                    watchProgressRepository = watchProgressRepository,
+                    localWorkManager = localWorkManager,
+                )
+
+            // Trigger sync start
+            syncStateFlow.value = true
+
+            // Trigger sync complete
+            syncStateFlow.value = false
+
+            // Verify it asked trakt for history refresh using the token
+            verify(traktRepository).getTraktRecentHistory("mock_token")
         }
 }
