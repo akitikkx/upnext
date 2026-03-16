@@ -18,6 +18,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
@@ -120,6 +121,8 @@ class ShowSeasonEpisodesViewModelTest {
                 seasonNumber = seasonNum,
                 episodeNumber = episodeNum,
             )
+
+            verify(workManager).enqueue(any<androidx.work.WorkRequest>())
         }
 
     @Test
@@ -199,6 +202,8 @@ class ShowSeasonEpisodesViewModelTest {
                 seasonNumber = seasonNum,
                 episodeNumber = episodeNum,
             )
+
+            verify(workManager).enqueue(any<androidx.work.WorkRequest>())
         }
 
     @Test

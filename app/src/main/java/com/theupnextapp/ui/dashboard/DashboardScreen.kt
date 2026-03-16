@@ -406,7 +406,19 @@ fun DashboardScreen(
                                         )
                                     navController.navigate(direction)
                                 },
-                                onMarkAsWatchedClick = { /* Mark episode watched logic */ },
+                                onMarkAsWatchedClick = {
+                                    if (traktAccessToken != null) {
+                                        viewModel.onMarkEpisodeWatched(
+                                            showTvMazeId = tvmazeId,
+                                            imdbId = imdbId,
+                                            showTraktId = traktId,
+                                            season = season ?: 0,
+                                            number = number ?: 0,
+                                        )
+                                    } else {
+                                        // User needs to be connected to Trakt to mark as watched.
+                                    }
+                                },
                             )
                         }
                     }

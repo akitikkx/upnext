@@ -2,11 +2,15 @@ package com.theupnextapp.ui.dashboard
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.Data
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.theupnextapp.domain.TraktAccessToken
 import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponse
 import com.theupnextapp.repository.DashboardRepository
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.WatchProgressRepository
+import com.theupnextapp.work.SyncWatchProgressWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -14,6 +18,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -33,6 +38,7 @@ class DashboardViewModel
         private val traktRepository: TraktRepository,
         private val dashboardRepository: DashboardRepository,
         private val watchProgressRepository: WatchProgressRepository,
+        private val localWorkManager: WorkManager,
     ) : ViewModel() {
         val traktAccessToken: StateFlow<TraktAccessToken?> =
             traktRepository.traktAccessToken
@@ -97,6 +103,18 @@ class DashboardViewModel
                     countryCode = "US",
                     date = null,
                 )
+            }
+
+            viewModelScope.launch {
+                var wasSyncing = false
+                watchProgressRepository.isSyncing.collect { isSyncing ->
+                    if (wasSyncing && !isSyncing) {
+                        traktRepository.traktAccessToken.firstOrNull()?.access_token?.let { token ->
+                            fetchRecentHistory(token)
+                        }
+                    }
+                    wasSyncing = isSyncing
+                }
             }
         }
 
@@ -246,6 +264,42 @@ class DashboardViewModel
                     _recentHistory.value = null
                 } finally {
                     _isLoadingHistory.value = false
+                }
+            }
+        }
+
+        fun onMarkEpisodeWatched(
+            showTvMazeId: Int?,
+            imdbId: String?,
+            showTraktId: Int?,
+            season: Int,
+            number: Int,
+        ) {
+            val validTraktId = showTraktId ?: return
+            viewModelScope.launch {
+                watchProgressRepository.markEpisodeWatched(
+                    showTraktId = validTraktId,
+                    showTvMazeId = showTvMazeId,
+                    showImdbId = imdbId,
+                    seasonNumber = season,
+                    episodeNumber = number,
+                )
+                triggerSyncIfAuthenticated()
+            }
+        }
+
+        private fun triggerSyncIfAuthenticated() {
+            viewModelScope.launch {
+                traktRepository.traktAccessToken.firstOrNull()?.access_token?.let { token ->
+                    val syncWork =
+                        OneTimeWorkRequestBuilder<SyncWatchProgressWorker>()
+                            .setInputData(
+                                Data
+                                    .Builder()
+                                    .putString(SyncWatchProgressWorker.ARG_TOKEN, token)
+                                    .build(),
+                            ).build()
+                    localWorkManager.enqueue(syncWork)
                 }
             }
         }

@@ -39,6 +39,7 @@ import com.theupnextapp.ui.common.BaseTraktViewModel
 import com.theupnextapp.work.SyncWatchProgressWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -51,7 +52,7 @@ class ShowSeasonsViewModel
         private val showDetailRepository: ShowDetailRepository,
         private val watchProgressRepository: WatchProgressRepository,
         private val localWorkManager: WorkManager,
-        traktRepository: TraktRepository,
+        private val traktRepository: TraktRepository,
         val traktAuthManager: TraktAuthManager,
     ) : BaseTraktViewModel(
             traktRepository,
@@ -132,16 +133,15 @@ class ShowSeasonsViewModel
                             seasonNumber = seasonNum,
                         )
 
-                    episodesResult.collect { result ->
-                        if (result is Result.Success) {
-                            watchProgressRepository.markSeasonWatched(
-                                showTraktId = showTraktId,
-                                showTvMazeId = currentShowTvMazeId,
-                                showImdbId = currentShowImdbId,
-                                seasonNumber = seasonNum,
-                                episodes = result.data,
-                            )
-                        }
+                    val result = episodesResult.firstOrNull { it !is Result.Loading }
+                    if (result is Result.Success) {
+                        watchProgressRepository.markSeasonWatched(
+                            showTraktId = showTraktId,
+                            showTvMazeId = currentShowTvMazeId,
+                            showImdbId = currentShowImdbId,
+                            seasonNumber = seasonNum,
+                            episodes = result.data,
+                        )
                     }
                 }
                 triggerSyncIfAuthenticated()
@@ -149,16 +149,18 @@ class ShowSeasonsViewModel
         }
 
         private fun triggerSyncIfAuthenticated() {
-            traktAccessToken.value?.access_token?.let { token ->
-                val syncWork =
-                    OneTimeWorkRequestBuilder<SyncWatchProgressWorker>()
-                        .setInputData(
-                            Data
-                                .Builder()
-                                .putString(SyncWatchProgressWorker.ARG_TOKEN, token)
-                                .build(),
-                        ).build()
-                localWorkManager.enqueue(syncWork)
+            viewModelScope.launch {
+                traktRepository.traktAccessToken.firstOrNull()?.access_token?.let { token ->
+                    val syncWork =
+                        OneTimeWorkRequestBuilder<SyncWatchProgressWorker>()
+                            .setInputData(
+                                Data
+                                    .Builder()
+                                    .putString(SyncWatchProgressWorker.ARG_TOKEN, token)
+                                    .build(),
+                            ).build()
+                    localWorkManager.enqueue(syncWork)
+                }
             }
         }
 

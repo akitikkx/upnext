@@ -22,13 +22,12 @@
 package com.theupnextapp.network.models.trakt
 
 import androidx.annotation.Keep
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
+import com.google.gson.annotations.SerializedName
 
 data class NetworkTraktSyncHistoryResponse(
     val added: NetworkTraktSyncHistoryResponseAdded?,
     val deleted: NetworkTraktSyncHistoryResponseDeleted?,
-    @Json(name = "not_found")
+    @SerializedName("not_found")
     val notFound: NetworkTraktSyncHistoryResponseNotFound?,
 )
 
@@ -45,21 +44,19 @@ data class NetworkTraktSyncHistoryResponseNotFound(
 )
 
 @Keep
-@JsonClass(generateAdapter = true)
 data class NetworkTraktWatchedShowsResponse(
     val plays: Int?,
-    @Json(name = "last_watched_at")
+    @SerializedName("last_watched_at")
     val lastWatchedAt: String?,
-    @Json(name = "last_updated_at")
+    @SerializedName("last_updated_at")
     val lastUpdatedAt: String?,
-    @Json(name = "reset_at")
+    @SerializedName("reset_at")
     val resetAt: String?,
     val show: NetworkTraktWatchedShowInfo?,
     val seasons: List<NetworkTraktWatchedSeason>?,
 )
 
 @Keep
-@JsonClass(generateAdapter = true)
 data class NetworkTraktWatchedShowInfo(
     val title: String?,
     val year: Int?,
@@ -67,7 +64,6 @@ data class NetworkTraktWatchedShowInfo(
 )
 
 @Keep
-@JsonClass(generateAdapter = true)
 data class NetworkTraktWatchedShowIds(
     val trakt: Int?,
     val slug: String?,
@@ -77,19 +73,17 @@ data class NetworkTraktWatchedShowIds(
 )
 
 @Keep
-@JsonClass(generateAdapter = true)
 data class NetworkTraktWatchedSeason(
     val number: Int?,
     val episodes: List<NetworkTraktWatchedEpisode>?,
 )
 
 @Keep
-@JsonClass(generateAdapter = true)
 data class NetworkTraktWatchedEpisode(
     val season: Int?,
     val number: Int?,
     val title: String?,
     val plays: Int?,
-    @Json(name = "last_watched_at")
+    @SerializedName("last_watched_at")
     val lastWatchedAt: String?,
 )

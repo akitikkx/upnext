@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Pre-push hook
+# Prevents pushing directly to the 'main' branch or any protected branches.
+
+protected_branch='main'
+
+# Get the name of the current branch
+current_branch=$(git symbolic-ref HEAD | sed -e 's,.*/\(.*\),\1,')
+
+if [ "$current_branch" = "$protected_branch" ]; then
+    echo "==========================================================="
+    echo "🚨 ERROR: You are attempting to push directly to '$protected_branch'!"
+    echo "==========================================================="
+    echo "Direct pushes to '$protected_branch' are restricted."
+    echo "Please create a feature branch and submit a Pull Request."
+    echo ""
+    echo "To switch to a new branch and keep your unseen changes, run:"
+    echo "  git checkout -b <your-new-branch-name>"
+    echo "==========================================================="
+    exit 1 # Block the push
+fi
+
+exit 0 # Allow the push

@@ -21,7 +21,7 @@
 
 package com.theupnextapp.network.models.trakt
 
-import com.squareup.moshi.Json
+import com.google.gson.annotations.SerializedName
 
 data class NetworkTraktSyncHistoryRequest(
     val shows: List<NetworkTraktSyncHistoryShow>,
@@ -44,6 +44,6 @@ data class NetworkTraktSyncHistorySeason(
 
 data class NetworkTraktSyncHistoryEpisode(
     val number: Int,
-    @Json(name = "watched_at")
+    @SerializedName("watched_at")
     val watchedAt: String? = null,
 )

@@ -23,6 +23,7 @@ This skill outlines the strict workflow and quality standards that must be follo
 - Adhere to the established app architecture (Clean Architecture, MVVM, Unidirectional Data Flow).
 - Avoid hacks, technical debt, or shortcuts. Code must be production-ready and scalable.
 - Ensure proper separation of concerns (UI, Domain, Data layers).
+- **Background Dispatch Safety**: Never rely on `StateFlow.value` reads inside view models for triggering background tasks (e.g. `WorkManager`) if the `StateFlow` is lazy (using `SharingStarted.WhileSubscribed`). If the UI is not actively collecting it, the value will be silently null/empty. Always use `.firstOrNull()` or `.first()` to force a suspendable evaluation when bypassing the UI.
 
 ## 🧪 4. Testing & Regressions
 - **No regressions**: Ensure that new changes do not break existing Unit or Instrumented tests.

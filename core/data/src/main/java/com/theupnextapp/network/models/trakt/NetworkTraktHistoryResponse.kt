@@ -1,10 +1,10 @@
 package com.theupnextapp.network.models.trakt
 
-import com.squareup.moshi.Json
+import com.google.gson.annotations.SerializedName
 
 data class NetworkTraktHistoryResponse(
     val id: Long?,
-    @Json(name = "watched_at")
+    @SerializedName("watched_at")
     val watchedAt: String?,
     val action: String?,
     val type: String?,
