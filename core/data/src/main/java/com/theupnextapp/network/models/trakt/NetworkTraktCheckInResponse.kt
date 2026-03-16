@@ -21,7 +21,7 @@
 
 package com.theupnextapp.network.models.trakt
 
-import com.squareup.moshi.Json
+import com.google.gson.annotations.SerializedName
 import com.theupnextapp.common.utils.DateUtils
 import com.theupnextapp.domain.TraktCheckInStatus
 
@@ -92,7 +92,7 @@ fun NetworkTraktCheckInResponse.asDomainModel(): TraktCheckInStatus {
  * when a check-in is already in progress.
  */
 data class TraktConflictErrorResponse(
-    @Json(name = "expires_at") val expiresAt: String?,
-    @Json(name = "show") val show: NetworkTraktCheckInResponseShow?,
-    @Json(name = "episode") val episode: NetworkTraktCheckInResponseEpisode?,
+    @SerializedName("expires_at") val expiresAt: String?,
+    @SerializedName("show") val show: NetworkTraktCheckInResponseShow?,
+    @SerializedName("episode") val episode: NetworkTraktCheckInResponseEpisode?,
 )

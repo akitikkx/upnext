@@ -13,11 +13,13 @@
 package com.theupnextapp.ui.dashboard
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.work.WorkManager
 import com.theupnextapp.CoroutineTestRule
 import com.theupnextapp.repository.DashboardRepository
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.WatchProgressRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertNotNull
@@ -40,6 +42,7 @@ class DashboardViewModelTest {
     private lateinit var traktRepository: TraktRepository
     private lateinit var dashboardRepository: DashboardRepository
     private lateinit var watchProgressRepository: WatchProgressRepository
+    private lateinit var localWorkManager: WorkManager
 
     private lateinit var viewModel: DashboardViewModel
 
@@ -48,16 +51,19 @@ class DashboardViewModelTest {
         traktRepository = mock(TraktRepository::class.java)
         dashboardRepository = mock(DashboardRepository::class.java)
         watchProgressRepository = mock(WatchProgressRepository::class.java)
+        localWorkManager = mock(WorkManager::class.java)
 
         `when`(traktRepository.traktAccessToken).thenReturn(flowOf(null))
         `when`(traktRepository.traktMostAnticipatedShows).thenReturn(flowOf(emptyList()))
         `when`(dashboardRepository.todayShows).thenReturn(flowOf(emptyList()))
+        `when`(watchProgressRepository.isSyncing).thenReturn(MutableStateFlow(false))
 
         viewModel =
             DashboardViewModel(
                 traktRepository = traktRepository,
                 dashboardRepository = dashboardRepository,
                 watchProgressRepository = watchProgressRepository,
+                localWorkManager = localWorkManager,
             )
     }
 
@@ -78,6 +84,7 @@ class DashboardViewModelTest {
                     traktRepository = traktRepository,
                     dashboardRepository = dashboardRepository,
                     watchProgressRepository = watchProgressRepository,
+                    localWorkManager = localWorkManager,
                 )
 
             // Give flows time to emit initial states

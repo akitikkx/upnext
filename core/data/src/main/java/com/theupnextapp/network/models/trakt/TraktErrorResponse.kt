@@ -12,13 +12,11 @@
 
 package com.theupnextapp.network.models.trakt
 
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
+import com.google.gson.annotations.SerializedName
 
-@JsonClass(generateAdapter = true)
 data class TraktErrorResponse(
-    @Json(name = "error")
+    @SerializedName("error")
     val error: String?,
-    @Json(name = "error_description")
+    @SerializedName("error_description")
     val errorDescription: String?,
 )
