@@ -39,6 +39,7 @@ import com.theupnextapp.ui.common.BaseTraktViewModel
 import com.theupnextapp.work.SyncWatchProgressWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -132,16 +133,15 @@ class ShowSeasonsViewModel
                             seasonNumber = seasonNum,
                         )
 
-                    episodesResult.collect { result ->
-                        if (result is Result.Success) {
-                            watchProgressRepository.markSeasonWatched(
-                                showTraktId = showTraktId,
-                                showTvMazeId = currentShowTvMazeId,
-                                showImdbId = currentShowImdbId,
-                                seasonNumber = seasonNum,
-                                episodes = result.data,
-                            )
-                        }
+                    val result = episodesResult.firstOrNull { it !is Result.Loading }
+                    if (result is Result.Success) {
+                        watchProgressRepository.markSeasonWatched(
+                            showTraktId = showTraktId,
+                            showTvMazeId = currentShowTvMazeId,
+                            showImdbId = currentShowImdbId,
+                            seasonNumber = seasonNum,
+                            episodes = result.data,
+                        )
                     }
                 }
                 triggerSyncIfAuthenticated()
