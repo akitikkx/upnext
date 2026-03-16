@@ -44,7 +44,7 @@ class ShowSeasonEpisodesViewModelTest {
     @Before
     fun setup() {
         // Default to not authorized/valid unless specified in test
-        whenever(traktRepository.traktAccessToken).thenReturn(flowOf(null))
+        whenever(traktRepository.traktAccessToken).thenReturn(MutableStateFlow(null))
         whenever(traktRepository.favoriteShow).thenReturn(MutableStateFlow(null))
         whenever(traktAuthManager.traktAuthState).thenReturn(MutableStateFlow(TraktAuthState.LoggedIn))
     }
@@ -62,7 +62,7 @@ class ShowSeasonEpisodesViewModelTest {
                     scope = "public",
                     created_at = 3000000000L, // Year 2065
                 )
-            whenever(traktRepository.traktAccessToken).thenReturn(flowOf(accessToken))
+            whenever(traktRepository.traktAccessToken).thenReturn(MutableStateFlow(accessToken))
 
             createViewModel()
 
@@ -138,7 +138,7 @@ class ShowSeasonEpisodesViewModelTest {
                     scope = "public",
                     created_at = 3000000000L, // Year 2065
                 )
-            whenever(traktRepository.traktAccessToken).thenReturn(flowOf(accessToken))
+            whenever(traktRepository.traktAccessToken).thenReturn(MutableStateFlow(accessToken))
 
             viewModel =
                 ShowSeasonEpisodesViewModel(
@@ -210,7 +210,7 @@ class ShowSeasonEpisodesViewModelTest {
     fun `onToggleWatched does NOT call repository if token is invalid`() =
         runTest {
             // Given
-            whenever(traktRepository.traktAccessToken).thenReturn(flowOf(null))
+            whenever(traktRepository.traktAccessToken).thenReturn(MutableStateFlow(null))
             createViewModel()
 
             val episode =

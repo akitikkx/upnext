@@ -50,6 +50,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -74,10 +75,14 @@ class TraktRepositoryImpl(
         private const val FLOW_STOP_TIMEOUT_MS = 5000L
     }
 
-    override val traktAccessToken: Flow<TraktAccessToken?> =
+    override val traktAccessToken: StateFlow<TraktAccessToken?> =
         traktDao.getTraktAccessData().map {
             it?.asDomainModel()
-        }
+        }.stateIn(
+            scope = repositoryScope,
+            started = SharingStarted.WhileSubscribed(FLOW_STOP_TIMEOUT_MS),
+            initialValue = null,
+        )
 
     private val _isLoadingTraktTrending = MutableStateFlow(false)
     override val isLoadingTraktTrending: StateFlow<Boolean> = _isLoadingTraktTrending.asStateFlow()
@@ -256,13 +261,29 @@ class TraktRepositoryImpl(
     }
 
     override suspend fun checkInToShow(
-        showSeasonEpisode: ShowSeasonEpisode,
-        token: String?,
+        showTraktId: Int,
+        seasonNumber: Int,
+        episodeNumber: Int,
     ) {
-        _isLoading.value = true
-        val status = traktAccountDataSource.checkInToShow(showSeasonEpisode, token)
+        val token = getTraktAccessTokenSync()?.access_token
+        val status = traktAccountDataSource.checkInToShow(
+            showTraktId = showTraktId,
+            seasonNumber = seasonNumber,
+            episodeNumber = episodeNumber,
+            token = token
+        )
         _traktCheckInEvent.emit(status)
-        _isLoading.value = false
+    }
+
+    override suspend fun cancelCheckIn() {
+        val token = getTraktAccessTokenSync()?.access_token
+        val result = traktAccountDataSource.cancelCheckIn(token)
+        if (result.isSuccess) {
+            // Emit an empty/null-like status to clear the check-in data from the UI
+            _traktCheckInEvent.emit(com.theupnextapp.domain.TraktCheckInStatus(message = "Check-in cancelled"))
+        } else {
+            _traktCheckInEvent.emit(com.theupnextapp.domain.TraktCheckInStatus(message = result.exceptionOrNull()?.message ?: "Failed to cancel check-in"))
+        }
     }
 
     override fun isAuthorizedOnTrakt(): StateFlow<Boolean> {
@@ -337,6 +358,10 @@ class TraktRepositoryImpl(
 
     override suspend fun getTraktPersonIdSearch(name: String): Result<Int?> {
         return traktRecommendationsDataSource.getTraktPersonIdFromSearch(name)
+    }
+
+    override suspend fun getTraktAccessTokenSync(): TraktAccessToken? = withContext(Dispatchers.IO) {
+        getTraktAccessTokenRaw()?.asDomainModel()
     }
 
     override suspend fun getTraktMySchedule(token: String, startDate: String, days: Int): Result<NetworkTraktMyScheduleResponse> {

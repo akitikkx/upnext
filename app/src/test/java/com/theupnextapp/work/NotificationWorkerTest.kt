@@ -15,7 +15,6 @@ import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
@@ -48,7 +47,7 @@ class NotificationWorkerTest {
     @Test
     fun testNotificationWorker_returnsSuccess_whenNotificationsEnabled() {
         runBlocking {
-            whenever(mockSettingsRepository.areNotificationsEnabled).doReturn(flowOf(true))
+            whenever(mockSettingsRepository.areNotificationsEnabled).thenReturn(flowOf(true))
             val accessToken =
                 com.theupnextapp.domain.TraktAccessToken(
                     access_token = "token",
@@ -58,7 +57,7 @@ class NotificationWorkerTest {
                     scope = "public",
                     created_at = 1234567890L,
                 )
-            whenever(mockTraktRepository.traktAccessToken).thenReturn(flowOf(accessToken))
+            whenever(mockTraktRepository.getTraktAccessTokenSync()).thenReturn(accessToken)
             whenever(
                 mockTraktRepository.getTraktMySchedule(
                     org.mockito.kotlin.any(),
@@ -96,7 +95,7 @@ class NotificationWorkerTest {
     @Test
     fun testNotificationWorker_returnsSuccess_whenNotificationsDisabled() {
         runBlocking {
-            whenever(mockSettingsRepository.areNotificationsEnabled).doReturn(flowOf(false))
+            whenever(mockSettingsRepository.areNotificationsEnabled).thenReturn(flowOf(false))
 
             val worker =
                 TestListenableWorkerBuilder<NotificationWorker>(context)

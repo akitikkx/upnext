@@ -51,6 +51,13 @@ class SearchViewModelTest {
     @Before
     fun setup() {
         whenever(searchRepository.getRecentSearches()).thenReturn(flowOf(emptyList()))
+
+        // Mock suspending functions by returning unit synchronously where possible
+        // or using runBlockingTest internally if strictly required by mockito.
+        // However, since we're using mockito-kotlin's `whenever` for suspend functions,
+        // it's generally better to wrap the test execution instead of the setup block.
+        // We'll leave the suspend mocks to the actual test blocks or use a runTest wrapper here if necessary,
+        // but for now, we'll try basic synchronous mocks if they don't suspend, or wrap them.
         viewModel = SearchViewModel(application, searchRepository)
     }
 
@@ -58,6 +65,7 @@ class SearchViewModelTest {
     fun `onQuerySaved calls repository saveSearchQuery`() =
         runTest {
             val query = "Test Query"
+            whenever(searchRepository.saveSearchQuery(org.mockito.kotlin.any())).thenReturn(Unit)
             viewModel.onQuerySaved(query)
             verify(searchRepository).saveSearchQuery(query)
         }
@@ -65,6 +73,7 @@ class SearchViewModelTest {
     @Test
     fun `onClearRecentSearches calls repository clearRecentSearches`() =
         runTest {
+            whenever(searchRepository.clearRecentSearches()).thenReturn(Unit)
             viewModel.onClearRecentSearches()
             verify(searchRepository).clearRecentSearches()
         }

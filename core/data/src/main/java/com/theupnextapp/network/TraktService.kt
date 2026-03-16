@@ -161,6 +161,11 @@ interface TraktService {
         @Body networkTraktCheckInRequest: NetworkTraktCheckInRequest,
     ): Deferred<NetworkTraktCheckInResponse>
 
+    @retrofit2.http.DELETE("checkin")
+    fun cancelCheckInAsync(
+        @Header("Authorization") token: String,
+    ): Deferred<retrofit2.Response<Unit>>
+
     @POST("sync/history")
     fun addToHistoryAsync(
         @Header("Authorization") token: String,

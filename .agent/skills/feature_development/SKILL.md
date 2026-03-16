@@ -24,9 +24,11 @@ This skill outlines the strict workflow and quality standards that must be follo
 - Avoid hacks, technical debt, or shortcuts. Code must be production-ready and scalable.
 - Ensure proper separation of concerns (UI, Domain, Data layers).
 - **Background Dispatch Safety**: Never rely on `StateFlow.value` reads inside view models for triggering background tasks (e.g. `WorkManager`) if the `StateFlow` is lazy (using `SharingStarted.WhileSubscribed`). If the UI is not actively collecting it, the value will be silently null/empty. Always use `.firstOrNull()` or `.first()` to force a suspendable evaluation when bypassing the UI.
+- **Database Thread Safety**: All Room database access MUST be executed off the main thread. When exposing synchronous `Dao` queries (`@Query` without `suspend`) to the repository layer, you must wrap the execution inside `kotlinx.coroutines.withContext(Dispatchers.IO)` to prevent `IllegalStateException` crashes from locking the UI thread.
 
 ## 🧪 4. Testing & Regressions
 - **No regressions**: Ensure that new changes do not break existing Unit or Instrumented tests.
+- **Improved Test Coverage**: All new features MUST be covered with improved test coverage. Existing tests MUST be updated if their underlying dependencies, mocks, or architectural constraints change.
 - **High Test Coverage**: Add comprehensive tests for all new code.
   - Write Unit Tests (JUnit, Mockito, Turbine) for ViewModels, Repositories, and Domain logic.
   - Write/Update Instrumented Tests for UI components and Navigation flows where applicable.
