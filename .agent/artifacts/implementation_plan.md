@@ -1,24 +1,32 @@
-# CI/CD Github Actions Optimization
+# Feature Release: Trakt Check-In & Push Notification Revival
 
-The current `pull_request.yml` spins up 7 disparate GitHub Action virtual environments (Runners) to execute Gradle tasks in parallel (`test`, `build`, `ktlint`, `lint`, `detekt`, `build-release`, `ui-tests`). 
+## Goal Description
+1. **Trakt Check-In Implementation:** Trakt requires apps tracking episode progress to support their check-in API. Currently, the `TraktAccountDataSource.checkInToShow` is structurally flawed. It requires an `imdbId`, performs a secondary `idLookupAsync` network call to Trakt to dynamically resolve it into a Trakt ID, and then posts the check-in. If the `imdbId` is missing or the network flakes, the check-in fails. We will refactor this to directly utilize the locally verified `showTraktId`. Next, we'll design and expose a native Check-In UI mechanism directly on the `EpisodeDetailScreen.kt`.
+2. **Notification Fix:** Users report they receive no background push notifications for upcoming episodes. `NotificationWorker.kt` reads the user's settings and Trakt Access Tokens by applying `.first()` on `StateFlow` objects heavily restricted by `SharingStarted.WhileSubscribed`. Because no UI components are collecting the state when the background worker spins up, the Flows never initialize, causing the Worker to evaluate a false/empty initial state, skipping the notification block completely. We resolve this by bypassing the `StateFlow` and querying the DataStore/Room directly.
 
-Because they run in isolated environments, **every single job must download dependencies, spin up the Gradle Daemon, setup the Android SDK, and re-compile the entire application codebase.** This exponentially inflates GitHub minute consumption (e.g. `testDebugUnitTest`, `assembleDebug` and `lintDebug` all independently compile `compileDebugKotlin`, compounding 3x the computational cost).
+## User Review Required
+None natively, but it's important to understand the notification pipeline relies on local device alarm scheduling (via `WorkManager`), rather than a centralized push-notification server (FCM). Trakt's API doesn't push to APNS/FCM. The `NotificationWorker` wakes up in the background out-of-band and assesses the Trakt schedule. 
 
 ## Proposed Changes
 
-### [MODIFY] `.github/workflows/pull_request.yml`
-- **Job Consolidation:** Merge the isolated jobs `test`, `build`, `ktlint`, `lint`, `detekt`, and `build-release` into a single unified `verify` job.
-- **Dependency Execution Graph:** We will run `./gradlew ktlintCheck detekt lintDebug testDebugUnitTest assembleDebug assembleRelease --build-cache --continue`. Gradle's internal dependency graph will guarantee that `compileDebugKotlin` only executes **once**, dramatically speeding up the workflow. The `--continue` flag ensures all static checks run, even if one fails initially, preventing hidden failures.
-- **Superior Caching:** Swap out the legacy `actions/cache` and custom `chmod +x ./gradlew` steps for the officially maintained `gradle/actions/setup-gradle@v3` Action. This automatically caches Daemon state, build cache, and dependencies optimally.
-- **Isolated UI Tests:** The InstrumentedTests (`ui-tests`) utilizing the Pixel emulator will remain as their own dedicated isolated job, maintaining their massive timeout allowance and KVM hardware acceleration rules securely undisturbed.
+### 1. The Trakt API Check-In Overhaul
+- Rewrite `TraktAccountDataSource.checkInToShow` to drop the `imdbId` parameter safely, directly receiving `showTraktId`, `seasonNumber`, and `episodeNumber`.
+- Ensure `EpisodeDetailViewModel.kt` properly formats and invokes the optimized Check-In repository functions.
+- Update `EpisodeDetailScreen.kt` to present a floating action button (or native card action) for checking in, tied to the ViewModel's check-in status listener (`TraktCheckInStatus`). 
+- Suppress repetitive mock HTTP validation calls.
 
-## User Review Required
-
-> [!IMPORTANT]
-> Because the formatting, linting, and unit-test checks are combined, they will no longer appear as 6 separate individual `Checkmarks` under the GitHub `Merge` dialog. They will simply be one major check known as `Verify Code and Build`. 
-> 
-> Are you okay making this tradeoff for the significant decrease in GitHub Minutes consumption?
+### 2. NotificationWorker Rescue
+- Read `UpnextApplication.kt` and `NotificationWorker.kt`.
+- Replace `settingsRepository.areNotificationsEnabled.first()` with a new direct suspending read extension `settingsRepository.getAreNotificationsEnabledSync()`.
+- Replace `traktRepository.traktAccessToken.first()` with `traktDao.getTraktAccessTokens().firstOrNull()`.
+- Confirm `NotificationWorkerTest.kt` aligns with this logic.
 
 ## Verification Plan
-1. Push the consolidated YAML formatting check directly to a new tracking branch.
-2. Monitor Github Actions to affirm minute expenditures have drastically dropped.
+
+### Automated Verification
+- Run `./gradlew :app:assembleDebug` and `./gradlew :app:testDebugUnitTest --tests "com.theupnextapp.work.NotificationWorkerTest"`.
+- Validate static lint rules are intact.
+
+### Manual Verification
+- Deploy to an emulator with Trakt authenticated. Toggle Notifications ON. Trigger a manual sync of `NotificationWorker.kt` natively via App Inspector or Device Shell to verify the notification bundle paints to the system tray.
+- Launch `EpisodeDetailScreen` and check-in to an episode. Verify via Logcat network tracking that `POST /checkin` receives a `200 OK` instantaneously without a secondary lookup.

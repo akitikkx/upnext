@@ -401,47 +401,23 @@ constructor(
     }
 
     suspend fun checkInToShow(
-        showSeasonEpisode: ShowSeasonEpisode,
+        showTraktId: Int,
+        seasonNumber: Int,
+        episodeNumber: Int,
         token: String?,
     ): TraktCheckInStatus {
         if (token.isNullOrEmpty()) {
             return TraktCheckInStatus(message = "Authentication token is missing.")
         }
-        val imdbId = showSeasonEpisode.imdbID
-        val seasonNumber = showSeasonEpisode.season
-        val episodeNumber = showSeasonEpisode.number
-
-        if (imdbId.isNullOrEmpty()) {
-            return TraktCheckInStatus(message = "Show information (IMDB ID) is missing.")
-        }
-        if (seasonNumber == null || episodeNumber == null) {
-            return TraktCheckInStatus(message = "Episode information incomplete.")
-        }
 
         return withContext(Dispatchers.IO) {
             try {
-                val idLookupResponse = traktService.idLookupAsync(idType = "imdb", id = imdbId).await()
-                val traktShowId =
-                    idLookupResponse.firstNotNullOfOrNull { result ->
-                        if (result.type == "show" && result.show?.ids?.trakt != null) {
-                            result.show.ids.trakt
-                        } else {
-                            null
-                        }
-                    }
-
-                if (traktShowId == null) {
-                    return@withContext TraktCheckInStatus(
-                        message = "Could not find the show on Trakt using IMDB ID."
-                    )
-                }
-
                 val bearerToken = "Bearer $token"
                 val request =
                     NetworkTraktCheckInRequest(
                         show =
                         NetworkTraktCheckInRequestShow(
-                            ids = NetworkTraktCheckInRequestShowIds(trakt = traktShowId),
+                            ids = NetworkTraktCheckInRequestShowIds(trakt = showTraktId),
                             title = null,
                             year = null,
                         ),

@@ -40,7 +40,8 @@ interface TraktRepository {
     val traktTrendingShows: Flow<List<TraktTrendingShows>>
     val traktMostAnticipatedShows: Flow<List<TraktMostAnticipated>>
     val traktFavoriteShows: Flow<List<TraktUserListItem>>
-    val traktAccessToken: Flow<TraktAccessToken?>
+    val traktAccessToken: StateFlow<TraktAccessToken?>
+    suspend fun getTraktAccessTokenSync(): TraktAccessToken?
 
     // StateFlows for UI state
     val isLoading: StateFlow<Boolean>
@@ -131,8 +132,9 @@ interface TraktRepository {
 
     // Check-in
     suspend fun checkInToShow(
-        showSeasonEpisode: ShowSeasonEpisode,
-        token: String?,
+        showTraktId: Int,
+        seasonNumber: Int,
+        episodeNumber: Int,
     )
 
     suspend fun getTraktIdLookup(imdbID: String): Result<Int?>

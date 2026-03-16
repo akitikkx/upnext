@@ -58,7 +58,7 @@ class NotificationWorkerTest {
                     scope = "public",
                     created_at = 1234567890L,
                 )
-            whenever(mockTraktRepository.traktAccessToken).thenReturn(flowOf(accessToken))
+            whenever(mockTraktRepository.getTraktAccessTokenSync()).thenReturn(accessToken)
             whenever(
                 mockTraktRepository.getTraktMySchedule(
                     org.mockito.kotlin.any(),

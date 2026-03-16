@@ -74,10 +74,14 @@ class TraktRepositoryImpl(
         private const val FLOW_STOP_TIMEOUT_MS = 5000L
     }
 
-    override val traktAccessToken: Flow<TraktAccessToken?> =
+    override val traktAccessToken: StateFlow<TraktAccessToken?> =
         traktDao.getTraktAccessData().map {
             it?.asDomainModel()
-        }
+        }.stateIn(
+            scope = repositoryScope,
+            started = SharingStarted.WhileSubscribed(FLOW_STOP_TIMEOUT_MS),
+            initialValue = null,
+        )
 
     private val _isLoadingTraktTrending = MutableStateFlow(false)
     override val isLoadingTraktTrending: StateFlow<Boolean> = _isLoadingTraktTrending.asStateFlow()
@@ -256,13 +260,18 @@ class TraktRepositoryImpl(
     }
 
     override suspend fun checkInToShow(
-        showSeasonEpisode: ShowSeasonEpisode,
-        token: String?,
+        showTraktId: Int,
+        seasonNumber: Int,
+        episodeNumber: Int,
     ) {
-        _isLoading.value = true
-        val status = traktAccountDataSource.checkInToShow(showSeasonEpisode, token)
+        val token = getTraktAccessTokenSync()?.access_token
+        val status = traktAccountDataSource.checkInToShow(
+            showTraktId = showTraktId,
+            seasonNumber = seasonNumber,
+            episodeNumber = episodeNumber,
+            token = token
+        )
         _traktCheckInEvent.emit(status)
-        _isLoading.value = false
     }
 
     override fun isAuthorizedOnTrakt(): StateFlow<Boolean> {
@@ -337,6 +346,10 @@ class TraktRepositoryImpl(
 
     override suspend fun getTraktPersonIdSearch(name: String): Result<Int?> {
         return traktRecommendationsDataSource.getTraktPersonIdFromSearch(name)
+    }
+
+    override suspend fun getTraktAccessTokenSync(): TraktAccessToken? {
+        return getTraktAccessTokenRaw()?.asDomainModel()
     }
 
     override suspend fun getTraktMySchedule(token: String, startDate: String, days: Int): Result<NetworkTraktMyScheduleResponse> {

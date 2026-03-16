@@ -55,7 +55,7 @@ class DashboardViewModelTest {
         watchProgressRepository = mock(WatchProgressRepository::class.java)
         localWorkManager = mock(WorkManager::class.java)
 
-        `when`(traktRepository.traktAccessToken).thenReturn(flowOf(null))
+        `when`(traktRepository.traktAccessToken).thenReturn(MutableStateFlow(null))
         `when`(traktRepository.traktMostAnticipatedShows).thenReturn(flowOf(emptyList()))
         `when`(dashboardRepository.todayShows).thenReturn(flowOf(emptyList()))
         `when`(watchProgressRepository.isSyncing).thenReturn(MutableStateFlow(false))
@@ -78,7 +78,7 @@ class DashboardViewModelTest {
     fun `when trakt access token is null, dependent flows handle gracefully`() =
         runTest {
             // Ensure the mock returns null explicitly for access token
-            `when`(traktRepository.traktAccessToken).thenReturn(flowOf(null))
+            `when`(traktRepository.traktAccessToken).thenReturn(MutableStateFlow(null))
 
             // Create viewModel fresh inside the scope to trigger the init block collection
             val testViewModel =
@@ -112,7 +112,7 @@ class DashboardViewModelTest {
                     scope = "public",
                     token_type = "bearer",
                 )
-            `when`(traktRepository.traktAccessToken).thenReturn(flowOf(token))
+            `when`(traktRepository.traktAccessToken).thenReturn(MutableStateFlow(token))
 
             val testViewModel =
                 DashboardViewModel(
@@ -151,7 +151,7 @@ class DashboardViewModelTest {
                     scope = "public",
                     token_type = "bearer",
                 )
-            `when`(traktRepository.traktAccessToken).thenReturn(flowOf(token))
+            `when`(traktRepository.traktAccessToken).thenReturn(MutableStateFlow(token))
 
             val syncStateFlow = MutableStateFlow(false)
             `when`(watchProgressRepository.isSyncing).thenReturn(syncStateFlow)

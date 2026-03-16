@@ -84,7 +84,10 @@ class EpisodeDetailViewModelTest {
                 kotlinx.coroutines.flow.emptyFlow(),
             )
 
-            viewModel = EpisodeDetailViewModel(savedStateHandle, showDetailRepository)
+            val traktRepository = org.mockito.Mockito.mock(com.theupnextapp.repository.TraktRepository::class.java)
+            `when`(traktRepository.traktCheckInEvent).thenReturn(kotlinx.coroutines.flow.MutableSharedFlow())
+
+            viewModel = EpisodeDetailViewModel(savedStateHandle, showDetailRepository, traktRepository)
             advanceUntilIdle()
 
             val finalState = viewModel.uiState.value
@@ -107,7 +110,10 @@ class EpisodeDetailViewModelTest {
                 kotlinx.coroutines.flow.emptyFlow(),
             )
 
-            viewModel = EpisodeDetailViewModel(savedStateHandle, showDetailRepository)
+            val traktRepository = org.mockito.Mockito.mock(com.theupnextapp.repository.TraktRepository::class.java)
+            `when`(traktRepository.traktCheckInEvent).thenReturn(kotlinx.coroutines.flow.MutableSharedFlow())
+
+            viewModel = EpisodeDetailViewModel(savedStateHandle, showDetailRepository, traktRepository)
             advanceUntilIdle()
 
             val finalState = viewModel.uiState.value

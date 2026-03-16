@@ -56,7 +56,7 @@ class NotificationWorker @AssistedInject constructor(
             return Result.success()
         }
 
-        val accessToken = traktRepository.traktAccessToken.first()
+        val accessToken = traktRepository.getTraktAccessTokenSync()
         if (accessToken?.access_token.isNullOrEmpty()) {
             return Result.success()
         }

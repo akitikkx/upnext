@@ -45,7 +45,7 @@ class ShowSeasonsViewModelTest {
 
     @Before
     fun setup() {
-        whenever(traktRepository.traktAccessToken).thenReturn(flowOf(null))
+        whenever(traktRepository.traktAccessToken).thenReturn(MutableStateFlow(null))
         whenever(traktAuthManager.traktAuthState).thenReturn(MutableStateFlow(TraktAuthState.LoggedIn))
         whenever(savedStateHandle.get<String>(ShowSeasonsViewModel.SHOW_ID)).thenReturn("1")
     }
@@ -74,7 +74,7 @@ class ShowSeasonsViewModelTest {
                     scope = "public",
                     created_at = 3000000000L,
                 )
-            whenever(traktRepository.traktAccessToken).thenReturn(flowOf(accessToken))
+            whenever(traktRepository.traktAccessToken).thenReturn(MutableStateFlow(accessToken))
 
             createViewModel()
 
@@ -126,7 +126,7 @@ class ShowSeasonsViewModelTest {
                     scope = "public",
                     created_at = 3000000000L,
                 )
-            whenever(traktRepository.traktAccessToken).thenReturn(flowOf(accessToken))
+            whenever(traktRepository.traktAccessToken).thenReturn(MutableStateFlow(accessToken))
 
             createViewModel()
 
