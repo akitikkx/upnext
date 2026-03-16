@@ -52,7 +52,7 @@ class ShowSeasonsViewModel
         private val showDetailRepository: ShowDetailRepository,
         private val watchProgressRepository: WatchProgressRepository,
         private val localWorkManager: WorkManager,
-        traktRepository: TraktRepository,
+        private val traktRepository: TraktRepository,
         val traktAuthManager: TraktAuthManager,
     ) : BaseTraktViewModel(
             traktRepository,
@@ -149,16 +149,18 @@ class ShowSeasonsViewModel
         }
 
         private fun triggerSyncIfAuthenticated() {
-            traktAccessToken.value?.access_token?.let { token ->
-                val syncWork =
-                    OneTimeWorkRequestBuilder<SyncWatchProgressWorker>()
-                        .setInputData(
-                            Data
-                                .Builder()
-                                .putString(SyncWatchProgressWorker.ARG_TOKEN, token)
-                                .build(),
-                        ).build()
-                localWorkManager.enqueue(syncWork)
+            viewModelScope.launch {
+                traktRepository.traktAccessToken.firstOrNull()?.access_token?.let { token ->
+                    val syncWork =
+                        OneTimeWorkRequestBuilder<SyncWatchProgressWorker>()
+                            .setInputData(
+                                Data
+                                    .Builder()
+                                    .putString(SyncWatchProgressWorker.ARG_TOKEN, token)
+                                    .build(),
+                            ).build()
+                    localWorkManager.enqueue(syncWork)
+                }
             }
         }
 

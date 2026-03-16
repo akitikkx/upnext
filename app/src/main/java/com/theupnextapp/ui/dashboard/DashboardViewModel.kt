@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -288,16 +289,18 @@ class DashboardViewModel
         }
 
         private fun triggerSyncIfAuthenticated() {
-            traktAccessToken.value?.access_token?.let { token ->
-                val syncWork =
-                    OneTimeWorkRequestBuilder<SyncWatchProgressWorker>()
-                        .setInputData(
-                            Data
-                                .Builder()
-                                .putString(SyncWatchProgressWorker.ARG_TOKEN, token)
-                                .build(),
-                        ).build()
-                localWorkManager.enqueue(syncWork)
+            viewModelScope.launch {
+                traktRepository.traktAccessToken.firstOrNull()?.access_token?.let { token ->
+                    val syncWork =
+                        OneTimeWorkRequestBuilder<SyncWatchProgressWorker>()
+                            .setInputData(
+                                Data
+                                    .Builder()
+                                    .putString(SyncWatchProgressWorker.ARG_TOKEN, token)
+                                    .build(),
+                            ).build()
+                    localWorkManager.enqueue(syncWork)
+                }
             }
         }
     }
