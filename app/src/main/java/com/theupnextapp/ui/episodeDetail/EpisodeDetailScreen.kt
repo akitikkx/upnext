@@ -34,9 +34,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -100,7 +102,7 @@ fun EpisodeDetailScreen(
     }
 
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) }
+        snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { paddingValues ->
         Box(
             modifier =
@@ -142,7 +144,9 @@ fun EpisodeDetailScreen(
                                 episodeDetail = uiState.episodeDetail,
                                 uriHandler = uriHandler,
                                 isCheckingIn = uiState.isCheckingIn,
-                                onCheckInClick = { viewModel.onCheckIn() }
+                                isCheckInSuccessful = uiState.isCheckInSuccessful,
+                                onCheckInClick = { viewModel.onCheckIn() },
+                                onCancelCheckInClick = { viewModel.onCancelCheckIn() },
                             )
 
                             if (uiState.isPeopleLoading) {
@@ -458,13 +462,17 @@ fun EpisodeBackdrop(backdropUrl: String?) {
     }
 }
 
+val StarRatingColor = Color(0xFFFFC107)
+
 @Composable
 fun EpisodeSummaryCard(
     episodeDetailArg: EpisodeDetailArg?,
     episodeDetail: com.theupnextapp.domain.EpisodeDetail?,
     uriHandler: androidx.compose.ui.platform.UriHandler,
     isCheckingIn: Boolean,
+    isCheckInSuccessful: Boolean,
     onCheckInClick: () -> Unit,
+    onCancelCheckInClick: () -> Unit,
 ) {
     ElevatedCard(
         modifier =
@@ -508,7 +516,7 @@ fun EpisodeSummaryCard(
                         Icon(
                             imageVector = Icons.Default.Star,
                             contentDescription = "Rating",
-                            tint = Color(0xFFFFC107),
+                            tint = StarRatingColor,
                             modifier = Modifier.padding(end = 4.dp).height(20.dp),
                         )
                         val scaledRating = ((episodeDetail.rating ?: 0.0) * 10).toInt()
@@ -555,19 +563,44 @@ fun EpisodeSummaryCard(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Button(
-                onClick = onCheckInClick,
-                modifier = Modifier.fillMaxWidth().height(48.dp),
-                enabled = !isCheckingIn
-            ) {
-                if (isCheckingIn) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.height(24.dp).width(24.dp),
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        strokeWidth = 2.dp
-                    )
-                } else {
-                    Text("Check In to Episode on Trakt")
+            if (isCheckInSuccessful) {
+                OutlinedButton(
+                    onClick = onCancelCheckInClick,
+                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                ) {
+                    if (isCheckingIn) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.height(24.dp).width(24.dp),
+                            color = MaterialTheme.colorScheme.error,
+                            strokeWidth = 2.dp,
+                        )
+                    } else {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.Check,
+                                contentDescription = "Checked In",
+                                modifier = Modifier.padding(end = 8.dp),
+                            )
+                            Text("Cancel Check-in")
+                        }
+                    }
+                }
+            } else {
+                Button(
+                    onClick = onCheckInClick,
+                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                    enabled = !isCheckingIn,
+                ) {
+                    if (isCheckingIn) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.height(24.dp).width(24.dp),
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            strokeWidth = 2.dp,
+                        )
+                    } else {
+                        Text("Check In to Episode on Trakt")
+                    }
                 }
             }
 

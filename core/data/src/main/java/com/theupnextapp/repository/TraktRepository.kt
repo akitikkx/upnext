@@ -137,6 +137,8 @@ interface TraktRepository {
         episodeNumber: Int,
     )
 
+    suspend fun cancelCheckIn()
+
     suspend fun getTraktIdLookup(imdbID: String): Result<Int?>
 
     suspend fun getTraktPersonSummary(id: String): Result<NetworkTraktPersonResponse>

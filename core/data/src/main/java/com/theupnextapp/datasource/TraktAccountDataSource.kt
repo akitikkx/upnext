@@ -460,6 +460,29 @@ constructor(
         }
     }
 
+    suspend fun cancelCheckIn(token: String?): Result<Unit> {
+        if (token.isNullOrEmpty()) {
+            return Result.failure(IllegalArgumentException("Authentication token is missing."))
+        }
+
+        return withContext(Dispatchers.IO) {
+            try {
+                val bearerToken = "Bearer $token"
+                val response = traktService.cancelCheckInAsync(bearerToken).await()
+                if (response.isSuccessful) {
+                    Result.success(Unit)
+                } else {
+                    Result.failure(Exception("Failed to cancel check-in. HTTP ${response.code()}"))
+                }
+            } catch (e: HttpException) {
+                Result.failure(Exception("Failed to cancel check-in.", e))
+            } catch (e: Exception) {
+                logTraktException("Generic error during Trakt check-in cancellation.", e)
+                Result.failure(e)
+            }
+        }
+    }
+
     suspend fun getTraktMySchedule(
         token: String,
         startDate: String,

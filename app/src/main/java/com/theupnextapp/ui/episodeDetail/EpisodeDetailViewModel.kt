@@ -124,6 +124,7 @@ class EpisodeDetailViewModel
                 }
             }
         }
+
         fun onCheckIn() {
             viewModelScope.launch {
                 _uiState.value = _uiState.value.copy(isCheckingIn = true)
@@ -135,13 +136,22 @@ class EpisodeDetailViewModel
             }
         }
 
+        fun onCancelCheckIn() {
+            viewModelScope.launch {
+                _uiState.value = _uiState.value.copy(isCheckingIn = true)
+                traktRepository.cancelCheckIn()
+            }
+        }
+
         private fun observeCheckInStatus() {
             viewModelScope.launch {
                 traktRepository.traktCheckInEvent.collect { status ->
-                    _uiState.value = _uiState.value.copy(
-                        isCheckingIn = false,
-                        checkInStatus = status
-                    )
+                    _uiState.value =
+                        _uiState.value.copy(
+                            isCheckingIn = false,
+                            isCheckInSuccessful = status.checkInTime != null,
+                            checkInStatus = status,
+                        )
                 }
             }
         }
@@ -155,6 +165,7 @@ data class EpisodeDetailState(
     val isLoading: Boolean = false,
     val isPeopleLoading: Boolean = false,
     val isCheckingIn: Boolean = false,
+    val isCheckInSuccessful: Boolean = false,
     val episodeDetail: EpisodeDetail? = null,
     val episodePeople: EpisodePeople? = null,
     val checkInStatus: TraktCheckInStatus? = null,

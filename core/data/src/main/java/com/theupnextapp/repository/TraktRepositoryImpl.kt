@@ -50,6 +50,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -274,6 +275,17 @@ class TraktRepositoryImpl(
         _traktCheckInEvent.emit(status)
     }
 
+    override suspend fun cancelCheckIn() {
+        val token = getTraktAccessTokenSync()?.access_token
+        val result = traktAccountDataSource.cancelCheckIn(token)
+        if (result.isSuccess) {
+            // Emit an empty/null-like status to clear the check-in data from the UI
+            _traktCheckInEvent.emit(com.theupnextapp.domain.TraktCheckInStatus(message = "Check-in cancelled"))
+        } else {
+            _traktCheckInEvent.emit(com.theupnextapp.domain.TraktCheckInStatus(message = result.exceptionOrNull()?.message ?: "Failed to cancel check-in"))
+        }
+    }
+
     override fun isAuthorizedOnTrakt(): StateFlow<Boolean> {
         return traktAccessToken.map { token ->
             token?.isTraktAccessTokenValid() == true
@@ -348,8 +360,8 @@ class TraktRepositoryImpl(
         return traktRecommendationsDataSource.getTraktPersonIdFromSearch(name)
     }
 
-    override suspend fun getTraktAccessTokenSync(): TraktAccessToken? {
-        return getTraktAccessTokenRaw()?.asDomainModel()
+    override suspend fun getTraktAccessTokenSync(): TraktAccessToken? = withContext(Dispatchers.IO) {
+        getTraktAccessTokenRaw()?.asDomainModel()
     }
 
     override suspend fun getTraktMySchedule(token: String, startDate: String, days: Int): Result<NetworkTraktMyScheduleResponse> {

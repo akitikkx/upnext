@@ -109,4 +109,9 @@
 - [x] Refactor `TraktAccountDataSource.checkInToShow` to bypass the IMDB lookup and use `showTraktId`.
 - [x] Connect `EpisodeDetailViewModel.kt` to the check-in data source.
 - [x] Implement a Check-in floating action button or UI card in `EpisodeDetailScreen.kt`.
+- [x] Fix Check-In button to reflect successful completion state.
+- [x] Implement Cancel Check-in functionality to dismiss active tracking.
 - [x] Solve the `NotificationWorker.kt` StateFlow freeze by accessing user settings and tokens via `firstOrNull()`.
+- [x] Fix all failing Unit Tests (`NotificationWorkerTest`, `NavTest`, `SearchViewModelTest`, `EpisodeDetailViewModelTest`).
+## 15. Technical Capability
+- [x] Integrate `aldefy/compose-skill` to enhance AGENTIC context for Jetpack Compose UI refinements.
