@@ -20,6 +20,7 @@ import com.theupnextapp.domain.Result
 import com.theupnextapp.navigation.Destinations
 import com.theupnextapp.repository.ShowDetailRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -68,6 +69,7 @@ class EpisodeDetailViewModelTest {
             kotlinx.coroutines.flow.emptyFlow(),
         )
         `when`(traktRepository.traktCheckInEvent).thenReturn(kotlinx.coroutines.flow.MutableSharedFlow())
+        `when`(traktRepository.isAuthorizedOnTrakt()).thenReturn(MutableStateFlow(false))
     }
 
     @Test
@@ -156,5 +158,20 @@ class EpisodeDetailViewModelTest {
             advanceUntilIdle()
 
             org.mockito.Mockito.verify(traktRepository).checkInToShow(1234, 1, 5)
+        }
+
+    @Test
+    fun `when repository emits authorized state, uiState updates isAuthorizedOnTrakt`() =
+        runTest {
+            `when`(showDetailRepository.getEpisodeDetails(anyInt(), anyInt(), anyInt())).thenReturn(
+                flowOf(Result.Loading(true)),
+            )
+            `when`(traktRepository.isAuthorizedOnTrakt()).thenReturn(MutableStateFlow(true))
+
+            viewModel = EpisodeDetailViewModel(savedStateHandle, showDetailRepository, traktRepository)
+            advanceUntilIdle()
+
+            val finalState = viewModel.uiState.value
+            assertEquals(true, finalState.isAuthorizedOnTrakt)
         }
 }

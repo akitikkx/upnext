@@ -145,6 +145,7 @@ fun EpisodeDetailScreen(
                                 uriHandler = uriHandler,
                                 isCheckingIn = uiState.isCheckingIn,
                                 isCheckInSuccessful = uiState.isCheckInSuccessful,
+                                isAuthorizedOnTrakt = uiState.isAuthorizedOnTrakt,
                                 onCheckInClick = { viewModel.onCheckIn() },
                                 onCancelCheckInClick = { viewModel.onCancelCheckIn() },
                             )
@@ -471,6 +472,7 @@ fun EpisodeSummaryCard(
     uriHandler: androidx.compose.ui.platform.UriHandler,
     isCheckingIn: Boolean,
     isCheckInSuccessful: Boolean,
+    isAuthorizedOnTrakt: Boolean,
     onCheckInClick: () -> Unit,
     onCancelCheckInClick: () -> Unit,
 ) {
@@ -563,48 +565,49 @@ fun EpisodeSummaryCard(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            if (isCheckInSuccessful) {
-                OutlinedButton(
-                    onClick = onCancelCheckInClick,
-                    modifier = Modifier.fillMaxWidth().height(48.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
-                ) {
-                    if (isCheckingIn) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.height(24.dp).width(24.dp),
-                            color = MaterialTheme.colorScheme.error,
-                            strokeWidth = 2.dp,
-                        )
-                    } else {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.Default.Check,
-                                contentDescription = "Checked In",
-                                modifier = Modifier.padding(end = 8.dp),
+            if (isAuthorizedOnTrakt) {
+                if (isCheckInSuccessful) {
+                    OutlinedButton(
+                        onClick = onCancelCheckInClick,
+                        modifier = Modifier.fillMaxWidth().height(48.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                    ) {
+                        if (isCheckingIn) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.height(24.dp).width(24.dp),
+                                color = MaterialTheme.colorScheme.error,
+                                strokeWidth = 2.dp,
                             )
-                            Text("Cancel Check-in")
+                        } else {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    imageVector = Icons.Default.Check,
+                                    contentDescription = "Checked In",
+                                    modifier = Modifier.padding(end = 8.dp),
+                                )
+                                Text("Cancel Check-in")
+                            }
+                        }
+                    }
+                } else {
+                    Button(
+                        onClick = onCheckInClick,
+                        modifier = Modifier.fillMaxWidth().height(48.dp),
+                        enabled = !isCheckingIn,
+                    ) {
+                        if (isCheckingIn) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.height(24.dp).width(24.dp),
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                strokeWidth = 2.dp,
+                            )
+                        } else {
+                            Text("Check In to Episode on Trakt")
                         }
                     }
                 }
-            } else {
-                Button(
-                    onClick = onCheckInClick,
-                    modifier = Modifier.fillMaxWidth().height(48.dp),
-                    enabled = !isCheckingIn,
-                ) {
-                    if (isCheckingIn) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.height(24.dp).width(24.dp),
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            strokeWidth = 2.dp,
-                        )
-                    } else {
-                        Text("Check In to Episode on Trakt")
-                    }
-                }
+                Spacer(modifier = Modifier.height(16.dp))
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
 
             Text(
                 text = "Overview",

@@ -313,7 +313,7 @@ fun ShowSeasonCard(
                             style = MaterialTheme.typography.bodyLarge,
                             fontWeight = FontWeight.Bold,
                         )
-                        if (item.isWatched == true) {
+                        if (isAuthorizedOnTrakt && item.isWatched == true) {
                             Icon(
                                 imageVector = Icons.Outlined.CheckCircle,
                                 contentDescription = "Watched",

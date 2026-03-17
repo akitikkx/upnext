@@ -180,4 +180,28 @@ class ShowSeasonsViewModelTest {
 
             verify(workManager).enqueue(any<androidx.work.WorkRequest>())
         }
+
+    @Test
+    fun `onToggleSeasonWatched does NOT call repository if unauthorized`() =
+        runTest {
+            whenever(traktAuthManager.traktAuthState).thenReturn(MutableStateFlow(TraktAuthState.LoggedOut))
+            createViewModel()
+
+            val season =
+                ShowSeason(
+                    id = 1,
+                    seasonNumber = 1,
+                    episodeCount = 10,
+                    name = "Season 1",
+                    premiereDate = null,
+                    endDate = null,
+                    originalImageUrl = null,
+                    mediumImageUrl = null,
+                    isWatched = false,
+                )
+
+            viewModel.onToggleSeasonWatched(season)
+
+            org.mockito.kotlin.verifyNoInteractions(watchProgressRepository)
+        }
 }

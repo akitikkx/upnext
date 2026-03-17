@@ -47,6 +47,7 @@ class EpisodeDetailViewModel
             getEpisodeDetails()
             getEpisodePeople()
             observeCheckInStatus()
+            observeTraktAuthorization()
         }
 
         private fun getEpisodeDetails() {
@@ -156,6 +157,14 @@ class EpisodeDetailViewModel
             }
         }
 
+        private fun observeTraktAuthorization() {
+            viewModelScope.launch {
+                traktRepository.isAuthorizedOnTrakt().collect { isAuthorized ->
+                    _uiState.value = _uiState.value.copy(isAuthorizedOnTrakt = isAuthorized)
+                }
+            }
+        }
+
         fun clearCheckInStatus() {
             _uiState.value = _uiState.value.copy(checkInStatus = null)
         }
@@ -166,6 +175,7 @@ data class EpisodeDetailState(
     val isPeopleLoading: Boolean = false,
     val isCheckingIn: Boolean = false,
     val isCheckInSuccessful: Boolean = false,
+    val isAuthorizedOnTrakt: Boolean = false,
     val episodeDetail: EpisodeDetail? = null,
     val episodePeople: EpisodePeople? = null,
     val checkInStatus: TraktCheckInStatus? = null,
