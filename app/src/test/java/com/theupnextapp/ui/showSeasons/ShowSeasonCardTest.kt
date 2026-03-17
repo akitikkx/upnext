@@ -16,21 +16,21 @@ import org.robolectric.annotation.Config
 @RunWith(AndroidJUnit4::class)
 @Config(sdk = [33], application = android.app.Application::class)
 class ShowSeasonCardTest {
-
     @get:Rule
     val composeTestRule = createComposeRule()
 
-    private val mockSeason = ShowSeason(
-        id = 1,
-        seasonNumber = 1,
-        episodeCount = 10,
-        name = "Season 1",
-        premiereDate = null,
-        endDate = null,
-        originalImageUrl = null,
-        mediumImageUrl = null,
-        isWatched = true
-    )
+    private val mockSeason =
+        ShowSeason(
+            id = 1,
+            seasonNumber = 1,
+            episodeCount = 10,
+            name = "Season 1",
+            premiereDate = null,
+            endDate = null,
+            originalImageUrl = null,
+            mediumImageUrl = null,
+            isWatched = true,
+        )
 
     @Test
     fun showSeasonCard_unauthorizedUser_watchedCheckmarkHidden() {
@@ -38,14 +38,14 @@ class ShowSeasonCardTest {
             ShowSeasonCard(
                 item = mockSeason,
                 isAuthorizedOnTrakt = false,
-                onClick = {}
+                onClick = {},
             )
         }
 
         // Watched checkmark should not be displayed
         composeTestRule.onNodeWithContentDescription("Watched").assertDoesNotExist()
-        
-        // Mark Season Unwatched button should not be displayed inside card 
+
+        // Mark Season Unwatched button should not be displayed inside card
         composeTestRule.onNodeWithText("Mark Season Unwatched").assertDoesNotExist()
     }
 
@@ -55,13 +55,13 @@ class ShowSeasonCardTest {
             ShowSeasonCard(
                 item = mockSeason,
                 isAuthorizedOnTrakt = true,
-                onClick = {}
+                onClick = {},
             )
         }
 
         // Watched checkmark should be displayed because isWatched is true
         composeTestRule.onNodeWithContentDescription("Watched").assertIsDisplayed()
-        
+
         // Mark Season Unwatched button should be displayed inside card
         composeTestRule.onNodeWithText("Mark Season Unwatched").assertIsDisplayed()
     }

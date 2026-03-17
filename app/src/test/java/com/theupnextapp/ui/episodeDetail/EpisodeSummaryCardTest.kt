@@ -17,35 +17,36 @@ import org.robolectric.annotation.Config
 @RunWith(AndroidJUnit4::class)
 @Config(sdk = [33], application = android.app.Application::class)
 class EpisodeSummaryCardTest {
-
     @get:Rule
     val composeTestRule = createComposeRule()
 
-    private val mockEpisodeDetailArg = EpisodeDetailArg(
-        showId = 1,
-        showTitle = "Test Show",
-        showImageUrl = null,
-        showBackgroundUrl = null,
-        imdbID = null,
-        isAuthorizedOnTrakt = false,
-        showTraktId = 1,
-        seasonNumber = 1,
-        episodeNumber = 5
-    )
+    private val mockEpisodeDetailArg =
+        EpisodeDetailArg(
+            showId = 1,
+            showTitle = "Test Show",
+            showImageUrl = null,
+            showBackgroundUrl = null,
+            imdbID = null,
+            isAuthorizedOnTrakt = false,
+            showTraktId = 1,
+            seasonNumber = 1,
+            episodeNumber = 5,
+        )
 
-    private val mockEpisodeDetail = EpisodeDetail(
-        title = "Test Episode",
-        overview = "Test Overview",
-        season = 1,
-        number = 5,
-        firstAired = "2026-01-01T00:00:00Z",
-        runtime = 60,
-        rating = 8.5,
-        tvdbId = null,
-        imdbId = "tt123",
-        tmdbId = null,
-        votes = 100
-    )
+    private val mockEpisodeDetail =
+        EpisodeDetail(
+            title = "Test Episode",
+            overview = "Test Overview",
+            season = 1,
+            number = 5,
+            firstAired = "2026-01-01T00:00:00Z",
+            runtime = 60,
+            rating = 8.5,
+            tvdbId = null,
+            imdbId = "tt123",
+            tmdbId = null,
+            votes = 100,
+        )
 
     @Test
     fun episodeSummaryCard_unauthorizedUser_checkInButtonHidden() {
@@ -59,7 +60,7 @@ class EpisodeSummaryCardTest {
                 isCheckInSuccessful = false,
                 isAuthorizedOnTrakt = false,
                 onCheckInClick = {},
-                onCancelCheckInClick = {}
+                onCancelCheckInClick = {},
             )
         }
 
@@ -80,7 +81,7 @@ class EpisodeSummaryCardTest {
                 isCheckInSuccessful = false,
                 isAuthorizedOnTrakt = true,
                 onCheckInClick = {},
-                onCancelCheckInClick = {}
+                onCancelCheckInClick = {},
             )
         }
 
