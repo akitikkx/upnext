@@ -238,6 +238,34 @@ class ShowSeasonEpisodesViewModelTest {
             verifyNoInteractions(watchProgressRepository)
         }
 
+    @Test
+    fun `markSeasonAsWatched does NOT call repository if unauthorized`() =
+        runTest {
+            // Given
+            whenever(traktAuthManager.traktAuthState).thenReturn(MutableStateFlow(TraktAuthState.LoggedOut))
+            createViewModel()
+
+            // When
+            viewModel.markSeasonAsWatched()
+
+            // Then
+            verifyNoInteractions(watchProgressRepository)
+        }
+
+    @Test
+    fun `markSeasonAsUnwatched does NOT call repository if unauthorized`() =
+        runTest {
+            // Given
+            whenever(traktAuthManager.traktAuthState).thenReturn(MutableStateFlow(TraktAuthState.LoggedOut))
+            createViewModel()
+
+            // When
+            viewModel.markSeasonAsUnwatched()
+
+            // Then
+            verifyNoInteractions(watchProgressRepository)
+        }
+
     private fun createViewModel() {
         viewModel =
             ShowSeasonEpisodesViewModel(

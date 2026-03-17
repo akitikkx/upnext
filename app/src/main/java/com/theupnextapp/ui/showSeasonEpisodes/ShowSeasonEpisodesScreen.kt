@@ -445,7 +445,7 @@ fun ShowSeasonEpisodeCard(
                     }
                 }
 
-                if (item.isWatched) {
+                if (isAuthorizedOnTrakt && item.isWatched) {
                     Text(
                         text = stringResource(R.string.episode_watched),
                         modifier =
