@@ -80,6 +80,7 @@ import com.theupnextapp.domain.TraktUserListItem
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
+@Suppress("LongMethod")
 @Composable
 fun WatchlistListContent(
     watchlistItems: List<TraktUserListItem>,
@@ -245,6 +246,9 @@ fun WatchlistListContent(
                     )
 
                 // Educational Peek Animation for the first item
+                val peekDelayMillis = 800L
+                val peekSlideOffset = -80f
+                val peekReturnDelayMillis = 600L
                 var peekOffset by remember { androidx.compose.runtime.mutableFloatStateOf(0f) }
                 val animatedPeekOffset by androidx.compose.animation.core.animateFloatAsState(
                     targetValue = peekOffset,
@@ -254,9 +258,9 @@ fun WatchlistListContent(
 
                 if (index == 0) {
                     androidx.compose.runtime.LaunchedEffect(Unit) {
-                        kotlinx.coroutines.delay(800)
-                        peekOffset = -80f // Slide left
-                        kotlinx.coroutines.delay(600)
+                        kotlinx.coroutines.delay(peekDelayMillis)
+                        peekOffset = peekSlideOffset // Slide left
+                        kotlinx.coroutines.delay(peekReturnDelayMillis)
                         peekOffset = 0f // Slide back
                     }
                 }
@@ -420,7 +424,7 @@ fun WatchlistListItemCard(
 
                 val statusText = item.status ?: ""
                 val rating = item.rating
-                val ratingText = if (rating != null && rating > 0.0) String.format("★ %.1f", rating) else ""
+                val ratingText = if (rating != null && rating > 0.0) String.format(java.util.Locale.getDefault(), "★ %.1f", rating) else ""
 
                 val bottomMeta = listOf(statusText, ratingText).filter { it.isNotEmpty() }.joinToString(" • ")
                 if (bottomMeta.isNotEmpty()) {
