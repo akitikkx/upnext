@@ -83,23 +83,41 @@ interface TraktRepository {
     fun isAuthorizedOnTrakt(): StateFlow<Boolean>
 
     // Favorite Shows Management
+    // Watchlist Management
+    suspend fun refreshWatchlist(token: String): Result<Unit>
+
+    suspend fun addToWatchlist(
+        traktId: Int,
+        token: String,
+    ): Result<Unit>
+
+    suspend fun removeFromWatchlist(
+        traktId: Int,
+        token: String,
+    ): Result<Unit>
+
+    @Deprecated("Use refreshWatchlist instead", ReplaceWith("refreshWatchlist(token)"))
     suspend fun refreshFavoriteShows(
         forceRefresh: Boolean = false,
         token: String?,
     )
 
+    @Deprecated("Use refreshWatchlist instead")
     suspend fun refreshFavoriteShows(token: String): Result<Unit>
 
+    @Deprecated("Use addToWatchlist instead")
     suspend fun addShowToFavorites(
         imdbId: String,
         token: String,
     ): Result<Unit>
 
+    @Deprecated("Use addToWatchlist instead")
     suspend fun addShowToList(
         imdbID: String?,
         token: String?,
     )
 
+    @Deprecated("Use removeFromWatchlist instead")
     suspend fun removeShowFromList(
         traktId: Int?,
         imdbID: String?,
@@ -110,6 +128,7 @@ interface TraktRepository {
 
     fun getFavoriteShowFlow(imdbID: String): Flow<TraktUserListItem?>
 
+    @Deprecated("Use removeFromWatchlist instead")
     suspend fun removeShowFromFavorites(
         traktId: Int,
         imdbId: String,

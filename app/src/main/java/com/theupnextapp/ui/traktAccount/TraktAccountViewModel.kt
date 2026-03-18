@@ -43,6 +43,13 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
+enum class WatchlistSortOption {
+    ADDED,
+    TITLE,
+    RELEASE_YEAR,
+    RATING,
+}
+
 @HiltViewModel
 class TraktAccountViewModel
     @Inject
@@ -60,7 +67,7 @@ class TraktAccountViewModel
                 traktAccessToken.collect { token ->
                     if (token != null && token.isTraktAccessTokenValid()) {
                         token.access_token?.let {
-                            traktRepository.refreshFavoriteShows(it)
+                            traktRepository.refreshWatchlist(it)
                         }
                     }
                 }
@@ -73,15 +80,50 @@ class TraktAccountViewModel
         // Specific loading state for fetching favorite shows
         val isLoadingFavoriteShows: StateFlow<Boolean> = traktRepository.isLoadingFavoriteShows
 
+        private val _watchlistSearchQuery = MutableStateFlow("")
+        val watchlistSearchQuery: StateFlow<String> = _watchlistSearchQuery.asStateFlow()
+
+        private val _watchlistSortOption = MutableStateFlow(WatchlistSortOption.ADDED)
+        val watchlistSortOption: StateFlow<WatchlistSortOption> = _watchlistSortOption.asStateFlow()
+
         // Favorite shows data
         val favoriteShows: StateFlow<List<TraktUserListItem>> =
-            traktRepository.traktFavoriteShows
-                .map { list -> list.distinctBy { it.traktID } }
-                .stateIn(
-                    scope = viewModelScope,
-                    started = SharingStarted.WhileSubscribed(5000),
-                    initialValue = emptyList(),
-                )
+            combine(
+                traktRepository.traktFavoriteShows,
+                _watchlistSearchQuery,
+                _watchlistSortOption,
+            ) { shows, query, sortOption ->
+                var filteredList = shows.distinctBy { it.traktID }
+
+                if (query.isNotBlank()) {
+                    filteredList =
+                        filteredList.filter {
+                            it.title?.contains(query, ignoreCase = true) == true
+                        }
+                }
+
+                filteredList =
+                    when (sortOption) {
+                        WatchlistSortOption.ADDED -> filteredList
+                        WatchlistSortOption.TITLE -> filteredList.sortedBy { it.title }
+                        WatchlistSortOption.RELEASE_YEAR -> filteredList.sortedByDescending { it.year?.toIntOrNull() ?: 0 }
+                        WatchlistSortOption.RATING -> filteredList.sortedByDescending { it.rating ?: 0.0 }
+                    }
+
+                filteredList
+            }.stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyList(),
+            )
+
+        fun onSearchQueryChange(query: String) {
+            _watchlistSearchQuery.value = query
+        }
+
+        fun onSortOptionChange(option: WatchlistSortOption) {
+            _watchlistSortOption.value = option
+        }
 
         // Error state specifically for loading favorite shows
         val favoriteShowsError: StateFlow<String?> = traktRepository.favoriteShowsError
@@ -113,6 +155,17 @@ class TraktAccountViewModel
                     started = SharingStarted.WhileSubscribed(5000),
                     initialValue = true,
                 )
+
+        fun onRemoveFromWatchlistClick(traktId: Int) {
+            viewModelScope.launch {
+                val token = traktAccessToken.value?.access_token
+                if (!token.isNullOrEmpty()) {
+                    traktRepository.removeFromWatchlist(traktId, token)
+                    // Refresh the watchlist to reflect the local database change
+                    traktRepository.refreshWatchlist(token)
+                }
+            }
+        }
 
         fun onConnectToTraktClick() {
             viewModelScope.launch {

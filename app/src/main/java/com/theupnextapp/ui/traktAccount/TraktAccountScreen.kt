@@ -32,7 +32,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator // Changed from Linear
@@ -63,7 +62,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.theupnextapp.R
-import com.theupnextapp.core.designsystem.ui.getWindowSizeClass
 import com.theupnextapp.domain.TraktAuthState
 import com.theupnextapp.domain.TraktUserListItem
 import com.theupnextapp.navigation.Destinations
@@ -84,7 +82,7 @@ fun TraktAccountScreen(
     navController: NavController,
     code: String? = null,
 ) {
-    val lazyGridState = androidx.compose.foundation.lazy.grid.rememberLazyGridState()
+    val watchlistLazyListState = androidx.compose.foundation.lazy.rememberLazyListState()
 
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
@@ -98,6 +96,8 @@ fun TraktAccountScreen(
     val isLoadingFavorites by viewModel.isLoadingFavoriteShows.collectAsStateWithLifecycle()
     val favoriteShowsError by viewModel.favoriteShowsError.collectAsStateWithLifecycle()
     val isFavoriteShowsEmpty by viewModel.favoriteShowsEmpty.collectAsStateWithLifecycle()
+    val watchlistSearchQuery by viewModel.watchlistSearchQuery.collectAsStateWithLifecycle()
+    val watchlistSortOption by viewModel.watchlistSortOption.collectAsStateWithLifecycle()
 
     LaunchedEffect(viewModel, context) {
         viewModel.openCustomTab.collect { url ->
@@ -168,7 +168,11 @@ fun TraktAccountScreen(
                 isLoadingConnection = isLoadingConnection,
                 isLoadingFavorites = isLoadingFavorites,
                 isDisconnecting = uiState.isDisconnecting,
-                lazyGridState = lazyGridState,
+                watchlistSearchQuery = watchlistSearchQuery,
+                watchlistSortOption = watchlistSortOption,
+                watchlistLazyListState = watchlistLazyListState,
+                onSearchQueryChange = viewModel::onSearchQueryChange,
+                onSortOptionChange = viewModel::onSortOptionChange,
                 onConnectToTraktClick = {
                     viewModel.onConnectToTraktClick()
                 },
@@ -185,6 +189,11 @@ fun TraktAccountScreen(
                             showTraktId = null,
                         ),
                     )
+                },
+                onRemoveItem = { item ->
+                    item.traktID?.let { traktId ->
+                        viewModel.onRemoveFromWatchlistClick(traktId)
+                    }
                 },
                 onLogoutClick = { viewModel.onDisconnectFromTraktClick() },
             )
@@ -210,9 +219,14 @@ internal fun AccountContent(
     isLoadingConnection: Boolean,
     isLoadingFavorites: Boolean,
     isDisconnecting: Boolean,
-    lazyGridState: LazyGridState,
+    watchlistSearchQuery: String,
+    watchlistSortOption: WatchlistSortOption,
+    watchlistLazyListState: androidx.compose.foundation.lazy.LazyListState,
+    onSearchQueryChange: (String) -> Unit,
+    onSortOptionChange: (WatchlistSortOption) -> Unit,
     onConnectToTraktClick: () -> Unit,
     onFavoriteClick: (item: TraktUserListItem) -> Unit,
+    onRemoveItem: (item: TraktUserListItem) -> Unit,
     onLogoutClick: () -> Unit,
 ) {
     Column(
@@ -238,18 +252,22 @@ internal fun AccountContent(
 
                 TraktAuthState.LoggedIn -> {
                     if (!isLoadingFavorites && !isFavoriteShowsEmpty) {
-                        FavoritesListContent(
-                            favoriteShows = favoriteShowsList,
-                            widthSizeClass = getWindowSizeClass()?.widthSizeClass,
+                        WatchlistListContent(
+                            watchlistItems = favoriteShowsList,
+                            watchlistSearchQuery = watchlistSearchQuery,
+                            watchlistSortOption = watchlistSortOption,
+                            lazyListState = watchlistLazyListState,
+                            onSearchQueryChange = onSearchQueryChange,
+                            onSortOptionChange = onSortOptionChange,
                             modifier = Modifier.weight(1f),
-                            lazyGridState = lazyGridState,
                             header = {
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                     TraktProfileHeader(onLogoutClick = onLogoutClick)
                                     Spacer(modifier = Modifier.height(16.dp))
                                 }
                             },
-                            onFavoriteClick = onFavoriteClick,
+                            onItemClick = onFavoriteClick,
+                            onRemoveItem = onRemoveItem,
                         )
                     } else {
                         TraktProfileHeader(onLogoutClick = onLogoutClick)

@@ -13,7 +13,7 @@
 package com.theupnextapp.ui.traktAccount
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -24,7 +24,7 @@ import com.theupnextapp.ui.components.EmptyState
 @Composable
 fun EmptyFavoritesContent(modifier: Modifier = Modifier) {
     EmptyState(
-        icon = Icons.Default.FavoriteBorder,
+        icon = Icons.Default.BookmarkBorder,
         title = stringResource(id = R.string.trakt_no_favorites_message),
         message = stringResource(id = R.string.trakt_account_favorites_empty),
         modifier = modifier,

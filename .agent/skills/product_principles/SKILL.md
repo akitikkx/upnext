@@ -13,6 +13,8 @@ When designing features or writing code for Upnext, you MUST adhere to the follo
 
 ## 2. Frictionless Navigation & Actions
 - **Minimize Clicks:** Core actions like rating a show/season/episode, marking an item as watched, or adding it to a collection should take 1-2 clicks maximum.
+- **Intuitive Gestures:** Leverage familiar mobile interactions (like swipe-to-dismiss on list items) to remove items without requiring the user to tap into a secondary menu or Detail Screen.
+- **Clear Symbology:** Avoid ambiguous state icons (like generic Checkmarks for "Watchlist"). Use explicit iconography (like Bookmarks with Plus/Minus) combined with explicit descriptive Action labels whenever space permits.
 - **Quick Episode Traversal:** Ensure episode detail screens have intuitive user flows (e.g., "Previous/Next Episode" arrows or swipe gestures). Do not force users to back out to the season list to change episodes.
 
 ## 3. Robust List & Collection Management

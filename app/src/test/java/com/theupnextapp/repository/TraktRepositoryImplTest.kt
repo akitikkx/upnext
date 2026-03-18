@@ -107,4 +107,91 @@ class TraktRepositoryImplTest {
             verify(traktRecommendationsDataSource).getTraktIdFromImdbId(imdbId)
         }
     }
+
+    @Test
+    fun refreshWatchlist_clearsAndSavesToDb() {
+        runBlocking {
+            val token = "test_token"
+            val showIds =
+                com.theupnextapp.network.models.trakt.NetworkTraktWatchlistResponseItemShowIds(
+                    imdb = "tt123",
+                    slug = "slug",
+                    tmdb = 303,
+                    trakt = 101,
+                    tvdb = 202,
+                    tvMazeID = 404,
+                )
+            val show =
+                com.theupnextapp.network.models.trakt.NetworkTraktWatchlistResponseItemShow(
+                    ids = showIds,
+                    title = "Test Show",
+                    year = 2024,
+                    network = null,
+                    status = null,
+                    rating = null,
+                )
+            val item =
+                com.theupnextapp.network.models.trakt.NetworkTraktWatchlistResponseItem(
+                    id = 1L,
+                    listedAt = "2024-01-01T00:00:00Z",
+                    notes = "notes",
+                    rank = 1,
+                    show = show,
+                    type = "show",
+                )
+            val responseList = com.theupnextapp.network.models.trakt.NetworkTraktWatchlistResponse()
+            responseList.add(item)
+
+            whenever(traktAccountDataSource.getWatchlist(token)).thenReturn(Result.success(responseList))
+            whenever(traktAccountDataSource.getImages("tt123")).thenReturn(Triple(12345, "https://poster.jpg", "https://hero.jpg"))
+
+            val result = repository.refreshWatchlist(token)
+
+            assert(result.isSuccess)
+            verify(traktDao).deleteAllFavoriteShows()
+
+            val expectedShow =
+                com.theupnextapp.database.DatabaseFavoriteShows(
+                    id = 101,
+                    title = "Test Show",
+                    year = "2024",
+                    mediumImageUrl = "https://hero.jpg",
+                    originalImageUrl = "https://poster.jpg",
+                    imdbID = "tt123",
+                    slug = "slug",
+                    tmdbID = 303,
+                    traktID = 101,
+                    tvdbID = 202,
+                    tvMazeID = 12345,
+                    network = null,
+                    status = null,
+                    rating = null,
+                )
+            verify(traktDao).insertAllFavoriteShows(expectedShow)
+        }
+    }
+
+    @Test
+    fun addToWatchlist_delegatesToAccountDataSource() {
+        runBlocking {
+            val token = "test_token"
+            val traktId = 101
+            whenever(traktAccountDataSource.addToWatchlist(traktId, token)).thenReturn(Result.success(Unit))
+
+            repository.addToWatchlist(traktId, token)
+            verify(traktAccountDataSource).addToWatchlist(traktId, token)
+        }
+    }
+
+    @Test
+    fun removeFromWatchlist_delegatesToAccountDataSource() {
+        runBlocking {
+            val token = "test_token"
+            val traktId = 101
+            whenever(traktAccountDataSource.removeFromWatchlist(traktId, token)).thenReturn(Result.success(Unit))
+
+            repository.removeFromWatchlist(traktId, token)
+            verify(traktAccountDataSource).removeFromWatchlist(traktId, token)
+        }
+    }
 }

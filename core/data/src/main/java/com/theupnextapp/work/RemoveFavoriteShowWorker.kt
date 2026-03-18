@@ -115,15 +115,25 @@ constructor(
         imdbID: String?,
         token: String,
     ) {
-        traktRepository.removeShowFromList(
-            traktId = traktId,
-            imdbID = imdbID,
-            token = token,
-        )
-        Timber.d(
-            "${WORK_NAME}: Call to repository to " +
-                "remove show (Trakt ID: $traktId) completed.",
-        )
+        var resolvedTraktId = traktId
+        if (resolvedTraktId == NOT_FOUND && !imdbID.isNullOrEmpty()) {
+             val traktIdResult = traktRepository.getTraktIdLookup(imdbID)
+             resolvedTraktId = traktIdResult.getOrNull() ?: NOT_FOUND
+        }
+
+        if (resolvedTraktId != NOT_FOUND) {
+            traktRepository.removeFromWatchlist(
+                traktId = resolvedTraktId,
+                token = token,
+            )
+            Timber.d(
+                "${WORK_NAME}: Call to repository to " +
+                    "remove show (Trakt ID: $resolvedTraktId) completed.",
+            )
+        } else {
+             Timber.e("${WORK_NAME}: Trakt ID not found for show. Cannot remove from watchlist.")
+             throw Exception("Trakt ID not found for show. Cannot remove.")
+        }
     }
 
     private fun logSuccessToFirebase(

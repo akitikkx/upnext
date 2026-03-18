@@ -27,8 +27,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -44,6 +46,7 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -65,6 +68,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -325,13 +329,14 @@ fun ShowDetailButtons(
                 .padding(
                     horizontal = dimensionResource(id = R.dimen.padding_standard_double),
                     vertical = dimensionResource(id = R.dimen.padding_standard),
-                ),
+                )
+                .height(IntrinsicSize.Min),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         androidx.compose.material3.OutlinedButton(
             onClick = { onSeasonsClick() },
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(1f).fillMaxHeight(),
         ) {
             Text(text = "Seasons")
         }
@@ -347,10 +352,23 @@ fun ShowDetailButtons(
             } else {
                 Button(
                     onClick = { onFavoriteClick() },
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f).fillMaxHeight(),
                 ) {
+                    Icon(
+                        imageVector =
+                            if (isFavorite == true) {
+                                androidx.compose.ui.graphics.vector.ImageVector.vectorResource(
+                                    id = R.drawable.ic_watchlist_remove,
+                                )
+                            } else {
+                                androidx.compose.ui.graphics.vector.ImageVector.vectorResource(id = R.drawable.ic_watchlist_add)
+                            },
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp),
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = if (isFavorite == true) "Remove Favorite" else "Add Favorite",
+                        text = if (isFavorite == true) "Remove from Watchlist" else "Add to Watchlist",
                     )
                 }
             }

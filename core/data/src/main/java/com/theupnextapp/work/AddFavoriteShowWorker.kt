@@ -105,13 +105,23 @@ constructor(
         imdbID: String,
         token: String,
     ) {
-        traktRepository.addShowToList(
-            imdbID = imdbID,
-            token = token,
-        )
-        Timber
-            .tag(TAG)
-            .d("Successfully called repository to add show (IMDb ID: $imdbID) to list.")
+        // Since the worker doesn't have direct access to TraktId, it needs to look it up first
+        val traktIdResult = traktRepository.getTraktIdLookup(imdbID)
+        val traktId = traktIdResult.getOrNull()
+        if (traktId != null) {
+            traktRepository.addToWatchlist(
+                traktId = traktId,
+                token = token,
+            )
+            Timber
+                .tag(TAG)
+                .d("Successfully called repository to add show (IMDb ID: $imdbID, Trakt ID: $traktId) to watchlist.")
+        } else {
+             Timber
+                .tag(TAG)
+                .e("Failed to lookup Trakt ID for IMDb ID: $imdbID to add to watchlist.")
+             throw Exception("Trakt ID not found for show: $imdbID")
+        }
     }
 
     private fun logSuccessToFirebase(imdbID: String?) {
