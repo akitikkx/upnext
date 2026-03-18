@@ -128,12 +128,12 @@ class TraktAccountScreenTest {
         // Check if the first item is displayed
         rule.onNodeWithText("Show 0").assertIsDisplayed()
 
-        // Scroll the grid to reveal the last item
-        val grid = rule.onNodeWithTag("favorites_grid")
+        // Scroll the list to reveal the last item
+        val list = rule.onNodeWithTag("watchlist_column")
 
         // Swipe up multiple times to ensure we reach the bottom
         repeat(5) {
-            grid.performTouchInput { swipeUp() }
+            list.performTouchInput { swipeUp() }
             rule.waitForIdle()
         }
 
