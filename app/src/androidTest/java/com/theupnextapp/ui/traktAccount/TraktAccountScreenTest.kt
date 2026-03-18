@@ -167,6 +167,6 @@ class TraktAccountScreenTest {
         rule.onNodeWithContentDescription("Search Watchlist").performClick()
 
         // Wait for animation, verify TextField placeholder exists
-        rule.onNodeWithText("Search watchlist").assertIsDisplayed()
+        rule.onNodeWithText("Search your watchlist...").assertIsDisplayed()
     }
 }
