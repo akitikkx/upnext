@@ -49,6 +49,8 @@ import com.theupnextapp.network.models.trakt.NetworkTraktPersonShowCreditsRespon
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -182,6 +184,112 @@ class TraktRepositoryImpl(
         _isLoadingTraktMostAnticipated.value = false
     }
 
+    override suspend fun refreshWatchlist(token: String): Result<Unit> {
+        if (token.isEmpty()) return Result.failure(IllegalArgumentException("Empty token"))
+        if (_isLoadingFavoriteShows.value) return Result.success(Unit)
+
+        _isLoadingFavoriteShows.value = true
+        _favoriteShowsError.value = null
+
+        val result = traktAccountDataSource.getWatchlist(token)
+        if (result.isSuccess) {
+            val responseItems = result.getOrNull()
+            if (responseItems != null) {
+                // Map the Native Watchlist into our local DB for offline access, 
+                // leveraging the existing DatabaseFavoriteShows entity for a seamless UI transition.
+                val favoriteShowsList = withContext(Dispatchers.IO) {
+                    val jobs = responseItems.map { item ->
+                        async {
+                            val traktId = item.show.ids.trakt
+                            val existingLocalShow = traktDao.getFavoriteShowByTraktId(traktId)
+
+                            val needsImageFetch =
+                                existingLocalShow == null ||
+                                    existingLocalShow.originalImageUrl.isNullOrEmpty() ||
+                                    existingLocalShow.mediumImageUrl.isNullOrEmpty() ||
+                                    existingLocalShow.tvMazeID == null
+
+                            var dbShow = com.theupnextapp.database.DatabaseFavoriteShows(
+                                id = traktId, // Use Trakt ID as the primary key
+                                title = item.show.title,
+                                year = item.show.year.toString(),
+                                mediumImageUrl = "", // Image URLs will be resolved via TMDB proxy/worker if necessary
+                                originalImageUrl = "",
+                                imdbID = item.show.ids.imdb,
+                                slug = item.show.ids.slug,
+                                tmdbID = item.show.ids.tmdb,
+                                traktID = traktId,
+                                tvdbID = item.show.ids.tvdb,
+                                tvMazeID = item.show.ids.tvMazeID,
+                                network = item.show.network,
+                                status = item.show.status,
+                                rating = item.show.rating
+                            )
+
+                            if (needsImageFetch) {
+                                item.show.ids.imdb?.let { imdbId ->
+                                    val (tvMazeIdResult, poster, heroImage) = traktAccountDataSource.getImages(imdbId)
+                                    dbShow = dbShow.copy(
+                                        originalImageUrl = poster ?: existingLocalShow?.originalImageUrl,
+                                        mediumImageUrl = heroImage ?: existingLocalShow?.mediumImageUrl,
+                                        tvMazeID = tvMazeIdResult ?: existingLocalShow?.tvMazeID
+                                    )
+                                }
+                            } else if (existingLocalShow != null) {
+                                dbShow = dbShow.copy(
+                                    originalImageUrl = existingLocalShow.originalImageUrl,
+                                    mediumImageUrl = existingLocalShow.mediumImageUrl,
+                                    tvMazeID = existingLocalShow.tvMazeID
+                                )
+                            }
+                            dbShow
+                        }
+                    }
+                    jobs.awaitAll()
+                }
+
+                traktDao.deleteAllFavoriteShows()
+                traktDao.insertAllFavoriteShows(*favoriteShowsList.toTypedArray())
+            }
+        } else {
+            _favoriteShowsError.value = result.exceptionOrNull()?.message
+        }
+
+        _isLoadingFavoriteShows.value = false
+        return Result.success(Unit)
+    }
+
+    override suspend fun addToWatchlist(
+        traktId: Int,
+        token: String,
+    ): Result<Unit> {
+        _isLoadingFavoriteShows.value = true
+        _favoriteShowsError.value = null
+
+        val result = traktAccountDataSource.addToWatchlist(traktId, token)
+        if (result.isFailure) {
+            _favoriteShowsError.value = result.exceptionOrNull()?.message
+        }
+        _isLoadingFavoriteShows.value = false
+        return result
+    }
+
+    override suspend fun removeFromWatchlist(
+        traktId: Int,
+        token: String,
+    ): Result<Unit> {
+        _isLoadingFavoriteShows.value = true
+        _favoriteShowsError.value = null
+
+        val result = traktAccountDataSource.removeFromWatchlist(traktId, token)
+        if (result.isFailure) {
+            _favoriteShowsError.value = result.exceptionOrNull()?.message
+        }
+        _isLoadingFavoriteShows.value = false
+        return result
+    }
+
+    @Deprecated("Use refreshWatchlist instead", ReplaceWith("refreshWatchlist(token)"))
     override suspend fun refreshFavoriteShows(
         forceRefresh: Boolean,
         token: String?,
@@ -189,22 +297,12 @@ class TraktRepositoryImpl(
         refreshFavoriteShows(token ?: "")
     }
 
+    @Deprecated("Use refreshWatchlist instead")
     override suspend fun refreshFavoriteShows(token: String): Result<Unit> {
-        if (token.isEmpty()) return Result.failure(IllegalArgumentException("Empty token"))
-        if (_isLoadingFavoriteShows.value) return Result.success(Unit)
-
-        _isLoadingFavoriteShows.value = true
-        _favoriteShowsError.value = null
-
-        val result = traktAccountDataSource.refreshFavoriteShows(token)
-        if (result.isFailure) {
-            _favoriteShowsError.value = result.exceptionOrNull()?.message
-        }
-
-        _isLoadingFavoriteShows.value = false
-        return result
+        return refreshWatchlist(token)
     }
 
+    @Deprecated("Use addToWatchlist instead")
     override suspend fun addShowToFavorites(
         imdbId: String,
         token: String,
@@ -225,6 +323,7 @@ class TraktRepositoryImpl(
         return result
     }
 
+    @Deprecated("Use addToWatchlist instead")
     override suspend fun addShowToList(
         imdbID: String?,
         token: String?,
@@ -234,6 +333,7 @@ class TraktRepositoryImpl(
         }
     }
 
+    @Deprecated("Use removeFromWatchlist instead")
     override suspend fun removeShowFromFavorites(
         traktId: Int,
         imdbId: String,
@@ -250,6 +350,7 @@ class TraktRepositoryImpl(
         return result
     }
 
+    @Deprecated("Use removeFromWatchlist instead")
     override suspend fun removeShowFromList(
         traktId: Int?,
         imdbID: String?,

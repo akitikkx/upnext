@@ -1,11 +1,12 @@
 package com.theupnextapp.ui.traktAccount
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -37,9 +38,14 @@ class TraktAccountScreenTest {
                 isLoadingConnection = false,
                 isLoadingFavorites = false,
                 isDisconnecting = false,
-                lazyGridState = rememberLazyGridState(),
+                watchlistSearchQuery = "",
+                watchlistSortOption = WatchlistSortOption.ADDED,
+                watchlistLazyListState = rememberLazyListState(),
+                onSearchQueryChange = {},
+                onSortOptionChange = {},
                 onConnectToTraktClick = { connectClicked = true },
                 onFavoriteClick = {},
+                onRemoveItem = {},
                 onLogoutClick = {},
             )
         }
@@ -60,9 +66,14 @@ class TraktAccountScreenTest {
                 isLoadingConnection = false,
                 isLoadingFavorites = false,
                 isDisconnecting = false,
-                lazyGridState = rememberLazyGridState(),
+                watchlistSearchQuery = "",
+                watchlistSortOption = WatchlistSortOption.ADDED,
+                watchlistLazyListState = rememberLazyListState(),
+                onSearchQueryChange = {},
+                onSortOptionChange = {},
                 onConnectToTraktClick = {},
                 onFavoriteClick = {},
+                onRemoveItem = {},
                 onLogoutClick = {},
             )
         }
@@ -88,6 +99,9 @@ class TraktAccountScreenTest {
                     tvdbID = index,
                     year = "2023",
                     imdbID = "tt$index",
+                    network = null,
+                    status = null,
+                    rating = null,
                 )
             }
 
@@ -99,9 +113,14 @@ class TraktAccountScreenTest {
                 isLoadingConnection = false,
                 isLoadingFavorites = false,
                 isDisconnecting = false,
-                lazyGridState = rememberLazyGridState(),
+                watchlistSearchQuery = "",
+                watchlistSortOption = WatchlistSortOption.ADDED,
+                watchlistLazyListState = rememberLazyListState(),
+                onSearchQueryChange = {},
+                onSortOptionChange = {},
                 onConnectToTraktClick = {},
                 onFavoriteClick = {},
+                onRemoveItem = {},
                 onLogoutClick = {},
             )
         }
@@ -109,16 +128,45 @@ class TraktAccountScreenTest {
         // Check if the first item is displayed
         rule.onNodeWithText("Show 0").assertIsDisplayed()
 
-        // Scroll the grid to reveal the last item
-        val grid = rule.onNodeWithTag("favorites_grid")
+        // Scroll the list to reveal the last item
+        val list = rule.onNodeWithTag("watchlist_column")
 
         // Swipe up multiple times to ensure we reach the bottom
         repeat(5) {
-            grid.performTouchInput { swipeUp() }
+            list.performTouchInput { swipeUp() }
             rule.waitForIdle()
         }
 
         // Verify the last item exists and is displayed
         rule.onNodeWithText("Show 19").assertIsDisplayed()
+    }
+
+    @Test
+    fun accountContent_searchIcon_togglesSearchInput() {
+        rule.setContent {
+            AccountContent(
+                traktAuthState = TraktAuthState.LoggedIn,
+                favoriteShowsList = emptyList(),
+                isFavoriteShowsEmpty = false,
+                isLoadingConnection = false,
+                isLoadingFavorites = false,
+                isDisconnecting = false,
+                watchlistSearchQuery = "",
+                watchlistSortOption = WatchlistSortOption.ADDED,
+                watchlistLazyListState = rememberLazyListState(),
+                onSearchQueryChange = {},
+                onSortOptionChange = {},
+                onConnectToTraktClick = {},
+                onFavoriteClick = {},
+                onRemoveItem = {},
+                onLogoutClick = {},
+            )
+        }
+
+        // Click the Search Watchlist icon button
+        rule.onNodeWithContentDescription("Search Watchlist").performClick()
+
+        // Wait for animation, verify TextField placeholder exists
+        rule.onNodeWithText("Search your watchlist...").assertIsDisplayed()
     }
 }

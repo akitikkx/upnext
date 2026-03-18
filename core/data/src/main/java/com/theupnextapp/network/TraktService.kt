@@ -135,13 +135,33 @@ interface TraktService {
         @Body networkTraktAddShowToListRequest: NetworkTraktAddShowToListRequest,
     ): Deferred<NetworkTraktAddShowToListResponse>
 
-    @POST("users/{id}/lists/{list_id}/items/remove")
+    @GET("users/{id}/lists/{list_id}/items/remove")
     fun removeShowFromCustomListAsync(
         @Header("Authorization") token: String,
         @Path("id") userSlug: String,
         @Path("list_id") traktId: String,
         @Body networkTraktRemoveShowFromListRequest: NetworkTraktRemoveShowFromListRequest,
     ): Deferred<NetworkTraktRemoveShowFromListResponse>
+
+    @GET("users/me/watchlist/shows")
+    fun getWatchlistAsync(
+        @Header("Authorization") token: String,
+        @Query("limit") limit: Int = 100,
+        @Query("sort") sort: String = "added",
+        @Query("extended") extended: String = "full"
+    ): Deferred<com.theupnextapp.network.models.trakt.NetworkTraktWatchlistResponse>
+
+    @POST("sync/watchlist")
+    fun addToWatchlistAsync(
+        @Header("Authorization") token: String,
+        @Body networkTraktWatchlistRequest: com.theupnextapp.network.models.trakt.NetworkTraktWatchlistRequest,
+    ): Deferred<com.theupnextapp.network.models.trakt.NetworkTraktAddShowToListResponse>
+
+    @POST("sync/watchlist/remove")
+    fun removeFromWatchlistAsync(
+        @Header("Authorization") token: String,
+        @Body networkTraktWatchlistRequest: com.theupnextapp.network.models.trakt.NetworkTraktWatchlistRequest,
+    ): Deferred<com.theupnextapp.network.models.trakt.NetworkTraktRemoveShowFromListResponse>
 
     @GET("search/{id_type}/{id}")
     fun idLookupAsync(

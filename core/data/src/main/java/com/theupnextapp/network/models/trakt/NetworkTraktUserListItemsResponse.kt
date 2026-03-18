@@ -63,5 +63,8 @@ fun NetworkTraktUserListItemResponseItem.asDatabaseModel(): DatabaseFavoriteShow
         traktID = show?.ids?.trakt,
         tvdbID = show?.ids?.tvdb,
         tvMazeID = show?.ids?.tvMazeID,
+        network = null,
+        status = null,
+        rating = null,
     )
 }

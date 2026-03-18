@@ -39,7 +39,7 @@ import androidx.room.RoomDatabase
         DatabaseWatchedEpisode::class,
         DatabaseRecentSearch::class,
     ],
-    version = 32,
+    version = 33,
     exportSchema = true,
 )
 abstract class UpnextDatabase : RoomDatabase() {

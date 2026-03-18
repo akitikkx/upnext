@@ -252,3 +252,15 @@ val MIGRATION_31_32 =
             )
         }
     }
+
+val MIGRATION_32_33 =
+    object : Migration(
+        32,
+        33,
+    ) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE `favorite_shows` ADD COLUMN `network` TEXT")
+            db.execSQL("ALTER TABLE `favorite_shows` ADD COLUMN `status` TEXT")
+            db.execSQL("ALTER TABLE `favorite_shows` ADD COLUMN `rating` REAL")
+        }
+    }

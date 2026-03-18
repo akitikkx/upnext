@@ -39,6 +39,9 @@ class TraktAccountScrollTest {
                     tvdbID = index,
                     tvMazeID = index,
                     year = "2024",
+                    network = null,
+                    status = null,
+                    rating = null,
                 )
             }
 

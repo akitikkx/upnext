@@ -33,4 +33,7 @@ data class TraktUserListItem(
     val traktID: Int?,
     val tvdbID: Int?,
     val tvMazeID: Int?,
+    val network: String?,
+    val status: String?,
+    val rating: Double?,
 )

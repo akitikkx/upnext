@@ -312,6 +312,9 @@ constructor(
                             mediumImageUrl = null,
                             originalImageUrl = null,
                             tvMazeID = null,
+                            network = null,
+                            status = null,
+                            rating = null,
                         )
                     val (tvMazeIdResult, poster, heroImage) = getImages(imdbId)
                     dbShow =
@@ -395,6 +398,90 @@ constructor(
                 Result.failure(Exception(userMessage, e))
             } catch (e: Exception) {
                 logTraktException("Error removing show", e)
+                Result.failure(e)
+            }
+        }
+    }
+
+    suspend fun getWatchlist(token: String): Result<com.theupnextapp.network.models.trakt.NetworkTraktWatchlistResponse> {
+        if (token.isEmpty()) return Result.failure(IllegalArgumentException("Token is empty"))
+        return withContext(Dispatchers.IO) {
+            try {
+                val bearerToken = "Bearer $token"
+                val response = traktService.getWatchlistAsync(bearerToken).await()
+                Result.success(response)
+            } catch (e: HttpException) {
+                val errorBody = e.response()?.errorBody()?.stringSuspending()
+                val userMessage = parseTraktApiError(errorBody, "Failed to fetch watchlist.", moshi)
+                Result.failure(Exception(userMessage, e))
+            } catch (e: Exception) {
+                logTraktException("Error fetching watchlist", e)
+                Result.failure(e)
+            }
+        }
+    }
+
+    suspend fun addToWatchlist(
+        traktId: Int,
+        token: String,
+    ): Result<Unit> {
+        if (token.isEmpty()) return Result.failure(IllegalArgumentException("Token is empty"))
+        return withContext(Dispatchers.IO) {
+            try {
+                val bearerToken = "Bearer $token"
+                val request = com.theupnextapp.network.models.trakt.NetworkTraktWatchlistRequest(
+                    shows = listOf(
+                        com.theupnextapp.network.models.trakt.NetworkTraktWatchlistRequestShow(
+                            ids = com.theupnextapp.network.models.trakt.NetworkTraktWatchlistRequestShowIds(trakt = traktId)
+                        )
+                    )
+                )
+
+                val response = traktService.addToWatchlistAsync(bearerToken, request).await()
+                if (response.added.shows == 1 || response.existing.shows == 1) {
+                    Result.success(Unit)
+                } else {
+                    Result.failure(Exception("Failed to add show to watchlist. Trakt response: $response"))
+                }
+            } catch (e: HttpException) {
+                val errorBody = e.response()?.errorBody()?.stringSuspending()
+                val userMessage = parseTraktApiError(errorBody, "Failed to add to watchlist.", moshi)
+                Result.failure(Exception(userMessage, e))
+            } catch (e: Exception) {
+                logTraktException("Error adding to watchlist", e)
+                Result.failure(e)
+            }
+        }
+    }
+
+    suspend fun removeFromWatchlist(
+        traktId: Int,
+        token: String,
+    ): Result<Unit> {
+        if (token.isEmpty()) return Result.failure(IllegalArgumentException("Token is empty"))
+        return withContext(Dispatchers.IO) {
+            try {
+                val bearerToken = "Bearer $token"
+                val request = com.theupnextapp.network.models.trakt.NetworkTraktWatchlistRequest(
+                    shows = listOf(
+                        com.theupnextapp.network.models.trakt.NetworkTraktWatchlistRequestShow(
+                            ids = com.theupnextapp.network.models.trakt.NetworkTraktWatchlistRequestShowIds(trakt = traktId)
+                        )
+                    )
+                )
+
+                val response = traktService.removeFromWatchlistAsync(bearerToken, request).await()
+                if (response.deleted.shows == 1 || (response.not_found.shows?.any { it.ids.trakt == traktId } == true)) {
+                    Result.success(Unit)
+                } else {
+                    Result.failure(Exception("Failed to remove show from watchlist."))
+                }
+            } catch (e: HttpException) {
+                val errorBody = e.response()?.errorBody()?.stringSuspending()
+                val userMessage = parseTraktApiError(errorBody, "Failed to remove from watchlist.", moshi)
+                Result.failure(Exception(userMessage, e))
+            } catch (e: Exception) {
+                logTraktException("Error removing from watchlist", e)
                 Result.failure(e)
             }
         }
