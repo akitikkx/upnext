@@ -21,7 +21,6 @@
 
 package com.theupnextapp.ui.showDetail
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -184,15 +183,15 @@ fun ShowDetailScreen(
                     onSeasonsClick = { viewModel.onSeasonsClick() },
                     onFavoriteClick = { viewModel.onAddRemoveFavoriteClick() },
                     onCastItemClick = { castItem ->
-                        val personId = castItem.person?.ids?.trakt?.toString()
-                        val name = castItem.person?.name
+                        val personId = castItem.traktId?.toString()
+                        val name = castItem.name
                         if (!personId.isNullOrEmpty() && !name.isNullOrEmpty()) {
                             navController.navigate(
                                 Destinations.PersonDetail(
                                     personId = personId,
                                     personName = name,
-                                    personImageUrl = castItem.person?.images?.headshot?.full
-                                )
+                                    personImageUrl = castItem.originalImageUrl,
+                                ),
                             )
                         }
                     },

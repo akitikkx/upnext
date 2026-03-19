@@ -38,10 +38,10 @@ import androidx.navigation.toRoute
 import com.theupnextapp.navigation.Destinations
 import com.theupnextapp.ui.episodeDetail.EpisodeDetailScreen
 import com.theupnextapp.ui.main.TopBar
+import com.theupnextapp.ui.personDetail.PersonDetailScreen
 import com.theupnextapp.ui.settings.SettingsScreen
 import com.theupnextapp.ui.showDetail.EmptyDetailScreen
 import com.theupnextapp.ui.showDetail.ShowDetailScreen
-import com.theupnextapp.ui.personDetail.PersonDetailScreen
 import com.theupnextapp.ui.showSeasonEpisodes.ShowSeasonEpisodesScreen
 import com.theupnextapp.ui.showSeasons.ShowSeasonsScreen
 import com.theupnextapp.ui.traktAccount.TraktAccountScreen

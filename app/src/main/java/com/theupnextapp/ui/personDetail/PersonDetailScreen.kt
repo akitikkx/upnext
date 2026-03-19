@@ -26,7 +26,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -38,6 +37,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -47,7 +47,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -61,17 +60,35 @@ import coil.request.ImageRequest
 import com.theupnextapp.domain.PersonDetailArg
 import com.theupnextapp.navigation.Destinations
 
-import androidx.compose.material3.ExperimentalMaterial3Api
+private const val HERO_IMAGE_ALPHA = 0.6f
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PersonDetailScreen(
     personDetailArg: PersonDetailArg,
     navController: NavController,
-    viewModel: PersonDetailViewModel = hiltViewModel()
+    viewModel: PersonDetailViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val navigateToShowDetail by viewModel.navigateToShowDetail.collectAsStateWithLifecycle()
     val context = LocalContext.current
+
+    LaunchedEffect(navigateToShowDetail) {
+        navigateToShowDetail?.let {
+            navController.navigate(
+                Destinations.ShowDetail(
+                    showId = it.showId,
+                    showTitle = it.showTitle,
+                    showImageUrl = it.showImageUrl,
+                    showBackgroundUrl = it.showBackgroundUrl,
+                    imdbID = it.imdbID,
+                    isAuthorizedOnTrakt = it.isAuthorizedOnTrakt,
+                    showTraktId = it.showTraktId,
+                ),
+            )
+            viewModel.onShowDetailNavigationComplete()
+        }
+    }
 
     LaunchedEffect(personDetailArg.personId) {
         viewModel.getPersonDetails(personDetailArg.personId)
@@ -80,7 +97,7 @@ fun PersonDetailScreen(
     Scaffold(
         topBar = {
             // Can use a custom TopAppBar here if needed
-        }
+        },
     ) { paddingValues ->
         if (uiState.isLoading) {
             Box(modifier = Modifier.fillMaxSize().padding(paddingValues), contentAlignment = Alignment.Center) {
@@ -88,45 +105,50 @@ fun PersonDetailScreen(
             }
         } else {
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
             ) {
                 item {
                     // Hero Image and Title
                     Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(250.dp)
-                            .background(Color.Black.copy(alpha = 0.8f))
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .height(250.dp)
+                                .background(Color.Black.copy(alpha = 0.8f)),
                     ) {
                         AsyncImage(
-                            model = ImageRequest.Builder(LocalContext.current)
-                                .data(personDetailArg.personImageUrl)
-                                .crossfade(true)
-                                .build(),
+                            model =
+                                ImageRequest.Builder(LocalContext.current)
+                                    .data(personDetailArg.personImageUrl)
+                                    .crossfade(true)
+                                    .build(),
                             contentDescription = personDetailArg.personName,
                             contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .alpha(0.6f)
+                            modifier =
+                                Modifier
+                                    .fillMaxSize()
+                                    .alpha(HERO_IMAGE_ALPHA),
                         )
                         Column(
-                            modifier = Modifier
-                                .align(Alignment.BottomStart)
-                                .padding(16.dp)
+                            modifier =
+                                Modifier
+                                    .align(Alignment.BottomStart)
+                                    .padding(16.dp),
                         ) {
                             Text(
                                 text = personDetailArg.personName,
                                 style = MaterialTheme.typography.headlineLarge,
                                 fontWeight = FontWeight.Bold,
-                                color = Color.White
+                                color = Color.White,
                             )
                             uiState.personSummary?.birthday?.let {
                                 Text(
                                     text = "Born: $it",
                                     style = MaterialTheme.typography.bodyMedium,
-                                    color = Color.LightGray
+                                    color = Color.LightGray,
                                 )
                             }
                         }
@@ -138,7 +160,7 @@ fun PersonDetailScreen(
                         Text(
                             text = error,
                             color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.padding(16.dp)
+                            modifier = Modifier.padding(16.dp),
                         )
                     }
                 }
@@ -150,11 +172,11 @@ fun PersonDetailScreen(
                                 text = "Biography",
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(bottom = 8.dp)
+                                modifier = Modifier.padding(bottom = 8.dp),
                             )
                             Text(
                                 text = bio,
-                                style = MaterialTheme.typography.bodyMedium
+                                style = MaterialTheme.typography.bodyMedium,
                             )
                         }
                     }
@@ -166,11 +188,11 @@ fun PersonDetailScreen(
                             text = "Filmography",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                         )
                         LazyRow(
                             contentPadding = PaddingValues(horizontal = 16.dp),
-                            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp)
+                            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp),
                         ) {
                             items(credits) { credit ->
                                 val showTitle = credit.show?.title ?: "Unknown Show"
@@ -181,41 +203,36 @@ fun PersonDetailScreen(
                                 Card(
                                     onClick = {
                                         if (isClickable) {
-                                            navController.navigate(
-                                                Destinations.ShowDetail(
-                                                    showId = credit.show?.ids?.tvmaze?.toString(),
-                                                    showTitle = showTitle,
-                                                    showImageUrl = null, // Will be fetched internally
-                                                    showBackgroundUrl = null,
-                                                    imdbID = credit.show?.ids?.imdb,
-                                                    isAuthorizedOnTrakt = false,
-                                                    showTraktId = credit.show?.ids?.trakt
-                                                )
+                                            viewModel.onCreditClicked(
+                                                imdbId = credit.show?.ids?.imdb,
+                                                title = showTitle,
+                                                traktId = credit.show?.ids?.trakt,
                                             )
                                         } else {
                                             Toast.makeText(context, "Show details unavailable", Toast.LENGTH_SHORT).show()
                                         }
                                     },
                                     modifier = Modifier.width(160.dp),
-                                    enabled = true
+                                    enabled = true,
                                 ) {
                                     Column(
-                                        modifier = Modifier
-                                            .padding(12.dp)
-                                            .alpha(if (isClickable) 1f else 0.5f)
+                                        modifier =
+                                            Modifier
+                                                .padding(12.dp)
+                                                .alpha(if (isClickable) 1f else 0.5f),
                                     ) {
                                         Text(
                                             text = showTitle,
                                             style = MaterialTheme.typography.bodyMedium,
                                             fontWeight = FontWeight.Bold,
                                             maxLines = 2,
-                                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                                         )
                                         if (year.isNotBlank()) {
                                             Text(
                                                 text = year,
                                                 style = MaterialTheme.typography.labelSmall,
-                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                             )
                                         }
                                         Spacer(modifier = Modifier.height(4.dp))
@@ -223,7 +240,7 @@ fun PersonDetailScreen(
                                             text = "as $character",
                                             style = MaterialTheme.typography.bodySmall,
                                             maxLines = 2,
-                                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                                         )
                                     }
                                 }

@@ -40,8 +40,6 @@ import com.theupnextapp.domain.TraktShowRating
 import com.theupnextapp.domain.TraktShowStats
 import com.theupnextapp.domain.TraktUserListItem
 import com.theupnextapp.domain.emptyShowData
-import com.theupnextapp.network.models.trakt.NetworkTraktPersonResponse
-import com.theupnextapp.network.models.trakt.NetworkTraktPersonShowCreditsResponse
 import com.theupnextapp.repository.ShowDetailRepository
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.ui.common.BaseTraktViewModel
@@ -50,7 +48,6 @@ import com.theupnextapp.work.RemoveFavoriteShowWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -153,6 +150,26 @@ class ShowDetailViewModel
         val traktId: StateFlow<Int?> = _traktId.asStateFlow()
 
         data class ShowDetailUiState(
+            val showSummary: ShowDetailSummary? = null,
+            val showPreviousEpisode: ShowPreviousEpisode? = null,
+            val showNextEpisode: ShowNextEpisode? = null,
+            val showCast: List<ShowCast>? = null,
+            val traktCast: List<TraktCast>? = null,
+            val isLoadingSummary: Boolean = false,
+            val isCastLoading: Boolean = false,
+            val isPreviousEpisodeLoading: Boolean = false,
+            val isNextEpisodeLoading: Boolean = false,
+            val summaryErrorMessage: String? = null,
+            val castErrorMessage: String? = null,
+            val previousEpisodeErrorMessage: String? = null,
+            val nextEpisodeErrorMessage: String? = null,
+            val generalErrorMessage: String? = null,
+            val favoriteShow: TraktUserListItem? = null,
+            val similarShows: List<TraktRelatedShows>? = null,
+            val isSimilarShowsLoading: Boolean = false,
+            val watchProviders: com.theupnextapp.domain.TmdbWatchProviders? = null,
+            val isWatchProvidersLoading: Boolean = false,
+        )
 
         fun selectedShow(show: ShowDetailArg?) {
             _uiState.update { ShowDetailUiState() }

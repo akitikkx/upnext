@@ -23,10 +23,14 @@ package com.theupnextapp.ui.personDetail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.theupnextapp.domain.Result
+import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.network.models.trakt.NetworkTraktPersonResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktPersonShowCreditsResponse
+import com.theupnextapp.repository.ShowDetailRepository
 import com.theupnextapp.repository.TraktRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -36,55 +40,106 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class PersonDetailViewModel @Inject constructor(
-    private val traktRepository: TraktRepository
-) : ViewModel() {
+class PersonDetailViewModel
+    @Inject
+    constructor(
+        private val traktRepository: TraktRepository,
+        private val showDetailRepository: ShowDetailRepository,
+    ) : ViewModel() {
+        private val _uiState = MutableStateFlow(PersonDetailUiState())
+        val uiState: StateFlow<PersonDetailUiState> = _uiState.asStateFlow()
 
-    private val _uiState = MutableStateFlow(PersonDetailUiState())
-    val uiState: StateFlow<PersonDetailUiState> = _uiState.asStateFlow()
+        fun getPersonDetails(personId: String) {
+            viewModelScope.launch {
+                _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
-    fun getPersonDetails(personId: String) {
-        viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, errorMessage = null) }
+                try {
+                    val summaryDeferred = async { traktRepository.getTraktPersonSummary(personId) }
+                    val creditsDeferred = async { traktRepository.getTraktPersonShowCredits(personId) }
 
-            try {
-                val summaryDeferred = async { traktRepository.getTraktPersonSummary(personId) }
-                val creditsDeferred = async { traktRepository.getTraktPersonShowCredits(personId) }
+                    val summaryResult = summaryDeferred.await()
+                    val creditsResult = creditsDeferred.await()
 
-                val summaryResult = summaryDeferred.await()
-                val creditsResult = creditsDeferred.await()
-
-                if (summaryResult.isSuccess && creditsResult.isSuccess) {
+                    if (summaryResult.isSuccess && creditsResult.isSuccess) {
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                personSummary = summaryResult.getOrNull(),
+                                personCredits = creditsResult.getOrNull(),
+                            )
+                        }
+                    } else {
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                errorMessage = summaryResult.exceptionOrNull()?.message ?: "Failed to load person details.",
+                            )
+                        }
+                    }
+                } catch (e: Exception) {
                     _uiState.update {
                         it.copy(
                             isLoading = false,
-                            personSummary = summaryResult.getOrNull(),
-                            personCredits = creditsResult.getOrNull()
+                            errorMessage = e.message ?: "An unexpected error occurred.",
                         )
                     }
-                } else {
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            errorMessage = summaryResult.exceptionOrNull()?.message ?: "Failed to load person details."
-                        )
-                    }
-                }
-            } catch (e: Exception) {
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        errorMessage = e.message ?: "An unexpected error occurred."
-                    )
                 }
             }
         }
-    }
 
-    data class PersonDetailUiState(
-        val isLoading: Boolean = false,
-        val personSummary: NetworkTraktPersonResponse? = null,
-        val personCredits: NetworkTraktPersonShowCreditsResponse? = null,
-        val errorMessage: String? = null
-    )
-}
+        private val _navigateToShowDetail = MutableStateFlow<ShowDetailArg?>(null)
+        val navigateToShowDetail: StateFlow<ShowDetailArg?> = _navigateToShowDetail.asStateFlow()
+
+        fun onCreditClicked(
+            imdbId: String?,
+            title: String?,
+            traktId: Int?,
+        ) {
+            if (!imdbId.isNullOrEmpty()) {
+                viewModelScope.launch(Dispatchers.IO) {
+                    _uiState.update { it.copy(isLoading = true) }
+                    showDetailRepository.getShowLookup(imdbId).collect { result ->
+                        when (result) {
+                            is Result.Success -> {
+                                val tvMazeId = result.data.id
+                                val arg =
+                                    ShowDetailArg(
+                                        showId = tvMazeId.toString(),
+                                        showTitle = title,
+                                        showImageUrl = null,
+                                        showBackgroundUrl = null,
+                                        imdbID = imdbId,
+                                        isAuthorizedOnTrakt = false,
+                                        showTraktId = traktId,
+                                    )
+                                _navigateToShowDetail.value = arg
+                                _uiState.update { it.copy(isLoading = false) }
+                            }
+                            is Result.Error, is Result.GenericError, is Result.NetworkError -> {
+                                _uiState.update {
+                                    it.copy(
+                                        isLoading = false,
+                                        errorMessage = "Could not find show details",
+                                    )
+                                }
+                            }
+                            is Result.Loading -> {}
+                        }
+                    }
+                }
+            } else {
+                _uiState.update { it.copy(errorMessage = "No IMDB ID available for this show") }
+            }
+        }
+
+        fun onShowDetailNavigationComplete() {
+            _navigateToShowDetail.value = null
+        }
+
+        data class PersonDetailUiState(
+            val isLoading: Boolean = false,
+            val personSummary: NetworkTraktPersonResponse? = null,
+            val personCredits: NetworkTraktPersonShowCreditsResponse? = null,
+            val errorMessage: String? = null,
+        )
+    }
