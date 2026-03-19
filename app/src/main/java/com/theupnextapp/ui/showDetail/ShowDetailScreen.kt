@@ -183,26 +183,26 @@ fun ShowDetailScreen(
                     showStats = showStats,
                     onSeasonsClick = { viewModel.onSeasonsClick() },
                     onFavoriteClick = { viewModel.onAddRemoveFavoriteClick() },
-                    onCastItemClick = { castItem -> viewModel.onShowCastItemClicked(castItem) },
+                    onCastItemClick = { castItem ->
+                        val personId = castItem.person?.ids?.trakt?.toString()
+                        val name = castItem.person?.name
+                        if (!personId.isNullOrEmpty() && !name.isNullOrEmpty()) {
+                            navController.navigate(
+                                Destinations.PersonDetail(
+                                    personId = personId,
+                                    personName = name,
+                                    personImageUrl = castItem.person?.images?.headshot?.full
+                                )
+                            )
+                        }
+                    },
                     onSimilarShowClick = { show -> viewModel.onSimilarShowClicked(show) },
                     onRetry = { viewModel.selectedShow(showDetailArgs) },
                     onBack = { navController.navigateUp() },
                 )
             }
 
-            val castBottomSheetUiState by viewModel.castBottomSheetUiState.collectAsStateWithLifecycle()
             val navigateToShowDetail by viewModel.navigateToShowDetail.collectAsStateWithLifecycle()
-
-            if (castBottomSheetUiState.traktCast != null) {
-                BackHandler {
-                    viewModel.displayCastBottomSheetComplete()
-                }
-                CastBottomSheet(
-                    uiState = castBottomSheetUiState,
-                    onCreditClick = { viewModel.onCreditClicked(it) },
-                    onDismissRequest = { viewModel.displayCastBottomSheetComplete() },
-                )
-            }
 
             LaunchedEffect(navigateToShowDetail) {
                 navigateToShowDetail?.let {

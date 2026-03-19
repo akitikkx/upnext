@@ -125,5 +125,19 @@ sealed interface Destinations {
     }
 
     @Serializable
+    data class PersonDetail(
+        val personId: String,
+        val personName: String,
+        val personImageUrl: String? = null
+    ) : Destinations {
+        fun toArg() =
+            PersonDetailArg(
+                personId = personId,
+                personName = personName,
+                personImageUrl = personImageUrl
+            )
+    }
+
+    @Serializable
     data object EmptyDetail : Destinations
 }

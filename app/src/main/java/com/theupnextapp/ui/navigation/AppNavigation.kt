@@ -41,6 +41,7 @@ import com.theupnextapp.ui.main.TopBar
 import com.theupnextapp.ui.settings.SettingsScreen
 import com.theupnextapp.ui.showDetail.EmptyDetailScreen
 import com.theupnextapp.ui.showDetail.ShowDetailScreen
+import com.theupnextapp.ui.personDetail.PersonDetailScreen
 import com.theupnextapp.ui.showSeasonEpisodes.ShowSeasonEpisodesScreen
 import com.theupnextapp.ui.showSeasons.ShowSeasonsScreen
 import com.theupnextapp.ui.traktAccount.TraktAccountScreen
@@ -82,6 +83,13 @@ fun AppNavigation(
                     null
                 }
             }
+            currentEntry?.destination?.hasRoute<Destinations.PersonDetail>() == true -> {
+                try {
+                    currentEntry.toRoute<Destinations.PersonDetail>().personName
+                } catch (e: Exception) {
+                    null
+                }
+            }
             else -> null
         }
 
@@ -90,7 +98,8 @@ fun AppNavigation(
             currentEntry.destination.hasRoute<Destinations.EmptyDetail>() == false &&
             currentEntry.destination.hasRoute<Destinations.ShowSeasons>() == false &&
             currentEntry.destination.hasRoute<Destinations.ShowSeasonEpisodes>() == false &&
-            currentEntry.destination.hasRoute<Destinations.EpisodeDetail>() == false
+            currentEntry.destination.hasRoute<Destinations.EpisodeDetail>() == false &&
+            currentEntry.destination.hasRoute<Destinations.PersonDetail>() == false
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -152,6 +161,14 @@ fun AppNavigation(
                     val args = backStackEntry.toRoute<Destinations.ShowDetail>()
                     ShowDetailScreen(
                         showDetailArgs = args.toArg(),
+                        navController = navHostController,
+                    )
+                }
+
+                composable<Destinations.PersonDetail> { backStackEntry ->
+                    val args = backStackEntry.toRoute<Destinations.PersonDetail>()
+                    PersonDetailScreen(
+                        personDetailArg = args.toArg(),
                         navController = navHostController,
                     )
                 }
