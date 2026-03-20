@@ -204,6 +204,36 @@ Don't launch real HTTP calls or real `WorkManager` workers in Unit Tests. Rather
 2. Validate the `OneTimeWorkRequestBuilder` execution parameters explicitly. Because `WorkManager.enqueue()` is overloaded (it accepts single requests OR lists), standard `Mockito.any()` will cause a Kotlin compilation error `Overload resolution ambiguity`. You **must** use `mockito-kotlin`'s reified type parameters: `verify(workManager).enqueue(org.mockito.kotlin.any<androidx.work.WorkRequest>())`.
 3. If an API returns `Result.Success`, make sure to wrap your mock inside `flowOf(Result.Success())`.
 
+### Testing Remote Data Refresh in ViewModels
+
+When a ViewModel triggers a remote refresh (e.g., pulling watched state from Trakt), test both the happy path and the unauthenticated path:
+
+```kotlin
+@Test
+fun `screen load triggers server refresh when authenticated`() = runTest {
+    val token = TraktAccessToken(access_token = "token", ...)
+    whenever(traktRepository.traktAccessToken).thenReturn(MutableStateFlow(token))
+    whenever(repository.refreshFromRemote("token", id)).thenReturn(Result.success(Unit))
+
+    createViewModel()
+    viewModel.loadData(args)
+    testScheduler.advanceUntilIdle()
+
+    verify(repository).refreshFromRemote("token", id)
+}
+
+@Test
+fun `screen load does NOT call refresh when no token`() = runTest {
+    whenever(traktRepository.traktAccessToken).thenReturn(MutableStateFlow(null))
+
+    createViewModel()
+    viewModel.loadData(args)
+    testScheduler.advanceUntilIdle()
+
+    verify(repository, never()).refreshFromRemote(any(), any())
+}
+```
+
 ---
 
 ## 📋 Compose Testing OptIns

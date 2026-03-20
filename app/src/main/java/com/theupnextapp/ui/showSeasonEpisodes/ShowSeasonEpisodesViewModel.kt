@@ -41,6 +41,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -93,6 +94,20 @@ class ShowSeasonEpisodesViewModel
             seasonNumber: Int,
         ) {
             viewModelScope.launch {
+                // Pull latest watched state from Trakt before reading local DB
+                currentShowTraktId?.let { traktId ->
+                    traktRepository.traktAccessToken.firstOrNull()?.access_token?.let { token ->
+                        try {
+                            watchProgressRepository.refreshWatchedFromTrakt(
+                                token = token,
+                                showTraktId = traktId,
+                            )
+                        } catch (e: Exception) {
+                            Timber.w(e, "Failed to refresh watched state from Trakt, using local cache")
+                        }
+                    }
+                }
+
                 val episodesFlow =
                     showDetailRepository.getShowSeasonEpisodes(
                         showId = showId,

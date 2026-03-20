@@ -276,4 +276,77 @@ class ShowSeasonEpisodesViewModelTest {
                 traktAuthManager,
             )
     }
+
+    @Test
+    fun `selectedSeason calls refreshWatchedFromTrakt when authenticated`() =
+        runTest {
+            // Given
+            val accessToken =
+                com.theupnextapp.domain.TraktAccessToken(
+                    access_token = "token",
+                    token_type = "bearer",
+                    expires_in = 3600,
+                    refresh_token = "refresh",
+                    scope = "public",
+                    created_at = 3000000000L,
+                )
+            whenever(traktRepository.traktAccessToken).thenReturn(MutableStateFlow(accessToken))
+
+            val showTraktId = 456
+            val seasonNum = 2
+
+            whenever(
+                showDetailRepository.getShowSeasonEpisodes(10, seasonNum),
+            ).thenReturn(flowOf(com.theupnextapp.domain.Result.Success(emptyList())))
+            whenever(watchProgressRepository.getWatchedEpisodesForShow(showTraktId)).thenReturn(flowOf(emptyList()))
+            whenever(watchProgressRepository.refreshWatchedFromTrakt("token", showTraktId)).thenReturn(Result.success(Unit))
+
+            createViewModel()
+
+            // When
+            val args =
+                com.theupnextapp.domain.ShowSeasonEpisodesArg(
+                    showId = 10,
+                    showTraktId = showTraktId,
+                    seasonNumber = seasonNum,
+                )
+            viewModel.selectedSeason(args)
+
+            // Allow coroutines to execute
+            testScheduler.advanceUntilIdle()
+
+            // Then
+            verify(watchProgressRepository).refreshWatchedFromTrakt("token", showTraktId)
+        }
+
+    @Test
+    fun `selectedSeason does NOT call refreshWatchedFromTrakt when no token`() =
+        runTest {
+            // Given
+            whenever(traktRepository.traktAccessToken).thenReturn(MutableStateFlow(null))
+
+            val seasonNum = 1
+
+            whenever(
+                showDetailRepository.getShowSeasonEpisodes(1, seasonNum),
+            ).thenReturn(flowOf(com.theupnextapp.domain.Result.Success(emptyList())))
+            whenever(watchProgressRepository.getWatchedEpisodesForShow(any())).thenReturn(flowOf(emptyList()))
+
+            createViewModel()
+
+            // When
+            val args =
+                com.theupnextapp.domain.ShowSeasonEpisodesArg(
+                    showId = 1,
+                    showTraktId = 789,
+                    seasonNumber = seasonNum,
+                )
+            viewModel.selectedSeason(args)
+
+            // Allow coroutines to execute
+            testScheduler.advanceUntilIdle()
+
+            // Then
+            verify(watchProgressRepository, org.mockito.kotlin.never()).refreshWatchedFromTrakt(any(), any())
+        }
 }

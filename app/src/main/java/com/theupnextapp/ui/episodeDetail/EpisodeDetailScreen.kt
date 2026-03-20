@@ -13,6 +13,7 @@
 package com.theupnextapp.ui.episodeDetail
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -88,6 +89,7 @@ fun EpisodeDetailScreen(
     episodeDetailArg: EpisodeDetailArg?,
     viewModel: EpisodeDetailViewModel = hiltViewModel(),
     navController: NavController,
+    onNavigateToShowDetail: (EpisodeDetailArg) -> Unit = {},
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
@@ -148,6 +150,7 @@ fun EpisodeDetailScreen(
                                 isAuthorizedOnTrakt = uiState.isAuthorizedOnTrakt,
                                 onCheckInClick = { viewModel.onCheckIn() },
                                 onCancelCheckInClick = { viewModel.onCancelCheckIn() },
+                                onNavigateToShowDetail = onNavigateToShowDetail,
                             )
 
                             if (uiState.isPeopleLoading) {
@@ -475,6 +478,7 @@ fun EpisodeSummaryCard(
     isAuthorizedOnTrakt: Boolean,
     onCheckInClick: () -> Unit,
     onCancelCheckInClick: () -> Unit,
+    onNavigateToShowDetail: (EpisodeDetailArg) -> Unit = {},
 ) {
     ElevatedCard(
         modifier =
@@ -493,6 +497,10 @@ fun EpisodeSummaryCard(
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.SemiBold,
+                    modifier =
+                        Modifier.clickable {
+                            episodeDetailArg.let { arg -> onNavigateToShowDetail(arg) }
+                        },
                 )
             }
 
