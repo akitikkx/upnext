@@ -27,6 +27,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.os.Bundle
 import androidx.core.app.NotificationCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
@@ -35,6 +36,8 @@ import com.theupnextapp.core.common.R
 import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponseItem
 import com.theupnextapp.repository.SettingsRepository
 import com.theupnextapp.repository.TraktRepository
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.first
@@ -75,6 +78,9 @@ class NotificationWorker @AssistedInject constructor(
             if (!schedule.isNullOrEmpty()) {
                 sendConsolidatedNotification(schedule)
             }
+        } else {
+            val exception = scheduleResult.exceptionOrNull() ?: Exception("Unknown error fetching Trakt schedule")
+            FirebaseCrashlytics.getInstance().recordException(exception)
         }
 
         return Result.success()
@@ -184,8 +190,18 @@ class NotificationWorker @AssistedInject constructor(
             }
         }
 
-        // Use a static ID (e.g., 1) so it overrides previous daily digests instead of stacking
-        notificationManager.notify(1, builder.build())
+        try {
+            // Use a static ID (e.g., 1) so it overrides previous daily digests instead of stacking
+            notificationManager.notify(1, builder.build())
+
+            // Log Analytics Event
+            val bundle = Bundle().apply {
+                putInt("episodes_count", schedule.size)
+            }
+            FirebaseAnalytics.getInstance(applicationContext).logEvent("notification_sent", bundle)
+        } catch (e: Exception) {
+            FirebaseCrashlytics.getInstance().recordException(e)
+        }
     }
 
     companion object {
