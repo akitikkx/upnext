@@ -87,6 +87,7 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
 
             val onboardingViewModel: OnboardingViewModel = hiltViewModel()
             val isOnboardingCompleted by onboardingViewModel.isOnboardingCompleted.collectAsState()
+            val isTraktConnected by onboardingViewModel.isTraktConnected.collectAsState()
 
             UpnextTheme(themeState = themeState) {
                 when (isOnboardingCompleted) {
@@ -101,6 +102,7 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
                             onConnectTrakt = {
                                 onboardingViewModel.completeOnboarding()
                             },
+                            isTraktConnected = isTraktConnected,
                         )
                     }
                     true -> {

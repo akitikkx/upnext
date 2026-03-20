@@ -23,10 +23,13 @@ package com.theupnextapp.ui.onboarding
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.theupnextapp.domain.isTraktAccessTokenValid
 import com.theupnextapp.repository.SettingsRepository
+import com.theupnextapp.repository.TraktRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -36,10 +39,16 @@ class OnboardingViewModel
     @Inject
     constructor(
         private val settingsRepository: SettingsRepository,
+        traktRepository: TraktRepository,
     ) : ViewModel() {
         val isOnboardingCompleted: StateFlow<Boolean?> =
             settingsRepository.isOnboardingCompleted
                 .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
+        val isTraktConnected: StateFlow<Boolean> =
+            traktRepository.traktAccessToken
+                .map { it?.isTraktAccessTokenValid() == true }
+                .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
         fun completeOnboarding() {
             viewModelScope.launch {

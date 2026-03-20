@@ -76,6 +76,7 @@ private const val ONBOARDING_PAGE_COUNT = 3
 fun OnboardingScreen(
     onComplete: () -> Unit,
     onConnectTrakt: () -> Unit,
+    isTraktConnected: Boolean = false,
 ) {
     val pagerState = rememberPagerState(pageCount = { ONBOARDING_PAGE_COUNT })
     val scope = rememberCoroutineScope()
@@ -115,10 +116,14 @@ fun OnboardingScreen(
                     0 -> WelcomePage()
                     1 -> FeaturesPage()
                     2 ->
-                        ConnectPage(
-                            onConnectTrakt = onConnectTrakt,
-                            onContinueAsGuest = onComplete,
-                        )
+                        if (isTraktConnected) {
+                            ConnectedPage(onGetStarted = onComplete)
+                        } else {
+                            ConnectPage(
+                                onConnectTrakt = onConnectTrakt,
+                                onContinueAsGuest = onComplete,
+                            )
+                        }
                 }
             }
 
@@ -430,6 +435,77 @@ private fun ConnectPage(
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+@Suppress("MagicNumber")
+@Composable
+private fun ConnectedPage(onGetStarted: () -> Unit) {
+    Column(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(horizontal = 32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Box(
+            modifier =
+                Modifier
+                    .size(96.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                imageVector = Icons.Default.Tv,
+                contentDescription = null,
+                modifier = Modifier.size(48.dp),
+                tint = MaterialTheme.colorScheme.primary,
+            )
+        }
+
+        Spacer(modifier = Modifier.height(40.dp))
+
+        Text(
+            text = "You're All Set!",
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground,
+            textAlign = TextAlign.Center,
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text =
+                "Your Trakt account is already connected. " +
+                    "Enjoy episode tracking, personalised recommendations, and more.",
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+        )
+
+        Spacer(modifier = Modifier.height(40.dp))
+
+        Button(
+            onClick = onGetStarted,
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+            shape = RoundedCornerShape(16.dp),
+            colors =
+                ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                ),
+        ) {
+            Text(
+                text = "Get Started",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
             )
         }
     }
