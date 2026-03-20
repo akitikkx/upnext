@@ -21,7 +21,6 @@
 
 package com.theupnextapp.ui.showDetail
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -183,26 +182,26 @@ fun ShowDetailScreen(
                     showStats = showStats,
                     onSeasonsClick = { viewModel.onSeasonsClick() },
                     onFavoriteClick = { viewModel.onAddRemoveFavoriteClick() },
-                    onCastItemClick = { castItem -> viewModel.onShowCastItemClicked(castItem) },
+                    onCastItemClick = { castItem ->
+                        val personId = castItem.traktId?.toString()
+                        val name = castItem.name
+                        if (!personId.isNullOrEmpty() && !name.isNullOrEmpty()) {
+                            navController.navigate(
+                                Destinations.PersonDetail(
+                                    personId = personId,
+                                    personName = name,
+                                    personImageUrl = castItem.originalImageUrl,
+                                ),
+                            )
+                        }
+                    },
                     onSimilarShowClick = { show -> viewModel.onSimilarShowClicked(show) },
                     onRetry = { viewModel.selectedShow(showDetailArgs) },
                     onBack = { navController.navigateUp() },
                 )
             }
 
-            val castBottomSheetUiState by viewModel.castBottomSheetUiState.collectAsStateWithLifecycle()
             val navigateToShowDetail by viewModel.navigateToShowDetail.collectAsStateWithLifecycle()
-
-            if (castBottomSheetUiState.traktCast != null) {
-                BackHandler {
-                    viewModel.displayCastBottomSheetComplete()
-                }
-                CastBottomSheet(
-                    uiState = castBottomSheetUiState,
-                    onCreditClick = { viewModel.onCreditClicked(it) },
-                    onDismissRequest = { viewModel.displayCastBottomSheetComplete() },
-                )
-            }
 
             LaunchedEffect(navigateToShowDetail) {
                 navigateToShowDetail?.let {

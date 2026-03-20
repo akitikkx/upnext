@@ -1,6 +1,7 @@
 package com.theupnextapp.navigation
 
 import com.theupnextapp.domain.EpisodeDetailArg
+import com.theupnextapp.domain.PersonDetailArg
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.ShowSeasonEpisodesArg
 import kotlinx.serialization.Serializable
@@ -121,6 +122,20 @@ sealed interface Destinations {
                 showImageUrl = showImageUrl,
                 showBackgroundUrl = showBackgroundUrl,
                 episodeImageUrl = episodeImageUrl,
+            )
+    }
+
+    @Serializable
+    data class PersonDetail(
+        val personId: String,
+        val personName: String,
+        val personImageUrl: String? = null,
+    ) : Destinations {
+        fun toArg() =
+            PersonDetailArg(
+                personId = personId,
+                personName = personName,
+                personImageUrl = personImageUrl,
             )
     }
 

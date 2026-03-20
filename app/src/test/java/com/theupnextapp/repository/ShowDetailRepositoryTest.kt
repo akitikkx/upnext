@@ -64,7 +64,7 @@ class ShowDetailRepositoryTest {
         tmdbService = mock()
 
         showDetailRepository =
-            ShowDetailRepository(
+            ShowDetailRepositoryImpl(
                 upnextDao = fakeUpnextDao,
                 tvMazeService = fakeTvMazeService,
                 traktService = traktService,

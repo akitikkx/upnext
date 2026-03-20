@@ -37,6 +37,7 @@ import com.theupnextapp.repository.DashboardRepository
 import com.theupnextapp.repository.DashboardRepositoryImpl
 import com.theupnextapp.repository.SearchRepository
 import com.theupnextapp.repository.ShowDetailRepository
+import com.theupnextapp.repository.ShowDetailRepositoryImpl
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.TraktRepositoryImpl
 import com.theupnextapp.repository.WatchProgressRepository
@@ -59,7 +60,7 @@ object RepositoryModule {
         tmdbService: TmdbService,
         crashlyticsHelper: CrashlyticsHelper,
     ): ShowDetailRepository {
-        return ShowDetailRepository(
+        return ShowDetailRepositoryImpl(
             upnextDao = upnextDao,
             tvMazeService = tvMazeService,
             traktService = traktService,

@@ -40,8 +40,6 @@ import com.theupnextapp.domain.TraktShowRating
 import com.theupnextapp.domain.TraktShowStats
 import com.theupnextapp.domain.TraktUserListItem
 import com.theupnextapp.domain.emptyShowData
-import com.theupnextapp.network.models.trakt.NetworkTraktPersonResponse
-import com.theupnextapp.network.models.trakt.NetworkTraktPersonShowCreditsResponse
 import com.theupnextapp.repository.ShowDetailRepository
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.ui.common.BaseTraktViewModel
@@ -50,7 +48,6 @@ import com.theupnextapp.work.RemoveFavoriteShowWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -80,8 +77,6 @@ class ShowDetailViewModel
             traktAuthManager,
         ) {
         private val _show = MutableLiveData<ShowDetailArg>()
-        private val _castBottomSheetUiState = MutableStateFlow(CastBottomSheetUiState())
-        val castBottomSheetUiState: StateFlow<CastBottomSheetUiState> = _castBottomSheetUiState.asStateFlow()
 
         private val _navigateToSeasons = MutableStateFlow(false)
         val navigateToSeasons: StateFlow<Boolean> = _navigateToSeasons.asStateFlow()
@@ -174,15 +169,6 @@ class ShowDetailViewModel
             val isSimilarShowsLoading: Boolean = false,
             val watchProviders: com.theupnextapp.domain.TmdbWatchProviders? = null,
             val isWatchProvidersLoading: Boolean = false,
-        )
-
-        data class CastBottomSheetUiState(
-            val showCast: ShowCast? = null,
-            val traktCast: TraktCast? = null,
-            val personSummary: NetworkTraktPersonResponse? = null,
-            val personCredits: NetworkTraktPersonShowCreditsResponse? = null,
-            val isLoading: Boolean = false,
-            val errorMessage: String? = null,
         )
 
         fun selectedShow(show: ShowDetailArg?) {
@@ -635,22 +621,8 @@ class ShowDetailViewModel
             }
         }
 
-        fun displayCastBottomSheetComplete() {
-            _castBottomSheetUiState.value = CastBottomSheetUiState()
-        }
-
         private val _navigateToShowDetail = MutableStateFlow<ShowDetailArg?>(null)
         val navigateToShowDetail: StateFlow<ShowDetailArg?> = _navigateToShowDetail.asStateFlow()
-
-        fun onCreditClicked(credit: com.theupnextapp.network.models.trakt.NetworkTraktPersonShowCastCredit) {
-            viewModelScope.launch(Dispatchers.IO) {
-                val imdbId = credit.show?.ids?.imdb
-                val title = credit.show?.title
-                val traktId = credit.show?.ids?.trakt
-
-                launchShowDetail(imdbId, title, traktId)
-            }
-        }
 
         fun onSimilarShowClicked(show: TraktRelatedShows) {
             viewModelScope.launch(Dispatchers.IO) {
@@ -664,7 +636,7 @@ class ShowDetailViewModel
             traktId: Int?,
         ) {
             if (!imdbId.isNullOrEmpty()) {
-                _castBottomSheetUiState.update { it.copy(isLoading = true) }
+                _uiState.update { it.copy(isSimilarShowsLoading = true) }
                 showDetailRepository.getShowLookup(imdbId).collect { result ->
                     when (result) {
                         is Result.Success -> {
@@ -680,13 +652,13 @@ class ShowDetailViewModel
                                     showTraktId = traktId,
                                 )
                             _navigateToShowDetail.value = arg
-                            _castBottomSheetUiState.update { it.copy(isLoading = false) }
+                            _uiState.update { it.copy(isSimilarShowsLoading = false) }
                         }
                         is Result.Error, is Result.GenericError, is Result.NetworkError -> {
-                            _castBottomSheetUiState.update {
+                            _uiState.update {
                                 it.copy(
-                                    isLoading = false,
-                                    errorMessage = "Could not find show details",
+                                    isSimilarShowsLoading = false,
+                                    generalErrorMessage = "Could not find show details",
                                 )
                             }
                         }
@@ -695,46 +667,12 @@ class ShowDetailViewModel
                     }
                 }
             } else {
-                _castBottomSheetUiState.update { it.copy(errorMessage = "No IMDB ID available for this show") }
+                _uiState.update { it.copy(generalErrorMessage = "No IMDB ID available for this show") }
             }
         }
 
         fun onShowDetailNavigationComplete() {
             _navigateToShowDetail.value = null
-        }
-
-        fun onShowCastItemClicked(castItem: TraktCast) {
-            _castBottomSheetUiState.update {
-                it.copy(
-                    traktCast = castItem,
-                    isLoading = true,
-                    errorMessage = null,
-                    personSummary = null,
-                    personCredits = null,
-                )
-            }
-
-            viewModelScope.launch(Dispatchers.IO) {
-                val traktId = castItem.traktId
-
-                if (traktId != null) {
-                    val summaryDeferred = async { traktRepository.getTraktPersonSummary(traktId.toString()) }
-                    val creditsDeferred = async { traktRepository.getTraktPersonShowCredits(traktId.toString()) }
-
-                    val summaryResult = summaryDeferred.await()
-                    val creditsResult = creditsDeferred.await()
-
-                    _castBottomSheetUiState.update { currentState ->
-                        currentState.copy(
-                            isLoading = false,
-                            personSummary = summaryResult.getOrNull(),
-                            personCredits = creditsResult.getOrNull(),
-                        )
-                    }
-                } else {
-                    _castBottomSheetUiState.update { it.copy(isLoading = false, errorMessage = "Invalid Person ID") }
-                }
-            }
         }
 
         fun onSeasonsClick() {

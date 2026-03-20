@@ -4,10 +4,9 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.work.WorkManager
 import com.theupnextapp.common.utils.TraktAuthManager
 import com.theupnextapp.domain.TraktUserListItem
-import com.theupnextapp.repository.TraktRepository
+import com.theupnextapp.repository.fakes.FakeTraktRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -22,7 +21,6 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
-import org.mockito.kotlin.whenever
 
 @ExperimentalCoroutinesApi
 @RunWith(MockitoJUnitRunner::class)
@@ -32,8 +30,7 @@ class TraktAccountViewModelTest {
 
     private val testDispatcher = StandardTestDispatcher()
 
-    @Mock
-    private lateinit var traktRepository: TraktRepository
+    private lateinit var traktRepository: FakeTraktRepository
 
     @Mock
     private lateinit var workManager: WorkManager
@@ -48,11 +45,7 @@ class TraktAccountViewModelTest {
         MockitoAnnotations.openMocks(this)
         Dispatchers.setMain(testDispatcher)
 
-        whenever(traktRepository.isLoading).thenReturn(MutableStateFlow(false))
-        whenever(traktRepository.isLoadingFavoriteShows).thenReturn(MutableStateFlow(false))
-        whenever(traktRepository.traktFavoriteShows).thenReturn(MutableStateFlow(emptyList()))
-        whenever(traktRepository.favoriteShowsError).thenReturn(MutableStateFlow(null))
-        whenever(traktRepository.traktAccessToken).thenReturn(MutableStateFlow(null))
+        traktRepository = FakeTraktRepository()
 
         viewModel =
             TraktAccountViewModel(
@@ -82,7 +75,7 @@ class TraktAccountViewModelTest {
                     TraktUserListItem(id = 1, traktID = 1, title = "The Boys", originalImageUrl = "", mediumImageUrl = "", imdbID = "", slug = "", tmdbID = 1, tvdbID = 1, tvMazeID = 1, year = "", network = null, status = null, rating = null),
                     TraktUserListItem(id = 2, traktID = 2, title = "Kaos", originalImageUrl = "", mediumImageUrl = "", imdbID = "", slug = "", tmdbID = 2, tvdbID = 2, tvMazeID = 2, year = "", network = null, status = null, rating = null),
                 )
-            whenever(traktRepository.traktFavoriteShows).thenReturn(MutableStateFlow(mockShows))
+            traktRepository.setFavoriteShows(mockShows)
 
             viewModel = TraktAccountViewModel(traktRepository, workManager, traktAuthManager)
 
@@ -106,7 +99,7 @@ class TraktAccountViewModelTest {
                     TraktUserListItem(id = 1, traktID = 1, title = "Zebra", year = "2020", originalImageUrl = "", mediumImageUrl = "", imdbID = "", slug = "", tmdbID = 1, tvdbID = 1, tvMazeID = 1, network = null, status = null, rating = null),
                     TraktUserListItem(id = 2, traktID = 2, title = "Apple", year = "2024", originalImageUrl = "", mediumImageUrl = "", imdbID = "", slug = "", tmdbID = 2, tvdbID = 2, tvMazeID = 2, network = null, status = null, rating = null),
                 )
-            whenever(traktRepository.traktFavoriteShows).thenReturn(MutableStateFlow(mockShows))
+            traktRepository.setFavoriteShows(mockShows)
 
             viewModel = TraktAccountViewModel(traktRepository, workManager, traktAuthManager)
 
