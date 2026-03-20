@@ -38,6 +38,7 @@ class SettingsRepositoryImpl @Inject constructor(
     private val NOTIFICATIONS_ENABLED = booleanPreferencesKey("notifications_enabled")
     private val THEME_STATE = stringPreferencesKey("theme_state")
     private val DATA_SAVER_ENABLED = booleanPreferencesKey("data_saver_enabled")
+    private val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
 
     override val areNotificationsEnabled: Flow<Boolean> = dataStore.data
         .map { preferences ->
@@ -78,6 +79,17 @@ class SettingsRepositoryImpl @Inject constructor(
     override suspend fun setDataSaverEnabled(enabled: Boolean) {
         dataStore.edit { preferences ->
             preferences[DATA_SAVER_ENABLED] = enabled
+        }
+    }
+
+    override val isOnboardingCompleted: Flow<Boolean> = dataStore.data
+        .map { preferences ->
+            preferences[ONBOARDING_COMPLETED] ?: false
+        }
+
+    override suspend fun setOnboardingCompleted(completed: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[ONBOARDING_COMPLETED] = completed
         }
     }
 }

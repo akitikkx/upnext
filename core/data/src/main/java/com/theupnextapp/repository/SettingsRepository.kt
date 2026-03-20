@@ -28,8 +28,10 @@ interface SettingsRepository {
     val areNotificationsEnabled: Flow<Boolean>
     val themeStream: Flow<Theme>
     val dataSaverStream: Flow<Boolean>
+    val isOnboardingCompleted: Flow<Boolean>
 
     suspend fun setNotificationsEnabled(enabled: Boolean)
     suspend fun setTheme(theme: Theme)
     suspend fun setDataSaverEnabled(enabled: Boolean)
+    suspend fun setOnboardingCompleted(completed: Boolean)
 }
