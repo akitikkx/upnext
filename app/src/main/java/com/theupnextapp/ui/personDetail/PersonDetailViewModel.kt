@@ -26,7 +26,6 @@ import androidx.lifecycle.viewModelScope
 import com.theupnextapp.domain.Result
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.network.models.trakt.NetworkTraktPersonResponse
-import com.theupnextapp.network.models.trakt.NetworkTraktPersonShowCreditsResponse
 import com.theupnextapp.repository.ShowDetailRepository
 import com.theupnextapp.repository.TraktRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -35,6 +34,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -61,11 +61,64 @@ class PersonDetailViewModel
                     val creditsResult = creditsDeferred.await()
 
                     if (summaryResult.isSuccess && creditsResult.isSuccess) {
+                        val personTmdbId = summaryResult.getOrNull()?.ids?.tmdb
+                        val traktCreditsRaw = creditsResult.getOrNull()?.cast ?: emptyList()
+
+                        // Filter deeply orphaned Trakt entities missing IMDB mappings
+                        val validTraktCredits = traktCreditsRaw.filter { !it.show?.ids?.imdb.isNullOrEmpty() }
+
+                        var finalUiCredits =
+                            validTraktCredits.map { credit ->
+                                PersonCreditUiModel(
+                                    title = credit.show?.title ?: "Unknown Show",
+                                    character = credit.character ?: credit.characters?.joinToString(", ") ?: "Unknown",
+                                    year = credit.show?.year?.toString() ?: "",
+                                    imdbId = credit.show?.ids?.imdb,
+                                    traktId = credit.show?.ids?.trakt,
+                                    tmdbId = credit.show?.ids?.tmdb,
+                                    posterUrl = null,
+                                )
+                            }
+
+                        var loadedPersonImages: List<com.theupnextapp.network.models.tmdb.NetworkTmdbPersonProfile> =
+                            emptyList()
+
+                        if (personTmdbId != null) {
+                            val tmdbCreditsDeferred =
+                                async {
+                                    showDetailRepository.getPersonTvCredits(personTmdbId).firstOrNull { it !is Result.Loading }
+                                }
+                            val tmdbImagesDeferred =
+                                async {
+                                    showDetailRepository.getPersonImages(personTmdbId).firstOrNull { it !is Result.Loading }
+                                }
+
+                            val tmdbCreditsResult = tmdbCreditsDeferred.await()
+                            val tmdbImagesResult = tmdbImagesDeferred.await()
+
+                            if (tmdbImagesResult is Result.Success) {
+                                loadedPersonImages = tmdbImagesResult.data.profiles ?: emptyList()
+                            }
+
+                            if (tmdbCreditsResult is Result.Success) {
+                                val tmdbCast = tmdbCreditsResult.data.cast ?: emptyList()
+                                val posterMap = tmdbCast.associateBy({ it.id }, { it.poster_path })
+
+                                finalUiCredits =
+                                    finalUiCredits.map { uiModel ->
+                                        val posterPath = posterMap[uiModel.tmdbId]
+                                        val fullPosterUrl = if (!posterPath.isNullOrEmpty()) "https://image.tmdb.org/t/p/w500$posterPath" else null
+                                        uiModel.copy(posterUrl = fullPosterUrl)
+                                    }
+                            }
+                        }
+
                         _uiState.update {
                             it.copy(
                                 isLoading = false,
                                 personSummary = summaryResult.getOrNull(),
-                                personCredits = creditsResult.getOrNull(),
+                                personCredits = finalUiCredits,
+                                personImages = loadedPersonImages,
                             )
                         }
                     } else {
@@ -97,7 +150,6 @@ class PersonDetailViewModel
         ) {
             if (!imdbId.isNullOrEmpty()) {
                 viewModelScope.launch(Dispatchers.IO) {
-                    _uiState.update { it.copy(isLoading = true) }
                     showDetailRepository.getShowLookup(imdbId).collect { result ->
                         when (result) {
                             is Result.Success -> {
@@ -113,13 +165,11 @@ class PersonDetailViewModel
                                         showTraktId = traktId,
                                     )
                                 _navigateToShowDetail.value = arg
-                                _uiState.update { it.copy(isLoading = false) }
                             }
                             is Result.Error, is Result.GenericError, is Result.NetworkError -> {
                                 _uiState.update {
                                     it.copy(
-                                        isLoading = false,
-                                        errorMessage = "Could not find show details",
+                                        errorMessage = "The show details are not available at present",
                                     )
                                 }
                             }
@@ -136,10 +186,25 @@ class PersonDetailViewModel
             _navigateToShowDetail.value = null
         }
 
+        fun clearErrorMessage() {
+            _uiState.update { it.copy(errorMessage = null) }
+        }
+
         data class PersonDetailUiState(
             val isLoading: Boolean = false,
             val personSummary: NetworkTraktPersonResponse? = null,
-            val personCredits: NetworkTraktPersonShowCreditsResponse? = null,
+            val personCredits: List<PersonCreditUiModel> = emptyList(),
+            val personImages: List<com.theupnextapp.network.models.tmdb.NetworkTmdbPersonProfile> = emptyList(),
             val errorMessage: String? = null,
+        )
+
+        data class PersonCreditUiModel(
+            val title: String,
+            val character: String,
+            val year: String,
+            val imdbId: String?,
+            val traktId: Int?,
+            val tmdbId: Int?,
+            val posterUrl: String?,
         )
     }

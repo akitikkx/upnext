@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Ahmed Tikiwa
+ * Copyright (c) 2024 Ahmed Tikiwa
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
  * associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -19,26 +19,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.theupnextapp.network
+package com.theupnextapp.network.models.tmdb
 
-import com.theupnextapp.network.models.tmdb.NetworkTmdbWatchProvidersResponse
-import kotlinx.coroutines.Deferred
-import retrofit2.http.GET
-import retrofit2.http.Path
+data class NetworkTmdbPersonTvCreditsResponse(
+    val cast: List<NetworkTmdbPersonTvCreditCast>?,
+    val id: Int?
+)
 
-interface TmdbService {
-    @GET("tv/{series_id}/watch/providers")
-    fun getShowWatchProvidersAsync(
-        @Path("series_id") tmdbId: Int
-    ): Deferred<NetworkTmdbWatchProvidersResponse>
-
-    @GET("person/{person_id}/images")
-    fun getPersonImagesAsync(
-        @Path("person_id") personId: Int
-    ): Deferred<com.theupnextapp.network.models.tmdb.NetworkTmdbPersonImagesResponse>
-
-    @GET("person/{person_id}/tv_credits")
-    fun getPersonTvCreditsAsync(
-        @Path("person_id") personId: Int
-    ): Deferred<com.theupnextapp.network.models.tmdb.NetworkTmdbPersonTvCreditsResponse>
-}
+data class NetworkTmdbPersonTvCreditCast(
+    val id: Int?,
+    val name: String?,
+    val character: String?,
+    val poster_path: String?,
+    val backdrop_path: String?,
+    val first_air_date: String?,
+    val episode_count: Int?
+)
