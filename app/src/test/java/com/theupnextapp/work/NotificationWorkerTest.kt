@@ -4,15 +4,13 @@ import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.work.ListenableWorker
 import androidx.work.testing.TestListenableWorkerBuilder
-import com.google.firebase.FirebaseApp
-import com.google.firebase.FirebaseOptions
+import com.theupnextapp.TestApplication
 import com.theupnextapp.repository.SettingsRepository
 import com.theupnextapp.repository.TraktRepository
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.mock
@@ -21,8 +19,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [34])
-@Ignore("FirebaseApp initialization failure in Robolectric environment - Needs TestApplication")
+@Config(sdk = [34], application = TestApplication::class)
 class NotificationWorkerTest {
     private lateinit var context: Context
     private lateinit var mockSettingsRepository: SettingsRepository
@@ -31,15 +28,6 @@ class NotificationWorkerTest {
     @Before
     fun setUp() {
         context = ApplicationProvider.getApplicationContext()
-        if (FirebaseApp.getApps(context).isEmpty()) {
-            val options =
-                FirebaseOptions.Builder()
-                    .setApiKey("TestApiKey")
-                    .setApplicationId("TestAppId")
-                    .setProjectId("TestProjectId")
-                    .build()
-            FirebaseApp.initializeApp(context, options)
-        }
         mockSettingsRepository = mock()
         mockTraktRepository = mock()
     }
