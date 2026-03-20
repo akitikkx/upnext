@@ -222,7 +222,7 @@ fun DashboardScreen(
                         icon = Icons.Default.Tv,
                         title = "No TV Schedule",
                         message = "It looks like the schedules are empty. Check back later.",
-                        modifier = Modifier.fillMaxWidth().height(250.dp),
+                        modifier = Modifier.fillMaxWidth().height(250.dp).padding(16.dp),
                     )
                 }
 
@@ -319,7 +319,7 @@ fun DashboardScreen(
                         icon = Icons.Default.EventNote,
                         title = "Nothing Airing Soon",
                         message = "Check back later for upcoming episodes.",
-                        modifier = Modifier.fillMaxWidth().height(250.dp),
+                        modifier = Modifier.fillMaxWidth().height(250.dp).padding(16.dp),
                     )
                 } else {
                     val pagerState = rememberPagerState(pageCount = { airingSoonShows.orEmpty().size })
@@ -442,7 +442,7 @@ fun DashboardScreen(
                         icon = Icons.Default.History,
                         title = "No Recent Activity",
                         message = "When you mark episodes as watched, they will appear here.",
-                        modifier = Modifier.fillMaxWidth().height(250.dp).padding(bottom = 16.dp),
+                        modifier = Modifier.fillMaxWidth().height(250.dp).padding(16.dp),
                     )
                 }
             }
