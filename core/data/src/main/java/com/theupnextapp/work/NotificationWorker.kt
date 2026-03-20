@@ -24,6 +24,7 @@ package com.theupnextapp.work
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -86,6 +87,7 @@ class NotificationWorker @AssistedInject constructor(
         return Result.success()
     }
 
+    @SuppressLint("MissingPermission")
     private fun sendConsolidatedNotification(schedule: List<NetworkTraktMyScheduleResponseItem>) {
         val notificationManager =
             applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
