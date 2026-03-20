@@ -46,6 +46,8 @@ import com.theupnextapp.common.utils.customTab.CustomTabComponent
 import com.theupnextapp.common.utils.customTab.TabConnectionCallback
 import com.theupnextapp.core.designsystem.ui.theme.UpnextTheme
 import com.theupnextapp.ui.main.MainScreen
+import com.theupnextapp.ui.onboarding.OnboardingScreen
+import com.theupnextapp.ui.onboarding.OnboardingViewModel
 import com.theupnextapp.ui.settings.SettingsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -83,13 +85,33 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
             val settingsViewModel: SettingsViewModel = hiltViewModel()
             val themeState by settingsViewModel.themeStream.collectAsState()
 
+            val onboardingViewModel: OnboardingViewModel = hiltViewModel()
+            val isOnboardingCompleted by onboardingViewModel.isOnboardingCompleted.collectAsState()
+
             UpnextTheme(themeState = themeState) {
-                MainScreen(
-                    valueState = dataString,
-                    onTraktAuthCompleted = {
-                        dataString.value = null
-                    },
-                )
+                when (isOnboardingCompleted) {
+                    null -> {
+                        // Loading state — show nothing while DataStore resolves
+                    }
+                    false -> {
+                        OnboardingScreen(
+                            onComplete = {
+                                onboardingViewModel.completeOnboarding()
+                            },
+                            onConnectTrakt = {
+                                onboardingViewModel.completeOnboarding()
+                            },
+                        )
+                    }
+                    true -> {
+                        MainScreen(
+                            valueState = dataString,
+                            onTraktAuthCompleted = {
+                                dataString.value = null
+                            },
+                        )
+                    }
+                }
             }
         }
 

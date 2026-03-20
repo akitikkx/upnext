@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 Ahmed Tikiwa
+ * Copyright (c) 2022 Ahmed Tikiwa
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
  * associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -19,19 +19,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.theupnextapp.repository
+package com.theupnextapp.ui.onboarding
 
-import com.theupnextapp.domain.Theme
-import kotlinx.coroutines.flow.Flow
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.theupnextapp.repository.SettingsRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-interface SettingsRepository {
-    val areNotificationsEnabled: Flow<Boolean>
-    val themeStream: Flow<Theme>
-    val dataSaverStream: Flow<Boolean>
-    val isOnboardingCompleted: Flow<Boolean>
+@HiltViewModel
+class OnboardingViewModel
+    @Inject
+    constructor(
+        private val settingsRepository: SettingsRepository,
+    ) : ViewModel() {
+        val isOnboardingCompleted: StateFlow<Boolean?> =
+            settingsRepository.isOnboardingCompleted
+                .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
-    suspend fun setNotificationsEnabled(enabled: Boolean)
-    suspend fun setTheme(theme: Theme)
-    suspend fun setDataSaverEnabled(enabled: Boolean)
-    suspend fun setOnboardingCompleted(completed: Boolean)
-}
+        fun completeOnboarding() {
+            viewModelScope.launch {
+                settingsRepository.setOnboardingCompleted(true)
+            }
+        }
+    }
