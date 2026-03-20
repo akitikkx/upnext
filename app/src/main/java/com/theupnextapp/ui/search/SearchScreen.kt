@@ -169,6 +169,7 @@ fun SearchArea(
                 icon = Icons.Default.Search,
                 title = stringResource(id = R.string.search_empty_title),
                 message = stringResource(id = R.string.search_empty_message),
+                modifier = Modifier.padding(16.dp),
             )
         }
     }
