@@ -199,6 +199,19 @@ fun AppNavigation(
                     EpisodeDetailScreen(
                         episodeDetailArg = args.toArg(),
                         navController = navHostController,
+                        onNavigateToShowDetail = { episodeArg ->
+                            navHostController.navigate(
+                                Destinations.ShowDetail(
+                                    showId = episodeArg.showId?.toString(),
+                                    showTitle = episodeArg.showTitle,
+                                    showImageUrl = episodeArg.showImageUrl,
+                                    showBackgroundUrl = episodeArg.showBackgroundUrl,
+                                    imdbID = episodeArg.imdbID,
+                                    isAuthorizedOnTrakt = episodeArg.isAuthorizedOnTrakt,
+                                    showTraktId = episodeArg.showTraktId,
+                                ),
+                            )
+                        },
                     )
                 }
 
