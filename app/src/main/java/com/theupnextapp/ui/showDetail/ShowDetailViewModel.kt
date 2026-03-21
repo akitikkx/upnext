@@ -59,6 +59,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -310,12 +311,51 @@ class ShowDetailViewModel
                         }
                     }
                 } ?: run {
-                    _isLoading.value = false
-                    _uiState.update {
-                        it.copy(
-                            isLoadingSummary = false,
-                            generalErrorMessage = "Show ID is missing.",
-                        )
+                    // showId (TVMaze ID) is null — try to resolve via IMDB lookup
+                    val imdbId = show.imdbID
+                    if (!imdbId.isNullOrEmpty()) {
+                        Timber.d("showId is null, attempting IMDB lookup for: $imdbId")
+                        resolveShowViaImdbLookup(imdbId, show)
+                    } else {
+                        _isLoading.value = false
+                        _uiState.update {
+                            it.copy(
+                                isLoadingSummary = false,
+                                generalErrorMessage = "Show ID is missing.",
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        private suspend fun resolveShowViaImdbLookup(
+            imdbId: String,
+            show: ShowDetailArg,
+        ) {
+            showDetailRepository.getShowLookup(imdbId).collect { result ->
+                when (result) {
+                    is Result.Success -> {
+                        val tvMazeId = result.data.id
+                        Timber.d("Resolved IMDB $imdbId to TVMaze ID: $tvMazeId")
+                        // Re-invoke getShowSummary with the resolved TVMaze ID
+                        getShowSummary(show.copy(showId = tvMazeId.toString()))
+                    }
+
+                    is Result.Loading -> {
+                        // Already showing loading state from getShowSummary
+                    }
+
+                    else -> {
+                        Timber.w("Failed to resolve TVMaze ID for IMDB: $imdbId")
+                        _isLoading.value = false
+                        _uiState.update {
+                            it.copy(
+                                isLoadingSummary = false,
+                                generalErrorMessage =
+                                    "This show is not available for detailed viewing yet.",
+                            )
+                        }
                     }
                 }
             }
