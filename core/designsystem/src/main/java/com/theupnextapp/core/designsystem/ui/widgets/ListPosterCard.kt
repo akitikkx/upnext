@@ -21,6 +21,8 @@
 
 package com.theupnextapp.core.designsystem.ui.widgets
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -29,12 +31,17 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.theupnextapp.core.designsystem.ui.ReferenceDevices
 import com.theupnextapp.core.designsystem.ui.components.PosterImage
 import com.theupnextapp.core.designsystem.ui.components.PosterTitleTextItem
@@ -61,9 +68,17 @@ fun ListPosterCard(
                 .bounceClick(onClick = onClick),
     ) {
         Column {
-            itemUrl?.let {
+            if (!itemUrl.isNullOrEmpty()) {
                 PosterImage(
-                    url = it,
+                    url = itemUrl,
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(listPosterHeight),
+                )
+            } else {
+                PosterPlaceholder(
+                    initial = itemName?.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
                     modifier =
                         Modifier
                             .fillMaxWidth()
@@ -81,6 +96,36 @@ fun ListPosterCard(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun PosterPlaceholder(
+    initial: String,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier =
+            modifier
+                .background(
+                    brush =
+                        Brush.verticalGradient(
+                            colors =
+                                listOf(
+                                    MaterialTheme.colorScheme.surfaceVariant,
+                                    MaterialTheme.colorScheme.surface,
+                                ),
+                        ),
+                ),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = initial,
+            style = MaterialTheme.typography.headlineLarge,
+            fontWeight = FontWeight.Bold,
+            fontSize = 40.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+        )
     }
 }
 
