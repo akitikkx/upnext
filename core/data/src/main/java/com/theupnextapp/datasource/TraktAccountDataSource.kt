@@ -153,6 +153,72 @@ constructor(
         }
     }
 
+    /**
+     * Migrates shows from the "Upnext Favorites" custom list to the native
+     * Trakt watchlist. This is idempotent — Trakt ignores duplicate adds.
+     * If the custom list doesn't exist, this is a no-op.
+     */
+    suspend fun migrateFavoritesToWatchlist(token: String): Result<Unit> {
+        if (token.isEmpty()) return Result.success(Unit)
+
+        return withContext(Dispatchers.IO) {
+            try {
+                val bearerToken = "Bearer $token"
+
+                // 1. Get user slug
+                val userSettings = traktService.getUserSettingsAsync(bearerToken).await()
+                val userSlug = userSettings.user?.ids?.slug
+                    ?: return@withContext Result.success(Unit) // Can't look up lists without slug
+
+                // 2. Find the "Upnext Favorites" list (without creating it)
+                val userCustomLists = traktService.getUserCustomListsAsync(bearerToken, userSlug).await()
+                val favoritesList = userCustomLists.find { it.name == FAVORITES_LIST_NAME }
+
+                if (favoritesList?.ids?.slug == null) {
+                    // No custom list exists — nothing to migrate
+                    return@withContext Result.success(Unit)
+                }
+
+                // 3. Fetch all items from the custom list
+                val customListItems = traktService.getCustomListItemsAsync(
+                    token = bearerToken,
+                    userSlug = userSlug,
+                    traktId = favoritesList.ids.slug,
+                    limit = 1000,
+                ).await()
+
+                if (customListItems.isNullOrEmpty()) {
+                    return@withContext Result.success(Unit)
+                }
+
+                // 4. Extract traktIds and bulk-add to native watchlist
+                val showsToMigrate = customListItems.mapNotNull { item ->
+                    item.show?.ids?.trakt?.let { traktId ->
+                        com.theupnextapp.network.models.trakt.NetworkTraktWatchlistRequestShow(
+                            ids = com.theupnextapp.network.models.trakt.NetworkTraktWatchlistRequestShowIds(
+                                trakt = traktId
+                            )
+                        )
+                    }
+                }
+
+                if (showsToMigrate.isNotEmpty()) {
+                    val request = com.theupnextapp.network.models.trakt.NetworkTraktWatchlistRequest(
+                        shows = showsToMigrate,
+                    )
+                    traktService.addToWatchlistAsync(bearerToken, request).await()
+                    timber.log.Timber.i("Migrated ${showsToMigrate.size} shows from '$FAVORITES_LIST_NAME' to native watchlist.")
+                }
+
+                Result.success(Unit)
+            } catch (e: Exception) {
+                // Migration failure is non-fatal — log and continue
+                timber.log.Timber.w(e, "Failed to migrate '$FAVORITES_LIST_NAME' to native watchlist. Will retry next session.")
+                Result.success(Unit) // Return success so refreshWatchlist continues
+            }
+        }
+    }
+
     private suspend fun fetchAndStoreFavoriteShows(
         token: String,
         userSlug: String,

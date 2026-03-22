@@ -77,6 +77,9 @@ class TraktRepositoryImpl(
         private const val FLOW_STOP_TIMEOUT_MS = 5000L
     }
 
+    @Volatile
+    private var hasMigratedFavoritesThisSession = false
+
     override val traktAccessToken: StateFlow<TraktAccessToken?> =
         traktDao.getTraktAccessData().map {
             it?.asDomainModel()
@@ -190,6 +193,13 @@ class TraktRepositoryImpl(
 
         _isLoadingFavoriteShows.value = true
         _favoriteShowsError.value = null
+
+        // One-time migration: move shows from "Upnext Favorites" custom list
+        // to the native Trakt watchlist. Runs once per app session.
+        if (!hasMigratedFavoritesThisSession) {
+            traktAccountDataSource.migrateFavoritesToWatchlist(token)
+            hasMigratedFavoritesThisSession = true
+        }
 
         val result = traktAccountDataSource.getWatchlist(token)
         if (result.isSuccess) {
