@@ -161,8 +161,8 @@ class TraktAccountViewModel
                 val token = traktAccessToken.value?.access_token
                 if (!token.isNullOrEmpty()) {
                     traktRepository.removeFromWatchlist(traktId, token)
-                    // Refresh the watchlist to reflect the local database change
-                    traktRepository.refreshWatchlist(token)
+                    // No immediate refreshWatchlist needed — optimistic local
+                    // delete in the repository gives instant UI feedback.
                 }
             }
         }

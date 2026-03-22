@@ -32,6 +32,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
@@ -109,7 +110,7 @@ class TraktRepositoryImplTest {
     }
 
     @Test
-    fun refreshWatchlist_clearsAndSavesToDb() {
+    fun refreshWatchlist_syncsDiffFromNativeWatchlist() {
         runBlocking {
             val token = "test_token"
             val showIds =
@@ -144,12 +145,15 @@ class TraktRepositoryImplTest {
 
             whenever(traktAccountDataSource.getWatchlist(token)).thenReturn(Result.success(responseList))
             whenever(traktAccountDataSource.getImages("tt123")).thenReturn(Triple(12345, "https://poster.jpg", "https://hero.jpg"))
+            // Local DB has show 101 (from API) + stale show 999 (removed on Trakt)
+            whenever(traktDao.getAllFavoriteShowTraktIds()).thenReturn(listOf(101, 999))
 
             val result = repository.refreshWatchlist(token)
 
             assert(result.isSuccess)
-            verify(traktDao).deleteAllFavoriteShows()
-
+            // Verify NO destructive deleteAll
+            verify(traktDao, never()).deleteAllFavoriteShows()
+            // Verify upsert
             val expectedShow =
                 com.theupnextapp.database.DatabaseFavoriteShows(
                     id = 101,
@@ -168,6 +172,8 @@ class TraktRepositoryImplTest {
                     rating = null,
                 )
             verify(traktDao).insertAllFavoriteShows(expectedShow)
+            // Verify stale show 999 is pruned
+            verify(traktDao).deleteFavoriteShowsByTraktIds(listOf(999))
         }
     }
 
@@ -176,15 +182,18 @@ class TraktRepositoryImplTest {
         runBlocking {
             val token = "test_token"
             val traktId = 101
+            val imdbID = "tt123"
             whenever(traktAccountDataSource.addToWatchlist(traktId, token)).thenReturn(Result.success(Unit))
 
-            repository.addToWatchlist(traktId, token)
+            repository.addToWatchlist(traktId, imdbID, token)
             verify(traktAccountDataSource).addToWatchlist(traktId, token)
+            // No local insert — worker calls refreshWatchlist() afterward
+            verify(traktDao, never()).insertFavoriteShow(org.mockito.kotlin.any())
         }
     }
 
     @Test
-    fun removeFromWatchlist_delegatesToAccountDataSource() {
+    fun removeFromWatchlist_delegatesAndDeletesLocally() {
         runBlocking {
             val token = "test_token"
             val traktId = 101
@@ -192,6 +201,8 @@ class TraktRepositoryImplTest {
 
             repository.removeFromWatchlist(traktId, token)
             verify(traktAccountDataSource).removeFromWatchlist(traktId, token)
+            // Verify optimistic local delete
+            verify(traktDao).deleteFavoriteShowByTraktId(traktId)
         }
     }
 }

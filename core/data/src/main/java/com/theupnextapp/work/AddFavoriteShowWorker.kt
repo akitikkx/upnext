@@ -109,10 +109,16 @@ constructor(
         val traktIdResult = traktRepository.getTraktIdLookup(imdbID)
         val traktId = traktIdResult.getOrNull()
         if (traktId != null) {
-            traktRepository.addToWatchlist(
+            val result = traktRepository.addToWatchlist(
                 traktId = traktId,
+                imdbID = imdbID,
                 token = token,
             )
+            if (result.isSuccess) {
+                // Re-sync from the native Trakt watchlist to get full show data
+                // (title, images, metadata) into the local DB.
+                traktRepository.refreshWatchlist(token)
+            }
             Timber
                 .tag(TAG)
                 .d("Successfully called repository to add show (IMDb ID: $imdbID, Trakt ID: $traktId) to watchlist.")

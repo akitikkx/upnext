@@ -113,22 +113,36 @@ class FakeTraktRepository : TraktRepository {
     override fun getTraktAccessTokenRaw(): DatabaseTraktAccess? = null
 
     var refreshWatchlistResult: kotlin.Result<Unit> = kotlin.Result.success(Unit)
+    var refreshWatchlistCallCount = 0
+        private set
 
-    override suspend fun refreshWatchlist(token: String): kotlin.Result<Unit> = refreshWatchlistResult
+    override suspend fun refreshWatchlist(token: String): kotlin.Result<Unit> {
+        refreshWatchlistCallCount++
+        return refreshWatchlistResult
+    }
 
     var addToWatchlistResult: kotlin.Result<Unit> = kotlin.Result.success(Unit)
 
     override suspend fun addToWatchlist(
         traktId: Int,
+        imdbID: String,
         token: String,
     ): kotlin.Result<Unit> = addToWatchlistResult
 
     var removeFromWatchlistResult: kotlin.Result<Unit> = kotlin.Result.success(Unit)
+    var lastRemovedTraktId: Int? = null
+        private set
+    var removeFromWatchlistCallCount = 0
+        private set
 
     override suspend fun removeFromWatchlist(
         traktId: Int,
         token: String,
-    ): kotlin.Result<Unit> = removeFromWatchlistResult
+    ): kotlin.Result<Unit> {
+        removeFromWatchlistCallCount++
+        lastRemovedTraktId = traktId
+        return removeFromWatchlistResult
+    }
 
     override suspend fun refreshFavoriteShows(
         forceRefresh: Boolean,

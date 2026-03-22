@@ -77,6 +77,9 @@ class TraktRepositoryImpl(
         private const val FLOW_STOP_TIMEOUT_MS = 5000L
     }
 
+    @Volatile
+    private var hasMigratedFavoritesThisSession = false
+
     override val traktAccessToken: StateFlow<TraktAccessToken?> =
         traktDao.getTraktAccessData().map {
             it?.asDomainModel()
@@ -191,12 +194,17 @@ class TraktRepositoryImpl(
         _isLoadingFavoriteShows.value = true
         _favoriteShowsError.value = null
 
+        // One-time migration: move shows from "Upnext Favorites" custom list
+        // to the native Trakt watchlist. Runs once per app session.
+        if (!hasMigratedFavoritesThisSession) {
+            traktAccountDataSource.migrateFavoritesToWatchlist(token)
+            hasMigratedFavoritesThisSession = true
+        }
+
         val result = traktAccountDataSource.getWatchlist(token)
         if (result.isSuccess) {
             val responseItems = result.getOrNull()
             if (responseItems != null) {
-                // Map the Native Watchlist into our local DB for offline access, 
-                // leveraging the existing DatabaseFavoriteShows entity for a seamless UI transition.
                 val favoriteShowsList = withContext(Dispatchers.IO) {
                     val jobs = responseItems.map { item ->
                         async {
@@ -210,10 +218,10 @@ class TraktRepositoryImpl(
                                     existingLocalShow.tvMazeID == null
 
                             var dbShow = com.theupnextapp.database.DatabaseFavoriteShows(
-                                id = traktId, // Use Trakt ID as the primary key
+                                id = traktId,
                                 title = item.show.title,
                                 year = item.show.year.toString(),
-                                mediumImageUrl = "", // Image URLs will be resolved via TMDB proxy/worker if necessary
+                                mediumImageUrl = "",
                                 originalImageUrl = "",
                                 imdbID = item.show.ids.imdb,
                                 slug = item.show.ids.slug,
@@ -248,8 +256,20 @@ class TraktRepositoryImpl(
                     jobs.awaitAll()
                 }
 
-                traktDao.deleteAllFavoriteShows()
-                traktDao.insertAllFavoriteShows(*favoriteShowsList.toTypedArray())
+                // The native Trakt watchlist is our single source of truth.
+                // Upsert all shows from the API, then prune any local shows
+                // that are no longer in the API response.
+                withContext(Dispatchers.IO) {
+                    traktDao.insertAllFavoriteShows(*favoriteShowsList.toTypedArray())
+
+                    val apiTraktIds = favoriteShowsList.mapNotNull { it.traktID }.toSet()
+                    val localTraktIds = traktDao.getAllFavoriteShowTraktIds().toSet()
+                    val idsToRemove = (localTraktIds - apiTraktIds).toList()
+
+                    if (idsToRemove.isNotEmpty()) {
+                        traktDao.deleteFavoriteShowsByTraktIds(idsToRemove)
+                    }
+                }
             }
         } else {
             _favoriteShowsError.value = result.exceptionOrNull()?.message
@@ -261,6 +281,7 @@ class TraktRepositoryImpl(
 
     override suspend fun addToWatchlist(
         traktId: Int,
+        imdbID: String,
         token: String,
     ): Result<Unit> {
         _isLoadingFavoriteShows.value = true
@@ -282,7 +303,12 @@ class TraktRepositoryImpl(
         _favoriteShowsError.value = null
 
         val result = traktAccountDataSource.removeFromWatchlist(traktId, token)
-        if (result.isFailure) {
+        if (result.isSuccess) {
+            // Optimistic local delete — immediate UI feedback
+            withContext(Dispatchers.IO) {
+                traktDao.deleteFavoriteShowByTraktId(traktId)
+            }
+        } else {
             _favoriteShowsError.value = result.exceptionOrNull()?.message
         }
         _isLoadingFavoriteShows.value = false
