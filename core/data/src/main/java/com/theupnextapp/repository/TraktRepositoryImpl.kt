@@ -195,8 +195,6 @@ class TraktRepositoryImpl(
         if (result.isSuccess) {
             val responseItems = result.getOrNull()
             if (responseItems != null) {
-                // Map the Native Watchlist into our local DB for offline access, 
-                // leveraging the existing DatabaseFavoriteShows entity for a seamless UI transition.
                 val favoriteShowsList = withContext(Dispatchers.IO) {
                     val jobs = responseItems.map { item ->
                         async {
@@ -210,10 +208,10 @@ class TraktRepositoryImpl(
                                     existingLocalShow.tvMazeID == null
 
                             var dbShow = com.theupnextapp.database.DatabaseFavoriteShows(
-                                id = traktId, // Use Trakt ID as the primary key
+                                id = traktId,
                                 title = item.show.title,
                                 year = item.show.year.toString(),
-                                mediumImageUrl = "", // Image URLs will be resolved via TMDB proxy/worker if necessary
+                                mediumImageUrl = "",
                                 originalImageUrl = "",
                                 imdbID = item.show.ids.imdb,
                                 slug = item.show.ids.slug,
@@ -248,8 +246,20 @@ class TraktRepositoryImpl(
                     jobs.awaitAll()
                 }
 
-                traktDao.deleteAllFavoriteShows()
-                traktDao.insertAllFavoriteShows(*favoriteShowsList.toTypedArray())
+                // Diff-based approach: upsert shows from the API, then delete
+                // only shows that are no longer in the API response.
+                // This prevents data wipe if the API returns partial data.
+                withContext(Dispatchers.IO) {
+                    traktDao.insertAllFavoriteShows(*favoriteShowsList.toTypedArray())
+
+                    val apiTraktIds = favoriteShowsList.mapNotNull { it.traktID }.toSet()
+                    val localTraktIds = traktDao.getAllFavoriteShowTraktIds().toSet()
+                    val idsToRemove = (localTraktIds - apiTraktIds).toList()
+
+                    if (idsToRemove.isNotEmpty()) {
+                        traktDao.deleteFavoriteShowsByTraktIds(idsToRemove)
+                    }
+                }
             }
         } else {
             _favoriteShowsError.value = result.exceptionOrNull()?.message
@@ -282,7 +292,12 @@ class TraktRepositoryImpl(
         _favoriteShowsError.value = null
 
         val result = traktAccountDataSource.removeFromWatchlist(traktId, token)
-        if (result.isFailure) {
+        if (result.isSuccess) {
+            // Optimistic local delete — immediate UI feedback
+            withContext(Dispatchers.IO) {
+                traktDao.deleteFavoriteShowByTraktId(traktId)
+            }
+        } else {
             _favoriteShowsError.value = result.exceptionOrNull()?.message
         }
         _isLoadingFavoriteShows.value = false

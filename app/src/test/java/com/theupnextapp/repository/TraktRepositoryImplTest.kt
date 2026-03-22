@@ -32,6 +32,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
@@ -109,7 +110,7 @@ class TraktRepositoryImplTest {
     }
 
     @Test
-    fun refreshWatchlist_clearsAndSavesToDb() {
+    fun refreshWatchlist_useDiffBasedUpsert() {
         runBlocking {
             val token = "test_token"
             val showIds =
@@ -144,11 +145,13 @@ class TraktRepositoryImplTest {
 
             whenever(traktAccountDataSource.getWatchlist(token)).thenReturn(Result.success(responseList))
             whenever(traktAccountDataSource.getImages("tt123")).thenReturn(Triple(12345, "https://poster.jpg", "https://hero.jpg"))
+            whenever(traktDao.getAllFavoriteShowTraktIds()).thenReturn(listOf(101))
 
             val result = repository.refreshWatchlist(token)
 
             assert(result.isSuccess)
-            verify(traktDao).deleteAllFavoriteShows()
+            // Verify diff-based approach: NO deleteAll, uses insertAll + targeted delete
+            verify(traktDao, never()).deleteAllFavoriteShows()
 
             val expectedShow =
                 com.theupnextapp.database.DatabaseFavoriteShows(
@@ -184,7 +187,7 @@ class TraktRepositoryImplTest {
     }
 
     @Test
-    fun removeFromWatchlist_delegatesToAccountDataSource() {
+    fun removeFromWatchlist_delegatesAndDeletesLocally() {
         runBlocking {
             val token = "test_token"
             val traktId = 101
@@ -192,6 +195,8 @@ class TraktRepositoryImplTest {
 
             repository.removeFromWatchlist(traktId, token)
             verify(traktAccountDataSource).removeFromWatchlist(traktId, token)
+            // Verify optimistic local delete
+            verify(traktDao).deleteFavoriteShowByTraktId(traktId)
         }
     }
 }

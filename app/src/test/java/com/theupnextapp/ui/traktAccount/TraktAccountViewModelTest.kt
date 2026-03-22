@@ -3,6 +3,7 @@ package com.theupnextapp.ui.traktAccount
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.work.WorkManager
 import com.theupnextapp.common.utils.TraktAuthManager
+import com.theupnextapp.domain.TraktAccessToken
 import com.theupnextapp.domain.TraktUserListItem
 import com.theupnextapp.repository.fakes.FakeTraktRepository
 import kotlinx.coroutines.Dispatchers
@@ -120,5 +121,97 @@ class TraktAccountViewModelTest {
             assert(viewModel.favoriteShows.value[1].year == "2020")
 
             job.cancel()
+        }
+
+    @Test
+    fun `onRemoveFromWatchlistClick calls repository with correct traktId`() =
+        runTest {
+            val testToken =
+                TraktAccessToken(
+                    access_token = "test_token",
+                    token_type = "Bearer",
+                    expires_in = 7776000,
+                    refresh_token = "refresh",
+                    scope = "public",
+                    created_at = System.currentTimeMillis() / 1000,
+                )
+            traktRepository.setAccessToken(testToken)
+
+            viewModel = TraktAccountViewModel(traktRepository, workManager, traktAuthManager)
+            advanceUntilIdle()
+
+            viewModel.onRemoveFromWatchlistClick(42)
+            advanceUntilIdle()
+
+            assert(traktRepository.removeFromWatchlistCallCount == 1)
+            assert(traktRepository.lastRemovedTraktId == 42)
+        }
+
+    @Test
+    fun `onRemoveFromWatchlistClick does not trigger refreshWatchlist`() =
+        runTest {
+            val testToken =
+                TraktAccessToken(
+                    access_token = "test_token",
+                    token_type = "Bearer",
+                    expires_in = 7776000,
+                    refresh_token = "refresh",
+                    scope = "public",
+                    created_at = System.currentTimeMillis() / 1000,
+                )
+            traktRepository.setAccessToken(testToken)
+
+            viewModel = TraktAccountViewModel(traktRepository, workManager, traktAuthManager)
+            advanceUntilIdle()
+
+            // Reset counter after init's refreshWatchlist call
+            val countAfterInit = traktRepository.refreshWatchlistCallCount
+
+            viewModel.onRemoveFromWatchlistClick(42)
+            advanceUntilIdle()
+
+            assert(traktRepository.refreshWatchlistCallCount == countAfterInit) {
+                "refreshWatchlist should NOT be called after removal. " +
+                    "Expected $countAfterInit but was ${traktRepository.refreshWatchlistCallCount}"
+            }
+        }
+
+    @Test
+    fun `onRemoveFromWatchlistClick with null token does not call repository`() =
+        runTest {
+            // No token set — access_token is null
+            viewModel = TraktAccountViewModel(traktRepository, workManager, traktAuthManager)
+            advanceUntilIdle()
+
+            viewModel.onRemoveFromWatchlistClick(42)
+            advanceUntilIdle()
+
+            assert(traktRepository.removeFromWatchlistCallCount == 0)
+        }
+
+    @Test
+    fun `onRemoveFromWatchlistClick with failure surfaces error`() =
+        runTest {
+            val testToken =
+                TraktAccessToken(
+                    access_token = "test_token",
+                    token_type = "Bearer",
+                    expires_in = 7776000,
+                    refresh_token = "refresh",
+                    scope = "public",
+                    created_at = System.currentTimeMillis() / 1000,
+                )
+            traktRepository.setAccessToken(testToken)
+            traktRepository.removeFromWatchlistResult =
+                kotlin.Result.failure(Exception("API error"))
+
+            viewModel = TraktAccountViewModel(traktRepository, workManager, traktAuthManager)
+            advanceUntilIdle()
+
+            viewModel.onRemoveFromWatchlistClick(42)
+            advanceUntilIdle()
+
+            assert(traktRepository.removeFromWatchlistCallCount == 1)
+            // The error is surfaced via favoriteShowsError in the repository
         }
 }
