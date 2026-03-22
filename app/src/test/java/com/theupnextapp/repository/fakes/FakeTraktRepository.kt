@@ -125,6 +125,7 @@ class FakeTraktRepository : TraktRepository {
 
     override suspend fun addToWatchlist(
         traktId: Int,
+        imdbID: String,
         token: String,
     ): kotlin.Result<Unit> = addToWatchlistResult
 

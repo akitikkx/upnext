@@ -88,6 +88,7 @@ interface TraktRepository {
 
     suspend fun addToWatchlist(
         traktId: Int,
+        imdbID: String,
         token: String,
     ): Result<Unit>
 

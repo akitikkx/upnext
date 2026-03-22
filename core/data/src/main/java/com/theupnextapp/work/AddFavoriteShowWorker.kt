@@ -111,6 +111,7 @@ constructor(
         if (traktId != null) {
             traktRepository.addToWatchlist(
                 traktId = traktId,
+                imdbID = imdbID,
                 token = token,
             )
             Timber

@@ -175,14 +175,34 @@ class TraktRepositoryImplTest {
     }
 
     @Test
-    fun addToWatchlist_delegatesToAccountDataSource() {
+    fun addToWatchlist_delegatesAndInsertsLocally() {
         runBlocking {
             val token = "test_token"
             val traktId = 101
+            val imdbID = "tt123"
             whenever(traktAccountDataSource.addToWatchlist(traktId, token)).thenReturn(Result.success(Unit))
 
-            repository.addToWatchlist(traktId, token)
+            repository.addToWatchlist(traktId, imdbID, token)
             verify(traktAccountDataSource).addToWatchlist(traktId, token)
+            // Verify optimistic local insert
+            verify(traktDao).insertFavoriteShow(
+                com.theupnextapp.database.DatabaseFavoriteShows(
+                    id = traktId,
+                    title = null,
+                    year = null,
+                    mediumImageUrl = null,
+                    originalImageUrl = null,
+                    imdbID = imdbID,
+                    slug = null,
+                    tmdbID = null,
+                    traktID = traktId,
+                    tvdbID = null,
+                    tvMazeID = null,
+                    network = null,
+                    status = null,
+                    rating = null,
+                ),
+            )
         }
     }
 

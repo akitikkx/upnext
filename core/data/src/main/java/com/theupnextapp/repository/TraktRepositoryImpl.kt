@@ -271,13 +271,38 @@ class TraktRepositoryImpl(
 
     override suspend fun addToWatchlist(
         traktId: Int,
+        imdbID: String,
         token: String,
     ): Result<Unit> {
         _isLoadingFavoriteShows.value = true
         _favoriteShowsError.value = null
 
         val result = traktAccountDataSource.addToWatchlist(traktId, token)
-        if (result.isFailure) {
+        if (result.isSuccess) {
+            // Optimistic local insert — immediate UI feedback for button state
+            // and watchlist screen. The next refreshWatchlist() will fill in
+            // remaining fields (title, images, etc.).
+            withContext(Dispatchers.IO) {
+                traktDao.insertFavoriteShow(
+                    com.theupnextapp.database.DatabaseFavoriteShows(
+                        id = traktId,
+                        title = null,
+                        year = null,
+                        mediumImageUrl = null,
+                        originalImageUrl = null,
+                        imdbID = imdbID,
+                        slug = null,
+                        tmdbID = null,
+                        traktID = traktId,
+                        tvdbID = null,
+                        tvMazeID = null,
+                        network = null,
+                        status = null,
+                        rating = null,
+                    ),
+                )
+            }
+        } else {
             _favoriteShowsError.value = result.exceptionOrNull()?.message
         }
         _isLoadingFavoriteShows.value = false
