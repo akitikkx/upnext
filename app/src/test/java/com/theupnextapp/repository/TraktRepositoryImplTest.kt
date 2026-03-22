@@ -110,7 +110,7 @@ class TraktRepositoryImplTest {
     }
 
     @Test
-    fun refreshWatchlist_useDiffBasedUpsert() {
+    fun refreshWatchlist_upsertsWithoutDeleting() {
         runBlocking {
             val token = "test_token"
             val showIds =
@@ -145,12 +145,11 @@ class TraktRepositoryImplTest {
 
             whenever(traktAccountDataSource.getWatchlist(token)).thenReturn(Result.success(responseList))
             whenever(traktAccountDataSource.getImages("tt123")).thenReturn(Triple(12345, "https://poster.jpg", "https://hero.jpg"))
-            whenever(traktDao.getAllFavoriteShowTraktIds()).thenReturn(listOf(101))
 
             val result = repository.refreshWatchlist(token)
 
             assert(result.isSuccess)
-            // Verify diff-based approach: NO deleteAll, uses insertAll + targeted delete
+            // Verify upsert-only: inserts happen, NO deletes of any kind
             verify(traktDao, never()).deleteAllFavoriteShows()
 
             val expectedShow =

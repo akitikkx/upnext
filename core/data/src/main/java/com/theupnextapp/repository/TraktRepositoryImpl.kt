@@ -246,19 +246,12 @@ class TraktRepositoryImpl(
                     jobs.awaitAll()
                 }
 
-                // Diff-based approach: upsert shows from the API, then delete
-                // only shows that are no longer in the API response.
-                // This prevents data wipe if the API returns partial data.
+                // Upsert-only approach: add new shows and update existing ones.
+                // NEVER delete during refresh — the API may return partial data
+                // (pagination, rate limiting, eventual consistency). Deletions
+                // should only happen through explicit user actions (swipe-to-delete).
                 withContext(Dispatchers.IO) {
                     traktDao.insertAllFavoriteShows(*favoriteShowsList.toTypedArray())
-
-                    val apiTraktIds = favoriteShowsList.mapNotNull { it.traktID }.toSet()
-                    val localTraktIds = traktDao.getAllFavoriteShowTraktIds().toSet()
-                    val idsToRemove = (localTraktIds - apiTraktIds).toList()
-
-                    if (idsToRemove.isNotEmpty()) {
-                        traktDao.deleteFavoriteShowsByTraktIds(idsToRemove)
-                    }
                 }
             }
         } else {
