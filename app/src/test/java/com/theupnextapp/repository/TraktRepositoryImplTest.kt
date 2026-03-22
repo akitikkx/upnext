@@ -110,7 +110,7 @@ class TraktRepositoryImplTest {
     }
 
     @Test
-    fun refreshWatchlist_upsertsWithoutDeleting() {
+    fun refreshWatchlist_syncsDiffFromNativeWatchlist() {
         runBlocking {
             val token = "test_token"
             val showIds =
@@ -145,13 +145,15 @@ class TraktRepositoryImplTest {
 
             whenever(traktAccountDataSource.getWatchlist(token)).thenReturn(Result.success(responseList))
             whenever(traktAccountDataSource.getImages("tt123")).thenReturn(Triple(12345, "https://poster.jpg", "https://hero.jpg"))
+            // Local DB has show 101 (from API) + stale show 999 (removed on Trakt)
+            whenever(traktDao.getAllFavoriteShowTraktIds()).thenReturn(listOf(101, 999))
 
             val result = repository.refreshWatchlist(token)
 
             assert(result.isSuccess)
-            // Verify upsert-only: inserts happen, NO deletes of any kind
+            // Verify NO destructive deleteAll
             verify(traktDao, never()).deleteAllFavoriteShows()
-
+            // Verify upsert
             val expectedShow =
                 com.theupnextapp.database.DatabaseFavoriteShows(
                     id = 101,
@@ -170,11 +172,13 @@ class TraktRepositoryImplTest {
                     rating = null,
                 )
             verify(traktDao).insertAllFavoriteShows(expectedShow)
+            // Verify stale show 999 is pruned
+            verify(traktDao).deleteFavoriteShowsByTraktIds(listOf(999))
         }
     }
 
     @Test
-    fun addToWatchlist_delegatesAndInsertsLocally() {
+    fun addToWatchlist_delegatesToAccountDataSource() {
         runBlocking {
             val token = "test_token"
             val traktId = 101
@@ -183,25 +187,8 @@ class TraktRepositoryImplTest {
 
             repository.addToWatchlist(traktId, imdbID, token)
             verify(traktAccountDataSource).addToWatchlist(traktId, token)
-            // Verify optimistic local insert
-            verify(traktDao).insertFavoriteShow(
-                com.theupnextapp.database.DatabaseFavoriteShows(
-                    id = traktId,
-                    title = null,
-                    year = null,
-                    mediumImageUrl = null,
-                    originalImageUrl = null,
-                    imdbID = imdbID,
-                    slug = null,
-                    tmdbID = null,
-                    traktID = traktId,
-                    tvdbID = null,
-                    tvMazeID = null,
-                    network = null,
-                    status = null,
-                    rating = null,
-                ),
-            )
+            // No local insert — worker calls refreshWatchlist() afterward
+            verify(traktDao, never()).insertFavoriteShow(org.mockito.kotlin.any())
         }
     }
 

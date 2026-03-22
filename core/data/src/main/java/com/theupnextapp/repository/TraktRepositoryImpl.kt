@@ -246,12 +246,19 @@ class TraktRepositoryImpl(
                     jobs.awaitAll()
                 }
 
-                // Upsert-only approach: add new shows and update existing ones.
-                // NEVER delete during refresh — the API may return partial data
-                // (pagination, rate limiting, eventual consistency). Deletions
-                // should only happen through explicit user actions (swipe-to-delete).
+                // The native Trakt watchlist is our single source of truth.
+                // Upsert all shows from the API, then prune any local shows
+                // that are no longer in the API response.
                 withContext(Dispatchers.IO) {
                     traktDao.insertAllFavoriteShows(*favoriteShowsList.toTypedArray())
+
+                    val apiTraktIds = favoriteShowsList.mapNotNull { it.traktID }.toSet()
+                    val localTraktIds = traktDao.getAllFavoriteShowTraktIds().toSet()
+                    val idsToRemove = (localTraktIds - apiTraktIds).toList()
+
+                    if (idsToRemove.isNotEmpty()) {
+                        traktDao.deleteFavoriteShowsByTraktIds(idsToRemove)
+                    }
                 }
             }
         } else {
@@ -271,31 +278,7 @@ class TraktRepositoryImpl(
         _favoriteShowsError.value = null
 
         val result = traktAccountDataSource.addToWatchlist(traktId, token)
-        if (result.isSuccess) {
-            // Optimistic local insert — immediate UI feedback for button state
-            // and watchlist screen. The next refreshWatchlist() will fill in
-            // remaining fields (title, images, etc.).
-            withContext(Dispatchers.IO) {
-                traktDao.insertFavoriteShow(
-                    com.theupnextapp.database.DatabaseFavoriteShows(
-                        id = traktId,
-                        title = null,
-                        year = null,
-                        mediumImageUrl = null,
-                        originalImageUrl = null,
-                        imdbID = imdbID,
-                        slug = null,
-                        tmdbID = null,
-                        traktID = traktId,
-                        tvdbID = null,
-                        tvMazeID = null,
-                        network = null,
-                        status = null,
-                        rating = null,
-                    ),
-                )
-            }
-        } else {
+        if (result.isFailure) {
             _favoriteShowsError.value = result.exceptionOrNull()?.message
         }
         _isLoadingFavoriteShows.value = false
