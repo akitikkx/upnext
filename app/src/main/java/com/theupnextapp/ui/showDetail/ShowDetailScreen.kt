@@ -406,7 +406,8 @@ fun ShowDetailButtons(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = if (isFavorite == true) "Watchlist" else "Watchlist",
+                        text = if (isFavorite == true) "Listed" else "List",
+                        maxLines = 1,
                     )
                 }
             }
