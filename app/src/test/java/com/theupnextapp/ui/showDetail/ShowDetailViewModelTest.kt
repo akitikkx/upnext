@@ -190,6 +190,15 @@ class ShowDetailViewModelTest {
 
             kotlinx.coroutines.delay(100)
 
-            verify(workManager, timeout(3000)).enqueue(any<OneTimeWorkRequest>())
+            val requestCaptor = org.mockito.kotlin.argumentCaptor<OneTimeWorkRequest>()
+            verify(workManager, timeout(3000)).enqueue(requestCaptor.capture())
+
+            val enqueuedWork = requestCaptor.firstValue
+            val inputData = enqueuedWork.workSpec.input
+
+            assertNotNull("Work input data should not be null", inputData)
+            assertEquals("IMDb ID should match", imdbId, inputData.getString(com.theupnextapp.work.AddToWatchlistWorker.ARG_IMDB_ID))
+            assertEquals("Trakt ID should match", 1, inputData.getInt(com.theupnextapp.work.AddToWatchlistWorker.ARG_TRAKT_ID, -1))
+            assertEquals("Token should match", token, inputData.getString(com.theupnextapp.work.AddToWatchlistWorker.ARG_TOKEN))
         }
 }
