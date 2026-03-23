@@ -125,7 +125,12 @@ class ShowDetailViewModel
                     if (imdbID != null) {
                         workManager.getWorkInfosByTagFlow(WORK_TAG_WATCHLIST_PREFIX + imdbID)
                             .map { workInfoList ->
-                                workInfoList.any { !it.state.isFinished }
+                                val isLoading = workInfoList.any { !it.state.isFinished }
+                                if (!isLoading) {
+                                    // When worker finishes, release optimistic UI to allow native DB rendering
+                                    _watchlistOverride.value = null
+                                }
+                                isLoading
                             }
                     } else {
                         kotlinx.coroutines.flow.flowOf(false)

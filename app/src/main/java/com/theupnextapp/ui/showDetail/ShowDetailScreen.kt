@@ -388,27 +388,41 @@ fun ShowDetailButtons(
                     )
                 }
             } else {
-                Button(
-                    onClick = { onWatchlistClick() },
-                    modifier = Modifier.weight(1f).fillMaxHeight(),
-                ) {
-                    Icon(
-                        imageVector =
-                            if (isWatchlist == true) {
+                if (isWatchlist == true) {
+                    androidx.compose.material3.OutlinedButton(
+                        onClick = { onWatchlistClick() },
+                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                    ) {
+                        Icon(
+                            imageVector =
                                 androidx.compose.ui.graphics.vector.ImageVector.vectorResource(
                                     id = R.drawable.ic_watchlist_remove,
-                                )
-                            } else {
-                                androidx.compose.ui.graphics.vector.ImageVector.vectorResource(id = R.drawable.ic_watchlist_add)
-                            },
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp),
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = "List",
-                        maxLines = 1,
-                    )
+                                ),
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "Listed",
+                            maxLines = 1,
+                        )
+                    }
+                } else {
+                    Button(
+                        onClick = { onWatchlistClick() },
+                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                    ) {
+                        Icon(
+                            imageVector = androidx.compose.ui.graphics.vector.ImageVector.vectorResource(id = R.drawable.ic_watchlist_add),
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "List",
+                            maxLines = 1,
+                        )
+                    }
                 }
             }
 
