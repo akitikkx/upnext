@@ -181,6 +181,15 @@ class TraktAccountViewModel
             }
         }
 
+        fun onSilentRefreshWatchlist() {
+            viewModelScope.launch {
+                val token = traktAccessToken.value?.access_token
+                if (!token.isNullOrEmpty()) {
+                    traktRepository.refreshWatchlist(token)
+                }
+            }
+        }
+
         fun onConnectToTraktClick() {
             viewModelScope.launch {
                 _openCustomTab.send(TraktConstants.TRAKT_AUTH_URL)
