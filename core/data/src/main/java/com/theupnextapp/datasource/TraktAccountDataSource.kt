@@ -88,28 +88,7 @@ constructor(
         return withContext(Dispatchers.IO) {
             try {
                 val bearerToken = "Bearer $token"
-                // 1. Get User Slug
-                val userSettings = traktService.getUserSettingsAsync(bearerToken).await()
-                val userSlug =
-                    userSettings.user?.ids?.slug
-                        ?: return@withContext Result.failure<Unit>(
-                            Exception("User slug not found in Trakt settings.").also {
-                                logTraktException(it.message!!)
-                            },
-                        )
-
-                // 2. Get or Create "UpnextApp Watchlists" List ID (Slug)
-                val listIdSlugResult = getOrCreateWatchlistsListId(token, userSlug)
-                if (listIdSlugResult.isFailure) {
-                    val error =
-                        listIdSlugResult.exceptionOrNull()
-                            ?: Exception("Unknown error getting/creating watchlists list ID.")
-                    return@withContext Result.failure(error)
-                }
-                val watchlistsListSlug = listIdSlugResult.getOrThrow()
-
-                // 3. Fetch items from this list and update DB
-                val fetchResult = fetchAndStoreWatchlistShows(token, userSlug, watchlistsListSlug)
+                val fetchResult = fetchAndStoreWatchlistShows(token)
                 if (fetchResult.isSuccess) {
                     // 4. Update table timestamp
                     logTableUpdateTimestamp(DatabaseTables.TABLE_FAVORITE_SHOWS.tableName)
@@ -127,186 +106,84 @@ constructor(
         }
     }
 
-    private suspend fun getOrCreateWatchlistsListId(
-        token: String,
-        userSlug: String,
-    ): Result<String> {
-        val bearerToken = "Bearer $token"
-        return safeApiCall {
-            val userCustomLists = traktService.getUserCustomListsAsync(bearerToken, userSlug).await()
-            val watchlistsList = userCustomLists.find { it.name == FAVORITES_LIST_NAME }
-
-            if (watchlistsList?.ids?.slug != null) {
-                watchlistsList.ids.slug
-            } else {
-                val createRequest =
-                    NetworkTraktCreateCustomListRequest(
-                        name = FAVORITES_LIST_NAME,
-                        privacy = "private",
-                    )
-                val createdList =
-                    traktService.createCustomListAsync(
-                        token = bearerToken,
-                        userSlug = userSlug,
-                        createCustomListRequest = createRequest,
-                    ).await()
-                createdList.ids?.slug
-                    ?: throw Exception("Failed to create watchlists list '$FAVORITES_LIST_NAME', or slug was null after creation.")
-            }
-        }
-    }
-
-    /**
-     * Migrates shows from the "Upnext Watchlists" custom list to the native
-     * Trakt watchlist. This is idempotent — Trakt ignores duplicate adds.
-     * If the custom list doesn't exist, this is a no-op.
-     */
-    suspend fun migrateWatchlistsToWatchlist(token: String): Result<Unit> {
-        if (token.isEmpty()) return Result.success(Unit)
-
-        return withContext(Dispatchers.IO) {
-            try {
-                val bearerToken = "Bearer $token"
-
-                // 1. Get user slug
-                val userSettings = traktService.getUserSettingsAsync(bearerToken).await()
-                val userSlug = userSettings.user?.ids?.slug
-                    ?: return@withContext Result.success(Unit) // Can't look up lists without slug
-
-                // 2. Find the "Upnext Watchlists" list (without creating it)
-                val userCustomLists = traktService.getUserCustomListsAsync(bearerToken, userSlug).await()
-                val watchlistsList = userCustomLists.find { it.name == FAVORITES_LIST_NAME }
-
-                if (watchlistsList?.ids?.slug == null) {
-                    // No custom list exists — nothing to migrate
-                    return@withContext Result.success(Unit)
-                }
-
-                // 3. Fetch all items from the custom list
-                val customListItems = traktService.getCustomListItemsAsync(
-                    token = bearerToken,
-                    userSlug = userSlug,
-                    traktId = watchlistsList.ids.slug,
-                    limit = 1000,
-                ).await()
-
-                if (customListItems.isNullOrEmpty()) {
-                    return@withContext Result.success(Unit)
-                }
-
-                // 4. Extract traktIds and bulk-add to native watchlist
-                val showsToMigrate = customListItems.mapNotNull { item ->
-                    item.show?.ids?.trakt?.let { traktId ->
-                        com.theupnextapp.network.models.trakt.NetworkTraktWatchlistRequestShow(
-                            ids = com.theupnextapp.network.models.trakt.NetworkTraktWatchlistRequestShowIds(
-                                trakt = traktId
-                            )
-                        )
-                    }
-                }
-
-                if (showsToMigrate.isNotEmpty()) {
-                    val request = com.theupnextapp.network.models.trakt.NetworkTraktWatchlistRequest(
-                        shows = showsToMigrate,
-                    )
-                    traktService.addToWatchlistAsync(bearerToken, request).await()
-                    timber.log.Timber.i("Migrated ${showsToMigrate.size} shows from '$FAVORITES_LIST_NAME' to native watchlist.")
-                }
-
-                Result.success(Unit)
-            } catch (e: Exception) {
-                // Migration failure is non-fatal — log and continue
-                timber.log.Timber.w(e, "Failed to migrate '$FAVORITES_LIST_NAME' to native watchlist. Will retry next session.")
-                Result.success(Unit) // Return success so refreshWatchlist continues
-            }
-        }
-    }
-
     private suspend fun fetchAndStoreWatchlistShows(
         token: String,
-        userSlug: String,
-        listSlug: String,
     ): Result<Unit> {
         val bearerToken = "Bearer $token"
 
         return try {
-            // Get all items from the "UpnextApp Watchlists" list
-            val customListItemsResponse =
-                traktService.getCustomListItemsAsync(
+            val watchlistItemsResponse =
+                traktService.getWatchlistAsync(
                     token = bearerToken,
-                    userSlug = userSlug,
-                    traktId = listSlug,
                     limit = 1000,
                 ).await()
 
-            handleTraktUserListItemsResponse(customListItemsResponse)
+            handleTraktWatchlistResponse(watchlistItemsResponse)
             logTableUpdateTimestamp(DatabaseTables.TABLE_FAVORITE_SHOWS.tableName)
             Result.success(Unit)
         } catch (e: HttpException) {
             val errorBody = e.response()?.errorBody()?.stringSuspending()
-            val detailedMessage = "HTTP error fetching watchlist show items from list $listSlug: ${e.code()} - $errorBody"
+            val detailedMessage = "HTTP error fetching native watchlist show items: ${e.code()} - $errorBody"
             logTraktException(detailedMessage, e)
             val userMessage = parseTraktApiError(errorBody, "Server error fetching watchlist items.", moshi)
             Result.failure(Exception(userMessage, e))
         } catch (e: Exception) {
-            logTraktException("Error fetching and storing items from Trakt list $listSlug", e)
+            logTraktException("Error fetching and storing items from native Trakt Watchlist", e)
             Result.failure(e)
         }
     }
 
-    private suspend fun handleTraktUserListItemsResponse(customListItemsResponse: NetworkTraktUserListItemResponse?) {
-        if (customListItemsResponse == null) {
+    private suspend fun handleTraktWatchlistResponse(watchlistResponse: com.theupnextapp.network.models.trakt.NetworkTraktWatchlistResponse?) {
+        if (watchlistResponse == null) {
             traktDao.deleteAllWatchlistShows()
             return
         }
 
-        val showsFromNetworkTraktIds = customListItemsResponse.mapNotNull { it.show?.ids?.trakt }.toSet()
+        val showsFromNetworkTraktIds = watchlistResponse.map { it.show.ids.trakt }.toSet()
 
         val showsToInsertOrUpdateInDb = withContext(Dispatchers.IO) {
             val imageFetchAndUpdateJobs =
-                customListItemsResponse.mapNotNull { networkListItem ->
-                    networkListItem.show?.ids?.trakt?.let { traktId ->
-                        async {
-                            var dbShow = networkListItem.asDatabaseModel()
-                            val existingLocalShow = traktDao.getWatchlistShowByTraktId(traktId)
+                watchlistResponse.map { networkListItem ->
+                    async {
+                        val traktId = networkListItem.show.ids.trakt
+                        var dbShow = networkListItem.asDatabaseModel()
+                        val existingLocalShow = traktDao.getWatchlistShowByTraktId(traktId)
 
-                            val needsImageFetch =
-                                existingLocalShow == null ||
-                                    existingLocalShow.originalImageUrl.isNullOrEmpty() ||
-                                    existingLocalShow.mediumImageUrl.isNullOrEmpty() ||
-                                    existingLocalShow.tvMazeID == null
+                        val needsImageFetch =
+                            existingLocalShow == null ||
+                                existingLocalShow.originalImageUrl.isNullOrEmpty() ||
+                                existingLocalShow.mediumImageUrl.isNullOrEmpty() ||
+                                existingLocalShow.tvMazeID == null
 
-                            if (needsImageFetch) {
-                                networkListItem.show.ids.imdb?.let { imdbId ->
-                                    val (tvMazeIdResult, poster, heroImage) = getImages(imdbId)
-                                    dbShow =
-                                        dbShow.copy(
-                                            originalImageUrl = poster ?: existingLocalShow?.originalImageUrl,
-                                            mediumImageUrl = heroImage ?: existingLocalShow?.mediumImageUrl,
-                                            tvMazeID = tvMazeIdResult ?: existingLocalShow?.tvMazeID,
-                                        )
-                                }
-                            } else if (existingLocalShow != null) {
+                        if (needsImageFetch) {
+                            networkListItem.show.ids.imdb?.let { imdbId ->
+                                val (tvMazeIdResult, poster, heroImage) = getImages(imdbId)
                                 dbShow =
                                     dbShow.copy(
-                                        id = existingLocalShow.id,
-                                        originalImageUrl = existingLocalShow.originalImageUrl,
-                                        mediumImageUrl = existingLocalShow.mediumImageUrl,
-                                        tvMazeID = existingLocalShow.tvMazeID,
+                                        originalImageUrl = poster ?: existingLocalShow?.originalImageUrl,
+                                        mediumImageUrl = heroImage ?: existingLocalShow?.mediumImageUrl,
+                                        tvMazeID = tvMazeIdResult ?: existingLocalShow?.tvMazeID,
                                     )
                             }
-                            dbShow
+                        } else {
+                            dbShow =
+                                dbShow.copy(
+                                    originalImageUrl = existingLocalShow.originalImageUrl,
+                                    mediumImageUrl = existingLocalShow.mediumImageUrl,
+                                    tvMazeID = existingLocalShow.tvMazeID,
+                                )
                         }
+                        dbShow
                     }
                 }
             imageFetchAndUpdateJobs.awaitAll()
         }
 
         val localWatchlistTraktIds = traktDao.getAllWatchlistShowTraktIds()
-        val showsToDeleteTraktIds = localWatchlistTraktIds.filter { it !in showsFromNetworkTraktIds }
+        val idsToDelete = localWatchlistTraktIds.filterNot { showsFromNetworkTraktIds.contains(it) }
 
-        if (showsToDeleteTraktIds.isNotEmpty()) {
-            traktDao.deleteWatchlistShowsByTraktIds(showsToDeleteTraktIds)
+        if (idsToDelete.isNotEmpty()) {
+            traktDao.deleteWatchlistShowsByTraktIds(idsToDelete)
         }
 
         if (showsToInsertOrUpdateInDb.isNotEmpty()) {
@@ -335,33 +212,20 @@ constructor(
                     return@withContext Result.failure(Exception(noTraktIdMessage))
                 }
 
-                val userSettings = traktService.getUserSettingsAsync(bearerToken).await()
-                val userSlug =
-                    userSettings.user?.ids?.slug
-                        ?: return@withContext Result.failure(Exception("User slug not found"))
-
-                val listIdSlugResult = getOrCreateWatchlistsListId(token, userSlug)
-                if (listIdSlugResult.isFailure) {
-                    return@withContext Result.failure(listIdSlugResult.exceptionOrNull()!!)
-                }
-                val watchlistsListSlug = listIdSlugResult.getOrThrow()
-
                 val addRequest =
-                    NetworkTraktAddShowToListRequest(
+                    com.theupnextapp.network.models.trakt.NetworkTraktWatchlistRequest(
                         shows =
                         listOf(
-                            NetworkTraktAddShowToListRequestShow(
-                                ids = NetworkTraktAddShowToListRequestShowIds(trakt = traktShowId),
+                            com.theupnextapp.network.models.trakt.NetworkTraktWatchlistRequestShow(
+                                ids = com.theupnextapp.network.models.trakt.NetworkTraktWatchlistRequestShowIds(trakt = traktShowId),
                             ),
                         ),
                     )
 
                 val addResponse =
-                    traktService.addShowToCustomListAsync(
+                    traktService.addToWatchlistAsync(
                         token = bearerToken,
-                        userSlug = userSlug,
-                        traktId = watchlistsListSlug,
-                        networkTraktAddShowToListRequest = addRequest,
+                        networkTraktWatchlistRequest = addRequest,
                     ).await()
 
                 val showSuccessfullyAdded = addResponse.added.shows == 1
@@ -421,33 +285,20 @@ constructor(
         return withContext(Dispatchers.IO) {
             try {
                 val bearerToken = "Bearer $token"
-                val userSettings = traktService.getUserSettingsAsync(bearerToken).await()
-                val userSlug =
-                    userSettings.user?.ids?.slug
-                        ?: return@withContext Result.failure(Exception("User slug not found"))
-
-                val listIdSlugResult = getOrCreateWatchlistsListId(token, userSlug)
-                if (listIdSlugResult.isFailure) {
-                    return@withContext Result.failure(listIdSlugResult.exceptionOrNull()!!)
-                }
-                val watchlistsListSlug = listIdSlugResult.getOrThrow()
-
                 val request =
-                    NetworkTraktRemoveShowFromListRequest(
+                    com.theupnextapp.network.models.trakt.NetworkTraktWatchlistRequest(
                         shows =
                         listOf(
-                            NetworkTraktRemoveShowFromListRequestShow(
-                                ids = NetworkTraktRemoveShowFromListRequestShowIds(trakt = traktId),
+                            com.theupnextapp.network.models.trakt.NetworkTraktWatchlistRequestShow(
+                                ids = com.theupnextapp.network.models.trakt.NetworkTraktWatchlistRequestShowIds(trakt = traktId),
                             ),
                         ),
                     )
 
                 val removeResponse =
-                    traktService.removeShowFromCustomListAsync(
+                    traktService.removeFromWatchlistAsync(
                         token = bearerToken,
-                        userSlug = userSlug,
-                        traktId = watchlistsListSlug,
-                        networkTraktRemoveShowFromListRequest = request,
+                        networkTraktWatchlistRequest = request,
                     ).await()
 
                 val showSuccessfullyRemovedOnTrakt = removeResponse.deleted.shows == 1

@@ -194,13 +194,8 @@ class TraktRepositoryImpl(
         _isLoadingWatchlistShows.value = true
         _watchlistShowsError.value = null
 
-        // One-time migration: move shows from "Upnext Favorites" custom list
-        // to the native Trakt watchlist. Runs once per app session.
-        if (!hasMigratedWatchlistThisSession) {
-            traktAccountDataSource.migrateWatchlistsToWatchlist(token)
-            hasMigratedWatchlistThisSession = true
-        }
-
+        // Custom list migration no longer performed (favorites custom list is deprecated)
+        // refreshWatchlist(token) handles all sync directly from native watchlist api.DataSource.getWatchlist(token)
         val result = traktAccountDataSource.getWatchlist(token)
         if (result.isSuccess) {
             val responseItems = result.getOrNull()
