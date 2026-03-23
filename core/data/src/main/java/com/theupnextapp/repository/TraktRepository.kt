@@ -161,6 +161,8 @@ interface TraktRepository {
 
     suspend fun rateShow(imdbId: String, rating: Int): Result<Unit>
 
+    suspend fun getUserShowRating(imdbId: String): Int?
+
     suspend fun getTraktIdLookup(imdbID: String): Result<Int?>
 
     suspend fun getTraktPersonSummary(id: String): Result<NetworkTraktPersonResponse>

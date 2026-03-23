@@ -211,6 +211,10 @@ class FakeTraktRepository : TraktRepository {
         return rateShowResult
     }
 
+    var fakeUserShowRating: Int? = null
+
+    override suspend fun getUserShowRating(imdbId: String): Int? = fakeUserShowRating
+
     override suspend fun getTraktIdLookup(imdbID: String): kotlin.Result<Int?> = kotlin.Result.success(null)
 
     var personSummaryResult: kotlin.Result<NetworkTraktPersonResponse> =

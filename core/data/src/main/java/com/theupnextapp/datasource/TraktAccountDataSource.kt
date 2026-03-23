@@ -676,6 +676,24 @@ constructor(
         }
     }
 
+    suspend fun getUserShowRating(
+        imdbId: String,
+        token: String?,
+    ): Int? {
+        if (token.isNullOrEmpty()) return null
+
+        return withContext(Dispatchers.IO) {
+            try {
+                val bearerToken = "Bearer $token"
+                val ratings = traktService.getUserShowRatingsAsync(bearerToken).await()
+                ratings.firstOrNull { it.show?.ids?.imdb == imdbId }?.rating
+            } catch (e: Exception) {
+                logTraktException("Error fetching user show rating", e)
+                null
+            }
+        }
+    }
+
     suspend fun getTraktMySchedule(
         token: String,
         startDate: String,

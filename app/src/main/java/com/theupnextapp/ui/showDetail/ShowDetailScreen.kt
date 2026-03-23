@@ -297,8 +297,12 @@ fun DetailArea(
                     isAuthorizedOnTrakt = isAuthorizedOnTrakt,
                     isFavorite = isFavorite,
                     isLoading = isFavoriteLoading,
+                    isRating = uiState.isRating,
+                    userRating = uiState.userRating,
                     onSeasonsClick = onSeasonsClick,
                     onFavoriteClick = onFavoriteClick,
+                    onRateClick = onRateClick,
+                    widthSizeClass = windowSizeClass,
                 )
             }
         } else if (showDetailArgs.showImageUrl != null || showDetailArgs.showBackgroundUrl != null) {
@@ -308,13 +312,7 @@ fun DetailArea(
 
         showRating?.let { ratingData ->
             if (ratingData.votes != 0) {
-                TraktRatingSummaryWithRate(
-                    rating = ratingData,
-                    isAuthorizedOnTrakt = isAuthorizedOnTrakt,
-                    isRating = uiState.isRating,
-                    userRating = uiState.userRating,
-                    onRateClick = onRateClick,
-                )
+                TraktRatingSummary(ratingData, userRating = uiState.userRating)
                 Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
             }
         }
@@ -347,19 +345,31 @@ fun ShowDetailButtons(
     isAuthorizedOnTrakt: Boolean?,
     isFavorite: Boolean?,
     isLoading: Boolean,
+    isRating: Boolean = false,
+    userRating: Int? = null,
     onSeasonsClick: () -> Unit,
     onFavoriteClick: () -> Unit,
+    onRateClick: (Int) -> Unit = {},
+    widthSizeClass: WindowWidthSizeClass = WindowWidthSizeClass.Compact,
 ) {
+    var showRatingSheet by rememberSaveable { mutableStateOf(false) }
+    val buttonSpacing = if (widthSizeClass == WindowWidthSizeClass.Expanded) 24.dp else 16.dp
+    val rowModifier =
+        if (widthSizeClass == WindowWidthSizeClass.Expanded) {
+            Modifier.fillMaxWidth(0.7f)
+        } else {
+            Modifier.fillMaxWidth()
+        }
+
     Row(
         modifier =
-            Modifier
-                .fillMaxWidth()
+            rowModifier
                 .padding(
                     horizontal = dimensionResource(id = R.dimen.padding_standard_double),
                     vertical = dimensionResource(id = R.dimen.padding_standard),
                 )
                 .height(IntrinsicSize.Min),
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(buttonSpacing),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         androidx.compose.material3.OutlinedButton(
@@ -371,7 +381,7 @@ fun ShowDetailButtons(
         if (isAuthorizedOnTrakt == true) {
             if (isLoading) {
                 Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                    androidx.compose.material3.CircularProgressIndicator(
+                    CircularProgressIndicator(
                         modifier = Modifier.size(24.dp),
                         strokeWidth = 2.dp,
                         color = MaterialTheme.colorScheme.primary,
@@ -394,13 +404,54 @@ fun ShowDetailButtons(
                         contentDescription = null,
                         modifier = Modifier.size(18.dp),
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = if (isFavorite == true) "Remove from Watchlist" else "Add to Watchlist",
+                        text = if (isFavorite == true) "Watchlist" else "Watchlist",
+                    )
+                }
+            }
+
+            // Rate button
+            if (isRating) {
+                Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 2.dp,
+                    )
+                }
+            } else {
+                androidx.compose.material3.OutlinedButton(
+                    onClick = { showRatingSheet = true },
+                    modifier =
+                        Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .testTag("rate_show_button"),
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Star,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                        tint = RatingStarColor,
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = if (userRating != null) "$userRating★" else "Rate",
                     )
                 }
             }
         }
+    }
+
+    if (showRatingSheet) {
+        RatingBottomSheet(
+            currentRating = userRating,
+            onDismiss = { showRatingSheet = false },
+            onRate = { selectedRating ->
+                showRatingSheet = false
+                onRateClick(selectedRating)
+            },
+        )
     }
 }
 
@@ -723,7 +774,10 @@ fun EpisodeSummary(summary: String) {
 }
 
 @Composable
-fun TraktRatingSummary(rating: TraktShowRating) {
+fun TraktRatingSummary(
+    rating: TraktShowRating,
+    userRating: Int? = null,
+) {
     val paddingStandardDouble = dimensionResource(id = R.dimen.padding_standard_double)
     val paddingExtraSmall = dimensionResource(id = R.dimen.padding_extra_small)
 
@@ -776,75 +830,24 @@ fun TraktRatingSummary(rating: TraktShowRating) {
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                 )
-            }
-        }
-    }
-}
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun TraktRatingSummaryWithRate(
-    rating: TraktShowRating,
-    isAuthorizedOnTrakt: Boolean,
-    isRating: Boolean,
-    userRating: Int?,
-    onRateClick: (Int) -> Unit,
-) {
-    val paddingStandardDouble = dimensionResource(id = R.dimen.padding_standard_double)
-    var showBottomSheet by rememberSaveable { mutableStateOf(false) }
-
-    Column(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(horizontal = paddingStandardDouble),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        // Aggregate rating pill
-        TraktRatingSummary(rating)
-
-        // Rate button for authorized users
-        if (isAuthorizedOnTrakt) {
-            Spacer(modifier = Modifier.height(8.dp))
-            if (isRating) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(24.dp),
-                    strokeWidth = 2.dp,
-                )
-            } else {
-                Button(
-                    onClick = { showBottomSheet = true },
-                    modifier = Modifier.testTag("rate_show_button"),
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Star,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp),
-                        tint = RatingStarColor,
+                if (userRating != null) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "·",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text =
-                            if (userRating != null) {
-                                "Your Rating: $userRating/10"
-                            } else {
-                                "Rate This Show"
-                            },
+                        text = "You: $userRating★",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = RatingStarColor,
                     )
                 }
             }
         }
-    }
-
-    if (showBottomSheet) {
-        RatingBottomSheet(
-            currentRating = userRating,
-            onDismiss = { showBottomSheet = false },
-            onRate = { selectedRating ->
-                showBottomSheet = false
-                onRateClick(selectedRating)
-            },
-        )
     }
 }
 

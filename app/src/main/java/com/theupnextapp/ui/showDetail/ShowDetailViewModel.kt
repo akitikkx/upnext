@@ -229,6 +229,7 @@ class ShowDetailViewModel
                                     getShowPreviousEpisode(summary.previousEpisodeHref)
                                     getShowNextEpisode(summary.nextEpisodeHref)
                                     getTraktShowRating(summary.imdbID)
+                                    fetchUserRating(summary.imdbID)
                                     getTraktShowStats(summary.imdbID)
                                     getTraktId(summary.imdbID)
                                     getShowCast(summary.imdbID)
@@ -814,5 +815,15 @@ class ShowDetailViewModel
 
         fun clearRatingMessage() {
             _uiState.update { it.copy(ratingMessage = null) }
+        }
+
+        private fun fetchUserRating(imdbId: String?) {
+            if (imdbId.isNullOrEmpty()) return
+            viewModelScope.launch(Dispatchers.IO) {
+                val existingRating = traktRepository.getUserShowRating(imdbId)
+                if (existingRating != null) {
+                    _uiState.update { it.copy(userRating = existingRating) }
+                }
+            }
         }
     }

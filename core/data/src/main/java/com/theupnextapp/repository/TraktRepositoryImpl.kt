@@ -424,6 +424,11 @@ class TraktRepositoryImpl(
         return result
     }
 
+    override suspend fun getUserShowRating(imdbId: String): Int? {
+        val token = getTraktAccessTokenSync()?.access_token ?: return null
+        return traktAccountDataSource.getUserShowRating(imdbId, token)
+    }
+
     override fun isAuthorizedOnTrakt(): StateFlow<Boolean> {
         return traktAccessToken.map { token ->
             token?.isTraktAccessTokenValid() == true
