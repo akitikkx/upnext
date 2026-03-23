@@ -77,4 +77,29 @@ class SearchViewModelTest {
             viewModel.onClearRecentSearches()
             verify(searchRepository).clearRecentSearches()
         }
+
+    @Test
+    fun `onQueryTextSubmit with query calls repository search`() =
+        runTest {
+            val query = "Breaking Bad"
+            whenever(searchRepository.getShowSearchResults(query)).thenReturn(flowOf())
+            viewModel.onQueryTextSubmit(query)
+            verify(searchRepository).getShowSearchResults(query)
+        }
+
+    @Test
+    fun `onQueryTextSubmit with null query calls repository with null`() =
+        runTest {
+            whenever(searchRepository.getShowSearchResults(null)).thenReturn(flowOf())
+            viewModel.onQueryTextSubmit(null)
+            verify(searchRepository).getShowSearchResults(null)
+        }
+
+    @Test
+    fun `onQueryTextSubmit with empty query calls repository with empty`() =
+        runTest {
+            whenever(searchRepository.getShowSearchResults("")).thenReturn(flowOf())
+            viewModel.onQueryTextSubmit("")
+            verify(searchRepository).getShowSearchResults("")
+        }
 }

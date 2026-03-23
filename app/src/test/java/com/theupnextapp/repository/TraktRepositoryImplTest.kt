@@ -149,4 +149,49 @@ class TraktRepositoryImplTest {
             verify(traktDao).deleteWatchlistShowByTraktId(traktId)
         }
     }
+
+    @Test
+    fun refreshWatchlist_emptyToken_returnsFailure() {
+        runBlocking {
+            val result = repository.refreshWatchlist("")
+            assert(result.isFailure)
+            verify(traktAccountDataSource, never()).getWatchlist(org.mockito.kotlin.any())
+        }
+    }
+
+    @Test
+    fun refreshWatchlist_emptyApiResponse_prunesAllLocal() {
+        runBlocking {
+            val token = "test_token"
+            val emptyResponse = com.theupnextapp.network.models.trakt.NetworkTraktWatchlistResponse()
+
+            whenever(traktAccountDataSource.getWatchlist(token)).thenReturn(Result.success(emptyResponse))
+            // Pre-migration setup
+            whenever(traktAccountDataSource.migrateFavoritesToWatchlist(token)).thenReturn(Result.success(Unit))
+            // Local DB has 2 stale shows
+            whenever(traktDao.getAllFavoriteShowTraktIds()).thenReturn(listOf(101, 202))
+
+            val result = repository.refreshWatchlist(token)
+
+            assert(result.isSuccess)
+            // Empty API = all local shows are stale, should be pruned
+            verify(traktDao).deleteFavoriteShowsByTraktIds(listOf(101, 202))
+        }
+    }
+
+    @Test
+    fun addToWatchlist_failure_setsError() {
+        runBlocking {
+            val token = "test_token"
+            val traktId = 101
+            val imdbID = "tt123"
+            whenever(traktAccountDataSource.addToWatchlist(traktId, token))
+                .thenReturn(Result.failure(Exception("API error")))
+
+            val result = repository.addToWatchlist(traktId, imdbID, token)
+
+            assert(result.isFailure)
+            verify(traktDao, never()).insertFavoriteShow(org.mockito.kotlin.any())
+        }
+    }
 }

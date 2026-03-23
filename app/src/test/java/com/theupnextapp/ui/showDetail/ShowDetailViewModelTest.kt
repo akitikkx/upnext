@@ -37,9 +37,12 @@ import com.theupnextapp.repository.fakes.FakeShowDetailRepository
 import com.theupnextapp.repository.fakes.FakeTraktRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -199,5 +202,119 @@ class ShowDetailViewModelTest {
             assertEquals("IMDb ID should match", imdbId, inputData.getString(com.theupnextapp.work.AddToWatchlistWorker.ARG_IMDB_ID))
             assertEquals("Trakt ID should match", 1, inputData.getInt(com.theupnextapp.work.AddToWatchlistWorker.ARG_TRAKT_ID, -1))
             assertEquals("Token should match", token, inputData.getString(com.theupnextapp.work.AddToWatchlistWorker.ARG_TOKEN))
+        }
+
+    @Test
+    fun `selectedShow with null sets generalErrorMessage`() =
+        runTest {
+            // When
+            viewModel.selectedShow(null)
+
+            kotlinx.coroutines.delay(100)
+
+            // Then
+            val state = viewModel.uiState.value
+            assertEquals("No show information provided.", state.generalErrorMessage)
+        }
+
+    @Test
+    fun `selectedShow with missing showId and imdbID shows error`() =
+        runTest {
+            // Given — showId and imdbID are both null
+            val showDetailArg =
+                ShowDetailArg(
+                    showId = null,
+                    showTitle = "Test Show",
+                    showImageUrl = null,
+                    showBackgroundUrl = null,
+                    imdbID = null,
+                    isAuthorizedOnTrakt = false,
+                    showTraktId = null,
+                )
+
+            // When
+            viewModel.selectedShow(showDetailArg)
+
+            kotlinx.coroutines.delay(100)
+
+            // Then
+            val state = viewModel.uiState.value
+            assertEquals("Show ID is missing.", state.generalErrorMessage)
+        }
+
+    @Test
+    fun `onAddRemoveFavoriteClick with null token shows login message`() =
+        runTest {
+            // Given — no access token set (default null)
+            val showDetailArg =
+                ShowDetailArg(
+                    showId = "123",
+                    showTitle = "Test Show",
+                    showImageUrl = null,
+                    showBackgroundUrl = null,
+                    imdbID = "tt12345",
+                    isAuthorizedOnTrakt = false,
+                    showTraktId = 1,
+                )
+
+            showDetailRepository.showSummaryResult =
+                Result.Success(
+                    ShowDetailSummary(
+                        id = 123,
+                        imdbID = "tt12345",
+                        name = "Test Show",
+                        averageRating = null,
+                        mediumImageUrl = null,
+                        originalImageUrl = null,
+                        summary = "Summary",
+                        genres = null,
+                        time = null,
+                        previousEpisodeHref = null,
+                        nextEpisodeHref = null,
+                        status = null,
+                        airDays = null,
+                        language = null,
+                        nextEpisodeLinkedId = null,
+                        previousEpisodeLinkedId = null,
+                        tmdbID = 123,
+                    ),
+                )
+
+            viewModel.selectedShow(showDetailArg)
+            kotlinx.coroutines.delay(200)
+
+            // When
+            viewModel.onAddRemoveFavoriteClick()
+
+            // Then — wait reactively for the state to be set via Dispatchers.IO
+            val state =
+                kotlinx.coroutines.withTimeout(3000) {
+                    viewModel.uiState.first { it.generalErrorMessage != null }
+                }
+            assertEquals("Please log in to Trakt to manage favorites.", state.generalErrorMessage)
+        }
+
+    @Test
+    fun `onSeasonsClick sets navigateToSeasons to true`() =
+        runTest {
+            // When
+            viewModel.onSeasonsClick()
+
+            // Then
+            assertTrue(viewModel.navigateToSeasons.value)
+        }
+
+    @Test
+    fun `onSeasonsNavigationComplete resets navigateToSeasons to false`() =
+        runTest {
+            // Given
+            viewModel.onSeasonsClick()
+            assertTrue(viewModel.navigateToSeasons.value)
+
+            // When
+            viewModel.onSeasonsNavigationComplete()
+
+            // Then
+            assertFalse(viewModel.navigateToSeasons.value)
         }
 }
