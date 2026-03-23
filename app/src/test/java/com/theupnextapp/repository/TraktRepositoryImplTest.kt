@@ -110,70 +110,15 @@ class TraktRepositoryImplTest {
     }
 
     @Test
-    fun refreshWatchlist_syncsDiffFromNativeWatchlist() {
+    fun refreshWatchlist_delegatesToAccountDataSource() {
         runBlocking {
             val token = "test_token"
-            val showIds =
-                com.theupnextapp.network.models.trakt.NetworkTraktWatchlistResponseItemShowIds(
-                    imdb = "tt123",
-                    slug = "slug",
-                    tmdb = 303,
-                    trakt = 101,
-                    tvdb = 202,
-                    tvMazeID = 404,
-                )
-            val show =
-                com.theupnextapp.network.models.trakt.NetworkTraktWatchlistResponseItemShow(
-                    ids = showIds,
-                    title = "Test Show",
-                    year = 2024,
-                    network = null,
-                    status = null,
-                    rating = null,
-                )
-            val item =
-                com.theupnextapp.network.models.trakt.NetworkTraktWatchlistResponseItem(
-                    id = 1L,
-                    listedAt = "2024-01-01T00:00:00Z",
-                    notes = "notes",
-                    rank = 1,
-                    show = show,
-                    type = "show",
-                )
-            val responseList = com.theupnextapp.network.models.trakt.NetworkTraktWatchlistResponse()
-            responseList.add(item)
-
-            whenever(traktAccountDataSource.getWatchlist(token)).thenReturn(Result.success(responseList))
-            whenever(traktAccountDataSource.getImages("tt123")).thenReturn(Triple(12345, "https://poster.jpg", "https://hero.jpg"))
-            // Local DB has show 101 (from API) + stale show 999 (removed on Trakt)
-            whenever(traktDao.getAllWatchlistShowTraktIds()).thenReturn(listOf(101, 999))
+            whenever(traktAccountDataSource.refreshWatchlistShows(token)).thenReturn(Result.success(Unit))
 
             val result = repository.refreshWatchlist(token)
 
             assert(result.isSuccess)
-            // Verify NO destructive deleteAll
-            verify(traktDao, never()).deleteAllWatchlistShows()
-            // Verify upsert
-            val expectedShow =
-                com.theupnextapp.database.DatabaseWatchlistShows(
-                    id = 101,
-                    title = "Test Show",
-                    year = "2024",
-                    mediumImageUrl = "https://hero.jpg",
-                    originalImageUrl = "https://poster.jpg",
-                    imdbID = "tt123",
-                    slug = "slug",
-                    tmdbID = 303,
-                    traktID = 101,
-                    tvdbID = 202,
-                    tvMazeID = 12345,
-                    network = null,
-                    status = null,
-                    rating = null,
-                )
-            verify(traktDao).insertAllWatchlistShows(expectedShow)
-            // Verify stale show 999 is pruned
-            verify(traktDao).deleteWatchlistShowsByTraktIds(listOf(999))
+            verify(traktAccountDataSource).refreshWatchlistShows(token)
         }
     }
 

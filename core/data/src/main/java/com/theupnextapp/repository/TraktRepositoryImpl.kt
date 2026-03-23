@@ -194,84 +194,13 @@ class TraktRepositoryImpl(
         _isLoadingWatchlistShows.value = true
         _watchlistShowsError.value = null
 
-        // Custom list migration no longer performed (favorites custom list is deprecated)
-        // refreshWatchlist(token) handles all sync directly from native watchlist api.DataSource.getWatchlist(token)
-        val result = traktAccountDataSource.getWatchlist(token)
-        if (result.isSuccess) {
-            val responseItems = result.getOrNull()
-            if (responseItems != null) {
-                val watchlistShowsList = withContext(Dispatchers.IO) {
-                    val jobs = responseItems.map { item ->
-                        async {
-                            val traktId = item.show.ids.trakt
-                            val existingLocalShow = traktDao.getWatchlistShowByTraktId(traktId)
-
-                            val needsImageFetch =
-                                existingLocalShow == null ||
-                                    existingLocalShow.originalImageUrl.isNullOrEmpty() ||
-                                    existingLocalShow.mediumImageUrl.isNullOrEmpty() ||
-                                    existingLocalShow.tvMazeID == null
-
-                            var dbShow = com.theupnextapp.database.DatabaseWatchlistShows(
-                                id = traktId,
-                                title = item.show.title,
-                                year = item.show.year.toString(),
-                                mediumImageUrl = "",
-                                originalImageUrl = "",
-                                imdbID = item.show.ids.imdb,
-                                slug = item.show.ids.slug,
-                                tmdbID = item.show.ids.tmdb,
-                                traktID = traktId,
-                                tvdbID = item.show.ids.tvdb,
-                                tvMazeID = item.show.ids.tvMazeID,
-                                network = item.show.network,
-                                status = item.show.status,
-                                rating = item.show.rating
-                            )
-
-                            if (needsImageFetch) {
-                                item.show.ids.imdb?.let { imdbId ->
-                                    val (tvMazeIdResult, poster, heroImage) = traktAccountDataSource.getImages(imdbId)
-                                    dbShow = dbShow.copy(
-                                        originalImageUrl = poster ?: existingLocalShow?.originalImageUrl,
-                                        mediumImageUrl = heroImage ?: existingLocalShow?.mediumImageUrl,
-                                        tvMazeID = tvMazeIdResult ?: existingLocalShow?.tvMazeID
-                                    )
-                                }
-                            } else if (existingLocalShow != null) {
-                                dbShow = dbShow.copy(
-                                    originalImageUrl = existingLocalShow.originalImageUrl,
-                                    mediumImageUrl = existingLocalShow.mediumImageUrl,
-                                    tvMazeID = existingLocalShow.tvMazeID
-                                )
-                            }
-                            dbShow
-                        }
-                    }
-                    jobs.awaitAll()
-                }
-
-                // The native Trakt watchlist is our single source of truth.
-                // Upsert all shows from the API, then prune any local shows
-                // that are no longer in the API response.
-                withContext(Dispatchers.IO) {
-                    traktDao.insertAllWatchlistShows(*watchlistShowsList.toTypedArray())
-
-                    val apiTraktIds = watchlistShowsList.mapNotNull { it.traktID }.toSet()
-                    val localTraktIds = traktDao.getAllWatchlistShowTraktIds().toSet()
-                    val idsToRemove = (localTraktIds - apiTraktIds).toList()
-
-                    if (idsToRemove.isNotEmpty()) {
-                        traktDao.deleteWatchlistShowsByTraktIds(idsToRemove)
-                    }
-                }
-            }
-        } else {
+        val result = traktAccountDataSource.refreshWatchlistShows(token)
+        if (result.isFailure) {
             _watchlistShowsError.value = result.exceptionOrNull()?.message
         }
 
         _isLoadingWatchlistShows.value = false
-        return Result.success(Unit)
+        return result
     }
 
     override suspend fun addToWatchlist(
