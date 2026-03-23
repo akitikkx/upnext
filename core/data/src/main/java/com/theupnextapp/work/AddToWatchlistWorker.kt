@@ -54,6 +54,7 @@ constructor(
                 .d("Starting ${WORK_NAME}.")
             val token = inputData.getString(ARG_TOKEN)
             val imdbID = inputData.getString(ARG_IMDB_ID)
+            val traktId = inputData.getInt(ARG_TRAKT_ID, NOT_FOUND)
 
             if (token.isNullOrBlank()) {
                 Timber
@@ -66,13 +67,13 @@ constructor(
                 return@coroutineScope Result.failure()
             }
 
-            if (imdbID.isNullOrBlank()) {
+            if (traktId == NOT_FOUND && imdbID.isNullOrBlank()) {
                 Timber
                     .tag(TAG)
-                    .e("$WORK_NAME failed: Missing or empty IMDb ID in input data.")
+                    .e("$WORK_NAME failed: Missing or empty Trakt ID and IMDb ID in input data.")
                 logFailureToFirebase(
                     errorType = "MissingInputData",
-                    errorMessage = "IMDb ID is missing.",
+                    errorMessage = "Trakt ID and IMDb ID are missing.",
                 )
                 return@coroutineScope Result.failure()
             }
@@ -80,8 +81,8 @@ constructor(
             return@coroutineScope try {
                 Timber
                     .tag(TAG)
-                    .d("Adding show (IMDb ID: $imdbID) to watchlist.")
-                addShowToWatchlist(imdbID = imdbID, token = token)
+                    .d("Adding show (Trakt ID: $traktId, IMDb ID: $imdbID) to watchlist.")
+                addShowToWatchlist(traktId = traktId, imdbID = imdbID, token = token)
 
                 logSuccessToFirebase(imdbID)
                 Timber
@@ -102,16 +103,20 @@ constructor(
         }
 
     private suspend fun addShowToWatchlist(
-        imdbID: String,
+        traktId: Int,
+        imdbID: String?,
         token: String,
     ) {
-        // Since the worker doesn't have direct access to TraktId, it needs to look it up first
-        val traktIdResult = traktRepository.getTraktIdLookup(imdbID)
-        val traktId = traktIdResult.getOrNull()
-        if (traktId != null) {
+        var resolvedTraktId = traktId
+        if (resolvedTraktId == NOT_FOUND && !imdbID.isNullOrEmpty()) {
+            val traktIdResult = traktRepository.getTraktIdLookup(imdbID)
+            resolvedTraktId = traktIdResult.getOrNull() ?: NOT_FOUND
+        }
+
+        if (resolvedTraktId != NOT_FOUND) {
             val result = traktRepository.addToWatchlist(
-                traktId = traktId,
-                imdbID = imdbID,
+                traktId = resolvedTraktId,
+                imdbID = imdbID ?: "",
                 token = token,
             )
             if (result.isSuccess) {
@@ -121,11 +126,11 @@ constructor(
             }
             Timber
                 .tag(TAG)
-                .d("Successfully called repository to add show (IMDb ID: $imdbID, Trakt ID: $traktId) to watchlist.")
+                .d("Successfully called repository to add show (IMDb ID: $imdbID, Trakt ID: $resolvedTraktId) to watchlist.")
         } else {
              Timber
                 .tag(TAG)
-                .e("Failed to lookup Trakt ID for IMDb ID: $imdbID to add to watchlist.")
+                .e("Failed to resolve Trakt ID to add to watchlist.")
              throw Exception("Trakt ID not found for show: $imdbID")
         }
     }
@@ -162,6 +167,8 @@ constructor(
 
         const val ARG_TOKEN = "arg_token"
         const val ARG_IMDB_ID = "arg_imdb_id"
+        const val ARG_TRAKT_ID = "arg_trakt_id"
+        const val NOT_FOUND = -1
 
         // Define a unique notification ID for this specific worker.
         private const val NOTIFICATION_ID = 1004

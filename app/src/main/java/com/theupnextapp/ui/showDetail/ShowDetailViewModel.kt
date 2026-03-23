@@ -762,19 +762,18 @@ class ShowDetailViewModel
                                 .build()
                         workManager.enqueue(removeWatchlistWork)
                     } else {
-                        val workerData =
-                            Data.Builder()
-                                .putString(AddToWatchlistWorker.ARG_IMDB_ID, imdbID)
-                                .putString(
-                                    AddToWatchlistWorker.ARG_TOKEN,
-                                    currentAccessToken.access_token,
-                                )
-                                .build()
+                        val workerDataBuilder = Data.Builder()
+                        traktId.value?.let { workerDataBuilder.putInt(AddToWatchlistWorker.ARG_TRAKT_ID, it) }
+                        imdbID?.let { workerDataBuilder.putString(AddToWatchlistWorker.ARG_IMDB_ID, it) }
+                        workerDataBuilder.putString(
+                            AddToWatchlistWorker.ARG_TOKEN,
+                            currentAccessToken.access_token,
+                        )
 
                         val addWatchlistWork =
                             OneTimeWorkRequest.Builder(AddToWatchlistWorker::class.java)
                                 .addTag(WORK_TAG_WATCHLIST_PREFIX + imdbID)
-                                .setInputData(workerData)
+                                .setInputData(workerDataBuilder.build())
                                 .build()
                         workManager.enqueue(addWatchlistWork)
                     }

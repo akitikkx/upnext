@@ -328,20 +328,12 @@ class TraktRepositoryImpl(
         imdbId: String,
         token: String,
     ): Result<Unit> {
-        if (imdbId.isEmpty() || token.isEmpty()) {
-            val msg = "Invalid ID or Token"
-            _watchlistShowsError.value = msg
-            return Result.failure(IllegalArgumentException(msg))
+        val traktIdResult = getTraktIdLookup(imdbId)
+        val traktId = traktIdResult.getOrNull()
+        if (traktId != null) {
+            return addToWatchlist(traktId, imdbId, token)
         }
-        _isLoadingWatchlistShows.value = true
-        _watchlistShowsError.value = null
-
-        val result = traktAccountDataSource.addShowToWatchlists(imdbId, token)
-        if (result.isFailure) {
-            _watchlistShowsError.value = result.exceptionOrNull()?.message
-        }
-        _isLoadingWatchlistShows.value = false
-        return result
+        return Result.failure(Exception("Trakt ID not found for $imdbId"))
     }
 
     @Deprecated("Use addToWatchlist instead")
@@ -360,15 +352,7 @@ class TraktRepositoryImpl(
         imdbId: String,
         token: String,
     ): Result<Unit> {
-        _isLoadingWatchlistShows.value = true
-        _watchlistShowsError.value = null
-
-        val result = traktAccountDataSource.removeShowFromWatchlists(traktId, imdbId, token)
-        if (result.isFailure) {
-            _watchlistShowsError.value = result.exceptionOrNull()?.message
-        }
-        _isLoadingWatchlistShows.value = false
-        return result
+        return removeFromWatchlist(traktId, token)
     }
 
     @Deprecated("Use removeFromWatchlist instead")
