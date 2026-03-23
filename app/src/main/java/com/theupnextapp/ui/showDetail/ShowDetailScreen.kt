@@ -406,7 +406,7 @@ fun ShowDetailButtons(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = if (isFavorite == true) "Listed" else "List",
+                        text = if (isFavorite == true) "\u2713 Listed" else "+ List",
                         maxLines = 1,
                     )
                 }

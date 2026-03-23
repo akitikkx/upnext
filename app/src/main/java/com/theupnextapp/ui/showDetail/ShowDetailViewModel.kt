@@ -52,6 +52,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
@@ -104,13 +105,18 @@ class ShowDetailViewModel
                     null,
                 )
 
-        val isFavoriteShow =
-            observedFavoriteShow.map { it != null }
-                .stateIn(
-                    viewModelScope,
-                    SharingStarted.WhileSubscribed(5000L),
-                    false,
-                )
+        // Optimistic override: toggles immediately on click,
+        // null means "use the DB flow value"
+        private val _favoriteOverride = MutableStateFlow<Boolean?>(null)
+
+        val isFavoriteShow: StateFlow<Boolean> =
+            combine(observedFavoriteShow, _favoriteOverride) { dbValue, override ->
+                override ?: (dbValue != null)
+            }.stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5000L),
+                false,
+            )
 
         val isFavoriteLoading: StateFlow<Boolean> =
             _uiState.map { it.showSummary?.imdbID }
@@ -731,6 +737,10 @@ class ShowDetailViewModel
                 val imdbID = currentShowSummary?.imdbID
 
                 if (currentAccessToken != null && imdbID != null) {
+                    // Optimistic UI: toggle immediately
+                    val wasOnWatchlist = currentFavoriteShow != null
+                    _favoriteOverride.value = !wasOnWatchlist
+
                     if (currentFavoriteShow != null) {
                         val workerDataBuilder = Data.Builder()
                         currentFavoriteShow.traktID?.let {
