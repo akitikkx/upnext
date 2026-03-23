@@ -186,7 +186,7 @@ class ShowDetailViewModelTest {
 
             kotlinx.coroutines.delay(100)
 
-            viewModel.onAddRemoveFavoriteClick()
+            viewModel.onAddRemoveWatchlistClick()
 
             kotlinx.coroutines.delay(100)
 

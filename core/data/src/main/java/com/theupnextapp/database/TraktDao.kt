@@ -43,45 +43,45 @@ interface TraktDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAllTraktAccessData(databaseTraktAccess: DatabaseTraktAccess)
 
-    // TRAKT FAVORITE SHOWS
+    // TRAKT WATCHLIST SHOWS
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAllFavoriteShows(vararg shows: DatabaseFavoriteShows)
+    suspend fun insertAllWatchlistShows(vararg shows: DatabaseWatchlistShows)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertFavoriteShow(databaseFavoriteShows: DatabaseFavoriteShows)
+    suspend fun insertWatchlistShow(databaseWatchlistShows: DatabaseWatchlistShows)
 
     @Query("DELETE FROM favorite_shows")
-    suspend fun deleteAllFavoriteShows()
+    suspend fun deleteAllWatchlistShows()
 
     @Query("select * from favorite_shows")
-    fun getFavoriteShows(): Flow<List<DatabaseFavoriteShows>>
+    fun getWatchlistShows(): Flow<List<DatabaseWatchlistShows>>
 
     @Query("select * from favorite_shows")
-    fun getFavoriteShowsRaw(): List<DatabaseFavoriteShows>
+    fun getWatchlistShowsRaw(): List<DatabaseWatchlistShows>
 
     @Query("select * from favorite_shows where imdbID = :imdbID")
-    fun getFavoriteShowFlow(imdbID: String): Flow<DatabaseFavoriteShows?>
+    fun getWatchlistShowFlow(imdbID: String): Flow<DatabaseWatchlistShows?>
 
     @Query("select * from favorite_shows where imdbID = :imdbID")
-    suspend fun getFavoriteShow(imdbID: String): DatabaseFavoriteShows?
+    suspend fun getWatchlistShow(imdbID: String): DatabaseWatchlistShows?
 
-    @Update(entity = DatabaseFavoriteShows::class)
-    fun updateFavoriteShowWithAirStamp(databaseFavoriteShows: DatabaseFavoriteShows)
+    @Update(entity = DatabaseWatchlistShows::class)
+    fun updateWatchlistShowWithAirStamp(databaseWatchlistShows: DatabaseWatchlistShows)
 
     @Query("select * from favorite_shows where tvMazeID = :tvMazeId")
-    fun getFavoriteShowRawByTvMazeId(tvMazeId: Int): DatabaseFavoriteShows
+    fun getWatchlistShowRawByTvMazeId(tvMazeId: Int): DatabaseWatchlistShows
 
     @Query("SELECT * FROM favorite_shows WHERE traktID = :traktId LIMIT 1")
-    suspend fun getFavoriteShowByTraktId(traktId: Int): DatabaseFavoriteShows?
+    suspend fun getWatchlistShowByTraktId(traktId: Int): DatabaseWatchlistShows?
 
     @Query("SELECT traktID FROM favorite_shows")
-    suspend fun getAllFavoriteShowTraktIds(): List<Int>
+    suspend fun getAllWatchlistShowTraktIds(): List<Int>
 
     @Query("DELETE FROM favorite_shows WHERE traktID IN (:traktIds)")
-    suspend fun deleteFavoriteShowsByTraktIds(traktIds: List<Int>): Int // returns number of rows deleted
+    suspend fun deleteWatchlistShowsByTraktIds(traktIds: List<Int>): Int // returns number of rows deleted
 
     @Query("DELETE FROM favorite_shows WHERE traktID = :traktId")
-    suspend fun deleteFavoriteShowByTraktId(traktId: Int): Int
+    suspend fun deleteWatchlistShowByTraktId(traktId: Int): Int
 
     // TRAKT POPULAR SHOWS
     @Insert(onConflict = OnConflictStrategy.REPLACE)

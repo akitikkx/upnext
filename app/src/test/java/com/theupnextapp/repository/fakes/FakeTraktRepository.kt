@@ -43,8 +43,8 @@ class FakeTraktRepository : TraktRepository {
     private val _traktMostAnticipatedShows = MutableStateFlow<List<TraktMostAnticipated>>(emptyList())
     override val traktMostAnticipatedShows: Flow<List<TraktMostAnticipated>> = _traktMostAnticipatedShows.asStateFlow()
 
-    private val _traktFavoriteShows = MutableStateFlow<List<TraktUserListItem>>(emptyList())
-    override val traktFavoriteShows: Flow<List<TraktUserListItem>> = _traktFavoriteShows.asStateFlow()
+    private val _traktWatchlistShows = MutableStateFlow<List<TraktUserListItem>>(emptyList())
+    override val traktWatchlistShows: Flow<List<TraktUserListItem>> = _traktWatchlistShows.asStateFlow()
 
     private val _traktAccessToken = MutableStateFlow<TraktAccessToken?>(null)
     override val traktAccessToken: StateFlow<TraktAccessToken?> = _traktAccessToken.asStateFlow()
@@ -69,17 +69,17 @@ class FakeTraktRepository : TraktRepository {
     private val _traktShowStats = MutableStateFlow<TraktShowStats?>(null)
     override val traktShowStats: StateFlow<TraktShowStats?> = _traktShowStats.asStateFlow()
 
-    private val _favoriteShow = MutableStateFlow<TraktUserListItem?>(null)
-    override val favoriteShow: StateFlow<TraktUserListItem?> = _favoriteShow.asStateFlow()
+    private val _watchlistShow = MutableStateFlow<TraktUserListItem?>(null)
+    override val watchlistShow: StateFlow<TraktUserListItem?> = _watchlistShow.asStateFlow()
 
     private val _traktUserCustomLists = MutableStateFlow<List<TraktUserList>>(emptyList())
     override val traktUserCustomLists: Flow<List<TraktUserList>> = _traktUserCustomLists.asStateFlow()
 
-    private val _isLoadingFavoriteShows = MutableStateFlow(false)
-    override val isLoadingFavoriteShows: StateFlow<Boolean> = _isLoadingFavoriteShows.asStateFlow()
+    private val _isLoadingWatchlistShows = MutableStateFlow(false)
+    override val isLoadingWatchlistShows: StateFlow<Boolean> = _isLoadingWatchlistShows.asStateFlow()
 
-    private val _favoriteShowsError = MutableStateFlow<String?>(null)
-    override val favoriteShowsError: StateFlow<String?> = _favoriteShowsError.asStateFlow()
+    private val _watchlistShowsError = MutableStateFlow<String?>(null)
+    override val watchlistShowsError: StateFlow<String?> = _watchlistShowsError.asStateFlow()
 
     private val _isLoadingUserCustomLists = MutableStateFlow(false)
     override val isLoadingUserCustomLists: StateFlow<Boolean> = _isLoadingUserCustomLists.asStateFlow()
@@ -167,9 +167,9 @@ class FakeTraktRepository : TraktRepository {
         token: String?,
     ) {}
 
-    override suspend fun checkIfShowIsFavorite(imdbID: String?) {}
+    override suspend fun checkIfShowIsOnWatchlist(imdbID: String?) {}
 
-    override fun getFavoriteShowFlow(imdbID: String): Flow<TraktUserListItem?> = flowOf(null)
+    override fun getWatchlistShowFlow(imdbID: String): Flow<TraktUserListItem?> = flowOf(null)
 
     override suspend fun removeShowFromFavorites(
         traktId: Int,
@@ -180,7 +180,7 @@ class FakeTraktRepository : TraktRepository {
             Unit,
         )
 
-    override suspend fun clearFavorites() {}
+    override suspend fun clearWatchlist() {}
 
     override suspend fun refreshTraktTrendingShows(forceRefresh: Boolean) {}
 
@@ -289,8 +289,8 @@ class FakeTraktRepository : TraktRepository {
         _traktAccessToken.value = token
     }
 
-    fun setFavoriteShows(shows: List<TraktUserListItem>) {
-        _traktFavoriteShows.value = shows
+    fun setWatchlistShows(shows: List<TraktUserListItem>) {
+        _traktWatchlistShows.value = shows
     }
 
     fun setLoading(loading: Boolean) {

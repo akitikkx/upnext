@@ -45,7 +45,7 @@ class ShowSeasonEpisodesViewModelTest {
     fun setup() {
         // Default to not authorized/valid unless specified in test
         whenever(traktRepository.traktAccessToken).thenReturn(MutableStateFlow(null))
-        whenever(traktRepository.favoriteShow).thenReturn(MutableStateFlow(null))
+        whenever(traktRepository.watchlistShow).thenReturn(MutableStateFlow(null))
         whenever(traktAuthManager.traktAuthState).thenReturn(MutableStateFlow(TraktAuthState.LoggedIn))
     }
 

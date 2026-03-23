@@ -39,7 +39,7 @@ interface TraktRepository {
     val traktPopularShows: Flow<List<TraktPopularShows>>
     val traktTrendingShows: Flow<List<TraktTrendingShows>>
     val traktMostAnticipatedShows: Flow<List<TraktMostAnticipated>>
-    val traktFavoriteShows: Flow<List<TraktUserListItem>>
+    val traktWatchlistShows: Flow<List<TraktUserListItem>>
     val traktAccessToken: StateFlow<TraktAccessToken?>
     suspend fun getTraktAccessTokenSync(): TraktAccessToken?
 
@@ -51,13 +51,13 @@ interface TraktRepository {
 
     val traktShowRating: StateFlow<TraktShowRating?>
     val traktShowStats: StateFlow<TraktShowStats?>
-    val favoriteShow: StateFlow<TraktUserListItem?>
+    val watchlistShow: StateFlow<TraktUserListItem?>
 
     val traktUserCustomLists: Flow<List<TraktUserList>>
 
-    val isLoadingFavoriteShows: StateFlow<Boolean>
+    val isLoadingWatchlistShows: StateFlow<Boolean>
 
-    val favoriteShowsError: StateFlow<String?>
+    val watchlistShowsError: StateFlow<String?>
 
     val isLoadingUserCustomLists: StateFlow<Boolean>
 
@@ -82,7 +82,6 @@ interface TraktRepository {
 
     fun isAuthorizedOnTrakt(): StateFlow<Boolean>
 
-    // Favorite Shows Management
     // Watchlist Management
     suspend fun refreshWatchlist(token: String): Result<Unit>
 
@@ -125,9 +124,9 @@ interface TraktRepository {
         token: String?,
     )
 
-    suspend fun checkIfShowIsFavorite(imdbID: String?)
+    suspend fun checkIfShowIsOnWatchlist(imdbID: String?)
 
-    fun getFavoriteShowFlow(imdbID: String): Flow<TraktUserListItem?>
+    fun getWatchlistShowFlow(imdbID: String): Flow<TraktUserListItem?>
 
     @Deprecated("Use removeFromWatchlist instead")
     suspend fun removeShowFromFavorites(
@@ -136,7 +135,7 @@ interface TraktRepository {
         token: String,
     ): Result<Unit>
 
-    suspend fun clearFavorites()
+    suspend fun clearWatchlist()
 
     // Public lists refresh
     suspend fun refreshTraktTrendingShows(forceRefresh: Boolean)

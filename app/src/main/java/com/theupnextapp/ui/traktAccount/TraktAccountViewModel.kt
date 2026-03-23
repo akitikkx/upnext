@@ -77,8 +77,8 @@ class TraktAccountViewModel
         // General loading state for initial connection/authorization processes
         val isLoadingConnection: StateFlow<Boolean> = traktRepository.isLoading
 
-        // Specific loading state for fetching favorite shows
-        val isLoadingFavoriteShows: StateFlow<Boolean> = traktRepository.isLoadingFavoriteShows
+        // Specific loading state for fetching watchlist shows
+        val isLoadingWatchlistShows: StateFlow<Boolean> = traktRepository.isLoadingWatchlistShows
 
         private val _watchlistSearchQuery = MutableStateFlow("")
         val watchlistSearchQuery: StateFlow<String> = _watchlistSearchQuery.asStateFlow()
@@ -86,10 +86,10 @@ class TraktAccountViewModel
         private val _watchlistSortOption = MutableStateFlow(WatchlistSortOption.ADDED)
         val watchlistSortOption: StateFlow<WatchlistSortOption> = _watchlistSortOption.asStateFlow()
 
-        // Favorite shows data
-        val favoriteShows: StateFlow<List<TraktUserListItem>> =
+        // Watchlist shows data
+        val watchlistShows: StateFlow<List<TraktUserListItem>> =
             combine(
-                traktRepository.traktFavoriteShows,
+                traktRepository.traktWatchlistShows,
                 _watchlistSearchQuery,
                 _watchlistSortOption,
             ) { shows, query, sortOption ->
@@ -125,16 +125,16 @@ class TraktAccountViewModel
             _watchlistSortOption.value = option
         }
 
-        // Error state specifically for loading favorite shows
-        val favoriteShowsError: StateFlow<String?> = traktRepository.favoriteShowsError
+        // Error state specifically for loading watchlist shows
+        val watchlistShowsError: StateFlow<String?> = traktRepository.watchlistShowsError
 
-        // Combined loading state for the screen (true if either connection or favorites are loading)
+        // Combined loading state for the screen (true if either connection or watchlists are loading)
         val isScreenLoading: StateFlow<Boolean> =
             combine(
                 isLoadingConnection,
-                isLoadingFavoriteShows,
-            ) { connectionLoading, favoritesLoading ->
-                connectionLoading || favoritesLoading
+                isLoadingWatchlistShows,
+            ) { connectionLoading, watchlistsLoading ->
+                connectionLoading || watchlistsLoading
             }.stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5000),
@@ -147,8 +147,8 @@ class TraktAccountViewModel
         private val _openCustomTab = Channel<String>()
         val openCustomTab = _openCustomTab.receiveAsFlow()
 
-        val favoriteShowsEmpty: StateFlow<Boolean> =
-            favoriteShows
+        val watchlistShowsEmpty: StateFlow<Boolean> =
+            watchlistShows
                 .map { it.isEmpty() }
                 .stateIn(
                     scope = viewModelScope,
@@ -190,7 +190,7 @@ class TraktAccountViewModel
                 )
             viewModelScope.launch {
                 try {
-                    traktRepository.clearFavorites()
+                    traktRepository.clearWatchlist()
 
                     val currentToken = traktAccessToken.value
                     val accessToken = currentToken?.access_token
@@ -256,12 +256,12 @@ class TraktAccountViewModel
             _uiState.value = _uiState.value.copy(disconnectionError = null)
         }
 
-        fun clearFavoriteShowsError() {
-            // This is tricky because favoriteShowsError comes directly from the repository.
+        fun clearWatchlistShowsError() {
+            // This is tricky because watchlistShowsError comes directly from the repository.
             // The repository would need a method to clear its own error.
             // For now, the UI can just choose to hide the error after a timeout or user action.
             // Or, if truly needed, add:
-            // viewModelScope.launch { traktRepository.clearFavoriteShowsError() }
-            // And implement `clearFavoriteShowsError()` in TraktRepository/Impl
+            // viewModelScope.launch { traktRepository.clearWatchlistShowsError() }
+            // And implement `clearWatchlistShowsError()` in TraktRepository/Impl
         }
     }

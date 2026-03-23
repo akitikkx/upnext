@@ -21,11 +21,11 @@
 
 package com.theupnextapp.database.fakes
 
-import com.theupnextapp.database.DatabaseFavoriteShows
 import com.theupnextapp.database.DatabaseTraktAccess
 import com.theupnextapp.database.DatabaseTraktMostAnticipated
 import com.theupnextapp.database.DatabaseTraktPopularShows
 import com.theupnextapp.database.DatabaseTraktTrendingShows
+import com.theupnextapp.database.DatabaseWatchlistShows
 import com.theupnextapp.database.TraktDao
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -50,34 +50,34 @@ class FakeTraktDao : TraktDao {
     }
 
     // Unimplemented methods
-    override suspend fun insertAllFavoriteShows(vararg shows: DatabaseFavoriteShows) {}
+    override suspend fun insertAllWatchlistShows(vararg shows: DatabaseWatchlistShows) {}
 
-    override suspend fun insertFavoriteShow(databaseFavoriteShows: DatabaseFavoriteShows) {}
+    override suspend fun insertWatchlistShow(databaseWatchlistShows: DatabaseWatchlistShows) {}
 
-    override suspend fun deleteAllFavoriteShows() {}
+    override suspend fun deleteAllWatchlistShows() {}
 
-    override fun getFavoriteShows(): Flow<List<DatabaseFavoriteShows>> = flowOf(emptyList())
+    override fun getWatchlistShows(): Flow<List<DatabaseWatchlistShows>> = flowOf(emptyList())
 
-    override fun getFavoriteShowsRaw(): List<DatabaseFavoriteShows> = emptyList()
+    override fun getWatchlistShowsRaw(): List<DatabaseWatchlistShows> = emptyList()
 
-    override fun getFavoriteShowFlow(imdbID: String): Flow<DatabaseFavoriteShows?> = flowOf(getFavoriteShowRaw(imdbID))
+    override fun getWatchlistShowFlow(imdbID: String): Flow<DatabaseWatchlistShows?> = flowOf(getWatchlistShowRaw(imdbID))
 
     // Helper for non-suspend access in tests if needed, or just standard lookup
-    private fun getFavoriteShowRaw(imdbID: String): DatabaseFavoriteShows? = null
+    private fun getWatchlistShowRaw(imdbID: String): DatabaseWatchlistShows? = null
 
-    override suspend fun getFavoriteShow(imdbID: String): DatabaseFavoriteShows? = getFavoriteShowRaw(imdbID)
+    override suspend fun getWatchlistShow(imdbID: String): DatabaseWatchlistShows? = getWatchlistShowRaw(imdbID)
 
-    override fun updateFavoriteShowWithAirStamp(databaseFavoriteShows: DatabaseFavoriteShows) {}
+    override fun updateWatchlistShowWithAirStamp(databaseWatchlistShows: DatabaseWatchlistShows) {}
 
-    override fun getFavoriteShowRawByTvMazeId(tvMazeId: Int): DatabaseFavoriteShows = TODO()
+    override fun getWatchlistShowRawByTvMazeId(tvMazeId: Int): DatabaseWatchlistShows = TODO()
 
-    override suspend fun getFavoriteShowByTraktId(traktId: Int): DatabaseFavoriteShows? = null
+    override suspend fun getWatchlistShowByTraktId(traktId: Int): DatabaseWatchlistShows? = null
 
-    override suspend fun getAllFavoriteShowTraktIds(): List<Int> = emptyList()
+    override suspend fun getAllWatchlistShowTraktIds(): List<Int> = emptyList()
 
-    override suspend fun deleteFavoriteShowsByTraktIds(traktIds: List<Int>): Int = 0
+    override suspend fun deleteWatchlistShowsByTraktIds(traktIds: List<Int>): Int = 0
 
-    override suspend fun deleteFavoriteShowByTraktId(traktId: Int): Int = 0
+    override suspend fun deleteWatchlistShowByTraktId(traktId: Int): Int = 0
 
     override suspend fun insertAllTraktPopular(vararg traktPopularShows: DatabaseTraktPopularShows) {}
 

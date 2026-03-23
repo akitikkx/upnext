@@ -21,7 +21,7 @@
 
 package com.theupnextapp.network.models.trakt
 
-import com.theupnextapp.database.DatabaseFavoriteShows
+import com.theupnextapp.database.DatabaseWatchlistShows
 
 class NetworkTraktUserListItemResponse : ArrayList<NetworkTraktUserListItemResponseItem>()
 
@@ -50,8 +50,8 @@ data class NetworkTraktUserListItemResponseItemShowIds(
     var tvMazeID: Int?,
 )
 
-fun NetworkTraktUserListItemResponseItem.asDatabaseModel(): DatabaseFavoriteShows {
-    return DatabaseFavoriteShows(
+fun NetworkTraktUserListItemResponseItem.asDatabaseModel(): DatabaseWatchlistShows {
+    return DatabaseWatchlistShows(
         id = id,
         title = show?.title,
         slug = show?.ids?.slug,

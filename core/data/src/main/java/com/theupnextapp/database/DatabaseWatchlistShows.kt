@@ -26,7 +26,7 @@ import androidx.room.PrimaryKey
 import com.theupnextapp.domain.TraktUserListItem
 
 @Entity(tableName = "favorite_shows")
-data class DatabaseFavoriteShows(
+data class DatabaseWatchlistShows(
     @PrimaryKey
     val id: Int?,
     val title: String?,
@@ -44,7 +44,7 @@ data class DatabaseFavoriteShows(
     val rating: Double?,
 )
 
-fun List<DatabaseFavoriteShows>.asDomainModel(): List<TraktUserListItem> {
+fun List<DatabaseWatchlistShows>.asDomainModel(): List<TraktUserListItem> {
     return map {
         TraktUserListItem(
             id = it.id,
@@ -65,7 +65,7 @@ fun List<DatabaseFavoriteShows>.asDomainModel(): List<TraktUserListItem> {
     }
 }
 
-fun DatabaseFavoriteShows.asDomainModel(): TraktUserListItem {
+fun DatabaseWatchlistShows.asDomainModel(): TraktUserListItem {
     return TraktUserListItem(
         id = id,
         title = title,

@@ -35,7 +35,7 @@ import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
 
 @HiltWorker
-class RefreshFavoriteShowsWorker
+class RefreshWatchlistWorker
 @AssistedInject
 constructor(
     @Assisted appContext: Context,
@@ -43,7 +43,7 @@ constructor(
     private val traktRepository: TraktRepository,
 ) : BaseWorker(appContext, workerParameters) {
     override val notificationId: Int = NOTIFICATION_ID
-    override val contentTitleText: String = "Refreshing your favorite shows"
+    override val contentTitleText: String = "Refreshing your watchlist"
 
     private val firebaseAnalytics: FirebaseAnalytics by lazy { Firebase.analytics }
 
@@ -65,8 +65,8 @@ constructor(
             return@coroutineScope try {
                 Timber
                     .tag(TAG)
-                    .d("Refreshing favorite shows with token.")
-                refreshFavoriteShows(token = token)
+                    .d("Refreshing watchlist with token.")
+                refreshWatchlistShows(token = token)
 
                 logSuccessToFirebase()
                 Timber
@@ -82,11 +82,11 @@ constructor(
             }
         }
 
-    private suspend fun refreshFavoriteShows(token: String) {
-        traktRepository.refreshFavoriteShows(token = token)
+    private suspend fun refreshWatchlistShows(token: String) {
+        traktRepository.refreshWatchlist(token = token)
         Timber
             .tag(TAG)
-            .d("Finished refreshing favorite shows from repository.")
+            .d("Finished refreshing watchlist from repository.")
     }
 
     private fun logSuccessToFirebase() {
@@ -113,8 +113,8 @@ constructor(
     }
 
     companion object {
-        private const val TAG = "RefreshFavShowsWrkr"
-        const val WORK_NAME = "RefreshFavoriteShowsWorker"
+        private const val TAG = "RefreshWatchlistWrkr"
+        const val WORK_NAME = "RefreshWatchlistWorker"
         const val ARG_TOKEN = "arg_token"
 
         // Define a unique notification ID for this specific worker.

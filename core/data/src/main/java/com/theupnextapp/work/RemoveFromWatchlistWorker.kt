@@ -34,8 +34,17 @@ import dagger.assisted.AssistedInject
 import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
 
+/**
+ * This worker removes a show from the user's Trakt watchlist.
+ * It requires the Trakt access token, and either a Trakt ID or an IMDb ID for the show.
+ * The worker logs its success or failure to Firebase Analytics.
+ *
+ * @param appContext The application context.
+ * @param workerParameters Parameters to setup the worker, like input data.
+ * @param traktRepository Repository for interacting with the Trakt API.
+ */
 @HiltWorker
-class AddFavoriteShowWorker
+class RemoveFromWatchlistWorker
 @AssistedInject
 constructor(
     @Assisted appContext: Context,
@@ -43,113 +52,116 @@ constructor(
     private val traktRepository: TraktRepository,
 ) : BaseWorker(appContext, workerParameters) {
     override val notificationId: Int = NOTIFICATION_ID
-    override val contentTitleText: String = "Adding show to your favorites"
+    override val contentTitleText: String =
+        "Removing show from your watchlist"
 
     private val firebaseAnalytics: FirebaseAnalytics by lazy { Firebase.analytics }
 
     override suspend fun doWork(): Result =
         coroutineScope {
-            Timber
-                .tag(TAG)
-                .d("Starting ${WORK_NAME}.")
+            Timber.d("${WORK_NAME}: Starting worker.")
+
             val token = inputData.getString(ARG_TOKEN)
-            val imdbID = inputData.getString(ARG_IMDB_ID)
+            val traktId = inputData.getInt(ARG_TRAKT_ID, NOT_FOUND)
+            val imdbId = inputData.getString(ARG_IMDB_ID)
 
-            if (token.isNullOrBlank()) {
-                Timber
-                    .tag(TAG)
-                    .e("$WORK_NAME failed: Missing or empty token in input data.")
+            if (token == null) {
+                Timber.e("${WORK_NAME}: Access token is missing. Cannot remove show from watchlist.")
                 logFailureToFirebase(
                     errorType = "MissingInputData",
-                    errorMessage = "Auth token is missing.",
+                    errorMessage = "Access token (ARG_TOKEN) was null.",
+                    traktId = traktId,
+                    imdbId = imdbId,
                 )
-                return@coroutineScope Result.failure()
+                return@coroutineScope Result.failure() // Cannot proceed without a token
             }
 
-            if (imdbID.isNullOrBlank()) {
-                Timber
-                    .tag(TAG)
-                    .e("$WORK_NAME failed: Missing or empty IMDb ID in input data.")
-                logFailureToFirebase(
-                    errorType = "MissingInputData",
-                    errorMessage = "IMDb ID is missing.",
+            if (traktId == NOT_FOUND) {
+                Timber.w(
+                    "${WORK_NAME}: Trakt ID is missing. This might " +
+                        "affect removal if IMDb ID is also missing.",
                 )
-                return@coroutineScope Result.failure()
             }
+
+            Timber.d("${WORK_NAME}: Attempting to remove show (Trakt ID: $traktId, IMDb ID: $imdbId).")
 
             return@coroutineScope try {
-                Timber
-                    .tag(TAG)
-                    .d("Adding show (IMDb ID: $imdbID) to favorites.")
-                addShowToFavorites(imdbID = imdbID, token = token)
+                removeShowFromWatchlist(
+                    traktId = traktId,
+                    imdbID = imdbId,
+                    token = token,
+                )
 
-                logSuccessToFirebase(imdbID)
-                Timber
-                    .tag(TAG)
-                    .i("${WORK_NAME} completed successfully for IMDb ID: $imdbID.")
+                logSuccessToFirebase(traktId = traktId, imdbId = imdbId)
+                Timber.i("${WORK_NAME}: Show (Trakt ID: $traktId, IMDb ID: $imdbId) removed successfully.")
                 Result.success()
             } catch (e: Exception) {
-                Timber
-                    .tag(TAG)
-                    .e(e, "$WORK_NAME failed for IMDb ID: $imdbID.")
+                Timber.e(
+                    e,
+                    "${WORK_NAME}: Failed to remove show (Trakt ID: $traktId, IMDb ID: $imdbId).",
+                )
                 logFailureToFirebase(
-                    imdbID = imdbID,
                     errorType = e.javaClass.simpleName,
-                    errorMessage = e.message ?: "Unknown error while adding show to favorites.",
+                    errorMessage = e.message ?: "Unknown error while removing show from watchlist.",
+                    traktId = traktId,
+                    imdbId = imdbId,
                 )
                 Result.failure() // Or Result.retry() if appropriate
             }
         }
 
-    private suspend fun addShowToFavorites(
-        imdbID: String,
+    private suspend fun removeShowFromWatchlist(
+        traktId: Int,
+        imdbID: String?,
         token: String,
     ) {
-        // Since the worker doesn't have direct access to TraktId, it needs to look it up first
-        val traktIdResult = traktRepository.getTraktIdLookup(imdbID)
-        val traktId = traktIdResult.getOrNull()
-        if (traktId != null) {
-            val result = traktRepository.addToWatchlist(
-                traktId = traktId,
-                imdbID = imdbID,
+        var resolvedTraktId = traktId
+        if (resolvedTraktId == NOT_FOUND && !imdbID.isNullOrEmpty()) {
+             val traktIdResult = traktRepository.getTraktIdLookup(imdbID)
+             resolvedTraktId = traktIdResult.getOrNull() ?: NOT_FOUND
+        }
+
+        if (resolvedTraktId != NOT_FOUND) {
+            traktRepository.removeFromWatchlist(
+                traktId = resolvedTraktId,
                 token = token,
             )
-            if (result.isSuccess) {
-                // Re-sync from the native Trakt watchlist to get full show data
-                // (title, images, metadata) into the local DB.
-                traktRepository.refreshWatchlist(token)
-            }
-            Timber
-                .tag(TAG)
-                .d("Successfully called repository to add show (IMDb ID: $imdbID, Trakt ID: $traktId) to watchlist.")
+            Timber.d(
+                "${WORK_NAME}: Call to repository to " +
+                    "remove show (Trakt ID: $resolvedTraktId) completed.",
+            )
         } else {
-             Timber
-                .tag(TAG)
-                .e("Failed to lookup Trakt ID for IMDb ID: $imdbID to add to watchlist.")
-             throw Exception("Trakt ID not found for show: $imdbID")
+             Timber.e("${WORK_NAME}: Trakt ID not found for show. Cannot remove from watchlist.")
+             throw Exception("Trakt ID not found for show. Cannot remove.")
         }
     }
 
-    private fun logSuccessToFirebase(imdbID: String?) {
+    private fun logSuccessToFirebase(
+        traktId: Int,
+        imdbId: String?,
+    ) {
         val bundle =
             Bundle().apply {
                 putBoolean("job_successful", true)
                 putString("job_name", WORK_NAME)
-                imdbID?.let { putString("imdb_id", it) }
+                if (traktId != NOT_FOUND) putInt("trakt_id", traktId)
+                imdbId?.let { putString("imdb_id", it) }
             }
         firebaseAnalytics.logEvent("background_job_completed", bundle)
     }
 
     private fun logFailureToFirebase(
-        imdbID: String? = null,
         errorType: String,
         errorMessage: String,
+        traktId: Int,
+        imdbId: String?,
     ) {
         val bundle =
             Bundle().apply {
                 putBoolean("job_successful", false)
                 putString("job_name", WORK_NAME)
-                imdbID?.let { putString("imdb_id", it) }
+                if (traktId != NOT_FOUND) putInt("trakt_id", traktId)
+                imdbId?.let { putString("imdb_id", it) }
                 putString("error_type", errorType)
                 putString("error_message", errorMessage)
             }
@@ -157,13 +169,12 @@ constructor(
     }
 
     companion object {
-        private const val TAG = "AddFavShowWrkr"
-        const val WORK_NAME = "AddFavoriteShowWorker"
-
+        const val WORK_NAME = "RemoveFromWatchlistWorker"
         const val ARG_TOKEN = "arg_token"
         const val ARG_IMDB_ID = "arg_imdb_id"
+        const val ARG_TRAKT_ID = "arg_trakt_id"
+        const val NOT_FOUND = -1 // Standard way to indicate not found for Int
 
-        // Define a unique notification ID for this specific worker.
         private const val NOTIFICATION_ID = 1004
     }
 }

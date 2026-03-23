@@ -24,7 +24,7 @@ package com.theupnextapp.datasource
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.squareup.moshi.Moshi
 import com.theupnextapp.common.utils.models.DatabaseTables
-import com.theupnextapp.database.DatabaseFavoriteShows
+import com.theupnextapp.database.DatabaseWatchlistShows
 import com.theupnextapp.database.TraktDao
 import com.theupnextapp.database.UpnextDao
 import com.theupnextapp.domain.ShowSeasonEpisode
@@ -78,9 +78,9 @@ constructor(
 ) : BaseTraktDataSource(upnextDao, tvMazeService, firebaseCrashlytics) {
     private val traktConflictErrorAdapter = moshi.adapter(TraktConflictErrorResponse::class.java)
 
-    suspend fun refreshFavoriteShows(token: String): Result<Unit> {
+    suspend fun refreshWatchlistShows(token: String): Result<Unit> {
         if (token.isEmpty()) {
-            val message = "Cannot refresh favorite shows: token is empty."
+            val message = "Cannot refresh watchlist shows: token is empty."
             logTraktException(message)
             return Result.failure(IllegalArgumentException(message))
         }
@@ -98,18 +98,18 @@ constructor(
                             },
                         )
 
-                // 2. Get or Create "UpnextApp Favorites" List ID (Slug)
-                val listIdSlugResult = getOrCreateFavoritesListId(token, userSlug)
+                // 2. Get or Create "UpnextApp Watchlists" List ID (Slug)
+                val listIdSlugResult = getOrCreateWatchlistsListId(token, userSlug)
                 if (listIdSlugResult.isFailure) {
                     val error =
                         listIdSlugResult.exceptionOrNull()
-                            ?: Exception("Unknown error getting/creating favorites list ID.")
+                            ?: Exception("Unknown error getting/creating watchlists list ID.")
                     return@withContext Result.failure(error)
                 }
-                val favoritesListSlug = listIdSlugResult.getOrThrow()
+                val watchlistsListSlug = listIdSlugResult.getOrThrow()
 
                 // 3. Fetch items from this list and update DB
-                val fetchResult = fetchAndStoreFavoriteShows(token, userSlug, favoritesListSlug)
+                val fetchResult = fetchAndStoreWatchlistShows(token, userSlug, watchlistsListSlug)
                 if (fetchResult.isSuccess) {
                     // 4. Update table timestamp
                     logTableUpdateTimestamp(DatabaseTables.TABLE_FAVORITE_SHOWS.tableName)
@@ -117,27 +117,27 @@ constructor(
                 } else {
                     val error =
                         fetchResult.exceptionOrNull()
-                            ?: Exception("Unknown error fetching favorite show items.")
+                            ?: Exception("Unknown error fetching watchlist show items.")
                     Result.failure(error)
                 }
             } catch (e: Exception) {
-                logTraktException("Error refreshing favorite shows", e)
+                logTraktException("Error refreshing watchlist shows", e)
                 Result.failure(e)
             }
         }
     }
 
-    private suspend fun getOrCreateFavoritesListId(
+    private suspend fun getOrCreateWatchlistsListId(
         token: String,
         userSlug: String,
     ): Result<String> {
         val bearerToken = "Bearer $token"
         return safeApiCall {
             val userCustomLists = traktService.getUserCustomListsAsync(bearerToken, userSlug).await()
-            val favoritesList = userCustomLists.find { it.name == FAVORITES_LIST_NAME }
+            val watchlistsList = userCustomLists.find { it.name == FAVORITES_LIST_NAME }
 
-            if (favoritesList?.ids?.slug != null) {
-                favoritesList.ids.slug
+            if (watchlistsList?.ids?.slug != null) {
+                watchlistsList.ids.slug
             } else {
                 val createRequest =
                     NetworkTraktCreateCustomListRequest(
@@ -151,17 +151,17 @@ constructor(
                         createCustomListRequest = createRequest,
                     ).await()
                 createdList.ids?.slug
-                    ?: throw Exception("Failed to create favorites list '$FAVORITES_LIST_NAME', or slug was null after creation.")
+                    ?: throw Exception("Failed to create watchlists list '$FAVORITES_LIST_NAME', or slug was null after creation.")
             }
         }
     }
 
     /**
-     * Migrates shows from the "Upnext Favorites" custom list to the native
+     * Migrates shows from the "Upnext Watchlists" custom list to the native
      * Trakt watchlist. This is idempotent — Trakt ignores duplicate adds.
      * If the custom list doesn't exist, this is a no-op.
      */
-    suspend fun migrateFavoritesToWatchlist(token: String): Result<Unit> {
+    suspend fun migrateWatchlistsToWatchlist(token: String): Result<Unit> {
         if (token.isEmpty()) return Result.success(Unit)
 
         return withContext(Dispatchers.IO) {
@@ -173,11 +173,11 @@ constructor(
                 val userSlug = userSettings.user?.ids?.slug
                     ?: return@withContext Result.success(Unit) // Can't look up lists without slug
 
-                // 2. Find the "Upnext Favorites" list (without creating it)
+                // 2. Find the "Upnext Watchlists" list (without creating it)
                 val userCustomLists = traktService.getUserCustomListsAsync(bearerToken, userSlug).await()
-                val favoritesList = userCustomLists.find { it.name == FAVORITES_LIST_NAME }
+                val watchlistsList = userCustomLists.find { it.name == FAVORITES_LIST_NAME }
 
-                if (favoritesList?.ids?.slug == null) {
+                if (watchlistsList?.ids?.slug == null) {
                     // No custom list exists — nothing to migrate
                     return@withContext Result.success(Unit)
                 }
@@ -186,7 +186,7 @@ constructor(
                 val customListItems = traktService.getCustomListItemsAsync(
                     token = bearerToken,
                     userSlug = userSlug,
-                    traktId = favoritesList.ids.slug,
+                    traktId = watchlistsList.ids.slug,
                     limit = 1000,
                 ).await()
 
@@ -222,7 +222,7 @@ constructor(
         }
     }
 
-    private suspend fun fetchAndStoreFavoriteShows(
+    private suspend fun fetchAndStoreWatchlistShows(
         token: String,
         userSlug: String,
         listSlug: String,
@@ -230,7 +230,7 @@ constructor(
         val bearerToken = "Bearer $token"
 
         return try {
-            // Get all items from the "UpnextApp Favorites" list
+            // Get all items from the "UpnextApp Watchlists" list
             val customListItemsResponse =
                 traktService.getCustomListItemsAsync(
                     token = bearerToken,
@@ -244,9 +244,9 @@ constructor(
             Result.success(Unit)
         } catch (e: HttpException) {
             val errorBody = e.response()?.errorBody()?.stringSuspending()
-            val detailedMessage = "HTTP error fetching favorite show items from list $listSlug: ${e.code()} - $errorBody"
+            val detailedMessage = "HTTP error fetching watchlist show items from list $listSlug: ${e.code()} - $errorBody"
             logTraktException(detailedMessage, e)
-            val userMessage = parseTraktApiError(errorBody, "Server error fetching favorite items.", moshi)
+            val userMessage = parseTraktApiError(errorBody, "Server error fetching watchlist items.", moshi)
             Result.failure(Exception(userMessage, e))
         } catch (e: Exception) {
             logTraktException("Error fetching and storing items from Trakt list $listSlug", e)
@@ -256,7 +256,7 @@ constructor(
 
     private suspend fun handleTraktUserListItemsResponse(customListItemsResponse: NetworkTraktUserListItemResponse?) {
         if (customListItemsResponse == null) {
-            traktDao.deleteAllFavoriteShows()
+            traktDao.deleteAllWatchlistShows()
             return
         }
 
@@ -268,7 +268,7 @@ constructor(
                     networkListItem.show?.ids?.trakt?.let { traktId ->
                         async {
                             var dbShow = networkListItem.asDatabaseModel()
-                            val existingLocalShow = traktDao.getFavoriteShowByTraktId(traktId)
+                            val existingLocalShow = traktDao.getWatchlistShowByTraktId(traktId)
 
                             val needsImageFetch =
                                 existingLocalShow == null ||
@@ -302,24 +302,24 @@ constructor(
             imageFetchAndUpdateJobs.awaitAll()
         }
 
-        val localFavoriteTraktIds = traktDao.getAllFavoriteShowTraktIds()
-        val showsToDeleteTraktIds = localFavoriteTraktIds.filter { it !in showsFromNetworkTraktIds }
+        val localWatchlistTraktIds = traktDao.getAllWatchlistShowTraktIds()
+        val showsToDeleteTraktIds = localWatchlistTraktIds.filter { it !in showsFromNetworkTraktIds }
 
         if (showsToDeleteTraktIds.isNotEmpty()) {
-            traktDao.deleteFavoriteShowsByTraktIds(showsToDeleteTraktIds)
+            traktDao.deleteWatchlistShowsByTraktIds(showsToDeleteTraktIds)
         }
 
         if (showsToInsertOrUpdateInDb.isNotEmpty()) {
-            traktDao.insertAllFavoriteShows(*showsToInsertOrUpdateInDb.toTypedArray())
+            traktDao.insertAllWatchlistShows(*showsToInsertOrUpdateInDb.toTypedArray())
         }
     }
 
-    suspend fun addShowToFavorites(
+    suspend fun addShowToWatchlists(
         imdbId: String,
         token: String,
     ): Result<Unit> {
         if (imdbId.isEmpty() || token.isEmpty()) {
-            val message = "Cannot add show to favorites: IMDb ID or token is empty."
+            val message = "Cannot add show to watchlists: IMDb ID or token is empty."
             logTraktException(message)
             return Result.failure(IllegalArgumentException(message))
         }
@@ -340,11 +340,11 @@ constructor(
                     userSettings.user?.ids?.slug
                         ?: return@withContext Result.failure(Exception("User slug not found"))
 
-                val listIdSlugResult = getOrCreateFavoritesListId(token, userSlug)
+                val listIdSlugResult = getOrCreateWatchlistsListId(token, userSlug)
                 if (listIdSlugResult.isFailure) {
                     return@withContext Result.failure(listIdSlugResult.exceptionOrNull()!!)
                 }
-                val favoritesListSlug = listIdSlugResult.getOrThrow()
+                val watchlistsListSlug = listIdSlugResult.getOrThrow()
 
                 val addRequest =
                     NetworkTraktAddShowToListRequest(
@@ -360,7 +360,7 @@ constructor(
                     traktService.addShowToCustomListAsync(
                         token = bearerToken,
                         userSlug = userSlug,
-                        traktId = favoritesListSlug,
+                        traktId = watchlistsListSlug,
                         networkTraktAddShowToListRequest = addRequest,
                     ).await()
 
@@ -369,7 +369,7 @@ constructor(
 
                 if (showSuccessfullyAdded || showAlreadyExistsOnList) {
                     var dbShow =
-                        DatabaseFavoriteShows(
+                        DatabaseWatchlistShows(
                             id = null,
                             title = showSummaryResponse.title,
                             year = showSummaryResponse.year?.toString(),
@@ -392,7 +392,7 @@ constructor(
                             originalImageUrl = poster,
                             mediumImageUrl = heroImage,
                         )
-                    traktDao.insertFavoriteShow(dbShow)
+                    traktDao.insertWatchlistShow(dbShow)
                     logTableUpdateTimestamp(DatabaseTables.TABLE_FAVORITE_SHOWS.tableName)
                     Result.success(Unit)
                 } else {
@@ -400,16 +400,16 @@ constructor(
                 }
             } catch (e: HttpException) {
                 val errorBody = e.response()?.errorBody()?.stringSuspending()
-                val userMessage = parseTraktApiError(errorBody, "Server error adding show to favorites.", moshi)
+                val userMessage = parseTraktApiError(errorBody, "Server error adding show to watchlists.", moshi)
                 Result.failure(Exception(userMessage, e))
             } catch (e: Exception) {
-                logTraktException("Error adding show to favorites", e)
+                logTraktException("Error adding show to watchlists", e)
                 Result.failure(e)
             }
         }
     }
 
-    suspend fun removeShowFromFavorites(
+    suspend fun removeShowFromWatchlists(
         traktId: Int,
         imdbId: String,
         token: String,
@@ -426,11 +426,11 @@ constructor(
                     userSettings.user?.ids?.slug
                         ?: return@withContext Result.failure(Exception("User slug not found"))
 
-                val listIdSlugResult = getOrCreateFavoritesListId(token, userSlug)
+                val listIdSlugResult = getOrCreateWatchlistsListId(token, userSlug)
                 if (listIdSlugResult.isFailure) {
                     return@withContext Result.failure(listIdSlugResult.exceptionOrNull()!!)
                 }
-                val favoritesListSlug = listIdSlugResult.getOrThrow()
+                val watchlistsListSlug = listIdSlugResult.getOrThrow()
 
                 val request =
                     NetworkTraktRemoveShowFromListRequest(
@@ -446,7 +446,7 @@ constructor(
                     traktService.removeShowFromCustomListAsync(
                         token = bearerToken,
                         userSlug = userSlug,
-                        traktId = favoritesListSlug,
+                        traktId = watchlistsListSlug,
                         networkTraktRemoveShowFromListRequest = request,
                     ).await()
 
@@ -455,7 +455,7 @@ constructor(
                     removeResponse.not_found.shows?.any { it.ids.trakt == traktId } == true
 
                 if (showSuccessfullyRemovedOnTrakt || showNotFoundOnTraktList) {
-                    traktDao.deleteFavoriteShowByTraktId(traktId)
+                    traktDao.deleteWatchlistShowByTraktId(traktId)
                     logTableUpdateTimestamp(DatabaseTables.TABLE_FAVORITE_SHOWS.tableName)
                     Result.success(Unit)
                 } else {

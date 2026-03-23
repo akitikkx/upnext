@@ -34,7 +34,7 @@ import androidx.room.RoomDatabase
         DatabaseTraktPopularShows::class,
         DatabaseTraktTrendingShows::class,
         DatabaseTraktMostAnticipated::class,
-        DatabaseFavoriteShows::class,
+        DatabaseWatchlistShows::class,
         DatabaseTraktAccess::class,
         DatabaseWatchedEpisode::class,
         DatabaseRecentSearch::class,

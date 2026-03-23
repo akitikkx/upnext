@@ -121,8 +121,8 @@ fun ShowDetailScreen(
     }
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val isFavorite by viewModel.isFavoriteShow.collectAsStateWithLifecycle()
-    val isFavoriteLoading by viewModel.isFavoriteLoading.collectAsStateWithLifecycle()
+    val isWatchlist by viewModel.isWatchlistShow.collectAsStateWithLifecycle()
+    val isWatchlistLoading by viewModel.isWatchlistLoading.collectAsStateWithLifecycle()
     val showRating by viewModel.showRating.collectAsStateWithLifecycle()
     val showStats by viewModel.showStats.collectAsStateWithLifecycle()
     val isAuthorizedOnTrakt by viewModel.isAuthorizedOnTrakt.collectAsStateWithLifecycle()
@@ -197,12 +197,12 @@ fun ShowDetailScreen(
                     uiState = uiState,
                     showDetailArgs = showDetailArgs,
                     isAuthorizedOnTrakt = isAuthorizedOnTrakt,
-                    isFavorite = isFavorite,
-                    isFavoriteLoading = isFavoriteLoading,
+                    isWatchlist = isWatchlist,
+                    isWatchlistLoading = isWatchlistLoading,
                     showRating = showRating,
                     showStats = showStats,
                     onSeasonsClick = { viewModel.onSeasonsClick() },
-                    onFavoriteClick = { viewModel.onAddRemoveFavoriteClick() },
+                    onWatchlistClick = { viewModel.onAddRemoveWatchlistClick() },
                     onRateClick = { rating -> viewModel.onRateShow(rating) },
                     onCastItemClick = { castItem ->
                         val personId = castItem.traktId?.toString()
@@ -251,12 +251,12 @@ fun DetailArea(
     uiState: ShowDetailViewModel.ShowDetailUiState,
     showDetailArgs: ShowDetailArg,
     isAuthorizedOnTrakt: Boolean,
-    isFavorite: Boolean,
-    isFavoriteLoading: Boolean,
+    isWatchlist: Boolean,
+    isWatchlistLoading: Boolean,
     showRating: TraktShowRating?,
     showStats: TraktShowStats?,
     onSeasonsClick: () -> Unit,
-    onFavoriteClick: () -> Unit,
+    onWatchlistClick: () -> Unit,
     onRateClick: (Int) -> Unit,
     onCastItemClick: (item: TraktCast) -> Unit,
     onSimilarShowClick: (item: TraktRelatedShows) -> Unit,
@@ -295,12 +295,12 @@ fun DetailArea(
 
                 ShowDetailButtons(
                     isAuthorizedOnTrakt = isAuthorizedOnTrakt,
-                    isFavorite = isFavorite,
-                    isLoading = isFavoriteLoading,
+                    isWatchlist = isWatchlist,
+                    isLoading = isWatchlistLoading,
                     isRating = uiState.isRating,
                     userRating = uiState.userRating,
                     onSeasonsClick = onSeasonsClick,
-                    onFavoriteClick = onFavoriteClick,
+                    onWatchlistClick = onWatchlistClick,
                     onRateClick = onRateClick,
                     widthSizeClass = windowSizeClass,
                 )
@@ -343,12 +343,12 @@ fun DetailArea(
 @Composable
 fun ShowDetailButtons(
     isAuthorizedOnTrakt: Boolean?,
-    isFavorite: Boolean?,
+    isWatchlist: Boolean?,
     isLoading: Boolean,
     isRating: Boolean = false,
     userRating: Int? = null,
     onSeasonsClick: () -> Unit,
-    onFavoriteClick: () -> Unit,
+    onWatchlistClick: () -> Unit,
     onRateClick: (Int) -> Unit = {},
     widthSizeClass: WindowWidthSizeClass = WindowWidthSizeClass.Compact,
 ) {
@@ -389,12 +389,12 @@ fun ShowDetailButtons(
                 }
             } else {
                 Button(
-                    onClick = { onFavoriteClick() },
+                    onClick = { onWatchlistClick() },
                     modifier = Modifier.weight(1f).fillMaxHeight(),
                 ) {
                     Icon(
                         imageVector =
-                            if (isFavorite == true) {
+                            if (isWatchlist == true) {
                                 androidx.compose.ui.graphics.vector.ImageVector.vectorResource(
                                     id = R.drawable.ic_watchlist_remove,
                                 )
@@ -406,7 +406,7 @@ fun ShowDetailButtons(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = if (isFavorite == true) "\u2713 Listed" else "+ List",
+                        text = "List",
                         maxLines = 1,
                     )
                 }

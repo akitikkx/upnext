@@ -91,11 +91,11 @@ fun TraktAccountScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val traktAuthState by viewModel.traktAuthState.collectAsStateWithLifecycle()
     val isAuthorizedOnTrakt by viewModel.isAuthorizedOnTrakt.collectAsStateWithLifecycle()
-    val favoriteShowsList by viewModel.favoriteShows.collectAsStateWithLifecycle()
+    val watchlistShowsList by viewModel.watchlistShows.collectAsStateWithLifecycle()
     val isLoadingConnection by viewModel.isLoadingConnection.collectAsStateWithLifecycle()
-    val isLoadingFavorites by viewModel.isLoadingFavoriteShows.collectAsStateWithLifecycle()
-    val favoriteShowsError by viewModel.favoriteShowsError.collectAsStateWithLifecycle()
-    val isFavoriteShowsEmpty by viewModel.favoriteShowsEmpty.collectAsStateWithLifecycle()
+    val isLoadingWatchlists by viewModel.isLoadingWatchlistShows.collectAsStateWithLifecycle()
+    val watchlistShowsError by viewModel.watchlistShowsError.collectAsStateWithLifecycle()
+    val isWatchlistShowsEmpty by viewModel.watchlistShowsEmpty.collectAsStateWithLifecycle()
     val watchlistSearchQuery by viewModel.watchlistSearchQuery.collectAsStateWithLifecycle()
     val watchlistSortOption by viewModel.watchlistSortOption.collectAsStateWithLifecycle()
 
@@ -138,12 +138,12 @@ fun TraktAccountScreen(
         }
     }
 
-    // Show favorite shows error snackbar
-    LaunchedEffect(favoriteShowsError) {
-        favoriteShowsError?.let { error ->
+    // Show watchlist shows error snackbar
+    LaunchedEffect(watchlistShowsError) {
+        watchlistShowsError?.let { error ->
             scope.launch {
                 snackbarHostState.showSnackbar(
-                    message = "Error loading favorites: $error",
+                    message = "Error loading watchlists: $error",
                     duration = SnackbarDuration.Long,
                 )
             }
@@ -163,10 +163,10 @@ fun TraktAccountScreen(
         ) {
             AccountContent(
                 traktAuthState = traktAuthState,
-                favoriteShowsList = favoriteShowsList,
-                isFavoriteShowsEmpty = isFavoriteShowsEmpty,
+                watchlistShowsList = watchlistShowsList,
+                isWatchlistShowsEmpty = isWatchlistShowsEmpty,
                 isLoadingConnection = isLoadingConnection,
-                isLoadingFavorites = isLoadingFavorites,
+                isLoadingWatchlists = isLoadingWatchlists,
                 isDisconnecting = uiState.isDisconnecting,
                 watchlistSearchQuery = watchlistSearchQuery,
                 watchlistSortOption = watchlistSortOption,
@@ -176,10 +176,10 @@ fun TraktAccountScreen(
                 onConnectToTraktClick = {
                     viewModel.onConnectToTraktClick()
                 },
-                onFavoriteClick = { item ->
+                onWatchlistClick = { item ->
                     navController.navigate(
                         Destinations.ShowDetail(
-                            source = "favorites",
+                            source = "watchlists",
                             showId = item.tvMazeID.toString(),
                             showTitle = item.title,
                             showImageUrl = item.originalImageUrl,
@@ -214,10 +214,10 @@ fun TraktAccountScreen(
 @Composable
 internal fun AccountContent(
     traktAuthState: TraktAuthState,
-    favoriteShowsList: List<TraktUserListItem>,
-    isFavoriteShowsEmpty: Boolean,
+    watchlistShowsList: List<TraktUserListItem>,
+    isWatchlistShowsEmpty: Boolean,
     isLoadingConnection: Boolean,
-    isLoadingFavorites: Boolean,
+    isLoadingWatchlists: Boolean,
     isDisconnecting: Boolean,
     watchlistSearchQuery: String,
     watchlistSortOption: WatchlistSortOption,
@@ -225,7 +225,7 @@ internal fun AccountContent(
     onSearchQueryChange: (String) -> Unit,
     onSortOptionChange: (WatchlistSortOption) -> Unit,
     onConnectToTraktClick: () -> Unit,
-    onFavoriteClick: (item: TraktUserListItem) -> Unit,
+    onWatchlistClick: (item: TraktUserListItem) -> Unit,
     onRemoveItem: (item: TraktUserListItem) -> Unit,
     onLogoutClick: () -> Unit,
 ) {
@@ -251,9 +251,9 @@ internal fun AccountContent(
                 }
 
                 TraktAuthState.LoggedIn -> {
-                    if (!isLoadingFavorites && !isFavoriteShowsEmpty) {
+                    if (!isLoadingWatchlists && !isWatchlistShowsEmpty) {
                         WatchlistListContent(
-                            watchlistItems = favoriteShowsList,
+                            watchlistItems = watchlistShowsList,
                             watchlistSearchQuery = watchlistSearchQuery,
                             watchlistSortOption = watchlistSortOption,
                             lazyListState = watchlistLazyListState,
@@ -266,18 +266,18 @@ internal fun AccountContent(
                                     Spacer(modifier = Modifier.height(16.dp))
                                 }
                             },
-                            onItemClick = onFavoriteClick,
+                            onItemClick = onWatchlistClick,
                             onRemoveItem = onRemoveItem,
                         )
                     } else {
                         TraktProfileHeader(onLogoutClick = onLogoutClick)
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        if (isLoadingFavorites) {
+                        if (isLoadingWatchlists) {
                             CircularProgressIndicator(modifier = Modifier.padding(16.dp))
                             Text(text = stringResource(R.string.trakt_loading_favorites))
                         } else {
-                            EmptyFavoritesContent()
+                            EmptyWatchlistContent()
                         }
                     }
                 }
@@ -360,7 +360,7 @@ fun ConnectToTrakt(onClick: () -> Unit) {
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "Connect your Trakt account to automatically track your watch progress, sync your history securely, and manage your favorites seamlessly.",
+                    text = "Connect your Trakt account to automatically track your watch progress, sync your history securely, and manage your watchlists seamlessly.",
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),

@@ -43,8 +43,8 @@ import com.theupnextapp.domain.emptyShowData
 import com.theupnextapp.repository.ShowDetailRepository
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.ui.common.BaseTraktViewModel
-import com.theupnextapp.work.AddFavoriteShowWorker
-import com.theupnextapp.work.RemoveFavoriteShowWorker
+import com.theupnextapp.work.AddToWatchlistWorker
+import com.theupnextapp.work.RemoveFromWatchlistWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -89,12 +89,12 @@ class ShowDetailViewModel
         private val _isLoading = MutableStateFlow(false)
         val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
-        private val observedFavoriteShow =
+        private val observedWatchlistShow =
             _uiState.map { it.showSummary?.imdbID }
                 .distinctUntilChanged()
                 .flatMapLatest { imdbID ->
                     if (imdbID != null) {
-                        traktRepository.getFavoriteShowFlow(imdbID)
+                        traktRepository.getWatchlistShowFlow(imdbID)
                     } else {
                         kotlinx.coroutines.flow.flowOf(null)
                     }
@@ -107,10 +107,10 @@ class ShowDetailViewModel
 
         // Optimistic override: toggles immediately on click,
         // null means "use the DB flow value"
-        private val _favoriteOverride = MutableStateFlow<Boolean?>(null)
+        private val _watchlistOverride = MutableStateFlow<Boolean?>(null)
 
-        val isFavoriteShow: StateFlow<Boolean> =
-            combine(observedFavoriteShow, _favoriteOverride) { dbValue, override ->
+        val isWatchlistShow: StateFlow<Boolean> =
+            combine(observedWatchlistShow, _watchlistOverride) { dbValue, override ->
                 override ?: (dbValue != null)
             }.stateIn(
                 viewModelScope,
@@ -118,12 +118,12 @@ class ShowDetailViewModel
                 false,
             )
 
-        val isFavoriteLoading: StateFlow<Boolean> =
+        val isWatchlistLoading: StateFlow<Boolean> =
             _uiState.map { it.showSummary?.imdbID }
                 .distinctUntilChanged()
                 .flatMapLatest { imdbID ->
                     if (imdbID != null) {
-                        workManager.getWorkInfosByTagFlow(WORK_TAG_FAVORITE_PREFIX + imdbID)
+                        workManager.getWorkInfosByTagFlow(WORK_TAG_WATCHLIST_PREFIX + imdbID)
                             .map { workInfoList ->
                                 workInfoList.any { !it.state.isFinished }
                             }
@@ -171,7 +171,7 @@ class ShowDetailViewModel
             val previousEpisodeErrorMessage: String? = null,
             val nextEpisodeErrorMessage: String? = null,
             val generalErrorMessage: String? = null,
-            val favoriteShow: TraktUserListItem? = null,
+            val watchlistShow: TraktUserListItem? = null,
             val similarShows: List<TraktRelatedShows>? = null,
             val isSimilarShowsLoading: Boolean = false,
             val watchProviders: com.theupnextapp.domain.TmdbWatchProviders? = null,
@@ -729,68 +729,68 @@ class ShowDetailViewModel
             _navigateToSeasons.value = true
         }
 
-        fun onAddRemoveFavoriteClick() {
+        fun onAddRemoveWatchlistClick() {
             viewModelScope.launch(Dispatchers.IO) {
                 val currentAccessToken = traktRepository.traktAccessToken.firstOrNull()
-                val currentFavoriteShow = observedFavoriteShow.value // Use source of truth
+                val currentWatchlistShow = observedWatchlistShow.value // Use source of truth
                 val currentShowSummary = uiState.value.showSummary
                 val imdbID = currentShowSummary?.imdbID
 
                 if (currentAccessToken != null && imdbID != null) {
                     // Optimistic UI: toggle immediately
-                    val wasOnWatchlist = currentFavoriteShow != null
-                    _favoriteOverride.value = !wasOnWatchlist
+                    val wasOnWatchlist = currentWatchlistShow != null
+                    _watchlistOverride.value = !wasOnWatchlist
 
-                    if (currentFavoriteShow != null) {
+                    if (currentWatchlistShow != null) {
                         val workerDataBuilder = Data.Builder()
-                        currentFavoriteShow.traktID?.let {
-                            workerDataBuilder.putInt(RemoveFavoriteShowWorker.ARG_TRAKT_ID, it)
+                        currentWatchlistShow.traktID?.let {
+                            workerDataBuilder.putInt(RemoveFromWatchlistWorker.ARG_TRAKT_ID, it)
                         }
                         workerDataBuilder.putString(
-                            RemoveFavoriteShowWorker.ARG_IMDB_ID,
-                            currentFavoriteShow.imdbID ?: imdbID,
+                            RemoveFromWatchlistWorker.ARG_IMDB_ID,
+                            currentWatchlistShow.imdbID ?: imdbID,
                         )
                         workerDataBuilder.putString(
-                            RemoveFavoriteShowWorker.ARG_TOKEN,
+                            RemoveFromWatchlistWorker.ARG_TOKEN,
                             currentAccessToken.access_token,
                         )
 
-                        val removeFavoriteWork =
-                            OneTimeWorkRequest.Builder(RemoveFavoriteShowWorker::class.java)
-                                .addTag(WORK_TAG_FAVORITE_PREFIX + imdbID)
+                        val removeWatchlistWork =
+                            OneTimeWorkRequest.Builder(RemoveFromWatchlistWorker::class.java)
+                                .addTag(WORK_TAG_WATCHLIST_PREFIX + imdbID)
                                 .setInputData(workerDataBuilder.build())
                                 .build()
-                        workManager.enqueue(removeFavoriteWork)
+                        workManager.enqueue(removeWatchlistWork)
                     } else {
                         val workerData =
                             Data.Builder()
-                                .putString(AddFavoriteShowWorker.ARG_IMDB_ID, imdbID)
+                                .putString(AddToWatchlistWorker.ARG_IMDB_ID, imdbID)
                                 .putString(
-                                    AddFavoriteShowWorker.ARG_TOKEN,
+                                    AddToWatchlistWorker.ARG_TOKEN,
                                     currentAccessToken.access_token,
                                 )
                                 .build()
 
-                        val addFavoriteWork =
-                            OneTimeWorkRequest.Builder(AddFavoriteShowWorker::class.java)
-                                .addTag(WORK_TAG_FAVORITE_PREFIX + imdbID)
+                        val addWatchlistWork =
+                            OneTimeWorkRequest.Builder(AddToWatchlistWorker::class.java)
+                                .addTag(WORK_TAG_WATCHLIST_PREFIX + imdbID)
                                 .setInputData(workerData)
                                 .build()
-                        workManager.enqueue(addFavoriteWork)
+                        workManager.enqueue(addWatchlistWork)
                     }
                 } else {
                     if (currentAccessToken == null) {
-                        firebaseCrashlytics.log("Cannot add/remove favorite: Trakt access token is null.")
-                        _uiState.update { it.copy(generalErrorMessage = "Please log in to Trakt to manage favorites.") }
+                        firebaseCrashlytics.log("Cannot add/remove watchlist: Trakt access token is null.")
+                        _uiState.update { it.copy(generalErrorMessage = "Please log in to Trakt to manage watchlists.") }
                     } else {
-                        firebaseCrashlytics.log("Cannot add/remove favorite: IMDB ID is null.")
+                        firebaseCrashlytics.log("Cannot add/remove watchlist: IMDB ID is null.")
                     }
                 }
             }
         }
 
         companion object {
-            const val WORK_TAG_FAVORITE_PREFIX = "work_tag_favorite_"
+            const val WORK_TAG_WATCHLIST_PREFIX = "work_tag_watchlist_"
         }
 
         fun onSeasonsNavigationComplete() {
