@@ -155,27 +155,21 @@ class TraktRepositoryImplTest {
         runBlocking {
             val result = repository.refreshWatchlist("")
             assert(result.isFailure)
-            verify(traktAccountDataSource, never()).getWatchlist(org.mockito.kotlin.any())
+            verify(traktAccountDataSource, org.mockito.kotlin.never()).getWatchlist(org.mockito.kotlin.any())
         }
     }
 
     @Test
-    fun refreshWatchlist_emptyApiResponse_prunesAllLocal() {
+    fun refreshWatchlist_delegatesToDataSource() {
         runBlocking {
             val token = "test_token"
-            val emptyResponse = com.theupnextapp.network.models.trakt.NetworkTraktWatchlistResponse()
 
-            whenever(traktAccountDataSource.getWatchlist(token)).thenReturn(Result.success(emptyResponse))
-            // Pre-migration setup
-            whenever(traktAccountDataSource.migrateFavoritesToWatchlist(token)).thenReturn(Result.success(Unit))
-            // Local DB has 2 stale shows
-            whenever(traktDao.getAllFavoriteShowTraktIds()).thenReturn(listOf(101, 202))
+            whenever(traktAccountDataSource.refreshWatchlistShows(token)).thenReturn(Result.success(Unit))
 
             val result = repository.refreshWatchlist(token)
 
             assert(result.isSuccess)
-            // Empty API = all local shows are stale, should be pruned
-            verify(traktDao).deleteFavoriteShowsByTraktIds(listOf(101, 202))
+            verify(traktAccountDataSource).refreshWatchlistShows(token)
         }
     }
 
@@ -191,7 +185,7 @@ class TraktRepositoryImplTest {
             val result = repository.addToWatchlist(traktId, imdbID, token)
 
             assert(result.isFailure)
-            verify(traktDao, never()).insertFavoriteShow(org.mockito.kotlin.any())
+            verify(traktDao, org.mockito.kotlin.never()).insertWatchlistShow(org.mockito.kotlin.any())
         }
     }
 }

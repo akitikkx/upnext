@@ -284,14 +284,14 @@ class ShowDetailViewModelTest {
             kotlinx.coroutines.delay(200)
 
             // When
-            viewModel.onAddRemoveFavoriteClick()
+            viewModel.onAddRemoveWatchlistClick()
 
             // Then — wait reactively for the state to be set via Dispatchers.IO
             val state =
                 kotlinx.coroutines.withTimeout(3000) {
                     viewModel.uiState.first { it.generalErrorMessage != null }
                 }
-            assertEquals("Please log in to Trakt to manage favorites.", state.generalErrorMessage)
+            assertEquals("Please log in to Trakt to manage watchlists.", state.generalErrorMessage)
         }
 
     @Test
