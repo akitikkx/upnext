@@ -46,18 +46,22 @@ class TraktAccountScrollTest {
             }
 
         restorationTester.setContent {
-            val lazyGridState = rememberLazyGridState()
+            val lazyListState = androidx.compose.foundation.lazy.rememberLazyListState()
 
-            FavoritesListContent(
-                favoriteShows = items,
-                widthSizeClass = WindowWidthSizeClass.Compact,
-                lazyGridState = lazyGridState,
-                onFavoriteClick = {},
+            WatchlistListContent(
+                watchlistItems = items,
+                watchlistSearchQuery = "",
+                watchlistSortOption = WatchlistSortOption.ADDED,
+                lazyListState = lazyListState,
+                onSearchQueryChange = {},
+                onSortOptionChange = {},
+                onItemClick = {},
+                onRemoveItem = {},
             )
         }
 
         // Scroll to the 20th item
-        composeTestRule.onNodeWithTag("favorites_grid")
+        composeTestRule.onNodeWithTag("watchlist_column")
             .performScrollToIndex(20)
 
         // Trigger recreation (like rotation or process death)

@@ -33,10 +33,10 @@ class TraktAccountScreenTest {
         rule.setContent {
             AccountContent(
                 traktAuthState = TraktAuthState.LoggedOut,
-                favoriteShowsList = emptyList(),
-                isFavoriteShowsEmpty = true,
+                watchlistShowsList = emptyList(),
+                isWatchlistShowsEmpty = true,
                 isLoadingConnection = false,
-                isLoadingFavorites = false,
+                isLoadingWatchlists = false,
                 isDisconnecting = false,
                 watchlistSearchQuery = "",
                 watchlistSortOption = WatchlistSortOption.ADDED,
@@ -44,7 +44,7 @@ class TraktAccountScreenTest {
                 onSearchQueryChange = {},
                 onSortOptionChange = {},
                 onConnectToTraktClick = { connectClicked = true },
-                onFavoriteClick = {},
+                onWatchlistClick = {},
                 onRemoveItem = {},
                 onLogoutClick = {},
             )
@@ -61,10 +61,10 @@ class TraktAccountScreenTest {
         rule.setContent {
             AccountContent(
                 traktAuthState = TraktAuthState.LoggedIn,
-                favoriteShowsList = emptyList(),
-                isFavoriteShowsEmpty = true,
+                watchlistShowsList = emptyList(),
+                isWatchlistShowsEmpty = true,
                 isLoadingConnection = false,
-                isLoadingFavorites = false,
+                isLoadingWatchlists = false,
                 isDisconnecting = false,
                 watchlistSearchQuery = "",
                 watchlistSortOption = WatchlistSortOption.ADDED,
@@ -72,7 +72,7 @@ class TraktAccountScreenTest {
                 onSearchQueryChange = {},
                 onSortOptionChange = {},
                 onConnectToTraktClick = {},
-                onFavoriteClick = {},
+                onWatchlistClick = {},
                 onRemoveItem = {},
                 onLogoutClick = {},
             )
@@ -108,10 +108,10 @@ class TraktAccountScreenTest {
         rule.setContent {
             AccountContent(
                 traktAuthState = TraktAuthState.LoggedIn,
-                favoriteShowsList = favoriteShows,
-                isFavoriteShowsEmpty = false,
+                watchlistShowsList = favoriteShows,
+                isWatchlistShowsEmpty = false,
                 isLoadingConnection = false,
-                isLoadingFavorites = false,
+                isLoadingWatchlists = false,
                 isDisconnecting = false,
                 watchlistSearchQuery = "",
                 watchlistSortOption = WatchlistSortOption.ADDED,
@@ -119,7 +119,7 @@ class TraktAccountScreenTest {
                 onSearchQueryChange = {},
                 onSortOptionChange = {},
                 onConnectToTraktClick = {},
-                onFavoriteClick = {},
+                onWatchlistClick = {},
                 onRemoveItem = {},
                 onLogoutClick = {},
             )
@@ -146,10 +146,10 @@ class TraktAccountScreenTest {
         rule.setContent {
             AccountContent(
                 traktAuthState = TraktAuthState.LoggedIn,
-                favoriteShowsList = emptyList(),
-                isFavoriteShowsEmpty = false,
+                watchlistShowsList = emptyList(),
+                isWatchlistShowsEmpty = false,
                 isLoadingConnection = false,
-                isLoadingFavorites = false,
+                isLoadingWatchlists = false,
                 isDisconnecting = false,
                 watchlistSearchQuery = "",
                 watchlistSortOption = WatchlistSortOption.ADDED,
@@ -157,7 +157,7 @@ class TraktAccountScreenTest {
                 onSearchQueryChange = {},
                 onSortOptionChange = {},
                 onConnectToTraktClick = {},
-                onFavoriteClick = {},
+                onWatchlistClick = {},
                 onRemoveItem = {},
                 onLogoutClick = {},
             )
