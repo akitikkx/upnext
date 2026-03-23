@@ -42,23 +42,32 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -95,6 +104,9 @@ import org.jsoup.Jsoup
 // UI Constants
 @Suppress("MagicNumber")
 private val RatingStarColor = Color(0xFFFFC107) // Gold/Amber
+
+@Suppress("MagicNumber")
+private val RatingStarUnselected = Color(0xFFBDBDBD)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -146,6 +158,15 @@ fun ShowDetailScreen(
         }
     }
 
+    LaunchedEffect(uiState.ratingMessage) {
+        uiState.ratingMessage?.let { message ->
+            coroutineScope.launch {
+                snackbarHostState.showSnackbar(message)
+            }
+            viewModel.clearRatingMessage()
+        }
+    }
+
     val showTopLinearProgress =
         uiState.isLoadingSummary ||
             uiState.isCastLoading ||
@@ -182,6 +203,7 @@ fun ShowDetailScreen(
                     showStats = showStats,
                     onSeasonsClick = { viewModel.onSeasonsClick() },
                     onFavoriteClick = { viewModel.onAddRemoveFavoriteClick() },
+                    onRateClick = { rating -> viewModel.onRateShow(rating) },
                     onCastItemClick = { castItem ->
                         val personId = castItem.traktId?.toString()
                         val name = castItem.name
@@ -235,6 +257,7 @@ fun DetailArea(
     showStats: TraktShowStats?,
     onSeasonsClick: () -> Unit,
     onFavoriteClick: () -> Unit,
+    onRateClick: (Int) -> Unit,
     onCastItemClick: (item: TraktCast) -> Unit,
     onSimilarShowClick: (item: TraktRelatedShows) -> Unit,
     onRetry: () -> Unit,
@@ -285,7 +308,13 @@ fun DetailArea(
 
         showRating?.let { ratingData ->
             if (ratingData.votes != 0) {
-                TraktRatingSummary(ratingData)
+                TraktRatingSummaryWithRate(
+                    rating = ratingData,
+                    isAuthorizedOnTrakt = isAuthorizedOnTrakt,
+                    isRating = uiState.isRating,
+                    userRating = uiState.userRating,
+                    onRateClick = onRateClick,
+                )
                 Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
             }
         }
@@ -748,6 +777,153 @@ fun TraktRatingSummary(rating: TraktShowRating) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                 )
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TraktRatingSummaryWithRate(
+    rating: TraktShowRating,
+    isAuthorizedOnTrakt: Boolean,
+    isRating: Boolean,
+    userRating: Int?,
+    onRateClick: (Int) -> Unit,
+) {
+    val paddingStandardDouble = dimensionResource(id = R.dimen.padding_standard_double)
+    var showBottomSheet by rememberSaveable { mutableStateOf(false) }
+
+    Column(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = paddingStandardDouble),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        // Aggregate rating pill
+        TraktRatingSummary(rating)
+
+        // Rate button for authorized users
+        if (isAuthorizedOnTrakt) {
+            Spacer(modifier = Modifier.height(8.dp))
+            if (isRating) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    strokeWidth = 2.dp,
+                )
+            } else {
+                Button(
+                    onClick = { showBottomSheet = true },
+                    modifier = Modifier.testTag("rate_show_button"),
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Star,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp),
+                        tint = RatingStarColor,
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text =
+                            if (userRating != null) {
+                                "Your Rating: $userRating/10"
+                            } else {
+                                "Rate This Show"
+                            },
+                    )
+                }
+            }
+        }
+    }
+
+    if (showBottomSheet) {
+        RatingBottomSheet(
+            currentRating = userRating,
+            onDismiss = { showBottomSheet = false },
+            onRate = { selectedRating ->
+                showBottomSheet = false
+                onRateClick(selectedRating)
+            },
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun RatingBottomSheet(
+    currentRating: Int?,
+    onDismiss: () -> Unit,
+    onRate: (Int) -> Unit,
+) {
+    val sheetState = rememberModalBottomSheetState()
+    var selectedRating by remember { mutableIntStateOf(currentRating ?: 0) }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+    ) {
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(
+                text = "Rate This Show",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = if (selectedRating > 0) "$selectedRating / 10" else "Tap a star",
+                style = MaterialTheme.typography.titleMedium,
+                color = if (selectedRating > 0) RatingStarColor else MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Star row — 10 tappable stars
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+            ) {
+                for (i in 1..10) {
+                    IconButton(
+                        onClick = { selectedRating = i },
+                        modifier = Modifier.size(36.dp),
+                    ) {
+                        Icon(
+                            imageVector =
+                                if (i <= selectedRating) {
+                                    Icons.Filled.Star
+                                } else {
+                                    Icons.Outlined.Star
+                                },
+                            contentDescription = "Rate $i",
+                            tint = if (i <= selectedRating) RatingStarColor else RatingStarUnselected,
+                            modifier = Modifier.size(28.dp),
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Button(
+                onClick = { onRate(selectedRating) },
+                enabled = selectedRating > 0,
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .testTag("submit_rating_button"),
+            ) {
+                Text(text = "Submit Rating")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }

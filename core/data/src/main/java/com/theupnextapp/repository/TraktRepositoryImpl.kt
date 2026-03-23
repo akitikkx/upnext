@@ -413,6 +413,17 @@ class TraktRepositoryImpl(
         }
     }
 
+    override suspend fun rateShow(imdbId: String, rating: Int): Result<Unit> {
+        val token = getTraktAccessTokenSync()?.access_token
+            ?: return Result.failure(IllegalStateException("Not logged in"))
+        val result = traktAccountDataSource.rateShow(imdbId, rating, token)
+        if (result.isSuccess) {
+            // Refresh aggregate rating to reflect the user's new vote
+            getTraktShowRating(imdbId)
+        }
+        return result
+    }
+
     override fun isAuthorizedOnTrakt(): StateFlow<Boolean> {
         return traktAccessToken.map { token ->
             token?.isTraktAccessTokenValid() == true

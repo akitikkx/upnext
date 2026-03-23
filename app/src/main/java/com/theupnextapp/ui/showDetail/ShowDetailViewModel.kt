@@ -170,6 +170,9 @@ class ShowDetailViewModel
             val isSimilarShowsLoading: Boolean = false,
             val watchProviders: com.theupnextapp.domain.TmdbWatchProviders? = null,
             val isWatchProvidersLoading: Boolean = false,
+            val isRating: Boolean = false,
+            val userRating: Int? = null,
+            val ratingMessage: String? = null,
         )
 
         fun selectedShow(show: ShowDetailArg?) {
@@ -781,5 +784,35 @@ class ShowDetailViewModel
 
         fun onSeasonsNavigationComplete() {
             _navigateToSeasons.value = false
+        }
+
+        fun onRateShow(rating: Int) {
+            val imdbId = uiState.value.showSummary?.imdbID ?: return
+            viewModelScope.launch(Dispatchers.IO) {
+                _uiState.update { it.copy(isRating = true, ratingMessage = null) }
+                val result = traktRepository.rateShow(imdbId, rating)
+                if (result.isSuccess) {
+                    _uiState.update {
+                        it.copy(
+                            isRating = false,
+                            userRating = rating,
+                            ratingMessage = "Rated $rating/10",
+                        )
+                    }
+                } else {
+                    _uiState.update {
+                        it.copy(
+                            isRating = false,
+                            ratingMessage =
+                                result.exceptionOrNull()?.message
+                                    ?: "Failed to submit rating",
+                        )
+                    }
+                }
+            }
+        }
+
+        fun clearRatingMessage() {
+            _uiState.update { it.copy(ratingMessage = null) }
         }
     }

@@ -159,6 +159,8 @@ interface TraktRepository {
 
     suspend fun cancelCheckIn()
 
+    suspend fun rateShow(imdbId: String, rating: Int): Result<Unit>
+
     suspend fun getTraktIdLookup(imdbID: String): Result<Int?>
 
     suspend fun getTraktPersonSummary(id: String): Result<NetworkTraktPersonResponse>

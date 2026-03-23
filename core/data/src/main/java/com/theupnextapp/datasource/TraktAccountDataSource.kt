@@ -40,6 +40,9 @@ import com.theupnextapp.network.models.trakt.NetworkTraktCheckInRequestShow
 import com.theupnextapp.network.models.trakt.NetworkTraktCheckInRequestShowIds
 import com.theupnextapp.network.models.trakt.NetworkTraktCreateCustomListRequest
 import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktRatingRequest
+import com.theupnextapp.network.models.trakt.NetworkTraktRatingShow
+import com.theupnextapp.network.models.trakt.NetworkTraktRatingShowIds
 import com.theupnextapp.network.models.trakt.NetworkTraktRemoveShowFromListRequest
 import com.theupnextapp.network.models.trakt.NetworkTraktRemoveShowFromListRequestShow
 import com.theupnextapp.network.models.trakt.NetworkTraktRemoveShowFromListRequestShowIds
@@ -631,6 +634,43 @@ constructor(
                 Result.failure(Exception("Failed to cancel check-in.", e))
             } catch (e: Exception) {
                 logTraktException("Generic error during Trakt check-in cancellation.", e)
+                Result.failure(e)
+            }
+        }
+    }
+
+    suspend fun rateShow(
+        imdbId: String,
+        rating: Int,
+        token: String?,
+    ): Result<Unit> {
+        if (token.isNullOrEmpty()) {
+            return Result.failure(IllegalArgumentException("Authentication token is missing."))
+        }
+
+        return withContext(Dispatchers.IO) {
+            try {
+                val bearerToken = "Bearer $token"
+                val request =
+                    NetworkTraktRatingRequest(
+                        shows =
+                            listOf(
+                                NetworkTraktRatingShow(
+                                    rating = rating,
+                                    ids = NetworkTraktRatingShowIds(imdb = imdbId),
+                                ),
+                            ),
+                    )
+                val response = traktService.rateShowAsync(bearerToken, request).await()
+                if (response.isSuccessful) {
+                    Result.success(Unit)
+                } else {
+                    Result.failure(Exception("Failed to rate show (Code ${response.code()})"))
+                }
+            } catch (e: HttpException) {
+                Result.failure(Exception("Failed to rate show.", e))
+            } catch (e: Exception) {
+                logTraktException("Generic error during Trakt show rating.", e)
                 Result.failure(e)
             }
         }

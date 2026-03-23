@@ -200,6 +200,17 @@ class FakeTraktRepository : TraktRepository {
 
     override suspend fun cancelCheckIn() {}
 
+    var rateShowCalls = mutableListOf<Pair<String, Int>>()
+    var rateShowResult: Result<Unit> = Result.success(Unit)
+
+    override suspend fun rateShow(
+        imdbId: String,
+        rating: Int,
+    ): Result<Unit> {
+        rateShowCalls.add(imdbId to rating)
+        return rateShowResult
+    }
+
     override suspend fun getTraktIdLookup(imdbID: String): kotlin.Result<Int?> = kotlin.Result.success(null)
 
     var personSummaryResult: kotlin.Result<NetworkTraktPersonResponse> =
