@@ -55,8 +55,8 @@ open class BaseTraktViewModel
                     initialValue = null,
                 )
 
-        val favoriteShow: StateFlow<TraktUserListItem?> =
-            traktRepository.favoriteShow
+        val watchlistShow: StateFlow<TraktUserListItem?> =
+            traktRepository.watchlistShow
                 .stateIn(
                     scope = viewModelScope,
                     started = SharingStarted.WhileSubscribed(5000),

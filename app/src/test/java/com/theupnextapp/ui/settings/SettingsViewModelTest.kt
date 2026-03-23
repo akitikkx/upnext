@@ -87,6 +87,6 @@ class SettingsViewModelTest {
 
             viewModel.onDisconnectTrakt()
             testDispatcher.scheduler.advanceUntilIdle()
-            verify(mockTraktRepository).clearFavorites()
+            verify(mockTraktRepository).clearWatchlist()
         }
 }

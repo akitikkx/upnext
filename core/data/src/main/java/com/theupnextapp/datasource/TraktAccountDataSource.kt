@@ -24,7 +24,7 @@ package com.theupnextapp.datasource
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.squareup.moshi.Moshi
 import com.theupnextapp.common.utils.models.DatabaseTables
-import com.theupnextapp.database.DatabaseFavoriteShows
+import com.theupnextapp.database.DatabaseWatchlistShows
 import com.theupnextapp.database.TraktDao
 import com.theupnextapp.database.UpnextDao
 import com.theupnextapp.domain.ShowSeasonEpisode
@@ -40,6 +40,9 @@ import com.theupnextapp.network.models.trakt.NetworkTraktCheckInRequestShow
 import com.theupnextapp.network.models.trakt.NetworkTraktCheckInRequestShowIds
 import com.theupnextapp.network.models.trakt.NetworkTraktCreateCustomListRequest
 import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktRatingRequest
+import com.theupnextapp.network.models.trakt.NetworkTraktRatingShow
+import com.theupnextapp.network.models.trakt.NetworkTraktRatingShowIds
 import com.theupnextapp.network.models.trakt.NetworkTraktRemoveShowFromListRequest
 import com.theupnextapp.network.models.trakt.NetworkTraktRemoveShowFromListRequestShow
 import com.theupnextapp.network.models.trakt.NetworkTraktRemoveShowFromListRequestShowIds
@@ -75,9 +78,9 @@ constructor(
 ) : BaseTraktDataSource(upnextDao, tvMazeService, firebaseCrashlytics) {
     private val traktConflictErrorAdapter = moshi.adapter(TraktConflictErrorResponse::class.java)
 
-    suspend fun refreshFavoriteShows(token: String): Result<Unit> {
+    suspend fun refreshWatchlistShows(token: String): Result<Unit> {
         if (token.isEmpty()) {
-            val message = "Cannot refresh favorite shows: token is empty."
+            val message = "Cannot refresh watchlist shows: token is empty."
             logTraktException(message)
             return Result.failure(IllegalArgumentException(message))
         }
@@ -85,28 +88,7 @@ constructor(
         return withContext(Dispatchers.IO) {
             try {
                 val bearerToken = "Bearer $token"
-                // 1. Get User Slug
-                val userSettings = traktService.getUserSettingsAsync(bearerToken).await()
-                val userSlug =
-                    userSettings.user?.ids?.slug
-                        ?: return@withContext Result.failure<Unit>(
-                            Exception("User slug not found in Trakt settings.").also {
-                                logTraktException(it.message!!)
-                            },
-                        )
-
-                // 2. Get or Create "UpnextApp Favorites" List ID (Slug)
-                val listIdSlugResult = getOrCreateFavoritesListId(token, userSlug)
-                if (listIdSlugResult.isFailure) {
-                    val error =
-                        listIdSlugResult.exceptionOrNull()
-                            ?: Exception("Unknown error getting/creating favorites list ID.")
-                    return@withContext Result.failure(error)
-                }
-                val favoritesListSlug = listIdSlugResult.getOrThrow()
-
-                // 3. Fetch items from this list and update DB
-                val fetchResult = fetchAndStoreFavoriteShows(token, userSlug, favoritesListSlug)
+                val fetchResult = fetchAndStoreWatchlistShows(token)
                 if (fetchResult.isSuccess) {
                     // 4. Update table timestamp
                     logTableUpdateTimestamp(DatabaseTables.TABLE_FAVORITE_SHOWS.tableName)
@@ -114,360 +96,100 @@ constructor(
                 } else {
                     val error =
                         fetchResult.exceptionOrNull()
-                            ?: Exception("Unknown error fetching favorite show items.")
+                            ?: Exception("Unknown error fetching watchlist show items.")
                     Result.failure(error)
                 }
             } catch (e: Exception) {
-                logTraktException("Error refreshing favorite shows", e)
+                logTraktException("Error refreshing watchlist shows", e)
                 Result.failure(e)
             }
         }
     }
 
-    private suspend fun getOrCreateFavoritesListId(
+    private suspend fun fetchAndStoreWatchlistShows(
         token: String,
-        userSlug: String,
-    ): Result<String> {
-        val bearerToken = "Bearer $token"
-        return safeApiCall {
-            val userCustomLists = traktService.getUserCustomListsAsync(bearerToken, userSlug).await()
-            val favoritesList = userCustomLists.find { it.name == FAVORITES_LIST_NAME }
-
-            if (favoritesList?.ids?.slug != null) {
-                favoritesList.ids.slug
-            } else {
-                val createRequest =
-                    NetworkTraktCreateCustomListRequest(
-                        name = FAVORITES_LIST_NAME,
-                        privacy = "private",
-                    )
-                val createdList =
-                    traktService.createCustomListAsync(
-                        token = bearerToken,
-                        userSlug = userSlug,
-                        createCustomListRequest = createRequest,
-                    ).await()
-                createdList.ids?.slug
-                    ?: throw Exception("Failed to create favorites list '$FAVORITES_LIST_NAME', or slug was null after creation.")
-            }
-        }
-    }
-
-    /**
-     * Migrates shows from the "Upnext Favorites" custom list to the native
-     * Trakt watchlist. This is idempotent — Trakt ignores duplicate adds.
-     * If the custom list doesn't exist, this is a no-op.
-     */
-    suspend fun migrateFavoritesToWatchlist(token: String): Result<Unit> {
-        if (token.isEmpty()) return Result.success(Unit)
-
-        return withContext(Dispatchers.IO) {
-            try {
-                val bearerToken = "Bearer $token"
-
-                // 1. Get user slug
-                val userSettings = traktService.getUserSettingsAsync(bearerToken).await()
-                val userSlug = userSettings.user?.ids?.slug
-                    ?: return@withContext Result.success(Unit) // Can't look up lists without slug
-
-                // 2. Find the "Upnext Favorites" list (without creating it)
-                val userCustomLists = traktService.getUserCustomListsAsync(bearerToken, userSlug).await()
-                val favoritesList = userCustomLists.find { it.name == FAVORITES_LIST_NAME }
-
-                if (favoritesList?.ids?.slug == null) {
-                    // No custom list exists — nothing to migrate
-                    return@withContext Result.success(Unit)
-                }
-
-                // 3. Fetch all items from the custom list
-                val customListItems = traktService.getCustomListItemsAsync(
-                    token = bearerToken,
-                    userSlug = userSlug,
-                    traktId = favoritesList.ids.slug,
-                    limit = 1000,
-                ).await()
-
-                if (customListItems.isNullOrEmpty()) {
-                    return@withContext Result.success(Unit)
-                }
-
-                // 4. Extract traktIds and bulk-add to native watchlist
-                val showsToMigrate = customListItems.mapNotNull { item ->
-                    item.show?.ids?.trakt?.let { traktId ->
-                        com.theupnextapp.network.models.trakt.NetworkTraktWatchlistRequestShow(
-                            ids = com.theupnextapp.network.models.trakt.NetworkTraktWatchlistRequestShowIds(
-                                trakt = traktId
-                            )
-                        )
-                    }
-                }
-
-                if (showsToMigrate.isNotEmpty()) {
-                    val request = com.theupnextapp.network.models.trakt.NetworkTraktWatchlistRequest(
-                        shows = showsToMigrate,
-                    )
-                    traktService.addToWatchlistAsync(bearerToken, request).await()
-                    timber.log.Timber.i("Migrated ${showsToMigrate.size} shows from '$FAVORITES_LIST_NAME' to native watchlist.")
-                }
-
-                Result.success(Unit)
-            } catch (e: Exception) {
-                // Migration failure is non-fatal — log and continue
-                timber.log.Timber.w(e, "Failed to migrate '$FAVORITES_LIST_NAME' to native watchlist. Will retry next session.")
-                Result.success(Unit) // Return success so refreshWatchlist continues
-            }
-        }
-    }
-
-    private suspend fun fetchAndStoreFavoriteShows(
-        token: String,
-        userSlug: String,
-        listSlug: String,
     ): Result<Unit> {
         val bearerToken = "Bearer $token"
 
         return try {
-            // Get all items from the "UpnextApp Favorites" list
-            val customListItemsResponse =
-                traktService.getCustomListItemsAsync(
+            val watchlistItemsResponse =
+                traktService.getWatchlistAsync(
                     token = bearerToken,
-                    userSlug = userSlug,
-                    traktId = listSlug,
                     limit = 1000,
                 ).await()
 
-            handleTraktUserListItemsResponse(customListItemsResponse)
+            handleTraktWatchlistResponse(watchlistItemsResponse)
             logTableUpdateTimestamp(DatabaseTables.TABLE_FAVORITE_SHOWS.tableName)
             Result.success(Unit)
         } catch (e: HttpException) {
             val errorBody = e.response()?.errorBody()?.stringSuspending()
-            val detailedMessage = "HTTP error fetching favorite show items from list $listSlug: ${e.code()} - $errorBody"
+            val detailedMessage = "HTTP error fetching native watchlist show items: ${e.code()} - $errorBody"
             logTraktException(detailedMessage, e)
-            val userMessage = parseTraktApiError(errorBody, "Server error fetching favorite items.", moshi)
+            val userMessage = parseTraktApiError(errorBody, "Server error fetching watchlist items.", moshi)
             Result.failure(Exception(userMessage, e))
         } catch (e: Exception) {
-            logTraktException("Error fetching and storing items from Trakt list $listSlug", e)
+            logTraktException("Error fetching and storing items from native Trakt Watchlist", e)
             Result.failure(e)
         }
     }
 
-    private suspend fun handleTraktUserListItemsResponse(customListItemsResponse: NetworkTraktUserListItemResponse?) {
-        if (customListItemsResponse == null) {
-            traktDao.deleteAllFavoriteShows()
+    private suspend fun handleTraktWatchlistResponse(watchlistResponse: com.theupnextapp.network.models.trakt.NetworkTraktWatchlistResponse?) {
+        if (watchlistResponse == null) {
+            traktDao.deleteAllWatchlistShows()
             return
         }
 
-        val showsFromNetworkTraktIds = customListItemsResponse.mapNotNull { it.show?.ids?.trakt }.toSet()
+        val showsFromNetworkTraktIds = watchlistResponse.map { it.show.ids.trakt }.toSet()
 
         val showsToInsertOrUpdateInDb = withContext(Dispatchers.IO) {
-            val imageFetchAndUpdateJobs =
-                customListItemsResponse.mapNotNull { networkListItem ->
-                    networkListItem.show?.ids?.trakt?.let { traktId ->
-                        async {
-                            var dbShow = networkListItem.asDatabaseModel()
-                            val existingLocalShow = traktDao.getFavoriteShowByTraktId(traktId)
+            val dbShowList = mutableListOf<com.theupnextapp.database.DatabaseWatchlistShows>()
+            for (networkListItem in watchlistResponse) {
+                val traktId = networkListItem.show.ids.trakt
+                var dbShow = networkListItem.asDatabaseModel()
+                val existingLocalShow = traktDao.getWatchlistShowByTraktId(traktId)
 
-                            val needsImageFetch =
-                                existingLocalShow == null ||
-                                    existingLocalShow.originalImageUrl.isNullOrEmpty() ||
-                                    existingLocalShow.mediumImageUrl.isNullOrEmpty() ||
-                                    existingLocalShow.tvMazeID == null
+                val needsImageFetch =
+                    existingLocalShow == null ||
+                        existingLocalShow.originalImageUrl.isNullOrEmpty() ||
+                        existingLocalShow.mediumImageUrl.isNullOrEmpty() ||
+                        existingLocalShow.tvMazeID == null
 
-                            if (needsImageFetch) {
-                                networkListItem.show.ids.imdb?.let { imdbId ->
-                                    val (tvMazeIdResult, poster, heroImage) = getImages(imdbId)
-                                    dbShow =
-                                        dbShow.copy(
-                                            originalImageUrl = poster ?: existingLocalShow?.originalImageUrl,
-                                            mediumImageUrl = heroImage ?: existingLocalShow?.mediumImageUrl,
-                                            tvMazeID = tvMazeIdResult ?: existingLocalShow?.tvMazeID,
-                                        )
-                                }
-                            } else if (existingLocalShow != null) {
-                                dbShow =
-                                    dbShow.copy(
-                                        id = existingLocalShow.id,
-                                        originalImageUrl = existingLocalShow.originalImageUrl,
-                                        mediumImageUrl = existingLocalShow.mediumImageUrl,
-                                        tvMazeID = existingLocalShow.tvMazeID,
-                                    )
-                            }
-                            dbShow
-                        }
+                if (needsImageFetch) {
+                    networkListItem.show.ids.imdb?.let { imdbId ->
+                        val (tvMazeIdResult, poster, heroImage) = getImages(imdbId)
+                        dbShow =
+                            dbShow.copy(
+                                originalImageUrl = poster ?: existingLocalShow?.originalImageUrl,
+                                mediumImageUrl = heroImage ?: existingLocalShow?.mediumImageUrl,
+                                tvMazeID = tvMazeIdResult ?: existingLocalShow?.tvMazeID,
+                            )
                     }
+                } else {
+                    dbShow =
+                        dbShow.copy(
+                            originalImageUrl = existingLocalShow.originalImageUrl,
+                            mediumImageUrl = existingLocalShow.mediumImageUrl,
+                            tvMazeID = existingLocalShow.tvMazeID,
+                        )
                 }
-            imageFetchAndUpdateJobs.awaitAll()
+                dbShowList.add(dbShow)
+            }
+            dbShowList
         }
 
-        val localFavoriteTraktIds = traktDao.getAllFavoriteShowTraktIds()
-        val showsToDeleteTraktIds = localFavoriteTraktIds.filter { it !in showsFromNetworkTraktIds }
+        val localWatchlistTraktIds = traktDao.getAllWatchlistShowTraktIds()
+        val idsToDelete = localWatchlistTraktIds.filterNot { showsFromNetworkTraktIds.contains(it) }
 
-        if (showsToDeleteTraktIds.isNotEmpty()) {
-            traktDao.deleteFavoriteShowsByTraktIds(showsToDeleteTraktIds)
+        if (idsToDelete.isNotEmpty()) {
+            traktDao.deleteWatchlistShowsByTraktIds(idsToDelete)
         }
 
         if (showsToInsertOrUpdateInDb.isNotEmpty()) {
-            traktDao.insertAllFavoriteShows(*showsToInsertOrUpdateInDb.toTypedArray())
+            traktDao.insertAllWatchlistShows(*showsToInsertOrUpdateInDb.toTypedArray())
         }
     }
 
-    suspend fun addShowToFavorites(
-        imdbId: String,
-        token: String,
-    ): Result<Unit> {
-        if (imdbId.isEmpty() || token.isEmpty()) {
-            val message = "Cannot add show to favorites: IMDb ID or token is empty."
-            logTraktException(message)
-            return Result.failure(IllegalArgumentException(message))
-        }
 
-        return withContext(Dispatchers.IO) {
-            try {
-                val bearerToken = "Bearer $token"
-                val showSummaryResponse = traktService.getShowInfoAsync(imdbID = imdbId).await()
-
-                val traktShowId = showSummaryResponse.ids?.trakt
-                if (traktShowId == null) {
-                    val noTraktIdMessage = "Could not retrieve Trakt ID for show with IMDb ID $imdbId"
-                    return@withContext Result.failure(Exception(noTraktIdMessage))
-                }
-
-                val userSettings = traktService.getUserSettingsAsync(bearerToken).await()
-                val userSlug =
-                    userSettings.user?.ids?.slug
-                        ?: return@withContext Result.failure(Exception("User slug not found"))
-
-                val listIdSlugResult = getOrCreateFavoritesListId(token, userSlug)
-                if (listIdSlugResult.isFailure) {
-                    return@withContext Result.failure(listIdSlugResult.exceptionOrNull()!!)
-                }
-                val favoritesListSlug = listIdSlugResult.getOrThrow()
-
-                val addRequest =
-                    NetworkTraktAddShowToListRequest(
-                        shows =
-                        listOf(
-                            NetworkTraktAddShowToListRequestShow(
-                                ids = NetworkTraktAddShowToListRequestShowIds(trakt = traktShowId),
-                            ),
-                        ),
-                    )
-
-                val addResponse =
-                    traktService.addShowToCustomListAsync(
-                        token = bearerToken,
-                        userSlug = userSlug,
-                        traktId = favoritesListSlug,
-                        networkTraktAddShowToListRequest = addRequest,
-                    ).await()
-
-                val showSuccessfullyAdded = addResponse.added.shows == 1
-                val showAlreadyExistsOnList = addResponse.existing.shows == 1
-
-                if (showSuccessfullyAdded || showAlreadyExistsOnList) {
-                    var dbShow =
-                        DatabaseFavoriteShows(
-                            id = null,
-                            title = showSummaryResponse.title,
-                            year = showSummaryResponse.year?.toString(),
-                            imdbID = imdbId,
-                            slug = showSummaryResponse.ids.slug,
-                            tmdbID = showSummaryResponse.ids.tmdb,
-                            traktID = traktShowId,
-                            tvdbID = showSummaryResponse.ids.tvdb,
-                            mediumImageUrl = null,
-                            originalImageUrl = null,
-                            tvMazeID = null,
-                            network = null,
-                            status = null,
-                            rating = null,
-                        )
-                    val (tvMazeIdResult, poster, heroImage) = getImages(imdbId)
-                    dbShow =
-                        dbShow.copy(
-                            tvMazeID = tvMazeIdResult,
-                            originalImageUrl = poster,
-                            mediumImageUrl = heroImage,
-                        )
-                    traktDao.insertFavoriteShow(dbShow)
-                    logTableUpdateTimestamp(DatabaseTables.TABLE_FAVORITE_SHOWS.tableName)
-                    Result.success(Unit)
-                } else {
-                    Result.failure(Exception("Show not added/found. Response: $addResponse"))
-                }
-            } catch (e: HttpException) {
-                val errorBody = e.response()?.errorBody()?.stringSuspending()
-                val userMessage = parseTraktApiError(errorBody, "Server error adding show to favorites.", moshi)
-                Result.failure(Exception(userMessage, e))
-            } catch (e: Exception) {
-                logTraktException("Error adding show to favorites", e)
-                Result.failure(e)
-            }
-        }
-    }
-
-    suspend fun removeShowFromFavorites(
-        traktId: Int,
-        imdbId: String,
-        token: String,
-    ): Result<Unit> {
-        if (token.isEmpty()) {
-            return Result.failure(IllegalArgumentException("Token is empty"))
-        }
-
-        return withContext(Dispatchers.IO) {
-            try {
-                val bearerToken = "Bearer $token"
-                val userSettings = traktService.getUserSettingsAsync(bearerToken).await()
-                val userSlug =
-                    userSettings.user?.ids?.slug
-                        ?: return@withContext Result.failure(Exception("User slug not found"))
-
-                val listIdSlugResult = getOrCreateFavoritesListId(token, userSlug)
-                if (listIdSlugResult.isFailure) {
-                    return@withContext Result.failure(listIdSlugResult.exceptionOrNull()!!)
-                }
-                val favoritesListSlug = listIdSlugResult.getOrThrow()
-
-                val request =
-                    NetworkTraktRemoveShowFromListRequest(
-                        shows =
-                        listOf(
-                            NetworkTraktRemoveShowFromListRequestShow(
-                                ids = NetworkTraktRemoveShowFromListRequestShowIds(trakt = traktId),
-                            ),
-                        ),
-                    )
-
-                val removeResponse =
-                    traktService.removeShowFromCustomListAsync(
-                        token = bearerToken,
-                        userSlug = userSlug,
-                        traktId = favoritesListSlug,
-                        networkTraktRemoveShowFromListRequest = request,
-                    ).await()
-
-                val showSuccessfullyRemovedOnTrakt = removeResponse.deleted.shows == 1
-                val showNotFoundOnTraktList =
-                    removeResponse.not_found.shows?.any { it.ids.trakt == traktId } == true
-
-                if (showSuccessfullyRemovedOnTrakt || showNotFoundOnTraktList) {
-                    traktDao.deleteFavoriteShowByTraktId(traktId)
-                    logTableUpdateTimestamp(DatabaseTables.TABLE_FAVORITE_SHOWS.tableName)
-                    Result.success(Unit)
-                } else {
-                    Result.failure(Exception("Failed to remove show from Trakt."))
-                }
-            } catch (e: HttpException) {
-                val errorBody = e.response()?.errorBody()?.stringSuspending()
-                val userMessage = parseTraktApiError(errorBody, "Failed to remove show.", moshi)
-                Result.failure(Exception(userMessage, e))
-            } catch (e: Exception) {
-                logTraktException("Error removing show", e)
-                Result.failure(e)
-            }
-        }
-    }
 
     suspend fun getWatchlist(token: String): Result<com.theupnextapp.network.models.trakt.NetworkTraktWatchlistResponse> {
         if (token.isEmpty()) return Result.failure(IllegalArgumentException("Token is empty"))
@@ -632,6 +354,61 @@ constructor(
             } catch (e: Exception) {
                 logTraktException("Generic error during Trakt check-in cancellation.", e)
                 Result.failure(e)
+            }
+        }
+    }
+
+    suspend fun rateShow(
+        imdbId: String,
+        rating: Int,
+        token: String?,
+    ): Result<Unit> {
+        if (token.isNullOrEmpty()) {
+            return Result.failure(IllegalArgumentException("Authentication token is missing."))
+        }
+
+        return withContext(Dispatchers.IO) {
+            try {
+                val bearerToken = "Bearer $token"
+                val request =
+                    NetworkTraktRatingRequest(
+                        shows =
+                            listOf(
+                                NetworkTraktRatingShow(
+                                    rating = rating,
+                                    ids = NetworkTraktRatingShowIds(imdb = imdbId),
+                                ),
+                            ),
+                    )
+                val response = traktService.rateShowAsync(bearerToken, request).await()
+                if (response.isSuccessful) {
+                    Result.success(Unit)
+                } else {
+                    Result.failure(Exception("Failed to rate show (Code ${response.code()})"))
+                }
+            } catch (e: HttpException) {
+                Result.failure(Exception("Failed to rate show.", e))
+            } catch (e: Exception) {
+                logTraktException("Generic error during Trakt show rating.", e)
+                Result.failure(e)
+            }
+        }
+    }
+
+    suspend fun getUserShowRating(
+        imdbId: String,
+        token: String?,
+    ): Int? {
+        if (token.isNullOrEmpty()) return null
+
+        return withContext(Dispatchers.IO) {
+            try {
+                val bearerToken = "Bearer $token"
+                val ratings = traktService.getUserShowRatingsAsync(bearerToken).await()
+                ratings.firstOrNull { it.show?.ids?.imdb == imdbId }?.rating
+            } catch (e: Exception) {
+                logTraktException("Error fetching user show rating", e)
+                null
             }
         }
     }

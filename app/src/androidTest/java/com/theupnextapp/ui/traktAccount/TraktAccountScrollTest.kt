@@ -1,10 +1,8 @@
 package com.theupnextapp.ui.traktAccount
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -46,18 +44,22 @@ class TraktAccountScrollTest {
             }
 
         restorationTester.setContent {
-            val lazyGridState = rememberLazyGridState()
+            val lazyListState = androidx.compose.foundation.lazy.rememberLazyListState()
 
-            FavoritesListContent(
-                favoriteShows = items,
-                widthSizeClass = WindowWidthSizeClass.Compact,
-                lazyGridState = lazyGridState,
-                onFavoriteClick = {},
+            WatchlistListContent(
+                watchlistItems = items,
+                watchlistSearchQuery = "",
+                watchlistSortOption = WatchlistSortOption.ADDED,
+                lazyListState = lazyListState,
+                onSearchQueryChange = {},
+                onSortOptionChange = {},
+                onItemClick = {},
+                onRemoveItem = {},
             )
         }
 
         // Scroll to the 20th item
-        composeTestRule.onNodeWithTag("favorites_grid")
+        composeTestRule.onNodeWithTag("watchlist_column")
             .performScrollToIndex(20)
 
         // Trigger recreation (like rotation or process death)

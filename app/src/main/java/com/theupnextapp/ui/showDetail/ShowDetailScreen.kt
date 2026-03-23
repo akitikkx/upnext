@@ -42,23 +42,32 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -96,6 +105,9 @@ import org.jsoup.Jsoup
 @Suppress("MagicNumber")
 private val RatingStarColor = Color(0xFFFFC107) // Gold/Amber
 
+@Suppress("MagicNumber")
+private val RatingStarUnselected = Color(0xFFBDBDBD)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShowDetailScreen(
@@ -109,8 +121,8 @@ fun ShowDetailScreen(
     }
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val isFavorite by viewModel.isFavoriteShow.collectAsStateWithLifecycle()
-    val isFavoriteLoading by viewModel.isFavoriteLoading.collectAsStateWithLifecycle()
+    val isWatchlist by viewModel.isWatchlistShow.collectAsStateWithLifecycle()
+    val isWatchlistLoading by viewModel.isWatchlistLoading.collectAsStateWithLifecycle()
     val showRating by viewModel.showRating.collectAsStateWithLifecycle()
     val showStats by viewModel.showStats.collectAsStateWithLifecycle()
     val isAuthorizedOnTrakt by viewModel.isAuthorizedOnTrakt.collectAsStateWithLifecycle()
@@ -146,6 +158,15 @@ fun ShowDetailScreen(
         }
     }
 
+    LaunchedEffect(uiState.ratingMessage) {
+        uiState.ratingMessage?.let { message ->
+            coroutineScope.launch {
+                snackbarHostState.showSnackbar(message)
+            }
+            viewModel.clearRatingMessage()
+        }
+    }
+
     val showTopLinearProgress =
         uiState.isLoadingSummary ||
             uiState.isCastLoading ||
@@ -176,12 +197,13 @@ fun ShowDetailScreen(
                     uiState = uiState,
                     showDetailArgs = showDetailArgs,
                     isAuthorizedOnTrakt = isAuthorizedOnTrakt,
-                    isFavorite = isFavorite,
-                    isFavoriteLoading = isFavoriteLoading,
+                    isWatchlist = isWatchlist,
+                    isWatchlistLoading = isWatchlistLoading,
                     showRating = showRating,
                     showStats = showStats,
                     onSeasonsClick = { viewModel.onSeasonsClick() },
-                    onFavoriteClick = { viewModel.onAddRemoveFavoriteClick() },
+                    onWatchlistClick = { viewModel.onAddRemoveWatchlistClick() },
+                    onRateClick = { rating -> viewModel.onRateShow(rating) },
                     onCastItemClick = { castItem ->
                         val personId = castItem.traktId?.toString()
                         val name = castItem.name
@@ -229,12 +251,13 @@ fun DetailArea(
     uiState: ShowDetailViewModel.ShowDetailUiState,
     showDetailArgs: ShowDetailArg,
     isAuthorizedOnTrakt: Boolean,
-    isFavorite: Boolean,
-    isFavoriteLoading: Boolean,
+    isWatchlist: Boolean,
+    isWatchlistLoading: Boolean,
     showRating: TraktShowRating?,
     showStats: TraktShowStats?,
     onSeasonsClick: () -> Unit,
-    onFavoriteClick: () -> Unit,
+    onWatchlistClick: () -> Unit,
+    onRateClick: (Int) -> Unit,
     onCastItemClick: (item: TraktCast) -> Unit,
     onSimilarShowClick: (item: TraktRelatedShows) -> Unit,
     onRetry: () -> Unit,
@@ -272,10 +295,14 @@ fun DetailArea(
 
                 ShowDetailButtons(
                     isAuthorizedOnTrakt = isAuthorizedOnTrakt,
-                    isFavorite = isFavorite,
-                    isLoading = isFavoriteLoading,
+                    isWatchlist = isWatchlist,
+                    isLoading = isWatchlistLoading,
+                    isRating = uiState.isRating,
+                    userRating = uiState.userRating,
                     onSeasonsClick = onSeasonsClick,
-                    onFavoriteClick = onFavoriteClick,
+                    onWatchlistClick = onWatchlistClick,
+                    onRateClick = onRateClick,
+                    widthSizeClass = windowSizeClass,
                 )
             }
         } else if (showDetailArgs.showImageUrl != null || showDetailArgs.showBackgroundUrl != null) {
@@ -285,7 +312,7 @@ fun DetailArea(
 
         showRating?.let { ratingData ->
             if (ratingData.votes != 0) {
-                TraktRatingSummary(ratingData)
+                TraktRatingSummary(ratingData, userRating = uiState.userRating)
                 Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
             }
         }
@@ -316,21 +343,33 @@ fun DetailArea(
 @Composable
 fun ShowDetailButtons(
     isAuthorizedOnTrakt: Boolean?,
-    isFavorite: Boolean?,
+    isWatchlist: Boolean?,
     isLoading: Boolean,
+    isRating: Boolean = false,
+    userRating: Int? = null,
     onSeasonsClick: () -> Unit,
-    onFavoriteClick: () -> Unit,
+    onWatchlistClick: () -> Unit,
+    onRateClick: (Int) -> Unit = {},
+    widthSizeClass: WindowWidthSizeClass = WindowWidthSizeClass.Compact,
 ) {
+    var showRatingSheet by rememberSaveable { mutableStateOf(false) }
+    val buttonSpacing = if (widthSizeClass == WindowWidthSizeClass.Expanded) 24.dp else 16.dp
+    val rowModifier =
+        if (widthSizeClass == WindowWidthSizeClass.Expanded) {
+            Modifier.fillMaxWidth(0.7f)
+        } else {
+            Modifier.fillMaxWidth()
+        }
+
     Row(
         modifier =
-            Modifier
-                .fillMaxWidth()
+            rowModifier
                 .padding(
                     horizontal = dimensionResource(id = R.dimen.padding_standard_double),
                     vertical = dimensionResource(id = R.dimen.padding_standard),
                 )
                 .height(IntrinsicSize.Min),
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(buttonSpacing),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         androidx.compose.material3.OutlinedButton(
@@ -342,36 +381,92 @@ fun ShowDetailButtons(
         if (isAuthorizedOnTrakt == true) {
             if (isLoading) {
                 Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                    androidx.compose.material3.CircularProgressIndicator(
+                    CircularProgressIndicator(
                         modifier = Modifier.size(24.dp),
                         strokeWidth = 2.dp,
                         color = MaterialTheme.colorScheme.primary,
                     )
                 }
             } else {
-                Button(
-                    onClick = { onFavoriteClick() },
-                    modifier = Modifier.weight(1f).fillMaxHeight(),
-                ) {
-                    Icon(
-                        imageVector =
-                            if (isFavorite == true) {
+                if (isWatchlist == true) {
+                    androidx.compose.material3.OutlinedButton(
+                        onClick = { onWatchlistClick() },
+                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                    ) {
+                        Icon(
+                            imageVector =
                                 androidx.compose.ui.graphics.vector.ImageVector.vectorResource(
                                     id = R.drawable.ic_watchlist_remove,
-                                )
-                            } else {
-                                androidx.compose.ui.graphics.vector.ImageVector.vectorResource(id = R.drawable.ic_watchlist_add)
-                            },
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp),
+                                ),
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "Listed",
+                            maxLines = 1,
+                        )
+                    }
+                } else {
+                    Button(
+                        onClick = { onWatchlistClick() },
+                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                    ) {
+                        Icon(
+                            imageVector = androidx.compose.ui.graphics.vector.ImageVector.vectorResource(id = R.drawable.ic_watchlist_add),
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "List",
+                            maxLines = 1,
+                        )
+                    }
+                }
+            }
+
+            // Rate button
+            if (isRating) {
+                Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 2.dp,
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
+                }
+            } else {
+                androidx.compose.material3.OutlinedButton(
+                    onClick = { showRatingSheet = true },
+                    modifier =
+                        Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .testTag("rate_show_button"),
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Star,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                        tint = RatingStarColor,
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = if (isFavorite == true) "Remove from Watchlist" else "Add to Watchlist",
+                        text = if (userRating != null) "$userRating★" else "Rate",
                     )
                 }
             }
         }
+    }
+
+    if (showRatingSheet) {
+        RatingBottomSheet(
+            currentRating = userRating,
+            onDismiss = { showRatingSheet = false },
+            onRate = { selectedRating ->
+                showRatingSheet = false
+                onRateClick(selectedRating)
+            },
+        )
     }
 }
 
@@ -694,7 +789,10 @@ fun EpisodeSummary(summary: String) {
 }
 
 @Composable
-fun TraktRatingSummary(rating: TraktShowRating) {
+fun TraktRatingSummary(
+    rating: TraktShowRating,
+    userRating: Int? = null,
+) {
     val paddingStandardDouble = dimensionResource(id = R.dimen.padding_standard_double)
     val paddingExtraSmall = dimensionResource(id = R.dimen.padding_extra_small)
 
@@ -747,7 +845,103 @@ fun TraktRatingSummary(rating: TraktShowRating) {
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                 )
+
+                if (userRating != null) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "·",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "You: $userRating★",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = RatingStarColor,
+                    )
+                }
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun RatingBottomSheet(
+    currentRating: Int?,
+    onDismiss: () -> Unit,
+    onRate: (Int) -> Unit,
+) {
+    val sheetState = rememberModalBottomSheetState()
+    var selectedRating by remember { mutableIntStateOf(currentRating ?: 0) }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+    ) {
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(
+                text = "Rate This Show",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = if (selectedRating > 0) "$selectedRating / 10" else "Tap a star",
+                style = MaterialTheme.typography.titleMedium,
+                color = if (selectedRating > 0) RatingStarColor else MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Star row — 10 tappable stars
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+            ) {
+                for (i in 1..10) {
+                    IconButton(
+                        onClick = { selectedRating = i },
+                        modifier = Modifier.size(36.dp),
+                    ) {
+                        Icon(
+                            imageVector =
+                                if (i <= selectedRating) {
+                                    Icons.Filled.Star
+                                } else {
+                                    Icons.Outlined.Star
+                                },
+                            contentDescription = "Rate $i",
+                            tint = if (i <= selectedRating) RatingStarColor else RatingStarUnselected,
+                            modifier = Modifier.size(28.dp),
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Button(
+                onClick = { onRate(selectedRating) },
+                enabled = selectedRating > 0,
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .testTag("submit_rating_button"),
+            ) {
+                Text(text = "Submit Rating")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }

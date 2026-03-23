@@ -32,7 +32,6 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 import org.mockito.kotlin.mock
-import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
@@ -52,7 +51,7 @@ class TraktRepositoryImplTest {
         whenever(traktDao.getTraktTrending()).thenReturn(flowOf(emptyList()))
         whenever(traktDao.getTraktPopular()).thenReturn(flowOf(emptyList()))
         whenever(traktDao.getTraktMostAnticipated()).thenReturn(flowOf(emptyList()))
-        whenever(traktDao.getFavoriteShows()).thenReturn(flowOf(emptyList()))
+        whenever(traktDao.getWatchlistShows()).thenReturn(flowOf(emptyList()))
 
         repository =
             TraktRepositoryImpl(
@@ -110,70 +109,15 @@ class TraktRepositoryImplTest {
     }
 
     @Test
-    fun refreshWatchlist_syncsDiffFromNativeWatchlist() {
+    fun refreshWatchlist_delegatesToAccountDataSource() {
         runBlocking {
             val token = "test_token"
-            val showIds =
-                com.theupnextapp.network.models.trakt.NetworkTraktWatchlistResponseItemShowIds(
-                    imdb = "tt123",
-                    slug = "slug",
-                    tmdb = 303,
-                    trakt = 101,
-                    tvdb = 202,
-                    tvMazeID = 404,
-                )
-            val show =
-                com.theupnextapp.network.models.trakt.NetworkTraktWatchlistResponseItemShow(
-                    ids = showIds,
-                    title = "Test Show",
-                    year = 2024,
-                    network = null,
-                    status = null,
-                    rating = null,
-                )
-            val item =
-                com.theupnextapp.network.models.trakt.NetworkTraktWatchlistResponseItem(
-                    id = 1L,
-                    listedAt = "2024-01-01T00:00:00Z",
-                    notes = "notes",
-                    rank = 1,
-                    show = show,
-                    type = "show",
-                )
-            val responseList = com.theupnextapp.network.models.trakt.NetworkTraktWatchlistResponse()
-            responseList.add(item)
-
-            whenever(traktAccountDataSource.getWatchlist(token)).thenReturn(Result.success(responseList))
-            whenever(traktAccountDataSource.getImages("tt123")).thenReturn(Triple(12345, "https://poster.jpg", "https://hero.jpg"))
-            // Local DB has show 101 (from API) + stale show 999 (removed on Trakt)
-            whenever(traktDao.getAllFavoriteShowTraktIds()).thenReturn(listOf(101, 999))
+            whenever(traktAccountDataSource.refreshWatchlistShows(token)).thenReturn(Result.success(Unit))
 
             val result = repository.refreshWatchlist(token)
 
             assert(result.isSuccess)
-            // Verify NO destructive deleteAll
-            verify(traktDao, never()).deleteAllFavoriteShows()
-            // Verify upsert
-            val expectedShow =
-                com.theupnextapp.database.DatabaseFavoriteShows(
-                    id = 101,
-                    title = "Test Show",
-                    year = "2024",
-                    mediumImageUrl = "https://hero.jpg",
-                    originalImageUrl = "https://poster.jpg",
-                    imdbID = "tt123",
-                    slug = "slug",
-                    tmdbID = 303,
-                    traktID = 101,
-                    tvdbID = 202,
-                    tvMazeID = 12345,
-                    network = null,
-                    status = null,
-                    rating = null,
-                )
-            verify(traktDao).insertAllFavoriteShows(expectedShow)
-            // Verify stale show 999 is pruned
-            verify(traktDao).deleteFavoriteShowsByTraktIds(listOf(999))
+            verify(traktAccountDataSource).refreshWatchlistShows(token)
         }
     }
 
@@ -187,8 +131,8 @@ class TraktRepositoryImplTest {
 
             repository.addToWatchlist(traktId, imdbID, token)
             verify(traktAccountDataSource).addToWatchlist(traktId, token)
-            // No local insert — worker calls refreshWatchlist() afterward
-            verify(traktDao, never()).insertFavoriteShow(org.mockito.kotlin.any())
+            // Verify optimistic local insert
+            verify(traktDao).insertWatchlistShow(org.mockito.kotlin.any())
         }
     }
 
@@ -202,7 +146,7 @@ class TraktRepositoryImplTest {
             repository.removeFromWatchlist(traktId, token)
             verify(traktAccountDataSource).removeFromWatchlist(traktId, token)
             // Verify optimistic local delete
-            verify(traktDao).deleteFavoriteShowByTraktId(traktId)
+            verify(traktDao).deleteWatchlistShowByTraktId(traktId)
         }
     }
 
@@ -211,27 +155,21 @@ class TraktRepositoryImplTest {
         runBlocking {
             val result = repository.refreshWatchlist("")
             assert(result.isFailure)
-            verify(traktAccountDataSource, never()).getWatchlist(org.mockito.kotlin.any())
+            verify(traktAccountDataSource, org.mockito.kotlin.never()).getWatchlist(org.mockito.kotlin.any())
         }
     }
 
     @Test
-    fun refreshWatchlist_emptyApiResponse_prunesAllLocal() {
+    fun refreshWatchlist_delegatesToDataSource() {
         runBlocking {
             val token = "test_token"
-            val emptyResponse = com.theupnextapp.network.models.trakt.NetworkTraktWatchlistResponse()
 
-            whenever(traktAccountDataSource.getWatchlist(token)).thenReturn(Result.success(emptyResponse))
-            // Pre-migration setup
-            whenever(traktAccountDataSource.migrateFavoritesToWatchlist(token)).thenReturn(Result.success(Unit))
-            // Local DB has 2 stale shows
-            whenever(traktDao.getAllFavoriteShowTraktIds()).thenReturn(listOf(101, 202))
+            whenever(traktAccountDataSource.refreshWatchlistShows(token)).thenReturn(Result.success(Unit))
 
             val result = repository.refreshWatchlist(token)
 
             assert(result.isSuccess)
-            // Empty API = all local shows are stale, should be pruned
-            verify(traktDao).deleteFavoriteShowsByTraktIds(listOf(101, 202))
+            verify(traktAccountDataSource).refreshWatchlistShows(token)
         }
     }
 
@@ -247,7 +185,7 @@ class TraktRepositoryImplTest {
             val result = repository.addToWatchlist(traktId, imdbID, token)
 
             assert(result.isFailure)
-            verify(traktDao, never()).insertFavoriteShow(org.mockito.kotlin.any())
+            verify(traktDao, org.mockito.kotlin.never()).insertWatchlistShow(org.mockito.kotlin.any())
         }
     }
 }

@@ -24,7 +24,7 @@ import com.theupnextapp.core.designsystem.ui.ReferenceDevices
 import com.theupnextapp.ui.components.EmptyState
 
 @Composable
-fun EmptyFavoritesContent(modifier: Modifier = Modifier) {
+fun EmptyWatchlistContent(modifier: Modifier = Modifier) {
     EmptyState(
         icon = Icons.Default.BookmarkBorder,
         title = stringResource(id = R.string.trakt_no_favorites_message),
@@ -35,6 +35,6 @@ fun EmptyFavoritesContent(modifier: Modifier = Modifier) {
 
 @ReferenceDevices()
 @Composable
-fun EmptyStateFavoritesListPreview() {
-    EmptyFavoritesContent()
+fun EmptyStateWatchlistListPreview() {
+    EmptyWatchlistContent()
 }

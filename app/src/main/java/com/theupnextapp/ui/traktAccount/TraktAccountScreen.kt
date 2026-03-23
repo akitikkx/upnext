@@ -32,6 +32,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator // Changed from Linear
@@ -43,8 +45,10 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -59,6 +63,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.theupnextapp.R
@@ -91,13 +98,33 @@ fun TraktAccountScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val traktAuthState by viewModel.traktAuthState.collectAsStateWithLifecycle()
     val isAuthorizedOnTrakt by viewModel.isAuthorizedOnTrakt.collectAsStateWithLifecycle()
-    val favoriteShowsList by viewModel.favoriteShows.collectAsStateWithLifecycle()
+    val watchlistShowsList by viewModel.watchlistShows.collectAsStateWithLifecycle()
     val isLoadingConnection by viewModel.isLoadingConnection.collectAsStateWithLifecycle()
-    val isLoadingFavorites by viewModel.isLoadingFavoriteShows.collectAsStateWithLifecycle()
-    val favoriteShowsError by viewModel.favoriteShowsError.collectAsStateWithLifecycle()
-    val isFavoriteShowsEmpty by viewModel.favoriteShowsEmpty.collectAsStateWithLifecycle()
+    val isLoadingWatchlists by viewModel.isLoadingWatchlistShows.collectAsStateWithLifecycle()
+    val watchlistShowsError by viewModel.watchlistShowsError.collectAsStateWithLifecycle()
+    val isWatchlistShowsEmpty by viewModel.watchlistShowsEmpty.collectAsStateWithLifecycle()
     val watchlistSearchQuery by viewModel.watchlistSearchQuery.collectAsStateWithLifecycle()
     val watchlistSortOption by viewModel.watchlistSortOption.collectAsStateWithLifecycle()
+    val isPullRefreshing by viewModel.isPullRefreshing.collectAsStateWithLifecycle()
+
+    val onRefreshWatchlist = {
+        viewModel.onRefreshWatchlist()
+    }
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    DisposableEffect(lifecycleOwner) {
+        val observer =
+            LifecycleEventObserver { _, event ->
+                if (event == Lifecycle.Event.ON_RESUME) {
+                    viewModel.onSilentRefreshWatchlist()
+                }
+            }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     LaunchedEffect(viewModel, context) {
         viewModel.openCustomTab.collect { url ->
@@ -138,12 +165,12 @@ fun TraktAccountScreen(
         }
     }
 
-    // Show favorite shows error snackbar
-    LaunchedEffect(favoriteShowsError) {
-        favoriteShowsError?.let { error ->
+    // Show watchlist shows error snackbar
+    LaunchedEffect(watchlistShowsError) {
+        watchlistShowsError?.let { error ->
             scope.launch {
                 snackbarHostState.showSnackbar(
-                    message = "Error loading favorites: $error",
+                    message = "Error loading watchlists: $error",
                     duration = SnackbarDuration.Long,
                 )
             }
@@ -163,23 +190,25 @@ fun TraktAccountScreen(
         ) {
             AccountContent(
                 traktAuthState = traktAuthState,
-                favoriteShowsList = favoriteShowsList,
-                isFavoriteShowsEmpty = isFavoriteShowsEmpty,
+                watchlistShowsList = watchlistShowsList,
+                isWatchlistShowsEmpty = isWatchlistShowsEmpty,
                 isLoadingConnection = isLoadingConnection,
-                isLoadingFavorites = isLoadingFavorites,
+                isLoadingWatchlists = isLoadingWatchlists,
+                isPullRefreshing = isPullRefreshing,
                 isDisconnecting = uiState.isDisconnecting,
                 watchlistSearchQuery = watchlistSearchQuery,
                 watchlistSortOption = watchlistSortOption,
                 watchlistLazyListState = watchlistLazyListState,
                 onSearchQueryChange = viewModel::onSearchQueryChange,
                 onSortOptionChange = viewModel::onSortOptionChange,
+                onRefreshWatchlist = onRefreshWatchlist,
                 onConnectToTraktClick = {
                     viewModel.onConnectToTraktClick()
                 },
-                onFavoriteClick = { item ->
+                onWatchlistClick = { item ->
                     navController.navigate(
                         Destinations.ShowDetail(
-                            source = "favorites",
+                            source = "watchlists",
                             showId = item.tvMazeID.toString(),
                             showTitle = item.title,
                             showImageUrl = item.originalImageUrl,
@@ -214,18 +243,20 @@ fun TraktAccountScreen(
 @Composable
 internal fun AccountContent(
     traktAuthState: TraktAuthState,
-    favoriteShowsList: List<TraktUserListItem>,
-    isFavoriteShowsEmpty: Boolean,
+    watchlistShowsList: List<TraktUserListItem>,
+    isWatchlistShowsEmpty: Boolean,
     isLoadingConnection: Boolean,
-    isLoadingFavorites: Boolean,
+    isLoadingWatchlists: Boolean,
     isDisconnecting: Boolean,
     watchlistSearchQuery: String,
     watchlistSortOption: WatchlistSortOption,
     watchlistLazyListState: androidx.compose.foundation.lazy.LazyListState,
+    isPullRefreshing: Boolean,
     onSearchQueryChange: (String) -> Unit,
     onSortOptionChange: (WatchlistSortOption) -> Unit,
+    onRefreshWatchlist: () -> Unit,
     onConnectToTraktClick: () -> Unit,
-    onFavoriteClick: (item: TraktUserListItem) -> Unit,
+    onWatchlistClick: (item: TraktUserListItem) -> Unit,
     onRemoveItem: (item: TraktUserListItem) -> Unit,
     onLogoutClick: () -> Unit,
 ) {
@@ -251,33 +282,47 @@ internal fun AccountContent(
                 }
 
                 TraktAuthState.LoggedIn -> {
-                    if (!isLoadingFavorites && !isFavoriteShowsEmpty) {
-                        WatchlistListContent(
-                            watchlistItems = favoriteShowsList,
-                            watchlistSearchQuery = watchlistSearchQuery,
-                            watchlistSortOption = watchlistSortOption,
-                            lazyListState = watchlistLazyListState,
-                            onSearchQueryChange = onSearchQueryChange,
-                            onSortOptionChange = onSortOptionChange,
-                            modifier = Modifier.weight(1f),
-                            header = {
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    TraktProfileHeader(onLogoutClick = onLogoutClick)
-                                    Spacer(modifier = Modifier.height(16.dp))
-                                }
-                            },
-                            onItemClick = onFavoriteClick,
-                            onRemoveItem = onRemoveItem,
-                        )
-                    } else {
-                        TraktProfileHeader(onLogoutClick = onLogoutClick)
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        if (isLoadingFavorites) {
-                            CircularProgressIndicator(modifier = Modifier.padding(16.dp))
-                            Text(text = stringResource(R.string.trakt_loading_favorites))
+                    PullToRefreshBox(
+                        isRefreshing = isPullRefreshing,
+                        onRefresh = onRefreshWatchlist,
+                        modifier = Modifier.weight(1f).fillMaxWidth(),
+                    ) {
+                        if (!isLoadingWatchlists && !isWatchlistShowsEmpty) {
+                            WatchlistListContent(
+                                watchlistItems = watchlistShowsList,
+                                watchlistSearchQuery = watchlistSearchQuery,
+                                watchlistSortOption = watchlistSortOption,
+                                lazyListState = watchlistLazyListState,
+                                onSearchQueryChange = onSearchQueryChange,
+                                onSortOptionChange = onSortOptionChange,
+                                modifier = Modifier.fillMaxSize(),
+                                header = {
+                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                        TraktProfileHeader(onLogoutClick = onLogoutClick)
+                                        Spacer(modifier = Modifier.height(16.dp))
+                                    }
+                                },
+                                onItemClick = onWatchlistClick,
+                                onRemoveItem = onRemoveItem,
+                            )
                         } else {
-                            EmptyFavoritesContent()
+                            Column(
+                                modifier =
+                                    Modifier
+                                        .fillMaxSize()
+                                        .verticalScroll(rememberScrollState()),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                            ) {
+                                TraktProfileHeader(onLogoutClick = onLogoutClick)
+                                Spacer(modifier = Modifier.height(16.dp))
+
+                                if (isLoadingWatchlists && !isPullRefreshing) {
+                                    CircularProgressIndicator(modifier = Modifier.padding(16.dp))
+                                    Text(text = stringResource(R.string.trakt_loading_favorites))
+                                } else {
+                                    EmptyWatchlistContent()
+                                }
+                            }
                         }
                     }
                 }
@@ -360,7 +405,7 @@ fun ConnectToTrakt(onClick: () -> Unit) {
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "Connect your Trakt account to automatically track your watch progress, sync your history securely, and manage your favorites seamlessly.",
+                    text = "Connect your Trakt account to automatically track your watch progress, sync your history securely, and manage your watchlists seamlessly.",
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),

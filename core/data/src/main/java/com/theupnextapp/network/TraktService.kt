@@ -38,6 +38,8 @@ import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktPersonResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktPersonShowCreditsResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktPopularShowsResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktRatingRequest
+import com.theupnextapp.network.models.trakt.NetworkTraktUserRatingResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktRemoveShowFromListRequest
 import com.theupnextapp.network.models.trakt.NetworkTraktRemoveShowFromListResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktRevokeAccessTokenRequest
@@ -185,6 +187,17 @@ interface TraktService {
     fun cancelCheckInAsync(
         @Header("Authorization") token: String,
     ): Deferred<retrofit2.Response<Unit>>
+
+    @POST("sync/ratings")
+    fun rateShowAsync(
+        @Header("Authorization") token: String,
+        @Body request: NetworkTraktRatingRequest,
+    ): Deferred<retrofit2.Response<Unit>>
+
+    @GET("sync/ratings/shows")
+    fun getUserShowRatingsAsync(
+        @Header("Authorization") token: String,
+    ): Deferred<List<NetworkTraktUserRatingResponse>>
 
     @POST("sync/history")
     fun addToHistoryAsync(

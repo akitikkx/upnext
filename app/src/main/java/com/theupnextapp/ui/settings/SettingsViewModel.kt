@@ -70,7 +70,7 @@ class SettingsViewModel
             viewModelScope.launch {
                 traktAccessToken.value?.let { token ->
                     traktRepository.revokeTraktAccessToken(token)
-                    traktRepository.clearFavorites()
+                    traktRepository.clearWatchlist()
                 }
             }
         }

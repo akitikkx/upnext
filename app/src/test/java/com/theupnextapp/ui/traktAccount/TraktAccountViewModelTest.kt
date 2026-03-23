@@ -62,63 +62,63 @@ class TraktAccountViewModelTest {
     }
 
     @Test
-    fun `favoriteShows initialization observes from repository mapped states`() {
-        val state = viewModel.favoriteShows.value
+    fun `watchlistShows initialization observes from repository mapped states`() {
+        val state = viewModel.watchlistShows.value
         assert(state.isEmpty())
-        assert(viewModel.favoriteShowsEmpty.value)
+        assert(viewModel.watchlistShowsEmpty.value)
     }
 
     @Test
-    fun `favoriteShows emits filtered list when search query changes`() =
+    fun `watchlistShows emits filtered list when search query changes`() =
         runTest {
             val mockShows =
                 listOf(
                     TraktUserListItem(id = 1, traktID = 1, title = "The Boys", originalImageUrl = "", mediumImageUrl = "", imdbID = "", slug = "", tmdbID = 1, tvdbID = 1, tvMazeID = 1, year = "", network = null, status = null, rating = null),
                     TraktUserListItem(id = 2, traktID = 2, title = "Kaos", originalImageUrl = "", mediumImageUrl = "", imdbID = "", slug = "", tmdbID = 2, tvdbID = 2, tvMazeID = 2, year = "", network = null, status = null, rating = null),
                 )
-            traktRepository.setFavoriteShows(mockShows)
+            traktRepository.setWatchlistShows(mockShows)
 
             viewModel = TraktAccountViewModel(traktRepository, workManager, traktAuthManager)
 
-            val job = launch { viewModel.favoriteShows.collect {} }
+            val job = launch { viewModel.watchlistShows.collect {} }
             advanceUntilIdle() // let stateIn initialize
 
             viewModel.onSearchQueryChange("Kaos")
             advanceUntilIdle()
 
-            assert(viewModel.favoriteShows.value.size == 1)
-            assert(viewModel.favoriteShows.value.first().title == "Kaos")
+            assert(viewModel.watchlistShows.value.size == 1)
+            assert(viewModel.watchlistShows.value.first().title == "Kaos")
 
             job.cancel()
         }
 
     @Test
-    fun `favoriteShows emits sorted list when sort option changes`() =
+    fun `watchlistShows emits sorted list when sort option changes`() =
         runTest {
             val mockShows =
                 listOf(
                     TraktUserListItem(id = 1, traktID = 1, title = "Zebra", year = "2020", originalImageUrl = "", mediumImageUrl = "", imdbID = "", slug = "", tmdbID = 1, tvdbID = 1, tvMazeID = 1, network = null, status = null, rating = null),
                     TraktUserListItem(id = 2, traktID = 2, title = "Apple", year = "2024", originalImageUrl = "", mediumImageUrl = "", imdbID = "", slug = "", tmdbID = 2, tvdbID = 2, tvMazeID = 2, network = null, status = null, rating = null),
                 )
-            traktRepository.setFavoriteShows(mockShows)
+            traktRepository.setWatchlistShows(mockShows)
 
             viewModel = TraktAccountViewModel(traktRepository, workManager, traktAuthManager)
 
-            val job = launch { viewModel.favoriteShows.collect {} }
+            val job = launch { viewModel.watchlistShows.collect {} }
             advanceUntilIdle()
 
             viewModel.onSortOptionChange(WatchlistSortOption.TITLE)
             advanceUntilIdle()
 
-            assert(viewModel.favoriteShows.value.size == 2)
-            assert(viewModel.favoriteShows.value[0].title == "Apple")
-            assert(viewModel.favoriteShows.value[1].title == "Zebra")
+            assert(viewModel.watchlistShows.value.size == 2)
+            assert(viewModel.watchlistShows.value[0].title == "Apple")
+            assert(viewModel.watchlistShows.value[1].title == "Zebra")
 
             viewModel.onSortOptionChange(WatchlistSortOption.RELEASE_YEAR)
             advanceUntilIdle()
 
-            assert(viewModel.favoriteShows.value[0].year == "2024")
-            assert(viewModel.favoriteShows.value[1].year == "2020")
+            assert(viewModel.watchlistShows.value[0].year == "2024")
+            assert(viewModel.watchlistShows.value[1].year == "2020")
 
             job.cancel()
         }

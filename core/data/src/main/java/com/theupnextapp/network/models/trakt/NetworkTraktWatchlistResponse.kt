@@ -48,3 +48,22 @@ data class NetworkTraktWatchlistResponseItemShowIds(
     @SerializedName("tvrage")
     val tvMazeID: Int?
 )
+
+fun NetworkTraktWatchlistResponseItem.asDatabaseModel(): com.theupnextapp.database.DatabaseWatchlistShows {
+    return com.theupnextapp.database.DatabaseWatchlistShows(
+        id = id.toInt(),
+        title = show.title,
+        slug = show.ids.slug,
+        year = show.year?.toString(),
+        imdbID = show.ids.imdb,
+        tvdbID = show.ids.tvdb,
+        tmdbID = show.ids.tmdb,
+        traktID = show.ids.trakt,
+        tvMazeID = show.ids.tvMazeID,
+        rating = show.rating,
+        network = show.network,
+        status = show.status,
+        originalImageUrl = null,
+        mediumImageUrl = null
+    )
+}

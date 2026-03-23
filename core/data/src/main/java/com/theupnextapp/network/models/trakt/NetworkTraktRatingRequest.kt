@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Ahmed Tikiwa
+ * Copyright (c) 2026 Ahmed Tikiwa
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
  * associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -19,32 +19,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.theupnextapp.database
+package com.theupnextapp.network.models.trakt
 
-import androidx.room.Database
-import androidx.room.RoomDatabase
+import com.google.gson.annotations.SerializedName
 
-@Database(
-    entities = [
-        DatabaseYesterdaySchedule::class,
-        DatabaseTodaySchedule::class,
-        DatabaseTomorrowSchedule::class,
-        DatabaseShowInfo::class,
-        DatabaseTableUpdate::class,
-        DatabaseTraktPopularShows::class,
-        DatabaseTraktTrendingShows::class,
-        DatabaseTraktMostAnticipated::class,
-        DatabaseWatchlistShows::class,
-        DatabaseTraktAccess::class,
-        DatabaseWatchedEpisode::class,
-        DatabaseRecentSearch::class,
-    ],
-    version = 33,
-    exportSchema = true,
+data class NetworkTraktRatingRequest(
+    @SerializedName("shows") val shows: List<NetworkTraktRatingShow>,
 )
-abstract class UpnextDatabase : RoomDatabase() {
-    abstract val upnextDao: UpnextDao
-    abstract val traktDao: TraktDao
-    abstract val tvMazeDao: TvMazeDao
-    abstract val recentSearchDao: RecentSearchDao
-}
+
+data class NetworkTraktRatingShow(
+    @SerializedName("rating") val rating: Int,
+    @SerializedName("ids") val ids: NetworkTraktRatingShowIds,
+)
+
+data class NetworkTraktRatingShowIds(
+    @SerializedName("imdb") val imdb: String?,
+)

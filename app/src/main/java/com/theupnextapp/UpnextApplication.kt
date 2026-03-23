@@ -46,7 +46,7 @@ import com.theupnextapp.domain.isTraktAccessTokenValid
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.work.BaseWorker
 import com.theupnextapp.work.RefreshDashboardShowsWorker
-import com.theupnextapp.work.RefreshFavoriteShowsWorker
+import com.theupnextapp.work.RefreshWatchlistWorker
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -138,7 +138,7 @@ class UpnextApplication : Application(), Configuration.Provider {
     private fun initializeBackgroundTasks() {
         applicationScope.launch {
             val workManager = WorkManager.getInstance(applicationContext)
-            setupFavoriteShowsWorker(workManager)
+            setupWatchlistWorker(workManager)
             setupDashboardWorker(workManager)
             setupNotificationWorker(workManager)
         }
@@ -163,7 +163,7 @@ class UpnextApplication : Application(), Configuration.Provider {
         Timber.tag("UpnextApplication").d("Enqueued ${com.theupnextapp.work.NotificationWorker.WORK_NAME}")
     }
 
-    private fun setupFavoriteShowsWorker(workManager: WorkManager) {
+    private fun setupWatchlistWorker(workManager: WorkManager) {
         val traktAccessTokenDomain: TraktAccessToken? =
             try {
                 // Explicit type for clarity
@@ -199,13 +199,13 @@ class UpnextApplication : Application(), Configuration.Provider {
             val workerData =
                 Data.Builder()
                     .putString(
-                        RefreshFavoriteShowsWorker.ARG_TOKEN,
+                        RefreshWatchlistWorker.ARG_TOKEN,
                         traktAccessTokenDomain.access_token,
                     )
                     .build()
 
             val refreshFavoriteShowsRequest =
-                PeriodicWorkRequestBuilder<RefreshFavoriteShowsWorker>(
+                PeriodicWorkRequestBuilder<RefreshWatchlistWorker>(
                     TableUpdateInterval.TRAKT_FAVORITE_SHOWS.intervalMins,
                     TimeUnit.MINUTES,
                 )
@@ -216,23 +216,23 @@ class UpnextApplication : Application(), Configuration.Provider {
                     .build()
 
             workManager.enqueueUniquePeriodicWork(
-                RefreshFavoriteShowsWorker.WORK_NAME,
+                RefreshWatchlistWorker.WORK_NAME,
                 ExistingPeriodicWorkPolicy.KEEP,
                 refreshFavoriteShowsRequest,
             )
-            Timber.tag("UpnextApplication").d("Enqueued ${RefreshFavoriteShowsWorker.WORK_NAME}")
+            Timber.tag("UpnextApplication").d("Enqueued ${RefreshWatchlistWorker.WORK_NAME}")
         } else {
             Timber
                 .tag("UpnextApplication")
                 .i(
-                    "Skipping favorite shows worker setup: Invalid or missing Trakt token. " +
+                    "Skipping watchlist worker setup: Invalid or missing Trakt token. " +
                         "Token was: $traktAccessTokenDomain",
                 )
             // It's good practice to also cancel if the conditions aren't met,
             // especially if a previous valid token existed and the worker was enqueued.
-            workManager.cancelUniqueWork(RefreshFavoriteShowsWorker.WORK_NAME)
+            workManager.cancelUniqueWork(RefreshWatchlistWorker.WORK_NAME)
             Timber.tag("UpnextApplication")
-                .d("Cancelled ${RefreshFavoriteShowsWorker.WORK_NAME} due to invalid/missing token.")
+                .d("Cancelled ${RefreshWatchlistWorker.WORK_NAME} due to invalid/missing token.")
         }
     }
 
