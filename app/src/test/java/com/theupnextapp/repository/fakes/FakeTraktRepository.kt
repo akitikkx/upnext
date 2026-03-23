@@ -293,4 +293,16 @@ class FakeTraktRepository : TraktRepository {
     fun setMostAnticipatedShows(shows: List<TraktMostAnticipated>) {
         _traktMostAnticipatedShows.value = shows
     }
+
+    fun setLoadingTrending(loading: Boolean) {
+        _isLoadingTraktTrending.value = loading
+    }
+
+    fun setLoadingPopular(loading: Boolean) {
+        _isLoadingTraktPopular.value = loading
+    }
+
+    fun setLoadingMostAnticipated(loading: Boolean) {
+        _isLoadingTraktMostAnticipated.value = loading
+    }
 }
