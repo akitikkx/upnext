@@ -32,6 +32,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator // Changed from Linear
@@ -43,6 +45,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -98,6 +101,11 @@ fun TraktAccountScreen(
     val isWatchlistShowsEmpty by viewModel.watchlistShowsEmpty.collectAsStateWithLifecycle()
     val watchlistSearchQuery by viewModel.watchlistSearchQuery.collectAsStateWithLifecycle()
     val watchlistSortOption by viewModel.watchlistSortOption.collectAsStateWithLifecycle()
+    val isPullRefreshing by viewModel.isPullRefreshing.collectAsStateWithLifecycle()
+
+    val onRefreshWatchlist = {
+        viewModel.onRefreshWatchlist()
+    }
 
     LaunchedEffect(viewModel, context) {
         viewModel.openCustomTab.collect { url ->
@@ -167,12 +175,14 @@ fun TraktAccountScreen(
                 isWatchlistShowsEmpty = isWatchlistShowsEmpty,
                 isLoadingConnection = isLoadingConnection,
                 isLoadingWatchlists = isLoadingWatchlists,
+                isPullRefreshing = isPullRefreshing,
                 isDisconnecting = uiState.isDisconnecting,
                 watchlistSearchQuery = watchlistSearchQuery,
                 watchlistSortOption = watchlistSortOption,
                 watchlistLazyListState = watchlistLazyListState,
                 onSearchQueryChange = viewModel::onSearchQueryChange,
                 onSortOptionChange = viewModel::onSortOptionChange,
+                onRefreshWatchlist = onRefreshWatchlist,
                 onConnectToTraktClick = {
                     viewModel.onConnectToTraktClick()
                 },
@@ -222,8 +232,10 @@ internal fun AccountContent(
     watchlistSearchQuery: String,
     watchlistSortOption: WatchlistSortOption,
     watchlistLazyListState: androidx.compose.foundation.lazy.LazyListState,
+    isPullRefreshing: Boolean,
     onSearchQueryChange: (String) -> Unit,
     onSortOptionChange: (WatchlistSortOption) -> Unit,
+    onRefreshWatchlist: () -> Unit,
     onConnectToTraktClick: () -> Unit,
     onWatchlistClick: (item: TraktUserListItem) -> Unit,
     onRemoveItem: (item: TraktUserListItem) -> Unit,
@@ -251,33 +263,47 @@ internal fun AccountContent(
                 }
 
                 TraktAuthState.LoggedIn -> {
-                    if (!isLoadingWatchlists && !isWatchlistShowsEmpty) {
-                        WatchlistListContent(
-                            watchlistItems = watchlistShowsList,
-                            watchlistSearchQuery = watchlistSearchQuery,
-                            watchlistSortOption = watchlistSortOption,
-                            lazyListState = watchlistLazyListState,
-                            onSearchQueryChange = onSearchQueryChange,
-                            onSortOptionChange = onSortOptionChange,
-                            modifier = Modifier.weight(1f),
-                            header = {
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    TraktProfileHeader(onLogoutClick = onLogoutClick)
-                                    Spacer(modifier = Modifier.height(16.dp))
-                                }
-                            },
-                            onItemClick = onWatchlistClick,
-                            onRemoveItem = onRemoveItem,
-                        )
-                    } else {
-                        TraktProfileHeader(onLogoutClick = onLogoutClick)
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        if (isLoadingWatchlists) {
-                            CircularProgressIndicator(modifier = Modifier.padding(16.dp))
-                            Text(text = stringResource(R.string.trakt_loading_favorites))
+                    PullToRefreshBox(
+                        isRefreshing = isPullRefreshing,
+                        onRefresh = onRefreshWatchlist,
+                        modifier = Modifier.weight(1f).fillMaxWidth(),
+                    ) {
+                        if (!isLoadingWatchlists && !isWatchlistShowsEmpty) {
+                            WatchlistListContent(
+                                watchlistItems = watchlistShowsList,
+                                watchlistSearchQuery = watchlistSearchQuery,
+                                watchlistSortOption = watchlistSortOption,
+                                lazyListState = watchlistLazyListState,
+                                onSearchQueryChange = onSearchQueryChange,
+                                onSortOptionChange = onSortOptionChange,
+                                modifier = Modifier.fillMaxSize(),
+                                header = {
+                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                        TraktProfileHeader(onLogoutClick = onLogoutClick)
+                                        Spacer(modifier = Modifier.height(16.dp))
+                                    }
+                                },
+                                onItemClick = onWatchlistClick,
+                                onRemoveItem = onRemoveItem,
+                            )
                         } else {
-                            EmptyWatchlistContent()
+                            Column(
+                                modifier =
+                                    Modifier
+                                        .fillMaxSize()
+                                        .verticalScroll(rememberScrollState()),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                            ) {
+                                TraktProfileHeader(onLogoutClick = onLogoutClick)
+                                Spacer(modifier = Modifier.height(16.dp))
+
+                                if (isLoadingWatchlists && !isPullRefreshing) {
+                                    CircularProgressIndicator(modifier = Modifier.padding(16.dp))
+                                    Text(text = stringResource(R.string.trakt_loading_favorites))
+                                } else {
+                                    EmptyWatchlistContent()
+                                }
+                            }
                         }
                     }
                 }

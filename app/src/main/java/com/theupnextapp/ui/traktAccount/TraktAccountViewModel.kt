@@ -167,6 +167,20 @@ class TraktAccountViewModel
             }
         }
 
+        private val _isPullRefreshing = MutableStateFlow(false)
+        val isPullRefreshing: StateFlow<Boolean> = _isPullRefreshing.asStateFlow()
+
+        fun onRefreshWatchlist() {
+            viewModelScope.launch {
+                val token = traktAccessToken.value?.access_token
+                if (!token.isNullOrEmpty()) {
+                    _isPullRefreshing.value = true
+                    traktRepository.refreshWatchlist(token)
+                    _isPullRefreshing.value = false
+                }
+            }
+        }
+
         fun onConnectToTraktClick() {
             viewModelScope.launch {
                 _openCustomTab.send(TraktConstants.TRAKT_AUTH_URL)
