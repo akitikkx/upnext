@@ -774,6 +774,19 @@ class ShowDetailViewModel
                             AddToWatchlistWorker.ARG_TOKEN,
                             currentAccessToken.access_token,
                         )
+                        uiState.value.showSummary?.name?.let { workerDataBuilder.putString(AddToWatchlistWorker.ARG_TITLE, it) }
+                        uiState.value.showSummary?.originalImageUrl?.let {
+                            workerDataBuilder.putString(
+                                AddToWatchlistWorker.ARG_ORIGINAL_IMAGE_URL,
+                                it,
+                            )
+                        }
+                        uiState.value.showSummary?.mediumImageUrl?.let {
+                            workerDataBuilder.putString(
+                                AddToWatchlistWorker.ARG_MEDIUM_IMAGE_URL,
+                                it,
+                            )
+                        }
 
                         val addWatchlistWork =
                             OneTimeWorkRequest.Builder(AddToWatchlistWorker::class.java)

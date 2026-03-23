@@ -127,6 +127,9 @@ class FakeTraktRepository : TraktRepository {
         traktId: Int,
         imdbID: String,
         token: String,
+        title: String?,
+        originalImageUrl: String?,
+        mediumImageUrl: String?,
     ): kotlin.Result<Unit> = addToWatchlistResult
 
     var removeFromWatchlistResult: kotlin.Result<Unit> = kotlin.Result.success(Unit)

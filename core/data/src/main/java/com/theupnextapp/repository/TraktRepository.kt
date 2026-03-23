@@ -89,6 +89,9 @@ interface TraktRepository {
         traktId: Int,
         imdbID: String,
         token: String,
+        title: String? = null,
+        originalImageUrl: String? = null,
+        mediumImageUrl: String? = null,
     ): Result<Unit>
 
     suspend fun removeFromWatchlist(

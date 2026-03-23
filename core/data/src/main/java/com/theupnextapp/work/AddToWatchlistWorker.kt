@@ -55,6 +55,9 @@ constructor(
             val token = inputData.getString(ARG_TOKEN)
             val imdbID = inputData.getString(ARG_IMDB_ID)
             val traktId = inputData.getInt(ARG_TRAKT_ID, NOT_FOUND)
+            val title = inputData.getString(ARG_TITLE)
+            val originalImageUrl = inputData.getString(ARG_ORIGINAL_IMAGE_URL)
+            val mediumImageUrl = inputData.getString(ARG_MEDIUM_IMAGE_URL)
 
             if (token.isNullOrBlank()) {
                 Timber
@@ -82,7 +85,14 @@ constructor(
                 Timber
                     .tag(TAG)
                     .d("Adding show (Trakt ID: $traktId, IMDb ID: $imdbID) to watchlist.")
-                addShowToWatchlist(traktId = traktId, imdbID = imdbID, token = token)
+                addShowToWatchlist(
+                    traktId = traktId, 
+                    imdbID = imdbID, 
+                    token = token,
+                    title = title,
+                    originalImageUrl = originalImageUrl,
+                    mediumImageUrl = mediumImageUrl,
+                )
 
                 logSuccessToFirebase(imdbID)
                 Timber
@@ -106,6 +116,9 @@ constructor(
         traktId: Int,
         imdbID: String?,
         token: String,
+        title: String?,
+        originalImageUrl: String?,
+        mediumImageUrl: String?,
     ) {
         var resolvedTraktId = traktId
         if (resolvedTraktId == NOT_FOUND && !imdbID.isNullOrEmpty()) {
@@ -118,11 +131,13 @@ constructor(
                 traktId = resolvedTraktId,
                 imdbID = imdbID ?: "",
                 token = token,
+                title = title,
+                originalImageUrl = originalImageUrl,
+                mediumImageUrl = mediumImageUrl,
             )
             if (result.isSuccess) {
-                // Re-sync from the native Trakt watchlist to get full show data
-                // (title, images, metadata) into the local DB.
-                traktRepository.refreshWatchlist(token)
+                // DO NOT sync native Trakt watchlist here to avoid overwriting our optimistic insert
+                // with Trakt's heavily cached (and therefore outdated) empty list response.
             }
             Timber
                 .tag(TAG)
@@ -168,6 +183,9 @@ constructor(
         const val ARG_TOKEN = "arg_token"
         const val ARG_IMDB_ID = "arg_imdb_id"
         const val ARG_TRAKT_ID = "arg_trakt_id"
+        const val ARG_TITLE = "arg_title"
+        const val ARG_ORIGINAL_IMAGE_URL = "arg_original_image_url"
+        const val ARG_MEDIUM_IMAGE_URL = "arg_medium_image_url"
         const val NOT_FOUND = -1
 
         // Define a unique notification ID for this specific worker.

@@ -32,7 +32,6 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 import org.mockito.kotlin.mock
-import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
@@ -132,8 +131,8 @@ class TraktRepositoryImplTest {
 
             repository.addToWatchlist(traktId, imdbID, token)
             verify(traktAccountDataSource).addToWatchlist(traktId, token)
-            // No local insert — worker calls refreshWatchlist() afterward
-            verify(traktDao, never()).insertWatchlistShow(org.mockito.kotlin.any())
+            // Verify optimistic local insert
+            verify(traktDao).insertWatchlistShow(org.mockito.kotlin.any())
         }
     }
 

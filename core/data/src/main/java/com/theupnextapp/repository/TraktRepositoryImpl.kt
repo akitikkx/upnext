@@ -207,12 +207,37 @@ class TraktRepositoryImpl(
         traktId: Int,
         imdbID: String,
         token: String,
+        title: String?,
+        originalImageUrl: String?,
+        mediumImageUrl: String?,
     ): Result<Unit> {
         _isLoadingWatchlistShows.value = true
         _watchlistShowsError.value = null
 
         val result = traktAccountDataSource.addToWatchlist(traktId, token)
-        if (result.isFailure) {
+        if (result.isSuccess) {
+            // Optimistic local insert — immediate UI feedback bypasses Trakt caching delay
+            withContext(Dispatchers.IO) {
+                traktDao.insertWatchlistShow(
+                    com.theupnextapp.database.DatabaseWatchlistShows(
+                        id = traktId,
+                        traktID = traktId,
+                        imdbID = imdbID,
+                        title = title,
+                        originalImageUrl = originalImageUrl,
+                        mediumImageUrl = mediumImageUrl,
+                        year = null,
+                        tvMazeID = null,
+                        slug = null,
+                        tmdbID = null,
+                        tvdbID = null,
+                        network = null,
+                        status = null,
+                        rating = null
+                    )
+                )
+            }
+        } else {
             _watchlistShowsError.value = result.exceptionOrNull()?.message
         }
         _isLoadingWatchlistShows.value = false
