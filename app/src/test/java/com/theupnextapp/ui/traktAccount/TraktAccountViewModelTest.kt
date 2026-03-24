@@ -214,4 +214,90 @@ class TraktAccountViewModelTest {
             assert(traktRepository.removeFromWatchlistCallCount == 1)
             // The error is surfaced via favoriteShowsError in the repository
         }
+
+    @Test
+    fun `watchlistShows emits filtered list when status filter changes`() =
+        runTest {
+            val mockShows =
+                listOf(
+                    TraktUserListItem(id = 1, traktID = 1, title = "Shōgun", originalImageUrl = "", mediumImageUrl = "", imdbID = "", slug = "", tmdbID = 1, tvdbID = 1, tvMazeID = 1, year = "2024", network = "Hulu", status = "Returning Series", rating = 8.5),
+                    TraktUserListItem(id = 2, traktID = 2, title = "Game of Thrones", originalImageUrl = "", mediumImageUrl = "", imdbID = "", slug = "", tmdbID = 2, tvdbID = 2, tvMazeID = 2, year = "2011", network = "HBO", status = "Ended", rating = 9.3),
+                    TraktUserListItem(id = 3, traktID = 3, title = "The Boys", originalImageUrl = "", mediumImageUrl = "", imdbID = "", slug = "", tmdbID = 3, tvdbID = 3, tvMazeID = 3, year = "2019", network = "Prime Video", status = "Returning Series", rating = 8.4),
+                )
+            traktRepository.setWatchlistShows(mockShows)
+
+            viewModel = TraktAccountViewModel(traktRepository, workManager, traktAuthManager)
+
+            val job = launch { viewModel.watchlistShows.collect {} }
+            advanceUntilIdle()
+
+            viewModel.onStatusFilterChange("Returning Series")
+            advanceUntilIdle()
+
+            assert(viewModel.watchlistShows.value.size == 2) {
+                "Expected 2 returning shows, got ${viewModel.watchlistShows.value.size}"
+            }
+            assert(viewModel.watchlistShows.value.all { it.status == "Returning Series" })
+
+            job.cancel()
+        }
+
+    @Test
+    fun `availableStatuses derives unique sorted statuses from watchlist data`() =
+        runTest {
+            val mockShows =
+                listOf(
+                    TraktUserListItem(id = 1, traktID = 1, title = "Show A", originalImageUrl = "", mediumImageUrl = "", imdbID = "", slug = "", tmdbID = 1, tvdbID = 1, tvMazeID = 1, year = "", network = null, status = "Returning Series", rating = null),
+                    TraktUserListItem(id = 2, traktID = 2, title = "Show B", originalImageUrl = "", mediumImageUrl = "", imdbID = "", slug = "", tmdbID = 2, tvdbID = 2, tvMazeID = 2, year = "", network = null, status = "Ended", rating = null),
+                    TraktUserListItem(id = 3, traktID = 3, title = "Show C", originalImageUrl = "", mediumImageUrl = "", imdbID = "", slug = "", tmdbID = 3, tvdbID = 3, tvMazeID = 3, year = "", network = null, status = "Returning Series", rating = null),
+                    TraktUserListItem(id = 4, traktID = 4, title = "Show D", originalImageUrl = "", mediumImageUrl = "", imdbID = "", slug = "", tmdbID = 4, tvdbID = 4, tvMazeID = 4, year = "", network = null, status = null, rating = null),
+                )
+            traktRepository.setWatchlistShows(mockShows)
+
+            viewModel = TraktAccountViewModel(traktRepository, workManager, traktAuthManager)
+
+            val job = launch { viewModel.availableStatuses.collect {} }
+            advanceUntilIdle()
+
+            val statuses = viewModel.availableStatuses.value
+            assert(statuses.size == 2) { "Expected 2 unique statuses, got ${statuses.size}: $statuses" }
+            assert(statuses == listOf("Ended", "Returning Series")) { "Expected sorted statuses, got $statuses" }
+
+            job.cancel()
+        }
+
+    @Test
+    fun `status filter and sort combine correctly`() =
+        runTest {
+            val mockShows =
+                listOf(
+                    TraktUserListItem(id = 1, traktID = 1, title = "Zebra Show", originalImageUrl = "", mediumImageUrl = "", imdbID = "", slug = "", tmdbID = 1, tvdbID = 1, tvMazeID = 1, year = "2020", network = null, status = "Returning Series", rating = 7.0),
+                    TraktUserListItem(id = 2, traktID = 2, title = "Apple Show", originalImageUrl = "", mediumImageUrl = "", imdbID = "", slug = "", tmdbID = 2, tvdbID = 2, tvMazeID = 2, year = "2024", network = null, status = "Returning Series", rating = 9.0),
+                    TraktUserListItem(id = 3, traktID = 3, title = "Mango Show", originalImageUrl = "", mediumImageUrl = "", imdbID = "", slug = "", tmdbID = 3, tvdbID = 3, tvMazeID = 3, year = "2022", network = null, status = "Ended", rating = 8.0),
+                )
+            traktRepository.setWatchlistShows(mockShows)
+
+            viewModel = TraktAccountViewModel(traktRepository, workManager, traktAuthManager)
+
+            val job = launch { viewModel.watchlistShows.collect {} }
+            advanceUntilIdle()
+
+            // Filter to "Returning Series" + sort by Title
+            viewModel.onStatusFilterChange("Returning Series")
+            viewModel.onSortOptionChange(WatchlistSortOption.TITLE)
+            advanceUntilIdle()
+
+            val result = viewModel.watchlistShows.value
+            assert(result.size == 2) { "Expected 2 returning shows, got ${result.size}" }
+            assert(result[0].title == "Apple Show") { "Expected 'Apple Show' first, got '${result[0].title}'" }
+            assert(result[1].title == "Zebra Show") { "Expected 'Zebra Show' second, got '${result[1].title}'" }
+
+            // Clear filter
+            viewModel.onStatusFilterChange(null)
+            advanceUntilIdle()
+
+            assert(viewModel.watchlistShows.value.size == 3) { "Expected all 3 shows after clearing filter" }
+
+            job.cancel()
+        }
 }

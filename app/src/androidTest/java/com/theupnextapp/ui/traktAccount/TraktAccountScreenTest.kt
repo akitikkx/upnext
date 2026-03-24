@@ -177,4 +177,100 @@ class TraktAccountScreenTest {
         // Wait for animation, verify TextField placeholder exists
         rule.onNodeWithText("Search your watchlist...").assertIsDisplayed()
     }
+
+    @Test
+    fun accountContent_statusFilterChips_renderAndFilter() {
+        var selectedStatus: String? = null
+
+        val showsWithStatuses =
+            listOf(
+                TraktUserListItem(
+                    id = 1, traktID = 1, title = "Shōgun", originalImageUrl = "",
+                    mediumImageUrl = "", imdbID = "", slug = "", tmdbID = 1,
+                    tvdbID = 1, tvMazeID = 1, year = "2024", network = "Hulu",
+                    status = "Returning Series", rating = 8.5,
+                ),
+                TraktUserListItem(
+                    id = 2, traktID = 2, title = "Game of Thrones", originalImageUrl = "",
+                    mediumImageUrl = "", imdbID = "", slug = "", tmdbID = 2,
+                    tvdbID = 2, tvMazeID = 2, year = "2011", network = "HBO",
+                    status = "Ended", rating = 9.3,
+                ),
+            )
+
+        rule.setContent {
+            AccountContent(
+                traktAuthState = TraktAuthState.LoggedIn,
+                watchlistShowsList = showsWithStatuses,
+                isWatchlistShowsEmpty = false,
+                isLoadingConnection = false,
+                isLoadingWatchlists = false,
+                isDisconnecting = false,
+                watchlistSearchQuery = "",
+                watchlistSortOption = WatchlistSortOption.ADDED,
+                watchlistLazyListState = rememberLazyListState(),
+                isPullRefreshing = false,
+                onSearchQueryChange = {},
+                onSortOptionChange = {},
+                watchlistStatusFilter = null,
+                availableStatuses = listOf("Ended", "Returning Series"),
+                totalWatchlistCount = 2,
+                onStatusFilterChange = { selectedStatus = it },
+                onRefreshWatchlist = {},
+                onConnectToTraktClick = {},
+                onWatchlistClick = {},
+                onRemoveItem = {},
+                onLogoutClick = {},
+            )
+        }
+
+        // Verify filter chips are rendered
+        rule.onNodeWithText("All").assertIsDisplayed()
+        rule.onNodeWithText("Ended").assertIsDisplayed()
+        rule.onNodeWithText("Returning Series").assertIsDisplayed()
+
+        // Tap a filter chip
+        rule.onNodeWithText("Ended").performClick()
+        assert(selectedStatus == "Ended") { "Expected 'Ended' but got '$selectedStatus'" }
+    }
+
+    @Test
+    fun accountContent_filteredCount_showsXOfY() {
+        rule.setContent {
+            AccountContent(
+                traktAuthState = TraktAuthState.LoggedIn,
+                watchlistShowsList =
+                    listOf(
+                        TraktUserListItem(
+                            id = 1, traktID = 1, title = "Shōgun", originalImageUrl = "",
+                            mediumImageUrl = "", imdbID = "", slug = "", tmdbID = 1,
+                            tvdbID = 1, tvMazeID = 1, year = "2024", network = "Hulu",
+                            status = "Returning Series", rating = 8.5,
+                        ),
+                    ),
+                isWatchlistShowsEmpty = false,
+                isLoadingConnection = false,
+                isLoadingWatchlists = false,
+                isDisconnecting = false,
+                watchlistSearchQuery = "",
+                watchlistSortOption = WatchlistSortOption.ADDED,
+                watchlistLazyListState = rememberLazyListState(),
+                isPullRefreshing = false,
+                onSearchQueryChange = {},
+                onSortOptionChange = {},
+                watchlistStatusFilter = "Returning Series",
+                availableStatuses = listOf("Ended", "Returning Series"),
+                totalWatchlistCount = 5,
+                onStatusFilterChange = {},
+                onRefreshWatchlist = {},
+                onConnectToTraktClick = {},
+                onWatchlistClick = {},
+                onRemoveItem = {},
+                onLogoutClick = {},
+            )
+        }
+
+        // When filtered, heading should show "X of Y"
+        rule.onNodeWithText("Your Watchlist (1 of 5)", substring = true).assertIsDisplayed()
+    }
 }
