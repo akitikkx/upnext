@@ -53,14 +53,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.theupnextapp.R
 import com.theupnextapp.core.designsystem.ui.components.PosterImage
 import com.theupnextapp.core.designsystem.ui.modifiers.bounceClick
 import com.theupnextapp.domain.TraktMostAnticipated
@@ -100,11 +98,12 @@ fun ExploreScreen(
     }
 
     var selectedTabIndex by rememberSaveable { mutableIntStateOf(0) }
-    val tabs = listOf(
-        "Trending",
-        "Popular",
-        "Anticipated"
-    )
+    val tabs =
+        listOf(
+            "Trending",
+            "Popular",
+            "Anticipated",
+        )
 
     PullToRefreshBox(
         isRefreshing = isPullRefreshing,
@@ -113,18 +112,20 @@ fun ExploreScreen(
     ) {
         Surface(modifier = Modifier.fillMaxSize()) {
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .testTag("explore_grid"),
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .testTag("explore_grid"),
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                val currentList = when (selectedTabIndex) {
-                    0 -> trendingShowsList
-                    1 -> popularShowsList
-                    2 -> mostAnticipatedShowsList
-                    else -> emptyList<Any>()
-                }
+                val currentList =
+                    when (selectedTabIndex) {
+                        0 -> trendingShowsList
+                        1 -> popularShowsList
+                        2 -> mostAnticipatedShowsList
+                        else -> emptyList<Any>()
+                    }
 
                 if (isOverallLoading && !isPullRefreshing && currentList.isEmpty()) {
                     item {
@@ -137,7 +138,7 @@ fun ExploreScreen(
                     item {
                         FeaturedShowHero(
                             item = heroShow,
-                            onClick = { navigateToShowDetails(heroShow, tabs[selectedTabIndex].lowercase(), navController) }
+                            onClick = { navigateToShowDetails(heroShow, tabs[selectedTabIndex].lowercase(), navController) },
                         )
                     }
                 }
@@ -156,9 +157,9 @@ fun ExploreScreen(
                                 text = {
                                     Text(
                                         text = title.uppercase(),
-                                        fontWeight = if (selectedTabIndex == index) FontWeight.Bold else FontWeight.Normal
+                                        fontWeight = if (selectedTabIndex == index) FontWeight.Bold else FontWeight.Normal,
                                     )
-                                }
+                                },
                             )
                         }
                     }
@@ -170,7 +171,7 @@ fun ExploreScreen(
                         BentoBoxGrid(
                             items = bentoItems,
                             source = tabs[selectedTabIndex].lowercase(),
-                            navController = navController
+                            navController = navController,
                         )
                     }
                 }
@@ -183,68 +184,68 @@ fun ExploreScreen(
 private fun BentoBoxGrid(
     items: List<Any>,
     source: String,
-    navController: NavController
+    navController: NavController,
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
     ) {
         if (items.size >= 2) {
             // Row 1: Two portrait squares
             Row(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 BentoCard(
                     item = items[0],
                     onClick = { navigateToShowDetails(items[0], source, navController) },
-                    modifier = Modifier.weight(1f).height(220.dp)
+                    modifier = Modifier.weight(1f).height(220.dp),
                 )
                 BentoCard(
                     item = items[1],
                     onClick = { navigateToShowDetails(items[1], source, navController) },
-                    modifier = Modifier.weight(1f).height(220.dp)
+                    modifier = Modifier.weight(1f).height(220.dp),
                 )
             }
         } else if (items.size == 1) {
             BentoCard(
                 item = items[0],
                 onClick = { navigateToShowDetails(items[0], source, navController) },
-                modifier = Modifier.fillMaxWidth().height(220.dp)
+                modifier = Modifier.fillMaxWidth().height(220.dp),
             )
         }
-        
+
         if (items.size >= 3) {
             // Row 2: One wide rectangle
             BentoCard(
                 item = items[2],
                 onClick = { navigateToShowDetails(items[2], source, navController) },
-                modifier = Modifier.fillMaxWidth().height(160.dp)
+                modifier = Modifier.fillMaxWidth().height(160.dp),
             )
         }
-        
+
         if (items.size >= 5) {
             // Row 3: Two portrait squares
             Row(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 BentoCard(
                     item = items[3],
                     onClick = { navigateToShowDetails(items[3], source, navController) },
-                    modifier = Modifier.weight(1f).height(220.dp)
+                    modifier = Modifier.weight(1f).height(220.dp),
                 )
                 BentoCard(
                     item = items[4],
                     onClick = { navigateToShowDetails(items[4], source, navController) },
-                    modifier = Modifier.weight(1f).height(220.dp)
+                    modifier = Modifier.weight(1f).height(220.dp),
                 )
             }
         } else if (items.size == 4) {
             BentoCard(
                 item = items[3],
                 onClick = { navigateToShowDetails(items[3], source, navController) },
-                modifier = Modifier.fillMaxWidth().height(220.dp)
+                modifier = Modifier.fillMaxWidth().height(220.dp),
             )
         }
     }
@@ -255,52 +256,56 @@ private fun BentoBoxGrid(
 private fun BentoCard(
     item: Any,
     modifier: Modifier = Modifier,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
-    val title = when (item) {
-        is TraktTrendingShows -> item.title
-        is TraktPopularShows -> item.title
-        is TraktMostAnticipated -> item.title
-        else -> null
-    }
-    val imageUrl = when (item) {
-        is TraktTrendingShows -> item.originalImageUrl
-        is TraktPopularShows -> item.originalImageUrl
-        is TraktMostAnticipated -> item.originalImageUrl
-        else -> null
-    }
+    val title =
+        when (item) {
+            is TraktTrendingShows -> item.title
+            is TraktPopularShows -> item.title
+            is TraktMostAnticipated -> item.title
+            else -> null
+        }
+    val imageUrl =
+        when (item) {
+            is TraktTrendingShows -> item.originalImageUrl
+            is TraktPopularShows -> item.originalImageUrl
+            is TraktMostAnticipated -> item.originalImageUrl
+            else -> null
+        }
 
     Card(
         shape = MaterialTheme.shapes.large,
         onClick = onClick,
-        modifier = modifier.bounceClick(onClick = onClick)
+        modifier = modifier.bounceClick(onClick = onClick),
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             if (!imageUrl.isNullOrEmpty()) {
                 PosterImage(
                     url = imageUrl,
                     modifier = Modifier.fillMaxSize(),
-                    height = Dp.Unspecified
+                    height = Dp.Unspecified,
                 )
             }
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        Brush.verticalGradient(
-                            colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.8f)),
-                            startY = 150f
-                        )
-                    )
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.8f)),
+                                startY = 150f,
+                            ),
+                        ),
             )
             Text(
                 text = title ?: "",
                 color = Color.White,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(12.dp)
+                modifier =
+                    Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(12.dp),
             )
         }
     }
@@ -310,78 +315,104 @@ private fun BentoCard(
 @Composable
 private fun FeaturedShowHero(
     item: Any,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
-    val title = when (item) {
-        is TraktTrendingShows -> item.title
-        is TraktPopularShows -> item.title
-        is TraktMostAnticipated -> item.title
-        else -> null
-    }
-    val imageUrl = when (item) {
-        is TraktTrendingShows -> item.originalImageUrl
-        is TraktPopularShows -> item.originalImageUrl
-        is TraktMostAnticipated -> item.originalImageUrl
-        else -> null
-    }
+    val title =
+        when (item) {
+            is TraktTrendingShows -> item.title
+            is TraktPopularShows -> item.title
+            is TraktMostAnticipated -> item.title
+            else -> null
+        }
+    val imageUrl =
+        when (item) {
+            is TraktTrendingShows -> item.originalImageUrl
+            is TraktPopularShows -> item.originalImageUrl
+            is TraktMostAnticipated -> item.originalImageUrl
+            else -> null
+        }
 
     Card(
         shape = MaterialTheme.shapes.extraLarge,
         onClick = onClick,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(280.dp)
-            .bounceClick(onClick = onClick)
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .height(280.dp)
+                .bounceClick(onClick = onClick),
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             if (!imageUrl.isNullOrEmpty()) {
                 PosterImage(
                     url = imageUrl,
                     modifier = Modifier.fillMaxSize(),
-                    height = Dp.Unspecified
+                    height = Dp.Unspecified,
                 )
             }
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        Brush.verticalGradient(
-                            colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.95f)),
-                            startY = 200f
-                        )
-                    )
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.95f)),
+                                startY = 200f,
+                            ),
+                        ),
             )
             Column(
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(20.dp)
+                modifier =
+                    Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(20.dp),
             ) {
                 Text(
                     text = "TOP PICK",
                     color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 6.dp)
+                    modifier = Modifier.padding(bottom = 6.dp),
                 )
                 Text(
                     text = title ?: "Unknown",
                     color = Color.White,
                     style = MaterialTheme.typography.headlineLarge,
-                    fontWeight = FontWeight.ExtraBold
+                    fontWeight = FontWeight.ExtraBold,
                 )
             }
         }
     }
 }
 
-private fun navigateToShowDetails(item: Any, source: String, navController: NavController) {
-    val match = when (item) {
-        is TraktTrendingShows -> listOf(item.title, item.originalImageUrl, item.mediumImageUrl, item.tvMazeID, item.imdbID, item.traktID)
-        is TraktPopularShows -> listOf(item.title, item.originalImageUrl, item.mediumImageUrl, item.tvMazeID, item.imdbID, item.traktID)
-        is TraktMostAnticipated -> listOf(item.title, item.originalImageUrl, item.mediumImageUrl, item.tvMazeID, item.imdbID, item.traktID)
-        else -> listOf(null, null, null, null, null, null)
-    }
-    
+private fun navigateToShowDetails(
+    item: Any,
+    source: String,
+    navController: NavController,
+) {
+    val match =
+        when (item) {
+            is TraktTrendingShows ->
+                listOf(
+                    item.title,
+                    item.originalImageUrl,
+                    item.mediumImageUrl,
+                    item.tvMazeID,
+                    item.imdbID,
+                    item.traktID,
+                )
+            is TraktPopularShows -> listOf(item.title, item.originalImageUrl, item.mediumImageUrl, item.tvMazeID, item.imdbID, item.traktID)
+            is TraktMostAnticipated ->
+                listOf(
+                    item.title,
+                    item.originalImageUrl,
+                    item.mediumImageUrl,
+                    item.tvMazeID,
+                    item.imdbID,
+                    item.traktID,
+                )
+            else -> listOf(null, null, null, null, null, null)
+        }
+
     val title = match[0] as? String
     val originalImageUrl = match[1] as? String
     val mediumImageUrl = match[2] as? String
@@ -399,6 +430,6 @@ private fun navigateToShowDetails(item: Any, source: String, navController: NavC
             imdbID = imdbID as? String,
             isAuthorizedOnTrakt = null,
             showTraktId = traktID as? Int,
-        )
+        ),
     )
 }

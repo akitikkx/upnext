@@ -224,5 +224,4 @@ class ExploreViewModel
                 }
             }
         }
-
     }
