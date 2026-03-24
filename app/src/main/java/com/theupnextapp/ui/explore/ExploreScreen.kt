@@ -101,9 +101,9 @@ fun ExploreScreen(
 
     var selectedTabIndex by rememberSaveable { mutableIntStateOf(0) }
     val tabs = listOf(
-        stringResource(id = R.string.explore_trending_shows_list_title),
-        stringResource(id = R.string.explore_popular_shows_list_title),
-        stringResource(id = R.string.explore_most_anticipated_shows_list_title)
+        "Trending",
+        "Popular",
+        "Anticipated"
     )
 
     PullToRefreshBox(
@@ -116,7 +116,7 @@ fun ExploreScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .testTag("explore_grid"),
-                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 val currentList = when (selectedTabIndex) {
@@ -330,7 +330,7 @@ private fun FeaturedShowHero(
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
-            .height(400.dp)
+            .height(280.dp)
             .bounceClick(onClick = onClick)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -347,7 +347,7 @@ private fun FeaturedShowHero(
                     .background(
                         Brush.verticalGradient(
                             colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.95f)),
-                            startY = 400f
+                            startY = 200f
                         )
                     )
             )
