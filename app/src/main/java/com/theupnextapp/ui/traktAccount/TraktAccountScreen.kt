@@ -105,6 +105,9 @@ fun TraktAccountScreen(
     val isWatchlistShowsEmpty by viewModel.watchlistShowsEmpty.collectAsStateWithLifecycle()
     val watchlistSearchQuery by viewModel.watchlistSearchQuery.collectAsStateWithLifecycle()
     val watchlistSortOption by viewModel.watchlistSortOption.collectAsStateWithLifecycle()
+    val watchlistStatusFilter by viewModel.watchlistStatusFilter.collectAsStateWithLifecycle()
+    val availableStatuses by viewModel.availableStatuses.collectAsStateWithLifecycle()
+    val totalWatchlistCount by viewModel.totalWatchlistCount.collectAsStateWithLifecycle()
     val isPullRefreshing by viewModel.isPullRefreshing.collectAsStateWithLifecycle()
 
     val onRefreshWatchlist = {
@@ -201,6 +204,10 @@ fun TraktAccountScreen(
                 watchlistLazyListState = watchlistLazyListState,
                 onSearchQueryChange = viewModel::onSearchQueryChange,
                 onSortOptionChange = viewModel::onSortOptionChange,
+                watchlistStatusFilter = watchlistStatusFilter,
+                availableStatuses = availableStatuses,
+                totalWatchlistCount = totalWatchlistCount,
+                onStatusFilterChange = viewModel::onStatusFilterChange,
                 onRefreshWatchlist = onRefreshWatchlist,
                 onConnectToTraktClick = {
                     viewModel.onConnectToTraktClick()
@@ -254,6 +261,10 @@ internal fun AccountContent(
     isPullRefreshing: Boolean,
     onSearchQueryChange: (String) -> Unit,
     onSortOptionChange: (WatchlistSortOption) -> Unit,
+    watchlistStatusFilter: String? = null,
+    availableStatuses: List<String> = emptyList(),
+    totalWatchlistCount: Int = 0,
+    onStatusFilterChange: (String?) -> Unit = {},
     onRefreshWatchlist: () -> Unit,
     onConnectToTraktClick: () -> Unit,
     onWatchlistClick: (item: TraktUserListItem) -> Unit,
@@ -295,6 +306,10 @@ internal fun AccountContent(
                                 lazyListState = watchlistLazyListState,
                                 onSearchQueryChange = onSearchQueryChange,
                                 onSortOptionChange = onSortOptionChange,
+                                statusFilter = watchlistStatusFilter,
+                                availableStatuses = availableStatuses,
+                                totalWatchlistCount = totalWatchlistCount,
+                                onStatusFilterChange = onStatusFilterChange,
                                 modifier = Modifier.fillMaxSize(),
                                 header = {
                                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
