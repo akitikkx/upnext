@@ -155,163 +155,31 @@ fun ExploreScreen(
                 }
 
                 // --- Trending Shows Section ---
-                if (isLoadingTrending && trendingShowsList.isEmpty()) {
-                    item(span = { GridItemSpan(maxLineSpan) }) {
-                        ShimmerPosterCardRow()
-                    }
-                } else if (trendingShowsList.isNotEmpty()) {
-                    item(span = { GridItemSpan(maxLineSpan) }) {
-                        SectionHeadingText(
-                            text = stringResource(id = R.string.explore_trending_shows_list_title),
-                        )
-                    }
-
-                    val trendingToShow =
-                        if (isTrendingExpanded) {
-                            trendingShowsList
-                        } else {
-                            trendingShowsList.take(COLLAPSED_ITEM_COUNT)
-                        }
-
-                    items(
-                        items = trendingToShow,
-                        key = { "trending_${it.id ?: it.title}" },
-                    ) { show ->
-                        ListPosterCard(
-                            itemName = show.title,
-                            itemUrl = show.originalImageUrl,
-                        ) {
-                            navController.navigate(
-                                Destinations.ShowDetail(
-                                    source = "trending",
-                                    showId = show.tvMazeID?.toString(),
-                                    showTitle = show.title,
-                                    showImageUrl = show.originalImageUrl,
-                                    showBackgroundUrl = show.mediumImageUrl,
-                                    imdbID = show.imdbID,
-                                    isAuthorizedOnTrakt = null,
-                                    showTraktId = show.traktID,
-                                ),
-                            )
-                        }
-                    }
-
-                    if (trendingShowsList.size > COLLAPSED_ITEM_COUNT) {
-                        item(span = { GridItemSpan(maxLineSpan) }) {
-                            ExpandCollapseButton(
-                                isExpanded = isTrendingExpanded,
-                                totalCount = trendingShowsList.size,
-                                onClick = { isTrendingExpanded = !isTrendingExpanded },
-                            )
-                        }
-                    }
-                }
+                trendingShowsSection(
+                    isLoading = isLoadingTrending,
+                    showsList = trendingShowsList,
+                    isExpanded = isTrendingExpanded,
+                    onExpandedChange = { isTrendingExpanded = !isTrendingExpanded },
+                    navController = navController,
+                )
 
                 // --- Popular Shows Section ---
-                if (isLoadingPopular && popularShowsList.isEmpty()) {
-                    item(span = { GridItemSpan(maxLineSpan) }) {
-                        ShimmerPosterCardRow()
-                    }
-                } else if (popularShowsList.isNotEmpty()) {
-                    item(span = { GridItemSpan(maxLineSpan) }) {
-                        SectionHeadingText(
-                            text = stringResource(id = R.string.explore_popular_shows_list_title),
-                        )
-                    }
-
-                    val popularToShow =
-                        if (isPopularExpanded) {
-                            popularShowsList
-                        } else {
-                            popularShowsList.take(COLLAPSED_ITEM_COUNT)
-                        }
-
-                    items(
-                        items = popularToShow,
-                        key = { "popular_${it.id ?: it.title}" },
-                    ) { show ->
-                        ListPosterCard(
-                            itemName = show.title,
-                            itemUrl = show.originalImageUrl,
-                        ) {
-                            navController.navigate(
-                                Destinations.ShowDetail(
-                                    source = "popular",
-                                    showId = show.tvMazeID?.toString(),
-                                    showTitle = show.title,
-                                    showImageUrl = show.originalImageUrl,
-                                    showBackgroundUrl = show.mediumImageUrl,
-                                    imdbID = show.imdbID,
-                                    isAuthorizedOnTrakt = null,
-                                    showTraktId = show.traktID,
-                                ),
-                            )
-                        }
-                    }
-
-                    if (popularShowsList.size > COLLAPSED_ITEM_COUNT) {
-                        item(span = { GridItemSpan(maxLineSpan) }) {
-                            ExpandCollapseButton(
-                                isExpanded = isPopularExpanded,
-                                totalCount = popularShowsList.size,
-                                onClick = { isPopularExpanded = !isPopularExpanded },
-                            )
-                        }
-                    }
-                }
+                popularShowsSection(
+                    isLoading = isLoadingPopular,
+                    showsList = popularShowsList,
+                    isExpanded = isPopularExpanded,
+                    onExpandedChange = { isPopularExpanded = !isPopularExpanded },
+                    navController = navController,
+                )
 
                 // --- Most Anticipated Shows Section ---
-                if (isLoadingMostAnticipated && mostAnticipatedShowsList.isEmpty()) {
-                    item(span = { GridItemSpan(maxLineSpan) }) {
-                        ShimmerPosterCardRow()
-                    }
-                } else if (mostAnticipatedShowsList.isNotEmpty()) {
-                    item(span = { GridItemSpan(maxLineSpan) }) {
-                        SectionHeadingText(
-                            text = stringResource(id = R.string.explore_most_anticipated_shows_list_title),
-                        )
-                    }
-
-                    val anticipatedToShow =
-                        if (isMostAnticipatedExpanded) {
-                            mostAnticipatedShowsList
-                        } else {
-                            mostAnticipatedShowsList.take(COLLAPSED_ITEM_COUNT)
-                        }
-
-                    items(
-                        items = anticipatedToShow,
-                        key = { "anticipated_${it.id ?: it.title}" },
-                    ) { show ->
-                        ListPosterCard(
-                            itemName = show.title,
-                            itemUrl = show.originalImageUrl,
-                        ) {
-                            navController.navigate(
-                                Destinations.ShowDetail(
-                                    source = "most_anticipated",
-                                    showId = show.tvMazeID?.toString(),
-                                    showTitle = show.title,
-                                    showImageUrl = show.originalImageUrl,
-                                    showBackgroundUrl = show.mediumImageUrl,
-                                    imdbID = show.imdbID,
-                                    isAuthorizedOnTrakt = null,
-                                    showTraktId = show.traktID,
-                                ),
-                            )
-                        }
-                    }
-
-                    if (mostAnticipatedShowsList.size > COLLAPSED_ITEM_COUNT) {
-                        item(span = { GridItemSpan(maxLineSpan) }) {
-                            ExpandCollapseButton(
-                                isExpanded = isMostAnticipatedExpanded,
-                                totalCount = mostAnticipatedShowsList.size,
-                                onClick = { isMostAnticipatedExpanded = !isMostAnticipatedExpanded },
-                            )
-                        }
-                    }
-                }
+                mostAnticipatedShowsSection(
+                    isLoading = isLoadingMostAnticipated,
+                    showsList = mostAnticipatedShowsList,
+                    isExpanded = isMostAnticipatedExpanded,
+                    onExpandedChange = { isMostAnticipatedExpanded = !isMostAnticipatedExpanded },
+                    navController = navController,
+                )
             }
         }
     }
@@ -338,5 +206,152 @@ private fun ExpandCollapseButton(
             color = MaterialTheme.colorScheme.primary,
             style = MaterialTheme.typography.labelLarge,
         )
+    }
+}
+
+@OptIn(
+    ExperimentalMaterial3Api::class,
+    ExperimentalMaterial3WindowSizeClassApi::class,
+)
+private fun androidx.compose.foundation.lazy.grid.LazyGridScope.trendingShowsSection(
+    isLoading: Boolean,
+    showsList: List<TraktTrendingShows>,
+    isExpanded: Boolean,
+    onExpandedChange: () -> Unit,
+    navController: NavController,
+) {
+    if (isLoading && showsList.isEmpty()) {
+        item(span = { GridItemSpan(maxLineSpan) }) {
+            ShimmerPosterCardRow()
+        }
+    } else if (showsList.isNotEmpty()) {
+        item(span = { GridItemSpan(maxLineSpan) }) {
+            SectionHeadingText(
+                text = stringResource(id = R.string.explore_trending_shows_list_title),
+            )
+        }
+        val trendingToShow = if (isExpanded) showsList else showsList.take(COLLAPSED_ITEM_COUNT)
+        items(
+            items = trendingToShow,
+            key = { "trending_${it.id ?: it.title}" },
+        ) { show ->
+            ListPosterCard(itemName = show.title, itemUrl = show.originalImageUrl) {
+                navController.navigate(
+                    Destinations.ShowDetail(
+                        source = "trending",
+                        showId = show.tvMazeID?.toString(),
+                        showTitle = show.title,
+                        showImageUrl = show.originalImageUrl,
+                        showBackgroundUrl = show.mediumImageUrl,
+                        imdbID = show.imdbID,
+                        isAuthorizedOnTrakt = null,
+                        showTraktId = show.traktID,
+                    ),
+                )
+            }
+        }
+        if (showsList.size > COLLAPSED_ITEM_COUNT) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                ExpandCollapseButton(isExpanded, showsList.size, onExpandedChange)
+            }
+        }
+    }
+}
+
+@OptIn(
+    ExperimentalMaterial3Api::class,
+    ExperimentalMaterial3WindowSizeClassApi::class,
+)
+private fun androidx.compose.foundation.lazy.grid.LazyGridScope.popularShowsSection(
+    isLoading: Boolean,
+    showsList: List<TraktPopularShows>,
+    isExpanded: Boolean,
+    onExpandedChange: () -> Unit,
+    navController: NavController,
+) {
+    if (isLoading && showsList.isEmpty()) {
+        item(span = { GridItemSpan(maxLineSpan) }) {
+            ShimmerPosterCardRow()
+        }
+    } else if (showsList.isNotEmpty()) {
+        item(span = { GridItemSpan(maxLineSpan) }) {
+            SectionHeadingText(
+                text = stringResource(id = R.string.explore_popular_shows_list_title),
+            )
+        }
+        val popularToShow = if (isExpanded) showsList else showsList.take(COLLAPSED_ITEM_COUNT)
+        items(
+            items = popularToShow,
+            key = { "popular_${it.id ?: it.title}" },
+        ) { show ->
+            ListPosterCard(itemName = show.title, itemUrl = show.originalImageUrl) {
+                navController.navigate(
+                    Destinations.ShowDetail(
+                        source = "popular",
+                        showId = show.tvMazeID?.toString(),
+                        showTitle = show.title,
+                        showImageUrl = show.originalImageUrl,
+                        showBackgroundUrl = show.mediumImageUrl,
+                        imdbID = show.imdbID,
+                        isAuthorizedOnTrakt = null,
+                        showTraktId = show.traktID,
+                    ),
+                )
+            }
+        }
+        if (showsList.size > COLLAPSED_ITEM_COUNT) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                ExpandCollapseButton(isExpanded, showsList.size, onExpandedChange)
+            }
+        }
+    }
+}
+
+@OptIn(
+    ExperimentalMaterial3Api::class,
+    ExperimentalMaterial3WindowSizeClassApi::class,
+)
+private fun androidx.compose.foundation.lazy.grid.LazyGridScope.mostAnticipatedShowsSection(
+    isLoading: Boolean,
+    showsList: List<TraktMostAnticipated>,
+    isExpanded: Boolean,
+    onExpandedChange: () -> Unit,
+    navController: NavController,
+) {
+    if (isLoading && showsList.isEmpty()) {
+        item(span = { GridItemSpan(maxLineSpan) }) {
+            ShimmerPosterCardRow()
+        }
+    } else if (showsList.isNotEmpty()) {
+        item(span = { GridItemSpan(maxLineSpan) }) {
+            SectionHeadingText(
+                text = stringResource(id = R.string.explore_most_anticipated_shows_list_title),
+            )
+        }
+        val anticipatedToShow = if (isExpanded) showsList else showsList.take(COLLAPSED_ITEM_COUNT)
+        items(
+            items = anticipatedToShow,
+            key = { "anticipated_${it.id ?: it.title}" },
+        ) { show ->
+            ListPosterCard(itemName = show.title, itemUrl = show.originalImageUrl) {
+                navController.navigate(
+                    Destinations.ShowDetail(
+                        source = "most_anticipated",
+                        showId = show.tvMazeID?.toString(),
+                        showTitle = show.title,
+                        showImageUrl = show.originalImageUrl,
+                        showBackgroundUrl = show.mediumImageUrl,
+                        imdbID = show.imdbID,
+                        isAuthorizedOnTrakt = null,
+                        showTraktId = show.traktID,
+                    ),
+                )
+            }
+        }
+        if (showsList.size > COLLAPSED_ITEM_COUNT) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                ExpandCollapseButton(isExpanded, showsList.size, onExpandedChange)
+            }
+        }
     }
 }
