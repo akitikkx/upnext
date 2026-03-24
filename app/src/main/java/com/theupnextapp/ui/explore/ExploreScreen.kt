@@ -155,7 +155,7 @@ fun ExploreScreen(
                                 onClick = { selectedTabIndex = index },
                                 text = {
                                     Text(
-                                        text = title,
+                                        text = title.uppercase(),
                                         fontWeight = if (selectedTabIndex == index) FontWeight.Bold else FontWeight.Normal
                                     )
                                 }
@@ -186,31 +186,31 @@ private fun BentoBoxGrid(
     navController: NavController
 ) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
         if (items.size >= 2) {
             // Row 1: Two portrait squares
             Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 BentoCard(
                     item = items[0],
                     onClick = { navigateToShowDetails(items[0], source, navController) },
-                    modifier = Modifier.weight(1f).height(240.dp)
+                    modifier = Modifier.weight(1f).height(220.dp)
                 )
                 BentoCard(
                     item = items[1],
                     onClick = { navigateToShowDetails(items[1], source, navController) },
-                    modifier = Modifier.weight(1f).height(240.dp)
+                    modifier = Modifier.weight(1f).height(220.dp)
                 )
             }
         } else if (items.size == 1) {
             BentoCard(
                 item = items[0],
                 onClick = { navigateToShowDetails(items[0], source, navController) },
-                modifier = Modifier.fillMaxWidth().height(240.dp)
+                modifier = Modifier.fillMaxWidth().height(220.dp)
             )
         }
         
@@ -219,32 +219,32 @@ private fun BentoBoxGrid(
             BentoCard(
                 item = items[2],
                 onClick = { navigateToShowDetails(items[2], source, navController) },
-                modifier = Modifier.fillMaxWidth().height(180.dp)
+                modifier = Modifier.fillMaxWidth().height(160.dp)
             )
         }
         
         if (items.size >= 5) {
             // Row 3: Two portrait squares
             Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 BentoCard(
                     item = items[3],
                     onClick = { navigateToShowDetails(items[3], source, navController) },
-                    modifier = Modifier.weight(1f).height(240.dp)
+                    modifier = Modifier.weight(1f).height(220.dp)
                 )
                 BentoCard(
                     item = items[4],
                     onClick = { navigateToShowDetails(items[4], source, navController) },
-                    modifier = Modifier.weight(1f).height(240.dp)
+                    modifier = Modifier.weight(1f).height(220.dp)
                 )
             }
         } else if (items.size == 4) {
             BentoCard(
                 item = items[3],
                 onClick = { navigateToShowDetails(items[3], source, navController) },
-                modifier = Modifier.fillMaxWidth().height(240.dp)
+                modifier = Modifier.fillMaxWidth().height(220.dp)
             )
         }
     }
