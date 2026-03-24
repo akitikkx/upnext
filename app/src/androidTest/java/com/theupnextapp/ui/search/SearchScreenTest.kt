@@ -21,6 +21,7 @@ class SearchScreenTest {
     private fun mockShowSearch(
         id: Int,
         name: String,
+        premiered: String? = null,
     ) = ShowSearch(
         id = id,
         name = name,
@@ -28,7 +29,7 @@ class SearchScreenTest {
         mediumImageUrl = null,
         originalImageUrl = null,
         language = null,
-        premiered = null,
+        premiered = premiered,
         runtime = null,
         status = null,
         summary = null,
@@ -49,8 +50,8 @@ class SearchScreenTest {
     fun searchArea_withResults_displaysShowTitles() {
         val results =
             listOf(
-                mockShowSearch(1, "Breaking Bad"),
-                mockShowSearch(2, "Better Call Saul"),
+                mockShowSearch(1, "Breaking Bad", "2008"),
+                mockShowSearch(2, "Better Call Saul", "2015"),
             )
 
         rule.setContent {
@@ -64,8 +65,8 @@ class SearchScreenTest {
             )
         }
 
-        rule.onNodeWithText("Breaking Bad").assertIsDisplayed()
-        rule.onNodeWithText("Better Call Saul").assertIsDisplayed()
+        rule.onNodeWithText("Breaking Bad (2008)").assertIsDisplayed()
+        rule.onNodeWithText("Better Call Saul (2015)").assertIsDisplayed()
     }
 
     @Test

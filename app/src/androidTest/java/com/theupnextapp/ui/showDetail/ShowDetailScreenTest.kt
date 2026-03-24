@@ -64,7 +64,7 @@ class ShowDetailScreenTest {
         }
 
         rule.onNodeWithText("Seasons").assertIsDisplayed()
-        rule.onNodeWithText("Watchlist").assertIsDisplayed()
+        rule.onNodeWithText("List").assertIsDisplayed()
     }
 
     @Test
