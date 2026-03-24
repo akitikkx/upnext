@@ -59,7 +59,11 @@ class ExploreViewModel
         private val _isPullRefreshing = MutableStateFlow(false)
         val isPullRefreshing: StateFlow<Boolean> = _isPullRefreshing.asStateFlow()
 
-        val trendingShows: StateFlow<List<TraktTrendingShows>> =
+        private val _exploreSearchQuery = MutableStateFlow("")
+        val exploreSearchQuery: StateFlow<String> = _exploreSearchQuery.asStateFlow()
+
+        // Raw data from repository (private, used for filtering)
+        private val rawTrendingShows: StateFlow<List<TraktTrendingShows>> =
             traktRepository.traktTrendingShows
                 .stateIn(
                     scope = viewModelScope,
@@ -67,7 +71,7 @@ class ExploreViewModel
                     initialValue = emptyList(),
                 )
 
-        val popularShows: StateFlow<List<TraktPopularShows>> =
+        private val rawPopularShows: StateFlow<List<TraktPopularShows>> =
             traktRepository.traktPopularShows
                 .stateIn(
                     scope = viewModelScope,
@@ -75,13 +79,41 @@ class ExploreViewModel
                     initialValue = emptyList(),
                 )
 
-        val mostAnticipatedShows: StateFlow<List<TraktMostAnticipated>> =
+        private val rawMostAnticipatedShows: StateFlow<List<TraktMostAnticipated>> =
             traktRepository.traktMostAnticipatedShows
                 .stateIn(
                     scope = viewModelScope,
                     started = SharingStarted.WhileSubscribed(5000),
                     initialValue = emptyList(),
                 )
+
+        // Filtered public flows
+        val trendingShows: StateFlow<List<TraktTrendingShows>> =
+            combine(rawTrendingShows, _exploreSearchQuery) { shows, query ->
+                if (query.isBlank()) {
+                    shows
+                } else {
+                    shows.filter { it.matchesQuery(query) }
+                }
+            }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+        val popularShows: StateFlow<List<TraktPopularShows>> =
+            combine(rawPopularShows, _exploreSearchQuery) { shows, query ->
+                if (query.isBlank()) {
+                    shows
+                } else {
+                    shows.filter { it.matchesQuery(query) }
+                }
+            }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+        val mostAnticipatedShows: StateFlow<List<TraktMostAnticipated>> =
+            combine(rawMostAnticipatedShows, _exploreSearchQuery) { shows, query ->
+                if (query.isBlank()) {
+                    shows
+                } else {
+                    shows.filter { it.matchesQuery(query) }
+                }
+            }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
         internal val isLoadingTraktTrending: StateFlow<Boolean> = traktRepository.isLoadingTraktTrending
         internal val isLoadingTraktPopular: StateFlow<Boolean> = traktRepository.isLoadingTraktPopular
@@ -106,17 +138,17 @@ class ExploreViewModel
             )
 
         val trendingShowsEmpty: StateFlow<Boolean> =
-            trendingShows
+            rawTrendingShows
                 .map { it.isEmpty() }
                 .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
 
         val popularShowsEmpty: StateFlow<Boolean> =
-            popularShows
+            rawPopularShows
                 .map { it.isEmpty() }
                 .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
 
         val mostAnticipatedShowsEmpty: StateFlow<Boolean> =
-            mostAnticipatedShows
+            rawMostAnticipatedShows
                 .map { it.isEmpty() }
                 .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
 
@@ -224,4 +256,20 @@ class ExploreViewModel
                 }
             }
         }
+
+        fun onExploreSearchQueryChange(query: String) {
+            _exploreSearchQuery.value = query
+        }
     }
+
+private fun TraktTrendingShows.matchesQuery(query: String): Boolean =
+    title?.contains(query, ignoreCase = true) == true ||
+        year?.contains(query) == true
+
+private fun TraktPopularShows.matchesQuery(query: String): Boolean =
+    title?.contains(query, ignoreCase = true) == true ||
+        year?.contains(query) == true
+
+private fun TraktMostAnticipated.matchesQuery(query: String): Boolean =
+    title?.contains(query, ignoreCase = true) == true ||
+        year?.contains(query) == true
