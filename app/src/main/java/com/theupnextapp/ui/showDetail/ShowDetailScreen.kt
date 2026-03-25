@@ -36,6 +36,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -266,75 +267,81 @@ fun DetailArea(
     val scrollState = rememberScrollState()
     val windowSizeClass = getWindowSizeClass()?.widthSizeClass ?: WindowWidthSizeClass.Compact
 
-    Column(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .verticalScroll(scrollState)
-                .padding(bottom = 16.dp),
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.TopCenter,
     ) {
-        if (uiState.isLoadingSummary && uiState.showSummary == null) { // Show placeholder only if no data yet
-            SummaryPlaceholder() // Or a simpler version, or nothing if LinearProgress is enough
-        } else if (uiState.summaryErrorMessage != null) {
-            ErrorState(message = uiState.summaryErrorMessage) {
-                onRetry()
-            }
-        } else if (uiState.showSummary != null) {
-            BackdropAndTitle(
-                showDetailArgs = showDetailArgs,
-                showSummary = uiState.showSummary,
-                onBack = onBack,
-            )
-            SynopsisArea(
-                showSummary = uiState.showSummary,
-                widthSizeClass = windowSizeClass,
-            )
-            if (uiState.showSummary.id != -1) {
-                // ----- Watch Providers Section -----
-                WatchProvidersSection(uiState = uiState)
-
-                ShowDetailButtons(
-                    isAuthorizedOnTrakt = isAuthorizedOnTrakt,
-                    isWatchlist = isWatchlist,
-                    isLoading = isWatchlistLoading,
-                    isRating = uiState.isRating,
-                    userRating = uiState.userRating,
-                    onSeasonsClick = onSeasonsClick,
-                    onWatchlistClick = onWatchlistClick,
-                    onRateClick = onRateClick,
+        Column(
+            modifier =
+                Modifier
+                    .widthIn(max = 840.dp)
+                    .fillMaxSize()
+                    .verticalScroll(scrollState)
+                    .padding(bottom = 16.dp),
+        ) {
+            if (uiState.isLoadingSummary && uiState.showSummary == null) { // Show placeholder only if no data yet
+                SummaryPlaceholder() // Or a simpler version, or nothing if LinearProgress is enough
+            } else if (uiState.summaryErrorMessage != null) {
+                ErrorState(message = uiState.summaryErrorMessage) {
+                    onRetry()
+                }
+            } else if (uiState.showSummary != null) {
+                BackdropAndTitle(
+                    showDetailArgs = showDetailArgs,
+                    showSummary = uiState.showSummary,
+                    onBack = onBack,
+                )
+                SynopsisArea(
+                    showSummary = uiState.showSummary,
                     widthSizeClass = windowSizeClass,
                 )
+                if (uiState.showSummary.id != -1) {
+                    // ----- Watch Providers Section -----
+                    WatchProvidersSection(uiState = uiState)
+
+                    ShowDetailButtons(
+                        isAuthorizedOnTrakt = isAuthorizedOnTrakt,
+                        isWatchlist = isWatchlist,
+                        isLoading = isWatchlistLoading,
+                        isRating = uiState.isRating,
+                        userRating = uiState.userRating,
+                        onSeasonsClick = onSeasonsClick,
+                        onWatchlistClick = onWatchlistClick,
+                        onRateClick = onRateClick,
+                        widthSizeClass = windowSizeClass,
+                    )
+                }
+            } else if (showDetailArgs.showImageUrl != null || showDetailArgs.showBackgroundUrl != null) {
+                // Fallback for initial state with args but no summary yet
+                BackdropAndTitle(showDetailArgs = showDetailArgs, showSummary = null, onBack = onBack)
             }
-        } else if (showDetailArgs.showImageUrl != null || showDetailArgs.showBackgroundUrl != null) {
-            // Fallback for initial state with args but no summary yet
-            BackdropAndTitle(showDetailArgs = showDetailArgs, showSummary = null, onBack = onBack)
-        }
 
-        showRating?.let { ratingData ->
-            if (ratingData.votes != 0) {
-                TraktRatingSummary(ratingData, userRating = uiState.userRating)
-                Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
+            showRating?.let { ratingData ->
+                if (ratingData.votes != 0) {
+                    TraktRatingSummary(ratingData, userRating = uiState.userRating)
+                    Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
+                }
             }
+
+            // ----- Show Cast Section -----
+            ShowCast(uiState = uiState, onCastItemClick = onCastItemClick)
+            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
+
+            // ----- Next Episode Section -----
+            NextEpisode(uiState = uiState)
+            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
+
+            // ----- Previous Episode Section -----
+            PreviousEpisode(uiState = uiState)
+            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
+
+            // ----- Trakt Stats Section (Optional) -----
+            showStats?.let { statsData -> }
+
+            // ----- Similar Shows Section -----
+            SimilarShows(uiState = uiState, onSimilarShowClick = onSimilarShowClick)
+            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
         }
-
-        // ----- Show Cast Section -----
-        ShowCast(uiState = uiState, onCastItemClick = onCastItemClick)
-        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
-
-        // ----- Next Episode Section -----
-        NextEpisode(uiState = uiState)
-        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
-
-        // ----- Previous Episode Section -----
-        PreviousEpisode(uiState = uiState)
-        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
-
-        // ----- Trakt Stats Section (Optional) -----
-        showStats?.let { statsData -> }
-
-        // ----- Similar Shows Section -----
-        SimilarShows(uiState = uiState, onSimilarShowClick = onSimilarShowClick)
-        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
     }
 }
 
@@ -354,12 +361,7 @@ fun ShowDetailButtons(
 ) {
     var showRatingSheet by rememberSaveable { mutableStateOf(false) }
     val buttonSpacing = if (widthSizeClass == WindowWidthSizeClass.Expanded) 24.dp else 16.dp
-    val rowModifier =
-        if (widthSizeClass == WindowWidthSizeClass.Expanded) {
-            Modifier.fillMaxWidth(0.7f)
-        } else {
-            Modifier.fillMaxWidth()
-        }
+    val rowModifier = Modifier.widthIn(max = 480.dp).fillMaxWidth()
 
     Row(
         modifier =
