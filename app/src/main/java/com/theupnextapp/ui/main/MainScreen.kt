@@ -28,11 +28,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
+import androidx.compose.material3.adaptive.layout.PaneScaffoldDirective
 import androidx.compose.material3.adaptive.navigation.BackNavigationBehavior
 import androidx.compose.material3.adaptive.navigation.NavigableListDetailPaneScaffold
 import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -46,6 +48,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -94,8 +97,24 @@ fun MainScreen(
                 currentDestination.route != null // If null, maybe nothing loaded yet, but usually means not Empty
         }
 
+    // Height-aware scaffold directive: force single-pane when height is compact
+    // (i.e., phone in landscape). Only allow split on tablets/foldables with adequate height.
+    val isCompactHeight = windowSizeClass?.heightSizeClass == WindowHeightSizeClass.Compact
+    val scaffoldDirective =
+        PaneScaffoldDirective(
+            maxHorizontalPartitions = if (isCompactHeight) 1 else 2,
+            horizontalPartitionSpacerSize = 0.dp,
+            maxVerticalPartitions = 1,
+            verticalPartitionSpacerSize = 0.dp,
+            defaultPanePreferredWidth = 360.dp,
+            excludedBounds = emptyList(),
+        )
+
     // Use the correct navigator type for NavigableListDetailPaneScaffold
-    val listDetailNavigator = rememberListDetailPaneScaffoldNavigator<Any>()
+    val listDetailNavigator =
+        rememberListDetailPaneScaffoldNavigator(
+            scaffoldDirective = scaffoldDirective,
+        )
 
     // Sync scaffold pane state with isDetailFlowActive
     LaunchedEffect(isDetailFlowActive) {
