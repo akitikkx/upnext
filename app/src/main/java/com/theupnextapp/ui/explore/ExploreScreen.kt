@@ -138,6 +138,7 @@ fun ExploreScreen(
                     item {
                         FeaturedShowHero(
                             item = heroShow,
+                            categoryName = tabs[selectedTabIndex].uppercase(),
                             onClick = { navigateToShowDetails(heroShow, tabs[selectedTabIndex].lowercase(), navController) },
                         )
                     }
@@ -315,6 +316,7 @@ private fun BentoCard(
 @Composable
 private fun FeaturedShowHero(
     item: Any,
+    categoryName: String,
     onClick: () -> Unit,
 ) {
     val title =
@@ -366,12 +368,25 @@ private fun FeaturedShowHero(
                         .align(Alignment.BottomStart)
                         .padding(20.dp),
             ) {
+                Surface(
+                    shape = MaterialTheme.shapes.small,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(bottom = 8.dp),
+                ) {
+                    Text(
+                        text = categoryName,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                    )
+                }
                 Text(
                     text = "TOP PICK",
-                    color = MaterialTheme.colorScheme.primary,
+                    color = Color.White.copy(alpha = 0.7f),
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 6.dp),
+                    modifier = Modifier.padding(bottom = 4.dp),
                 )
                 Text(
                     text = title ?: "Unknown",
