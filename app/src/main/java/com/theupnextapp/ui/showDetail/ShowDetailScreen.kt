@@ -275,7 +275,7 @@ fun DetailArea(
             modifier =
                 Modifier
                     .widthIn(max = 840.dp)
-                    .fillMaxSize()
+                    .fillMaxHeight()
                     .verticalScroll(scrollState)
                     .padding(bottom = 16.dp),
         ) {
@@ -361,11 +361,11 @@ fun ShowDetailButtons(
 ) {
     var showRatingSheet by rememberSaveable { mutableStateOf(false) }
     val buttonSpacing = if (widthSizeClass == WindowWidthSizeClass.Expanded) 24.dp else 16.dp
-    val rowModifier = Modifier.widthIn(max = 480.dp).fillMaxWidth()
 
     Row(
         modifier =
-            rowModifier
+            Modifier
+                .wrapContentWidth(Alignment.Start)
                 .padding(
                     horizontal = dimensionResource(id = R.dimen.padding_standard_double),
                     vertical = dimensionResource(id = R.dimen.padding_standard),
@@ -376,7 +376,7 @@ fun ShowDetailButtons(
     ) {
         androidx.compose.material3.OutlinedButton(
             onClick = { onSeasonsClick() },
-            modifier = Modifier.weight(1f).fillMaxHeight(),
+            modifier = Modifier.widthIn(min = 120.dp).fillMaxHeight(),
         ) {
             Text(text = "Seasons")
         }
@@ -393,7 +393,7 @@ fun ShowDetailButtons(
                 if (isWatchlist == true) {
                     androidx.compose.material3.OutlinedButton(
                         onClick = { onWatchlistClick() },
-                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                        modifier = Modifier.widthIn(min = 120.dp).fillMaxHeight(),
                     ) {
                         Icon(
                             imageVector =
@@ -412,7 +412,7 @@ fun ShowDetailButtons(
                 } else {
                     Button(
                         onClick = { onWatchlistClick() },
-                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                        modifier = Modifier.widthIn(min = 120.dp).fillMaxHeight(),
                     ) {
                         Icon(
                             imageVector = androidx.compose.ui.graphics.vector.ImageVector.vectorResource(id = R.drawable.ic_watchlist_add),
@@ -441,7 +441,7 @@ fun ShowDetailButtons(
                     onClick = { showRatingSheet = true },
                     modifier =
                         Modifier
-                            .weight(1f)
+                            .widthIn(min = 120.dp)
                             .fillMaxHeight()
                             .testTag("rate_show_button"),
                 ) {

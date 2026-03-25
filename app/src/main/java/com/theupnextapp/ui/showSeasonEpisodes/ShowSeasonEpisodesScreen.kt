@@ -188,7 +188,7 @@ fun ShowSeasonEpisodes(
     onBackClick: () -> Unit = {},
 ) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
-        Column(modifier = Modifier.fillMaxWidth().widthIn(max = 840.dp)) {
+        Column(modifier = Modifier.widthIn(max = 840.dp).fillMaxHeight()) {
             AnimatedVisibility(
                 visible = true,
                 enter =
