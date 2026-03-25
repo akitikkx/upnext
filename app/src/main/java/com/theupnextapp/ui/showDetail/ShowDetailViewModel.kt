@@ -735,7 +735,7 @@ class ShowDetailViewModel
         }
 
         fun onAddRemoveWatchlistClick() {
-            viewModelScope.launch(Dispatchers.IO) {
+            viewModelScope.launch {
                 val currentAccessToken = traktRepository.traktAccessToken.firstOrNull()
                 val currentWatchlistShow = observedWatchlistShow.value // Use source of truth
                 val currentShowSummary = uiState.value.showSummary

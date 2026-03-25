@@ -355,3 +355,107 @@ The workflow uses `reactivecircus/android-emulator-runner`:
 - [libs.versions.toml](file:///Users/ahmedtikiwa/upnext4/gradle/libs.versions.toml) - Version catalog
 - [CustomTestRunner.kt](file:///Users/ahmedtikiwa/upnext4/app/src/androidTest/java/com/theupnextapp/CustomTestRunner.kt) - Hilt test runner
 - [pull_request.yml](file:///Users/ahmedtikiwa/upnext4/.github/workflows/pull_request.yml) - CI workflow with UI tests
+
+---
+
+## 🎯 Stateless Composable Testing
+
+### The Strategy
+
+Test **stateless composables** directly with `createComposeRule()` (no Hilt, no ViewModel). This is the fastest and most reliable approach:
+
+```kotlin
+@get:Rule
+val rule = createComposeRule()
+
+@Test
+fun searchArea_withResults_displaysShowTitles() {
+    rule.setContent {
+        SearchArea(
+            searchResultsList = listOf(mockShowSearch(1, "Breaking Bad")),
+            recentSearches = null,
+            onTextSubmit = {},
+            onResultClick = {},
+            onRecentSearchClick = {},
+            onClearRecentSearches = {},
+        )
+    }
+    rule.onNodeWithText("Breaking Bad").assertIsDisplayed()
+}
+```
+
+### Testable Composables in Upnext
+
+| Screen | Composable | Parameters |
+|--------|-----------|------------|
+| Search | `SearchArea()` | Lists + callbacks |
+| ShowDetail | `ShowDetailButtons()` | Booleans + callbacks |
+| ShowDetail | `ErrorState()` | message + onRetry |
+| ShowDetail | `EpisodeSummary()` | summary string |
+| Watchlist | `WatchlistListContent()` | Items + filter state + callbacks |
+| Account | `AccountContent()` | Full screen state + callbacks |
+
+---
+
+## 🔄 Multi-Flow Combine Testing
+
+When testing ViewModels with `combine()` pipelines (e.g., search + sort + filter), use `FakeTraktRepository` and collect the StateFlow:
+
+```kotlin
+@Test
+fun `status filter and sort combine correctly`() = runTest {
+    val mockShows = listOf(
+        TraktUserListItem(id = 1, title = "Zebra", status = "Returning Series", ...),
+        TraktUserListItem(id = 2, title = "Apple", status = "Returning Series", ...),
+        TraktUserListItem(id = 3, title = "Mango", status = "Ended", ...),
+    )
+    traktRepository.setWatchlistShows(mockShows)
+    viewModel = TraktAccountViewModel(traktRepository, workManager, traktAuthManager)
+
+    val job = launch { viewModel.watchlistShows.collect {} }
+    advanceUntilIdle()
+
+    viewModel.onStatusFilterChange("Returning Series")
+    viewModel.onSortOptionChange(WatchlistSortOption.TITLE)
+    advanceUntilIdle()
+
+    val result = viewModel.watchlistShows.value
+    assert(result.size == 2)
+    assert(result[0].title == "Apple")
+
+    job.cancel()
+}
+```
+
+> [!TIP]
+> Always `launch { flow.collect {} }` before asserting on `StateFlow.value` — `stateIn()` flows are cold until collected.
+
+---
+
+## 🏷️ FilterChip Interaction Testing
+
+When testing `FilterChip` composables, use callback capture:
+
+```kotlin
+@Test
+fun accountContent_statusFilterChips_renderAndFilter() {
+    var selectedStatus: String? = null
+
+    rule.setContent {
+        AccountContent(
+            watchlistStatusFilter = null,
+            availableStatuses = listOf("Ended", "Returning Series"),
+            onStatusFilterChange = { selectedStatus = it },
+            // ... other params with defaults
+        )
+    }
+
+    rule.onNodeWithText("All").assertIsDisplayed()
+    rule.onNodeWithText("Ended").performClick()
+    assert(selectedStatus == "Ended")
+}
+```
+
+> [!IMPORTANT]
+> `AccountContent` and `WatchlistListContent` use **default parameters** for filter-related props (`statusFilter = null`, `availableStatuses = emptyList()`, etc.). Existing tests that don't pass these values will continue to compile and function correctly.
+

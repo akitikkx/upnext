@@ -17,6 +17,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -78,6 +79,7 @@ import com.theupnextapp.R
 import com.theupnextapp.core.designsystem.ui.components.SectionHeadingText
 import com.theupnextapp.domain.TraktUserListItem
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.rememberScrollState as rememberHorizontalScrollState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Suppress("LongMethod")
@@ -90,6 +92,10 @@ fun WatchlistListContent(
     onSortOptionChange: (WatchlistSortOption) -> Unit,
     modifier: Modifier = Modifier,
     lazyListState: LazyListState = rememberLazyListState(),
+    statusFilter: String? = null,
+    availableStatuses: List<String> = emptyList(),
+    totalWatchlistCount: Int = 0,
+    onStatusFilterChange: (String?) -> Unit = {},
     header: @Composable () -> Unit = {},
     onItemClick: (item: TraktUserListItem) -> Unit,
     onRemoveItem: (item: TraktUserListItem) -> Unit,
@@ -128,7 +134,12 @@ fun WatchlistListContent(
                     ) {
                         SectionHeadingText(
                             modifier = Modifier.weight(1f),
-                            text = stringResource(id = R.string.title_favorites_list),
+                            text =
+                                if (statusFilter != null || watchlistSearchQuery.isNotBlank()) {
+                                    "${stringResource(id = R.string.title_favorites_list)} (${watchlistItems.size} of $totalWatchlistCount)"
+                                } else {
+                                    stringResource(id = R.string.title_favorites_list)
+                                },
                         )
                         Row {
                             androidx.compose.material3.IconButton(onClick = { isSearchVisible = !isSearchVisible }) {
@@ -225,6 +236,35 @@ fun WatchlistListContent(
                                 }
                             },
                         )
+                    }
+
+                    // Status filter chips
+                    if (availableStatuses.isNotEmpty()) {
+                        Row(
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 8.dp)
+                                    .horizontalScroll(rememberHorizontalScrollState()),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            androidx.compose.material3.FilterChip(
+                                selected = statusFilter == null,
+                                onClick = { onStatusFilterChange(null) },
+                                label = { Text("All") },
+                            )
+                            availableStatuses.forEach { status ->
+                                androidx.compose.material3.FilterChip(
+                                    selected = statusFilter == status,
+                                    onClick = {
+                                        onStatusFilterChange(
+                                            if (statusFilter == status) null else status,
+                                        )
+                                    },
+                                    label = { Text(status) },
+                                )
+                            }
+                        }
                     }
                 }
             }

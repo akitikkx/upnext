@@ -86,19 +86,54 @@ class TraktAccountViewModel
         private val _watchlistSortOption = MutableStateFlow(WatchlistSortOption.ADDED)
         val watchlistSortOption: StateFlow<WatchlistSortOption> = _watchlistSortOption.asStateFlow()
 
+        private val _watchlistStatusFilter = MutableStateFlow<String?>(null)
+        val watchlistStatusFilter: StateFlow<String?> = _watchlistStatusFilter.asStateFlow()
+
+        // Available status values derived from the raw watchlist data
+        val availableStatuses: StateFlow<List<String>> =
+            traktRepository.traktWatchlistShows.map { shows ->
+                shows
+                    .mapNotNull { it.status }
+                    .filter { it.isNotBlank() }
+                    .distinct()
+                    .sorted()
+            }.stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyList(),
+            )
+
+        // Total count before filtering (for "X of Y" badge)
+        val totalWatchlistCount: StateFlow<Int> =
+            traktRepository.traktWatchlistShows.map { shows ->
+                shows.distinctBy { it.traktID }.size
+            }.stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = 0,
+            )
+
         // Watchlist shows data
         val watchlistShows: StateFlow<List<TraktUserListItem>> =
             combine(
                 traktRepository.traktWatchlistShows,
                 _watchlistSearchQuery,
                 _watchlistSortOption,
-            ) { shows, query, sortOption ->
+                _watchlistStatusFilter,
+            ) { shows, query, sortOption, statusFilter ->
                 var filteredList = shows.distinctBy { it.traktID }
 
                 if (query.isNotBlank()) {
                     filteredList =
                         filteredList.filter {
                             it.title?.contains(query, ignoreCase = true) == true
+                        }
+                }
+
+                if (statusFilter != null) {
+                    filteredList =
+                        filteredList.filter {
+                            it.status.equals(statusFilter, ignoreCase = true)
                         }
                 }
 
@@ -123,6 +158,10 @@ class TraktAccountViewModel
 
         fun onSortOptionChange(option: WatchlistSortOption) {
             _watchlistSortOption.value = option
+        }
+
+        fun onStatusFilterChange(status: String?) {
+            _watchlistStatusFilter.value = status
         }
 
         // Error state specifically for loading watchlist shows
