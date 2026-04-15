@@ -508,7 +508,7 @@ private fun ExpandedDetailArea(
                 .weight(rightWeight)
                 .fillMaxHeight()
                 .verticalScroll(scrollState)
-                .padding(bottom = 16.dp, end = 16.dp, top = 16.dp, start = if (windowSizeClass == WindowWidthSizeClass.Medium) 8.dp else 16.dp)
+                .padding(bottom = 24.dp, end = 24.dp, top = 0.dp, start = 32.dp)
         ) {
             if (uiState.isLoadingSummary && uiState.showSummary == null) {
                 SummaryPlaceholder()
@@ -535,6 +535,7 @@ private fun ExpandedDetailArea(
                 SynopsisArea(
                     showSummary = uiState.showSummary,
                     widthSizeClass = windowSizeClass,
+                    modifier = Modifier.padding(top = 8.dp),
                 )
 
                 if (uiState.showSummary.id != -1) {
@@ -542,16 +543,16 @@ private fun ExpandedDetailArea(
                 }
             }
 
-            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
+            Spacer(modifier = Modifier.height(32.dp))
             ShowCast(uiState = uiState, onCastItemClick = onCastItemClick)
             
-            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
+            Spacer(modifier = Modifier.height(32.dp))
             NextEpisode(uiState = uiState)
             
-            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
+            Spacer(modifier = Modifier.height(32.dp))
             PreviousEpisode(uiState = uiState)
             
-            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
+            Spacer(modifier = Modifier.height(32.dp))
             SimilarShows(uiState = uiState, onSimilarShowClick = onSimilarShowClick)
             
             Spacer(modifier = Modifier.height(contentPadding.calculateBottomPadding()))
