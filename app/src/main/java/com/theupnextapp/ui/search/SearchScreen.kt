@@ -146,7 +146,7 @@ fun SearchArea(
     onResultClick: (item: ShowSearch) -> Unit,
     onRecentSearchClick: (query: String) -> Unit,
     onClearRecentSearches: () -> Unit,
-    contentPadding: PaddingValues,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
     val searchQueryState = rememberSaveable { mutableStateOf("") }
 
@@ -210,7 +210,7 @@ fun SearchInputField(
 @Composable
 fun SearchResultsList(
     list: List<ShowSearch>,
-    contentPadding: PaddingValues,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
     onClick: (item: ShowSearch) -> Unit,
 ) {
     LazyColumn(
@@ -231,7 +231,7 @@ fun RecentSearchesList(
     list: List<RecentSearch>,
     onRecentSearchClick: (query: String) -> Unit,
     onClearRecentSearches: () -> Unit,
-    contentPadding: PaddingValues,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
     Column(modifier = Modifier.imePadding()) {
         Row(

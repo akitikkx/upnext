@@ -270,7 +270,7 @@ internal fun AccountContent(
     onWatchlistClick: (item: TraktUserListItem) -> Unit,
     onRemoveItem: (item: TraktUserListItem) -> Unit,
     onLogoutClick: () -> Unit,
-    contentPadding: PaddingValues,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
     Column(
         modifier =
