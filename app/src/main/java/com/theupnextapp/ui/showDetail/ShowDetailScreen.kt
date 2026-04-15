@@ -60,6 +60,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.ui.draw.clip
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
@@ -435,18 +436,36 @@ private fun ExpandedDetailArea(
             modifier = Modifier
                 .weight(0.35f)
                 .fillMaxHeight()
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp),
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Display back button natively here since we aren't using BackdropAndTitle
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
-                horizontalArrangement = Arrangement.Start
-            ) {
+            val posterUrl = uiState.showSummary?.originalImageUrl 
+                ?: uiState.showSummary?.mediumImageUrl 
+                ?: showDetailArgs.showImageUrl
+
+            Box(modifier = Modifier.fillMaxWidth().height(450.dp)) {
+                if (posterUrl != null) {
+                    com.theupnextapp.core.designsystem.ui.components.PosterImage(
+                        url = posterUrl,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(
+                                androidx.compose.foundation.shape.RoundedCornerShape(
+                                    bottomEnd = 24.dp, topEnd = 24.dp
+                                )
+                            )
+                    )
+                }
+
                 androidx.compose.material3.IconButton(
                     onClick = onBack,
-                    modifier = Modifier.background(color = androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.5f), shape = androidx.compose.foundation.shape.CircleShape)
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .background(
+                            color = androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.5f),
+                            shape = androidx.compose.foundation.shape.CircleShape
+                        )
+                        .align(Alignment.TopStart)
                 ) {
                     androidx.compose.material3.Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -456,19 +475,7 @@ private fun ExpandedDetailArea(
                 }
             }
 
-            val posterUrl = uiState.showSummary?.originalImageUrl 
-                ?: uiState.showSummary?.mediumImageUrl 
-                ?: showDetailArgs.showImageUrl
-            
-            if (posterUrl != null) {
-                com.theupnextapp.core.designsystem.ui.components.PosterImage(
-                    url = posterUrl,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(350.dp) // Generous height for expanded poster
-                        .padding(bottom = 16.dp)
-                )
-            }
+            Spacer(modifier = Modifier.height(16.dp))
 
             if (uiState.showSummary?.id != -1 && uiState.showSummary != null) {
                 ShowDetailButtons(
