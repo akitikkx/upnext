@@ -42,7 +42,8 @@ fun SynopsisArea(
     modifier: Modifier = Modifier,
 ) {
     when (widthSizeClass) {
-        WindowWidthSizeClass.Compact ->
+        WindowWidthSizeClass.Compact,
+        WindowWidthSizeClass.Medium ->
             SynopsisAreaCompact(
                 showSummary = showSummary,
                 modifier = modifier,

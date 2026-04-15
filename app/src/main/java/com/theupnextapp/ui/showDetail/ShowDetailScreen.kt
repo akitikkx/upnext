@@ -269,7 +269,7 @@ fun DetailArea(
 ) {
     val windowSizeClass = getWindowSizeClass()?.widthSizeClass ?: WindowWidthSizeClass.Compact
 
-    if (windowSizeClass == WindowWidthSizeClass.Expanded || windowSizeClass == WindowWidthSizeClass.Medium) {
+    if (windowSizeClass == WindowWidthSizeClass.Expanded) {
         ExpandedDetailArea(
             uiState = uiState,
             showDetailArgs = showDetailArgs,
@@ -426,8 +426,8 @@ private fun ExpandedDetailArea(
 ) {
     val scrollState = rememberScrollState()
 
-    val leftWeight = if (windowSizeClass == WindowWidthSizeClass.Medium) 0.45f else 0.35f
-    val rightWeight = if (windowSizeClass == WindowWidthSizeClass.Medium) 0.55f else 0.65f
+    val leftWeight = 0.35f
+    val rightWeight = 0.65f
 
     Row(
         modifier = Modifier
