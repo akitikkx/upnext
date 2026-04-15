@@ -27,6 +27,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -264,8 +266,70 @@ fun DetailArea(
     onBack: () -> Unit,
     contentPadding: PaddingValues,
 ) {
-    val scrollState = rememberScrollState()
     val windowSizeClass = getWindowSizeClass()?.widthSizeClass ?: WindowWidthSizeClass.Compact
+
+    if (windowSizeClass == WindowWidthSizeClass.Expanded || windowSizeClass == WindowWidthSizeClass.Medium) {
+        ExpandedDetailArea(
+            uiState = uiState,
+            showDetailArgs = showDetailArgs,
+            isAuthorizedOnTrakt = isAuthorizedOnTrakt,
+            isWatchlist = isWatchlist,
+            isWatchlistLoading = isWatchlistLoading,
+            showRating = showRating,
+            showStats = showStats,
+            onSeasonsClick = onSeasonsClick,
+            onWatchlistClick = onWatchlistClick,
+            onRateClick = onRateClick,
+            onCastItemClick = onCastItemClick,
+            onSimilarShowClick = onSimilarShowClick,
+            onRetry = onRetry,
+            onBack = onBack,
+            contentPadding = contentPadding,
+            windowSizeClass = windowSizeClass,
+        )
+    } else {
+        CompactDetailArea(
+            uiState = uiState,
+            showDetailArgs = showDetailArgs,
+            isAuthorizedOnTrakt = isAuthorizedOnTrakt,
+            isWatchlist = isWatchlist,
+            isWatchlistLoading = isWatchlistLoading,
+            showRating = showRating,
+            showStats = showStats,
+            onSeasonsClick = onSeasonsClick,
+            onWatchlistClick = onWatchlistClick,
+            onRateClick = onRateClick,
+            onCastItemClick = onCastItemClick,
+            onSimilarShowClick = onSimilarShowClick,
+            onRetry = onRetry,
+            onBack = onBack,
+            contentPadding = contentPadding,
+            windowSizeClass = windowSizeClass,
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+@Composable
+private fun CompactDetailArea(
+    uiState: ShowDetailViewModel.ShowDetailUiState,
+    showDetailArgs: ShowDetailArg,
+    isAuthorizedOnTrakt: Boolean,
+    isWatchlist: Boolean,
+    isWatchlistLoading: Boolean,
+    showRating: TraktShowRating?,
+    showStats: TraktShowStats?,
+    onSeasonsClick: () -> Unit,
+    onWatchlistClick: () -> Unit,
+    onRateClick: (Int) -> Unit,
+    onCastItemClick: (item: TraktCast) -> Unit,
+    onSimilarShowClick: (item: TraktRelatedShows) -> Unit,
+    onRetry: () -> Unit,
+    onBack: () -> Unit,
+    contentPadding: PaddingValues,
+    windowSizeClass: WindowWidthSizeClass,
+) {
+    val scrollState = rememberScrollState()
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -279,8 +343,8 @@ fun DetailArea(
                     .verticalScroll(scrollState)
                     .padding(bottom = 16.dp),
         ) {
-            if (uiState.isLoadingSummary && uiState.showSummary == null) { // Show placeholder only if no data yet
-                SummaryPlaceholder() // Or a simpler version, or nothing if LinearProgress is enough
+            if (uiState.isLoadingSummary && uiState.showSummary == null) {
+                SummaryPlaceholder()
             } else if (uiState.summaryErrorMessage != null) {
                 ErrorState(message = uiState.summaryErrorMessage) {
                     onRetry()
@@ -296,7 +360,6 @@ fun DetailArea(
                     widthSizeClass = windowSizeClass,
                 )
                 if (uiState.showSummary.id != -1) {
-                    // ----- Watch Providers Section -----
                     WatchProvidersSection(uiState = uiState)
 
                     ShowDetailButtons(
@@ -312,7 +375,6 @@ fun DetailArea(
                     )
                 }
             } else if (showDetailArgs.showImageUrl != null || showDetailArgs.showBackgroundUrl != null) {
-                // Fallback for initial state with args but no summary yet
                 BackdropAndTitle(showDetailArgs = showDetailArgs, showSummary = null, onBack = onBack)
             }
 
@@ -323,24 +385,165 @@ fun DetailArea(
                 }
             }
 
-            // ----- Show Cast Section -----
             ShowCast(uiState = uiState, onCastItemClick = onCastItemClick)
             Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
 
-            // ----- Next Episode Section -----
             NextEpisode(uiState = uiState)
             Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
 
-            // ----- Previous Episode Section -----
             PreviousEpisode(uiState = uiState)
             Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
 
-            // ----- Trakt Stats Section (Optional) -----
             showStats?.let { statsData -> }
 
-            // ----- Similar Shows Section -----
             SimilarShows(uiState = uiState, onSimilarShowClick = onSimilarShowClick)
             Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
+            Spacer(modifier = Modifier.height(contentPadding.calculateBottomPadding()))
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+@Composable
+private fun ExpandedDetailArea(
+    uiState: ShowDetailViewModel.ShowDetailUiState,
+    showDetailArgs: ShowDetailArg,
+    isAuthorizedOnTrakt: Boolean,
+    isWatchlist: Boolean,
+    isWatchlistLoading: Boolean,
+    showRating: TraktShowRating?,
+    showStats: TraktShowStats?,
+    onSeasonsClick: () -> Unit,
+    onWatchlistClick: () -> Unit,
+    onRateClick: (Int) -> Unit,
+    onCastItemClick: (item: TraktCast) -> Unit,
+    onSimilarShowClick: (item: TraktRelatedShows) -> Unit,
+    onRetry: () -> Unit,
+    onBack: () -> Unit,
+    contentPadding: PaddingValues,
+    windowSizeClass: WindowWidthSizeClass,
+) {
+    val scrollState = rememberScrollState()
+
+    Row(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = contentPadding.calculateTopPadding())
+    ) {
+        // Left Column: Poster and Action Buttons
+        Column(
+            modifier = Modifier
+                .weight(0.35f)
+                .fillMaxHeight()
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Display back button natively here since we aren't using BackdropAndTitle
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                horizontalArrangement = Arrangement.Start
+            ) {
+                androidx.compose.material3.IconButton(
+                    onClick = onBack,
+                    modifier = Modifier.background(color = androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.5f), shape = androidx.compose.foundation.shape.CircleShape)
+                ) {
+                    androidx.compose.material3.Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back",
+                        tint = androidx.compose.ui.graphics.Color.White,
+                    )
+                }
+            }
+
+            val posterUrl = uiState.showSummary?.originalImageUrl 
+                ?: uiState.showSummary?.mediumImageUrl 
+                ?: showDetailArgs.showImageUrl
+            
+            if (posterUrl != null) {
+                com.theupnextapp.core.designsystem.ui.components.PosterImage(
+                    url = posterUrl,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(350.dp) // Generous height for expanded poster
+                        .padding(bottom = 16.dp)
+                )
+            }
+
+            if (uiState.showSummary?.id != -1 && uiState.showSummary != null) {
+                ShowDetailButtons(
+                    isAuthorizedOnTrakt = isAuthorizedOnTrakt,
+                    isWatchlist = isWatchlist,
+                    isLoading = isWatchlistLoading,
+                    isRating = uiState.isRating,
+                    userRating = uiState.userRating,
+                    onSeasonsClick = onSeasonsClick,
+                    onWatchlistClick = onWatchlistClick,
+                    onRateClick = onRateClick,
+                    widthSizeClass = windowSizeClass,
+                )
+            }
+
+            showRating?.let { ratingData ->
+                if (ratingData.votes != 0) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    TraktRatingSummary(ratingData, userRating = uiState.userRating)
+                }
+            }
+        }
+
+        // Right Column: Title, Synopsis, Cast, etc.
+        Column(
+            modifier = Modifier
+                .weight(0.65f)
+                .fillMaxHeight()
+                .verticalScroll(scrollState)
+                .padding(bottom = 16.dp, end = 16.dp, top = 16.dp)
+        ) {
+            if (uiState.isLoadingSummary && uiState.showSummary == null) {
+                SummaryPlaceholder()
+            } else if (uiState.summaryErrorMessage != null) {
+                ErrorState(message = uiState.summaryErrorMessage) { onRetry() }
+            } else if (uiState.showSummary != null) {
+                // Hero Title
+                uiState.showSummary.name?.let { name ->
+                    androidx.compose.material3.Text(
+                        text = name,
+                        style = androidx.compose.material3.MaterialTheme.typography.headlineLarge,
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp)
+                    )
+                }
+                uiState.showSummary.status?.let { status ->
+                    androidx.compose.material3.Text(
+                        text = status,
+                        style = androidx.compose.material3.MaterialTheme.typography.labelMedium,
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
+                    )
+                }
+
+                SynopsisArea(
+                    showSummary = uiState.showSummary,
+                    widthSizeClass = windowSizeClass,
+                )
+
+                if (uiState.showSummary.id != -1) {
+                    WatchProvidersSection(uiState = uiState)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
+            ShowCast(uiState = uiState, onCastItemClick = onCastItemClick)
+            
+            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
+            NextEpisode(uiState = uiState)
+            
+            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
+            PreviousEpisode(uiState = uiState)
+            
+            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
+            SimilarShows(uiState = uiState, onSimilarShowClick = onSimilarShowClick)
+            
             Spacer(modifier = Modifier.height(contentPadding.calculateBottomPadding()))
         }
     }
@@ -361,101 +564,196 @@ fun ShowDetailButtons(
     widthSizeClass: WindowWidthSizeClass = WindowWidthSizeClass.Compact,
 ) {
     var showRatingSheet by rememberSaveable { mutableStateOf(false) }
-    val buttonSpacing = if (widthSizeClass == WindowWidthSizeClass.Expanded) 24.dp else 16.dp
+    val isExpanded = widthSizeClass == WindowWidthSizeClass.Expanded || widthSizeClass == WindowWidthSizeClass.Medium
+    val buttonSpacing = if (isExpanded) 12.dp else 16.dp
 
-    Row(
-        modifier =
-            Modifier
-                .wrapContentWidth(Alignment.Start)
+    if (isExpanded) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(
                     horizontal = dimensionResource(id = R.dimen.padding_standard_double),
                     vertical = dimensionResource(id = R.dimen.padding_standard),
-                )
-                .height(IntrinsicSize.Min),
-        horizontalArrangement = Arrangement.spacedBy(buttonSpacing),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        androidx.compose.material3.OutlinedButton(
-            onClick = { onSeasonsClick() },
-            modifier = Modifier.widthIn(min = 120.dp).fillMaxHeight(),
+                ),
+            verticalArrangement = Arrangement.spacedBy(buttonSpacing),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(text = "Seasons")
-        }
-        if (isAuthorizedOnTrakt == true) {
-            if (isLoading) {
-                Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(24.dp),
-                        strokeWidth = 2.dp,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-                }
-            } else {
-                if (isWatchlist == true) {
-                    androidx.compose.material3.OutlinedButton(
-                        onClick = { onWatchlistClick() },
-                        modifier = Modifier.widthIn(min = 120.dp).fillMaxHeight(),
-                    ) {
-                        Icon(
-                            imageVector =
-                                androidx.compose.ui.graphics.vector.ImageVector.vectorResource(
-                                    id = R.drawable.ic_watchlist_remove,
-                                ),
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp),
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = "Listed",
-                            maxLines = 1,
+            androidx.compose.material3.OutlinedButton(
+                onClick = { onSeasonsClick() },
+                modifier = Modifier.fillMaxWidth().height(48.dp),
+            ) {
+                Text(text = "Seasons")
+            }
+            if (isAuthorizedOnTrakt == true) {
+                if (isLoading) {
+                    Box(modifier = Modifier.fillMaxWidth().height(48.dp), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            strokeWidth = 2.dp,
+                            color = MaterialTheme.colorScheme.primary,
                         )
                     }
                 } else {
-                    Button(
-                        onClick = { onWatchlistClick() },
-                        modifier = Modifier.widthIn(min = 120.dp).fillMaxHeight(),
+                    if (isWatchlist == true) {
+                        androidx.compose.material3.OutlinedButton(
+                            onClick = { onWatchlistClick() },
+                            modifier = Modifier.fillMaxWidth().height(48.dp),
+                        ) {
+                            Icon(
+                                imageVector =
+                                    androidx.compose.ui.graphics.vector.ImageVector.vectorResource(
+                                        id = R.drawable.ic_watchlist_remove,
+                                    ),
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp),
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = "Listed",
+                                maxLines = 1,
+                            )
+                        }
+                    } else {
+                        Button(
+                            onClick = { onWatchlistClick() },
+                            modifier = Modifier.fillMaxWidth().height(48.dp),
+                        ) {
+                            Icon(
+                                imageVector = androidx.compose.ui.graphics.vector.ImageVector.vectorResource(id = R.drawable.ic_watchlist_add),
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp),
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = "List",
+                                maxLines = 1,
+                            )
+                        }
+                    }
+                }
+
+                // Rate button
+                if (isRating) {
+                    Box(modifier = Modifier.fillMaxWidth().height(48.dp), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            strokeWidth = 2.dp,
+                        )
+                    }
+                } else {
+                    androidx.compose.material3.OutlinedButton(
+                        onClick = { showRatingSheet = true },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp)
+                            .testTag("rate_show_button"),
                     ) {
                         Icon(
-                            imageVector = androidx.compose.ui.graphics.vector.ImageVector.vectorResource(id = R.drawable.ic_watchlist_add),
+                            imageVector = Icons.Filled.Star,
                             contentDescription = null,
                             modifier = Modifier.size(16.dp),
+                            tint = RatingStarColor,
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "List",
-                            maxLines = 1,
+                            text = if (userRating != null) "$userRating★" else "Rate",
                         )
                     }
                 }
             }
-
-            // Rate button
-            if (isRating) {
-                Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(24.dp),
-                        strokeWidth = 2.dp,
+        }
+    } else {
+        Row(
+            modifier =
+                Modifier
+                    .wrapContentWidth(Alignment.Start)
+                    .padding(
+                        horizontal = dimensionResource(id = R.dimen.padding_standard_double),
+                        vertical = dimensionResource(id = R.dimen.padding_standard),
                     )
+                    .height(IntrinsicSize.Min),
+            horizontalArrangement = Arrangement.spacedBy(buttonSpacing),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            androidx.compose.material3.OutlinedButton(
+                onClick = { onSeasonsClick() },
+                modifier = Modifier.widthIn(min = 120.dp).fillMaxHeight(),
+            ) {
+                Text(text = "Seasons")
+            }
+            if (isAuthorizedOnTrakt == true) {
+                if (isLoading) {
+                    Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            strokeWidth = 2.dp,
+                            color = MaterialTheme.colorScheme.primary,
+                        )
+                    }
+                } else {
+                    if (isWatchlist == true) {
+                        androidx.compose.material3.OutlinedButton(
+                            onClick = { onWatchlistClick() },
+                            modifier = Modifier.widthIn(min = 120.dp).fillMaxHeight(),
+                        ) {
+                            Icon(
+                                imageVector = androidx.compose.ui.graphics.vector.ImageVector.vectorResource(id = R.drawable.ic_watchlist_remove),
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp),
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = "Listed",
+                                maxLines = 1,
+                            )
+                        }
+                    } else {
+                        Button(
+                            onClick = { onWatchlistClick() },
+                            modifier = Modifier.widthIn(min = 120.dp).fillMaxHeight(),
+                        ) {
+                            Icon(
+                                imageVector = androidx.compose.ui.graphics.vector.ImageVector.vectorResource(id = R.drawable.ic_watchlist_add),
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp),
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = "List",
+                                maxLines = 1,
+                            )
+                        }
+                    }
                 }
-            } else {
-                androidx.compose.material3.OutlinedButton(
-                    onClick = { showRatingSheet = true },
-                    modifier =
-                        Modifier
-                            .widthIn(min = 120.dp)
-                            .fillMaxHeight()
-                            .testTag("rate_show_button"),
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Star,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp),
-                        tint = RatingStarColor,
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = if (userRating != null) "$userRating★" else "Rate",
-                    )
+
+                // Rate button
+                if (isRating) {
+                    Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            strokeWidth = 2.dp,
+                        )
+                    }
+                } else {
+                    androidx.compose.material3.OutlinedButton(
+                        onClick = { showRatingSheet = true },
+                        modifier =
+                            Modifier
+                                .widthIn(min = 120.dp)
+                                .fillMaxHeight()
+                                .testTag("rate_show_button"),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Star,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                            tint = RatingStarColor,
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = if (userRating != null) "$userRating★" else "Rate",
+                        )
+                    }
                 }
             }
         }
