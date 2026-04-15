@@ -33,8 +33,6 @@ plugins {
     alias(libs.plugins.hilt.gradle)
     alias(libs.plugins.baseline.profiles)
     alias(libs.plugins.kotlin.serialization)
-
-    id("kotlin-parcelize")
 }
 
 def localProperties = new Properties()

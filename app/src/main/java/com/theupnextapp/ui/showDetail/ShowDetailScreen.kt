@@ -28,7 +28,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -45,6 +44,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.Button
@@ -60,7 +60,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.ui.draw.clip
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
@@ -345,7 +344,61 @@ private fun CompactDetailArea(
                     .padding(bottom = 16.dp),
         ) {
             if (uiState.isLoadingSummary && uiState.showSummary == null) {
-                SummaryPlaceholder()
+                Column(modifier = Modifier.shimmer()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp)
+                            .background(Color.LightGray.copy(alpha = 0.3f)),
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(0.7f)
+                            .height(24.dp)
+                            .padding(horizontal = 16.dp)
+                            .background(Color.LightGray.copy(alpha = 0.3f)),
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(0.5f)
+                            .height(16.dp)
+                            .padding(horizontal = 16.dp)
+                            .background(Color.LightGray.copy(alpha = 0.3f)),
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Column(Modifier.padding(horizontal = 16.dp)) {
+                        repeat(4) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(12.dp)
+                                    .background(Color.LightGray.copy(alpha = 0.3f)),
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(100.dp, 40.dp)
+                                .background(Color.LightGray.copy(alpha = 0.3f)),
+                        )
+                        Box(
+                            modifier = Modifier
+                                .size(100.dp, 40.dp)
+                                .background(Color.LightGray.copy(alpha = 0.3f)),
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
             } else if (uiState.summaryErrorMessage != null) {
                 ErrorState(message = uiState.summaryErrorMessage) {
                     onRetry()
@@ -429,133 +482,141 @@ private fun ExpandedDetailArea(
     val leftWeight = 0.35f
     val rightWeight = 0.65f
 
-    Row(
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(top = contentPadding.calculateTopPadding())
+            .verticalScroll(scrollState)
     ) {
-        // Left Column: Poster and Action Buttons
-        Column(
+        Row(
             modifier = Modifier
-                .weight(leftWeight)
-                .fillMaxHeight()
-                .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .fillMaxWidth()
+                .padding(bottom = 24.dp)
         ) {
-            val posterUrl = uiState.showSummary?.originalImageUrl 
-                ?: uiState.showSummary?.mediumImageUrl 
-                ?: showDetailArgs.showImageUrl
+            // Left Column: Poster and Action Buttons
+            Column(
+                modifier = Modifier
+                    .weight(leftWeight)
+                    .padding(end = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                val posterUrl = uiState.showSummary?.originalImageUrl
+                    ?: uiState.showSummary?.mediumImageUrl
+                    ?: showDetailArgs.showImageUrl
 
-            Box(modifier = Modifier.fillMaxWidth().height(450.dp)) {
-                if (posterUrl != null) {
-                    com.theupnextapp.core.designsystem.ui.components.PosterImage(
-                        url = posterUrl,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .clip(
-                                androidx.compose.foundation.shape.RoundedCornerShape(
-                                    bottomEnd = 24.dp, topEnd = 24.dp
+                Box(modifier = Modifier.fillMaxWidth().height(450.dp)) {
+                    if (posterUrl != null) {
+                        com.theupnextapp.core.designsystem.ui.components.PosterImage(
+                            url = posterUrl,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clip(
+                                    androidx.compose.foundation.shape.RoundedCornerShape(
+                                        bottomEnd = 24.dp, topEnd = 24.dp
+                                    )
                                 )
-                            )
-                    )
-                }
-
-                androidx.compose.material3.IconButton(
-                    onClick = onBack,
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .background(
-                            color = androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.5f),
-                            shape = androidx.compose.foundation.shape.CircleShape
                         )
-                        .align(Alignment.TopStart)
-                ) {
-                    androidx.compose.material3.Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
-                        tint = androidx.compose.ui.graphics.Color.White,
+                    }
+
+                    androidx.compose.material3.IconButton(
+                        onClick = onBack,
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .background(
+                                color = androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.5f),
+                                shape = androidx.compose.foundation.shape.CircleShape
+                            )
+                            .align(Alignment.TopStart)
+                    ) {
+                        androidx.compose.material3.Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+                            tint = androidx.compose.ui.graphics.Color.White,
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                if (uiState.showSummary?.id != -1 && uiState.showSummary != null) {
+                    ShowDetailButtons(
+                        isAuthorizedOnTrakt = isAuthorizedOnTrakt,
+                        isWatchlist = isWatchlist,
+                        isLoading = isWatchlistLoading,
+                        isRating = uiState.isRating,
+                        userRating = uiState.userRating,
+                        onSeasonsClick = onSeasonsClick,
+                        onWatchlistClick = onWatchlistClick,
+                        onRateClick = onRateClick,
+                        widthSizeClass = windowSizeClass,
                     )
                 }
-            }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            if (uiState.showSummary?.id != -1 && uiState.showSummary != null) {
-                ShowDetailButtons(
-                    isAuthorizedOnTrakt = isAuthorizedOnTrakt,
-                    isWatchlist = isWatchlist,
-                    isLoading = isWatchlistLoading,
-                    isRating = uiState.isRating,
-                    userRating = uiState.userRating,
-                    onSeasonsClick = onSeasonsClick,
-                    onWatchlistClick = onWatchlistClick,
-                    onRateClick = onRateClick,
-                    widthSizeClass = windowSizeClass,
-                )
-            }
-
-            showRating?.let { ratingData ->
-                if (ratingData.votes != 0) {
-                    Spacer(modifier = Modifier.height(16.dp))
-                    TraktRatingSummary(ratingData, userRating = uiState.userRating)
+                showRating?.let { ratingData ->
+                    if (ratingData.votes != 0) {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        TraktRatingSummary(ratingData, userRating = uiState.userRating)
+                    }
                 }
             }
-        }
 
-        // Right Column: Title, Synopsis, Cast, etc.
+            // Right Column: Title, Synopsis, Providers
+            Column(
+                modifier = Modifier
+                    .weight(rightWeight)
+                    .padding(end = 24.dp, start = 16.dp)
+            ) {
+                if (uiState.isLoadingSummary && uiState.showSummary == null) {
+                    SummaryPlaceholder()
+                } else if (uiState.summaryErrorMessage != null) {
+                    ErrorState(message = uiState.summaryErrorMessage) { onRetry() }
+                } else if (uiState.showSummary != null) {
+                    // Hero Title
+                    uiState.showSummary.name?.let { name ->
+                        androidx.compose.material3.Text(
+                            text = name,
+                            style = androidx.compose.material3.MaterialTheme.typography.headlineLarge,
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                            modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp)
+                        )
+                    }
+                    uiState.showSummary.status?.let { status ->
+                        androidx.compose.material3.Text(
+                            text = status,
+                            style = androidx.compose.material3.MaterialTheme.typography.labelMedium,
+                            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
+                        )
+                    }
+
+                    SynopsisArea(
+                        showSummary = uiState.showSummary,
+                        widthSizeClass = windowSizeClass,
+                        modifier = Modifier.padding(top = 8.dp),
+                    )
+
+                    if (uiState.showSummary.id != -1) {
+                        WatchProvidersSection(uiState = uiState)
+                    }
+                }
+            }
+        } // End of top Row
+
+        // Full width lists below
         Column(
             modifier = Modifier
-                .weight(rightWeight)
-                .fillMaxHeight()
-                .verticalScroll(scrollState)
-                .padding(bottom = 24.dp, end = 24.dp, top = 0.dp, start = 32.dp)
+                .fillMaxWidth()
+                .padding(bottom = contentPadding.calculateBottomPadding())
         ) {
-            if (uiState.isLoadingSummary && uiState.showSummary == null) {
-                SummaryPlaceholder()
-            } else if (uiState.summaryErrorMessage != null) {
-                ErrorState(message = uiState.summaryErrorMessage) { onRetry() }
-            } else if (uiState.showSummary != null) {
-                // Hero Title
-                uiState.showSummary.name?.let { name ->
-                    androidx.compose.material3.Text(
-                        text = name,
-                        style = androidx.compose.material3.MaterialTheme.typography.headlineLarge,
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                        modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp)
-                    )
-                }
-                uiState.showSummary.status?.let { status ->
-                    androidx.compose.material3.Text(
-                        text = status,
-                        style = androidx.compose.material3.MaterialTheme.typography.labelMedium,
-                        modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
-                    )
-                }
-
-                SynopsisArea(
-                    showSummary = uiState.showSummary,
-                    widthSizeClass = windowSizeClass,
-                    modifier = Modifier.padding(top = 8.dp),
-                )
-
-                if (uiState.showSummary.id != -1) {
-                    WatchProvidersSection(uiState = uiState)
-                }
-            }
-
-            Spacer(modifier = Modifier.height(32.dp))
             ShowCast(uiState = uiState, onCastItemClick = onCastItemClick)
-            
+
             Spacer(modifier = Modifier.height(32.dp))
             NextEpisode(uiState = uiState)
-            
+
             Spacer(modifier = Modifier.height(32.dp))
             PreviousEpisode(uiState = uiState)
-            
+
             Spacer(modifier = Modifier.height(32.dp))
             SimilarShows(uiState = uiState, onSimilarShowClick = onSimilarShowClick)
-            
-            Spacer(modifier = Modifier.height(contentPadding.calculateBottomPadding()))
         }
     }
 }
@@ -579,195 +640,29 @@ fun ShowDetailButtons(
     val buttonSpacing = if (isExpanded) 12.dp else 16.dp
 
     if (isExpanded) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    horizontal = dimensionResource(id = R.dimen.padding_standard_double),
-                    vertical = dimensionResource(id = R.dimen.padding_standard),
-                ),
-            verticalArrangement = Arrangement.spacedBy(buttonSpacing),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            androidx.compose.material3.OutlinedButton(
-                onClick = { onSeasonsClick() },
-                modifier = Modifier.fillMaxWidth().height(48.dp),
-            ) {
-                Text(text = "Seasons")
-            }
-            if (isAuthorizedOnTrakt == true) {
-                if (isLoading) {
-                    Box(modifier = Modifier.fillMaxWidth().height(48.dp), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(24.dp),
-                            strokeWidth = 2.dp,
-                            color = MaterialTheme.colorScheme.primary,
-                        )
-                    }
-                } else {
-                    if (isWatchlist == true) {
-                        androidx.compose.material3.OutlinedButton(
-                            onClick = { onWatchlistClick() },
-                            modifier = Modifier.fillMaxWidth().height(48.dp),
-                        ) {
-                            Icon(
-                                imageVector =
-                                    androidx.compose.ui.graphics.vector.ImageVector.vectorResource(
-                                        id = R.drawable.ic_watchlist_remove,
-                                    ),
-                                contentDescription = null,
-                                modifier = Modifier.size(16.dp),
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = "Listed",
-                                maxLines = 1,
-                            )
-                        }
-                    } else {
-                        Button(
-                            onClick = { onWatchlistClick() },
-                            modifier = Modifier.fillMaxWidth().height(48.dp),
-                        ) {
-                            Icon(
-                                imageVector = androidx.compose.ui.graphics.vector.ImageVector.vectorResource(id = R.drawable.ic_watchlist_add),
-                                contentDescription = null,
-                                modifier = Modifier.size(16.dp),
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = "List",
-                                maxLines = 1,
-                            )
-                        }
-                    }
-                }
-
-                // Rate button
-                if (isRating) {
-                    Box(modifier = Modifier.fillMaxWidth().height(48.dp), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(24.dp),
-                            strokeWidth = 2.dp,
-                        )
-                    }
-                } else {
-                    androidx.compose.material3.OutlinedButton(
-                        onClick = { showRatingSheet = true },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(48.dp)
-                            .testTag("rate_show_button"),
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Star,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp),
-                            tint = RatingStarColor,
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = if (userRating != null) "$userRating★" else "Rate",
-                        )
-                    }
-                }
-            }
-        }
+        ShowDetailButtonsExpanded(
+            isAuthorizedOnTrakt = isAuthorizedOnTrakt,
+            isWatchlist = isWatchlist,
+            isLoading = isLoading,
+            isRating = isRating,
+            userRating = userRating,
+            onSeasonsClick = onSeasonsClick,
+            onWatchlistClick = onWatchlistClick,
+            onRateClick = { showRatingSheet = true },
+            buttonSpacing = buttonSpacing,
+        )
     } else {
-        Row(
-            modifier =
-                Modifier
-                    .wrapContentWidth(Alignment.Start)
-                    .padding(
-                        horizontal = dimensionResource(id = R.dimen.padding_standard_double),
-                        vertical = dimensionResource(id = R.dimen.padding_standard),
-                    )
-                    .height(IntrinsicSize.Min),
-            horizontalArrangement = Arrangement.spacedBy(buttonSpacing),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            androidx.compose.material3.OutlinedButton(
-                onClick = { onSeasonsClick() },
-                modifier = Modifier.widthIn(min = 120.dp).fillMaxHeight(),
-            ) {
-                Text(text = "Seasons")
-            }
-            if (isAuthorizedOnTrakt == true) {
-                if (isLoading) {
-                    Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(24.dp),
-                            strokeWidth = 2.dp,
-                            color = MaterialTheme.colorScheme.primary,
-                        )
-                    }
-                } else {
-                    if (isWatchlist == true) {
-                        androidx.compose.material3.OutlinedButton(
-                            onClick = { onWatchlistClick() },
-                            modifier = Modifier.widthIn(min = 120.dp).fillMaxHeight(),
-                        ) {
-                            Icon(
-                                imageVector = androidx.compose.ui.graphics.vector.ImageVector.vectorResource(id = R.drawable.ic_watchlist_remove),
-                                contentDescription = null,
-                                modifier = Modifier.size(16.dp),
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = "Listed",
-                                maxLines = 1,
-                            )
-                        }
-                    } else {
-                        Button(
-                            onClick = { onWatchlistClick() },
-                            modifier = Modifier.widthIn(min = 120.dp).fillMaxHeight(),
-                        ) {
-                            Icon(
-                                imageVector = androidx.compose.ui.graphics.vector.ImageVector.vectorResource(id = R.drawable.ic_watchlist_add),
-                                contentDescription = null,
-                                modifier = Modifier.size(16.dp),
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = "List",
-                                maxLines = 1,
-                            )
-                        }
-                    }
-                }
-
-                // Rate button
-                if (isRating) {
-                    Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(24.dp),
-                            strokeWidth = 2.dp,
-                        )
-                    }
-                } else {
-                    androidx.compose.material3.OutlinedButton(
-                        onClick = { showRatingSheet = true },
-                        modifier =
-                            Modifier
-                                .widthIn(min = 120.dp)
-                                .fillMaxHeight()
-                                .testTag("rate_show_button"),
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Star,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp),
-                            tint = RatingStarColor,
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = if (userRating != null) "$userRating★" else "Rate",
-                        )
-                    }
-                }
-            }
-        }
+        ShowDetailButtonsCompact(
+            isAuthorizedOnTrakt = isAuthorizedOnTrakt,
+            isWatchlist = isWatchlist,
+            isLoading = isLoading,
+            isRating = isRating,
+            userRating = userRating,
+            onSeasonsClick = onSeasonsClick,
+            onWatchlistClick = onWatchlistClick,
+            onRateClick = { showRatingSheet = true },
+            buttonSpacing = buttonSpacing,
+        )
     }
 
     if (showRatingSheet) {
@@ -779,6 +674,222 @@ fun ShowDetailButtons(
                 onRateClick(selectedRating)
             },
         )
+    }
+}
+
+@Composable
+private fun ShowDetailButtonsExpanded(
+    isAuthorizedOnTrakt: Boolean?,
+    isWatchlist: Boolean?,
+    isLoading: Boolean,
+    isRating: Boolean,
+    userRating: Int?,
+    onSeasonsClick: () -> Unit,
+    onWatchlistClick: () -> Unit,
+    onRateClick: () -> Unit,
+    buttonSpacing: androidx.compose.ui.unit.Dp,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                horizontal = dimensionResource(id = R.dimen.padding_standard_double),
+                vertical = dimensionResource(id = R.dimen.padding_standard),
+            ),
+        verticalArrangement = Arrangement.spacedBy(buttonSpacing),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        androidx.compose.material3.OutlinedButton(
+            onClick = onSeasonsClick,
+            modifier = Modifier.fillMaxWidth().height(48.dp),
+        ) {
+            Text(text = "Seasons")
+        }
+        if (isAuthorizedOnTrakt == true) {
+            if (isLoading) {
+                Box(modifier = Modifier.fillMaxWidth().height(48.dp), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
+            } else {
+                if (isWatchlist == true) {
+                    androidx.compose.material3.OutlinedButton(
+                        onClick = onWatchlistClick,
+                        modifier = Modifier.fillMaxWidth().height(48.dp),
+                    ) {
+                        Icon(
+                            imageVector =
+                                androidx.compose.ui.graphics.vector.ImageVector.vectorResource(
+                                    id = R.drawable.ic_watchlist_remove,
+                                ),
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "Listed",
+                            maxLines = 1,
+                        )
+                    }
+                } else {
+                    Button(
+                        onClick = onWatchlistClick,
+                        modifier = Modifier.fillMaxWidth().height(48.dp),
+                    ) {
+                        Icon(
+                            imageVector = androidx.compose.ui.graphics.vector.ImageVector.vectorResource(id = R.drawable.ic_watchlist_add),
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "List",
+                            maxLines = 1,
+                        )
+                    }
+                }
+            }
+
+            // Rate button
+            if (isRating) {
+                Box(modifier = Modifier.fillMaxWidth().height(48.dp), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 2.dp,
+                    )
+                }
+            } else {
+                androidx.compose.material3.OutlinedButton(
+                    onClick = onRateClick,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                        .testTag("rate_show_button"),
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Star,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                        tint = RatingStarColor,
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = if (userRating != null) "$userRating★" else "Rate",
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ShowDetailButtonsCompact(
+    isAuthorizedOnTrakt: Boolean?,
+    isWatchlist: Boolean?,
+    isLoading: Boolean,
+    isRating: Boolean,
+    userRating: Int?,
+    onSeasonsClick: () -> Unit,
+    onWatchlistClick: () -> Unit,
+    onRateClick: () -> Unit,
+    buttonSpacing: androidx.compose.ui.unit.Dp,
+) {
+    Row(
+        modifier =
+            Modifier
+                .wrapContentWidth(Alignment.Start)
+                .padding(
+                    horizontal = dimensionResource(id = R.dimen.padding_standard_double),
+                    vertical = dimensionResource(id = R.dimen.padding_standard),
+                )
+                .height(IntrinsicSize.Min),
+        horizontalArrangement = Arrangement.spacedBy(buttonSpacing),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        androidx.compose.material3.OutlinedButton(
+            onClick = onSeasonsClick,
+            modifier = Modifier.widthIn(min = 120.dp).fillMaxHeight(),
+        ) {
+            Text(text = "Seasons")
+        }
+        if (isAuthorizedOnTrakt == true) {
+            if (isLoading) {
+                Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
+            } else {
+                if (isWatchlist == true) {
+                    androidx.compose.material3.OutlinedButton(
+                        onClick = onWatchlistClick,
+                        modifier = Modifier.widthIn(min = 120.dp).fillMaxHeight(),
+                    ) {
+                        Icon(
+                            imageVector = androidx.compose.ui.graphics.vector.ImageVector.vectorResource(id = R.drawable.ic_watchlist_remove),
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "Listed",
+                            maxLines = 1,
+                        )
+                    }
+                } else {
+                    Button(
+                        onClick = onWatchlistClick,
+                        modifier = Modifier.widthIn(min = 120.dp).fillMaxHeight(),
+                    ) {
+                        Icon(
+                            imageVector = androidx.compose.ui.graphics.vector.ImageVector.vectorResource(id = R.drawable.ic_watchlist_add),
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "List",
+                            maxLines = 1,
+                        )
+                    }
+                }
+            }
+
+            // Rate button
+            if (isRating) {
+                Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 2.dp,
+                    )
+                }
+            } else {
+                androidx.compose.material3.OutlinedButton(
+                    onClick = onRateClick,
+                    modifier =
+                        Modifier
+                            .widthIn(min = 120.dp)
+                            .fillMaxHeight()
+                            .testTag("rate_show_button"),
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Star,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                        tint = RatingStarColor,
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = if (userRating != null) "$userRating★" else "Rate",
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -1259,151 +1370,6 @@ fun RatingBottomSheet(
 }
 
 @Composable
-fun SummaryPlaceholder() {
-    Column(modifier = Modifier.shimmer()) {
-        Box(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-                    .background(Color.LightGray.copy(alpha = 0.3f)),
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Box(
-            modifier =
-                Modifier
-                    .fillMaxWidth(0.7f)
-                    .height(24.dp)
-                    .padding(horizontal = 16.dp)
-                    .background(Color.LightGray.copy(alpha = 0.3f)),
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Box(
-            modifier =
-                Modifier
-                    .fillMaxWidth(0.5f)
-                    .height(16.dp)
-                    .padding(horizontal = 16.dp)
-                    .background(Color.LightGray.copy(alpha = 0.3f)),
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Column(Modifier.padding(horizontal = 16.dp)) {
-            repeat(4) {
-                Box(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .height(12.dp)
-                            .background(Color.LightGray.copy(alpha = 0.3f)),
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-        Row(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-        ) {
-            Box(
-                modifier =
-                    Modifier
-                        .size(100.dp, 40.dp)
-                        .background(Color.LightGray.copy(alpha = 0.3f)),
-            )
-            Box(
-                modifier =
-                    Modifier
-                        .size(100.dp, 40.dp)
-                        .background(Color.LightGray.copy(alpha = 0.3f)),
-            )
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-    }
-}
-
-@Composable
-fun CastListPlaceholder() {
-    LazyRow(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-                .shimmer(), // Make sure you have the shimmer dependency and import
-    ) {
-        items(5) {
-            Column(
-                modifier =
-                    Modifier
-                        .padding(end = 8.dp)
-                        .width(dimensionResource(id = R.dimen.compose_show_detail_poster_width)),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Box( // Poster placeholder
-                    modifier =
-                        Modifier
-                            .width(dimensionResource(id = R.dimen.compose_show_detail_poster_width))
-                            .height(dimensionResource(id = R.dimen.compose_show_detail_poster_height))
-                            .background(Color.LightGray.copy(alpha = 0.3f)),
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Box( // Name placeholder
-                    modifier =
-                        Modifier
-                            .fillMaxWidth(0.8f)
-                            .height(12.dp)
-                            .background(Color.LightGray.copy(alpha = 0.3f)),
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun EpisodePlaceholder() {
-    ElevatedCard(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-                .shimmer(),
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Box( // Episode Title placeholder
-                modifier =
-                    Modifier
-                        .fillMaxWidth(0.7f)
-                        .height(20.dp)
-                        .background(Color.LightGray.copy(alpha = 0.3f)),
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Box(
-                modifier =
-                    Modifier
-                        .fillMaxWidth(0.5f)
-                        .height(14.dp)
-                        .background(Color.LightGray.copy(alpha = 0.3f)),
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            Column { // Summary lines
-                repeat(3) {
-                    Box(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .height(10.dp)
-                                .background(Color.LightGray.copy(alpha = 0.3f)),
-                    )
-                    Spacer(modifier = Modifier.height(6.dp))
-                }
-            }
-        }
-    }
-}
-
-@Composable
 fun ErrorState(
     message: String,
     onRetry: (() -> Unit)? = null,
@@ -1506,24 +1472,5 @@ fun SimilarShowItem(
                 maxLines = 2,
             )
         }
-    }
-}
-
-@ExperimentalMaterial3Api
-@Preview(showBackground = true)
-@Composable
-fun ShowDetailScreenPreview() {
-    MaterialTheme { // Wrap with your app's theme
-        ShowDetailScreen(
-            viewModel = hiltViewModel(), // This won't work well in Preview without Hilt setup for previews
-            showDetailArgs =
-                ShowDetailArg(
-                    showId = "1",
-                    showTitle = "Preview Show Title",
-                    showImageUrl = "",
-                    showBackgroundUrl = null,
-                ),
-            navController = androidx.navigation.compose.rememberNavController(),
-        )
     }
 }

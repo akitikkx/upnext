@@ -120,9 +120,15 @@ class DashboardViewModel
 
         fun fetchDashboardData(token: String) {
             val bearerToken = token
-            fetchAiringSoonShows(bearerToken)
-            fetchRecommendations(bearerToken)
-            fetchRecentHistory(bearerToken)
+            if (_airingSoonShows.value == null && !_isLoadingAiringSoon.value) {
+                fetchAiringSoonShows(bearerToken)
+            }
+            if (_recommendedShows.value == null && !_isLoadingRecommendations.value) {
+                fetchRecommendations(bearerToken)
+            }
+            if (_recentHistory.value == null && !_isLoadingHistory.value) {
+                fetchRecentHistory(bearerToken)
+            }
         }
 
         private fun fetchAiringSoonShows(bearerToken: String) {

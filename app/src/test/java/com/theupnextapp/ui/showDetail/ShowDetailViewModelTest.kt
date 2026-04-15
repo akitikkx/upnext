@@ -317,6 +317,7 @@ class ShowDetailViewModelTest {
             // Then
             assertFalse(viewModel.navigateToSeasons.value)
         }
+
     @Test
     fun `selectedShow with identical show does not trigger network calls repeatedly on rotation`() =
         runTest {

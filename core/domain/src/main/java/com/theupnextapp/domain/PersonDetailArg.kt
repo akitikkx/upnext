@@ -22,11 +22,34 @@
 package com.theupnextapp.domain
 
 import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
 
-@Parcelize
+
 data class PersonDetailArg(
     val personId: String,
     val personName: String,
     val personImageUrl: String? = null
-) : Parcelable
+) : Parcelable {
+    constructor(parcel: android.os.Parcel) : this(
+        parcel.readString() ?: "",
+        parcel.readString() ?: "",
+        parcel.readString()
+    )
+
+    override fun writeToParcel(parcel: android.os.Parcel, flags: Int) {
+        parcel.writeString(personId)
+        parcel.writeString(personName)
+        parcel.writeString(personImageUrl)
+    }
+
+    override fun describeContents(): Int = 0
+
+    companion object CREATOR : android.os.Parcelable.Creator<PersonDetailArg> {
+        override fun createFromParcel(parcel: android.os.Parcel): PersonDetailArg {
+            return PersonDetailArg(parcel)
+        }
+
+        override fun newArray(size: Int): Array<PersonDetailArg?> {
+            return arrayOfNulls(size)
+        }
+    }
+}
