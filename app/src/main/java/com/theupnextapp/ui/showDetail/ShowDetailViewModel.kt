@@ -187,6 +187,10 @@ class ShowDetailViewModel
         )
 
         fun selectedShow(show: ShowDetailArg?) {
+            if (show?.showId != null && _show.value?.showId == show.showId && _uiState.value.showSummary != null) {
+                return
+            }
+
             _uiState.update { ShowDetailUiState() }
             _isLoading.value = true
 

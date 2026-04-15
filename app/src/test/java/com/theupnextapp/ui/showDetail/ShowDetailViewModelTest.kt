@@ -317,4 +317,60 @@ class ShowDetailViewModelTest {
             // Then
             assertFalse(viewModel.navigateToSeasons.value)
         }
+    @Test
+    fun `selectedShow with identical show does not trigger network calls repeatedly on rotation`() =
+        runTest {
+            // Given
+            val showDetailArg =
+                ShowDetailArg(
+                    showId = "123",
+                    showTitle = "Test Show",
+                    showImageUrl = null,
+                    showBackgroundUrl = null,
+                    imdbID = "tt12345",
+                    isAuthorizedOnTrakt = false,
+                    showTraktId = 1,
+                )
+
+            showDetailRepository.showSummaryResult =
+                Result.Success(
+                    ShowDetailSummary(
+                        id = 123,
+                        imdbID = "tt12345",
+                        name = "Test Show",
+                        averageRating = null,
+                        mediumImageUrl = null,
+                        originalImageUrl = null,
+                        summary = "Summary",
+                        genres = null,
+                        time = null,
+                        previousEpisodeHref = null,
+                        nextEpisodeHref = null,
+                        status = null,
+                        airDays = null,
+                        language = null,
+                        nextEpisodeLinkedId = null,
+                        previousEpisodeLinkedId = null,
+                        tmdbID = 123,
+                    ),
+                )
+
+            // When - First load
+            viewModel.selectedShow(showDetailArg)
+            kotlinx.coroutines.delay(100)
+
+            // Then - Check state exists
+            val initialState = viewModel.uiState.value
+            assertNotNull("Initial state summary should not be null", initialState.showSummary)
+            assertEquals("Test Show", initialState.showSummary?.name)
+
+            // When - Simulate rotation by calling selectedShow again with same args
+            viewModel.selectedShow(showDetailArg)
+
+            // Then - State should not be wiped out (isLoadingSummary false and summary intact)
+            val rotatedState = viewModel.uiState.value
+            assertFalse("Simulated rotation should skip loading and preserve state", rotatedState.isLoadingSummary)
+            assertNotNull("Rotated state summary should be preserved", rotatedState.showSummary)
+            assertEquals("Test Show", rotatedState.showSummary?.name)
+        }
 }
