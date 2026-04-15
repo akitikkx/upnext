@@ -121,7 +121,7 @@ fun ShowDetailScreen(
     showDetailArgs: ShowDetailArg,
     navController: NavController,
 ) {
-    LaunchedEffect(showDetailArgs) {
+    LaunchedEffect(showDetailArgs.showId) {
         viewModel.selectedShow(showDetailArgs)
     }
 
@@ -426,6 +426,9 @@ private fun ExpandedDetailArea(
 ) {
     val scrollState = rememberScrollState()
 
+    val leftWeight = if (windowSizeClass == WindowWidthSizeClass.Medium) 0.45f else 0.35f
+    val rightWeight = if (windowSizeClass == WindowWidthSizeClass.Medium) 0.55f else 0.65f
+
     Row(
         modifier = Modifier
             .fillMaxSize()
@@ -434,7 +437,7 @@ private fun ExpandedDetailArea(
         // Left Column: Poster and Action Buttons
         Column(
             modifier = Modifier
-                .weight(0.35f)
+                .weight(leftWeight)
                 .fillMaxHeight()
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -502,10 +505,10 @@ private fun ExpandedDetailArea(
         // Right Column: Title, Synopsis, Cast, etc.
         Column(
             modifier = Modifier
-                .weight(0.65f)
+                .weight(rightWeight)
                 .fillMaxHeight()
                 .verticalScroll(scrollState)
-                .padding(bottom = 16.dp, end = 16.dp, top = 16.dp)
+                .padding(bottom = 16.dp, end = 16.dp, top = 16.dp, start = if (windowSizeClass == WindowWidthSizeClass.Medium) 8.dp else 16.dp)
         ) {
             if (uiState.isLoadingSummary && uiState.showSummary == null) {
                 SummaryPlaceholder()

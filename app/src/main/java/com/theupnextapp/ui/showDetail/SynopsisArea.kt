@@ -42,9 +42,7 @@ fun SynopsisArea(
     modifier: Modifier = Modifier,
 ) {
     when (widthSizeClass) {
-        WindowWidthSizeClass.Compact,
-        WindowWidthSizeClass.Medium,
-        ->
+        WindowWidthSizeClass.Compact ->
             SynopsisAreaCompact(
                 showSummary = showSummary,
                 modifier = modifier,
@@ -102,22 +100,42 @@ private fun SynopsisAreaTextOnly(
     showSummary: ShowDetailSummary?,
     modifier: Modifier = Modifier,
 ) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-    ) {
-        ShowMetadata(
-            showSummary = showSummary,
-            modifier = Modifier.width(150.dp),
-        )
+    val widthSizeClass = getWindowSizeClass()?.widthSizeClass
 
-        ShowSynopsis(
-            showSummary = showSummary,
-            modifier = Modifier.padding(
-                start = 16.dp,
-            ),
-        )
+    if (widthSizeClass == WindowWidthSizeClass.Expanded) {
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+        ) {
+            ShowMetadata(
+                showSummary = showSummary,
+                modifier = Modifier.width(150.dp),
+            )
+
+            ShowSynopsis(
+                showSummary = showSummary,
+                modifier = Modifier.padding(
+                    start = 16.dp,
+                ),
+            )
+        }
+    } else {
+        Column(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp)
+        ) {
+            ShowMetadata(
+                showSummary = showSummary,
+                modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+            )
+
+            ShowSynopsis(
+                showSummary = showSummary,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
     }
 }
 
