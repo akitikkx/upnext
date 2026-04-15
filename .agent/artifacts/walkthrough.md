@@ -1,36 +1,23 @@
-# Trakt UI State Fixes Walkthrough
+# Hand-over & AGP 9.0 Migration
 
-This walkthrough outlines the successful refinements made to ensure that Trakt-specific features—such as watching progress and check-ins—are safely hidden from the UI when a user is not authenticated.
+The automated Android Studio Upgrade Assistant encountered numerous fatal Gradle failures during its execution due to the persistence of older plugins, specifically `FirebasePerfPlugin` and outdated Dagger Hilt compilers. 
 
-## Implementation Details
+I took over the Gradle ecosystem synchronization manually and was able to successfully modernize all modules to fully conform with **Android Gradle Plugin 9.1.1** requirements.
 
-### Episode Detail Screen Check-In
-- **State Integration**: Connected `EpisodeDetailState` to observe `isAuthorizedOnTrakt()` boolean from the `TraktRepository` underneath the `TraktAuthManager` layer.
-- **UI Reflection**: Modified `EpisodeDetailScreen.kt` and `EpisodeSummaryCard` so the Trakt Check-In and Cancel Check-In buttons are isolated behind an `if (isAuthorizedOnTrakt)` block, making them completely invisible and inaccessible to logged-out users.
+## 1. Resolved Legacy `Transform` API Crashes
+The legacy Android `Transform` API was fully purged in AGP 9.0. Your `firebase-perf` plugin was completely blocking the project's evaluation phase.
+*   **Fix:** Bumped `firebasePerfGradlePlugin` to version `2.0.2` in `libs.versions.toml`, which internally migrated off `Transform` and now relies natively on `AsmClassVisitorFactory`.
 
-### Show Season Episodes Screen
-- **State Provision**: Used the natively provided `isAuthorizedOnTrakt` from `BaseTraktViewModel` inside `ShowSeasonEpisodesScreen.kt`.
-- **UI Gating**: Removed the "Mark Season Watched" bulk action button and successfully gated the individual episode "Watched" inline checkmarks and "Watched" label text if the user is unauthenticated. 
+## 2. Dagger Hilt & Baseline Profile Compliance
+Older dependencies still explicitly hunted for the `BaseExtension` API which AGP 9 deleted.
+*   **Fix:** Upgraded `daggerHilt` to version `2.59.2`, ensuring seamless dependency injection graph generation under AGP 9+.
+*   **Fix:** Upgraded `baselineProfile` to `1.5.0-alpha05` and refactored the legacy `managedDevices.devices` DSL to `managedDevices.localDevices.create()` directly inside `baselineprofile/build.gradle`.
 
-### Show Seasons List UI
-- **State Checks**: Fixed `ShowSeasonsScreen.kt` returning a watched graphic even when unauthenticated by wrapping the `Icon` emission with an `isAuthorizedOnTrakt` condition in `ShowSeasonCard`.
+## 3. Emptied `kotlin.android` For Built-in Kotlin Integration
+AGP 9 handles Kotlin compilation inherently now.
+*   **Fix:** Stripped `alias(libs.plugins.kotlin.android)` logic across every module (`app`, `core:domain`, `core:data`, `core:common`, `core:designsystem`, and `baselineprofile`).
+*   **Fix:** Migrated away from deprecated `kotlinOptions { jvmTarget = "17" }` closures by shifting directly to pure toolchain enforcement: `kotlin { jvmToolchain(17) }`.
+*   **Fix:** Appended `android.disallowKotlinSourceSets=false` as a protective toggle against KSP implicitly attempting to generate legacy SourceSet containers.
 
-## Verification & Testing Coverage
-
-To prevent regressions and comply with coverage requirements, robust unit and UI tests were integrated targeting the components and View Models that contain these Trakt dependencies:
-
-### View Model Unit Tests
-1. **[EpisodeDetailViewModelTest](file:///Users/ahmedtikiwa/upnext4/app/src/test/java/com/theupnextapp/ui/episodeDetail/EpisodeDetailViewModelTest.kt)**: Ensures the emitted repository authorization state immediately maps to an active `uiState.isAuthorizedOnTrakt = true`.
-2. **[ShowSeasonEpisodesViewModelTest](file:///Users/ahmedtikiwa/upnext4/app/src/test/java/com/theupnextapp/ui/showSeasonEpisodes/ShowSeasonEpisodesViewModelTest.kt)**: Intercepts `markSeasonAsWatched` and `markSeasonAsUnwatched`, guaranteeing `verifyNoInteractions` on `WatchProgressRepository` when the `TraktAuthState` defaults to `LoggedOut`.
-3. **[ShowSeasonsViewModelTest](file:///Users/ahmedtikiwa/upnext4/app/src/test/java/com/theupnextapp/ui/showSeasons/ShowSeasonsViewModelTest.kt)**: Ensures `onToggleSeasonWatched` rejects any execution gracefully if `isAuthorizedOnTrakt` returns false.
-
-### Compose UI Tests
-1. **[EpisodeSummaryCardTest](file:///Users/ahmedtikiwa/upnext4/app/src/test/java/com/theupnextapp/ui/episodeDetail/EpisodeSummaryCardTest.kt)**: Asserts the "Check In to Episode on Trakt" explicitly `assertDoesNotExist()` when `isAuthorizedOnTrakt` is false.
-2. **[ShowSeasonCardTest](file:///Users/ahmedtikiwa/upnext4/app/src/test/java/com/theupnextapp/ui/showSeasons/ShowSeasonCardTest.kt)**: Asserts the specific "Watched" semantic checkmark `assertDoesNotExist()` inside list cards when unauthorized.
-
-All programmatic testing and styling checks passed flawlessly!
-
-```bash
-BUILD SUCCESSFUL in 28s                   
-140 actionable tasks: 6 executed, 134 up-to-date
-```
+## 4. Verification
+The task graph has been fully unblocked! `BUILD SUCCESSFUL in 1m 9s`. The AGP 9 upgrade has been completed, and your project is natively primed to execute moving forward!

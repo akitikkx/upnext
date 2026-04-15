@@ -183,10 +183,7 @@ fun ShowDetailScreen(
         },
     ) { innerPadding ->
         Box(
-            modifier =
-                Modifier
-                    .padding(bottom = innerPadding.calculateBottomPadding())
-                    .fillMaxSize(),
+            modifier = Modifier.fillMaxSize(),
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
                 if (showTopLinearProgress) {
@@ -222,6 +219,7 @@ fun ShowDetailScreen(
                     onSimilarShowClick = { show -> viewModel.onSimilarShowClicked(show) },
                     onRetry = { viewModel.selectedShow(showDetailArgs) },
                     onBack = { navController.navigateUp() },
+                    contentPadding = innerPadding,
                 )
             }
 
@@ -264,6 +262,7 @@ fun DetailArea(
     onSimilarShowClick: (item: TraktRelatedShows) -> Unit,
     onRetry: () -> Unit,
     onBack: () -> Unit,
+    contentPadding: PaddingValues,
 ) {
     val scrollState = rememberScrollState()
     val windowSizeClass = getWindowSizeClass()?.widthSizeClass ?: WindowWidthSizeClass.Compact
@@ -342,6 +341,7 @@ fun DetailArea(
             // ----- Similar Shows Section -----
             SimilarShows(uiState = uiState, onSimilarShowClick = onSimilarShowClick)
             Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
+            Spacer(modifier = Modifier.height(contentPadding.calculateBottomPadding()))
         }
     }
 }

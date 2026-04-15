@@ -25,9 +25,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -72,6 +74,7 @@ import com.theupnextapp.ui.components.EmptyState
 fun SearchScreen(
     viewModel: SearchViewModel = hiltViewModel(),
     navController: NavController,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
     val searchResultsList = viewModel.searchResponse.observeAsState()
 
@@ -89,6 +92,7 @@ fun SearchScreen(
                 SearchArea(
                     searchResultsList = searchResultsList.value,
                     recentSearches = recentSearches.value,
+                    contentPadding = contentPadding,
                     onResultClick = {
                         keyboardController?.hide()
                         it.name?.let { name ->
@@ -142,6 +146,7 @@ fun SearchArea(
     onResultClick: (item: ShowSearch) -> Unit,
     onRecentSearchClick: (query: String) -> Unit,
     onClearRecentSearches: () -> Unit,
+    contentPadding: PaddingValues,
 ) {
     val searchQueryState = rememberSaveable { mutableStateOf("") }
 
@@ -155,7 +160,7 @@ fun SearchArea(
         )
 
         if (!searchResultsList.isNullOrEmpty()) {
-            SearchResultsList(list = searchResultsList) {
+            SearchResultsList(list = searchResultsList, contentPadding = contentPadding) {
                 onResultClick(it)
             }
         } else if (!recentSearches.isNullOrEmpty() && searchQueryState.value.trim().isEmpty()) {
@@ -163,6 +168,7 @@ fun SearchArea(
                 list = recentSearches,
                 onRecentSearchClick = onRecentSearchClick,
                 onClearRecentSearches = onClearRecentSearches,
+                contentPadding = contentPadding,
             )
         } else if (searchResultsList?.isEmpty() == true && searchQueryState.value.trim().isNotEmpty()) {
             EmptyState(
@@ -204,9 +210,13 @@ fun SearchInputField(
 @Composable
 fun SearchResultsList(
     list: List<ShowSearch>,
+    contentPadding: PaddingValues,
     onClick: (item: ShowSearch) -> Unit,
 ) {
-    LazyColumn {
+    LazyColumn(
+        contentPadding = contentPadding,
+        modifier = Modifier.imePadding()
+    ) {
         items(list) { result ->
             SearchListCard(item = result) {
                 onClick(result)
@@ -221,8 +231,9 @@ fun RecentSearchesList(
     list: List<RecentSearch>,
     onRecentSearchClick: (query: String) -> Unit,
     onClearRecentSearches: () -> Unit,
+    contentPadding: PaddingValues,
 ) {
-    Column {
+    Column(modifier = Modifier.imePadding()) {
         Row(
             modifier =
                 Modifier
@@ -243,7 +254,7 @@ fun RecentSearchesList(
                 )
             }
         }
-        LazyColumn {
+        LazyColumn(contentPadding = contentPadding) {
             items(list) { recentSearch ->
                 ListItem(
                     headlineContent = { Text(recentSearch.query) },

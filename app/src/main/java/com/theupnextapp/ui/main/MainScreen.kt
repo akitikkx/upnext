@@ -184,38 +184,36 @@ fun MainScreen(
             modifier = Modifier.fillMaxSize(),
             navigator = listDetailNavigator,
             listPane = {
-                Column(
-                    modifier =
-                        Modifier
-                            .fillMaxSize()
-                            .background(MaterialTheme.colorScheme.surface), // Ensure opaque background
-                ) {
-                    TopAppBar(
-                        title = { Text(stringResource(currentListSection.label)) },
-                        actions = {
-                            androidx.compose.material3.IconButton(
-                                onClick = {
-                                    mainNavController.navigate(Destinations.Settings)
-                                },
-                            ) {
-                                Icon(
-                                    imageVector = androidx.compose.material.icons.Icons.Filled.Settings,
-                                    contentDescription = stringResource(R.string.title_settings),
-                                )
-                            }
-                        },
-                    )
-                    // Content of the current list section
-                    // IMPORTANT: Pass destinationsNavigatorForDetail for navigation to detail screens
+                androidx.compose.material3.Scaffold(
+                    modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface),
+                    topBar = {
+                        TopAppBar(
+                            title = { Text(stringResource(currentListSection.label)) },
+                            actions = {
+                                androidx.compose.material3.IconButton(
+                                    onClick = {
+                                        mainNavController.navigate(Destinations.Settings)
+                                    },
+                                ) {
+                                    Icon(
+                                        imageVector = androidx.compose.material.icons.Icons.Filled.Settings,
+                                        contentDescription = stringResource(R.string.title_settings),
+                                    )
+                                }
+                            },
+                        )
+                    }
+                ) { innerPadding ->
                     when (currentListSection) {
-                        NavigationDestination.Dashboard -> DashboardScreen(navController = mainNavController)
-                        NavigationDestination.Schedule -> ScheduleScreen(navController = mainNavController)
-                        NavigationDestination.SearchScreen -> SearchScreen(navController = mainNavController)
-                        NavigationDestination.Explore -> ExploreScreen(navController = mainNavController)
+                        NavigationDestination.Dashboard -> DashboardScreen(navController = mainNavController, contentPadding = innerPadding)
+                        NavigationDestination.Schedule -> ScheduleScreen(navController = mainNavController, contentPadding = innerPadding)
+                        NavigationDestination.SearchScreen -> SearchScreen(navController = mainNavController, contentPadding = innerPadding)
+                        NavigationDestination.Explore -> ExploreScreen(navController = mainNavController, contentPadding = innerPadding)
                         NavigationDestination.TraktAccount ->
                             TraktAccountScreen(
                                 navController = mainNavController,
                                 code = null, // Code handled by LaunchedEffect below
+                                contentPadding = innerPadding,
                             )
                     }
                 }

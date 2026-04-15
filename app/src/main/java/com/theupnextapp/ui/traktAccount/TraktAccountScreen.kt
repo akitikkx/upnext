@@ -27,6 +27,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -88,6 +89,7 @@ fun TraktAccountScreen(
     viewModel: TraktAccountViewModel = hiltViewModel(),
     navController: NavController,
     code: String? = null,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
     val watchlistLazyListState = androidx.compose.foundation.lazy.rememberLazyListState()
 
@@ -186,10 +188,7 @@ fun TraktAccountScreen(
         modifier = Modifier.fillMaxSize(),
     ) { localScaffoldPadding ->
         Box(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .padding(localScaffoldPadding),
+            modifier = Modifier.fillMaxSize(),
         ) {
             AccountContent(
                 traktAuthState = traktAuthState,
@@ -209,6 +208,7 @@ fun TraktAccountScreen(
                 totalWatchlistCount = totalWatchlistCount,
                 onStatusFilterChange = viewModel::onStatusFilterChange,
                 onRefreshWatchlist = onRefreshWatchlist,
+                contentPadding = contentPadding,
                 onConnectToTraktClick = {
                     viewModel.onConnectToTraktClick()
                 },
@@ -270,6 +270,7 @@ internal fun AccountContent(
     onWatchlistClick: (item: TraktUserListItem) -> Unit,
     onRemoveItem: (item: TraktUserListItem) -> Unit,
     onLogoutClick: () -> Unit,
+    contentPadding: PaddingValues,
 ) {
     Column(
         modifier =
@@ -313,18 +314,21 @@ internal fun AccountContent(
                                 modifier = Modifier.fillMaxSize(),
                                 header = {
                                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                        Spacer(modifier = Modifier.height(contentPadding.calculateTopPadding()))
                                         TraktProfileHeader(onLogoutClick = onLogoutClick)
                                         Spacer(modifier = Modifier.height(16.dp))
                                     }
                                 },
                                 onItemClick = onWatchlistClick,
                                 onRemoveItem = onRemoveItem,
+                                contentPadding = contentPadding,
                             )
                         } else {
                             Column(
                                 modifier =
                                     Modifier
                                         .fillMaxSize()
+                                        .padding(contentPadding)
                                         .verticalScroll(rememberScrollState()),
                                 horizontalAlignment = Alignment.CenterHorizontally,
                             ) {
