@@ -188,7 +188,7 @@ fun TraktAccountScreen(
         modifier = Modifier.fillMaxSize(),
     ) { localScaffoldPadding ->
         Box(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().padding(localScaffoldPadding),
         ) {
             AccountContent(
                 traktAuthState = traktAuthState,

@@ -78,7 +78,7 @@ class ShowDetailViewModel
             workManager,
             traktAuthManager,
         ) {
-        private val _show = MutableLiveData<ShowDetailArg>()
+        private val _show = MutableLiveData<ShowDetailArg?>()
 
         private val _navigateToSeasons = MutableStateFlow(false)
         val navigateToSeasons: StateFlow<Boolean> = _navigateToSeasons.asStateFlow()
