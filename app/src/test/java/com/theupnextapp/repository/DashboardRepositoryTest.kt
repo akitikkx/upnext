@@ -87,8 +87,8 @@ class DashboardRepositoryTest {
                             id = 101, type = "poster", main = true,
                             resolutions =
                                 NetworkTvMazeShowImageResolutions(
-                                    original = NetworkTvMazeShowImageOriginal(url = "final_original.png"),
-                                    medium = NetworkTvMazeShowImageMedium(url = "final_medium.png"),
+                                    original = NetworkTvMazeShowImageOriginal(url = "show_original_default.png"),
+                                    medium = NetworkTvMazeShowImageMedium(url = "show_medium_default.png"),
                                 ),
                         ),
                     )
@@ -99,8 +99,8 @@ class DashboardRepositoryTest {
 
             assertEquals(1, fakeTvMazeDao.yesterdayShowsList.size)
             assertEquals(1, fakeTvMazeDao.yesterdayShowsList.first().id)
-            assertEquals("final_original.png", fakeTvMazeDao.yesterdayShowsList.first().image)
-            assertEquals("final_medium.png", fakeTvMazeDao.yesterdayShowsList.first().mediumImage)
+            assertEquals("show_original_default.png", fakeTvMazeDao.yesterdayShowsList.first().image)
+            assertEquals("show_medium_default.png", fakeTvMazeDao.yesterdayShowsList.first().mediumImage)
 
             val tableUpdateLog = fakeUpnextDao.getTableLastUpdateTime(testTableName)
             assertNotNull(tableUpdateLog)
@@ -180,8 +180,8 @@ class DashboardRepositoryTest {
                             id = 101, type = "poster", main = true,
                             resolutions =
                                 NetworkTvMazeShowImageResolutions(
-                                    original = NetworkTvMazeShowImageOriginal(url = "final_original_for_show_10.png"),
-                                    medium = NetworkTvMazeShowImageMedium(url = "final_medium_for_show_10.png"),
+                                    original = NetworkTvMazeShowImageOriginal(url = "show_original_default.png"),
+                                    medium = NetworkTvMazeShowImageMedium(url = "show_medium_default.png"),
                                 ),
                         ),
                     )
@@ -193,8 +193,8 @@ class DashboardRepositoryTest {
             val insertedShow = fakeTvMazeDao.yesterdayShowsList.first()
             assertEquals(1, insertedShow.id)
             assertEquals(10, insertedShow.showId)
-            assertEquals("final_original_for_show_10.png", insertedShow.image)
-            assertEquals("final_medium_for_show_10.png", insertedShow.mediumImage)
+            assertEquals("show_original_default.png", insertedShow.image)
+            assertEquals("show_medium_default.png", insertedShow.mediumImage)
         }
 
     @Test
@@ -218,8 +218,8 @@ class DashboardRepositoryTest {
                             id = 101, type = "poster", main = true,
                             resolutions =
                                 NetworkTvMazeShowImageResolutions(
-                                    original = NetworkTvMazeShowImageOriginal(url = "final_original.png"),
-                                    medium = NetworkTvMazeShowImageMedium(url = "final_medium.png"),
+                                    original = NetworkTvMazeShowImageOriginal(url = "show_original_default.png"),
+                                    medium = NetworkTvMazeShowImageMedium(url = "show_medium_default.png"),
                                 ),
                         ),
                     )
@@ -230,8 +230,8 @@ class DashboardRepositoryTest {
 
             assertEquals(1, fakeTvMazeDao.todayShowsList.size)
             assertEquals(1, fakeTvMazeDao.todayShowsList.first().id)
-            assertEquals("final_original.png", fakeTvMazeDao.todayShowsList.first().image)
-            assertEquals("final_medium.png", fakeTvMazeDao.todayShowsList.first().mediumImage)
+            assertEquals("show_original_default.png", fakeTvMazeDao.todayShowsList.first().image)
+            assertEquals("show_medium_default.png", fakeTvMazeDao.todayShowsList.first().mediumImage)
 
             val tableUpdateLog = fakeUpnextDao.getTableLastUpdateTime(testTableName)
             assertNotNull(tableUpdateLog)
@@ -311,8 +311,8 @@ class DashboardRepositoryTest {
                             id = 101, type = "poster", main = true,
                             resolutions =
                                 NetworkTvMazeShowImageResolutions(
-                                    original = NetworkTvMazeShowImageOriginal(url = "final_original_for_show_10.png"),
-                                    medium = NetworkTvMazeShowImageMedium(url = "final_medium_for_show_10.png"),
+                                    original = NetworkTvMazeShowImageOriginal(url = "show_original_default.png"),
+                                    medium = NetworkTvMazeShowImageMedium(url = "show_medium_default.png"),
                                 ),
                         ),
                     )
@@ -324,8 +324,8 @@ class DashboardRepositoryTest {
             val insertedShow = fakeTvMazeDao.todayShowsList.first()
             assertEquals(1, insertedShow.id)
             assertEquals(10, insertedShow.showId)
-            assertEquals("final_original_for_show_10.png", insertedShow.image)
-            assertEquals("final_medium_for_show_10.png", insertedShow.mediumImage)
+            assertEquals("show_original_default.png", insertedShow.image)
+            assertEquals("show_medium_default.png", insertedShow.mediumImage)
         }
 
     @Test
@@ -349,8 +349,8 @@ class DashboardRepositoryTest {
                             id = 101, type = "poster", main = true,
                             resolutions =
                                 NetworkTvMazeShowImageResolutions(
-                                    original = NetworkTvMazeShowImageOriginal(url = "final_original.png"),
-                                    medium = NetworkTvMazeShowImageMedium(url = "final_medium.png"),
+                                    original = NetworkTvMazeShowImageOriginal(url = "show_original_default.png"),
+                                    medium = NetworkTvMazeShowImageMedium(url = "show_medium_default.png"),
                                 ),
                         ),
                     )
@@ -361,8 +361,8 @@ class DashboardRepositoryTest {
 
             assertEquals(1, fakeTvMazeDao.tomorrowShowsList.size)
             assertEquals(1, fakeTvMazeDao.tomorrowShowsList.first().id)
-            assertEquals("final_original.png", fakeTvMazeDao.tomorrowShowsList.first().image)
-            assertEquals("final_medium.png", fakeTvMazeDao.tomorrowShowsList.first().mediumImage)
+            assertEquals("show_original_default.png", fakeTvMazeDao.tomorrowShowsList.first().image)
+            assertEquals("show_medium_default.png", fakeTvMazeDao.tomorrowShowsList.first().mediumImage)
 
             val tableUpdateLog = fakeUpnextDao.getTableLastUpdateTime(testTableName)
             assertNotNull(tableUpdateLog)
@@ -442,8 +442,8 @@ class DashboardRepositoryTest {
                             id = 101, type = "poster", main = true,
                             resolutions =
                                 NetworkTvMazeShowImageResolutions(
-                                    original = NetworkTvMazeShowImageOriginal(url = "final_original_for_show_10.png"),
-                                    medium = NetworkTvMazeShowImageMedium(url = "final_medium.png"),
+                                    original = NetworkTvMazeShowImageOriginal(url = "show_original_default.png"),
+                                    medium = NetworkTvMazeShowImageMedium(url = "show_medium_default.png"),
                                 ),
                         ),
                     )
@@ -455,8 +455,8 @@ class DashboardRepositoryTest {
             val insertedShow = fakeTvMazeDao.tomorrowShowsList.first()
             assertEquals(1, insertedShow.id)
             assertEquals(10, insertedShow.showId)
-            assertEquals("final_original_for_show_10.png", insertedShow.image)
-            assertEquals("final_medium.png", insertedShow.mediumImage)
+            assertEquals("show_original_default.png", insertedShow.image)
+            assertEquals("show_medium_default.png", insertedShow.mediumImage)
         }
 
     private data class MockScheduleConfig(

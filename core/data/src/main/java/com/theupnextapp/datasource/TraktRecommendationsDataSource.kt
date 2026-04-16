@@ -126,30 +126,30 @@ constructor(
                 }
 
                 if (showsMissingImages.isNotEmpty()) {
-                    val showsToUpdateWithFetchedImages = mutableListOf<DatabaseTraktTrendingShows>()
-                    for (showNeedingImage in showsMissingImages) {
-                        showNeedingImage.imdbID?.let { imdbId ->
-                            val (newTvMazeId, newPoster, newHeroImage) = getImages(imdbId)
-                            var imageUpdatedShow = showNeedingImage
-                            var changed = false
+                    val showsToUpdateWithFetchedImages = kotlinx.coroutines.coroutineScope {
+                        showsMissingImages.map { showNeedingImage ->
+                            async(Dispatchers.IO.limitedParallelism(5)) {
+                                var changed = false
+                                var imageUpdatedShow = showNeedingImage
+                                showNeedingImage.imdbID?.let { imdbId ->
+                                    val (newTvMazeId, newPoster, newHeroImage) = getImages(imdbId)
 
-                            if (newPoster != null && newPoster != imageUpdatedShow.original_image_url) {
-                                imageUpdatedShow = imageUpdatedShow.copy(original_image_url = newPoster)
-                                changed = true
+                                    if (newPoster != null && newPoster != imageUpdatedShow.original_image_url) {
+                                        imageUpdatedShow = imageUpdatedShow.copy(original_image_url = newPoster)
+                                        changed = true
+                                    }
+                                    if (newHeroImage != null && newHeroImage != imageUpdatedShow.medium_image_url) {
+                                        imageUpdatedShow = imageUpdatedShow.copy(medium_image_url = newHeroImage)
+                                        changed = true
+                                    }
+                                    if (newTvMazeId != null && newTvMazeId != imageUpdatedShow.tvMazeID) {
+                                        imageUpdatedShow = imageUpdatedShow.copy(tvMazeID = newTvMazeId)
+                                        changed = true
+                                    }
+                                }
+                                if (changed) imageUpdatedShow else null
                             }
-                            if (newHeroImage != null && newHeroImage != imageUpdatedShow.medium_image_url) {
-                                imageUpdatedShow = imageUpdatedShow.copy(medium_image_url = newHeroImage)
-                                changed = true
-                            }
-                            if (newTvMazeId != null && newTvMazeId != imageUpdatedShow.tvMazeID) {
-                                imageUpdatedShow = imageUpdatedShow.copy(tvMazeID = newTvMazeId)
-                                changed = true
-                            }
-
-                            if (changed) {
-                                showsToUpdateWithFetchedImages.add(imageUpdatedShow)
-                            }
-                        }
+                        }.awaitAll().filterNotNull()
                     }
 
                     if (showsToUpdateWithFetchedImages.isNotEmpty()) {
@@ -230,30 +230,30 @@ constructor(
                 }
 
                 if (showsMissingImages.isNotEmpty()) {
-                    val showsToUpdateWithFetchedImages = mutableListOf<DatabaseTraktPopularShows>()
-                    for (showNeedingImage in showsMissingImages) {
-                        showNeedingImage.imdbID?.let { imdbId ->
-                            val (newTvMazeId, newPoster, newHeroImage) = getImages(imdbId)
-                            var imageUpdatedShow = showNeedingImage
-                            var changed = false
+                    val showsToUpdateWithFetchedImages = kotlinx.coroutines.coroutineScope {
+                        showsMissingImages.map { showNeedingImage ->
+                            async(Dispatchers.IO.limitedParallelism(5)) {
+                                var changed = false
+                                var imageUpdatedShow = showNeedingImage
+                                showNeedingImage.imdbID?.let { imdbId ->
+                                    val (newTvMazeId, newPoster, newHeroImage) = getImages(imdbId)
 
-                            if (newPoster != null && newPoster != imageUpdatedShow.original_image_url) {
-                                imageUpdatedShow = imageUpdatedShow.copy(original_image_url = newPoster)
-                                changed = true
+                                    if (newPoster != null && newPoster != imageUpdatedShow.original_image_url) {
+                                        imageUpdatedShow = imageUpdatedShow.copy(original_image_url = newPoster)
+                                        changed = true
+                                    }
+                                    if (newHeroImage != null && newHeroImage != imageUpdatedShow.medium_image_url) {
+                                        imageUpdatedShow = imageUpdatedShow.copy(medium_image_url = newHeroImage)
+                                        changed = true
+                                    }
+                                    if (newTvMazeId != null && newTvMazeId != imageUpdatedShow.tvMazeID) {
+                                        imageUpdatedShow = imageUpdatedShow.copy(tvMazeID = newTvMazeId)
+                                        changed = true
+                                    }
+                                }
+                                if (changed) imageUpdatedShow else null
                             }
-                            if (newHeroImage != null && newHeroImage != imageUpdatedShow.medium_image_url) {
-                                imageUpdatedShow = imageUpdatedShow.copy(medium_image_url = newHeroImage)
-                                changed = true
-                            }
-                            if (newTvMazeId != null && newTvMazeId != imageUpdatedShow.tvMazeID) {
-                                imageUpdatedShow = imageUpdatedShow.copy(tvMazeID = newTvMazeId)
-                                changed = true
-                            }
-
-                            if (changed) {
-                                showsToUpdateWithFetchedImages.add(imageUpdatedShow)
-                            }
-                        }
+                        }.awaitAll().filterNotNull()
                     }
 
                     if (showsToUpdateWithFetchedImages.isNotEmpty()) {
@@ -348,30 +348,30 @@ constructor(
                 }
 
                 if (showsMissingImages.isNotEmpty()) {
-                    val showsToUpdateWithFetchedImages = mutableListOf<DatabaseTraktMostAnticipated>()
-                    for (showNeedingImage in showsMissingImages) {
-                        showNeedingImage.imdbID?.let { imdbId ->
-                            val (newTvMazeId, newPoster, newHeroImage) = getImages(imdbId)
-                            var imageUpdatedShow = showNeedingImage
-                            var changed = false
+                    val showsToUpdateWithFetchedImages = kotlinx.coroutines.coroutineScope {
+                        showsMissingImages.map { showNeedingImage ->
+                            async(Dispatchers.IO.limitedParallelism(5)) {
+                                var changed = false
+                                var imageUpdatedShow = showNeedingImage
+                                showNeedingImage.imdbID?.let { imdbId ->
+                                    val (newTvMazeId, newPoster, newHeroImage) = getImages(imdbId)
 
-                            if (newPoster != null && newPoster != imageUpdatedShow.original_image_url) {
-                                imageUpdatedShow = imageUpdatedShow.copy(original_image_url = newPoster)
-                                changed = true
+                                    if (newPoster != null && newPoster != imageUpdatedShow.original_image_url) {
+                                        imageUpdatedShow = imageUpdatedShow.copy(original_image_url = newPoster)
+                                        changed = true
+                                    }
+                                    if (newHeroImage != null && newHeroImage != imageUpdatedShow.medium_image_url) {
+                                        imageUpdatedShow = imageUpdatedShow.copy(medium_image_url = newHeroImage)
+                                        changed = true
+                                    }
+                                    if (newTvMazeId != null && newTvMazeId != imageUpdatedShow.tvMazeID) {
+                                        imageUpdatedShow = imageUpdatedShow.copy(tvMazeID = newTvMazeId)
+                                        changed = true
+                                    }
+                                }
+                                if (changed) imageUpdatedShow else null
                             }
-                            if (newHeroImage != null && newHeroImage != imageUpdatedShow.medium_image_url) {
-                                imageUpdatedShow = imageUpdatedShow.copy(medium_image_url = newHeroImage)
-                                changed = true
-                            }
-                            if (newTvMazeId != null && newTvMazeId != imageUpdatedShow.tvMazeID) {
-                                imageUpdatedShow = imageUpdatedShow.copy(tvMazeID = newTvMazeId)
-                                changed = true
-                            }
-
-                            if (changed) {
-                                showsToUpdateWithFetchedImages.add(imageUpdatedShow)
-                            }
-                        }
+                        }.awaitAll().filterNotNull()
                     }
 
                     if (showsToUpdateWithFetchedImages.isNotEmpty()) {

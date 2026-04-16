@@ -136,16 +136,6 @@ class DashboardRepositoryImpl(
                         yesterdayShowsList.forEach { yesterdayShow ->
                             // only adding shows that have an image and an imdb id
                             if (!yesterdayShow.show.image?.original.isNullOrEmpty() && !yesterdayShow.show.externals?.imdb.isNullOrEmpty()) {
-                                val (poster, heroImage) =
-                                    getImages(
-                                        id = yesterdayShow.show.id.toString(),
-                                        fallbackPoster = yesterdayShow.show.image?.original,
-                                        fallbackMedium = yesterdayShow.show.image?.medium,
-                                    )
-
-                                yesterdayShow.show.image?.original = poster
-                                yesterdayShow.show.image?.medium = heroImage
-
                                 shows.add(yesterdayShow.asDatabaseModel())
                             }
                         }
@@ -193,16 +183,6 @@ class DashboardRepositoryImpl(
                         todayShowsList.forEach { todayShow ->
                             // only adding shows that have an image and an imdb id
                             if (!todayShow.show.image?.original.isNullOrEmpty() && !todayShow.show.externals?.imdb.isNullOrEmpty()) {
-                                val (poster, heroImage) =
-                                    getImages(
-                                        id = todayShow.show.id.toString(),
-                                        fallbackPoster = todayShow.show.image?.original,
-                                        fallbackMedium = todayShow.show.image?.medium,
-                                    )
-
-                                todayShow.show.image?.original = poster
-                                todayShow.show.image?.medium = heroImage
-
                                 shows.add(todayShow.asDatabaseModel())
                             }
                         }
@@ -251,16 +231,6 @@ class DashboardRepositoryImpl(
                         tomorrowShowsList.forEach { tomorrowShow ->
                             // only adding shows that have an image and an imdb id
                             if (!tomorrowShow.show.image?.original.isNullOrEmpty() && !tomorrowShow.show.externals?.imdb.isNullOrEmpty()) {
-                                val (poster, heroImage) =
-                                    getImages(
-                                        id = tomorrowShow.show.id.toString(),
-                                        fallbackPoster = tomorrowShow.show.image?.original,
-                                        fallbackMedium = tomorrowShow.show.image?.medium,
-                                    )
-
-                                tomorrowShow.show.image?.original = poster
-                                tomorrowShow.show.image?.medium = heroImage
-
                                 shows.add(tomorrowShow.asDatabaseModel())
                             }
                         }
