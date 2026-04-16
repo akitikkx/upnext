@@ -42,7 +42,11 @@ abstract class BaseTraktDataSource(
             } catch (e: HttpException) {
                 val errorBody = e.response()?.errorBody()?.string()
                 val specificMessage = "HTTP ${e.code()}: ${e.message()}. Body: $errorBody"
-                logTraktException(specificMessage, e)
+                if (e.code() in 500..599) {
+                    Timber.w("Trakt Server Error: $specificMessage")
+                } else {
+                    logTraktException(specificMessage, e)
+                }
                 Result.failure(e)
             } catch (e: Exception) {
                 logTraktException("API call failed: ${e.message}", e)
@@ -56,6 +60,10 @@ abstract class BaseTraktDataSource(
         throwable: Throwable? = null,
     ) {
         if (throwable != null) {
+            if (throwable is HttpException && throwable.code() in 500..599) {
+                Timber.w("Trakt Server Error: $message (HTTP ${throwable.code()})")
+                return
+            }
             Timber.e(throwable, "Trakt Error: $message")
             firebaseCrashlytics.recordException(throwable)
         } else {

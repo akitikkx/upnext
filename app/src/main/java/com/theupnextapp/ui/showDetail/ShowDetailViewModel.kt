@@ -621,6 +621,7 @@ class ShowDetailViewModel
                 try {
                     traktRepository.getTraktShowRating(imdbID)
                 } catch (e: Exception) {
+                    if (e is kotlinx.coroutines.CancellationException) throw e
                     firebaseCrashlytics.recordException(
                         ShowDetailFetchException(
                             message = "Error fetching Trakt show rating for IMDB ID: $imdbID",
@@ -636,6 +637,7 @@ class ShowDetailViewModel
                 try {
                     traktRepository.getTraktShowStats(imdbID)
                 } catch (e: Exception) {
+                    if (e is kotlinx.coroutines.CancellationException) throw e
                     firebaseCrashlytics.recordException(
                         ShowDetailFetchException(
                             message = "Error fetching Trakt show stats for IMDB ID: $imdbID",
@@ -657,6 +659,7 @@ class ShowDetailViewModel
                         _traktId.value = traktId
                     }
                 } catch (e: Exception) {
+                    if (e is kotlinx.coroutines.CancellationException) throw e
                     firebaseCrashlytics.recordException(
                         ShowDetailFetchException(
                             message = "Error fetching Trakt ID for IMDB ID: $imdbID",
