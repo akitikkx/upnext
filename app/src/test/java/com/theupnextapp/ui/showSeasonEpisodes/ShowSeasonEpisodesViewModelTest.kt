@@ -303,7 +303,7 @@ class ShowSeasonEpisodesViewModelTest {
                 showDetailRepository.getShowSeasonEpisodes(10, seasonNum),
             ).thenReturn(flowOf(Result.Success(emptyList())))
             whenever(watchProgressRepository.getWatchedEpisodesForShow(showTraktId)).thenReturn(flowOf(emptyList()))
-            whenever(watchProgressRepository.refreshWatchedFromTrakt("token", showTraktId)).thenReturn(Result.success(Unit))
+            whenever(watchProgressRepository.refreshWatchedFromTrakt("token", showTraktId)).thenReturn(kotlin.Result.success(Unit))
 
             createViewModel()
 
