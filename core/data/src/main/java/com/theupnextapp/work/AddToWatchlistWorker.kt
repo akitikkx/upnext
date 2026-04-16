@@ -58,6 +58,12 @@ constructor(
             val title = inputData.getString(ARG_TITLE)
             val originalImageUrl = inputData.getString(ARG_ORIGINAL_IMAGE_URL)
             val mediumImageUrl = inputData.getString(ARG_MEDIUM_IMAGE_URL)
+            val tvMazeId = inputData.getInt(ARG_TVMAZE_ID, NOT_FOUND)
+            val tmdbId = inputData.getInt(ARG_TMDB_ID, NOT_FOUND)
+            val year = inputData.getString(ARG_YEAR)
+            val network = inputData.getString(ARG_NETWORK)
+            val status = inputData.getString(ARG_STATUS)
+            val rating = inputData.getDouble(ARG_RATING, -1.0)
 
             if (token.isNullOrBlank()) {
                 Timber
@@ -92,6 +98,12 @@ constructor(
                     title = title,
                     originalImageUrl = originalImageUrl,
                     mediumImageUrl = mediumImageUrl,
+                    tvMazeId = if (tvMazeId != NOT_FOUND) tvMazeId else null,
+                    tmdbId = if (tmdbId != NOT_FOUND) tmdbId else null,
+                    year = year,
+                    network = network,
+                    status = status,
+                    rating = if (rating != -1.0) rating else null,
                 )
 
                 logSuccessToFirebase(imdbID)
@@ -119,6 +131,12 @@ constructor(
         title: String?,
         originalImageUrl: String?,
         mediumImageUrl: String?,
+        tvMazeId: Int?,
+        tmdbId: Int?,
+        year: String?,
+        network: String?,
+        status: String?,
+        rating: Double?,
     ) {
         var resolvedTraktId = traktId
         if (resolvedTraktId == NOT_FOUND && !imdbID.isNullOrEmpty()) {
@@ -134,6 +152,12 @@ constructor(
                 title = title,
                 originalImageUrl = originalImageUrl,
                 mediumImageUrl = mediumImageUrl,
+                tvMazeID = tvMazeId,
+                tmdbID = tmdbId,
+                year = year,
+                network = network,
+                status = status,
+                rating = rating,
             )
             if (result.isSuccess) {
                 // DO NOT sync native Trakt watchlist here to avoid overwriting our optimistic insert
@@ -186,6 +210,12 @@ constructor(
         const val ARG_TITLE = "arg_title"
         const val ARG_ORIGINAL_IMAGE_URL = "arg_original_image_url"
         const val ARG_MEDIUM_IMAGE_URL = "arg_medium_image_url"
+        const val ARG_TVMAZE_ID = "arg_tvmaze_id"
+        const val ARG_TMDB_ID = "arg_tmdb_id"
+        const val ARG_YEAR = "arg_year"
+        const val ARG_NETWORK = "arg_network"
+        const val ARG_STATUS = "arg_status"
+        const val ARG_RATING = "arg_rating"
         const val NOT_FOUND = -1
 
         // Define a unique notification ID for this specific worker.

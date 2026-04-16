@@ -112,7 +112,7 @@ fun DashboardScreen(
 
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
         val isCompactPane = maxWidth < 600.dp
-        val carouselPageSize = if (isCompactPane) 180.dp else 260.dp
+        val carouselPageSize = if (isCompactPane) 260.dp else 340.dp
 
         LazyColumn(
             modifier = Modifier.fillMaxSize(),

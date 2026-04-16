@@ -97,6 +97,12 @@ interface TraktRepository {
         title: String? = null,
         originalImageUrl: String? = null,
         mediumImageUrl: String? = null,
+        tvMazeID: Int? = null,
+        tmdbID: Int? = null,
+        year: String? = null,
+        network: String? = null,
+        status: String? = null,
+        rating: Double? = null,
     ): Result<Unit>
 
     suspend fun removeFromWatchlist(

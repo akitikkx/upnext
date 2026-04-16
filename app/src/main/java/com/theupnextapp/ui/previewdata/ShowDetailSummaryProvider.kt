@@ -44,6 +44,8 @@ object SampleShowDetailSummary {
             nextEpisodeLinkedId = 124,
             previousEpisodeLinkedId = 122,
             tmdbID = null,
+            network = "HBO",
+            premiered = "2024-01-01",
         )
 
     val summaryWithMissingData =
@@ -65,6 +67,8 @@ object SampleShowDetailSummary {
             nextEpisodeLinkedId = null,
             previousEpisodeLinkedId = null,
             tmdbID = null,
+            network = null,
+            premiered = null,
         )
 
     val summaryLongText =
@@ -86,5 +90,7 @@ object SampleShowDetailSummary {
             nextEpisodeLinkedId = 1024,
             previousEpisodeLinkedId = 1022,
             tmdbID = null,
+            network = "AMC",
+            premiered = "2010-10-31",
         )
 }

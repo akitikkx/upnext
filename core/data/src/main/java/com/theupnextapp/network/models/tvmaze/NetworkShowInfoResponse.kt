@@ -132,5 +132,7 @@ fun NetworkShowInfoResponse.asDomainModel(): ShowDetailSummary {
             )
         },
         tmdbID = externals?.themoviedb,
+        network = network?.name,
+        premiered = premiered,
     )
 }

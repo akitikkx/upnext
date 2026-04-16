@@ -183,6 +183,8 @@ class ShowDetailViewModelTest {
                         nextEpisodeLinkedId = null,
                         previousEpisodeLinkedId = null,
                         tmdbID = 123,
+                        network = "ABC",
+                        premiered = "2024-01-01",
                     ),
                 )
 
@@ -204,6 +206,10 @@ class ShowDetailViewModelTest {
             assertEquals("IMDb ID should match", imdbId, inputData.getString(AddToWatchlistWorker.ARG_IMDB_ID))
             assertEquals("Trakt ID should match", 1, inputData.getInt(AddToWatchlistWorker.ARG_TRAKT_ID, -1))
             assertEquals("Token should match", token, inputData.getString(AddToWatchlistWorker.ARG_TOKEN))
+            assertEquals("TVMaze ID should match", 123, inputData.getInt(AddToWatchlistWorker.ARG_TVMAZE_ID, -1))
+            assertEquals("TMDB ID should match", 123, inputData.getInt(AddToWatchlistWorker.ARG_TMDB_ID, -1))
+            assertEquals("Year should match", "2024", inputData.getString(AddToWatchlistWorker.ARG_YEAR))
+            assertEquals("Network should match", "ABC", inputData.getString(AddToWatchlistWorker.ARG_NETWORK))
         }
 
     @Test
@@ -241,7 +247,63 @@ class ShowDetailViewModelTest {
 
             // Then
             val state = viewModel.uiState.value
-            assertEquals("Show ID is missing.", state.generalErrorMessage)
+            assertEquals("This show is missing a required TVMaze or IMDB ID.", state.generalErrorMessage)
+        }
+
+    @Test
+    fun `selectedShow with string 'null' showId and valid imdbID executes fallback lookup`() =
+        runTest {
+            // Given - showId is the literal string "null" (as passed by Compose nav sometimes)
+            val imdbId = "tt12345"
+            val showDetailArg =
+                ShowDetailArg(
+                    showId = "null",
+                    showTitle = "Test Show",
+                    showImageUrl = null,
+                    showBackgroundUrl = null,
+                    imdbID = imdbId,
+                    isAuthorizedOnTrakt = false,
+                    showTraktId = null,
+                )
+
+            val mappedShow = mock<com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupResponse>()
+            whenever(mappedShow.id).thenReturn(999)
+            showDetailRepository.showLookupResult = Result.Success(mappedShow)
+
+            // Setup the final fetch via that ID
+            showDetailRepository.showSummaryResult = Result.Success(
+                ShowDetailSummary(
+                    id = 999,
+                    imdbID = imdbId,
+                    name = "Test Show via IMDB",
+                    averageRating = null,
+                    mediumImageUrl = null,
+                    originalImageUrl = null,
+                    summary = "Resolved via IMDB fallback",
+                    genres = null,
+                    time = null,
+                    previousEpisodeHref = null,
+                    nextEpisodeHref = null,
+                    status = null,
+                    airDays = null,
+                    language = null,
+                    nextEpisodeLinkedId = null,
+                    previousEpisodeLinkedId = null,
+                    tmdbID = null,
+                    network = null,
+                    premiered = null,
+                )
+            )
+
+            // When
+            viewModel.selectedShow(showDetailArg)
+
+            kotlinx.coroutines.delay(200)
+
+            // Then
+            val state = viewModel.uiState.value
+            assertNotNull("State summary should not be null after fallback", state.showSummary)
+            assertEquals("Test Show via IMDB", state.showSummary?.name)
         }
 
     @Test
@@ -279,6 +341,8 @@ class ShowDetailViewModelTest {
                         nextEpisodeLinkedId = null,
                         previousEpisodeLinkedId = null,
                         tmdbID = 123,
+                        network = null,
+                        premiered = null,
                     ),
                 )
 
@@ -355,6 +419,8 @@ class ShowDetailViewModelTest {
                         nextEpisodeLinkedId = null,
                         previousEpisodeLinkedId = null,
                         tmdbID = 123,
+                        network = null,
+                        premiered = null,
                     ),
                 )
 

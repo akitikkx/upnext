@@ -127,12 +127,48 @@ class TraktRepositoryImplTest {
             val token = "test_token"
             val traktId = 101
             val imdbID = "tt123"
+            val testTitle = "Show Title"
+            val testOriginalUrl = "original_url"
+            val testMediumUrl = "medium_url"
+            val testTvMaze = 200
+            val testTmdb = 300
+            val testYear = "2024"
+            val testNetwork = "HBO"
+            val testStatus = "Running"
+            val testRating = 8.5
+
             whenever(traktAccountDataSource.addToWatchlist(traktId, token)).thenReturn(Result.success(Unit))
 
-            repository.addToWatchlist(traktId, imdbID, token)
+            repository.addToWatchlist(
+                traktId = traktId,
+                imdbID = imdbID,
+                token = token,
+                title = testTitle,
+                originalImageUrl = testOriginalUrl,
+                mediumImageUrl = testMediumUrl,
+                tvMazeID = testTvMaze,
+                tmdbID = testTmdb,
+                year = testYear,
+                network = testNetwork,
+                status = testStatus,
+                rating = testRating,
+            )
+
             verify(traktAccountDataSource).addToWatchlist(traktId, token)
+
             // Verify optimistic local insert
-            verify(traktDao).insertWatchlistShow(org.mockito.kotlin.any())
+            val captor = org.mockito.kotlin.argumentCaptor<com.theupnextapp.database.DatabaseWatchlistShows>()
+            verify(traktDao).insertWatchlistShow(captor.capture())
+
+            val inserted = captor.firstValue
+            assert(inserted.traktID == traktId)
+            assert(inserted.title == testTitle)
+            assert(inserted.tvMazeID == testTvMaze)
+            assert(inserted.tmdbID == testTmdb)
+            assert(inserted.year == testYear)
+            assert(inserted.network == testNetwork)
+            assert(inserted.status == testStatus)
+            assert(inserted.rating == testRating)
         }
     }
 

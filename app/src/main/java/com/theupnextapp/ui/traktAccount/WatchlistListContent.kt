@@ -221,10 +221,10 @@ fun WatchlistListContent(
                         }
                     }
                     Text(
-                        text = "Shows you intend to watch. Tap to view, swipe to remove.",
+                        text = stringResource(id = R.string.watchlist_description),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
-                        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 8.dp),
+                        modifier = Modifier.padding(top = 4.dp, bottom = 8.dp),
                     )
 
                     AnimatedVisibility(visible = isSearchVisible) {

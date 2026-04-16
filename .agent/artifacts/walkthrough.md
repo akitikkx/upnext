@@ -1,25 +1,27 @@
-# Finalizing Tablet UI Polish & Static Analysis
+# Watchlist Metadata Resolution
 
-The adaptive tablet UI experience has been successfully finalized! We have addressed all outstanding static analysis issues, ensuring the codebase meets high-quality standards without suppressing any rules. 
+## Overview
+We identified and resolved an issue where newly watchlisted items from the `ShowDetail` screen were missing vital metadata (Network, Rating, Status, Year) in their optimistic database insertion. This caused the UI to show incomplete information compared to other entries fetched directly from the server.
 
-## 1. Codebase Integrity & Static Analysis
-We fully resolved the remaining strict Detekt violations in our unified UI architecture without resorting to any `@SuppressWarnings`:
-*   **Resolved `LongMethod` Violation:** The monolithic `ExpandedDetailArea` composable in `ShowDetailScreen.kt` was successfully golfed down to under 180 lines by formally extracting specialized UI placeholder functions.
-*   **Resolved `TooManyFunctions` Violation:** We extracted large composables (`SummaryPlaceholder`, `CastListPlaceholder`, and `EpisodePlaceholder`) into a dedicated `ShowDetailPlaceholders.kt` file. This successfully dropped the function count inside `ShowDetailScreen.kt` from a failing 26 down to a comfortable 22, well below the maximum threshold of 25.
-*   **Syntax & Imports Clean-up:** We successfully ran automated scripts to strip unneeded consecutive blank lines, deduplicate and lexicographically order imports, ensuring we no longer suffer from `ktlint` violations for trailing whitespace or messy structures.
+This walkthrough outlines the changes made to correctly propagate `network` and `premiered/year` fields down to the background worker and directly to the `Room` database.
 
-## 2. Adaptive UI Refactoring Finalization
-The new unified scrolling behavior for our "Unified Hero Canvas" layout is now completely intact across device configuration shifts. 
+## 1. Domain & Network Data Enhancements
+We expanded the `ShowDetailSummary` and its network mapper to retrieve and pass `network` and `premiered`:
+- **`ShowDetailSummary.kt`**: Added `network` and `premiered`.
+- **`NetworkShowInfoResponse.kt`**: Extracted these fields during network mapping.
 
-*   **Responsive Button Arrays:** `ShowDetailButtonsExpanded` and `ShowDetailButtonsCompact` successfully break down the complexity of rendering action buttons dynamically based on Material3 `WindowWidthSizeClass`, preventing overlapping components on tablets while retaining single-column scroll immersion.
+## 2. Plumping Data Through The UI Layer
+- **`ShowDetailViewModel.kt`**: The `onAddRemoveWatchlistClick` method was refactored to extract all available metadata from the current `ShowDetailSummary` state and construct the `Data` payload for `AddToWatchlistWorker` so everything moves seamlessly in the background.
 
-## 3. Full Test Suite Validation
-We successfully ran the entire project pipeline against our core checks—verifying that all new additions are production-safe!
+## 3. Optimistic DB Insertion via Worker & Repository
+- **`AddToWatchlistWorker.kt`**: Extracts the enriched arguments via `inputData` and leverages them on the `traktRepository.addToWatchlist(...)` call.
+- **`TraktRepositoryImpl.kt`**: Now accurately extracts all passed variables (`network`, `year`, `rating`, `tvMazeID`) rather than explicitly setting them to `null` before inserting into `Room`. This ensures that any UI observing the `TraktWatchlist` table receives identical object parity.
 
-### Automated Quality Checks Executed:
-- `./gradlew ktlintFormat` -> **Passed**
-- `./gradlew :app:detekt` -> **Passed**
-- `./gradlew :app:compileDebugKotlin` -> **Passed**
-- `./gradlew testDebugUnitTest` -> **Passed**
+## 4. Robust Testing Structure
+Extensive test coverage was added or refactored:
+- **`AddToWatchlistWorkerTest.kt`**: Validates the input payloads and ensures they propagate successfully across the repository layers. Added Robolectric to mock the `FirebaseApp` initialization required by analytics.
+- **`TraktRepositoryImplTest.kt`**: Validates the optimistic DAO insertion and maps correct values through mock verifications.
+- **`ShowDetailViewModelTest.kt`**: Mocked the WorkManager request payload verifications.
 
-The combination of the robust identity-based ViewModel network guards and fully compliant adaptive Jetpack Compose structures is finally resilient, aesthetically pleasing on wide canvases, and rigorously validated!
+## 5. Summary
+Building out the UI test previews properly in `ShowDetailSummaryProvider.kt` finalized our implementation plan by fulfilling compiler agreements, ensuring our domain models remain consistent and robust under all configurations.

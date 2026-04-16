@@ -216,6 +216,12 @@ class TraktRepositoryImpl(
         title: String?,
         originalImageUrl: String?,
         mediumImageUrl: String?,
+        tvMazeID: Int?,
+        tmdbID: Int?,
+        year: String?,
+        network: String?,
+        status: String?,
+        rating: Double?,
     ): Result<Unit> {
         _isLoadingWatchlistShows.value = true
         _watchlistShowsError.value = null
@@ -232,14 +238,14 @@ class TraktRepositoryImpl(
                         title = title,
                         originalImageUrl = originalImageUrl,
                         mediumImageUrl = mediumImageUrl,
-                        year = null,
-                        tvMazeID = null,
+                        year = year,
+                        tvMazeID = tvMazeID,
                         slug = null,
-                        tmdbID = null,
+                        tmdbID = tmdbID,
                         tvdbID = null,
-                        network = null,
-                        status = null,
-                        rating = null
+                        network = network,
+                        status = status,
+                        rating = rating
                     )
                 )
             }

@@ -223,13 +223,13 @@ fun TraktAccountScreen(
                     navController.navigate(
                         Destinations.ShowDetail(
                             source = "watchlists",
-                            showId = item.tvMazeID.toString(),
+                            showId = item.tvMazeID?.toString(),
                             showTitle = item.title,
                             showImageUrl = item.originalImageUrl,
                             showBackgroundUrl = item.mediumImageUrl,
-                            imdbID = null,
+                            imdbID = item.imdbID,
                             isAuthorizedOnTrakt = null,
-                            showTraktId = null,
+                            showTraktId = item.traktID,
                         ),
                     )
                 },

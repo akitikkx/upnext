@@ -131,6 +131,12 @@ class FakeTraktRepository : TraktRepository {
         title: String?,
         originalImageUrl: String?,
         mediumImageUrl: String?,
+        tvMazeID: Int?,
+        tmdbID: Int?,
+        year: String?,
+        network: String?,
+        status: String?,
+        rating: Double?,
     ): Result<Unit> = addToWatchlistResult
 
     var removeFromWatchlistResult: Result<Unit> = Result.success(Unit)

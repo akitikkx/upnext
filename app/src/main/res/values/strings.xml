@@ -35,6 +35,7 @@
     <string name="title_recommendations">Recommendations</string>
     <string name="title_trakt_account">Trakt Account</string>
     <string name="title_favorites_list">Your Watchlist</string>
+    <string name="watchlist_description">Shows you intend to watch. Tap to view, swipe to remove.\nNote: Trakt automatically removes items from your watchlist once you log an episode as watched.</string>
     <string name="title_loading">Loading</string>
     <string name="title_unknown">Title Unknown</string>
 

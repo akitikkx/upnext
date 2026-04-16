@@ -21,7 +21,7 @@ import org.mockito.kotlin.mock
 class FakeShowDetailRepository : ShowDetailRepository {
     var showSummaryResult: Result<ShowDetailSummary> =
         Result.Success(
-            ShowDetailSummary(airDays = "", averageRating = "", id = 1, imdbID = "tt123456", genres = "", language = "English", mediumImageUrl = "", name = "Fake Show", originalImageUrl = "", summary = "Fake Summary", time = "", status = "Running", previousEpisodeHref = "", nextEpisodeHref = "", nextEpisodeLinkedId = 1, previousEpisodeLinkedId = 1, tmdbID = 1),
+            ShowDetailSummary(airDays = "", averageRating = "", id = 1, imdbID = "tt123456", genres = "", language = "English", mediumImageUrl = "", name = "Fake Show", originalImageUrl = "", summary = "Fake Summary", time = "", status = "Running", previousEpisodeHref = "", nextEpisodeHref = "", nextEpisodeLinkedId = 1, previousEpisodeLinkedId = 1, tmdbID = 1, network = "HBO", premiered = "2024-01-01"),
         )
 
     var showLookupResult: Result<NetworkTvMazeShowLookupResponse> = Result.Success(mock())
