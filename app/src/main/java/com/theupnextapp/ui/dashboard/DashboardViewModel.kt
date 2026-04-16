@@ -12,6 +12,7 @@ import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.WatchProgressRepository
 import com.theupnextapp.work.SyncWatchProgressWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -157,7 +158,7 @@ class DashboardViewModel
                                     val season = scheduleItem.episode?.season
                                     val number = scheduleItem.episode?.number
                                     if (traktId != null && imdbId != null) {
-                                        async {
+                                        async(Dispatchers.IO.limitedParallelism(5)) {
                                             try {
                                                 val (url, tvmazeId) = dashboardRepository.getShowImageAndTvmazeId(imdbId)
                                                 val uniqueKey = "$traktId-${season ?: 0}-${number ?: 0}"
@@ -199,7 +200,7 @@ class DashboardViewModel
                                     val traktId = item.ids?.trakt
                                     val imdbId = item.ids?.imdb
                                     if (traktId != null && imdbId != null) {
-                                        async {
+                                        async(Dispatchers.IO.limitedParallelism(5)) {
                                             try {
                                                 val (url, tvmazeId) = dashboardRepository.getShowImageAndTvmazeId(imdbId)
                                                 val uniqueKey = traktId.toString()
@@ -240,7 +241,7 @@ class DashboardViewModel
                                     val traktId = item.show?.ids?.trakt
                                     val imdbId = item.show?.ids?.imdb
                                     if (traktId != null && imdbId != null) {
-                                        async {
+                                        async(Dispatchers.IO.limitedParallelism(5)) {
                                             try {
                                                 val season = item.episode?.season
                                                 val number = item.episode?.number
