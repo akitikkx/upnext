@@ -21,6 +21,7 @@
 
 package com.theupnextapp.common.utils
 
+import android.text.format.DateUtils
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -124,7 +125,7 @@ object DateUtils {
         var date: Date? = null
         try {
             val format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
-            format.timeZone = java.util.TimeZone.getTimeZone("UTC")
+            format.timeZone = TimeZone.getTimeZone("UTC")
             date = format.parse(dateString)
         } catch (e: Exception) {
             // Fallback or ignore
@@ -142,11 +143,11 @@ object DateUtils {
 
         return date?.let {
             val now = System.currentTimeMillis()
-            android.text.format.DateUtils.getRelativeTimeSpanString(
+            DateUtils.getRelativeTimeSpanString(
                 it.time,
                 now,
-                android.text.format.DateUtils.MINUTE_IN_MILLIS,
-                android.text.format.DateUtils.FORMAT_ABBREV_RELATIVE
+                DateUtils.MINUTE_IN_MILLIS,
+                DateUtils.FORMAT_ABBREV_RELATIVE
             ).toString()
         }
     }

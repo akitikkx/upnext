@@ -21,6 +21,8 @@
 
 package com.theupnextapp.di
 
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.theupnextapp.common.CrashlyticsHelper
 import com.theupnextapp.database.RecentSearchDao
@@ -36,6 +38,8 @@ import com.theupnextapp.network.TvMazeService
 import com.theupnextapp.repository.DashboardRepository
 import com.theupnextapp.repository.DashboardRepositoryImpl
 import com.theupnextapp.repository.SearchRepository
+import com.theupnextapp.repository.SettingsRepository
+import com.theupnextapp.repository.SettingsRepositoryImpl
 import com.theupnextapp.repository.ShowDetailRepository
 import com.theupnextapp.repository.ShowDetailRepositoryImpl
 import com.theupnextapp.repository.TraktRepository
@@ -134,8 +138,8 @@ object RepositoryModule {
     @Singleton
     @Provides
     fun provideSettingsRepository(
-        dataStore: androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences>
-    ): com.theupnextapp.repository.SettingsRepository {
-        return com.theupnextapp.repository.SettingsRepositoryImpl(dataStore)
+        dataStore: DataStore<Preferences>
+    ): SettingsRepository {
+        return SettingsRepositoryImpl(dataStore)
     }
 }

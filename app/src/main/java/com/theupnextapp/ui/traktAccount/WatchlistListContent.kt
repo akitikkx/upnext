@@ -48,15 +48,21 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -80,6 +86,7 @@ import com.theupnextapp.R
 import com.theupnextapp.core.designsystem.ui.components.SectionHeadingText
 import com.theupnextapp.domain.TraktUserListItem
 import kotlinx.coroutines.launch
+import java.util.Locale
 import androidx.compose.foundation.rememberScrollState as rememberHorizontalScrollState
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -144,24 +151,24 @@ fun WatchlistListContent(
                                 },
                         )
                         Row {
-                            androidx.compose.material3.IconButton(onClick = { isSearchVisible = !isSearchVisible }) {
+                            IconButton(onClick = { isSearchVisible = !isSearchVisible }) {
                                 Icon(
                                     imageVector = Icons.Default.Search,
                                     contentDescription = "Search Watchlist",
                                 )
                             }
                             Box {
-                                androidx.compose.material3.IconButton(onClick = { isSortMenuExpanded = true }) {
+                                IconButton(onClick = { isSortMenuExpanded = true }) {
                                     Icon(
                                         imageVector = Icons.Default.Menu,
                                         contentDescription = "Sort/Filter Watchlist",
                                     )
                                 }
-                                androidx.compose.material3.DropdownMenu(
+                                DropdownMenu(
                                     expanded = isSortMenuExpanded,
                                     onDismissRequest = { isSortMenuExpanded = false },
                                 ) {
-                                    androidx.compose.material3.DropdownMenuItem(
+                                    DropdownMenuItem(
                                         text = {
                                             Text(
                                                 "Recently Added",
@@ -173,7 +180,7 @@ fun WatchlistListContent(
                                             isSortMenuExpanded = false
                                         },
                                     )
-                                    androidx.compose.material3.DropdownMenuItem(
+                                    DropdownMenuItem(
                                         text = {
                                             Text(
                                                 "Title",
@@ -185,7 +192,7 @@ fun WatchlistListContent(
                                             isSortMenuExpanded = false
                                         },
                                     )
-                                    androidx.compose.material3.DropdownMenuItem(
+                                    DropdownMenuItem(
                                         text = {
                                             Text(
                                                 "Release Year",
@@ -197,7 +204,7 @@ fun WatchlistListContent(
                                             isSortMenuExpanded = false
                                         },
                                     )
-                                    androidx.compose.material3.DropdownMenuItem(
+                                    DropdownMenuItem(
                                         text = {
                                             Text(
                                                 "Rating",
@@ -220,8 +227,8 @@ fun WatchlistListContent(
                         modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 8.dp),
                     )
 
-                    androidx.compose.animation.AnimatedVisibility(visible = isSearchVisible) {
-                        androidx.compose.material3.OutlinedTextField(
+                    AnimatedVisibility(visible = isSearchVisible) {
+                        OutlinedTextField(
                             value = watchlistSearchQuery,
                             onValueChange = onSearchQueryChange,
                             modifier =
@@ -232,7 +239,7 @@ fun WatchlistListContent(
                             singleLine = true,
                             trailingIcon = {
                                 if (watchlistSearchQuery.isNotEmpty()) {
-                                    androidx.compose.material3.IconButton(onClick = { onSearchQueryChange("") }) {
+                                    IconButton(onClick = { onSearchQueryChange("") }) {
                                         Icon(Icons.Default.Clear, contentDescription = "Clear Search")
                                     }
                                 }
@@ -250,13 +257,13 @@ fun WatchlistListContent(
                                     .horizontalScroll(rememberHorizontalScrollState()),
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
-                            androidx.compose.material3.FilterChip(
+                            FilterChip(
                                 selected = statusFilter == null,
                                 onClick = { onStatusFilterChange(null) },
                                 label = { Text("All") },
                             )
                             availableStatuses.forEach { status ->
-                                androidx.compose.material3.FilterChip(
+                                FilterChip(
                                     selected = statusFilter == status,
                                     onClick = {
                                         onStatusFilterChange(
@@ -299,7 +306,7 @@ fun WatchlistListContent(
                 )
 
                 if (index == 0) {
-                    androidx.compose.runtime.LaunchedEffect(Unit) {
+                    LaunchedEffect(Unit) {
                         kotlinx.coroutines.delay(peekDelayMillis)
                         peekOffset = peekSlideOffset // Slide left
                         kotlinx.coroutines.delay(peekReturnDelayMillis)
@@ -466,7 +473,7 @@ fun WatchlistListItemCard(
 
                 val statusText = item.status ?: ""
                 val rating = item.rating
-                val ratingText = if (rating != null && rating > 0.0) String.format(java.util.Locale.getDefault(), "★ %.1f", rating) else ""
+                val ratingText = if (rating != null && rating > 0.0) String.format(Locale.getDefault(), "★ %.1f", rating) else ""
 
                 val bottomMeta = listOf(statusText, ratingText).filter { it.isNotEmpty() }.joinToString(" • ")
                 if (bottomMeta.isNotEmpty()) {

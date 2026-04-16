@@ -1,6 +1,14 @@
 package com.theupnextapp
 
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.test.*
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import dagger.hilt.android.testing.HiltAndroidRule
@@ -19,12 +27,12 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @HiltAndroidTest
 @OptIn(
-    androidx.compose.animation.ExperimentalAnimationApi::class,
-    androidx.compose.foundation.ExperimentalFoundationApi::class,
-    androidx.compose.ui.test.ExperimentalTestApi::class,
-    androidx.compose.ui.ExperimentalComposeUiApi::class,
-    androidx.compose.material3.ExperimentalMaterial3Api::class,
-    androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi::class,
+    ExperimentalAnimationApi::class,
+    ExperimentalFoundationApi::class,
+    ExperimentalTestApi::class,
+    ExperimentalComposeUiApi::class,
+    ExperimentalMaterial3Api::class,
+    ExperimentalMaterial3WindowSizeClassApi::class,
 )
 class NavigationTest {
     @get:Rule(order = 0)
@@ -82,9 +90,9 @@ class NavigationTest {
 
         // Create the simulated OAuth callback intent from the web browser
         val deepLinkIntent =
-            android.content.Intent(
-                android.content.Intent.ACTION_VIEW,
-                android.net.Uri.parse("theupnextapp://callback?code=mock_oauth_code"),
+            Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse("theupnextapp://callback?code=mock_oauth_code"),
             )
 
         // Launch the intent to trigger singleTop onNewIntent mapping deepLinks

@@ -3,6 +3,7 @@ package com.theupnextapp.ui.showSeasons
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.SavedStateHandle
 import androidx.work.WorkManager
+import androidx.work.WorkRequest
 import com.theupnextapp.CoroutineTestRule
 import com.theupnextapp.common.utils.TraktAuthManager
 import com.theupnextapp.domain.Result
@@ -111,7 +112,7 @@ class ShowSeasonsViewModelTest {
                 seasonNumber = 1,
             )
 
-            verify(workManager).enqueue(any<androidx.work.WorkRequest>())
+            verify(workManager).enqueue(any<WorkRequest>())
         }
 
     @Test
@@ -178,7 +179,7 @@ class ShowSeasonsViewModelTest {
                 episodes = episodes,
             )
 
-            verify(workManager).enqueue(any<androidx.work.WorkRequest>())
+            verify(workManager).enqueue(any<WorkRequest>())
         }
 
     @Test

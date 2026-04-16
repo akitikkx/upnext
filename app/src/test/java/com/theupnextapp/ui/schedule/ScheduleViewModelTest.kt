@@ -25,6 +25,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.mockito.Mockito
 
 @ExperimentalCoroutinesApi
 class ScheduleViewModelTest {
@@ -41,7 +42,7 @@ class ScheduleViewModelTest {
 
     @Before
     fun setup() {
-        workManager = org.mockito.Mockito.mock(WorkManager::class.java)
+        workManager = Mockito.mock(WorkManager::class.java)
         fakeRepository = FakeDashboardRepository()
         viewModel = ScheduleViewModel(fakeRepository, workManager)
     }

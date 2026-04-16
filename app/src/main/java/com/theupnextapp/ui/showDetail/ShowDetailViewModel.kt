@@ -34,6 +34,7 @@ import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.ShowDetailSummary
 import com.theupnextapp.domain.ShowNextEpisode
 import com.theupnextapp.domain.ShowPreviousEpisode
+import com.theupnextapp.domain.TmdbWatchProviders
 import com.theupnextapp.domain.TraktCast
 import com.theupnextapp.domain.TraktRelatedShows
 import com.theupnextapp.domain.TraktShowRating
@@ -180,7 +181,7 @@ class ShowDetailViewModel
             val watchlistShow: TraktUserListItem? = null,
             val similarShows: List<TraktRelatedShows>? = null,
             val isSimilarShowsLoading: Boolean = false,
-            val watchProviders: com.theupnextapp.domain.TmdbWatchProviders? = null,
+            val watchProviders: TmdbWatchProviders? = null,
             val isWatchProvidersLoading: Boolean = false,
             val isRating: Boolean = false,
             val userRating: Int? = null,
@@ -516,7 +517,7 @@ class ShowDetailViewModel
                                 _uiState.update {
                                     it.copy(
                                         isWatchProvidersLoading = false,
-                                        watchProviders = com.theupnextapp.domain.TmdbWatchProviders(id = null, providers = emptyList()),
+                                        watchProviders = TmdbWatchProviders(id = null, providers = emptyList()),
                                     )
                                 }
                             }

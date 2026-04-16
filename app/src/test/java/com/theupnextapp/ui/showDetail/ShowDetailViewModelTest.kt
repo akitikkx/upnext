@@ -35,6 +35,7 @@ import com.theupnextapp.domain.TraktAuthState
 import com.theupnextapp.domain.TraktRelatedShows
 import com.theupnextapp.repository.fakes.FakeShowDetailRepository
 import com.theupnextapp.repository.fakes.FakeTraktRepository
+import com.theupnextapp.work.AddToWatchlistWorker
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
@@ -50,6 +51,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.timeout
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import kotlin.Result as StdResult
 
 @ExperimentalCoroutinesApi
 class ShowDetailViewModelTest {
@@ -117,7 +119,7 @@ class ShowDetailViewModelTest {
                         id = 2,
                     ),
                 )
-            traktRepository.relatedShowsResult = kotlin.Result.success(testRelatedShows)
+            traktRepository.relatedShowsResult = StdResult.success(testRelatedShows)
 
             // When
             viewModel.selectedShow(showDetailArg)
@@ -199,9 +201,9 @@ class ShowDetailViewModelTest {
             val inputData = enqueuedWork.workSpec.input
 
             assertNotNull("Work input data should not be null", inputData)
-            assertEquals("IMDb ID should match", imdbId, inputData.getString(com.theupnextapp.work.AddToWatchlistWorker.ARG_IMDB_ID))
-            assertEquals("Trakt ID should match", 1, inputData.getInt(com.theupnextapp.work.AddToWatchlistWorker.ARG_TRAKT_ID, -1))
-            assertEquals("Token should match", token, inputData.getString(com.theupnextapp.work.AddToWatchlistWorker.ARG_TOKEN))
+            assertEquals("IMDb ID should match", imdbId, inputData.getString(AddToWatchlistWorker.ARG_IMDB_ID))
+            assertEquals("Trakt ID should match", 1, inputData.getInt(AddToWatchlistWorker.ARG_TRAKT_ID, -1))
+            assertEquals("Token should match", token, inputData.getString(AddToWatchlistWorker.ARG_TOKEN))
         }
 
     @Test

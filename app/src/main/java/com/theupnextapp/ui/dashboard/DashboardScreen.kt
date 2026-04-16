@@ -1,11 +1,13 @@
 package com.theupnextapp.ui.dashboard
 
 import android.net.Uri
+import android.text.format.DateUtils
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -21,6 +23,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -69,6 +72,9 @@ import com.theupnextapp.core.designsystem.ui.widgets.ListPosterCard
 import com.theupnextapp.core.designsystem.ui.widgets.UpNextEpisodeCard
 import com.theupnextapp.navigation.Destinations
 import com.theupnextapp.ui.components.EmptyState
+import java.text.SimpleDateFormat
+import java.util.Locale
+import java.util.TimeZone
 import kotlin.math.absoluteValue
 
 @Suppress("LongMethod", "CyclomaticComplexMethod", "MagicNumber")
@@ -104,7 +110,7 @@ fun DashboardScreen(
         }
     }
 
-    androidx.compose.foundation.layout.BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
         val isCompactPane = maxWidth < 600.dp
         val carouselPageSize = if (isCompactPane) 180.dp else 260.dp
 
@@ -145,7 +151,7 @@ fun DashboardScreen(
                         val pagerState = rememberPagerState(pageCount = { todayShows.orEmpty().size })
                         HorizontalPager(
                             state = pagerState,
-                            pageSize = androidx.compose.foundation.pager.PageSize.Fixed(carouselPageSize),
+                            pageSize = PageSize.Fixed(carouselPageSize),
                             pageSpacing = 16.dp,
                             modifier = Modifier.fillMaxWidth(),
                         ) { page ->
@@ -344,7 +350,7 @@ fun DashboardScreen(
                         val pagerState = rememberPagerState(pageCount = { airingSoonShows.orEmpty().size })
                         HorizontalPager(
                             state = pagerState,
-                            pageSize = androidx.compose.foundation.pager.PageSize.Fixed(carouselPageSize),
+                            pageSize = PageSize.Fixed(carouselPageSize),
                             pageSpacing = 16.dp,
                             modifier = Modifier.fillMaxWidth(),
                         ) { page ->
@@ -376,16 +382,16 @@ fun DashboardScreen(
                                 try {
                                     showResponse.first_aired?.let {
                                         val format =
-                                            java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault()).apply {
-                                                timeZone = java.util.TimeZone.getTimeZone("UTC")
+                                            SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault()).apply {
+                                                timeZone = TimeZone.getTimeZone("UTC")
                                             }
                                         val parsed = format.parse(it)
                                         val timeMillis = parsed?.time ?: System.currentTimeMillis()
-                                        android.text.format.DateUtils.getRelativeTimeSpanString(
+                                        DateUtils.getRelativeTimeSpanString(
                                             timeMillis,
                                             System.currentTimeMillis(),
-                                            android.text.format.DateUtils.MINUTE_IN_MILLIS,
-                                            android.text.format.DateUtils.FORMAT_ABBREV_RELATIVE,
+                                            DateUtils.MINUTE_IN_MILLIS,
+                                            DateUtils.FORMAT_ABBREV_RELATIVE,
                                         ).toString()
                                     } ?: "TBA"
                                 } catch (e: Exception) {
@@ -565,7 +571,7 @@ fun DashboardScreen(
                         val pagerState = rememberPagerState(pageCount = { recommendedShows.orEmpty().size })
                         HorizontalPager(
                             state = pagerState,
-                            pageSize = androidx.compose.foundation.pager.PageSize.Fixed(carouselPageSize),
+                            pageSize = PageSize.Fixed(carouselPageSize),
                             pageSpacing = 16.dp,
                             modifier = Modifier.fillMaxWidth(),
                         ) { page ->

@@ -29,6 +29,7 @@ import com.theupnextapp.network.models.tvmaze.NetworkShowNextEpisodeResponse
 import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import retrofit2.HttpException
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
@@ -208,7 +209,7 @@ abstract class BaseRepository(
                 Timber.v("TVMaze show data for IMDb ID $imdbId: $show")
                 Triple(show.id, show.image.original, show.image.medium)
             }
-        } catch (e: retrofit2.HttpException) {
+        } catch (e: HttpException) {
             Triple(null, null, null)
         } catch (e: Exception) {
             Triple(null, null, null)

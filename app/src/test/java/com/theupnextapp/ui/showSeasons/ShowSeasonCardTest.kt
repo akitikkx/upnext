@@ -1,5 +1,6 @@
 package com.theupnextapp.ui.showSeasons
 
+import android.app.Application
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -14,7 +15,7 @@ import org.robolectric.annotation.Config
 
 @ExperimentalMaterial3Api
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [33], application = android.app.Application::class)
+@Config(sdk = [33], application = Application::class)
 class ShowSeasonCardTest {
     @get:Rule
     val composeTestRule = createComposeRule()

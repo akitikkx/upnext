@@ -2,6 +2,7 @@ package com.theupnextapp.datasource
 
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import com.theupnextapp.database.TraktDao
 import com.theupnextapp.database.UpnextDao
 import com.theupnextapp.network.TraktService
@@ -25,7 +26,7 @@ class TraktAccountDataSourceTest {
     private val firebaseCrashlytics: FirebaseCrashlytics = mock()
     private val traktService: TraktService = mock()
     private val moshi: Moshi = Moshi.Builder()
-        .add(com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory())
+        .add(KotlinJsonAdapterFactory())
         .build()
 
     private lateinit var dataSource: TraktAccountDataSource

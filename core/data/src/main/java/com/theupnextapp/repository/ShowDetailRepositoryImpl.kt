@@ -24,6 +24,7 @@ package com.theupnextapp.repository
 import com.theupnextapp.common.CrashlyticsHelper
 import com.theupnextapp.database.UpnextDao
 import com.theupnextapp.domain.EpisodeDetail
+import com.theupnextapp.domain.EpisodePeople
 import com.theupnextapp.domain.Result
 import com.theupnextapp.domain.ShowCast
 import com.theupnextapp.domain.ShowDetailSummary
@@ -31,13 +32,18 @@ import com.theupnextapp.domain.ShowNextEpisode
 import com.theupnextapp.domain.ShowPreviousEpisode
 import com.theupnextapp.domain.ShowSeason
 import com.theupnextapp.domain.ShowSeasonEpisode
-import com.theupnextapp.domain.safeApiCall
 import com.theupnextapp.domain.TmdbWatchProvider
 import com.theupnextapp.domain.TmdbWatchProviders
+import com.theupnextapp.domain.TraktCast
+import com.theupnextapp.domain.TraktCrew
+import com.theupnextapp.domain.safeApiCall
 import com.theupnextapp.network.TmdbService
+import com.theupnextapp.network.TraktService
 import com.theupnextapp.network.TvMazeService
-import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupResponse
+import com.theupnextapp.network.models.tmdb.NetworkTmdbPersonImagesResponse
+import com.theupnextapp.network.models.tmdb.NetworkTmdbPersonTvCreditsResponse
 import com.theupnextapp.network.models.trakt.asDomainModel
+import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupResponse
 import com.theupnextapp.network.models.tvmaze.asDomainModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -52,7 +58,7 @@ import timber.log.Timber
 class ShowDetailRepositoryImpl(
     upnextDao: UpnextDao,
     tvMazeService: TvMazeService,
-    private val traktService: com.theupnextapp.network.TraktService,
+    private val traktService: TraktService,
     private val tmdbService: TmdbService,
     private val crashlytics: CrashlyticsHelper,
 ) : BaseRepository(upnextDao = upnextDao, tvMazeService = tvMazeService), ShowDetailRepository {
@@ -391,8 +397,8 @@ class ShowDetailRepositoryImpl(
         traktId: Int,
         seasonNumber: Int,
         episodeNumber: Int,
-    ): Flow<Result<com.theupnextapp.domain.EpisodePeople>> {
-        return flow<Result<com.theupnextapp.domain.EpisodePeople>> {
+    ): Flow<Result<EpisodePeople>> {
+        return flow<Result<EpisodePeople>> {
             try {
                 emit(Result.Loading(true))
                 val episodePeople = traktService.getEpisodePeopleAsync(
@@ -401,7 +407,7 @@ class ShowDetailRepositoryImpl(
                     episode = episodeNumber,
                 ).await().asDomainModel()
 
-                val updatedCast = mutableListOf<com.theupnextapp.domain.TraktCast>()
+                val updatedCast = mutableListOf<TraktCast>()
                 episodePeople.cast?.forEach { star ->
                     val updatedStar = if (star.tmdbId != null) {
                         try {
@@ -422,7 +428,7 @@ class ShowDetailRepositoryImpl(
                     updatedCast.add(updatedStar)
                 }
 
-                val updatedGuestStars = mutableListOf<com.theupnextapp.domain.TraktCast>()
+                val updatedGuestStars = mutableListOf<TraktCast>()
                 episodePeople.guestStars?.forEach { star ->
                     val updatedStar = if (star.tmdbId != null) {
                         try {
@@ -443,7 +449,7 @@ class ShowDetailRepositoryImpl(
                     updatedGuestStars.add(updatedStar)
                 }
 
-                val updatedCrew = mutableListOf<com.theupnextapp.domain.TraktCrew>()
+                val updatedCrew = mutableListOf<TraktCrew>()
                 episodePeople.crew?.forEach { member ->
                     val updatedMember = if (member.tmdbId != null) {
                         try {
@@ -464,7 +470,7 @@ class ShowDetailRepositoryImpl(
                     updatedCrew.add(updatedMember)
                 }
 
-                val result = com.theupnextapp.domain.EpisodePeople(cast = updatedCast, guestStars = updatedGuestStars, crew = updatedCrew)
+                val result = EpisodePeople(cast = updatedCast, guestStars = updatedGuestStars, crew = updatedCrew)
                 emit(Result.Success(result))
                 emit(Result.Loading(false))
             } catch (e: Exception) {
@@ -475,7 +481,7 @@ class ShowDetailRepositoryImpl(
         }.flowOn(Dispatchers.IO)
     }
 
-    override fun getPersonTvCredits(personId: Int): Flow<Result<com.theupnextapp.network.models.tmdb.NetworkTmdbPersonTvCreditsResponse>> {
+    override fun getPersonTvCredits(personId: Int): Flow<Result<NetworkTmdbPersonTvCreditsResponse>> {
         return flow {
             emit(Result.Loading(true))
             val response =
@@ -501,7 +507,7 @@ class ShowDetailRepositoryImpl(
             .flowOn(Dispatchers.IO)
     }
 
-    override fun getPersonImages(personId: Int): Flow<Result<com.theupnextapp.network.models.tmdb.NetworkTmdbPersonImagesResponse>> {
+    override fun getPersonImages(personId: Int): Flow<Result<NetworkTmdbPersonImagesResponse>> {
         return flow {
             emit(Result.Loading(true))
             val response =

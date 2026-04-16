@@ -3,8 +3,12 @@ package com.theupnextapp.work
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.work.ListenableWorker
+import androidx.work.WorkerFactory
+import androidx.work.WorkerParameters
 import androidx.work.testing.TestListenableWorkerBuilder
 import com.theupnextapp.TestApplication
+import com.theupnextapp.domain.TraktAccessToken
+import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponse
 import com.theupnextapp.repository.SettingsRepository
 import com.theupnextapp.repository.TraktRepository
 import kotlinx.coroutines.flow.flowOf
@@ -37,7 +41,7 @@ class NotificationWorkerTest {
         runBlocking {
             whenever(mockSettingsRepository.areNotificationsEnabled).thenReturn(flowOf(true))
             val accessToken =
-                com.theupnextapp.domain.TraktAccessToken(
+                TraktAccessToken(
                     access_token = "token",
                     token_type = "bearer",
                     expires_in = 3600,
@@ -53,16 +57,16 @@ class NotificationWorkerTest {
                     org.mockito.kotlin.any(),
                 ),
             )
-                .thenReturn(Result.success(com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponse()))
+                .thenReturn(Result.success(NetworkTraktMyScheduleResponse()))
 
             val worker =
                 TestListenableWorkerBuilder<NotificationWorker>(context)
                     .setWorkerFactory(
-                        object : androidx.work.WorkerFactory() {
+                        object : WorkerFactory() {
                             override fun createWorker(
                                 appContext: Context,
                                 workerClassName: String,
-                                workerParameters: androidx.work.WorkerParameters,
+                                workerParameters: WorkerParameters,
                             ): ListenableWorker? {
                                 return NotificationWorker(
                                     appContext,
@@ -88,11 +92,11 @@ class NotificationWorkerTest {
             val worker =
                 TestListenableWorkerBuilder<NotificationWorker>(context)
                     .setWorkerFactory(
-                        object : androidx.work.WorkerFactory() {
+                        object : WorkerFactory() {
                             override fun createWorker(
                                 appContext: Context,
                                 workerClassName: String,
-                                workerParameters: androidx.work.WorkerParameters,
+                                workerParameters: WorkerParameters,
                             ): ListenableWorker? {
                                 return NotificationWorker(
                                     appContext,

@@ -21,21 +21,21 @@
 
 package com.theupnextapp.domain
 
+import android.os.Parcel
 import android.os.Parcelable
-
 
 data class PersonDetailArg(
     val personId: String,
     val personName: String,
     val personImageUrl: String? = null
 ) : Parcelable {
-    constructor(parcel: android.os.Parcel) : this(
+    constructor(parcel: Parcel) : this(
         parcel.readString() ?: "",
         parcel.readString() ?: "",
         parcel.readString()
     )
 
-    override fun writeToParcel(parcel: android.os.Parcel, flags: Int) {
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(personId)
         parcel.writeString(personName)
         parcel.writeString(personImageUrl)
@@ -43,8 +43,8 @@ data class PersonDetailArg(
 
     override fun describeContents(): Int = 0
 
-    companion object CREATOR : android.os.Parcelable.Creator<PersonDetailArg> {
-        override fun createFromParcel(parcel: android.os.Parcel): PersonDetailArg {
+    companion object CREATOR : Parcelable.Creator<PersonDetailArg> {
+        override fun createFromParcel(parcel: Parcel): PersonDetailArg {
             return PersonDetailArg(parcel)
         }
 

@@ -21,8 +21,8 @@
 
 package com.theupnextapp.domain
 
+import android.os.Parcel
 import android.os.Parcelable
-
 
 data class EpisodeDetailArg(
     val showTraktId: Int,
@@ -36,7 +36,7 @@ data class EpisodeDetailArg(
     val showBackgroundUrl: String? = null,
     val episodeImageUrl: String? = null,
 ) : Parcelable {
-    constructor(parcel: android.os.Parcel) : this(
+    constructor(parcel: Parcel) : this(
         parcel.readInt(),
         parcel.readInt(),
         parcel.readInt(),
@@ -49,7 +49,7 @@ data class EpisodeDetailArg(
         parcel.readString()
     )
 
-    override fun writeToParcel(parcel: android.os.Parcel, flags: Int) {
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(showTraktId)
         parcel.writeInt(seasonNumber)
         parcel.writeInt(episodeNumber)
@@ -64,8 +64,8 @@ data class EpisodeDetailArg(
 
     override fun describeContents(): Int = 0
 
-    companion object CREATOR : android.os.Parcelable.Creator<EpisodeDetailArg> {
-        override fun createFromParcel(parcel: android.os.Parcel): EpisodeDetailArg {
+    companion object CREATOR : Parcelable.Creator<EpisodeDetailArg> {
+        override fun createFromParcel(parcel: Parcel): EpisodeDetailArg {
             return EpisodeDetailArg(parcel)
         }
 

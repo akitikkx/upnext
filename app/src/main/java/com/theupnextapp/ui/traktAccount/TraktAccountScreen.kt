@@ -21,6 +21,9 @@
 
 package com.theupnextapp.ui.traktAccount
 
+import android.content.Context
+import android.net.Uri
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -33,10 +36,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator // Changed from Linear
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -61,6 +67,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -257,7 +264,7 @@ internal fun AccountContent(
     isDisconnecting: Boolean,
     watchlistSearchQuery: String,
     watchlistSortOption: WatchlistSortOption,
-    watchlistLazyListState: androidx.compose.foundation.lazy.LazyListState,
+    watchlistLazyListState: LazyListState,
     isPullRefreshing: Boolean,
     onSearchQueryChange: (String) -> Unit,
     onSortOptionChange: (WatchlistSortOption) -> Unit,
@@ -390,10 +397,10 @@ fun ConnectToTrakt(onClick: () -> Unit) {
         modifier = Modifier.fillMaxSize().padding(24.dp),
         contentAlignment = Alignment.Center,
     ) {
-        androidx.compose.material3.Card(
+        Card(
             shape = MaterialTheme.shapes.extraLarge,
             colors =
-                androidx.compose.material3.CardDefaults.cardColors(
+                CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.surfaceVariant,
                 ),
             modifier = Modifier.fillMaxWidth(),
@@ -417,7 +424,7 @@ fun ConnectToTrakt(onClick: () -> Unit) {
                 Text(
                     text = "Unlock Personalization",
                     style = MaterialTheme.typography.titleLarge,
-                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                    fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
 
@@ -438,7 +445,7 @@ fun ConnectToTrakt(onClick: () -> Unit) {
                 ) {
                     Text(
                         text = stringResource(id = R.string.connect_to_trakt_button),
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                        fontWeight = FontWeight.Bold,
                     )
                 }
             }
@@ -447,10 +454,10 @@ fun ConnectToTrakt(onClick: () -> Unit) {
 }
 
 private fun launchCustomTab(
-    context: android.content.Context,
+    context: Context,
     url: String,
 ) {
-    val builder = androidx.browser.customtabs.CustomTabsIntent.Builder()
+    val builder = CustomTabsIntent.Builder()
     val customTabsIntent = builder.build()
-    customTabsIntent.launchUrl(context, android.net.Uri.parse(url))
+    customTabsIntent.launchUrl(context, Uri.parse(url))
 }

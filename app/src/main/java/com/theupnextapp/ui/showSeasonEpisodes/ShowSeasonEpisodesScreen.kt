@@ -49,7 +49,9 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -280,7 +282,7 @@ fun ShowSeasonEpisodes(
                 val buttonText = if (allWatched) "Mark Season Unwatched" else "Mark Season Watched"
                 val buttonIcon = if (allWatched) Icons.Outlined.CheckCircle else Icons.Filled.CheckCircle
 
-                androidx.compose.material3.FilledTonalButton(
+                FilledTonalButton(
                     onClick = {
                         if (allWatched) {
                             onMarkSeasonUnwatched()
@@ -327,11 +329,11 @@ fun ShowSeasonEpisodeCard(
     Card(
         shape = MaterialTheme.shapes.large,
         colors =
-            androidx.compose.material3.CardDefaults.cardColors(
-                containerColor = androidx.compose.ui.graphics.Color.Transparent,
+            CardDefaults.cardColors(
+                containerColor = Color.Transparent,
             ),
         elevation =
-            androidx.compose.material3.CardDefaults.cardElevation(
+            CardDefaults.cardElevation(
                 defaultElevation = 0.dp,
             ),
         modifier =

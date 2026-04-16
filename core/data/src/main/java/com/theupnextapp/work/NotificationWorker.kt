@@ -21,24 +21,25 @@
 
 package com.theupnextapp.work
 
+import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import androidx.core.app.NotificationCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.theupnextapp.core.common.R
 import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponseItem
 import com.theupnextapp.repository.SettingsRepository
 import com.theupnextapp.repository.TraktRepository
-import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.first
@@ -126,7 +127,7 @@ class NotificationWorker @AssistedInject constructor(
                 .setContentText(message)
 
             if (traktId != null && seasonNumber != null && episodeNumber != null) {
-                val deepLinkUri = android.net.Uri.parse("theupnextapp://episode/$traktId/$seasonNumber/$episodeNumber")
+                val deepLinkUri = Uri.parse("theupnextapp://episode/$traktId/$seasonNumber/$episodeNumber")
                 val intent = Intent(Intent.ACTION_VIEW, deepLinkUri).apply {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 }
