@@ -46,6 +46,7 @@ import com.theupnextapp.ui.common.BaseTraktViewModel
 import com.theupnextapp.work.AddToWatchlistWorker
 import com.theupnextapp.work.RemoveFromWatchlistWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -621,7 +622,7 @@ class ShowDetailViewModel
                 try {
                     traktRepository.getTraktShowRating(imdbID)
                 } catch (e: Exception) {
-                    if (e is kotlinx.coroutines.CancellationException) throw e
+                    if (e is CancellationException) throw e
                     firebaseCrashlytics.recordException(
                         ShowDetailFetchException(
                             message = "Error fetching Trakt show rating for IMDB ID: $imdbID",
@@ -637,7 +638,7 @@ class ShowDetailViewModel
                 try {
                     traktRepository.getTraktShowStats(imdbID)
                 } catch (e: Exception) {
-                    if (e is kotlinx.coroutines.CancellationException) throw e
+                    if (e is CancellationException) throw e
                     firebaseCrashlytics.recordException(
                         ShowDetailFetchException(
                             message = "Error fetching Trakt show stats for IMDB ID: $imdbID",
@@ -659,7 +660,7 @@ class ShowDetailViewModel
                         _traktId.value = traktId
                     }
                 } catch (e: Exception) {
-                    if (e is kotlinx.coroutines.CancellationException) throw e
+                    if (e is CancellationException) throw e
                     firebaseCrashlytics.recordException(
                         ShowDetailFetchException(
                             message = "Error fetching Trakt ID for IMDB ID: $imdbID",
