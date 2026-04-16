@@ -21,6 +21,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -99,6 +100,7 @@ fun WatchlistListContent(
     header: @Composable () -> Unit = {},
     onItemClick: (item: TraktUserListItem) -> Unit,
     onRemoveItem: (item: TraktUserListItem) -> Unit,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
     var isSearchVisible by remember { mutableStateOf(false) }
     var isSortMenuExpanded by remember { mutableStateOf(false) }
@@ -344,7 +346,7 @@ fun WatchlistListContent(
                 }
             }
 
-            item { Spacer(modifier = Modifier.height(80.dp)) }
+            item { Spacer(modifier = Modifier.height(80.dp + contentPadding.calculateBottomPadding())) }
         }
 
         AnimatedVisibility(

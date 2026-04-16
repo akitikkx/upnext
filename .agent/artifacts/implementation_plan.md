@@ -1,34 +1,37 @@
-# Trakt Authentication UI State Testing Plan
+# Tablet Portrait Layout & Network Fetch Optimization Plan
 
-The integration of `isAuthorizedOnTrakt` conditionals inside the Trakt UI screens (Episode Detail, Show Season Episodes, Show Seasons) has introduced failures in the existing testing suite due to missing mocks for `traktRepository.isAuthorizedOnTrakt()`. Furthermore, we need to guarantee that the UI components correctly reflect the authorization state through unit tests, improving overall coverage.
+## Problem Analysis
+
+I have investigated the two issues you reported after rotating the connected Pixel tablet from portrait to landscape:
+1. **Redundant Network Calls:** The logcat output `TVMaze show data for IMDb ID tt1043813` is actually coming from `DashboardViewModel.kt`, **not** the `ShowDetailViewModel` which we guarded in the previous session. Because tablet adaptive layouts keep the `listPane` (Dashboard) alive when the `detailPane` (ShowDetail) is active, rotating the device forces `DashboardScreen` to re-enter the composition. This unconditionally re-fires `LaunchedEffect(traktAccessToken)`, which calls `viewModel.fetchDashboardData(it)`, triggering mass Trakt and TVMaze image lookups.
+2. **Cramped Tablet Portrait Layout:** Currently, `ExpandedDetailArea` separates the screen into two independent vertical scrolling columns: Left (Poster & Buttons) and Right (Synopsis, Cast, Episodes, Similar Shows). On a Tablet in Portrait mode (typically ~600-840dp wide), this dual-column layout shrinks the poster to a sliver and creates enormous vertical whitespace under the poster while the right column scrolls endlessly.
 
 ## Proposed Changes
 
-### Updating Existing View Model Tests
-#### [MODIFY] [EpisodeDetailViewModelTest.kt](file:///Users/ahmedtikiwa/upnext4/app/src/test/java/com/theupnextapp/ui/episodeDetail/EpisodeDetailViewModelTest.kt)
-- Already successfully updated in the previous step to mock `isAuthorizedOnTrakt()` using a `MutableStateFlow(false)`.
-- **Add new test**: Verify that `EpisodeDetailState` emits `isAuthorizedOnTrakt = true` when the repository emits `true`.
+### 1. Guard DashboardViewModel Network Calls
+**[MODIFY]** `app/src/main/java/com/theupnextapp/ui/dashboard/DashboardViewModel.kt`
+- Add a protective guard in `fetchDashboardData(token: String)`:
+  ```kotlin
+  if (_airingSoonShows.value == null && !_isLoadingAiringSoon.value) fetchAiringSoonShows(bearerToken)
+  if (_recommendedShows.value == null && !_isLoadingRecommendations.value) fetchRecommendations(bearerToken)
+  if (_recentHistory.value == null && !_isLoadingHistory.value) fetchRecentHistory(bearerToken)
+  ```
+- This ensures that when the device rotates and `LaunchedEffect` is re-invoked, we don't spam the network if the data is already fetched.
 
-#### [MODIFY] [ShowSeasonEpisodesViewModelTest.kt](file:///Users/ahmedtikiwa/upnext4/app/src/test/java/com/theupnextapp/ui/showSeasonEpisodes/ShowSeasonEpisodesViewModelTest.kt)
-- Fix initialization NPEs by mocking `traktAuthManager.isAuthorizedOnTrakt` and `traktRepository.isAuthorizedOnTrakt()`.
-- **Add new test**: Verify `onToggleWatched` performs no action when `isAuthorizedOnTrakt` is false.
-- **Add new test**: Verify `markSeasonAsWatched` and `markSeasonAsUnwatched` perform no action when `isAuthorizedOnTrakt` is false.
+### 2. Refactor ExpandedDetailArea (Tablet Layout Polish)
+**[MODIFY]** `app/src/main/java/com/theupnextapp/ui/showDetail/ShowDetailScreen.kt`
+- Remove the two isolated `verticalScroll` modifiers on the left and right columns.
+- Apply a single unified `verticalScroll` to the parent `ExpandedDetailArea` container.
+- Create a top `Row` that holds the Poster & Action Buttons on the Left (`weight=0.35f` or similar) and the Hero Title & Synopsis on the Right (`weight=0.65f`). 
+- Move all subsequent lists (**Watch Providers**, **Show Cast**, **Next Episode**, **Previous Episode**, **Similar Shows**) *below* the top `Row` so they span the full horizontal width of the screen.
+- This creates an immersive hero section at the top, and effectively utilizes the full width of the tablet for horizontal lists underneath.
 
-#### [MODIFY] [ShowSeasonsViewModelTest.kt](file:///Users/ahmedtikiwa/upnext4/app/src/test/java/com/theupnextapp/ui/showSeasons/ShowSeasonsViewModelTest.kt)
-- Fix initialization NPEs by mocking `traktAuthManager.isAuthorizedOnTrakt` and `traktRepository.isAuthorizedOnTrakt()`.
-- **Add new test**: Verify `onToggleSeasonWatched` performs no action when `isAuthorizedOnTrakt` is false.
+## User Review Required
+> [!IMPORTANT]
+> The new adaptive layout will stack the Cast and Episode data under the primary poster/synopsis area rather than cramming them into a skinny right-hand column. This will affect both Landscape and Portrait tablet viewing. Does this alignment match your vision for the Upnext tablet experience?
 
 ## Verification Plan
-
-### Automated Tests
-Run the standard test suite execution for the modified test classes using Gradle:
-```bash
-./gradlew :app:testDebugUnitTest --tests "com.theupnextapp.ui.episodeDetail.EpisodeDetailViewModelTest"
-./gradlew :app:testDebugUnitTest --tests "com.theupnextapp.ui.showSeasonEpisodes.ShowSeasonEpisodesViewModelTest"
-./gradlew :app:testDebugUnitTest --tests "com.theupnextapp.ui.showSeasons.ShowSeasonsViewModelTest"
-```
-
-Once isolated tests execute successfully, run the full verification matrix to guarantee there are no remaining leakage issues or Ktlint stylistic violations:
-```bash
-./gradlew ktlintFormat detekt ktlintCheck :app:testDebugUnitTest
-```
+After applying these changes, I will:
+1. Run `unit tests` across the Dashboard and ShowDetail view models to ensure no state logic is broken.
+2. Confirm the CI pipeline remains green.
+3. Validate through code inspection that `fetchDashboardData` correctly short-circuits.

@@ -43,15 +43,14 @@ fun SynopsisArea(
 ) {
     when (widthSizeClass) {
         WindowWidthSizeClass.Compact,
-        WindowWidthSizeClass.Medium,
-        ->
+        WindowWidthSizeClass.Medium ->
             SynopsisAreaCompact(
                 showSummary = showSummary,
                 modifier = modifier,
             )
 
         else ->
-            SynopsisAreaExpanded(
+            SynopsisAreaTextOnly(
                 showSummary = showSummary,
                 modifier = modifier,
             )
@@ -98,43 +97,46 @@ private fun SynopsisAreaCompact(
 
 @ExperimentalMaterial3WindowSizeClassApi
 @Composable
-private fun SynopsisAreaExpanded(
+private fun SynopsisAreaTextOnly(
     showSummary: ShowDetailSummary?,
     modifier: Modifier = Modifier,
 ) {
-    Row(
-        modifier =
-            modifier
+    val widthSizeClass = getWindowSizeClass()?.widthSizeClass
+
+    if (widthSizeClass == WindowWidthSizeClass.Expanded) {
+        Row(
+            modifier = modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-    ) {
-        showSummary?.originalImageUrl?.let {
-            PosterImage(
-                url = it,
-                modifier =
-                    Modifier
-                        .width(posterWidth)
-                        .height(posterHeight),
+        ) {
+            ShowMetadata(
+                showSummary = showSummary,
+                modifier = Modifier.width(150.dp),
+            )
+
+            ShowSynopsis(
+                showSummary = showSummary,
+                modifier = Modifier.padding(
+                    start = 16.dp,
+                ),
             )
         }
+    } else {
+        Column(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp)
+        ) {
+            ShowMetadata(
+                showSummary = showSummary,
+                modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+            )
 
-        ShowMetadata(
-            showSummary = showSummary,
-            modifier =
-                Modifier
-                    .width(150.dp)
-                    .padding(start = 16.dp),
-        )
-
-        ShowSynopsis(
-            showSummary = showSummary,
-            modifier =
-                Modifier.padding(
-                    top = 4.dp,
-                    start = 16.dp,
-                    end = 16.dp,
-                ),
-        )
+            ShowSynopsis(
+                showSummary = showSummary,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
     }
 }
 
@@ -174,9 +176,9 @@ fun SynopsisAreaCompactPreview(
 @Preview("desktop", device = "id:desktop_medium", showBackground = true)
 @ExperimentalMaterial3WindowSizeClassApi
 @Composable
-fun SynopsisAreaExpandedPreview(
+fun SynopsisAreaTextOnlyPreview(
     @PreviewParameter(ShowDetailSummaryProvider::class)
     showDetailSummary: ShowDetailSummary,
 ) {
-    SynopsisAreaExpanded(showSummary = showDetailSummary)
+    SynopsisAreaTextOnly(showSummary = showDetailSummary)
 }

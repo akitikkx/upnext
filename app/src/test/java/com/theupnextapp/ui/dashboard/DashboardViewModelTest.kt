@@ -21,6 +21,7 @@ import com.theupnextapp.repository.WatchProgressRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
@@ -172,5 +173,50 @@ class DashboardViewModelTest {
 
             // Verify it asked trakt for history refresh using the token
             verify(traktRepository).getTraktRecentHistory("mock_token")
+        }
+
+    @Test
+    fun `when fetchDashboardData is invoked multiple times, guards prevent redundant network calls`() =
+        runTest {
+            val token = "mock_token"
+
+            // Setup responses for the repository
+            val mockScheduleResponse = com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponse()
+            `when`(traktRepository.getTraktMySchedule(any(), any(), any())).thenReturn(Result.success(mockScheduleResponse))
+            `when`(traktRepository.getTraktRecommendations(token)).thenReturn(Result.success(com.theupnextapp.network.models.trakt.NetworkTraktRecommendationsResponse()))
+            `when`(traktRepository.getTraktRecentHistory(token)).thenReturn(Result.success(listOf()))
+
+            val testViewModel = DashboardViewModel(
+                traktRepository = traktRepository,
+                dashboardRepository = dashboardRepository,
+                watchProgressRepository = watchProgressRepository,
+                localWorkManager = localWorkManager,
+            )
+
+            // First invocation should trigger the fetches
+            testViewModel.fetchDashboardData(token)
+
+            // Wait for coroutines to complete
+            advanceUntilIdle()
+
+            // Verify they were called once
+            verify(traktRepository, org.mockito.Mockito.times(1)).getTraktMySchedule(any(), any(), any())
+            verify(traktRepository, org.mockito.Mockito.times(1)).getTraktRecommendations(token)
+            verify(traktRepository, org.mockito.Mockito.times(1)).getTraktRecentHistory(token)
+
+            // Explicitly verify the states have values so the guard should be active
+            assertNotNull(testViewModel.airingSoonShows.value)
+            assertNotNull(testViewModel.recommendedShows.value)
+            assertNotNull(testViewModel.recentHistory.value)
+
+            // Second invocation should NOT trigger the fetches again because of the guard
+            testViewModel.fetchDashboardData(token)
+
+            advanceUntilIdle()
+
+            // Verify they were STILL only called once total
+            verify(traktRepository, org.mockito.Mockito.times(1)).getTraktMySchedule(any(), any(), any())
+            verify(traktRepository, org.mockito.Mockito.times(1)).getTraktRecommendations(token)
+            verify(traktRepository, org.mockito.Mockito.times(1)).getTraktRecentHistory(token)
         }
 }

@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -36,11 +37,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.Button
@@ -116,7 +120,7 @@ fun ShowDetailScreen(
     showDetailArgs: ShowDetailArg,
     navController: NavController,
 ) {
-    LaunchedEffect(showDetailArgs) {
+    LaunchedEffect(showDetailArgs.showId) {
         viewModel.selectedShow(showDetailArgs)
     }
 
@@ -181,10 +185,7 @@ fun ShowDetailScreen(
         },
     ) { innerPadding ->
         Box(
-            modifier =
-                Modifier
-                    .padding(bottom = innerPadding.calculateBottomPadding())
-                    .fillMaxSize(),
+            modifier = Modifier.fillMaxSize(),
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
                 if (showTopLinearProgress) {
@@ -220,6 +221,7 @@ fun ShowDetailScreen(
                     onSimilarShowClick = { show -> viewModel.onSimilarShowClicked(show) },
                     onRetry = { viewModel.selectedShow(showDetailArgs) },
                     onBack = { navController.navigateUp() },
+                    contentPadding = innerPadding,
                 )
             }
 
@@ -262,79 +264,360 @@ fun DetailArea(
     onSimilarShowClick: (item: TraktRelatedShows) -> Unit,
     onRetry: () -> Unit,
     onBack: () -> Unit,
+    contentPadding: PaddingValues,
 ) {
-    val scrollState = rememberScrollState()
     val windowSizeClass = getWindowSizeClass()?.widthSizeClass ?: WindowWidthSizeClass.Compact
 
-    Column(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .verticalScroll(scrollState)
-                .padding(bottom = 16.dp),
-    ) {
-        if (uiState.isLoadingSummary && uiState.showSummary == null) { // Show placeholder only if no data yet
-            SummaryPlaceholder() // Or a simpler version, or nothing if LinearProgress is enough
-        } else if (uiState.summaryErrorMessage != null) {
-            ErrorState(message = uiState.summaryErrorMessage) {
-                onRetry()
-            }
-        } else if (uiState.showSummary != null) {
-            BackdropAndTitle(
-                showDetailArgs = showDetailArgs,
-                showSummary = uiState.showSummary,
-                onBack = onBack,
-            )
-            SynopsisArea(
-                showSummary = uiState.showSummary,
-                widthSizeClass = windowSizeClass,
-            )
-            if (uiState.showSummary.id != -1) {
-                // ----- Watch Providers Section -----
-                WatchProvidersSection(uiState = uiState)
+    if (windowSizeClass == WindowWidthSizeClass.Expanded) {
+        ExpandedDetailArea(
+            uiState = uiState,
+            showDetailArgs = showDetailArgs,
+            isAuthorizedOnTrakt = isAuthorizedOnTrakt,
+            isWatchlist = isWatchlist,
+            isWatchlistLoading = isWatchlistLoading,
+            showRating = showRating,
+            showStats = showStats,
+            onSeasonsClick = onSeasonsClick,
+            onWatchlistClick = onWatchlistClick,
+            onRateClick = onRateClick,
+            onCastItemClick = onCastItemClick,
+            onSimilarShowClick = onSimilarShowClick,
+            onRetry = onRetry,
+            onBack = onBack,
+            contentPadding = contentPadding,
+            windowSizeClass = windowSizeClass,
+        )
+    } else {
+        CompactDetailArea(
+            uiState = uiState,
+            showDetailArgs = showDetailArgs,
+            isAuthorizedOnTrakt = isAuthorizedOnTrakt,
+            isWatchlist = isWatchlist,
+            isWatchlistLoading = isWatchlistLoading,
+            showRating = showRating,
+            showStats = showStats,
+            onSeasonsClick = onSeasonsClick,
+            onWatchlistClick = onWatchlistClick,
+            onRateClick = onRateClick,
+            onCastItemClick = onCastItemClick,
+            onSimilarShowClick = onSimilarShowClick,
+            onRetry = onRetry,
+            onBack = onBack,
+            contentPadding = contentPadding,
+            windowSizeClass = windowSizeClass,
+        )
+    }
+}
 
-                ShowDetailButtons(
-                    isAuthorizedOnTrakt = isAuthorizedOnTrakt,
-                    isWatchlist = isWatchlist,
-                    isLoading = isWatchlistLoading,
-                    isRating = uiState.isRating,
-                    userRating = uiState.userRating,
-                    onSeasonsClick = onSeasonsClick,
-                    onWatchlistClick = onWatchlistClick,
-                    onRateClick = onRateClick,
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+@Composable
+private fun CompactDetailArea(
+    uiState: ShowDetailViewModel.ShowDetailUiState,
+    showDetailArgs: ShowDetailArg,
+    isAuthorizedOnTrakt: Boolean,
+    isWatchlist: Boolean,
+    isWatchlistLoading: Boolean,
+    showRating: TraktShowRating?,
+    showStats: TraktShowStats?,
+    onSeasonsClick: () -> Unit,
+    onWatchlistClick: () -> Unit,
+    onRateClick: (Int) -> Unit,
+    onCastItemClick: (item: TraktCast) -> Unit,
+    onSimilarShowClick: (item: TraktRelatedShows) -> Unit,
+    onRetry: () -> Unit,
+    onBack: () -> Unit,
+    contentPadding: PaddingValues,
+    windowSizeClass: WindowWidthSizeClass,
+) {
+    val scrollState = rememberScrollState()
+
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.TopCenter,
+    ) {
+        Column(
+            modifier =
+                Modifier
+                    .widthIn(max = 840.dp)
+                    .fillMaxHeight()
+                    .verticalScroll(scrollState)
+                    .padding(bottom = 16.dp),
+        ) {
+            if (uiState.isLoadingSummary && uiState.showSummary == null) {
+                Column(modifier = Modifier.shimmer()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp)
+                            .background(Color.LightGray.copy(alpha = 0.3f)),
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(0.7f)
+                            .height(24.dp)
+                            .padding(horizontal = 16.dp)
+                            .background(Color.LightGray.copy(alpha = 0.3f)),
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(0.5f)
+                            .height(16.dp)
+                            .padding(horizontal = 16.dp)
+                            .background(Color.LightGray.copy(alpha = 0.3f)),
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Column(Modifier.padding(horizontal = 16.dp)) {
+                        repeat(4) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(12.dp)
+                                    .background(Color.LightGray.copy(alpha = 0.3f)),
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(100.dp, 40.dp)
+                                .background(Color.LightGray.copy(alpha = 0.3f)),
+                        )
+                        Box(
+                            modifier = Modifier
+                                .size(100.dp, 40.dp)
+                                .background(Color.LightGray.copy(alpha = 0.3f)),
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+            } else if (uiState.summaryErrorMessage != null) {
+                ErrorState(message = uiState.summaryErrorMessage) {
+                    onRetry()
+                }
+            } else if (uiState.showSummary != null) {
+                BackdropAndTitle(
+                    showDetailArgs = showDetailArgs,
+                    showSummary = uiState.showSummary,
+                    onBack = onBack,
+                )
+                SynopsisArea(
+                    showSummary = uiState.showSummary,
                     widthSizeClass = windowSizeClass,
                 )
+                if (uiState.showSummary.id != -1) {
+                    WatchProvidersSection(uiState = uiState)
+
+                    ShowDetailButtons(
+                        isAuthorizedOnTrakt = isAuthorizedOnTrakt,
+                        isWatchlist = isWatchlist,
+                        isLoading = isWatchlistLoading,
+                        isRating = uiState.isRating,
+                        userRating = uiState.userRating,
+                        onSeasonsClick = onSeasonsClick,
+                        onWatchlistClick = onWatchlistClick,
+                        onRateClick = onRateClick,
+                        widthSizeClass = windowSizeClass,
+                    )
+                }
+            } else if (showDetailArgs.showImageUrl != null || showDetailArgs.showBackgroundUrl != null) {
+                BackdropAndTitle(showDetailArgs = showDetailArgs, showSummary = null, onBack = onBack)
             }
-        } else if (showDetailArgs.showImageUrl != null || showDetailArgs.showBackgroundUrl != null) {
-            // Fallback for initial state with args but no summary yet
-            BackdropAndTitle(showDetailArgs = showDetailArgs, showSummary = null, onBack = onBack)
-        }
 
-        showRating?.let { ratingData ->
-            if (ratingData.votes != 0) {
-                TraktRatingSummary(ratingData, userRating = uiState.userRating)
-                Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
+            showRating?.let { ratingData ->
+                if (ratingData.votes != 0) {
+                    TraktRatingSummary(ratingData, userRating = uiState.userRating)
+                    Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
+                }
             }
+
+            ShowCast(uiState = uiState, onCastItemClick = onCastItemClick)
+            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
+
+            NextEpisode(uiState = uiState)
+            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
+
+            PreviousEpisode(uiState = uiState)
+            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
+
+            showStats?.let { statsData -> }
+
+            SimilarShows(uiState = uiState, onSimilarShowClick = onSimilarShowClick)
+            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
+            Spacer(modifier = Modifier.height(contentPadding.calculateBottomPadding()))
         }
+    }
+}
 
-        // ----- Show Cast Section -----
-        ShowCast(uiState = uiState, onCastItemClick = onCastItemClick)
-        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+@Composable
+private fun ExpandedDetailArea(
+    uiState: ShowDetailViewModel.ShowDetailUiState,
+    showDetailArgs: ShowDetailArg,
+    isAuthorizedOnTrakt: Boolean,
+    isWatchlist: Boolean,
+    isWatchlistLoading: Boolean,
+    showRating: TraktShowRating?,
+    showStats: TraktShowStats?,
+    onSeasonsClick: () -> Unit,
+    onWatchlistClick: () -> Unit,
+    onRateClick: (Int) -> Unit,
+    onCastItemClick: (item: TraktCast) -> Unit,
+    onSimilarShowClick: (item: TraktRelatedShows) -> Unit,
+    onRetry: () -> Unit,
+    onBack: () -> Unit,
+    contentPadding: PaddingValues,
+    windowSizeClass: WindowWidthSizeClass,
+) {
+    val scrollState = rememberScrollState()
 
-        // ----- Next Episode Section -----
-        NextEpisode(uiState = uiState)
-        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
+    val leftWeight = 0.35f
+    val rightWeight = 0.65f
 
-        // ----- Previous Episode Section -----
-        PreviousEpisode(uiState = uiState)
-        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = contentPadding.calculateTopPadding())
+            .verticalScroll(scrollState)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 24.dp)
+        ) {
+            // Left Column: Poster and Action Buttons
+            Column(
+                modifier = Modifier
+                    .weight(leftWeight)
+                    .padding(end = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                val posterUrl = uiState.showSummary?.originalImageUrl
+                    ?: uiState.showSummary?.mediumImageUrl
+                    ?: showDetailArgs.showImageUrl
 
-        // ----- Trakt Stats Section (Optional) -----
-        showStats?.let { statsData -> }
+                Box(modifier = Modifier.fillMaxWidth().height(450.dp)) {
+                    if (posterUrl != null) {
+                        com.theupnextapp.core.designsystem.ui.components.PosterImage(
+                            url = posterUrl,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clip(
+                                    androidx.compose.foundation.shape.RoundedCornerShape(
+                                        bottomEnd = 24.dp, topEnd = 24.dp
+                                    )
+                                )
+                        )
+                    }
 
-        // ----- Similar Shows Section -----
-        SimilarShows(uiState = uiState, onSimilarShowClick = onSimilarShowClick)
-        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
+                    androidx.compose.material3.IconButton(
+                        onClick = onBack,
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .background(
+                                color = androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.5f),
+                                shape = androidx.compose.foundation.shape.CircleShape
+                            )
+                            .align(Alignment.TopStart)
+                    ) {
+                        androidx.compose.material3.Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+                            tint = androidx.compose.ui.graphics.Color.White,
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                if (uiState.showSummary?.id != -1 && uiState.showSummary != null) {
+                    ShowDetailButtons(
+                        isAuthorizedOnTrakt = isAuthorizedOnTrakt,
+                        isWatchlist = isWatchlist,
+                        isLoading = isWatchlistLoading,
+                        isRating = uiState.isRating,
+                        userRating = uiState.userRating,
+                        onSeasonsClick = onSeasonsClick,
+                        onWatchlistClick = onWatchlistClick,
+                        onRateClick = onRateClick,
+                        widthSizeClass = windowSizeClass,
+                    )
+                }
+
+                showRating?.let { ratingData ->
+                    if (ratingData.votes != 0) {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        TraktRatingSummary(ratingData, userRating = uiState.userRating)
+                    }
+                }
+            }
+
+            // Right Column: Title, Synopsis, Providers
+            Column(
+                modifier = Modifier
+                    .weight(rightWeight)
+                    .padding(end = 24.dp, start = 16.dp)
+            ) {
+                if (uiState.isLoadingSummary && uiState.showSummary == null) {
+                    SummaryPlaceholder()
+                } else if (uiState.summaryErrorMessage != null) {
+                    ErrorState(message = uiState.summaryErrorMessage) { onRetry() }
+                } else if (uiState.showSummary != null) {
+                    // Hero Title
+                    uiState.showSummary.name?.let { name ->
+                        androidx.compose.material3.Text(
+                            text = name,
+                            style = androidx.compose.material3.MaterialTheme.typography.headlineLarge,
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                            modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp)
+                        )
+                    }
+                    uiState.showSummary.status?.let { status ->
+                        androidx.compose.material3.Text(
+                            text = status,
+                            style = androidx.compose.material3.MaterialTheme.typography.labelMedium,
+                            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
+                        )
+                    }
+
+                    SynopsisArea(
+                        showSummary = uiState.showSummary,
+                        widthSizeClass = windowSizeClass,
+                        modifier = Modifier.padding(top = 8.dp),
+                    )
+
+                    if (uiState.showSummary.id != -1) {
+                        WatchProvidersSection(uiState = uiState)
+                    }
+                }
+            }
+        } // End of top Row
+
+        // Full width lists below
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = contentPadding.calculateBottomPadding())
+        ) {
+            ShowCast(uiState = uiState, onCastItemClick = onCastItemClick)
+
+            Spacer(modifier = Modifier.height(32.dp))
+            NextEpisode(uiState = uiState)
+
+            Spacer(modifier = Modifier.height(32.dp))
+            PreviousEpisode(uiState = uiState)
+
+            Spacer(modifier = Modifier.height(32.dp))
+            SimilarShows(uiState = uiState, onSimilarShowClick = onSimilarShowClick)
+        }
     }
 }
 
@@ -353,34 +636,78 @@ fun ShowDetailButtons(
     widthSizeClass: WindowWidthSizeClass = WindowWidthSizeClass.Compact,
 ) {
     var showRatingSheet by rememberSaveable { mutableStateOf(false) }
-    val buttonSpacing = if (widthSizeClass == WindowWidthSizeClass.Expanded) 24.dp else 16.dp
-    val rowModifier =
-        if (widthSizeClass == WindowWidthSizeClass.Expanded) {
-            Modifier.fillMaxWidth(0.7f)
-        } else {
-            Modifier.fillMaxWidth()
-        }
+    val isExpanded = widthSizeClass == WindowWidthSizeClass.Expanded || widthSizeClass == WindowWidthSizeClass.Medium
+    val buttonSpacing = if (isExpanded) 12.dp else 16.dp
 
-    Row(
-        modifier =
-            rowModifier
-                .padding(
-                    horizontal = dimensionResource(id = R.dimen.padding_standard_double),
-                    vertical = dimensionResource(id = R.dimen.padding_standard),
-                )
-                .height(IntrinsicSize.Min),
-        horizontalArrangement = Arrangement.spacedBy(buttonSpacing),
-        verticalAlignment = Alignment.CenterVertically,
+    if (isExpanded) {
+        ShowDetailButtonsExpanded(
+            isAuthorizedOnTrakt = isAuthorizedOnTrakt,
+            isWatchlist = isWatchlist,
+            isLoading = isLoading,
+            isRating = isRating,
+            userRating = userRating,
+            onSeasonsClick = onSeasonsClick,
+            onWatchlistClick = onWatchlistClick,
+            onRateClick = { showRatingSheet = true },
+            buttonSpacing = buttonSpacing,
+        )
+    } else {
+        ShowDetailButtonsCompact(
+            isAuthorizedOnTrakt = isAuthorizedOnTrakt,
+            isWatchlist = isWatchlist,
+            isLoading = isLoading,
+            isRating = isRating,
+            userRating = userRating,
+            onSeasonsClick = onSeasonsClick,
+            onWatchlistClick = onWatchlistClick,
+            onRateClick = { showRatingSheet = true },
+            buttonSpacing = buttonSpacing,
+        )
+    }
+
+    if (showRatingSheet) {
+        RatingBottomSheet(
+            currentRating = userRating,
+            onDismiss = { showRatingSheet = false },
+            onRate = { selectedRating ->
+                showRatingSheet = false
+                onRateClick(selectedRating)
+            },
+        )
+    }
+}
+
+@Composable
+private fun ShowDetailButtonsExpanded(
+    isAuthorizedOnTrakt: Boolean?,
+    isWatchlist: Boolean?,
+    isLoading: Boolean,
+    isRating: Boolean,
+    userRating: Int?,
+    onSeasonsClick: () -> Unit,
+    onWatchlistClick: () -> Unit,
+    onRateClick: () -> Unit,
+    buttonSpacing: androidx.compose.ui.unit.Dp,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                horizontal = dimensionResource(id = R.dimen.padding_standard_double),
+                vertical = dimensionResource(id = R.dimen.padding_standard),
+            ),
+        verticalArrangement = Arrangement.spacedBy(buttonSpacing),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         androidx.compose.material3.OutlinedButton(
-            onClick = { onSeasonsClick() },
-            modifier = Modifier.weight(1f).fillMaxHeight(),
+            onClick = onSeasonsClick,
+            modifier = Modifier.fillMaxWidth().height(48.dp),
         ) {
             Text(text = "Seasons")
         }
         if (isAuthorizedOnTrakt == true) {
             if (isLoading) {
-                Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                Box(modifier = Modifier.fillMaxWidth().height(48.dp), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(24.dp),
                         strokeWidth = 2.dp,
@@ -390,8 +717,8 @@ fun ShowDetailButtons(
             } else {
                 if (isWatchlist == true) {
                     androidx.compose.material3.OutlinedButton(
-                        onClick = { onWatchlistClick() },
-                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                        onClick = onWatchlistClick,
+                        modifier = Modifier.fillMaxWidth().height(48.dp),
                     ) {
                         Icon(
                             imageVector =
@@ -409,8 +736,115 @@ fun ShowDetailButtons(
                     }
                 } else {
                     Button(
-                        onClick = { onWatchlistClick() },
-                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                        onClick = onWatchlistClick,
+                        modifier = Modifier.fillMaxWidth().height(48.dp),
+                    ) {
+                        Icon(
+                            imageVector = androidx.compose.ui.graphics.vector.ImageVector.vectorResource(id = R.drawable.ic_watchlist_add),
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "List",
+                            maxLines = 1,
+                        )
+                    }
+                }
+            }
+
+            // Rate button
+            if (isRating) {
+                Box(modifier = Modifier.fillMaxWidth().height(48.dp), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 2.dp,
+                    )
+                }
+            } else {
+                androidx.compose.material3.OutlinedButton(
+                    onClick = onRateClick,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                        .testTag("rate_show_button"),
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Star,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                        tint = RatingStarColor,
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = if (userRating != null) "$userRating★" else "Rate",
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ShowDetailButtonsCompact(
+    isAuthorizedOnTrakt: Boolean?,
+    isWatchlist: Boolean?,
+    isLoading: Boolean,
+    isRating: Boolean,
+    userRating: Int?,
+    onSeasonsClick: () -> Unit,
+    onWatchlistClick: () -> Unit,
+    onRateClick: () -> Unit,
+    buttonSpacing: androidx.compose.ui.unit.Dp,
+) {
+    Row(
+        modifier =
+            Modifier
+                .wrapContentWidth(Alignment.Start)
+                .padding(
+                    horizontal = dimensionResource(id = R.dimen.padding_standard_double),
+                    vertical = dimensionResource(id = R.dimen.padding_standard),
+                )
+                .height(IntrinsicSize.Min),
+        horizontalArrangement = Arrangement.spacedBy(buttonSpacing),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        androidx.compose.material3.OutlinedButton(
+            onClick = onSeasonsClick,
+            modifier = Modifier.widthIn(min = 120.dp).fillMaxHeight(),
+        ) {
+            Text(text = "Seasons")
+        }
+        if (isAuthorizedOnTrakt == true) {
+            if (isLoading) {
+                Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
+            } else {
+                if (isWatchlist == true) {
+                    androidx.compose.material3.OutlinedButton(
+                        onClick = onWatchlistClick,
+                        modifier = Modifier.widthIn(min = 120.dp).fillMaxHeight(),
+                    ) {
+                        Icon(
+                            imageVector = androidx.compose.ui.graphics.vector.ImageVector.vectorResource(id = R.drawable.ic_watchlist_remove),
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "Listed",
+                            maxLines = 1,
+                        )
+                    }
+                } else {
+                    Button(
+                        onClick = onWatchlistClick,
+                        modifier = Modifier.widthIn(min = 120.dp).fillMaxHeight(),
                     ) {
                         Icon(
                             imageVector = androidx.compose.ui.graphics.vector.ImageVector.vectorResource(id = R.drawable.ic_watchlist_add),
@@ -436,10 +870,10 @@ fun ShowDetailButtons(
                 }
             } else {
                 androidx.compose.material3.OutlinedButton(
-                    onClick = { showRatingSheet = true },
+                    onClick = onRateClick,
                     modifier =
                         Modifier
-                            .weight(1f)
+                            .widthIn(min = 120.dp)
                             .fillMaxHeight()
                             .testTag("rate_show_button"),
                 ) {
@@ -456,17 +890,6 @@ fun ShowDetailButtons(
                 }
             }
         }
-    }
-
-    if (showRatingSheet) {
-        RatingBottomSheet(
-            currentRating = userRating,
-            onDismiss = { showRatingSheet = false },
-            onRate = { selectedRating ->
-                showRatingSheet = false
-                onRateClick(selectedRating)
-            },
-        )
     }
 }
 
@@ -947,151 +1370,6 @@ fun RatingBottomSheet(
 }
 
 @Composable
-fun SummaryPlaceholder() {
-    Column(modifier = Modifier.shimmer()) {
-        Box(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-                    .background(Color.LightGray.copy(alpha = 0.3f)),
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Box(
-            modifier =
-                Modifier
-                    .fillMaxWidth(0.7f)
-                    .height(24.dp)
-                    .padding(horizontal = 16.dp)
-                    .background(Color.LightGray.copy(alpha = 0.3f)),
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Box(
-            modifier =
-                Modifier
-                    .fillMaxWidth(0.5f)
-                    .height(16.dp)
-                    .padding(horizontal = 16.dp)
-                    .background(Color.LightGray.copy(alpha = 0.3f)),
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Column(Modifier.padding(horizontal = 16.dp)) {
-            repeat(4) {
-                Box(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .height(12.dp)
-                            .background(Color.LightGray.copy(alpha = 0.3f)),
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-        Row(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-        ) {
-            Box(
-                modifier =
-                    Modifier
-                        .size(100.dp, 40.dp)
-                        .background(Color.LightGray.copy(alpha = 0.3f)),
-            )
-            Box(
-                modifier =
-                    Modifier
-                        .size(100.dp, 40.dp)
-                        .background(Color.LightGray.copy(alpha = 0.3f)),
-            )
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-    }
-}
-
-@Composable
-fun CastListPlaceholder() {
-    LazyRow(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-                .shimmer(), // Make sure you have the shimmer dependency and import
-    ) {
-        items(5) {
-            Column(
-                modifier =
-                    Modifier
-                        .padding(end = 8.dp)
-                        .width(dimensionResource(id = R.dimen.compose_show_detail_poster_width)),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Box( // Poster placeholder
-                    modifier =
-                        Modifier
-                            .width(dimensionResource(id = R.dimen.compose_show_detail_poster_width))
-                            .height(dimensionResource(id = R.dimen.compose_show_detail_poster_height))
-                            .background(Color.LightGray.copy(alpha = 0.3f)),
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Box( // Name placeholder
-                    modifier =
-                        Modifier
-                            .fillMaxWidth(0.8f)
-                            .height(12.dp)
-                            .background(Color.LightGray.copy(alpha = 0.3f)),
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun EpisodePlaceholder() {
-    ElevatedCard(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-                .shimmer(),
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Box( // Episode Title placeholder
-                modifier =
-                    Modifier
-                        .fillMaxWidth(0.7f)
-                        .height(20.dp)
-                        .background(Color.LightGray.copy(alpha = 0.3f)),
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Box(
-                modifier =
-                    Modifier
-                        .fillMaxWidth(0.5f)
-                        .height(14.dp)
-                        .background(Color.LightGray.copy(alpha = 0.3f)),
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            Column { // Summary lines
-                repeat(3) {
-                    Box(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .height(10.dp)
-                                .background(Color.LightGray.copy(alpha = 0.3f)),
-                    )
-                    Spacer(modifier = Modifier.height(6.dp))
-                }
-            }
-        }
-    }
-}
-
-@Composable
 fun ErrorState(
     message: String,
     onRetry: (() -> Unit)? = null,
@@ -1194,24 +1472,5 @@ fun SimilarShowItem(
                 maxLines = 2,
             )
         }
-    }
-}
-
-@ExperimentalMaterial3Api
-@Preview(showBackground = true)
-@Composable
-fun ShowDetailScreenPreview() {
-    MaterialTheme { // Wrap with your app's theme
-        ShowDetailScreen(
-            viewModel = hiltViewModel(), // This won't work well in Preview without Hilt setup for previews
-            showDetailArgs =
-                ShowDetailArg(
-                    showId = "1",
-                    showTitle = "Preview Show Title",
-                    showImageUrl = "",
-                    showBackgroundUrl = null,
-                ),
-            navController = androidx.navigation.compose.rememberNavController(),
-        )
     }
 }

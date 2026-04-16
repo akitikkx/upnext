@@ -75,8 +75,6 @@
 
     <style name="Base.Theme.MaterialTheme" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="android:windowBackground">?android:colorBackground</item>
-        <item name="android:windowDisablePreview">true</item>
-        <item name="android:windowIsTranslucent">true</item>
         <item name="android:navigationBarDividerColor" tools:ignore="NewApi">
             ?attr/colorControlHighlight
         </item>

@@ -22,11 +22,9 @@
 package com.theupnextapp.domain
 
 import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
 
 @Serializable
-@Parcelize
 data class ShowDetailArg(
     val source: String? = null,
     val showId: String?,
@@ -36,4 +34,38 @@ data class ShowDetailArg(
     val imdbID: String? = null,
     val isAuthorizedOnTrakt: Boolean? = false,
     val showTraktId: Int? = null,
-) : Parcelable
+) : Parcelable {
+    constructor(parcel: android.os.Parcel) : this(
+        parcel.readString(),
+        parcel.readString(),
+        parcel.readString(),
+        parcel.readString(),
+        parcel.readString(),
+        parcel.readString(),
+        parcel.readValue(Boolean::class.java.classLoader) as? Boolean,
+        parcel.readValue(Int::class.java.classLoader) as? Int
+    )
+
+    override fun writeToParcel(parcel: android.os.Parcel, flags: Int) {
+        parcel.writeString(source)
+        parcel.writeString(showId)
+        parcel.writeString(showTitle)
+        parcel.writeString(showImageUrl)
+        parcel.writeString(showBackgroundUrl)
+        parcel.writeString(imdbID)
+        parcel.writeValue(isAuthorizedOnTrakt)
+        parcel.writeValue(showTraktId)
+    }
+
+    override fun describeContents(): Int = 0
+
+    companion object CREATOR : android.os.Parcelable.Creator<ShowDetailArg> {
+        override fun createFromParcel(parcel: android.os.Parcel): ShowDetailArg {
+            return ShowDetailArg(parcel)
+        }
+
+        override fun newArray(size: Int): Array<ShowDetailArg?> {
+            return arrayOfNulls(size)
+        }
+    }
+}

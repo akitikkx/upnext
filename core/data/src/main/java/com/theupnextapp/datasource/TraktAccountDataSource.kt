@@ -142,39 +142,41 @@ constructor(
         val showsFromNetworkTraktIds = watchlistResponse.map { it.show.ids.trakt }.toSet()
 
         val showsToInsertOrUpdateInDb = withContext(Dispatchers.IO) {
-            val dbShowList = mutableListOf<com.theupnextapp.database.DatabaseWatchlistShows>()
-            for (networkListItem in watchlistResponse) {
-                val traktId = networkListItem.show.ids.trakt
-                var dbShow = networkListItem.asDatabaseModel()
-                val existingLocalShow = traktDao.getWatchlistShowByTraktId(traktId)
+            kotlinx.coroutines.coroutineScope {
+                watchlistResponse.map { networkListItem ->
+                    async(Dispatchers.IO.limitedParallelism(5)) {
+                        val traktId = networkListItem.show.ids.trakt
+                        var dbShow = networkListItem.asDatabaseModel()
+                        val existingLocalShow = traktDao.getWatchlistShowByTraktId(traktId)
 
-                val needsImageFetch =
-                    existingLocalShow == null ||
-                        existingLocalShow.originalImageUrl.isNullOrEmpty() ||
-                        existingLocalShow.mediumImageUrl.isNullOrEmpty() ||
-                        existingLocalShow.tvMazeID == null
+                        val needsImageFetch =
+                            existingLocalShow == null ||
+                                existingLocalShow.originalImageUrl.isNullOrEmpty() ||
+                                existingLocalShow.mediumImageUrl.isNullOrEmpty() ||
+                                existingLocalShow.tvMazeID == null
 
-                if (needsImageFetch) {
-                    networkListItem.show.ids.imdb?.let { imdbId ->
-                        val (tvMazeIdResult, poster, heroImage) = getImages(imdbId)
-                        dbShow =
-                            dbShow.copy(
-                                originalImageUrl = poster ?: existingLocalShow?.originalImageUrl,
-                                mediumImageUrl = heroImage ?: existingLocalShow?.mediumImageUrl,
-                                tvMazeID = tvMazeIdResult ?: existingLocalShow?.tvMazeID,
-                            )
+                        if (needsImageFetch) {
+                            networkListItem.show.ids.imdb?.let { imdbId ->
+                                val (tvMazeIdResult, poster, heroImage) = getImages(imdbId)
+                                dbShow =
+                                    dbShow.copy(
+                                        originalImageUrl = poster ?: existingLocalShow?.originalImageUrl,
+                                        mediumImageUrl = heroImage ?: existingLocalShow?.mediumImageUrl,
+                                        tvMazeID = tvMazeIdResult ?: existingLocalShow?.tvMazeID,
+                                    )
+                            }
+                        } else {
+                            dbShow =
+                                dbShow.copy(
+                                    originalImageUrl = existingLocalShow.originalImageUrl,
+                                    mediumImageUrl = existingLocalShow.mediumImageUrl,
+                                    tvMazeID = existingLocalShow.tvMazeID,
+                                )
+                        }
+                        dbShow
                     }
-                } else {
-                    dbShow =
-                        dbShow.copy(
-                            originalImageUrl = existingLocalShow.originalImageUrl,
-                            mediumImageUrl = existingLocalShow.mediumImageUrl,
-                            tvMazeID = existingLocalShow.tvMazeID,
-                        )
-                }
-                dbShowList.add(dbShow)
+                }.awaitAll()
             }
-            dbShowList
         }
 
         val localWatchlistTraktIds = traktDao.getAllWatchlistShowTraktIds()

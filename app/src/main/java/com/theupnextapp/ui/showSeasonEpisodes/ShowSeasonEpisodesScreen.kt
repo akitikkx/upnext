@@ -34,11 +34,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -186,127 +188,129 @@ fun ShowSeasonEpisodes(
     onShowTitleClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
 ) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        AnimatedVisibility(
-            visible = true,
-            enter =
-                fadeIn(animationSpec = tween(700)) +
-                    slideInVertically(
-                        initialOffsetY = { -50 },
-                        animationSpec = tween(700),
-                    ),
-        ) {
-            Box(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .height(260.dp),
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
+        Column(modifier = Modifier.widthIn(max = 840.dp).fillMaxHeight()) {
+            AnimatedVisibility(
+                visible = true,
+                enter =
+                    fadeIn(animationSpec = tween(700)) +
+                        slideInVertically(
+                            initialOffsetY = { -50 },
+                            animationSpec = tween(700),
+                        ),
             ) {
-                showImageUrl?.let { url ->
-                    Image(
-                        painter =
-                            rememberAsyncImagePainter(
-                                ImageRequest.Builder(LocalContext.current)
-                                    .data(url)
-                                    .crossfade(true)
-                                    .build(),
-                            ),
-                        contentDescription = showTitle,
-                        contentScale = ContentScale.Crop,
-                        alignment = Alignment.TopCenter,
-                        modifier = Modifier.fillMaxSize(),
-                    )
-                }
                 Box(
                     modifier =
                         Modifier
-                            .fillMaxSize()
-                            .background(
-                                Brush.verticalGradient(
-                                    colors =
-                                        listOf(
-                                            Color.Transparent,
-                                            MaterialTheme.colorScheme.background.copy(alpha = 0.5f),
-                                            MaterialTheme.colorScheme.background,
-                                        ),
+                            .fillMaxWidth()
+                            .height(260.dp),
+                ) {
+                    showImageUrl?.let { url ->
+                        Image(
+                            painter =
+                                rememberAsyncImagePainter(
+                                    ImageRequest.Builder(LocalContext.current)
+                                        .data(url)
+                                        .crossfade(true)
+                                        .build(),
                                 ),
-                            ),
-                )
-                IconButton(
-                    onClick = onBackClick,
-                    modifier =
-                        Modifier
-                            .padding(
-                                top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 8.dp,
-                                start = 16.dp,
-                            )
-                            .background(color = Color.Black.copy(alpha = 0.5f), shape = CircleShape),
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
-                        tint = Color.White,
-                    )
-                }
-                Column(
-                    modifier =
-                        Modifier
-                            .align(Alignment.BottomStart)
-                            .padding(16.dp),
-                ) {
-                    showTitle?.let { title ->
-                        Text(
-                            text = title,
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onBackground,
-                            modifier = Modifier.clickable { onShowTitleClick() },
+                            contentDescription = showTitle,
+                            contentScale = ContentScale.Crop,
+                            alignment = Alignment.TopCenter,
+                            modifier = Modifier.fillMaxSize(),
                         )
                     }
-                    Text(
-                        text = "Season $seasonNumber",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
+                    Box(
+                        modifier =
+                            Modifier
+                                .fillMaxSize()
+                                .background(
+                                    Brush.verticalGradient(
+                                        colors =
+                                            listOf(
+                                                Color.Transparent,
+                                                MaterialTheme.colorScheme.background.copy(alpha = 0.5f),
+                                                MaterialTheme.colorScheme.background,
+                                            ),
+                                    ),
+                                ),
                     )
+                    IconButton(
+                        onClick = onBackClick,
+                        modifier =
+                            Modifier
+                                .padding(
+                                    top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 8.dp,
+                                    start = 16.dp,
+                                )
+                                .background(color = Color.Black.copy(alpha = 0.5f), shape = CircleShape),
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+                            tint = Color.White,
+                        )
+                    }
+                    Column(
+                        modifier =
+                            Modifier
+                                .align(Alignment.BottomStart)
+                                .padding(16.dp),
+                    ) {
+                        showTitle?.let { title ->
+                            Text(
+                                text = title,
+                                style = MaterialTheme.typography.headlineMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onBackground,
+                                modifier = Modifier.clickable { onShowTitleClick() },
+                            )
+                        }
+                        Text(
+                            text = "Season $seasonNumber",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
+                        )
+                    }
                 }
             }
-        }
 
-        if (isAuthorizedOnTrakt && list.isNotEmpty()) {
-            val allWatched = list.all { it.isWatched }
-            val buttonText = if (allWatched) "Mark Season Unwatched" else "Mark Season Watched"
-            val buttonIcon = if (allWatched) Icons.Outlined.CheckCircle else Icons.Filled.CheckCircle
+            if (isAuthorizedOnTrakt && list.isNotEmpty()) {
+                val allWatched = list.all { it.isWatched }
+                val buttonText = if (allWatched) "Mark Season Unwatched" else "Mark Season Watched"
+                val buttonIcon = if (allWatched) Icons.Outlined.CheckCircle else Icons.Filled.CheckCircle
 
-            androidx.compose.material3.FilledTonalButton(
-                onClick = {
-                    if (allWatched) {
-                        onMarkSeasonUnwatched()
-                    } else {
-                        onMarkSeasonWatched()
-                    }
-                },
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-            ) {
-                Icon(
-                    imageVector = buttonIcon,
-                    contentDescription = null,
-                    modifier = Modifier.padding(end = 8.dp),
-                )
-                Text(text = buttonText, fontWeight = FontWeight.Bold)
+                androidx.compose.material3.FilledTonalButton(
+                    onClick = {
+                        if (allWatched) {
+                            onMarkSeasonUnwatched()
+                        } else {
+                            onMarkSeasonWatched()
+                        }
+                    },
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                ) {
+                    Icon(
+                        imageVector = buttonIcon,
+                        contentDescription = null,
+                        modifier = Modifier.padding(end = 8.dp),
+                    )
+                    Text(text = buttonText, fontWeight = FontWeight.Bold)
+                }
             }
-        }
 
-        LazyColumn(Modifier.padding(8.dp)) {
-            items(list) { episode ->
-                ShowSeasonEpisodeCard(
-                    item = episode,
-                    onToggleWatched = onToggleWatched,
-                    onEpisodeClick = onEpisodeClick,
-                    isAuthorizedOnTrakt = isAuthorizedOnTrakt,
-                )
+            LazyColumn(Modifier.padding(8.dp)) {
+                items(list) { episode ->
+                    ShowSeasonEpisodeCard(
+                        item = episode,
+                        onToggleWatched = onToggleWatched,
+                        onEpisodeClick = onEpisodeClick,
+                        isAuthorizedOnTrakt = isAuthorizedOnTrakt,
+                    )
+                }
             }
         }
     }

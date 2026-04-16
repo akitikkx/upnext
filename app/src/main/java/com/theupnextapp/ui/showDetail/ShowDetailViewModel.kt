@@ -78,7 +78,7 @@ class ShowDetailViewModel
             workManager,
             traktAuthManager,
         ) {
-        private val _show = MutableLiveData<ShowDetailArg>()
+        private val _show = MutableLiveData<ShowDetailArg?>()
 
         private val _navigateToSeasons = MutableStateFlow(false)
         val navigateToSeasons: StateFlow<Boolean> = _navigateToSeasons.asStateFlow()
@@ -187,28 +187,7 @@ class ShowDetailViewModel
         )
 
         fun selectedShow(show: ShowDetailArg?) {
-            _uiState.update { ShowDetailUiState() }
-            _isLoading.value = true
-
-            show?.let {
-                _show.value = it
-                _traktId.value = it.showTraktId
-                _uiState.update { currentState ->
-                    currentState.copy(
-                        isLoadingSummary = true,
-                        summaryErrorMessage = null,
-                        generalErrorMessage = null,
-                        showSummary = null,
-                        showCast = null,
-                        traktCast = null,
-                        showPreviousEpisode = null,
-                        showNextEpisode = null,
-                        similarShows = null,
-                        watchProviders = null,
-                    )
-                }
-                getShowSummary(it)
-            } ?: run {
+            if (show == null) {
                 _isLoading.value = false
                 _uiState.update { currentState ->
                     currentState.copy(
@@ -216,7 +195,39 @@ class ShowDetailViewModel
                         generalErrorMessage = "No show information provided.",
                     )
                 }
+                return
             }
+
+            val currentShow = _show.value
+            val isSameShowId = show.showId != null && show.showId != "null" && currentShow?.showId == show.showId
+            val isSameImdbId = show.imdbID != null && show.imdbID != "null" && currentShow?.imdbID == show.imdbID
+            val hasValidSummary = _uiState.value.showSummary != null
+            val isAlreadyLoading = _uiState.value.isLoadingSummary
+
+            if ((isSameShowId || isSameImdbId) && (hasValidSummary || isAlreadyLoading)) {
+                return
+            }
+
+            _uiState.update { ShowDetailUiState() }
+            _isLoading.value = true
+
+            _show.value = show
+            _traktId.value = show.showTraktId
+            _uiState.update { currentState ->
+                currentState.copy(
+                    isLoadingSummary = true,
+                    summaryErrorMessage = null,
+                    generalErrorMessage = null,
+                    showSummary = null,
+                    showCast = null,
+                    traktCast = null,
+                    showPreviousEpisode = null,
+                    showNextEpisode = null,
+                    similarShows = null,
+                    watchProviders = null,
+                )
+            }
+            getShowSummary(show)
         }
 
         private fun getShowSummary(show: ShowDetailArg) {

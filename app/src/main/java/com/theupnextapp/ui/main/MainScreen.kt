@@ -27,12 +27,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
+import androidx.compose.material3.adaptive.layout.calculatePaneScaffoldDirective
 import androidx.compose.material3.adaptive.navigation.BackNavigationBehavior
 import androidx.compose.material3.adaptive.navigation.NavigableListDetailPaneScaffold
 import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -94,8 +97,26 @@ fun MainScreen(
                 currentDestination.route != null // If null, maybe nothing loaded yet, but usually means not Empty
         }
 
+    // Let the Material 3 adaptive library calculate the correct directive based on actual
+    // window dimensions. This dynamically handles pane proportions, spacer sizes, and
+    // preferred widths for every form factor (compact, medium, expanded, expanded+).
+    val defaultDirective = calculatePaneScaffoldDirective(currentWindowAdaptiveInfo())
+
+    // Only override for compact height (phone in landscape): force single-pane to prevent
+    // the cramped split layout. All other form factors use the library's calculated values.
+    val isCompactHeight = windowSizeClass?.heightSizeClass == WindowHeightSizeClass.Compact
+    val scaffoldDirective =
+        if (isCompactHeight) {
+            defaultDirective.copy(maxHorizontalPartitions = 1)
+        } else {
+            defaultDirective
+        }
+
     // Use the correct navigator type for NavigableListDetailPaneScaffold
-    val listDetailNavigator = rememberListDetailPaneScaffoldNavigator<Any>()
+    val listDetailNavigator =
+        rememberListDetailPaneScaffoldNavigator(
+            scaffoldDirective = scaffoldDirective,
+        )
 
     // Sync scaffold pane state with isDetailFlowActive
     LaunchedEffect(isDetailFlowActive) {
@@ -163,38 +184,36 @@ fun MainScreen(
             modifier = Modifier.fillMaxSize(),
             navigator = listDetailNavigator,
             listPane = {
-                Column(
-                    modifier =
-                        Modifier
-                            .fillMaxSize()
-                            .background(MaterialTheme.colorScheme.surface), // Ensure opaque background
-                ) {
-                    TopAppBar(
-                        title = { Text(stringResource(currentListSection.label)) },
-                        actions = {
-                            androidx.compose.material3.IconButton(
-                                onClick = {
-                                    mainNavController.navigate(Destinations.Settings)
-                                },
-                            ) {
-                                Icon(
-                                    imageVector = androidx.compose.material.icons.Icons.Filled.Settings,
-                                    contentDescription = stringResource(R.string.title_settings),
-                                )
-                            }
-                        },
-                    )
-                    // Content of the current list section
-                    // IMPORTANT: Pass destinationsNavigatorForDetail for navigation to detail screens
+                androidx.compose.material3.Scaffold(
+                    modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface),
+                    topBar = {
+                        TopAppBar(
+                            title = { Text(stringResource(currentListSection.label)) },
+                            actions = {
+                                androidx.compose.material3.IconButton(
+                                    onClick = {
+                                        mainNavController.navigate(Destinations.Settings)
+                                    },
+                                ) {
+                                    Icon(
+                                        imageVector = androidx.compose.material.icons.Icons.Filled.Settings,
+                                        contentDescription = stringResource(R.string.title_settings),
+                                    )
+                                }
+                            },
+                        )
+                    }
+                ) { innerPadding ->
                     when (currentListSection) {
-                        NavigationDestination.Dashboard -> DashboardScreen(navController = mainNavController)
-                        NavigationDestination.Schedule -> ScheduleScreen(navController = mainNavController)
-                        NavigationDestination.SearchScreen -> SearchScreen(navController = mainNavController)
-                        NavigationDestination.Explore -> ExploreScreen(navController = mainNavController)
+                        NavigationDestination.Dashboard -> DashboardScreen(navController = mainNavController, contentPadding = innerPadding)
+                        NavigationDestination.Schedule -> ScheduleScreen(navController = mainNavController, contentPadding = innerPadding)
+                        NavigationDestination.SearchScreen -> SearchScreen(navController = mainNavController, contentPadding = innerPadding)
+                        NavigationDestination.Explore -> ExploreScreen(navController = mainNavController, contentPadding = innerPadding)
                         NavigationDestination.TraktAccount ->
                             TraktAccountScreen(
                                 navController = mainNavController,
                                 code = null, // Code handled by LaunchedEffect below
+                                contentPadding = innerPadding,
                             )
                     }
                 }

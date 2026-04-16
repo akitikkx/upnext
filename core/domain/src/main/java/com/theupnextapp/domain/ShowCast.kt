@@ -22,9 +22,8 @@
 package com.theupnextapp.domain
 
 import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
 
-@Parcelize
+
 data class ShowCast(
     val id: Int?,
     val name: String?,
@@ -41,4 +40,52 @@ data class ShowCast(
     val characterOriginalImageUrl: String?,
     val self: Boolean?,
     val voice: Boolean?,
-) : Parcelable
+) : Parcelable {
+    constructor(parcel: android.os.Parcel) : this(
+        parcel.readValue(Int::class.java.classLoader) as? Int,
+        parcel.readString(),
+        parcel.readString(),
+        parcel.readString(),
+        parcel.readString(),
+        parcel.readString(),
+        parcel.readString(),
+        parcel.readString(),
+        parcel.readValue(Int::class.java.classLoader) as? Int,
+        parcel.readString(),
+        parcel.readString(),
+        parcel.readString(),
+        parcel.readString(),
+        parcel.readValue(Boolean::class.java.classLoader) as? Boolean,
+        parcel.readValue(Boolean::class.java.classLoader) as? Boolean
+    )
+
+    override fun writeToParcel(parcel: android.os.Parcel, flags: Int) {
+        parcel.writeValue(id)
+        parcel.writeString(name)
+        parcel.writeString(country)
+        parcel.writeString(birthday)
+        parcel.writeString(deathday)
+        parcel.writeString(gender)
+        parcel.writeString(originalImageUrl)
+        parcel.writeString(mediumImageUrl)
+        parcel.writeValue(characterId)
+        parcel.writeString(characterUrl)
+        parcel.writeString(characterName)
+        parcel.writeString(characterMediumImageUrl)
+        parcel.writeString(characterOriginalImageUrl)
+        parcel.writeValue(self)
+        parcel.writeValue(voice)
+    }
+
+    override fun describeContents(): Int = 0
+
+    companion object CREATOR : android.os.Parcelable.Creator<ShowCast> {
+        override fun createFromParcel(parcel: android.os.Parcel): ShowCast {
+            return ShowCast(parcel)
+        }
+
+        override fun newArray(size: Int): Array<ShowCast?> {
+            return arrayOfNulls(size)
+        }
+    }
+}

@@ -23,8 +23,11 @@ package com.theupnextapp.ui.schedule
 
 import androidx.activity.compose.ReportDrawnWhen
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -60,6 +63,7 @@ import com.theupnextapp.navigation.Destinations
 fun ScheduleScreen(
     viewModel: ScheduleViewModel = hiltViewModel(),
     navController: NavController,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
     val yesterdayShowsList = viewModel.yesterdayShowsList.observeAsState()
     val todayShowsList = viewModel.todayShowsList.observeAsState()
@@ -91,7 +95,10 @@ fun ScheduleScreen(
                     Modifier
                         .weight(1f) // Allow this Column to take remaining space
                         .verticalScroll(scrollState) // Make this part scrollable
-                        .padding(top = 8.dp),
+                        .padding(
+                            top = 8.dp + contentPadding.calculateTopPadding(),
+                            bottom = contentPadding.calculateBottomPadding()
+                        ),
             ) {
                 // Yesterday Shows
                 yesterdayShowsList.value?.let { list ->
@@ -161,6 +168,8 @@ fun ScheduleScreen(
                         }
                     }
                 }
+
+                Spacer(modifier = Modifier.height(contentPadding.calculateBottomPadding() + 16.dp))
             }
         }
     }

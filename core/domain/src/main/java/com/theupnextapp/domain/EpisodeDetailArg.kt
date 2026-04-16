@@ -22,9 +22,8 @@
 package com.theupnextapp.domain
 
 import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
 
-@Parcelize
+
 data class EpisodeDetailArg(
     val showTraktId: Int,
     val seasonNumber: Int,
@@ -36,4 +35,42 @@ data class EpisodeDetailArg(
     val showImageUrl: String? = null,
     val showBackgroundUrl: String? = null,
     val episodeImageUrl: String? = null,
-) : Parcelable
+) : Parcelable {
+    constructor(parcel: android.os.Parcel) : this(
+        parcel.readInt(),
+        parcel.readInt(),
+        parcel.readInt(),
+        parcel.readString(),
+        parcel.readValue(Int::class.java.classLoader) as? Int,
+        parcel.readString(),
+        parcel.readValue(Boolean::class.java.classLoader) as? Boolean,
+        parcel.readString(),
+        parcel.readString(),
+        parcel.readString()
+    )
+
+    override fun writeToParcel(parcel: android.os.Parcel, flags: Int) {
+        parcel.writeInt(showTraktId)
+        parcel.writeInt(seasonNumber)
+        parcel.writeInt(episodeNumber)
+        parcel.writeString(showTitle)
+        parcel.writeValue(showId)
+        parcel.writeString(imdbID)
+        parcel.writeValue(isAuthorizedOnTrakt)
+        parcel.writeString(showImageUrl)
+        parcel.writeString(showBackgroundUrl)
+        parcel.writeString(episodeImageUrl)
+    }
+
+    override fun describeContents(): Int = 0
+
+    companion object CREATOR : android.os.Parcelable.Creator<EpisodeDetailArg> {
+        override fun createFromParcel(parcel: android.os.Parcel): EpisodeDetailArg {
+            return EpisodeDetailArg(parcel)
+        }
+
+        override fun newArray(size: Int): Array<EpisodeDetailArg?> {
+            return arrayOfNulls(size)
+        }
+    }
+}
