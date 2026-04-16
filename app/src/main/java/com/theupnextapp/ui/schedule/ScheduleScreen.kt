@@ -95,7 +95,10 @@ fun ScheduleScreen(
                     Modifier
                         .weight(1f) // Allow this Column to take remaining space
                         .verticalScroll(scrollState) // Make this part scrollable
-                        .padding(top = 8.dp),
+                        .padding(
+                            top = 8.dp + contentPadding.calculateTopPadding(),
+                            bottom = contentPadding.calculateBottomPadding()
+                        ),
             ) {
                 // Yesterday Shows
                 yesterdayShowsList.value?.let { list ->

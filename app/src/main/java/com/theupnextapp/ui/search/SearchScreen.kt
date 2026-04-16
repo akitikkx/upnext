@@ -86,13 +86,17 @@ fun SearchScreen(
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
-            modifier = Modifier.padding(8.dp),
+            modifier = Modifier.padding(
+                top = contentPadding.calculateTopPadding(),
+                start = 8.dp,
+                end = 8.dp
+            ),
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
                 SearchArea(
                     searchResultsList = searchResultsList.value,
                     recentSearches = recentSearches.value,
-                    contentPadding = contentPadding,
+                    contentPadding = PaddingValues(bottom = contentPadding.calculateBottomPadding()),
                     onResultClick = {
                         keyboardController?.hide()
                         it.name?.let { name ->
