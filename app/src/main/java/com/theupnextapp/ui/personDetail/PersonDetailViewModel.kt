@@ -25,6 +25,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.theupnextapp.domain.Result
 import com.theupnextapp.domain.ShowDetailArg
+import com.theupnextapp.network.models.tmdb.NetworkTmdbPersonProfile
 import com.theupnextapp.network.models.trakt.NetworkTraktPersonResponse
 import com.theupnextapp.repository.ShowDetailRepository
 import com.theupnextapp.repository.TraktRepository
@@ -80,7 +81,7 @@ class PersonDetailViewModel
                                 )
                             }
 
-                        var loadedPersonImages: List<com.theupnextapp.network.models.tmdb.NetworkTmdbPersonProfile> =
+                        var loadedPersonImages: List<NetworkTmdbPersonProfile> =
                             emptyList()
 
                         if (personTmdbId != null) {
@@ -194,7 +195,7 @@ class PersonDetailViewModel
             val isLoading: Boolean = false,
             val personSummary: NetworkTraktPersonResponse? = null,
             val personCredits: List<PersonCreditUiModel> = emptyList(),
-            val personImages: List<com.theupnextapp.network.models.tmdb.NetworkTmdbPersonProfile> = emptyList(),
+            val personImages: List<NetworkTmdbPersonProfile> = emptyList(),
             val errorMessage: String? = null,
         )
 

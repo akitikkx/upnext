@@ -1,5 +1,6 @@
 package com.theupnextapp.ui.episodeDetail
 
+import android.app.Application
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.test.assertIsDisplayed
@@ -15,7 +16,7 @@ import org.robolectric.annotation.Config
 
 @ExperimentalMaterial3Api
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [33], application = android.app.Application::class)
+@Config(sdk = [33], application = Application::class)
 class EpisodeSummaryCardTest {
     @get:Rule
     val composeTestRule = createComposeRule()

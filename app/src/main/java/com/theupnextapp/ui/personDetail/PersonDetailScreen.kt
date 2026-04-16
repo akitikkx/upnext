@@ -90,6 +90,8 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.theupnextapp.domain.PersonDetailArg
 import com.theupnextapp.navigation.Destinations
+import com.theupnextapp.network.models.tmdb.NetworkTmdbPersonProfile
+import com.theupnextapp.network.models.trakt.NetworkTraktPersonResponse
 import com.theupnextapp.ui.personDetail.PersonDetailViewModel.PersonCreditUiModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -280,7 +282,7 @@ fun PersonDetailScreen(
 @Composable
 fun PersonImageGalleryOverlay(
     selectedImageIndex: Int?,
-    personImages: List<com.theupnextapp.network.models.tmdb.NetworkTmdbPersonProfile>,
+    personImages: List<NetworkTmdbPersonProfile>,
     onClose: () -> Unit,
 ) {
     val showGallery = selectedImageIndex != null
@@ -342,7 +344,7 @@ fun PersonImageGalleryOverlay(
 @Composable
 fun PersonProfileHeader(
     personDetailArg: PersonDetailArg,
-    personSummary: com.theupnextapp.network.models.trakt.NetworkTraktPersonResponse?,
+    personSummary: NetworkTraktPersonResponse?,
 ) {
     Box(
         modifier = Modifier.fillMaxWidth(),
@@ -481,7 +483,7 @@ fun PersonProfileHeader(
 
 @Composable
 fun PersonImageStrip(
-    personImages: List<com.theupnextapp.network.models.tmdb.NetworkTmdbPersonProfile>,
+    personImages: List<NetworkTmdbPersonProfile>,
     onImageClick: (Int) -> Unit,
 ) {
     Column(modifier = Modifier.padding(top = 16.dp, bottom = 16.dp)) {
@@ -537,7 +539,7 @@ fun PersonFilmographyStrip(
     )
     LazyRow(
         contentPadding = PaddingValues(horizontal = 16.dp),
-        horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         items(personCredits) { credit ->
             val isClickable = !credit.imdbId.isNullOrEmpty()
@@ -585,7 +587,7 @@ fun PersonFilmographyStrip(
                                 style = MaterialTheme.typography.bodySmall,
                                 modifier = Modifier.padding(8.dp),
                                 maxLines = 2,
-                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                                overflow = TextOverflow.Ellipsis,
                             )
                         }
                     }
@@ -596,7 +598,7 @@ fun PersonFilmographyStrip(
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
-                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                    overflow = TextOverflow.Ellipsis,
                 )
                 val subtitle =
                     listOfNotNull(
@@ -610,7 +612,7 @@ fun PersonFilmographyStrip(
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 2,
-                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
             }

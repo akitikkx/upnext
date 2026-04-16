@@ -5,8 +5,12 @@ import androidx.lifecycle.viewModelScope
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import com.theupnextapp.domain.ScheduleShow
 import com.theupnextapp.domain.TraktAccessToken
+import com.theupnextapp.domain.TraktMostAnticipated
+import com.theupnextapp.network.models.trakt.NetworkTraktHistoryResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktRecommendationsResponse
 import com.theupnextapp.repository.DashboardRepository
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.WatchProgressRepository
@@ -59,8 +63,8 @@ class DashboardViewModel
         val isLoadingAiringSoon: StateFlow<Boolean> = _isLoadingAiringSoon.asStateFlow()
 
         private val _recentHistory =
-            MutableStateFlow<List<com.theupnextapp.network.models.trakt.NetworkTraktHistoryResponse>?>(null)
-        val recentHistory: StateFlow<List<com.theupnextapp.network.models.trakt.NetworkTraktHistoryResponse>?> = _recentHistory.asStateFlow()
+            MutableStateFlow<List<NetworkTraktHistoryResponse>?>(null)
+        val recentHistory: StateFlow<List<NetworkTraktHistoryResponse>?> = _recentHistory.asStateFlow()
 
         private val _historyImages = MutableStateFlow<Map<String, ExtractedTraktInfo>>(emptyMap())
         val historyImages: StateFlow<Map<String, ExtractedTraktInfo>> = _historyImages.asStateFlow()
@@ -69,8 +73,8 @@ class DashboardViewModel
         val isLoadingHistory: StateFlow<Boolean> = _isLoadingHistory.asStateFlow()
 
         private val _recommendedShows =
-            MutableStateFlow<com.theupnextapp.network.models.trakt.NetworkTraktRecommendationsResponse?>(null)
-        val recommendedShows: StateFlow<com.theupnextapp.network.models.trakt.NetworkTraktRecommendationsResponse?> = _recommendedShows.asStateFlow()
+            MutableStateFlow<NetworkTraktRecommendationsResponse?>(null)
+        val recommendedShows: StateFlow<NetworkTraktRecommendationsResponse?> = _recommendedShows.asStateFlow()
 
         private val _recommendedShowsImages = MutableStateFlow<Map<String, ExtractedTraktInfo>>(emptyMap())
         val recommendedShowsImages: StateFlow<Map<String, ExtractedTraktInfo>> = _recommendedShowsImages.asStateFlow()
@@ -78,7 +82,7 @@ class DashboardViewModel
         private val _isLoadingRecommendations = MutableStateFlow(false)
         val isLoadingRecommendations: StateFlow<Boolean> = _isLoadingRecommendations.asStateFlow()
 
-        val todayShows: StateFlow<List<com.theupnextapp.domain.ScheduleShow>?> =
+        val todayShows: StateFlow<List<ScheduleShow>?> =
             dashboardRepository.todayShows
                 .stateIn(
                     scope = viewModelScope,
@@ -86,7 +90,7 @@ class DashboardViewModel
                     initialValue = null,
                 )
 
-        val mostAnticipatedShows: StateFlow<List<com.theupnextapp.domain.TraktMostAnticipated>?> =
+        val mostAnticipatedShows: StateFlow<List<TraktMostAnticipated>?> =
             traktRepository.traktMostAnticipatedShows
                 .stateIn(
                     scope = viewModelScope,
@@ -145,7 +149,7 @@ class DashboardViewModel
                         val shows =
                             response.getOrNull()?.let { responseList ->
                                 val filtered = responseList.filter { it.episode?.season != 0 }
-                                com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponse().apply {
+                                NetworkTraktMyScheduleResponse().apply {
                                     addAll(filtered)
                                 }
                             }

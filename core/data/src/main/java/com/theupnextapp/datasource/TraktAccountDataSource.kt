@@ -39,22 +39,29 @@ import com.theupnextapp.network.models.trakt.NetworkTraktCheckInRequestEpisode
 import com.theupnextapp.network.models.trakt.NetworkTraktCheckInRequestShow
 import com.theupnextapp.network.models.trakt.NetworkTraktCheckInRequestShowIds
 import com.theupnextapp.network.models.trakt.NetworkTraktCreateCustomListRequest
+import com.theupnextapp.network.models.trakt.NetworkTraktHistoryResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktPlaybackResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktRatingRequest
 import com.theupnextapp.network.models.trakt.NetworkTraktRatingShow
 import com.theupnextapp.network.models.trakt.NetworkTraktRatingShowIds
+import com.theupnextapp.network.models.trakt.NetworkTraktRecommendationsResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktRemoveShowFromListRequest
 import com.theupnextapp.network.models.trakt.NetworkTraktRemoveShowFromListRequestShow
 import com.theupnextapp.network.models.trakt.NetworkTraktRemoveShowFromListRequestShowIds
+import com.theupnextapp.network.models.trakt.NetworkTraktShowProgressResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktUserListItemResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktWatchedEpisode
+import com.theupnextapp.network.models.trakt.NetworkTraktWatchedSeason
+import com.theupnextapp.network.models.trakt.NetworkTraktWatchedShowIds
+import com.theupnextapp.network.models.trakt.NetworkTraktWatchedShowInfo
+import com.theupnextapp.network.models.trakt.NetworkTraktWatchedShowsResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktWatchlistRequest
+import com.theupnextapp.network.models.trakt.NetworkTraktWatchlistRequestShow
+import com.theupnextapp.network.models.trakt.NetworkTraktWatchlistRequestShowIds
+import com.theupnextapp.network.models.trakt.NetworkTraktWatchlistResponse
 import com.theupnextapp.network.models.trakt.TraktConflictErrorResponse
 import com.theupnextapp.network.models.trakt.TraktErrorResponse
-import com.theupnextapp.network.models.trakt.NetworkTraktWatchedShowsResponse
-import com.theupnextapp.network.models.trakt.NetworkTraktShowProgressResponse
-import com.theupnextapp.network.models.trakt.NetworkTraktWatchedShowInfo
-import com.theupnextapp.network.models.trakt.NetworkTraktWatchedShowIds
-import com.theupnextapp.network.models.trakt.NetworkTraktWatchedSeason
-import com.theupnextapp.network.models.trakt.NetworkTraktWatchedEpisode
 import com.theupnextapp.network.models.trakt.asDatabaseModel
 import com.theupnextapp.network.models.trakt.asDomainModel
 import kotlinx.coroutines.Dispatchers
@@ -133,7 +140,7 @@ constructor(
         }
     }
 
-    private suspend fun handleTraktWatchlistResponse(watchlistResponse: com.theupnextapp.network.models.trakt.NetworkTraktWatchlistResponse?) {
+    private suspend fun handleTraktWatchlistResponse(watchlistResponse: NetworkTraktWatchlistResponse?) {
         if (watchlistResponse == null) {
             traktDao.deleteAllWatchlistShows()
             return
@@ -193,7 +200,7 @@ constructor(
 
 
 
-    suspend fun getWatchlist(token: String): Result<com.theupnextapp.network.models.trakt.NetworkTraktWatchlistResponse> {
+    suspend fun getWatchlist(token: String): Result<NetworkTraktWatchlistResponse> {
         if (token.isEmpty()) return Result.failure(IllegalArgumentException("Token is empty"))
         return withContext(Dispatchers.IO) {
             try {
@@ -219,10 +226,10 @@ constructor(
         return withContext(Dispatchers.IO) {
             try {
                 val bearerToken = "Bearer $token"
-                val request = com.theupnextapp.network.models.trakt.NetworkTraktWatchlistRequest(
+                val request = NetworkTraktWatchlistRequest(
                     shows = listOf(
-                        com.theupnextapp.network.models.trakt.NetworkTraktWatchlistRequestShow(
-                            ids = com.theupnextapp.network.models.trakt.NetworkTraktWatchlistRequestShowIds(trakt = traktId)
+                        NetworkTraktWatchlistRequestShow(
+                            ids = NetworkTraktWatchlistRequestShowIds(trakt = traktId)
                         )
                     )
                 )
@@ -252,10 +259,10 @@ constructor(
         return withContext(Dispatchers.IO) {
             try {
                 val bearerToken = "Bearer $token"
-                val request = com.theupnextapp.network.models.trakt.NetworkTraktWatchlistRequest(
+                val request = NetworkTraktWatchlistRequest(
                     shows = listOf(
-                        com.theupnextapp.network.models.trakt.NetworkTraktWatchlistRequestShow(
-                            ids = com.theupnextapp.network.models.trakt.NetworkTraktWatchlistRequestShowIds(trakt = traktId)
+                        NetworkTraktWatchlistRequestShow(
+                            ids = NetworkTraktWatchlistRequestShowIds(trakt = traktId)
                         )
                     )
                 )
@@ -440,7 +447,7 @@ constructor(
         }
     }
 
-    suspend fun getTraktPlaybackProgress(token: String): Result<List<com.theupnextapp.network.models.trakt.NetworkTraktPlaybackResponse>> {
+    suspend fun getTraktPlaybackProgress(token: String): Result<List<NetworkTraktPlaybackResponse>> {
         if (token.isEmpty()) return Result.failure(IllegalArgumentException("Token is empty"))
         return withContext(Dispatchers.IO) {
             try {
@@ -448,15 +455,15 @@ constructor(
                 val pausedDeferred = traktService.getPlaybackProgressAsync(bearerToken)
                 val watchedDeferred = traktService.getWatchedShowsAsync(bearerToken)
 
-                val pausedItems: List<com.theupnextapp.network.models.trakt.NetworkTraktPlaybackResponse> = try {
+                val pausedItems: List<NetworkTraktPlaybackResponse> = try {
                     pausedDeferred.await()
                 } catch (e: Exception) {
-                    emptyList<com.theupnextapp.network.models.trakt.NetworkTraktPlaybackResponse>()
+                    emptyList<NetworkTraktPlaybackResponse>()
                 }
-                val watchedShowsResponse: List<com.theupnextapp.network.models.trakt.NetworkTraktWatchedShowsResponse> = try {
+                val watchedShowsResponse: List<NetworkTraktWatchedShowsResponse> = try {
                     watchedDeferred.await()
                 } catch (e: Exception) {
-                    emptyList<com.theupnextapp.network.models.trakt.NetworkTraktWatchedShowsResponse>()
+                    emptyList<NetworkTraktWatchedShowsResponse>()
                 }
 
                 val topWatched = watchedShowsResponse
@@ -471,7 +478,7 @@ constructor(
                                     token = bearerToken,
                                     id = traktId.toString(),
                                 ).await()
-                                Pair<com.theupnextapp.network.models.trakt.NetworkTraktWatchedShowsResponse, com.theupnextapp.network.models.trakt.NetworkTraktShowProgressResponse>(showItem, progress)
+                                Pair<NetworkTraktWatchedShowsResponse, NetworkTraktShowProgressResponse>(showItem, progress)
                             } catch (e: Exception) {
                                 null
                             }
@@ -480,7 +487,7 @@ constructor(
                 }
 
                 val progressResults = progressDeferreds.awaitAll().filterNotNull()
-                val upNextItems = mutableListOf<com.theupnextapp.network.models.trakt.NetworkTraktPlaybackResponse>()
+                val upNextItems = mutableListOf<NetworkTraktPlaybackResponse>()
                 val pausedShowIds = pausedItems.mapNotNull { it.show?.ids?.trakt }.toSet()
                 
                 upNextItems.addAll(pausedItems)
@@ -496,7 +503,7 @@ constructor(
                                 0f
                             }
                             upNextItems.add(
-                                com.theupnextapp.network.models.trakt.NetworkTraktPlaybackResponse(
+                                NetworkTraktPlaybackResponse(
                                     progress = computedProgress,
                                     action = null,
                                     type = "episode",
@@ -516,7 +523,7 @@ constructor(
         }
     }
 
-    suspend fun getTraktWatchedShows(token: String): Result<List<com.theupnextapp.network.models.trakt.NetworkTraktWatchedShowsResponse>> {
+    suspend fun getTraktWatchedShows(token: String): Result<List<NetworkTraktWatchedShowsResponse>> {
         if (token.isEmpty()) return Result.failure(IllegalArgumentException("Token is empty"))
         return withContext(Dispatchers.IO) {
             try {
@@ -529,7 +536,7 @@ constructor(
         }
     }
 
-    suspend fun getTraktRecentHistory(token: String): Result<List<com.theupnextapp.network.models.trakt.NetworkTraktHistoryResponse>> {
+    suspend fun getTraktRecentHistory(token: String): Result<List<NetworkTraktHistoryResponse>> {
         if (token.isEmpty()) return Result.failure(IllegalArgumentException("Token is empty"))
         return withContext(Dispatchers.IO) {
             try {
@@ -542,7 +549,7 @@ constructor(
         }
     }
 
-    suspend fun getTraktShowProgress(token: String, showId: String): Result<com.theupnextapp.network.models.trakt.NetworkTraktShowProgressResponse> {
+    suspend fun getTraktShowProgress(token: String, showId: String): Result<NetworkTraktShowProgressResponse> {
         if (token.isEmpty()) return Result.failure(IllegalArgumentException("Token is empty"))
         return withContext(Dispatchers.IO) {
             try {
@@ -555,7 +562,7 @@ constructor(
         }
     }
 
-    suspend fun getTraktRecommendations(token: String): Result<com.theupnextapp.network.models.trakt.NetworkTraktRecommendationsResponse> {
+    suspend fun getTraktRecommendations(token: String): Result<NetworkTraktRecommendationsResponse> {
         return withContext(Dispatchers.IO) {
             try {
                 val response = traktService.getRecommendationsAsync(token = token).await()

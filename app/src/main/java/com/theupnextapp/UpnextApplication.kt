@@ -45,6 +45,7 @@ import com.theupnextapp.domain.TraktAccessToken
 import com.theupnextapp.domain.isTraktAccessTokenValid
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.work.BaseWorker
+import com.theupnextapp.work.NotificationWorker
 import com.theupnextapp.work.RefreshDashboardShowsWorker
 import com.theupnextapp.work.RefreshWatchlistWorker
 import dagger.hilt.android.HiltAndroidApp
@@ -146,7 +147,7 @@ class UpnextApplication : Application(), Configuration.Provider {
 
     private fun setupNotificationWorker(workManager: WorkManager) {
         val notificationRequest =
-            PeriodicWorkRequestBuilder<com.theupnextapp.work.NotificationWorker>(
+            PeriodicWorkRequestBuilder<NotificationWorker>(
                 12, // Run every 12 hours
                 TimeUnit.HOURS,
             )
@@ -156,11 +157,11 @@ class UpnextApplication : Application(), Configuration.Provider {
                 .build()
 
         workManager.enqueueUniquePeriodicWork(
-            com.theupnextapp.work.NotificationWorker.WORK_NAME,
+            NotificationWorker.WORK_NAME,
             ExistingPeriodicWorkPolicy.KEEP,
             notificationRequest,
         )
-        Timber.tag("UpnextApplication").d("Enqueued ${com.theupnextapp.work.NotificationWorker.WORK_NAME}")
+        Timber.tag("UpnextApplication").d("Enqueued ${NotificationWorker.WORK_NAME}")
     }
 
     private fun setupWatchlistWorker(workManager: WorkManager) {

@@ -19,7 +19,9 @@ import com.theupnextapp.domain.EpisodeDetail
 import com.theupnextapp.domain.Result
 import com.theupnextapp.navigation.Destinations
 import com.theupnextapp.repository.ShowDetailRepository
+import com.theupnextapp.repository.TraktRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -31,8 +33,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.Mock
+import org.mockito.Mockito
 import org.mockito.Mockito.`when`
 import org.mockito.junit.MockitoJUnitRunner
+import retrofit2.HttpException
 
 @ExperimentalCoroutinesApi
 @RunWith(MockitoJUnitRunner::class)
@@ -50,7 +54,7 @@ class EpisodeDetailViewModelTest {
     private lateinit var viewModel: EpisodeDetailViewModel
 
     @Mock
-    private lateinit var traktRepository: com.theupnextapp.repository.TraktRepository
+    private lateinit var traktRepository: TraktRepository
 
     @Before
     fun setUp() {
@@ -68,7 +72,7 @@ class EpisodeDetailViewModelTest {
         `when`(showDetailRepository.getEpisodePeople(anyInt(), anyInt(), anyInt())).thenReturn(
             kotlinx.coroutines.flow.emptyFlow(),
         )
-        `when`(traktRepository.traktCheckInEvent).thenReturn(kotlinx.coroutines.flow.MutableSharedFlow())
+        `when`(traktRepository.traktCheckInEvent).thenReturn(MutableSharedFlow())
         `when`(traktRepository.isAuthorizedOnTrakt()).thenReturn(MutableStateFlow(false))
     }
 
@@ -107,7 +111,7 @@ class EpisodeDetailViewModelTest {
     @Test
     fun `when repository returns GenericError, uiState exposes error message`() =
         runTest {
-            val mockException = org.mockito.Mockito.mock(retrofit2.HttpException::class.java)
+            val mockException = Mockito.mock(HttpException::class.java)
             `when`(mockException.message).thenReturn("Test Error")
 
             `when`(showDetailRepository.getEpisodeDetails(anyInt(), anyInt(), anyInt())).thenReturn(
@@ -157,7 +161,7 @@ class EpisodeDetailViewModelTest {
             viewModel.onCheckIn()
             advanceUntilIdle()
 
-            org.mockito.Mockito.verify(traktRepository).checkInToShow(1234, 1, 5)
+            Mockito.verify(traktRepository).checkInToShow(1234, 1, 5)
         }
 
     @Test

@@ -3,6 +3,8 @@ package com.theupnextapp.work
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.work.ListenableWorker
+import androidx.work.WorkerFactory
+import androidx.work.WorkerParameters
 import androidx.work.testing.TestListenableWorkerBuilder
 import com.theupnextapp.repository.SettingsRepository
 import com.theupnextapp.repository.TraktRepository
@@ -39,11 +41,11 @@ class NotificationWorkerTest {
             val worker =
                 TestListenableWorkerBuilder<NotificationWorker>(context)
                     .setWorkerFactory(
-                        object : androidx.work.WorkerFactory() {
+                        object : WorkerFactory() {
                             override fun createWorker(
                                 appContext: Context,
                                 workerClassName: String,
-                                workerParameters: androidx.work.WorkerParameters,
+                                workerParameters: WorkerParameters,
                             ): ListenableWorker? {
                                 return NotificationWorker(
                                     appContext,
@@ -69,11 +71,11 @@ class NotificationWorkerTest {
             val worker =
                 TestListenableWorkerBuilder<NotificationWorker>(context)
                     .setWorkerFactory(
-                        object : androidx.work.WorkerFactory() {
+                        object : WorkerFactory() {
                             override fun createWorker(
                                 appContext: Context,
                                 workerClassName: String,
-                                workerParameters: androidx.work.WorkerParameters,
+                                workerParameters: WorkerParameters,
                             ): ListenableWorker? {
                                 return NotificationWorker(
                                     appContext,

@@ -25,6 +25,7 @@ import com.theupnextapp.database.DatabaseTraktAccess
 import com.theupnextapp.database.DatabaseTraktMostAnticipated
 import com.theupnextapp.database.DatabaseTraktPopularShows
 import com.theupnextapp.database.DatabaseTraktTrendingShows
+import com.theupnextapp.database.DatabaseWatchedEpisode
 import com.theupnextapp.database.DatabaseWatchlistShows
 import com.theupnextapp.database.TraktDao
 import kotlinx.coroutines.flow.Flow
@@ -116,9 +117,9 @@ class FakeTraktDao : TraktDao {
     override suspend fun deleteSpecificMostAnticipatedShows(showIds: List<Int>) {}
 
     // Watched Episodes
-    override suspend fun insertWatchedEpisode(episode: com.theupnextapp.database.DatabaseWatchedEpisode) {}
+    override suspend fun insertWatchedEpisode(episode: DatabaseWatchedEpisode) {}
 
-    override suspend fun insertWatchedEpisodes(episodes: List<com.theupnextapp.database.DatabaseWatchedEpisode>) {}
+    override suspend fun insertWatchedEpisodes(episodes: List<DatabaseWatchedEpisode>) {}
 
     override suspend fun deleteWatchedEpisode(
         showTraktId: Int,
@@ -126,18 +127,18 @@ class FakeTraktDao : TraktDao {
         episode: Int,
     ) {}
 
-    override fun getWatchedEpisodesForShow(showTraktId: Int): Flow<List<com.theupnextapp.database.DatabaseWatchedEpisode>> =
+    override fun getWatchedEpisodesForShow(showTraktId: Int): Flow<List<DatabaseWatchedEpisode>> =
         flowOf(emptyList())
 
     override suspend fun getWatchedEpisode(
         showTraktId: Int,
         season: Int,
         episode: Int,
-    ): com.theupnextapp.database.DatabaseWatchedEpisode? = null
+    ): DatabaseWatchedEpisode? = null
 
     override suspend fun getWatchedCountForShow(showTraktId: Int): Int = 0
 
-    override suspend fun getPendingSyncEpisodes(): List<com.theupnextapp.database.DatabaseWatchedEpisode> = emptyList()
+    override suspend fun getPendingSyncEpisodes(): List<DatabaseWatchedEpisode> = emptyList()
 
     override suspend fun updateSyncStatus(
         showTraktId: Int,
@@ -157,7 +158,7 @@ class FakeTraktDao : TraktDao {
     override suspend fun getWatchedEpisodesForSeason(
         showTraktId: Int,
         season: Int,
-    ): List<com.theupnextapp.database.DatabaseWatchedEpisode> = emptyList()
+    ): List<DatabaseWatchedEpisode> = emptyList()
 
     override suspend fun updateSyncStatusForSeason(
         showTraktId: Int,

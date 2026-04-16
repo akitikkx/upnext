@@ -21,6 +21,8 @@
 
 package com.theupnextapp.network
 
+import com.theupnextapp.network.models.tmdb.NetworkTmdbPersonImagesResponse
+import com.theupnextapp.network.models.tmdb.NetworkTmdbPersonTvCreditsResponse
 import com.theupnextapp.network.models.tmdb.NetworkTmdbWatchProvidersResponse
 import kotlinx.coroutines.Deferred
 import retrofit2.http.GET
@@ -35,10 +37,10 @@ interface TmdbService {
     @GET("person/{person_id}/images")
     fun getPersonImagesAsync(
         @Path("person_id") personId: Int
-    ): Deferred<com.theupnextapp.network.models.tmdb.NetworkTmdbPersonImagesResponse>
+    ): Deferred<NetworkTmdbPersonImagesResponse>
 
     @GET("person/{person_id}/tv_credits")
     fun getPersonTvCreditsAsync(
         @Path("person_id") personId: Int
-    ): Deferred<com.theupnextapp.network.models.tmdb.NetworkTmdbPersonTvCreditsResponse>
+    ): Deferred<NetworkTmdbPersonTvCreditsResponse>
 }

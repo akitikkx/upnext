@@ -2,9 +2,13 @@ package com.theupnextapp.ui.showSeasonEpisodes
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.work.WorkManager
+import androidx.work.WorkRequest
 import com.theupnextapp.CoroutineTestRule
 import com.theupnextapp.common.utils.TraktAuthManager
+import com.theupnextapp.domain.Result
 import com.theupnextapp.domain.ShowSeasonEpisode
+import com.theupnextapp.domain.ShowSeasonEpisodesArg
+import com.theupnextapp.domain.TraktAccessToken
 import com.theupnextapp.domain.TraktAuthState
 import com.theupnextapp.repository.ShowDetailRepository
 import com.theupnextapp.repository.TraktRepository
@@ -54,7 +58,7 @@ class ShowSeasonEpisodesViewModelTest {
         runTest {
             // Given
             val accessToken =
-                com.theupnextapp.domain.TraktAccessToken(
+                TraktAccessToken(
                     access_token = "token",
                     token_type = "bearer",
                     expires_in = 3600,
@@ -73,12 +77,12 @@ class ShowSeasonEpisodesViewModelTest {
             // Mock data loading
             whenever(
                 showDetailRepository.getShowSeasonEpisodes(1, seasonNum),
-            ).thenReturn(flowOf(com.theupnextapp.domain.Result.Success(emptyList())))
+            ).thenReturn(flowOf(Result.Success(emptyList())))
             whenever(watchProgressRepository.getWatchedEpisodesForShow(showTraktId)).thenReturn(flowOf(emptyList()))
 
             // Initialize VM state
             val args =
-                com.theupnextapp.domain.ShowSeasonEpisodesArg(
+                ShowSeasonEpisodesArg(
                     showId = 1,
                     showTraktId = showTraktId,
                     seasonNumber = seasonNum,
@@ -122,7 +126,7 @@ class ShowSeasonEpisodesViewModelTest {
                 episodeNumber = episodeNum,
             )
 
-            verify(workManager).enqueue(any<androidx.work.WorkRequest>())
+            verify(workManager).enqueue(any<WorkRequest>())
         }
 
     @Test
@@ -130,7 +134,7 @@ class ShowSeasonEpisodesViewModelTest {
         runTest {
             // Given
             val accessToken =
-                com.theupnextapp.domain.TraktAccessToken(
+                TraktAccessToken(
                     access_token = "token",
                     token_type = "bearer",
                     expires_in = 3600,
@@ -156,12 +160,12 @@ class ShowSeasonEpisodesViewModelTest {
             // Mock data loading
             whenever(
                 showDetailRepository.getShowSeasonEpisodes(1, seasonNum),
-            ).thenReturn(flowOf(com.theupnextapp.domain.Result.Success(emptyList())))
+            ).thenReturn(flowOf(Result.Success(emptyList())))
             whenever(watchProgressRepository.getWatchedEpisodesForShow(showTraktId)).thenReturn(flowOf(emptyList()))
 
             // Initialize VM state
             val args =
-                com.theupnextapp.domain.ShowSeasonEpisodesArg(
+                ShowSeasonEpisodesArg(
                     showId = 1,
                     showTraktId = showTraktId,
                     seasonNumber = seasonNum,
@@ -203,7 +207,7 @@ class ShowSeasonEpisodesViewModelTest {
                 episodeNumber = episodeNum,
             )
 
-            verify(workManager).enqueue(any<androidx.work.WorkRequest>())
+            verify(workManager).enqueue(any<WorkRequest>())
         }
 
     @Test
@@ -282,7 +286,7 @@ class ShowSeasonEpisodesViewModelTest {
         runTest {
             // Given
             val accessToken =
-                com.theupnextapp.domain.TraktAccessToken(
+                TraktAccessToken(
                     access_token = "token",
                     token_type = "bearer",
                     expires_in = 3600,
@@ -297,15 +301,15 @@ class ShowSeasonEpisodesViewModelTest {
 
             whenever(
                 showDetailRepository.getShowSeasonEpisodes(10, seasonNum),
-            ).thenReturn(flowOf(com.theupnextapp.domain.Result.Success(emptyList())))
+            ).thenReturn(flowOf(Result.Success(emptyList())))
             whenever(watchProgressRepository.getWatchedEpisodesForShow(showTraktId)).thenReturn(flowOf(emptyList()))
-            whenever(watchProgressRepository.refreshWatchedFromTrakt("token", showTraktId)).thenReturn(Result.success(Unit))
+            whenever(watchProgressRepository.refreshWatchedFromTrakt("token", showTraktId)).thenReturn(kotlin.Result.success(Unit))
 
             createViewModel()
 
             // When
             val args =
-                com.theupnextapp.domain.ShowSeasonEpisodesArg(
+                ShowSeasonEpisodesArg(
                     showId = 10,
                     showTraktId = showTraktId,
                     seasonNumber = seasonNum,
@@ -329,14 +333,14 @@ class ShowSeasonEpisodesViewModelTest {
 
             whenever(
                 showDetailRepository.getShowSeasonEpisodes(1, seasonNum),
-            ).thenReturn(flowOf(com.theupnextapp.domain.Result.Success(emptyList())))
+            ).thenReturn(flowOf(Result.Success(emptyList())))
             whenever(watchProgressRepository.getWatchedEpisodesForShow(any())).thenReturn(flowOf(emptyList()))
 
             createViewModel()
 
             // When
             val args =
-                com.theupnextapp.domain.ShowSeasonEpisodesArg(
+                ShowSeasonEpisodesArg(
                     showId = 1,
                     showTraktId = 789,
                     seasonNumber = seasonNum,

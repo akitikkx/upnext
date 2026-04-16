@@ -30,6 +30,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlin.Result
 
 class FakeTraktRepository : TraktRepository {
     override fun tableUpdate(tableName: String): Flow<TableUpdate?> = flowOf(null)
@@ -96,32 +97,32 @@ class FakeTraktRepository : TraktRepository {
     override fun isAuthorizedOnTrakt(): StateFlow<Boolean> = _isAuthorized.asStateFlow()
 
     // Results mapping
-    var getAccessTokenResult: kotlin.Result<TraktAccessToken> = kotlin.Result.failure(Exception("Not implemented"))
+    var getAccessTokenResult: Result<TraktAccessToken> = Result.failure(Exception("Not implemented"))
 
-    override suspend fun getTraktAccessToken(code: String): kotlin.Result<TraktAccessToken> = getAccessTokenResult
+    override suspend fun getTraktAccessToken(code: String): Result<TraktAccessToken> = getAccessTokenResult
 
     override suspend fun revokeTraktAccessToken(traktAccessToken: TraktAccessToken) {}
 
-    var revokeTokenResult: kotlin.Result<Unit> = kotlin.Result.success(Unit)
+    var revokeTokenResult: Result<Unit> = Result.success(Unit)
 
-    override suspend fun revokeTraktAccessToken(token: String): kotlin.Result<Unit> = revokeTokenResult
+    override suspend fun revokeTraktAccessToken(token: String): Result<Unit> = revokeTokenResult
 
-    var getRefreshTokenResult: kotlin.Result<TraktAccessToken> = kotlin.Result.failure(Exception("Not implemented"))
+    var getRefreshTokenResult: Result<TraktAccessToken> = Result.failure(Exception("Not implemented"))
 
-    override suspend fun getTraktAccessRefreshToken(refreshToken: String?): kotlin.Result<TraktAccessToken> = getRefreshTokenResult
+    override suspend fun getTraktAccessRefreshToken(refreshToken: String?): Result<TraktAccessToken> = getRefreshTokenResult
 
     override fun getTraktAccessTokenRaw(): DatabaseTraktAccess? = null
 
-    var refreshWatchlistResult: kotlin.Result<Unit> = kotlin.Result.success(Unit)
+    var refreshWatchlistResult: Result<Unit> = Result.success(Unit)
     var refreshWatchlistCallCount = 0
         private set
 
-    override suspend fun refreshWatchlist(token: String): kotlin.Result<Unit> {
+    override suspend fun refreshWatchlist(token: String): Result<Unit> {
         refreshWatchlistCallCount++
         return refreshWatchlistResult
     }
 
-    var addToWatchlistResult: kotlin.Result<Unit> = kotlin.Result.success(Unit)
+    var addToWatchlistResult: Result<Unit> = Result.success(Unit)
 
     override suspend fun addToWatchlist(
         traktId: Int,
@@ -130,9 +131,9 @@ class FakeTraktRepository : TraktRepository {
         title: String?,
         originalImageUrl: String?,
         mediumImageUrl: String?,
-    ): kotlin.Result<Unit> = addToWatchlistResult
+    ): Result<Unit> = addToWatchlistResult
 
-    var removeFromWatchlistResult: kotlin.Result<Unit> = kotlin.Result.success(Unit)
+    var removeFromWatchlistResult: Result<Unit> = Result.success(Unit)
     var lastRemovedTraktId: Int? = null
         private set
     var removeFromWatchlistCallCount = 0
@@ -141,7 +142,7 @@ class FakeTraktRepository : TraktRepository {
     override suspend fun removeFromWatchlist(
         traktId: Int,
         token: String,
-    ): kotlin.Result<Unit> {
+    ): Result<Unit> {
         removeFromWatchlistCallCount++
         lastRemovedTraktId = traktId
         return removeFromWatchlistResult
@@ -152,12 +153,12 @@ class FakeTraktRepository : TraktRepository {
         token: String?,
     ) {}
 
-    override suspend fun refreshFavoriteShows(token: String): kotlin.Result<Unit> = kotlin.Result.success(Unit)
+    override suspend fun refreshFavoriteShows(token: String): Result<Unit> = Result.success(Unit)
 
     override suspend fun addShowToFavorites(
         imdbId: String,
         token: String,
-    ): kotlin.Result<Unit> = kotlin.Result.success(Unit)
+    ): Result<Unit> = Result.success(Unit)
 
     override suspend fun addShowToList(
         imdbID: String?,
@@ -178,8 +179,8 @@ class FakeTraktRepository : TraktRepository {
         traktId: Int,
         imdbId: String,
         token: String,
-    ): kotlin.Result<Unit> =
-        kotlin.Result.success(
+    ): Result<Unit> =
+        Result.success(
             Unit,
         )
 
@@ -218,68 +219,68 @@ class FakeTraktRepository : TraktRepository {
 
     override suspend fun getUserShowRating(imdbId: String): Int? = fakeUserShowRating
 
-    override suspend fun getTraktIdLookup(imdbID: String): kotlin.Result<Int?> = kotlin.Result.success(null)
+    override suspend fun getTraktIdLookup(imdbID: String): Result<Int?> = Result.success(null)
 
-    var personSummaryResult: kotlin.Result<NetworkTraktPersonResponse> =
-        kotlin.Result.success(
+    var personSummaryResult: Result<NetworkTraktPersonResponse> =
+        Result.success(
             NetworkTraktPersonResponse(name = "Fake", ids = null, biography = null, birthday = null, death = null, birthplace = null, homepage = null, gender = null, known_for_department = null, social_ids = null),
         )
 
-    override suspend fun getTraktPersonSummary(id: String): kotlin.Result<NetworkTraktPersonResponse> = personSummaryResult
+    override suspend fun getTraktPersonSummary(id: String): Result<NetworkTraktPersonResponse> = personSummaryResult
 
-    var personCreditsResult: kotlin.Result<NetworkTraktPersonShowCreditsResponse> =
-        kotlin.Result.success(
+    var personCreditsResult: Result<NetworkTraktPersonShowCreditsResponse> =
+        Result.success(
             NetworkTraktPersonShowCreditsResponse(cast = emptyList()),
         )
 
-    override suspend fun getTraktPersonShowCredits(id: String): kotlin.Result<NetworkTraktPersonShowCreditsResponse> = personCreditsResult
+    override suspend fun getTraktPersonShowCredits(id: String): Result<NetworkTraktPersonShowCreditsResponse> = personCreditsResult
 
-    override suspend fun getTraktPersonIdLookup(tvMazeId: String): kotlin.Result<Int?> = kotlin.Result.success(null)
+    override suspend fun getTraktPersonIdLookup(tvMazeId: String): Result<Int?> = Result.success(null)
 
-    override suspend fun getTraktPersonIdSearch(name: String): kotlin.Result<Int?> = kotlin.Result.success(null)
+    override suspend fun getTraktPersonIdSearch(name: String): Result<Int?> = Result.success(null)
 
     override suspend fun getTraktMySchedule(
         token: String,
         startDate: String,
         days: Int,
-    ): kotlin.Result<NetworkTraktMyScheduleResponse> =
-        kotlin.Result.success(
+    ): Result<NetworkTraktMyScheduleResponse> =
+        Result.success(
             NetworkTraktMyScheduleResponse(),
         )
 
-    var showCastResult: kotlin.Result<List<TraktCast>> = kotlin.Result.success(emptyList())
+    var showCastResult: Result<List<TraktCast>> = Result.success(emptyList())
 
-    override suspend fun getShowCast(imdbID: String): kotlin.Result<List<TraktCast>> = showCastResult
+    override suspend fun getShowCast(imdbID: String): Result<List<TraktCast>> = showCastResult
 
-    var relatedShowsResult: kotlin.Result<List<TraktRelatedShows>> = kotlin.Result.success(emptyList())
+    var relatedShowsResult: Result<List<TraktRelatedShows>> = Result.success(emptyList())
 
-    override suspend fun getRelatedShows(imdbID: String): kotlin.Result<List<TraktRelatedShows>> = relatedShowsResult
+    override suspend fun getRelatedShows(imdbID: String): Result<List<TraktRelatedShows>> = relatedShowsResult
 
-    override suspend fun getTraktPlaybackProgress(token: String): kotlin.Result<List<NetworkTraktPlaybackResponse>> =
-        kotlin.Result.success(
+    override suspend fun getTraktPlaybackProgress(token: String): Result<List<NetworkTraktPlaybackResponse>> =
+        Result.success(
             emptyList(),
         )
 
-    override suspend fun getTraktWatchedShows(token: String): kotlin.Result<List<NetworkTraktWatchedShowsResponse>> =
-        kotlin.Result.success(
+    override suspend fun getTraktWatchedShows(token: String): Result<List<NetworkTraktWatchedShowsResponse>> =
+        Result.success(
             emptyList(),
         )
 
     override suspend fun getTraktShowProgress(
         token: String,
         showId: String,
-    ): kotlin.Result<NetworkTraktShowProgressResponse> =
-        kotlin.Result.success(
+    ): Result<NetworkTraktShowProgressResponse> =
+        Result.success(
             NetworkTraktShowProgressResponse(aired = 1, completed = 1, lastWatchedAt = "", lastEpisode = null, nextEpisode = null),
         )
 
-    override suspend fun getTraktRecentHistory(token: String): kotlin.Result<List<NetworkTraktHistoryResponse>> =
-        kotlin.Result.success(
+    override suspend fun getTraktRecentHistory(token: String): Result<List<NetworkTraktHistoryResponse>> =
+        Result.success(
             emptyList(),
         )
 
-    override suspend fun getTraktRecommendations(token: String): kotlin.Result<NetworkTraktRecommendationsResponse> =
-        kotlin.Result.success(
+    override suspend fun getTraktRecommendations(token: String): Result<NetworkTraktRecommendationsResponse> =
+        Result.success(
             NetworkTraktRecommendationsResponse(),
         )
 

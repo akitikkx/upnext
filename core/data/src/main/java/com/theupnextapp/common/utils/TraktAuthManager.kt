@@ -22,13 +22,14 @@
 package com.theupnextapp.common.utils
 
 import androidx.work.Data
+import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.theupnextapp.domain.TraktAuthState
 import com.theupnextapp.domain.isTraktAccessTokenValid
 import com.theupnextapp.repository.TraktRepository
-import com.theupnextapp.work.RefreshWatchlistWorker
 import com.theupnextapp.work.RefreshWatchedProgressWorker
+import com.theupnextapp.work.RefreshWatchlistWorker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -100,7 +101,7 @@ class TraktAuthManager @Inject constructor(
 
                             workManager.enqueueUniqueWork(
                                 "refresh_favorite_shows_work",
-                                androidx.work.ExistingWorkPolicy.KEEP,
+                                ExistingWorkPolicy.KEEP,
                                 refreshFavoritesWork
                             )
                             
@@ -114,7 +115,7 @@ class TraktAuthManager @Inject constructor(
                                 
                             workManager.enqueueUniqueWork(
                                 "refresh_watched_progress_work",
-                                androidx.work.ExistingWorkPolicy.KEEP,
+                                ExistingWorkPolicy.KEEP,
                                 refreshWatchedWork
                             )
                         }

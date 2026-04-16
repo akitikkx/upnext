@@ -31,21 +31,26 @@ import com.theupnextapp.network.models.trakt.NetworkTraktCheckInRequest
 import com.theupnextapp.network.models.trakt.NetworkTraktCheckInResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktCreateCustomListRequest
 import com.theupnextapp.network.models.trakt.NetworkTraktCreateCustomListResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktEpisodePeopleResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktEpisodeResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktHistoryResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktIdLookupResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktMostAnticipatedResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktPersonResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktPersonShowCreditsResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktPlaybackResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktPopularShowsResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktRatingRequest
-import com.theupnextapp.network.models.trakt.NetworkTraktUserRatingResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktRecommendationsResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktRelatedShowsResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktRemoveShowFromListRequest
 import com.theupnextapp.network.models.trakt.NetworkTraktRemoveShowFromListResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktRevokeAccessTokenRequest
 import com.theupnextapp.network.models.trakt.NetworkTraktRevokeAccessTokenResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktShowInfoResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktShowPeopleResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktShowProgressResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktShowRatingResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktShowStatsResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktSyncHistoryRequest
@@ -53,10 +58,15 @@ import com.theupnextapp.network.models.trakt.NetworkTraktSyncHistoryResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktTrendingShowsResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktUserListItemResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktUserListsResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktUserRatingResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktUserSettingsResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktWatchedShowsResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktWatchlistRequest
+import com.theupnextapp.network.models.trakt.NetworkTraktWatchlistResponse
 import kotlinx.coroutines.Deferred
+import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
@@ -151,19 +161,19 @@ interface TraktService {
         @Query("limit") limit: Int = 100,
         @Query("sort") sort: String = "added",
         @Query("extended") extended: String = "full"
-    ): Deferred<com.theupnextapp.network.models.trakt.NetworkTraktWatchlistResponse>
+    ): Deferred<NetworkTraktWatchlistResponse>
 
     @POST("sync/watchlist")
     fun addToWatchlistAsync(
         @Header("Authorization") token: String,
-        @Body networkTraktWatchlistRequest: com.theupnextapp.network.models.trakt.NetworkTraktWatchlistRequest,
-    ): Deferred<com.theupnextapp.network.models.trakt.NetworkTraktAddShowToListResponse>
+        @Body networkTraktWatchlistRequest: NetworkTraktWatchlistRequest,
+    ): Deferred<NetworkTraktAddShowToListResponse>
 
     @POST("sync/watchlist/remove")
     fun removeFromWatchlistAsync(
         @Header("Authorization") token: String,
-        @Body networkTraktWatchlistRequest: com.theupnextapp.network.models.trakt.NetworkTraktWatchlistRequest,
-    ): Deferred<com.theupnextapp.network.models.trakt.NetworkTraktRemoveShowFromListResponse>
+        @Body networkTraktWatchlistRequest: NetworkTraktWatchlistRequest,
+    ): Deferred<NetworkTraktRemoveShowFromListResponse>
 
     @GET("search/{id_type}/{id}")
     fun idLookupAsync(
@@ -183,16 +193,16 @@ interface TraktService {
         @Body networkTraktCheckInRequest: NetworkTraktCheckInRequest,
     ): Deferred<NetworkTraktCheckInResponse>
 
-    @retrofit2.http.DELETE("checkin")
+    @DELETE("checkin")
     fun cancelCheckInAsync(
         @Header("Authorization") token: String,
-    ): Deferred<retrofit2.Response<Unit>>
+    ): Deferred<Response<Unit>>
 
     @POST("sync/ratings")
     fun rateShowAsync(
         @Header("Authorization") token: String,
         @Body request: NetworkTraktRatingRequest,
-    ): Deferred<retrofit2.Response<Unit>>
+    ): Deferred<Response<Unit>>
 
     @GET("sync/ratings/shows")
     fun getUserShowRatingsAsync(
@@ -220,7 +230,7 @@ interface TraktService {
     fun getPlaybackProgressAsync(
         @Header("Authorization") token: String,
         @Query("limit") limit: Int = 20,
-    ): Deferred<List<com.theupnextapp.network.models.trakt.NetworkTraktPlaybackResponse>>
+    ): Deferred<List<NetworkTraktPlaybackResponse>>
 
     @GET("shows/{id}/progress/watched")
     fun getShowProgressAsync(
@@ -229,13 +239,13 @@ interface TraktService {
         @Query("hidden") hidden: Boolean = false,
         @Query("specials") specials: Boolean = false,
         @Query("count_specials") countSpecials: Boolean = false,
-    ): Deferred<com.theupnextapp.network.models.trakt.NetworkTraktShowProgressResponse>
+    ): Deferred<NetworkTraktShowProgressResponse>
 
     @GET("sync/history/episodes")
     fun getRecentHistoryAsync(
         @Header("Authorization") token: String,
         @Query("limit") limit: Int = 20,
-    ): Deferred<List<com.theupnextapp.network.models.trakt.NetworkTraktHistoryResponse>>
+    ): Deferred<List<NetworkTraktHistoryResponse>>
 
     @GET("people/{id}?extended=full")
     fun getPersonSummaryAsync(
@@ -262,14 +272,14 @@ interface TraktService {
     @GET("shows/{id}/related?extended=full")
     fun getRelatedShowsAsync(
         @Path("id") id: String,
-    ): Deferred<com.theupnextapp.network.models.trakt.NetworkTraktRelatedShowsResponse>
+    ): Deferred<NetworkTraktRelatedShowsResponse>
 
     @GET("recommendations/shows")
     fun getRecommendationsAsync(
         @Header("Authorization") token: String,
         @Query("limit") limit: Int = 20,
         @Query("extended") extended: String = "full",
-    ): Deferred<com.theupnextapp.network.models.trakt.NetworkTraktRecommendationsResponse>
+    ): Deferred<NetworkTraktRecommendationsResponse>
 
 
     @GET("shows/{id}/seasons/{season}/episodes/{episode}?extended=full")
@@ -284,7 +294,7 @@ interface TraktService {
         @Path("id") id: String,
         @Path("season") season: Int,
         @Path("episode") episode: Int,
-    ): Deferred<com.theupnextapp.network.models.trakt.NetworkTraktEpisodePeopleResponse>
+    ): Deferred<NetworkTraktEpisodePeopleResponse>
 }
 
 object TraktNetwork {

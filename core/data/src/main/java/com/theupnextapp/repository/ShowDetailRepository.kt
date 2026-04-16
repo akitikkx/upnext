@@ -10,6 +10,8 @@ import com.theupnextapp.domain.ShowPreviousEpisode
 import com.theupnextapp.domain.ShowSeason
 import com.theupnextapp.domain.ShowSeasonEpisode
 import com.theupnextapp.domain.TmdbWatchProviders
+import com.theupnextapp.network.models.tmdb.NetworkTmdbPersonImagesResponse
+import com.theupnextapp.network.models.tmdb.NetworkTmdbPersonTvCreditsResponse
 import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupResponse
 import kotlinx.coroutines.flow.Flow
 
@@ -24,6 +26,6 @@ interface ShowDetailRepository {
     fun getShowWatchProviders(imdbID: String?, countryCode: String = "US"): Flow<Result<TmdbWatchProviders>>
     fun getEpisodeDetails(traktId: Int, seasonNumber: Int, episodeNumber: Int): Flow<Result<EpisodeDetail>>
     fun getEpisodePeople(traktId: Int, seasonNumber: Int, episodeNumber: Int): Flow<Result<EpisodePeople>>
-    fun getPersonTvCredits(personId: Int): Flow<Result<com.theupnextapp.network.models.tmdb.NetworkTmdbPersonTvCreditsResponse>>
-    fun getPersonImages(personId: Int): Flow<Result<com.theupnextapp.network.models.tmdb.NetworkTmdbPersonImagesResponse>>
+    fun getPersonTvCredits(personId: Int): Flow<Result<NetworkTmdbPersonTvCreditsResponse>>
+    fun getPersonImages(personId: Int): Flow<Result<NetworkTmdbPersonImagesResponse>>
 }

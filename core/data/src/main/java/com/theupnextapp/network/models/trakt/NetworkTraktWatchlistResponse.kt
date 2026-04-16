@@ -1,6 +1,7 @@
 package com.theupnextapp.network.models.trakt
 
 import com.google.gson.annotations.SerializedName
+import com.theupnextapp.database.DatabaseWatchlistShows
 
 class NetworkTraktWatchlistResponse : ArrayList<NetworkTraktWatchlistResponseItem>()
 
@@ -49,8 +50,8 @@ data class NetworkTraktWatchlistResponseItemShowIds(
     val tvMazeID: Int?
 )
 
-fun NetworkTraktWatchlistResponseItem.asDatabaseModel(): com.theupnextapp.database.DatabaseWatchlistShows {
-    return com.theupnextapp.database.DatabaseWatchlistShows(
+fun NetworkTraktWatchlistResponseItem.asDatabaseModel(): DatabaseWatchlistShows {
+    return DatabaseWatchlistShows(
         id = id.toInt(),
         title = show.title,
         slug = show.ids.slug,

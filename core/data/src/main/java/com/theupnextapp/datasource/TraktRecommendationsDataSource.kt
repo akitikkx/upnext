@@ -43,6 +43,7 @@ import com.theupnextapp.network.models.trakt.NetworkTraktTrendingShowsResponseIt
 import com.theupnextapp.network.models.trakt.asDatabaseModel
 import com.theupnextapp.network.models.trakt.asDomainModel
 import kotlinx.coroutines.*
+import kotlinx.coroutines.Deferred
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -451,7 +452,7 @@ constructor(
             kotlinx.coroutines.coroutineScope {
                 val traktRequest = async { traktService.getShowPeopleAsync(imdbID).await() }
 
-                val tvMazeImagesRequest: kotlinx.coroutines.Deferred<Map<String, Pair<String?, String?>>> = async {
+                val tvMazeImagesRequest: Deferred<Map<String, Pair<String?, String?>>> = async {
                     try {
                         val lookup = tvMazeService.getShowLookupAsync(imdbID).await()
                         val tvMazeId = lookup.id

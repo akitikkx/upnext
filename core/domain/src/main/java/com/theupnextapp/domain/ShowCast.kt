@@ -21,8 +21,8 @@
 
 package com.theupnextapp.domain
 
+import android.os.Parcel
 import android.os.Parcelable
-
 
 data class ShowCast(
     val id: Int?,
@@ -41,7 +41,7 @@ data class ShowCast(
     val self: Boolean?,
     val voice: Boolean?,
 ) : Parcelable {
-    constructor(parcel: android.os.Parcel) : this(
+    constructor(parcel: Parcel) : this(
         parcel.readValue(Int::class.java.classLoader) as? Int,
         parcel.readString(),
         parcel.readString(),
@@ -59,7 +59,7 @@ data class ShowCast(
         parcel.readValue(Boolean::class.java.classLoader) as? Boolean
     )
 
-    override fun writeToParcel(parcel: android.os.Parcel, flags: Int) {
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeValue(id)
         parcel.writeString(name)
         parcel.writeString(country)
@@ -79,8 +79,8 @@ data class ShowCast(
 
     override fun describeContents(): Int = 0
 
-    companion object CREATOR : android.os.Parcelable.Creator<ShowCast> {
-        override fun createFromParcel(parcel: android.os.Parcel): ShowCast {
+    companion object CREATOR : Parcelable.Creator<ShowCast> {
+        override fun createFromParcel(parcel: Parcel): ShowCast {
             return ShowCast(parcel)
         }
 

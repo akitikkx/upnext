@@ -13,8 +13,13 @@
 package com.theupnextapp.ui.dashboard
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.work.Operation
 import androidx.work.WorkManager
+import androidx.work.WorkRequest
 import com.theupnextapp.CoroutineTestRule
+import com.theupnextapp.domain.TraktAccessToken
+import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktRecommendationsResponse
 import com.theupnextapp.repository.DashboardRepository
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.WatchProgressRepository
@@ -29,6 +34,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.mockito.Mockito
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
@@ -105,7 +111,7 @@ class DashboardViewModelTest {
     fun `when marking episode as watched with auth, triggers sync worker`() =
         runTest {
             val token =
-                com.theupnextapp.domain.TraktAccessToken(
+                TraktAccessToken(
                     access_token = "mock_token",
                     created_at = 1234567890L,
                     expires_in = 3600L,
@@ -125,8 +131,8 @@ class DashboardViewModelTest {
 
             // Use a specific non-null invocation since workManager.enqueue expects a non-null WorkRequest
             // Because WorkManager enqueue returns an Operation, we must mock it so it doesn't crash on execution via lazy eval
-            val mockOperation = mock(androidx.work.Operation::class.java)
-            `when`(localWorkManager.enqueue(any<androidx.work.WorkRequest>())).thenReturn(mockOperation)
+            val mockOperation = mock(Operation::class.java)
+            `when`(localWorkManager.enqueue(any<WorkRequest>())).thenReturn(mockOperation)
 
             testViewModel.onMarkEpisodeWatched(
                 showTvMazeId = 1,
@@ -137,14 +143,14 @@ class DashboardViewModelTest {
             )
 
             // Verify work manager was told to enqueue the sync
-            verify(localWorkManager).enqueue(any<androidx.work.WorkRequest>())
+            verify(localWorkManager).enqueue(any<WorkRequest>())
         }
 
     @Test
     fun `when receiving new isSyncing state completion, requests fresh history`() =
         runTest {
             val token =
-                com.theupnextapp.domain.TraktAccessToken(
+                TraktAccessToken(
                     access_token = "mock_token",
                     created_at = 1234567890L,
                     expires_in = 3600L,
@@ -181,9 +187,9 @@ class DashboardViewModelTest {
             val token = "mock_token"
 
             // Setup responses for the repository
-            val mockScheduleResponse = com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponse()
+            val mockScheduleResponse = NetworkTraktMyScheduleResponse()
             `when`(traktRepository.getTraktMySchedule(any(), any(), any())).thenReturn(Result.success(mockScheduleResponse))
-            `when`(traktRepository.getTraktRecommendations(token)).thenReturn(Result.success(com.theupnextapp.network.models.trakt.NetworkTraktRecommendationsResponse()))
+            `when`(traktRepository.getTraktRecommendations(token)).thenReturn(Result.success(NetworkTraktRecommendationsResponse()))
             `when`(traktRepository.getTraktRecentHistory(token)).thenReturn(Result.success(listOf()))
 
             val testViewModel = DashboardViewModel(
@@ -200,9 +206,9 @@ class DashboardViewModelTest {
             advanceUntilIdle()
 
             // Verify they were called once
-            verify(traktRepository, org.mockito.Mockito.times(1)).getTraktMySchedule(any(), any(), any())
-            verify(traktRepository, org.mockito.Mockito.times(1)).getTraktRecommendations(token)
-            verify(traktRepository, org.mockito.Mockito.times(1)).getTraktRecentHistory(token)
+            verify(traktRepository, Mockito.times(1)).getTraktMySchedule(any(), any(), any())
+            verify(traktRepository, Mockito.times(1)).getTraktRecommendations(token)
+            verify(traktRepository, Mockito.times(1)).getTraktRecentHistory(token)
 
             // Explicitly verify the states have values so the guard should be active
             assertNotNull(testViewModel.airingSoonShows.value)
@@ -215,8 +221,8 @@ class DashboardViewModelTest {
             advanceUntilIdle()
 
             // Verify they were STILL only called once total
-            verify(traktRepository, org.mockito.Mockito.times(1)).getTraktMySchedule(any(), any(), any())
-            verify(traktRepository, org.mockito.Mockito.times(1)).getTraktRecommendations(token)
-            verify(traktRepository, org.mockito.Mockito.times(1)).getTraktRecentHistory(token)
+            verify(traktRepository, Mockito.times(1)).getTraktMySchedule(any(), any(), any())
+            verify(traktRepository, Mockito.times(1)).getTraktRecommendations(token)
+            verify(traktRepository, Mockito.times(1)).getTraktRecentHistory(token)
         }
 }

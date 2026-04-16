@@ -1,6 +1,12 @@
 package com.theupnextapp
 
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.test.*
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import dagger.hilt.android.testing.HiltAndroidRule
@@ -20,12 +26,12 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @HiltAndroidTest
 @OptIn(
-    androidx.compose.animation.ExperimentalAnimationApi::class,
-    androidx.compose.foundation.ExperimentalFoundationApi::class,
-    androidx.compose.ui.test.ExperimentalTestApi::class,
-    androidx.compose.ui.ExperimentalComposeUiApi::class,
-    androidx.compose.material3.ExperimentalMaterial3Api::class,
-    androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi::class,
+    ExperimentalAnimationApi::class,
+    ExperimentalFoundationApi::class,
+    ExperimentalTestApi::class,
+    ExperimentalComposeUiApi::class,
+    ExperimentalMaterial3Api::class,
+    ExperimentalMaterial3WindowSizeClassApi::class,
 )
 class NavigationBackStackTest {
     @get:Rule(order = 0)

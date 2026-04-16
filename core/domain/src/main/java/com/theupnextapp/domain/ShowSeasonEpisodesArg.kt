@@ -21,8 +21,9 @@
 
 package com.theupnextapp.domain
 
-import kotlinx.serialization.Serializable
+import android.os.Parcel
 import android.os.Parcelable
+import kotlinx.serialization.Serializable
 
 @Serializable
 data class ShowSeasonEpisodesArg(
@@ -35,7 +36,7 @@ data class ShowSeasonEpisodesArg(
     val showImageUrl: String? = null,
     val showBackgroundUrl: String? = null,
 ) : Parcelable {
-    constructor(parcel: android.os.Parcel) : this(
+    constructor(parcel: Parcel) : this(
         parcel.readValue(Int::class.java.classLoader) as? Int,
         parcel.readValue(Int::class.java.classLoader) as? Int,
         parcel.readString(),
@@ -46,7 +47,7 @@ data class ShowSeasonEpisodesArg(
         parcel.readString()
     )
 
-    override fun writeToParcel(parcel: android.os.Parcel, flags: Int) {
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeValue(showId)
         parcel.writeValue(seasonNumber)
         parcel.writeString(imdbID)
@@ -59,8 +60,8 @@ data class ShowSeasonEpisodesArg(
 
     override fun describeContents(): Int = 0
 
-    companion object CREATOR : android.os.Parcelable.Creator<ShowSeasonEpisodesArg> {
-        override fun createFromParcel(parcel: android.os.Parcel): ShowSeasonEpisodesArg {
+    companion object CREATOR : Parcelable.Creator<ShowSeasonEpisodesArg> {
+        override fun createFromParcel(parcel: Parcel): ShowSeasonEpisodesArg {
             return ShowSeasonEpisodesArg(parcel)
         }
 

@@ -1,9 +1,12 @@
 package com.theupnextapp.ui.showDetail
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.DeviceConfigurationOverride
 import androidx.compose.ui.test.ForcedSize
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -26,7 +29,7 @@ class ShowDetailButtonsAdaptiveTest {
             DeviceConfigurationOverride(
                 DeviceConfigurationOverride.ForcedSize(DpSize(tabletWidth, 800.dp)),
             ) {
-                androidx.compose.foundation.layout.Box(modifier = androidx.compose.ui.Modifier.fillMaxSize()) {
+                Box(modifier = Modifier.fillMaxSize()) {
                     ShowDetailButtons(
                         isAuthorizedOnTrakt = true,
                         isWatchlist = false,
@@ -60,7 +63,7 @@ class ShowDetailButtonsAdaptiveTest {
         // We can't use assertBounds or assertWidthIsEqualTo with an exact value easily because of font scaling,
         // but we can assert it is NOT stretched to the parent width (1000dp) minus paddings.
         seasonsButton.assert(
-            androidx.compose.ui.test.SemanticsMatcher("Width is less than half tablet width") { node ->
+            SemanticsMatcher("Width is less than half tablet width") { node ->
                 node.boundsInWindow.width < (1000f * node.layoutInfo.density.density) / 2f
             },
         )

@@ -42,6 +42,7 @@ import com.theupnextapp.database.MIGRATION_29_30
 import com.theupnextapp.database.MIGRATION_30_31
 import com.theupnextapp.database.MIGRATION_31_32
 import com.theupnextapp.database.MIGRATION_32_33
+import com.theupnextapp.database.RecentSearchDao
 import com.theupnextapp.database.TraktDao
 import com.theupnextapp.database.TvMazeDao
 import com.theupnextapp.database.UpnextDao
@@ -111,7 +112,7 @@ class RoomModule {
 
     @Singleton
     @Provides
-    fun provideRecentSearchDao(upnextDatabase: UpnextDatabase): com.theupnextapp.database.RecentSearchDao {
+    fun provideRecentSearchDao(upnextDatabase: UpnextDatabase): RecentSearchDao {
         return upnextDatabase.recentSearchDao
     }
 }

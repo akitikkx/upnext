@@ -37,6 +37,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.mockito.Mockito
 
 @ExperimentalCoroutinesApi
 class ExploreViewModelTest {
@@ -52,7 +53,7 @@ class ExploreViewModelTest {
 
     @Before
     fun setup() {
-        workManager = org.mockito.Mockito.mock(WorkManager::class.java)
+        workManager = Mockito.mock(WorkManager::class.java)
         fakeRepository = FakeTraktRepository()
         viewModel = ExploreViewModel(fakeRepository, workManager)
     }

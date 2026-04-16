@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Surface
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -55,7 +56,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
     ExperimentalComposeUiApi::class,
     ExperimentalFoundationApi::class,
     ExperimentalAnimationApi::class,
-    androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi::class,
+    ExperimentalMaterial3AdaptiveApi::class,
 )
 @Composable
 fun AppNavigation(

@@ -25,6 +25,7 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.theupnextapp.database.DatabaseWatchedEpisode
 import com.theupnextapp.database.TraktDao
 import com.theupnextapp.database.asDomainModel
+import com.theupnextapp.domain.ShowSeasonEpisode
 import com.theupnextapp.domain.ShowWatchProgress
 import com.theupnextapp.domain.SyncStatus
 import com.theupnextapp.domain.WatchedEpisode
@@ -64,7 +65,7 @@ class WatchProgressRepositoryImpl(
         showTvMazeId: Int?,
         showImdbId: String?,
         seasonNumber: Int,
-        episodes: List<com.theupnextapp.domain.ShowSeasonEpisode>,
+        episodes: List<ShowSeasonEpisode>,
     ): Result<Unit> =
         withContext(Dispatchers.IO) {
             try {

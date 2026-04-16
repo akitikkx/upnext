@@ -22,6 +22,7 @@
 package com.theupnextapp.repository
 
 import com.theupnextapp.database.DatabaseTraktAccess
+import com.theupnextapp.database.DatabaseWatchlistShows
 import com.theupnextapp.database.TraktDao
 import com.theupnextapp.database.UpnextDao
 import com.theupnextapp.database.asDomainModel
@@ -43,16 +44,20 @@ import com.theupnextapp.domain.TraktUserList
 import com.theupnextapp.domain.TraktUserListItem
 import com.theupnextapp.domain.isTraktAccessTokenValid
 import com.theupnextapp.network.TvMazeService
+import com.theupnextapp.network.models.trakt.NetworkTraktHistoryResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktPersonResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktPersonShowCreditsResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktPlaybackResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktRecommendationsResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktShowProgressResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktWatchedShowsResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -62,6 +67,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.withContext
 
 class TraktRepositoryImpl(
     upnextDao: UpnextDao,
@@ -219,7 +225,7 @@ class TraktRepositoryImpl(
             // Optimistic local insert — immediate UI feedback bypasses Trakt caching delay
             withContext(Dispatchers.IO) {
                 traktDao.insertWatchlistShow(
-                    com.theupnextapp.database.DatabaseWatchlistShows(
+                    DatabaseWatchlistShows(
                         id = traktId,
                         traktID = traktId,
                         imdbID = imdbID,
@@ -340,9 +346,9 @@ class TraktRepositoryImpl(
         val result = traktAccountDataSource.cancelCheckIn(token)
         if (result.isSuccess) {
             // Emit an empty/null-like status to clear the check-in data from the UI
-            _traktCheckInEvent.emit(com.theupnextapp.domain.TraktCheckInStatus(message = "Check-in cancelled"))
+            _traktCheckInEvent.emit(TraktCheckInStatus(message = "Check-in cancelled"))
         } else {
-            _traktCheckInEvent.emit(com.theupnextapp.domain.TraktCheckInStatus(message = result.exceptionOrNull()?.message ?: "Failed to cancel check-in"))
+            _traktCheckInEvent.emit(TraktCheckInStatus(message = result.exceptionOrNull()?.message ?: "Failed to cancel check-in"))
         }
     }
 
@@ -452,23 +458,23 @@ class TraktRepositoryImpl(
         return traktRecommendationsDataSource.getRelatedShows(imdbID)
     }
 
-    override suspend fun getTraktPlaybackProgress(token: String): Result<List<com.theupnextapp.network.models.trakt.NetworkTraktPlaybackResponse>> {
+    override suspend fun getTraktPlaybackProgress(token: String): Result<List<NetworkTraktPlaybackResponse>> {
         return traktAccountDataSource.getTraktPlaybackProgress(token)
     }
 
-    override suspend fun getTraktRecentHistory(token: String): Result<List<com.theupnextapp.network.models.trakt.NetworkTraktHistoryResponse>> {
+    override suspend fun getTraktRecentHistory(token: String): Result<List<NetworkTraktHistoryResponse>> {
         return traktAccountDataSource.getTraktRecentHistory(token)
     }
 
-    override suspend fun getTraktShowProgress(token: String, showId: String): Result<com.theupnextapp.network.models.trakt.NetworkTraktShowProgressResponse> {
+    override suspend fun getTraktShowProgress(token: String, showId: String): Result<NetworkTraktShowProgressResponse> {
         return traktAccountDataSource.getTraktShowProgress(token, showId)
     }
 
-    override suspend fun getTraktWatchedShows(token: String): Result<List<com.theupnextapp.network.models.trakt.NetworkTraktWatchedShowsResponse>> {
+    override suspend fun getTraktWatchedShows(token: String): Result<List<NetworkTraktWatchedShowsResponse>> {
         return traktAccountDataSource.getTraktWatchedShows(token)
     }
 
-    override suspend fun getTraktRecommendations(token: String): Result<com.theupnextapp.network.models.trakt.NetworkTraktRecommendationsResponse> {
+    override suspend fun getTraktRecommendations(token: String): Result<NetworkTraktRecommendationsResponse> {
         return traktAccountDataSource.getTraktRecommendations(token)
     }
 }

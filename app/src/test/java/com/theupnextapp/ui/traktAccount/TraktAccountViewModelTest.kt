@@ -22,6 +22,7 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
+import kotlin.Result
 
 @ExperimentalCoroutinesApi
 @RunWith(MockitoJUnitRunner::class)
@@ -203,7 +204,7 @@ class TraktAccountViewModelTest {
                 )
             traktRepository.setAccessToken(testToken)
             traktRepository.removeFromWatchlistResult =
-                kotlin.Result.failure(Exception("API error"))
+                Result.failure(Exception("API error"))
 
             viewModel = TraktAccountViewModel(traktRepository, workManager, traktAuthManager)
             advanceUntilIdle()

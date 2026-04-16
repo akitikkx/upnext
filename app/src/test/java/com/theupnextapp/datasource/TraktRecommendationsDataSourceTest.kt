@@ -33,6 +33,9 @@ import com.theupnextapp.network.models.trakt.NetworkTraktIdLookupResponseItemSho
 import com.theupnextapp.network.models.trakt.NetworkTraktIdLookupResponseItemShowIds
 import com.theupnextapp.network.models.trakt.NetworkTraktPerson
 import com.theupnextapp.network.models.trakt.NetworkTraktPersonIds
+import com.theupnextapp.network.models.trakt.NetworkTraktRelatedShowsResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktRelatedShowsResponseItem
+import com.theupnextapp.network.models.trakt.NetworkTraktRelatedShowsResponseItemIds
 import com.theupnextapp.network.models.trakt.NetworkTraktShowPeopleResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktShowRatingResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktShowStatsResponse
@@ -54,6 +57,7 @@ import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupSelf
 import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupWebChannel
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.runBlocking
+import okhttp3.ResponseBody
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -62,6 +66,8 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
+import retrofit2.HttpException
+import retrofit2.Response
 
 class TraktRecommendationsDataSourceTest {
     private val traktService: TraktService = mock()
@@ -269,7 +275,7 @@ class TraktRecommendationsDataSourceTest {
     fun getRelatedShows_success() =
         runBlocking {
             val mockShowIds =
-                com.theupnextapp.network.models.trakt.NetworkTraktRelatedShowsResponseItemIds(
+                NetworkTraktRelatedShowsResponseItemIds(
                     trakt = 1,
                     slug = "slug",
                     imdb = "tt123",
@@ -279,7 +285,7 @@ class TraktRecommendationsDataSourceTest {
                 )
 
             val mockRelatedShowItem =
-                com.theupnextapp.network.models.trakt.NetworkTraktRelatedShowsResponseItem(
+                NetworkTraktRelatedShowsResponseItem(
                     title = "Related Show",
                     year = 2024,
                     ids = mockShowIds,
@@ -288,7 +294,7 @@ class TraktRecommendationsDataSourceTest {
                 )
 
             val mockShowIds2 =
-                com.theupnextapp.network.models.trakt.NetworkTraktRelatedShowsResponseItemIds(
+                NetworkTraktRelatedShowsResponseItemIds(
                     trakt = 2,
                     slug = "slug2",
                     imdb = "tt456",
@@ -297,7 +303,7 @@ class TraktRecommendationsDataSourceTest {
                     tvMazeID = null,
                 )
             val mockRelatedShowItem2 =
-                com.theupnextapp.network.models.trakt.NetworkTraktRelatedShowsResponseItem(
+                NetworkTraktRelatedShowsResponseItem(
                     title = "Related Show 2",
                     year = 2024,
                     ids = mockShowIds2,
@@ -306,7 +312,7 @@ class TraktRecommendationsDataSourceTest {
                 )
 
             val mockResponse =
-                com.theupnextapp.network.models.trakt.NetworkTraktRelatedShowsResponse()
+                NetworkTraktRelatedShowsResponse()
             mockResponse.add(mockRelatedShowItem)
             mockResponse.add(mockRelatedShowItem2)
 
@@ -371,7 +377,7 @@ class TraktRecommendationsDataSourceTest {
             whenever(
                 tvMazeService.getShowLookupAsync(eq("tt456")),
             ).thenThrow(
-                retrofit2.HttpException(retrofit2.Response.error<Any>(404, okhttp3.ResponseBody.create(null, ""))),
+                HttpException(Response.error<Any>(404, ResponseBody.create(null, ""))),
             )
 
             val result = dataSource.getRelatedShows("tt1234567")

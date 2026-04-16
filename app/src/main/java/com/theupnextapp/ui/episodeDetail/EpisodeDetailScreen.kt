@@ -12,6 +12,7 @@
 
 package com.theupnextapp.ui.episodeDetail
 
+import android.text.format.DateUtils
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -64,6 +65,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -75,10 +77,12 @@ import coil.compose.AsyncImage
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import com.theupnextapp.R
+import com.theupnextapp.domain.EpisodeDetail
 import com.theupnextapp.domain.EpisodeDetailArg
 import com.theupnextapp.domain.TraktCast
 import com.theupnextapp.domain.TraktCrew
 import com.valentinilk.shimmer.shimmer
+import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -210,10 +214,10 @@ private fun formatRelativeDate(dateString: String): String {
         val formatter = SimpleDateFormat("MMM d, yyyy", Locale.getDefault())
         val formattedDate = formatter.format(date)
         val relativeTime =
-            android.text.format.DateUtils.getRelativeTimeSpanString(
+            DateUtils.getRelativeTimeSpanString(
                 date.time,
                 System.currentTimeMillis(),
-                android.text.format.DateUtils.DAY_IN_MILLIS,
+                DateUtils.DAY_IN_MILLIS,
             ).toString()
         if (relativeTime == formattedDate) {
             "Aired: $formattedDate"
@@ -471,8 +475,8 @@ val StarRatingColor = Color(0xFFFFC107)
 @Composable
 fun EpisodeSummaryCard(
     episodeDetailArg: EpisodeDetailArg?,
-    episodeDetail: com.theupnextapp.domain.EpisodeDetail?,
-    uriHandler: androidx.compose.ui.platform.UriHandler,
+    episodeDetail: EpisodeDetail?,
+    uriHandler: UriHandler,
     isCheckingIn: Boolean,
     isCheckInSuccessful: Boolean,
     isAuthorizedOnTrakt: Boolean,
@@ -533,7 +537,7 @@ fun EpisodeSummaryCard(
                         val votes = episodeDetail.votes ?: 0
                         val votesString =
                             if (votes > 0) {
-                                java.text.NumberFormat.getNumberInstance(
+                                NumberFormat.getNumberInstance(
                                     Locale.getDefault(),
                                 ).format(votes)
                             } else {

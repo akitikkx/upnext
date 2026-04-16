@@ -21,6 +21,8 @@
 
 package com.theupnextapp.network.models.trakt
 
+import com.theupnextapp.domain.EpisodeDetail
+
 data class NetworkTraktEpisodeResponse(
     val season: Int?,
     val number: Int?,
@@ -41,8 +43,8 @@ data class NetworkTraktEpisodeIds(
     val tvrage: Int?
 )
 
-fun NetworkTraktEpisodeResponse.asDomainModel(): com.theupnextapp.domain.EpisodeDetail {
-    return com.theupnextapp.domain.EpisodeDetail(
+fun NetworkTraktEpisodeResponse.asDomainModel(): EpisodeDetail {
+    return EpisodeDetail(
         title = title,
         overview = overview,
         season = season,

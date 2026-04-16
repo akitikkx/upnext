@@ -22,6 +22,7 @@
 package com.theupnextapp.domain
 
 import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
@@ -72,7 +73,7 @@ private fun parseHttpException(httpException: HttpException): ErrorResponse? {
     return try {
         httpException.response()?.errorBody()?.source()?.let { errorSource ->
             val moshi = Moshi.Builder()
-                .add(com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory())
+                .add(KotlinJsonAdapterFactory())
                 .build()
             val adapter = moshi.adapter(ErrorResponse::class.java)
             adapter.fromJson(errorSource)

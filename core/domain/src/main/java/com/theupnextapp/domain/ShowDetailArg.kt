@@ -21,6 +21,7 @@
 
 package com.theupnextapp.domain
 
+import android.os.Parcel
 import android.os.Parcelable
 import kotlinx.serialization.Serializable
 
@@ -35,7 +36,7 @@ data class ShowDetailArg(
     val isAuthorizedOnTrakt: Boolean? = false,
     val showTraktId: Int? = null,
 ) : Parcelable {
-    constructor(parcel: android.os.Parcel) : this(
+    constructor(parcel: Parcel) : this(
         parcel.readString(),
         parcel.readString(),
         parcel.readString(),
@@ -46,7 +47,7 @@ data class ShowDetailArg(
         parcel.readValue(Int::class.java.classLoader) as? Int
     )
 
-    override fun writeToParcel(parcel: android.os.Parcel, flags: Int) {
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(source)
         parcel.writeString(showId)
         parcel.writeString(showTitle)
@@ -59,8 +60,8 @@ data class ShowDetailArg(
 
     override fun describeContents(): Int = 0
 
-    companion object CREATOR : android.os.Parcelable.Creator<ShowDetailArg> {
-        override fun createFromParcel(parcel: android.os.Parcel): ShowDetailArg {
+    companion object CREATOR : Parcelable.Creator<ShowDetailArg> {
+        override fun createFromParcel(parcel: Parcel): ShowDetailArg {
             return ShowDetailArg(parcel)
         }
 

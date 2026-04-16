@@ -42,6 +42,8 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -56,9 +58,11 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
@@ -76,6 +80,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.dimensionResource
@@ -84,12 +89,14 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.theupnextapp.R
+import com.theupnextapp.common.utils.DateUtils
 import com.theupnextapp.core.designsystem.ui.components.PosterImage
 import com.theupnextapp.core.designsystem.ui.components.SectionHeadingText
 import com.theupnextapp.core.designsystem.ui.getWindowSizeClass
@@ -506,32 +513,32 @@ private fun ExpandedDetailArea(
 
                 Box(modifier = Modifier.fillMaxWidth().height(450.dp)) {
                     if (posterUrl != null) {
-                        com.theupnextapp.core.designsystem.ui.components.PosterImage(
+                        PosterImage(
                             url = posterUrl,
                             modifier = Modifier
                                 .fillMaxSize()
                                 .clip(
-                                    androidx.compose.foundation.shape.RoundedCornerShape(
+                                    RoundedCornerShape(
                                         bottomEnd = 24.dp, topEnd = 24.dp
                                     )
                                 )
                         )
                     }
 
-                    androidx.compose.material3.IconButton(
+                    IconButton(
                         onClick = onBack,
                         modifier = Modifier
                             .padding(16.dp)
                             .background(
-                                color = androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.5f),
-                                shape = androidx.compose.foundation.shape.CircleShape
+                                color = Color.Black.copy(alpha = 0.5f),
+                                shape = CircleShape
                             )
                             .align(Alignment.TopStart)
                     ) {
-                        androidx.compose.material3.Icon(
+                        Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
-                            tint = androidx.compose.ui.graphics.Color.White,
+                            tint = Color.White,
                         )
                     }
                 }
@@ -573,17 +580,17 @@ private fun ExpandedDetailArea(
                 } else if (uiState.showSummary != null) {
                     // Hero Title
                     uiState.showSummary.name?.let { name ->
-                        androidx.compose.material3.Text(
+                        Text(
                             text = name,
-                            style = androidx.compose.material3.MaterialTheme.typography.headlineLarge,
-                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                            style = MaterialTheme.typography.headlineLarge,
+                            fontWeight = FontWeight.Bold,
                             modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp)
                         )
                     }
                     uiState.showSummary.status?.let { status ->
-                        androidx.compose.material3.Text(
+                        Text(
                             text = status,
-                            style = androidx.compose.material3.MaterialTheme.typography.labelMedium,
+                            style = MaterialTheme.typography.labelMedium,
                             modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
                         )
                     }
@@ -687,7 +694,7 @@ private fun ShowDetailButtonsExpanded(
     onSeasonsClick: () -> Unit,
     onWatchlistClick: () -> Unit,
     onRateClick: () -> Unit,
-    buttonSpacing: androidx.compose.ui.unit.Dp,
+    buttonSpacing: Dp,
 ) {
     Column(
         modifier = Modifier
@@ -699,7 +706,7 @@ private fun ShowDetailButtonsExpanded(
         verticalArrangement = Arrangement.spacedBy(buttonSpacing),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        androidx.compose.material3.OutlinedButton(
+        OutlinedButton(
             onClick = onSeasonsClick,
             modifier = Modifier.fillMaxWidth().height(48.dp),
         ) {
@@ -716,13 +723,13 @@ private fun ShowDetailButtonsExpanded(
                 }
             } else {
                 if (isWatchlist == true) {
-                    androidx.compose.material3.OutlinedButton(
+                    OutlinedButton(
                         onClick = onWatchlistClick,
                         modifier = Modifier.fillMaxWidth().height(48.dp),
                     ) {
                         Icon(
                             imageVector =
-                                androidx.compose.ui.graphics.vector.ImageVector.vectorResource(
+                                ImageVector.vectorResource(
                                     id = R.drawable.ic_watchlist_remove,
                                 ),
                             contentDescription = null,
@@ -740,7 +747,7 @@ private fun ShowDetailButtonsExpanded(
                         modifier = Modifier.fillMaxWidth().height(48.dp),
                     ) {
                         Icon(
-                            imageVector = androidx.compose.ui.graphics.vector.ImageVector.vectorResource(id = R.drawable.ic_watchlist_add),
+                            imageVector = ImageVector.vectorResource(id = R.drawable.ic_watchlist_add),
                             contentDescription = null,
                             modifier = Modifier.size(16.dp),
                         )
@@ -762,7 +769,7 @@ private fun ShowDetailButtonsExpanded(
                     )
                 }
             } else {
-                androidx.compose.material3.OutlinedButton(
+                OutlinedButton(
                     onClick = onRateClick,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -795,7 +802,7 @@ private fun ShowDetailButtonsCompact(
     onSeasonsClick: () -> Unit,
     onWatchlistClick: () -> Unit,
     onRateClick: () -> Unit,
-    buttonSpacing: androidx.compose.ui.unit.Dp,
+    buttonSpacing: Dp,
 ) {
     Row(
         modifier =
@@ -809,7 +816,7 @@ private fun ShowDetailButtonsCompact(
         horizontalArrangement = Arrangement.spacedBy(buttonSpacing),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        androidx.compose.material3.OutlinedButton(
+        OutlinedButton(
             onClick = onSeasonsClick,
             modifier = Modifier.widthIn(min = 120.dp).fillMaxHeight(),
         ) {
@@ -826,12 +833,12 @@ private fun ShowDetailButtonsCompact(
                 }
             } else {
                 if (isWatchlist == true) {
-                    androidx.compose.material3.OutlinedButton(
+                    OutlinedButton(
                         onClick = onWatchlistClick,
                         modifier = Modifier.widthIn(min = 120.dp).fillMaxHeight(),
                     ) {
                         Icon(
-                            imageVector = androidx.compose.ui.graphics.vector.ImageVector.vectorResource(id = R.drawable.ic_watchlist_remove),
+                            imageVector = ImageVector.vectorResource(id = R.drawable.ic_watchlist_remove),
                             contentDescription = null,
                             modifier = Modifier.size(16.dp),
                         )
@@ -847,7 +854,7 @@ private fun ShowDetailButtonsCompact(
                         modifier = Modifier.widthIn(min = 120.dp).fillMaxHeight(),
                     ) {
                         Icon(
-                            imageVector = androidx.compose.ui.graphics.vector.ImageVector.vectorResource(id = R.drawable.ic_watchlist_add),
+                            imageVector = ImageVector.vectorResource(id = R.drawable.ic_watchlist_add),
                             contentDescription = null,
                             modifier = Modifier.size(16.dp),
                         )
@@ -869,7 +876,7 @@ private fun ShowDetailButtonsCompact(
                     )
                 }
             } else {
-                androidx.compose.material3.OutlinedButton(
+                OutlinedButton(
                     onClick = onRateClick,
                     modifier =
                         Modifier
@@ -921,7 +928,7 @@ fun WatchProvidersSection(uiState: ShowDetailViewModel.ShowDetailUiState) {
                         modifier =
                             Modifier
                                 .size(60.dp)
-                                .clip(androidx.compose.foundation.shape.RoundedCornerShape(12.dp)),
+                                .clip(RoundedCornerShape(12.dp)),
                         contentScale = ContentScale.Crop,
                     )
                 }
@@ -949,7 +956,7 @@ fun WatchProvidersSection(uiState: ShowDetailViewModel.ShowDetailUiState) {
                         modifier =
                             Modifier
                                 .size(60.dp)
-                                .clip(androidx.compose.foundation.shape.RoundedCornerShape(12.dp))
+                                .clip(RoundedCornerShape(12.dp))
                                 .shimmer()
                                 .background(MaterialTheme.colorScheme.surfaceVariant),
                     )
@@ -1101,7 +1108,7 @@ fun PreviousEpisode(showPreviousEpisode: ShowPreviousEpisode) {
 
         val airstamp = showPreviousEpisode.previousEpisodeAirstamp
         if (airstamp != null) {
-            val relativeTime = com.theupnextapp.common.utils.DateUtils.getRelativeTimeSpanString(airstamp)
+            val relativeTime = DateUtils.getRelativeTimeSpanString(airstamp)
             if (relativeTime != null) {
                 Text(
                     text = "Aired $relativeTime",
@@ -1171,7 +1178,7 @@ private fun NextEpisode(showNextEpisode: ShowNextEpisode) {
 
         val airstamp = showNextEpisode.nextEpisodeAirstamp
         if (airstamp != null) {
-            val relativeTime = com.theupnextapp.common.utils.DateUtils.getRelativeTimeSpanString(airstamp)
+            val relativeTime = DateUtils.getRelativeTimeSpanString(airstamp)
             if (relativeTime != null) {
                 Text(
                     text = "Airing $relativeTime",
@@ -1226,8 +1233,8 @@ fun TraktRatingSummary(
                 .padding(horizontal = paddingStandardDouble),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        androidx.compose.material3.Surface(
-            shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp),
+        Surface(
+            shape = RoundedCornerShape(8.dp),
             color = MaterialTheme.colorScheme.surfaceVariant,
             modifier = Modifier.padding(top = paddingExtraSmall),
         ) {
@@ -1235,8 +1242,8 @@ fun TraktRatingSummary(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
             ) {
-                androidx.compose.material3.Icon(
-                    imageVector = androidx.compose.material.icons.Icons.Filled.Star,
+                Icon(
+                    imageVector = Icons.Filled.Star,
                     contentDescription = stringResource(id = R.string.show_detail_rating_content_description),
                     tint = RatingStarColor,
                     modifier = Modifier.size(20.dp),
