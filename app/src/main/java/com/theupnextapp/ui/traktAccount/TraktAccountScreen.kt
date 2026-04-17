@@ -280,11 +280,8 @@ internal fun AccountContent(
     contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
     Column(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .padding(8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.Start,
     ) {
         if (isLoadingConnection || isDisconnecting) {
             CircularProgressIndicator(modifier = Modifier.padding(16.dp))
@@ -320,7 +317,10 @@ internal fun AccountContent(
                                 onStatusFilterChange = onStatusFilterChange,
                                 modifier = Modifier.fillMaxSize(),
                                 header = {
-                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Column(
+                                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                                        horizontalAlignment = Alignment.Start
+                                    ) {
                                         TraktProfileHeader(onLogoutClick = onLogoutClick)
                                         Spacer(modifier = Modifier.height(16.dp))
                                     }
@@ -335,8 +335,9 @@ internal fun AccountContent(
                                     Modifier
                                         .fillMaxSize()
                                         .padding(contentPadding)
+                                        .padding(horizontal = 16.dp)
                                         .verticalScroll(rememberScrollState()),
-                                horizontalAlignment = Alignment.CenterHorizontally,
+                                horizontalAlignment = Alignment.Start,
                             ) {
                                 TraktProfileHeader(onLogoutClick = onLogoutClick)
                                 Spacer(modifier = Modifier.height(16.dp))
