@@ -35,6 +35,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
@@ -121,9 +122,12 @@ fun WatchlistListContent(
         }
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.TopCenter
+    ) {
         LazyColumn(
-            modifier = Modifier.fillMaxSize().testTag("watchlist_column"),
+            modifier = Modifier.fillMaxHeight().widthIn(max = 600.dp).testTag("watchlist_column"),
             state = lazyListState,
             contentPadding = PaddingValues(
                 start = contentPadding.calculateStartPadding(androidx.compose.ui.platform.LocalLayoutDirection.current),

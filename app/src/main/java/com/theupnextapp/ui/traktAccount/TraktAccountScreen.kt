@@ -32,10 +32,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -318,7 +320,7 @@ internal fun AccountContent(
                                 modifier = Modifier.fillMaxSize(),
                                 header = {
                                     Column(
-                                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).padding(top = 16.dp),
                                         horizontalAlignment = Alignment.Start
                                     ) {
                                         TraktProfileHeader(onLogoutClick = onLogoutClick)
@@ -330,21 +332,27 @@ internal fun AccountContent(
                                 contentPadding = contentPadding,
                             )
                         } else {
-                            Column(
-                                modifier =
-                                    Modifier
-                                        .fillMaxSize()
-                                        .padding(contentPadding)
-                                        .verticalScroll(rememberScrollState()),
-                                horizontalAlignment = Alignment.CenterHorizontally,
+                            Box( // Empty Watchlist Content wrapper
+                                modifier = Modifier.fillMaxSize().padding(contentPadding),
+                                contentAlignment = Alignment.TopCenter
                             ) {
-                                TraktProfileHeader(onLogoutClick = onLogoutClick)
-                                Spacer(modifier = Modifier.height(16.dp))
+                                Column(
+                                    modifier = Modifier.fillMaxHeight().widthIn(max = 600.dp).verticalScroll(rememberScrollState()),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                ) {
+                                    Column(
+                                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).padding(top = 16.dp),
+                                        horizontalAlignment = Alignment.Start
+                                    ) {
+                                        TraktProfileHeader(onLogoutClick = onLogoutClick)
+                                        Spacer(modifier = Modifier.height(16.dp))
+                                    }
 
-                                if (isLoadingWatchlists && !isPullRefreshing) {
-                                    com.theupnextapp.core.designsystem.ui.components.ShimmerSeasonEpisodes(modifier = Modifier.padding(top = 32.dp))
-                                } else {
-                                    EmptyWatchlistContent()
+                                    if (isLoadingWatchlists && !isPullRefreshing) {
+                                        com.theupnextapp.core.designsystem.ui.components.ShimmerSeasonEpisodes(modifier = Modifier.padding(top = 32.dp))
+                                    } else {
+                                        EmptyWatchlistContent()
+                                    }
                                 }
                             }
                         }
