@@ -48,6 +48,8 @@ class ShowDetailScreenTest {
             nextEpisodeLinkedId = null,
             previousEpisodeLinkedId = null,
             tmdbID = 1396,
+            network = "AMC",
+            premiered = "2008-01-20",
         )
 
     @Test
