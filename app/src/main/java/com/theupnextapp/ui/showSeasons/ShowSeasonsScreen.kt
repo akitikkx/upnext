@@ -163,97 +163,99 @@ fun ShowSeasons(
     onToggleWatched: (ShowSeason) -> Unit = {},
     onClick: (item: ShowSeason) -> Unit,
 ) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        AnimatedVisibility(
-            visible = true,
-            enter =
-                fadeIn(animationSpec = tween(700)) +
-                    slideInVertically(
-                        initialOffsetY = { -50 },
-                        animationSpec = tween(700),
-                    ),
-        ) {
-            Box(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .height(260.dp),
+    LazyColumn(
+        modifier = Modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(bottom = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        item {
+            AnimatedVisibility(
+                visible = true,
+                enter =
+                    fadeIn(animationSpec = tween(700)) +
+                        slideInVertically(
+                            initialOffsetY = { -50 },
+                            animationSpec = tween(700),
+                        ),
             ) {
-                showBackgroundUrl?.let { url ->
-                    Image(
-                        painter =
-                            rememberAsyncImagePainter(
-                                ImageRequest.Builder(LocalContext.current)
-                                    .data(url)
-                                    .crossfade(true)
-                                    .build(),
-                            ),
-                        contentDescription = showTitle ?: "Show background backdrop",
-                        contentScale = ContentScale.Crop,
-                        alignment = Alignment.TopCenter,
-                        modifier = Modifier.fillMaxSize(),
-                    )
-                }
                 Box(
                     modifier =
                         Modifier
-                            .fillMaxSize()
-                            .background(
-                                Brush.verticalGradient(
-                                    colors =
-                                        listOf(
-                                            Color.Transparent,
-                                            MaterialTheme.colorScheme.background.copy(alpha = 0.5f),
-                                            MaterialTheme.colorScheme.background,
-                                        ),
+                            .fillMaxWidth()
+                            .height(260.dp),
+                ) {
+                    showBackgroundUrl?.let { url ->
+                        Image(
+                            painter =
+                                rememberAsyncImagePainter(
+                                    ImageRequest.Builder(LocalContext.current)
+                                        .data(url)
+                                        .crossfade(true)
+                                        .build(),
                                 ),
-                            ),
-                )
-                IconButton(
-                    onClick = onBackClick,
-                    modifier =
-                        Modifier
-                            .padding(
-                                top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 8.dp,
-                                start = 16.dp,
-                            )
-                            .background(color = Color.Black.copy(alpha = 0.5f), shape = CircleShape),
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
-                        tint = Color.White,
-                    )
-                }
-                Column(
-                    modifier =
-                        Modifier
-                            .align(Alignment.BottomStart)
-                            .padding(16.dp),
-                ) {
-                    showTitle?.let { title ->
-                        Text(
-                            text = title,
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onBackground,
-                            modifier = Modifier.clickable { onShowTitleClick() },
+                            contentDescription = showTitle ?: "Show background backdrop",
+                            contentScale = ContentScale.Crop,
+                            alignment = Alignment.TopCenter,
+                            modifier = Modifier.fillMaxSize(),
                         )
                     }
-                    Text(
-                        text = "Seasons",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
+                    Box(
+                        modifier =
+                            Modifier
+                                .fillMaxSize()
+                                .background(
+                                    Brush.verticalGradient(
+                                        colors =
+                                            listOf(
+                                                Color.Transparent,
+                                                MaterialTheme.colorScheme.background.copy(alpha = 0.5f),
+                                                MaterialTheme.colorScheme.background,
+                                            ),
+                                    ),
+                                ),
                     )
+                    IconButton(
+                        onClick = onBackClick,
+                        modifier =
+                            Modifier
+                                .padding(
+                                    top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 8.dp,
+                                    start = 16.dp,
+                                )
+                                .background(color = Color.Black.copy(alpha = 0.5f), shape = CircleShape),
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+                            tint = Color.White,
+                        )
+                    }
+                    Column(
+                        modifier =
+                            Modifier
+                                .align(Alignment.BottomStart)
+                                .padding(16.dp),
+                    ) {
+                        showTitle?.let { title ->
+                            Text(
+                                text = title,
+                                style = MaterialTheme.typography.headlineMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onBackground,
+                                modifier = Modifier.clickable { onShowTitleClick() },
+                            )
+                        }
+                        Text(
+                            text = "Seasons",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
+                        )
+                    }
                 }
             }
         }
-        LazyColumn(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
-            contentPadding = PaddingValues(bottom = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            items(list) { showSeason ->
+        items(list) { showSeason ->
+            Box(modifier = Modifier.padding(horizontal = 8.dp)) {
                 ShowSeasonCard(
                     item = showSeason,
                     fallbackImageUrl = showBackgroundUrl,
