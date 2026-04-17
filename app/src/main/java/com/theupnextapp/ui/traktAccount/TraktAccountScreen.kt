@@ -195,9 +195,9 @@ fun TraktAccountScreen(
         topBar = {}, // Empty TopAppBar as MainScreen handles the title
         snackbarHost = { SnackbarHost(snackbarHostState) },
         modifier = Modifier.fillMaxSize(),
-    ) { _ ->
+    ) { innerPadding ->
         Box(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().padding(innerPadding),
         ) {
             AccountContent(
                 traktAuthState = traktAuthState,
