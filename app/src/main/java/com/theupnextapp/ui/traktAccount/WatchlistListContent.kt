@@ -142,7 +142,7 @@ fun WatchlistListContent(
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                            .padding(vertical = 8.dp),
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -158,7 +158,7 @@ fun WatchlistListContent(
                                     stringResource(id = R.string.title_favorites_list)
                                 },
                         )
-                        Row {
+                        Row(modifier = Modifier.padding(end = 16.dp)) {
                             IconButton(onClick = { isSearchVisible = !isSearchVisible }) {
                                 Icon(
                                     imageVector = Icons.Default.Search,
@@ -232,7 +232,7 @@ fun WatchlistListContent(
                         text = stringResource(id = R.string.watchlist_description),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
-                        modifier = Modifier.padding(top = 4.dp, bottom = 8.dp),
+                        modifier = Modifier.padding(horizontal = 16.dp).padding(top = 4.dp, bottom = 8.dp),
                     )
 
                     AnimatedVisibility(visible = isSearchVisible) {
@@ -242,6 +242,7 @@ fun WatchlistListContent(
                             modifier =
                                 Modifier
                                     .fillMaxWidth()
+                                    .padding(horizontal = 16.dp)
                                     .padding(top = 12.dp),
                             placeholder = { Text("Search your watchlist...") },
                             singleLine = true,
@@ -261,6 +262,7 @@ fun WatchlistListContent(
                             modifier =
                                 Modifier
                                     .fillMaxWidth()
+                                    .padding(horizontal = 16.dp)
                                     .padding(top = 8.dp)
                                     .horizontalScroll(rememberHorizontalScrollState()),
                             horizontalArrangement = Arrangement.spacedBy(8.dp),

@@ -281,7 +281,7 @@ internal fun AccountContent(
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.Start,
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         if (isLoadingConnection || isDisconnecting) {
             CircularProgressIndicator(modifier = Modifier.padding(16.dp))
@@ -335,16 +335,14 @@ internal fun AccountContent(
                                     Modifier
                                         .fillMaxSize()
                                         .padding(contentPadding)
-                                        .padding(horizontal = 16.dp)
                                         .verticalScroll(rememberScrollState()),
-                                horizontalAlignment = Alignment.Start,
+                                horizontalAlignment = Alignment.CenterHorizontally,
                             ) {
                                 TraktProfileHeader(onLogoutClick = onLogoutClick)
                                 Spacer(modifier = Modifier.height(16.dp))
 
                                 if (isLoadingWatchlists && !isPullRefreshing) {
-                                    CircularProgressIndicator(modifier = Modifier.padding(16.dp))
-                                    Text(text = stringResource(R.string.trakt_loading_favorites))
+                                    com.theupnextapp.core.designsystem.ui.components.ShimmerSeasonEpisodes(modifier = Modifier.padding(top = 32.dp))
                                 } else {
                                     EmptyWatchlistContent()
                                 }
