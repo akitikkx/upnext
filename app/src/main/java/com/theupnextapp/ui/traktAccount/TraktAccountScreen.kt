@@ -193,9 +193,9 @@ fun TraktAccountScreen(
         topBar = {}, // Empty TopAppBar as MainScreen handles the title
         snackbarHost = { SnackbarHost(snackbarHostState) },
         modifier = Modifier.fillMaxSize(),
-    ) { localScaffoldPadding ->
+    ) { _ ->
         Box(
-            modifier = Modifier.fillMaxSize().padding(localScaffoldPadding),
+            modifier = Modifier.fillMaxSize(),
         ) {
             AccountContent(
                 traktAuthState = traktAuthState,
@@ -321,7 +321,6 @@ internal fun AccountContent(
                                 modifier = Modifier.fillMaxSize(),
                                 header = {
                                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                        Spacer(modifier = Modifier.height(contentPadding.calculateTopPadding()))
                                         TraktProfileHeader(onLogoutClick = onLogoutClick)
                                         Spacer(modifier = Modifier.height(16.dp))
                                     }

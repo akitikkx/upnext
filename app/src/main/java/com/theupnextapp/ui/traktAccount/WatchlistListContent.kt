@@ -25,6 +25,8 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -123,6 +125,12 @@ fun WatchlistListContent(
         LazyColumn(
             modifier = Modifier.fillMaxSize().testTag("watchlist_column"),
             state = lazyListState,
+            contentPadding = PaddingValues(
+                start = contentPadding.calculateStartPadding(androidx.compose.ui.platform.LocalLayoutDirection.current),
+                end = contentPadding.calculateEndPadding(androidx.compose.ui.platform.LocalLayoutDirection.current),
+                top = contentPadding.calculateTopPadding(),
+                bottom = contentPadding.calculateBottomPadding()
+            ),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             item {
