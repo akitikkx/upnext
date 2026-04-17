@@ -31,8 +31,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Search
@@ -85,14 +87,20 @@ fun SearchScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
 
     Surface(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier.padding(
-                top = contentPadding.calculateTopPadding(),
-                start = 8.dp,
-                end = 8.dp
-            ),
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.TopCenter
         ) {
-            Box(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .widthIn(max = 600.dp)
+                    .padding(
+                        top = contentPadding.calculateTopPadding(),
+                        start = 8.dp,
+                        end = 8.dp
+                    ),
+            ) {
+                Box(modifier = Modifier.fillMaxSize()) {
                 SearchArea(
                     searchResultsList = searchResultsList.value,
                     recentSearches = recentSearches.value,
@@ -137,6 +145,7 @@ fun SearchScreen(
                 }
             }
         }
+        }
     }
 }
 
@@ -154,7 +163,7 @@ fun SearchArea(
 ) {
     val searchQueryState = rememberSaveable { mutableStateOf("") }
 
-    Column(modifier = Modifier.padding(top = 8.dp)) {
+    Column(modifier = Modifier.padding(top = 8.dp).fillMaxWidth()) {
         SearchInputField(
             inputLabel = stringResource(id = R.string.search_input_hint),
             valueState = searchQueryState,
@@ -203,6 +212,7 @@ fun SearchInputField(
         },
         label = { Text(inputLabel) },
         singleLine = true,
+        shape = CircleShape,
         modifier =
             modifier
                 .padding(8.dp)

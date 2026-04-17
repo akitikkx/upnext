@@ -236,120 +236,110 @@ class ShowDetailViewModel
             viewModelScope.launch {
                 _uiState.update { it.copy(isLoadingSummary = true, summaryErrorMessage = null) }
 
-                show.showId?.let { showId ->
-                    if (showId.isNotEmpty() && showId != "null") {
-                        showDetailRepository.getShowSummary(showId.toInt()).collect { result ->
-                            _isLoading.value = false
+                val showId = show.showId
+                if (!showId.isNullOrEmpty() && showId != "null") {
+                    showDetailRepository.getShowSummary(showId.toInt()).collect { result ->
+                        _isLoading.value = false
 
-                            when (result) {
-                                is Result.Success -> {
-                                    val summary = result.data
-                                    _uiState.update { currentState ->
-                                        currentState.copy(
-                                            showSummary = summary,
-                                            isLoadingSummary = false,
-                                        )
-                                    }
-                                    getShowPreviousEpisode(summary.previousEpisodeHref)
-                                    getShowNextEpisode(summary.nextEpisodeHref)
-                                    getTraktShowRating(summary.imdbID)
-                                    fetchUserRating(summary.imdbID)
-                                    getTraktShowStats(summary.imdbID)
-                                    getTraktId(summary.imdbID)
-                                    getShowCast(summary.imdbID)
-                                    getSimilarShows(summary.imdbID)
-                                    getShowWatchProviders(summary.imdbID)
-                                }
-
-                                is Result.GenericError -> {
-                                    val errorMessage =
-                                        result.error?.message
-                                            ?: "Error loading summary (Code: ${result.code ?: "Unknown"})"
-                                    firebaseCrashlytics.recordException(
-                                        ShowDetailFetchException(
-                                            message = "GenericError in getShowSummary: $errorMessage",
-                                            errorResponse = result.error,
-                                            cause = result.exception,
-                                        ),
+                        when (result) {
+                            is Result.Success -> {
+                                val summary = result.data
+                                _uiState.update { currentState ->
+                                    currentState.copy(
+                                        showSummary = summary,
+                                        isLoadingSummary = false,
                                     )
-                                    _uiState.update {
-                                        it.copy(
-                                            showSummary = emptyShowData(),
-                                            isLoadingSummary = false,
-                                            summaryErrorMessage = errorMessage,
-                                        )
-                                    }
                                 }
+                                getShowPreviousEpisode(summary.previousEpisodeHref)
+                                getShowNextEpisode(summary.nextEpisodeHref)
+                                getTraktShowRating(summary.imdbID)
+                                fetchUserRating(summary.imdbID)
+                                getTraktShowStats(summary.imdbID)
+                                getTraktId(summary.imdbID)
+                                getShowCast(summary.imdbID)
+                                getSimilarShows(summary.imdbID)
+                                getShowWatchProviders(summary.imdbID)
+                            }
 
-                                is Result.NetworkError -> {
-                                    val networkErrorMessage = "Network error loading summary."
-                                    firebaseCrashlytics.recordException(
-                                        ShowDetailFetchException(
-                                            message = networkErrorMessage,
-                                            errorResponse = null,
-                                            cause = result.exception,
-                                        ),
+                            is Result.GenericError -> {
+                                val errorMessage =
+                                    result.error?.message
+                                        ?: "Error loading summary (Code: ${result.code ?: "Unknown"})"
+                                firebaseCrashlytics.recordException(
+                                    ShowDetailFetchException(
+                                        message = "GenericError in getShowSummary: $errorMessage",
+                                        errorResponse = result.error,
+                                        cause = result.exception,
+                                    ),
+                                )
+                                _uiState.update {
+                                    it.copy(
+                                        showSummary = emptyShowData(),
+                                        isLoadingSummary = false,
+                                        summaryErrorMessage = errorMessage,
                                     )
-                                    _uiState.update {
-                                        it.copy(
-                                            showSummary = emptyShowData(),
-                                            isLoadingSummary = false,
-                                            summaryErrorMessage = networkErrorMessage,
-                                        )
-                                    }
                                 }
+                            }
 
-                                is Result.Error -> {
-                                    val errorMessage =
-                                        result.message
-                                            ?: "An unexpected error occurred while loading summary."
-                                    firebaseCrashlytics.recordException(
-                                        ShowDetailFetchException(
-                                            message = errorMessage,
-                                            cause = result.exception,
-                                        ),
+                            is Result.NetworkError -> {
+                                val networkErrorMessage = "Network error loading summary."
+                                firebaseCrashlytics.recordException(
+                                    ShowDetailFetchException(
+                                        message = networkErrorMessage,
+                                        errorResponse = null,
+                                        cause = result.exception,
+                                    ),
+                                )
+                                _uiState.update {
+                                    it.copy(
+                                        showSummary = emptyShowData(),
+                                        isLoadingSummary = false,
+                                        summaryErrorMessage = networkErrorMessage,
                                     )
-                                    _uiState.update {
-                                        it.copy(
-                                            showSummary = emptyShowData(),
-                                            isLoadingSummary = false,
-                                            summaryErrorMessage = errorMessage,
-                                        )
-                                    }
                                 }
+                            }
 
-                                is Result.Loading -> {
-                                    _uiState.update { it.copy(isLoadingSummary = result.status) }
-                                    if (!result.status && !_uiState.value.isCastLoading && !_uiState.value.isPreviousEpisodeLoading && !_uiState.value.isNextEpisodeLoading) {
-                                        _isLoading.value = false
-                                    } else if (result.status) {
-                                        _isLoading.value = true
-                                    }
+                            is Result.Error -> {
+                                val errorMessage =
+                                    result.message
+                                        ?: "An unexpected error occurred while loading summary."
+                                firebaseCrashlytics.recordException(
+                                    ShowDetailFetchException(
+                                        message = errorMessage,
+                                        cause = result.exception,
+                                    ),
+                                )
+                                _uiState.update {
+                                    it.copy(
+                                        showSummary = emptyShowData(),
+                                        isLoadingSummary = false,
+                                        summaryErrorMessage = errorMessage,
+                                    )
+                                }
+                            }
+
+                            is Result.Loading -> {
+                                _uiState.update { it.copy(isLoadingSummary = result.status) }
+                                if (!result.status && !_uiState.value.isCastLoading && !_uiState.value.isPreviousEpisodeLoading && !_uiState.value.isNextEpisodeLoading) {
+                                    _isLoading.value = false
+                                } else if (result.status) {
+                                    _isLoading.value = true
                                 }
                             }
                         }
-                    } else {
-                        _isLoading.value = false
-                        _uiState.update {
-                            it.copy(
-                                showSummary = emptyShowData(),
-                                isLoadingSummary = false,
-                                summaryErrorMessage = "Invalid Show ID.",
-                            )
-                        }
                     }
-                } ?: run {
-                    // showId (TVMaze ID) is null — try to resolve via IMDB lookup
+                } else {
+                    // showId (TVMaze ID) is null or invalid — try to resolve via IMDB lookup
                     val imdbId = show.imdbID
                     if (!imdbId.isNullOrEmpty()) {
-                        Timber.d("showId is null, attempting IMDB lookup for: $imdbId")
+                        Timber.d("showId is null/missing, attempting IMDB lookup for: $imdbId")
                         resolveShowViaImdbLookup(imdbId, show)
                     } else {
                         _isLoading.value = false
                         _uiState.update {
                             it.copy(
                                 isLoadingSummary = false,
-                                generalErrorMessage = "Show ID is missing.",
+                                generalErrorMessage = "This show is missing a required TVMaze or IMDB ID.",
                             )
                         }
                     }
@@ -805,6 +795,25 @@ class ShowDetailViewModel
                                 AddToWatchlistWorker.ARG_MEDIUM_IMAGE_URL,
                                 it,
                             )
+                        }
+                        uiState.value.showSummary?.id?.let {
+                            workerDataBuilder.putInt(AddToWatchlistWorker.ARG_TVMAZE_ID, it)
+                        }
+                        uiState.value.showSummary?.tmdbID?.let {
+                            workerDataBuilder.putInt(AddToWatchlistWorker.ARG_TMDB_ID, it)
+                        }
+                        uiState.value.showSummary?.premiered?.takeIf { it.length >= 4 }?.substring(0, 4)?.let {
+                            workerDataBuilder.putString(AddToWatchlistWorker.ARG_YEAR, it)
+                        }
+                        uiState.value.showSummary?.network?.let {
+                            workerDataBuilder.putString(AddToWatchlistWorker.ARG_NETWORK, it)
+                        }
+                        uiState.value.showSummary?.status?.let {
+                            workerDataBuilder.putString(AddToWatchlistWorker.ARG_STATUS, it)
+                        }
+                        val currentRating = showRating.value?.rating
+                        if (currentRating != null) {
+                            workerDataBuilder.putDouble(AddToWatchlistWorker.ARG_RATING, currentRating)
                         }
 
                         val addWatchlistWork =

@@ -191,7 +191,10 @@ fun ShowSeasonEpisodes(
     onBackClick: () -> Unit = {},
 ) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
-        Column(modifier = Modifier.widthIn(max = 840.dp).fillMaxHeight()) {
+        Column(
+            modifier = Modifier.fillMaxWidth().fillMaxHeight(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             AnimatedVisibility(
                 visible = true,
                 enter =
@@ -292,6 +295,7 @@ fun ShowSeasonEpisodes(
                     },
                     modifier =
                         Modifier
+                            .widthIn(max = 600.dp)
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp, vertical = 8.dp),
                 ) {
@@ -304,7 +308,10 @@ fun ShowSeasonEpisodes(
                 }
             }
 
-            LazyColumn(Modifier.padding(8.dp)) {
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth().padding(8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 items(list) { episode ->
                     ShowSeasonEpisodeCard(
                         item = episode,
@@ -338,6 +345,7 @@ fun ShowSeasonEpisodeCard(
             ),
         modifier =
             Modifier
+                .widthIn(max = 600.dp)
                 .fillMaxWidth()
                 .padding(8.dp)
                 .bounceClick { onEpisodeClick(item) },

@@ -32,10 +32,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -193,9 +195,9 @@ fun TraktAccountScreen(
         topBar = {}, // Empty TopAppBar as MainScreen handles the title
         snackbarHost = { SnackbarHost(snackbarHostState) },
         modifier = Modifier.fillMaxSize(),
-    ) { localScaffoldPadding ->
+    ) { innerPadding ->
         Box(
-            modifier = Modifier.fillMaxSize().padding(localScaffoldPadding),
+            modifier = Modifier.fillMaxSize().padding(innerPadding),
         ) {
             AccountContent(
                 traktAuthState = traktAuthState,
@@ -223,13 +225,13 @@ fun TraktAccountScreen(
                     navController.navigate(
                         Destinations.ShowDetail(
                             source = "watchlists",
-                            showId = item.tvMazeID.toString(),
+                            showId = item.tvMazeID?.toString(),
                             showTitle = item.title,
                             showImageUrl = item.originalImageUrl,
                             showBackgroundUrl = item.mediumImageUrl,
-                            imdbID = null,
+                            imdbID = item.imdbID,
                             isAuthorizedOnTrakt = null,
-                            showTraktId = null,
+                            showTraktId = item.traktID,
                         ),
                     )
                 },
@@ -280,10 +282,7 @@ internal fun AccountContent(
     contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
     Column(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .padding(8.dp),
+        modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         if (isLoadingConnection || isDisconnecting) {
@@ -320,8 +319,10 @@ internal fun AccountContent(
                                 onStatusFilterChange = onStatusFilterChange,
                                 modifier = Modifier.fillMaxSize(),
                                 header = {
-                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                        Spacer(modifier = Modifier.height(contentPadding.calculateTopPadding()))
+                                    Column(
+                                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).padding(top = 16.dp),
+                                        horizontalAlignment = Alignment.Start
+                                    ) {
                                         TraktProfileHeader(onLogoutClick = onLogoutClick)
                                         Spacer(modifier = Modifier.height(16.dp))
                                     }
@@ -331,22 +332,27 @@ internal fun AccountContent(
                                 contentPadding = contentPadding,
                             )
                         } else {
-                            Column(
-                                modifier =
-                                    Modifier
-                                        .fillMaxSize()
-                                        .padding(contentPadding)
-                                        .verticalScroll(rememberScrollState()),
-                                horizontalAlignment = Alignment.CenterHorizontally,
+                            Box( // Empty Watchlist Content wrapper
+                                modifier = Modifier.fillMaxSize().padding(contentPadding),
+                                contentAlignment = Alignment.TopCenter
                             ) {
-                                TraktProfileHeader(onLogoutClick = onLogoutClick)
-                                Spacer(modifier = Modifier.height(16.dp))
+                                Column(
+                                    modifier = Modifier.fillMaxHeight().widthIn(max = 600.dp).verticalScroll(rememberScrollState()),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                ) {
+                                    Column(
+                                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).padding(top = 16.dp),
+                                        horizontalAlignment = Alignment.Start
+                                    ) {
+                                        TraktProfileHeader(onLogoutClick = onLogoutClick)
+                                        Spacer(modifier = Modifier.height(16.dp))
+                                    }
 
-                                if (isLoadingWatchlists && !isPullRefreshing) {
-                                    CircularProgressIndicator(modifier = Modifier.padding(16.dp))
-                                    Text(text = stringResource(R.string.trakt_loading_favorites))
-                                } else {
-                                    EmptyWatchlistContent()
+                                    if (isLoadingWatchlists && !isPullRefreshing) {
+                                        com.theupnextapp.core.designsystem.ui.components.ShimmerSeasonEpisodes(modifier = Modifier.padding(top = 32.dp))
+                                    } else {
+                                        EmptyWatchlistContent()
+                                    }
                                 }
                             }
                         }

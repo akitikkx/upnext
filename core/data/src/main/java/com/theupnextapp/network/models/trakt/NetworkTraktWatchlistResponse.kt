@@ -47,7 +47,7 @@ data class NetworkTraktWatchlistResponseItemShowIds(
     @SerializedName("tvdb")
     val tvdb: Int?,
     @SerializedName("tvrage")
-    val tvMazeID: Int?
+    val tvRage: Int?
 )
 
 fun NetworkTraktWatchlistResponseItem.asDatabaseModel(): DatabaseWatchlistShows {
@@ -60,7 +60,7 @@ fun NetworkTraktWatchlistResponseItem.asDatabaseModel(): DatabaseWatchlistShows 
         tvdbID = show.ids.tvdb,
         tmdbID = show.ids.tmdb,
         traktID = show.ids.trakt,
-        tvMazeID = show.ids.tvMazeID,
+        tvMazeID = null,
         rating = show.rating,
         network = show.network,
         status = show.status,

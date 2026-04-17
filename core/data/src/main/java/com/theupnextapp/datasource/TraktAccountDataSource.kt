@@ -162,22 +162,21 @@ constructor(
                                 existingLocalShow.mediumImageUrl.isNullOrEmpty() ||
                                 existingLocalShow.tvMazeID == null
 
-                        if (needsImageFetch) {
-                            networkListItem.show.ids.imdb?.let { imdbId ->
-                                val (tvMazeIdResult, poster, heroImage) = getImages(imdbId)
-                                dbShow =
-                                    dbShow.copy(
-                                        originalImageUrl = poster ?: existingLocalShow?.originalImageUrl,
-                                        mediumImageUrl = heroImage ?: existingLocalShow?.mediumImageUrl,
-                                        tvMazeID = tvMazeIdResult ?: existingLocalShow?.tvMazeID,
-                                    )
-                            }
+                        if (needsImageFetch && !networkListItem.show.ids.imdb.isNullOrEmpty()) {
+                            kotlinx.coroutines.delay(400L) // Rate limit prevention
+                            val (tvMazeIdResult, poster, heroImage) = getImages(networkListItem.show.ids.imdb)
+                            dbShow =
+                                dbShow.copy(
+                                    originalImageUrl = poster ?: existingLocalShow?.originalImageUrl,
+                                    mediumImageUrl = heroImage ?: existingLocalShow?.mediumImageUrl,
+                                    tvMazeID = tvMazeIdResult ?: existingLocalShow?.tvMazeID,
+                                )
                         } else {
                             dbShow =
                                 dbShow.copy(
-                                    originalImageUrl = existingLocalShow.originalImageUrl,
-                                    mediumImageUrl = existingLocalShow.mediumImageUrl,
-                                    tvMazeID = existingLocalShow.tvMazeID,
+                                    originalImageUrl = existingLocalShow?.originalImageUrl,
+                                    mediumImageUrl = existingLocalShow?.mediumImageUrl,
+                                    tvMazeID = existingLocalShow?.tvMazeID,
                                 )
                         }
                         dbShow

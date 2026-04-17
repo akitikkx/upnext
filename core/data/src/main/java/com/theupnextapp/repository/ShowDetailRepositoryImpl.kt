@@ -407,70 +407,68 @@ class ShowDetailRepositoryImpl(
                     episode = episodeNumber,
                 ).await().asDomainModel()
 
-                val updatedCast = mutableListOf<TraktCast>()
-                episodePeople.cast?.forEach { star ->
-                    val updatedStar = if (star.tmdbId != null) {
-                        try {
-                            Timber.d("Searching for images for CAST tmdbId: ${star.tmdbId}")
-                            val imagesResponse = tmdbService.getPersonImagesAsync(star.tmdbId!!).await()
-                            Timber.d("Images found. Count: ${imagesResponse.profiles?.size}")
-                            val imagePath = imagesResponse.profiles?.firstOrNull()?.file_path
-                            Timber.d("Calculated image path: $imagePath")
-                            star.copy(originalImageUrl = imagePath)
-                        } catch (e: Exception) {
-                            Timber.e(e, "Error fetching person images for CAST ${star.tmdbId}")
-                            star
+                val result = coroutineScope {
+                    val updatedCastDeferred = episodePeople.cast?.map { star ->
+                        async {
+                            if (star.tmdbId != null) {
+                                try {
+                                    Timber.d("Searching for images for CAST tmdbId: ${star.tmdbId}")
+                                    val imagesResponse = tmdbService.getPersonImagesAsync(star.tmdbId!!).await()
+                                    val imagePath = imagesResponse.profiles?.firstOrNull()?.file_path
+                                    star.copy(originalImageUrl = imagePath)
+                                } catch (e: Exception) {
+                                    Timber.e(e, "Error fetching person images for CAST ${star.tmdbId}")
+                                    star
+                                }
+                            } else {
+                                star
+                            }
                         }
-                    } else {
-                        Timber.d("No tmdbId available for CAST actor: ${star.name}")
-                        star
                     }
-                    updatedCast.add(updatedStar)
-                }
 
-                val updatedGuestStars = mutableListOf<TraktCast>()
-                episodePeople.guestStars?.forEach { star ->
-                    val updatedStar = if (star.tmdbId != null) {
-                        try {
-                            Timber.d("Searching for images for tmdbId: ${star.tmdbId}")
-                            val imagesResponse = tmdbService.getPersonImagesAsync(star.tmdbId!!).await()
-                            Timber.d("Images found. Count: ${imagesResponse.profiles?.size}")
-                            val imagePath = imagesResponse.profiles?.firstOrNull()?.file_path
-                            Timber.d("Calculated image path: $imagePath")
-                            star.copy(originalImageUrl = imagePath)
-                        } catch (e: Exception) {
-                            Timber.e(e, "Error fetching person images for ${star.tmdbId}")
-                            star
+                    val updatedGuestStarsDeferred = episodePeople.guestStars?.map { star ->
+                        async {
+                            if (star.tmdbId != null) {
+                                try {
+                                    Timber.d("Searching for images for tmdbId: ${star.tmdbId}")
+                                    val imagesResponse = tmdbService.getPersonImagesAsync(star.tmdbId!!).await()
+                                    val imagePath = imagesResponse.profiles?.firstOrNull()?.file_path
+                                    star.copy(originalImageUrl = imagePath)
+                                } catch (e: Exception) {
+                                    Timber.e(e, "Error fetching person images for ${star.tmdbId}")
+                                    star
+                                }
+                            } else {
+                                star
+                            }
                         }
-                    } else {
-                        Timber.d("No tmdbId available for actor: ${star.name}")
-                        star
                     }
-                    updatedGuestStars.add(updatedStar)
-                }
 
-                val updatedCrew = mutableListOf<TraktCrew>()
-                episodePeople.crew?.forEach { member ->
-                    val updatedMember = if (member.tmdbId != null) {
-                        try {
-                            Timber.d("Searching for images for CREW tmdbId: ${member.tmdbId}")
-                            val imagesResponse = tmdbService.getPersonImagesAsync(member.tmdbId!!).await()
-                            Timber.d("Images found. Count: ${imagesResponse.profiles?.size}")
-                            val imagePath = imagesResponse.profiles?.firstOrNull()?.file_path
-                            Timber.d("Calculated image path: $imagePath")
-                            member.copy(originalImageUrl = imagePath)
-                        } catch (e: Exception) {
-                            Timber.e(e, "Error fetching person images for ${member.tmdbId}")
-                            member
+                    val updatedCrewDeferred = episodePeople.crew?.map { member ->
+                        async {
+                            if (member.tmdbId != null) {
+                                try {
+                                    Timber.d("Searching for images for CREW tmdbId: ${member.tmdbId}")
+                                    val imagesResponse = tmdbService.getPersonImagesAsync(member.tmdbId!!).await()
+                                    val imagePath = imagesResponse.profiles?.firstOrNull()?.file_path
+                                    member.copy(originalImageUrl = imagePath)
+                                } catch (e: Exception) {
+                                    Timber.e(e, "Error fetching person images for ${member.tmdbId}")
+                                    member
+                                }
+                            } else {
+                                member
+                            }
                         }
-                    } else {
-                        Timber.d("No tmdbId available for crew member: ${member.name}")
-                        member
                     }
-                    updatedCrew.add(updatedMember)
-                }
 
-                val result = EpisodePeople(cast = updatedCast, guestStars = updatedGuestStars, crew = updatedCrew)
+                    EpisodePeople(
+                        cast = updatedCastDeferred?.awaitAll(),
+                        guestStars = updatedGuestStarsDeferred?.awaitAll(),
+                        crew = updatedCrewDeferred?.awaitAll()
+                    )
+                }
+                
                 emit(Result.Success(result))
                 emit(Result.Loading(false))
             } catch (e: Exception) {

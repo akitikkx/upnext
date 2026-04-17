@@ -25,6 +25,8 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -33,6 +35,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
@@ -119,10 +122,19 @@ fun WatchlistListContent(
         }
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.TopCenter
+    ) {
         LazyColumn(
-            modifier = Modifier.fillMaxSize().testTag("watchlist_column"),
+            modifier = Modifier.fillMaxHeight().widthIn(max = 600.dp).testTag("watchlist_column"),
             state = lazyListState,
+            contentPadding = PaddingValues(
+                start = contentPadding.calculateStartPadding(androidx.compose.ui.platform.LocalLayoutDirection.current),
+                end = contentPadding.calculateEndPadding(androidx.compose.ui.platform.LocalLayoutDirection.current),
+                top = contentPadding.calculateTopPadding(),
+                bottom = contentPadding.calculateBottomPadding()
+            ),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             item {
@@ -134,7 +146,7 @@ fun WatchlistListContent(
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                            .padding(vertical = 8.dp),
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -150,7 +162,7 @@ fun WatchlistListContent(
                                     stringResource(id = R.string.title_favorites_list)
                                 },
                         )
-                        Row {
+                        Row(modifier = Modifier.padding(end = 16.dp)) {
                             IconButton(onClick = { isSearchVisible = !isSearchVisible }) {
                                 Icon(
                                     imageVector = Icons.Default.Search,
@@ -221,10 +233,10 @@ fun WatchlistListContent(
                         }
                     }
                     Text(
-                        text = "Shows you intend to watch. Tap to view, swipe to remove.",
+                        text = stringResource(id = R.string.watchlist_description),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
-                        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 8.dp),
+                        modifier = Modifier.padding(horizontal = 16.dp).padding(top = 4.dp, bottom = 8.dp),
                     )
 
                     AnimatedVisibility(visible = isSearchVisible) {
@@ -234,6 +246,7 @@ fun WatchlistListContent(
                             modifier =
                                 Modifier
                                     .fillMaxWidth()
+                                    .padding(horizontal = 16.dp)
                                     .padding(top = 12.dp),
                             placeholder = { Text("Search your watchlist...") },
                             singleLine = true,
@@ -253,6 +266,7 @@ fun WatchlistListContent(
                             modifier =
                                 Modifier
                                     .fillMaxWidth()
+                                    .padding(horizontal = 16.dp)
                                     .padding(top = 8.dp)
                                     .horizontalScroll(rememberHorizontalScrollState()),
                             horizontalArrangement = Arrangement.spacedBy(8.dp),

@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -77,10 +78,12 @@ import coil.compose.AsyncImage
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import com.theupnextapp.R
+import com.theupnextapp.core.designsystem.ui.components.CastMember
 import com.theupnextapp.domain.EpisodeDetail
 import com.theupnextapp.domain.EpisodeDetailArg
 import com.theupnextapp.domain.TraktCast
 import com.theupnextapp.domain.TraktCrew
+import com.theupnextapp.navigation.Destinations
 import com.valentinilk.shimmer.shimmer
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
@@ -140,8 +143,9 @@ fun EpisodeDetailScreen(
                         Column(
                             modifier =
                                 Modifier
-                                    .fillMaxSize()
+                                    .fillMaxWidth()
                                     .verticalScroll(scrollState),
+                            horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                             Spacer(modifier = Modifier.height(if (!backdropUrl.isNullOrEmpty()) 140.dp else 16.dp))
 
@@ -166,17 +170,35 @@ fun EpisodeDetailScreen(
                             } else {
                                 uiState.episodePeople?.cast?.let { cast ->
                                     if (cast.isNotEmpty()) {
-                                        CastRow(cast = cast)
+                                        CastRow(cast = cast) {
+                                            val traktId = it.traktId?.toString()
+                                            val name = it.name
+                                            if (traktId != null && !name.isNullOrEmpty()) {
+                                                navController.navigate(Destinations.PersonDetail(traktId, name, it.originalImageUrl))
+                                            }
+                                        }
                                     }
                                 }
                                 uiState.episodePeople?.guestStars?.let { guestStars ->
                                     if (guestStars.isNotEmpty()) {
-                                        GuestStarsRow(guestStars = guestStars)
+                                        GuestStarsRow(guestStars = guestStars) {
+                                            val traktId = it.traktId?.toString()
+                                            val name = it.name
+                                            if (traktId != null && !name.isNullOrEmpty()) {
+                                                navController.navigate(Destinations.PersonDetail(traktId, name, it.originalImageUrl))
+                                            }
+                                        }
                                     }
                                 }
                                 uiState.episodePeople?.crew?.let { crew ->
                                     if (crew.isNotEmpty()) {
-                                        CrewRow(crew = crew)
+                                        CrewRow(crew = crew) {
+                                            val traktId = it.traktId?.toString()
+                                            val name = it.name
+                                            if (traktId != null && !name.isNullOrEmpty()) {
+                                                navController.navigate(Destinations.PersonDetail(traktId, name, it.originalImageUrl))
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -230,8 +252,8 @@ private fun formatRelativeDate(dateString: String): String {
 }
 
 @Composable
-fun CastRow(cast: List<TraktCast>) {
-    Column(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
+fun CastRow(cast: List<TraktCast>, onPersonClick: (TraktCast) -> Unit) {
+    Column(modifier = Modifier.widthIn(max = 840.dp).fillMaxWidth().padding(bottom = 16.dp)) {
         Text(
             text = "Cast",
             style = MaterialTheme.typography.titleMedium,
@@ -243,10 +265,11 @@ fun CastRow(cast: List<TraktCast>) {
             horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             items(cast) { star ->
-                PersonItem(
+                CastMember(
                     name = star.name,
                     role = star.character,
                     originalImageUrl = star.originalImageUrl,
+                    onClick = { onPersonClick(star) }
                 )
             }
         }
@@ -254,8 +277,8 @@ fun CastRow(cast: List<TraktCast>) {
 }
 
 @Composable
-fun GuestStarsRow(guestStars: List<TraktCast>) {
-    Column(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
+fun GuestStarsRow(guestStars: List<TraktCast>, onPersonClick: (TraktCast) -> Unit) {
+    Column(modifier = Modifier.widthIn(max = 840.dp).fillMaxWidth().padding(bottom = 16.dp)) {
         Text(
             text = "Guest Stars",
             style = MaterialTheme.typography.titleMedium,
@@ -267,10 +290,11 @@ fun GuestStarsRow(guestStars: List<TraktCast>) {
             horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             items(guestStars) { star ->
-                PersonItem(
+                CastMember(
                     name = star.name,
                     role = star.character,
                     originalImageUrl = star.originalImageUrl,
+                    onClick = { onPersonClick(star) }
                 )
             }
         }
@@ -278,8 +302,8 @@ fun GuestStarsRow(guestStars: List<TraktCast>) {
 }
 
 @Composable
-fun CrewRow(crew: List<TraktCrew>) {
-    Column(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
+fun CrewRow(crew: List<TraktCrew>, onPersonClick: (TraktCrew) -> Unit) {
+    Column(modifier = Modifier.widthIn(max = 840.dp).fillMaxWidth().padding(bottom = 16.dp)) {
         Text(
             text = "Crew",
             style = MaterialTheme.typography.titleMedium,
@@ -291,95 +315,13 @@ fun CrewRow(crew: List<TraktCrew>) {
             horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             items(crew) { member ->
-                PersonItem(
+                CastMember(
                     name = member.name,
                     role = member.job,
                     originalImageUrl = member.originalImageUrl,
+                    onClick = { onPersonClick(member) }
                 )
             }
-        }
-    }
-}
-
-@Composable
-fun PersonItem(
-    name: String?,
-    role: String?,
-    originalImageUrl: String? = null,
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.width(100.dp),
-    ) {
-        if (!originalImageUrl.isNullOrEmpty()) {
-            SubcomposeAsyncImage(
-                model =
-                    ImageRequest.Builder(LocalContext.current)
-                        .data("https://image.tmdb.org/t/p/w200$originalImageUrl")
-                        .crossfade(true)
-                        .build(),
-                contentDescription = name,
-                modifier =
-                    Modifier
-                        .height(100.dp)
-                        .width(100.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surfaceVariant, shape = CircleShape),
-                contentScale = ContentScale.Crop,
-                error = {
-                    Box(
-                        modifier =
-                            Modifier
-                                .height(100.dp)
-                                .width(100.dp)
-                                .background(MaterialTheme.colorScheme.surfaceVariant, shape = CircleShape),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.fillMaxSize(0.5f),
-                        )
-                    }
-                },
-            )
-        } else {
-            Box(
-                modifier =
-                    Modifier
-                        .height(100.dp)
-                        .width(100.dp)
-                        .background(MaterialTheme.colorScheme.surfaceVariant, shape = CircleShape),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.fillMaxSize(0.5f),
-                )
-            }
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = name ?: "Unknown",
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.SemiBold,
-            textAlign = TextAlign.Center,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
-        role?.let {
-            Text(
-                text = it,
-                style = MaterialTheme.typography.bodySmall,
-                textAlign = TextAlign.Center,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
         }
     }
 }
@@ -387,7 +329,7 @@ fun PersonItem(
 @Suppress("MagicNumber")
 @Composable
 fun PersonPlaceholderRow(title: String) {
-    Column(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
+    Column(modifier = Modifier.widthIn(max = 840.dp).fillMaxWidth().padding(bottom = 16.dp)) {
         Text(
             text = title,
             style = MaterialTheme.typography.titleMedium,
@@ -487,6 +429,7 @@ fun EpisodeSummaryCard(
     ElevatedCard(
         modifier =
             Modifier
+                .widthIn(max = 840.dp)
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 16.dp),
         shape = MaterialTheme.shapes.extraLarge,

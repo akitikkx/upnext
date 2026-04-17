@@ -31,6 +31,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
@@ -41,6 +42,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -246,7 +248,11 @@ fun ShowSeasons(
                 }
             }
         }
-        LazyColumn(modifier = Modifier.padding(8.dp)) {
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+            contentPadding = PaddingValues(bottom = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             items(list) { showSeason ->
                 ShowSeasonCard(
                     item = showSeason,
@@ -274,6 +280,7 @@ fun ShowSeasonCard(
         shape = MaterialTheme.shapes.large,
         modifier =
             Modifier
+                .widthIn(max = 600.dp)
                 .fillMaxWidth()
                 .padding(4.dp),
         onClick = onClick,
