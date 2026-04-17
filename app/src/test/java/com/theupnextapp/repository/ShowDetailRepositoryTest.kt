@@ -12,11 +12,18 @@
 
 package com.theupnextapp.repository
 
+import com.theupnextapp.domain.EpisodePeople
 import com.theupnextapp.domain.Result
 import com.theupnextapp.domain.ShowDetailSummary
 import com.theupnextapp.domain.ShowPreviousEpisode
 import com.theupnextapp.network.TmdbService
 import com.theupnextapp.network.TraktService
+import com.theupnextapp.network.models.tmdb.NetworkTmdbPersonImagesResponse
+import com.theupnextapp.network.models.tmdb.NetworkTmdbPersonProfile
+import com.theupnextapp.network.models.trakt.NetworkTraktCast
+import com.theupnextapp.network.models.trakt.NetworkTraktEpisodePeopleResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktPerson
+import com.theupnextapp.network.models.trakt.NetworkTraktPersonIds
 import com.theupnextapp.network.models.tvmaze.NetworkShowInfoCountry
 import com.theupnextapp.network.models.tvmaze.NetworkShowInfoExternals
 import com.theupnextapp.network.models.tvmaze.NetworkShowInfoImage
@@ -33,6 +40,7 @@ import com.theupnextapp.network.models.tvmaze.NetworkShowPreviousEpisodeSelf
 import com.theupnextapp.repository.fakes.FakeCrashlytics
 import com.theupnextapp.repository.fakes.FakeTvMazeService
 import com.theupnextapp.repository.fakes.FakeUpnextDao
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
@@ -41,7 +49,9 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 import java.io.IOException
 
 @ExperimentalCoroutinesApi
@@ -393,4 +403,142 @@ class ShowDetailRepositoryTest {
                 fakeCrashlytics.getRecordedExceptions().size,
             )
         }
-}
+
+    @Test
+    fun `getEpisodePeople correctly merges Trakt and TMDB data using concurrent requests`() =
+        runTest {
+            val traktId = 123
+            val seasonNumber = 1
+            val episodeNumber = 1
+
+            val fakeTraktResponse = NetworkTraktEpisodePeopleResponse(
+                cast = listOf(
+                    NetworkTraktCast(
+                        characters = listOf("Character 1"),
+                        person = NetworkTraktPerson(
+                            name = "Actor 1",
+                            ids = NetworkTraktPersonIds(trakt = 1, imdb = "nm1", tmdb = 101, slug = "actor-1", tvrage = null)
+                        ),
+                        episode_count = null,
+                        series_regular = null
+                    ),
+                    NetworkTraktCast(
+                        characters = listOf("Character 2"),
+                        person = NetworkTraktPerson(
+                            name = "Actor 2",
+                            ids = NetworkTraktPersonIds(trakt = 2, imdb = "nm2", tmdb = 102, slug = "actor-2", tvrage = null)
+                        ),
+                        episode_count = null,
+                        series_regular = null
+                    )
+                ),
+                guest_stars = emptyList(),
+                crew = null
+            )
+
+            whenever(traktService.getEpisodePeopleAsync(traktId.toString(), seasonNumber, episodeNumber))
+                .thenReturn(CompletableDeferred(fakeTraktResponse))
+
+            whenever(tmdbService.getPersonImagesAsync(101))
+                .thenReturn(CompletableDeferred(NetworkTmdbPersonImagesResponse(
+                    id = 101,
+                    profiles = listOf(
+                        NetworkTmdbPersonProfile(
+                            file_path = "/image_101.jpg", width = 200, height = 300, aspect_ratio = 0.6, vote_average = 5.0, vote_count = 1, iso_639_1 = null
+                        )
+                    )
+                )))
+
+            whenever(tmdbService.getPersonImagesAsync(102))
+                .thenReturn(CompletableDeferred(NetworkTmdbPersonImagesResponse(
+                    id = 102,
+                    profiles = listOf(
+                        NetworkTmdbPersonProfile(
+                            file_path = "/image_102.jpg", width = 200, height = 300, aspect_ratio = 0.6, vote_average = 5.0, vote_count = 1, iso_639_1 = null
+                        )
+                    )
+                )))
+
+            val results = showDetailRepository.getEpisodePeople(traktId, seasonNumber, episodeNumber).toList()
+
+            val successResult = results.firstOrNull { it is Result.Success } as? Result.Success<EpisodePeople>
+            assertNotNull("Success result was not found", successResult)
+
+            val cast = successResult?.data?.cast
+            assertEquals(2, cast?.size)
+            assertEquals("/image_101.jpg", cast?.get(0)?.originalImageUrl)
+            assertEquals("/image_102.jpg", cast?.get(1)?.originalImageUrl)
+        }
+
+    @Test
+    fun `getEpisodePeople handles TMDB API failures gracefully`() =
+        runTest {
+            val traktId = 123
+
+            val fakeTraktResponse = NetworkTraktEpisodePeopleResponse(
+                cast = listOf(
+                    NetworkTraktCast(
+                        characters = listOf("Character 1"),
+                        person = NetworkTraktPerson(
+                            name = "Actor 1",
+                            ids = NetworkTraktPersonIds(trakt = 1, imdb = "nm1", tmdb = 101, slug = "actor-1", tvrage = null)
+                        ),
+                        episode_count = null,
+                        series_regular = null
+                    )
+                ),
+                guest_stars = emptyList(),
+                crew = null
+            )
+
+            whenever(traktService.getEpisodePeopleAsync(any(), any(), any()))
+                .thenReturn(CompletableDeferred(fakeTraktResponse))
+
+            val fakeDeferred = CompletableDeferred<NetworkTmdbPersonImagesResponse>()
+            fakeDeferred.completeExceptionally(IOException("TMDB SSL Handshake Error"))
+            whenever(tmdbService.getPersonImagesAsync(101)).thenReturn(fakeDeferred)
+
+            val results = showDetailRepository.getEpisodePeople(traktId, 1, 1).toList()
+
+            val successResult = results.firstOrNull { it is Result.Success } as? Result.Success<EpisodePeople>
+            assertNotNull("Success result was not found after error", successResult)
+
+            val cast = successResult?.data?.cast
+            assertEquals(1, cast?.size)
+            assertEquals("Actor 1", cast?.get(0)?.name)
+            // The image should be null because TMDB failed, but it shouldn't crash the repository response flow
+            assertEquals(null, cast?.get(0)?.originalImageUrl)
+        }
+
+    @Test
+    fun `getEpisodePeople with null tmdbId safely returns Trakt model without network fetch`() =
+        runTest {
+            val traktId = 123
+
+            val fakeTraktResponse = NetworkTraktEpisodePeopleResponse(
+                cast = listOf(
+                    NetworkTraktCast(
+                        characters = listOf("Character 1"),
+                        person = NetworkTraktPerson(
+                            name = "Actor No TMDB ID",
+                            ids = NetworkTraktPersonIds(trakt = 1, imdb = "nm1", tmdb = null, slug = "actor-null", tvrage = null)
+                        ),
+                        episode_count = null,
+                        series_regular = null
+                    )
+                ),
+                guest_stars = emptyList(),
+                crew = null
+            )
+
+            whenever(traktService.getEpisodePeopleAsync(any(), any(), any()))
+                .thenReturn(CompletableDeferred(fakeTraktResponse))
+
+            val results = showDetailRepository.getEpisodePeople(traktId, 1, 1).toList()
+            val successResult = results.firstOrNull { it is Result.Success } as? Result.Success<EpisodePeople>
+
+            val cast = successResult?.data?.cast
+            assertEquals(1, cast?.size)
+            assertEquals("Actor No TMDB ID", cast?.get(0)?.name)
+            assertEquals(null, cast?.get(0)?.originalImageUrl)
+        } }

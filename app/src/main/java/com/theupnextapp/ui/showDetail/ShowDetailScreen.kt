@@ -97,6 +97,7 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.theupnextapp.R
 import com.theupnextapp.common.utils.DateUtils
+import com.theupnextapp.core.designsystem.ui.components.CastMember
 import com.theupnextapp.core.designsystem.ui.components.PosterImage
 import com.theupnextapp.core.designsystem.ui.components.SectionHeadingText
 import com.theupnextapp.core.designsystem.ui.getWindowSizeClass
@@ -345,13 +346,14 @@ private fun CompactDetailArea(
         Column(
             modifier =
                 Modifier
-                    .widthIn(max = 840.dp)
+                    .fillMaxWidth()
                     .fillMaxHeight()
                     .verticalScroll(scrollState)
                     .padding(bottom = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             if (uiState.isLoadingSummary && uiState.showSummary == null) {
-                Column(modifier = Modifier.shimmer()) {
+                Column(modifier = Modifier.shimmer(), horizontalAlignment = Alignment.CenterHorizontally) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -361,6 +363,7 @@ private fun CompactDetailArea(
                     Spacer(modifier = Modifier.height(16.dp))
                     Box(
                         modifier = Modifier
+                            .widthIn(max = 600.dp)
                             .fillMaxWidth(0.7f)
                             .height(24.dp)
                             .padding(horizontal = 16.dp)
@@ -369,13 +372,14 @@ private fun CompactDetailArea(
                     Spacer(modifier = Modifier.height(8.dp))
                     Box(
                         modifier = Modifier
+                            .widthIn(max = 600.dp)
                             .fillMaxWidth(0.5f)
                             .height(16.dp)
                             .padding(horizontal = 16.dp)
                             .background(Color.LightGray.copy(alpha = 0.3f)),
                     )
                     Spacer(modifier = Modifier.height(16.dp))
-                    Column(Modifier.padding(horizontal = 16.dp)) {
+                    Column(Modifier.widthIn(max = 600.dp).padding(horizontal = 16.dp)) {
                         repeat(4) {
                             Box(
                                 modifier = Modifier
@@ -389,6 +393,7 @@ private fun CompactDetailArea(
                     Spacer(modifier = Modifier.height(16.dp))
                     Row(
                         modifier = Modifier
+                            .widthIn(max = 600.dp)
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp),
                         horizontalArrangement = Arrangement.SpaceEvenly,
@@ -416,24 +421,30 @@ private fun CompactDetailArea(
                     showSummary = uiState.showSummary,
                     onBack = onBack,
                 )
-                SynopsisArea(
-                    showSummary = uiState.showSummary,
-                    widthSizeClass = windowSizeClass,
-                )
-                if (uiState.showSummary.id != -1) {
-                    WatchProvidersSection(uiState = uiState)
-
-                    ShowDetailButtons(
-                        isAuthorizedOnTrakt = isAuthorizedOnTrakt,
-                        isWatchlist = isWatchlist,
-                        isLoading = isWatchlistLoading,
-                        isRating = uiState.isRating,
-                        userRating = uiState.userRating,
-                        onSeasonsClick = onSeasonsClick,
-                        onWatchlistClick = onWatchlistClick,
-                        onRateClick = onRateClick,
+                Box(modifier = Modifier.widthIn(max = 600.dp).fillMaxWidth()) {
+                    SynopsisArea(
+                        showSummary = uiState.showSummary,
                         widthSizeClass = windowSizeClass,
                     )
+                }
+                if (uiState.showSummary.id != -1) {
+                    Box(modifier = Modifier.widthIn(max = 600.dp).fillMaxWidth()) {
+                        WatchProvidersSection(uiState = uiState)
+                    }
+
+                    Box(modifier = Modifier.widthIn(max = 600.dp).fillMaxWidth()) {
+                        ShowDetailButtons(
+                            isAuthorizedOnTrakt = isAuthorizedOnTrakt,
+                            isWatchlist = isWatchlist,
+                            isLoading = isWatchlistLoading,
+                            isRating = uiState.isRating,
+                            userRating = uiState.userRating,
+                            onSeasonsClick = onSeasonsClick,
+                            onWatchlistClick = onWatchlistClick,
+                            onRateClick = onRateClick,
+                            widthSizeClass = windowSizeClass,
+                        )
+                    }
                 }
             } else if (showDetailArgs.showImageUrl != null || showDetailArgs.showBackgroundUrl != null) {
                 BackdropAndTitle(showDetailArgs = showDetailArgs, showSummary = null, onBack = onBack)
@@ -441,23 +452,33 @@ private fun CompactDetailArea(
 
             showRating?.let { ratingData ->
                 if (ratingData.votes != 0) {
-                    TraktRatingSummary(ratingData, userRating = uiState.userRating)
+                    Box(modifier = Modifier.widthIn(max = 600.dp).fillMaxWidth()) {
+                        TraktRatingSummary(ratingData, userRating = uiState.userRating)
+                    }
                     Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
                 }
             }
 
-            ShowCast(uiState = uiState, onCastItemClick = onCastItemClick)
+            Box(modifier = Modifier.widthIn(max = 600.dp).fillMaxWidth()) {
+                ShowCast(uiState = uiState, onCastItemClick = onCastItemClick)
+            }
             Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
 
-            NextEpisode(uiState = uiState)
+            Box(modifier = Modifier.widthIn(max = 600.dp).fillMaxWidth()) {
+                NextEpisode(uiState = uiState)
+            }
             Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
 
-            PreviousEpisode(uiState = uiState)
+            Box(modifier = Modifier.widthIn(max = 600.dp).fillMaxWidth()) {
+                PreviousEpisode(uiState = uiState)
+            }
             Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
 
             showStats?.let { statsData -> }
 
-            SimilarShows(uiState = uiState, onSimilarShowClick = onSimilarShowClick)
+            Box(modifier = Modifier.widthIn(max = 600.dp).fillMaxWidth()) {
+                SimilarShows(uiState = uiState, onSimilarShowClick = onSimilarShowClick)
+            }
             Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_standard_double)))
             Spacer(modifier = Modifier.height(contentPadding.calculateBottomPadding()))
         }
@@ -1002,59 +1023,14 @@ fun ShowCastList(
                     ),
         ) {
             items(items = list) { item ->
-                ShowCastItem(item = item) { showCastItem ->
-                    onClick(showCastItem)
-                }
+                CastMember(
+                    name = item.name,
+                    role = item.character,
+                    originalImageUrl = item.originalImageUrl,
+                    modifier = Modifier.padding(16.dp).testTag("cast_list_item"),
+                    onClick = { onClick(item) }
+                )
             }
-        }
-    }
-}
-
-@Composable
-fun ShowCastItem(
-    item: TraktCast,
-    onClick: (item: TraktCast) -> Unit,
-) {
-    Column(
-        modifier =
-            Modifier
-                .padding(dimensionResource(id = R.dimen.padding_standard))
-                .width(dimensionResource(id = R.dimen.compose_show_detail_poster_width))
-                .testTag("cast_list_item")
-                .clickable { onClick(item) },
-        verticalArrangement = Arrangement.Top, // Align content to top
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        PosterImage(
-            url = item.originalImageUrl ?: "",
-            modifier =
-                Modifier
-                    .width(dimensionResource(id = R.dimen.compose_show_detail_poster_width))
-                    .height(dimensionResource(id = R.dimen.compose_show_detail_poster_height)),
-        )
-
-        item.name?.let { name ->
-            Text(
-                text = name,
-                style = MaterialTheme.typography.bodyLarge,
-                modifier =
-                    Modifier
-                        .padding(top = dimensionResource(id = R.dimen.padding_extra_small))
-                        .fillMaxWidth(),
-                maxLines = 2,
-            )
-        }
-
-        item.character?.let { characterName ->
-            Text(
-                text = "as $characterName",
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.Thin,
-                modifier =
-                    Modifier
-                        .fillMaxWidth(),
-                maxLines = 1,
-            )
         }
     }
 }

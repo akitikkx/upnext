@@ -14,11 +14,13 @@ package com.theupnextapp.ui.showDetail
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -81,36 +83,40 @@ fun BackdropAndTitle(
         }
     }
 
-    showSummary?.name?.let { name ->
-        Text(
-            text = name,
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold,
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        start = 16.dp,
-                        top = 8.dp,
-                        end = 16.dp,
-                    ),
-        )
-    }
+    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+        Column(modifier = Modifier.widthIn(max = 600.dp)) {
+            showSummary?.name?.let { name ->
+                Text(
+                    text = name,
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                start = 16.dp,
+                                top = 8.dp,
+                                end = 16.dp,
+                            ),
+                )
+            }
 
-    showSummary?.status?.let { status ->
-        Text(
-            text = status,
-            style = MaterialTheme.typography.labelMedium,
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        start = 16.dp,
-                        top = 4.dp,
-                        end = 16.dp,
-                        bottom = 4.dp,
-                    ),
-        )
+            showSummary?.status?.let { status ->
+                Text(
+                    text = status,
+                    style = MaterialTheme.typography.labelMedium,
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                start = 16.dp,
+                                top = 4.dp,
+                                end = 16.dp,
+                                bottom = 4.dp,
+                            ),
+                )
+            }
+        }
     }
 }
 
