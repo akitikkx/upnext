@@ -22,7 +22,6 @@
 package com.theupnextapp.ui.explore
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.work.WorkManager
 import com.theupnextapp.CoroutineTestRule
 import com.theupnextapp.domain.TraktMostAnticipated
 import com.theupnextapp.domain.TraktPopularShows
@@ -37,7 +36,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.Mockito
 
 @ExperimentalCoroutinesApi
 class ExploreViewModelTest {
@@ -47,15 +45,13 @@ class ExploreViewModelTest {
     @get:Rule
     var coroutineTestRule = CoroutineTestRule()
 
-    private lateinit var workManager: WorkManager
     private lateinit var viewModel: ExploreViewModel
     private lateinit var fakeRepository: FakeTraktRepository
 
     @Before
     fun setup() {
-        workManager = Mockito.mock(WorkManager::class.java)
         fakeRepository = FakeTraktRepository()
-        viewModel = ExploreViewModel(fakeRepository, workManager)
+        viewModel = ExploreViewModel(fakeRepository)
     }
 
     @Test

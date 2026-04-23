@@ -246,7 +246,10 @@ dependencies {
     androidTestImplementation libs.androidx.test.ext.junit
     androidTestImplementation libs.androidx.ui.test.junit4
     androidTestImplementation libs.androidx.test.runner
+    androidTestImplementation libs.espresso.core
     androidTestImplementation libs.room.testing
+    androidTestImplementation("tools.fastlane:screengrab:2.1.1")
+    androidTestImplementation libs.androidx.test.uiautomator
 
     // Mockito for mocking dependencies (highly recommended)
     testImplementation libs.mockito.core
@@ -281,4 +284,9 @@ dependencies {
     // Robolectric
     testImplementation libs.robolectric
     testImplementation libs.androidx.ui.test.junit4
+}
+
+configurations.all {
+    resolutionStrategy.force("androidx.concurrent:concurrent-futures:1.2.0")
+    resolutionStrategy.force("androidx.concurrent:concurrent-futures-ktx:1.2.0")
 }

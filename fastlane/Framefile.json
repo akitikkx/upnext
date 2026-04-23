@@ -1,0 +1,51 @@
+{
+  "default": {
+    "keyword": {
+      "font": "./fonts/Inter-SemiBold.ttf"
+    },
+    "title": {
+      "font": "./fonts/Inter-Bold.ttf",
+      "color": "#ffffff"
+    },
+    "background": "./background.png",
+    "padding": 50,
+    "show_complete_frame": true,
+    "stack_title" : true,
+    "title_below_image": false
+  },
+  "data": [
+    {
+      "filter": "01_dashboard",
+      "title": {
+        "color": "#ffffff"
+      }
+    },
+    {
+      "filter": "02_show_detail"
+    },
+    {
+      "filter": "03_account"
+    },
+    {
+      "filter": "04_explore"
+    },
+    {
+      "filter": "05_person_detail"
+    },
+    {
+      "filter": "06_tablet_dashboard"
+    },
+    {
+      "filter": "07_tablet_show_detail"
+    },
+    {
+      "filter": "08_tablet_episode"
+    },
+    {
+      "filter": "09_tablet_explore"
+    },
+    {
+      "filter": "10_tablet_person"
+    }
+  ]
+}

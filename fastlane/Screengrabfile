@@ -1,0 +1,15 @@
+# Set up the Screengrabfile as per fastlane documentation
+locales ['en-US']
+clear_previous_screenshots true
+
+# Defines the Android device type for screenshots
+app_package_name 'com.theupnextapp'
+tests_package_name 'com.theupnextapp.test'
+
+# Path to the debug and test APKs. Fastlane will build them first using `assembleDebug` and `assembleDebugAndroidTest`
+# To speed up UI tests, we can use the latest generated APKs
+app_apk_path 'app/build/outputs/apk/debug/app-debug.apk'
+tests_apk_path 'app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk'
+
+# Set custom Test Instrumentation Runner configured in build.gradle for Hilt
+test_instrumentation_runner 'com.theupnextapp.CustomTestRunner'

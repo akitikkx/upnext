@@ -976,6 +976,7 @@ fun WatchProvidersSection(uiState: ShowDetailViewModel.ShowDetailUiState) {
                     Box(
                         modifier =
                             Modifier
+                                .testTag("watch_providers_loading")
                                 .size(60.dp)
                                 .clip(RoundedCornerShape(12.dp))
                                 .shimmer()

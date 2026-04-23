@@ -57,6 +57,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -216,7 +217,8 @@ fun SearchInputField(
         modifier =
             modifier
                 .padding(8.dp)
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .testTag("search_input"),
     )
 }
 
@@ -232,7 +234,10 @@ fun SearchResultsList(
         modifier = Modifier.imePadding()
     ) {
         items(list) { result ->
-            SearchListCard(item = result) {
+            SearchListCard(
+                item = result,
+                modifier = Modifier.testTag("search_result_card")
+            ) {
                 onClick(result)
             }
         }

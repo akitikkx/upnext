@@ -54,6 +54,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -187,6 +188,7 @@ fun DashboardScreen(
                                         Modifier
                                             .fillMaxWidth()
                                             .aspectRatio(2f / 3f)
+                                            .testTag("dashboard_show_card")
                                             .clickable {
                                                 val direction =
                                                     Destinations.ShowDetail(
@@ -306,6 +308,7 @@ fun DashboardScreen(
                                 ListPosterCard(
                                     itemName = show.title,
                                     itemUrl = show.originalImageUrl ?: show.mediumImageUrl,
+                                    modifier = Modifier.testTag("anticipated_show_card"),
                                     onClick = {
                                         val direction =
                                             Destinations.ShowDetail(

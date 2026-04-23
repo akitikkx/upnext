@@ -285,8 +285,7 @@ private fun BentoCard(
 
     Card(
         shape = MaterialTheme.shapes.large,
-        onClick = onClick,
-        modifier = modifier.bounceClick(onClick = onClick),
+        modifier = modifier.bounceClick(onClick = onClick).testTag("explore_bento_card"),
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             if (!imageUrl.isNullOrEmpty()) {
