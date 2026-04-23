@@ -76,6 +76,7 @@ You can run the release logic locally using Fastlane to verify builds before pus
 - `fastlane` installed.
 - `key.properties` present (or environment variables set).
 - `service-account.json` for Google Play API access.
+- `screenshot-framer` (Python library) installed for generating marketing screenshots (do not use `fastlane frameit`).
 
 ### Commands
 

@@ -49,12 +49,13 @@ import com.theupnextapp.domain.ShowSearch
 @Suppress("FunctionNaming")
 fun SearchListCard(
     item: ShowSearch,
+    modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
     Card(
         shape = MaterialTheme.shapes.large,
         modifier =
-            Modifier
+            modifier
                 .fillMaxWidth()
                 .padding(4.dp),
         onClick = onClick,

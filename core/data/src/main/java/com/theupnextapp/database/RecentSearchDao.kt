@@ -32,6 +32,9 @@ interface RecentSearchDao {
     @Query("SELECT * FROM recent_searches ORDER BY searchTime DESC")
     fun getRecentSearches(): Flow<List<DatabaseRecentSearch>>
 
+    @Query("SELECT * FROM recent_searches WHERE query = :query LIMIT 1")
+    suspend fun getRecentSearchByQuery(query: String): DatabaseRecentSearch?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertRecentSearch(recentSearch: DatabaseRecentSearch)
 

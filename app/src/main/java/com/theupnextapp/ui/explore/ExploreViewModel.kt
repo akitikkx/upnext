@@ -23,18 +23,10 @@ package com.theupnextapp.ui.explore
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.work.Constraints
-import androidx.work.ExistingWorkPolicy
-import androidx.work.NetworkType
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
 import com.theupnextapp.domain.TraktMostAnticipated
 import com.theupnextapp.domain.TraktPopularShows
 import com.theupnextapp.domain.TraktTrendingShows
 import com.theupnextapp.repository.TraktRepository
-import com.theupnextapp.work.RefreshTraktAnticipatedShowsWorker
-import com.theupnextapp.work.RefreshTraktPopularShowsWorker
-import com.theupnextapp.work.RefreshTraktTrendingShowsWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -53,8 +45,7 @@ import javax.inject.Inject
 class ExploreViewModel
     @Inject
     constructor(
-        traktRepository: TraktRepository,
-        private val workManager: WorkManager,
+        private val traktRepository: TraktRepository,
     ) : ViewModel() {
         private val _isPullRefreshing = MutableStateFlow(false)
         val isPullRefreshing: StateFlow<Boolean> = _isPullRefreshing.asStateFlow()
@@ -141,38 +132,17 @@ class ExploreViewModel
                 }
             }
 
-            val constraints =
-                Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.CONNECTED)
-                    .build()
-
             // For Popular Shows
-            // We enqueue the worker. The worker calls repository.refreshPopularShows(forceRefresh=true).
-            // The repository then internally uses isUpdateNeededByDay OR forceRefresh to decide.
-            // We only need to check the loading state here to avoid enqueueing if already loading,
-            // and the '''forceRefresh''' or '''isEmpty''' to decide if we should even consider enqueueing.
             viewModelScope.launch {
                 if (forceRefresh || popularShowsEmpty.value) {
                     if (!isLoadingTraktPopular.value) {
-                        Timber.i(
-                            "Enqueueing RefreshTraktPopularShowsWorker due to forceRefresh ($forceRefresh) or empty data.",
-                        )
-                        val popularWorkRequest =
-                            OneTimeWorkRequestBuilder<RefreshTraktPopularShowsWorker>()
-                                .setConstraints(constraints)
-                                .build()
-                        workManager.enqueueUniqueWork(
-                            RefreshTraktPopularShowsWorker.WORK_NAME,
-                            ExistingWorkPolicy.KEEP,
-                            popularWorkRequest,
-                        )
+                        Timber.i("Refreshing Trakt popular shows due to forceRefresh ($forceRefresh) or empty data.")
+                        traktRepository.refreshTraktPopularShows(forceRefresh = forceRefresh)
                     } else {
-                        Timber.d("RefreshTraktPopularShowsWorker NOT enqueued, already loading.")
+                        Timber.d("RefreshTraktPopularShows NOT executed, already loading.")
                     }
                 } else {
-                    Timber.d(
-                        "RefreshTraktPopularShowsWorker NOT enqueued, not forced and data not empty. Daily check handled by worker's internal logic on next run if needed.",
-                    )
+                    Timber.d("RefreshTraktPopularShows NOT executed, not forced and data not empty.")
                 }
             }
 
@@ -180,23 +150,13 @@ class ExploreViewModel
             viewModelScope.launch {
                 if (forceRefresh || trendingShowsEmpty.value) {
                     if (!isLoadingTraktTrending.value) {
-                        Timber.i(
-                            "Enqueueing RefreshTraktTrendingShowsWorker due to forceRefresh ($forceRefresh) or empty data.",
-                        )
-                        val trendingWorkRequest =
-                            OneTimeWorkRequestBuilder<RefreshTraktTrendingShowsWorker>()
-                                .setConstraints(constraints)
-                                .build()
-                        workManager.enqueueUniqueWork(
-                            RefreshTraktTrendingShowsWorker.WORK_NAME,
-                            ExistingWorkPolicy.KEEP,
-                            trendingWorkRequest,
-                        )
+                        Timber.i("Refreshing Trakt trending shows due to forceRefresh ($forceRefresh) or empty data.")
+                        traktRepository.refreshTraktTrendingShows(forceRefresh = forceRefresh)
                     } else {
-                        Timber.d("RefreshTraktTrendingShowsWorker NOT enqueued, already loading.")
+                        Timber.d("RefreshTraktTrendingShows NOT executed, already loading.")
                     }
                 } else {
-                    Timber.d("RefreshTraktTrendingShowsWorker NOT enqueued, not forced and data not empty.")
+                    Timber.d("RefreshTraktTrendingShows NOT executed, not forced and data not empty.")
                 }
             }
 
@@ -204,23 +164,13 @@ class ExploreViewModel
             viewModelScope.launch {
                 if (forceRefresh || mostAnticipatedShowsEmpty.value) {
                     if (!isLoadingTraktMostAnticipated.value) {
-                        Timber.i(
-                            "Enqueueing RefreshTraktAnticipatedShowsWorker due to forceRefresh ($forceRefresh) or empty data.",
-                        )
-                        val anticipatedWorkRequest =
-                            OneTimeWorkRequestBuilder<RefreshTraktAnticipatedShowsWorker>()
-                                .setConstraints(constraints)
-                                .build()
-                        workManager.enqueueUniqueWork(
-                            RefreshTraktAnticipatedShowsWorker.WORK_NAME,
-                            ExistingWorkPolicy.KEEP,
-                            anticipatedWorkRequest,
-                        )
+                        Timber.i("Refreshing Trakt anticipated shows due to forceRefresh ($forceRefresh) or empty data.")
+                        traktRepository.refreshTraktMostAnticipatedShows(forceRefresh = forceRefresh)
                     } else {
-                        Timber.d("RefreshTraktAnticipatedShowsWorker NOT enqueued, already loading.")
+                        Timber.d("RefreshTraktAnticipatedShows NOT executed, already loading.")
                     }
                 } else {
-                    Timber.d("RefreshTraktAnticipatedShowsWorker NOT enqueued, not forced and data not empty.")
+                    Timber.d("RefreshTraktAnticipatedShows NOT executed, not forced and data not empty.")
                 }
             }
         }

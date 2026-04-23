@@ -159,6 +159,7 @@ fun MainScreen(
             NavigationDestination.entries.forEach { item ->
                 val isSelected = item == currentListSection
                 item(
+                    modifier = Modifier.testTag(item.name),
                     icon = { Icon(item.icon, contentDescription = stringResource(item.label)) },
                     label = { Text(stringResource(item.label)) },
                     selected = isSelected,

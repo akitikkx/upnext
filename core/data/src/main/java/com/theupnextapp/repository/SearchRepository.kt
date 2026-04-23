@@ -63,12 +63,19 @@ open class SearchRepository(
     }
 
     open suspend fun saveSearchQuery(query: String) {
-        recentSearchDao.insertRecentSearch(
-            DatabaseRecentSearch(
-                query = query,
-                searchTime = System.currentTimeMillis(),
-            ),
-        )
+        val existingSearch = recentSearchDao.getRecentSearchByQuery(query)
+        if (existingSearch != null) {
+            recentSearchDao.insertRecentSearch(
+                existingSearch.copy(searchTime = System.currentTimeMillis())
+            )
+        } else {
+            recentSearchDao.insertRecentSearch(
+                DatabaseRecentSearch(
+                    query = query,
+                    searchTime = System.currentTimeMillis(),
+                ),
+            )
+        }
     }
 
     open suspend fun clearRecentSearches() {
