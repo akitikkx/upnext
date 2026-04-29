@@ -39,7 +39,7 @@ jobs:
         run: echo $GOOGLE_SERVICES > app/google-services.json
         
       - name: Setup the Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
         
       - name: Verify and Build
         env:
