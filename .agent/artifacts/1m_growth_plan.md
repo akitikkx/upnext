@@ -48,6 +48,11 @@ Upnext's current Trakt integration is solid, but it's only using about 40% of th
 *   **Missing:** Users frequently abandon shows. We need to respect the Trakt `Hidden Items` API so abandoned shows disappear from "Up Next / Progress" and "Dashboard".
 *   **API Available:** `GET /users/hidden/progress_watched`.
 
-### 5. Social & Trending
+### 5. Multi-Provider Tracking Strategy (SIMKL)
+*   **Current State:** Upnext is heavily coupled to Trakt for all tracking needs.
+*   **Missing:** Support for alternative tracking services like SIMKL. Users with long-term tracking histories on SIMKL are reluctant to switch apps if it means losing their data or migrating.
+*   **Actionable Task:** Abstract the existing Trakt syncing layer into a generic `SyncProvider` interface. Integrate the SIMKL API (`https://simkl.docs.apiary.io/`) to support sync for watched episodes, watchlists, and ratings. This significantly reduces acquisition friction.
+
+### 6. Social & Trending
 *   **Current State:** Explore shows trending shows globally.
 *   **Missing:** "Friends" integration. Trakt allows users to see what their friends are watching. Adding a "Social" tab drives massive user retention.

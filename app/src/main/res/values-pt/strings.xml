@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings Screen -->
+    <string name="settings_general">Geral</string>
+    <string name="settings_episode_notifications">Notificações de Episódios</string>
+    <string name="settings_episode_notifications_desc">Receba alertas quando os seus programas forem transmitidos</string>
+    <string name="settings_app_theme">Tema da Aplicação</string>
+    <string name="settings_theme_selected">Selecionado</string>
+    <string name="settings_data_saver">Poupança de Dados</string>
+    <string name="settings_data_saver_desc">Limite a qualidade da imagem para poupar dados</string>
+    <string name="settings_account">Conta</string>
+    <string name="settings_trakt_connection">Ligação ao Trakt.tv</string>
+    <string name="settings_connected">Ligado</string>
+    <string name="settings_disconnect">Desligar</string>
+    <string name="settings_trakt_not_connected">Não ligado. Acompanhe o seu progresso e sincronize o histórico.</string>
+    <string name="settings_connect">Ligar</string>
+    <string name="settings_about">Sobre</string>
+    <string name="settings_version">Versão</string>
+
+    <!-- Dashboard Screen -->
+    <string name="dashboard_my_upnext">O meu Upnext</string>
+    <string name="dashboard_tonight_on_tv">Hoje na TV</string>
+    <string name="dashboard_no_tv_schedule">Sem programação de TV</string>
+    <string name="dashboard_no_tv_schedule_desc">Parece que não há programas agendados. Volte mais tarde.</string>
+    <string name="dashboard_connect_trakt_desc">Ligar ao Trakt</string>
+    <string name="dashboard_unlock_personal_tracker">Desbloqueie o seu seguidor de TV pessoal</string>
+    <string name="dashboard_connect_trakt_body">Ligue a sua conta Trakt para acompanhar o seu progresso e receber recomendações personalizadas.</string>
+    <string name="dashboard_most_anticipated">Mais aguardados</string>
+    <string name="dashboard_airing_soon">A dar em breve</string>
+    <string name="dashboard_nothing_airing_soon">Nada a dar em breve</string>
+    <string name="dashboard_nothing_airing_soon_desc">Volte mais tarde para os próximos episódios.</string>
+    <string name="dashboard_tba">A anunciar</string>
+    <string name="dashboard_recent_activity">Atividade recente</string>
+    <string name="dashboard_no_recent_activity">Sem atividade recente</string>
+    <string name="dashboard_no_recent_activity_desc">Quando marcar os episódios como vistos, aparecerão aqui.</string>
+    <string name="dashboard_season_episode">Temporada %1$d • Episódio %2$d</string>
+    <string name="dashboard_watched">Visto</string>
+    <string name="dashboard_recommended_for_you">Recomendado para si</string>
+
+    <!-- Watchlist -->
+    <string name="watchlist_sort_recently_added">Adicionados recentemente</string>
+    <string name="watchlist_sort_title">Título</string>
+    <string name="watchlist_sort_release_year">Ano de lançamento</string>
+    <string name="watchlist_sort_rating">Classificação</string>
+    <string name="watchlist_search_placeholder">Pesquisar na sua lista…</string>
+    <string name="watchlist_filter_all">Tudo</string>
+    <string name="watchlist_remove_content_desc">Remover da Watchlist</string>
+    <string name="watchlist_no_image_content_desc">Nenhuma imagem disponível</string>
+
+    <!-- Episode Details -->
+    <string name="episode_detail_guest_stars">Atores Convidados</string>
+    <string name="episode_detail_crew">Equipa</string>
+    <string name="episode_detail_aired_date">Transmitido: %1$s</string>
+    <string name="episode_detail_aired_relative_date">Transmitido: %1$s (%2$s)</string>
+    <string name="episode_detail_show_backdrop">Pano de Fundo da Série</string>
+    <string name="episode_detail_season_episode">Temporada %1$s • Episódio %2$s</string>
+    <string name="episode_detail_rating_format">%1$d%% (%2$s votos)</string>
+    <string name="episode_detail_imdb">IMDB</string>
+    <string name="episode_detail_tvdb">TVDB</string>
+    <string name="episode_detail_cancel_checkin">Cancelar Check-in</string>
+    <string name="episode_detail_checkin">Fazer Check-in do Episódio no Trakt</string>
+    <string name="episode_detail_overview">Visão Geral</string>
+</resources>

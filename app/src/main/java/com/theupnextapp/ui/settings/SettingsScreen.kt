@@ -19,6 +19,7 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -73,11 +74,11 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
                 .verticalScroll(rememberScrollState()),
     ) {
         // General Section
-        SettingsSectionHeader(title = "General")
+        SettingsSectionHeader(title = stringResource(id = R.string.settings_general))
 
         ListItem(
-            headlineContent = { Text("Episode Notifications") },
-            supportingContent = { Text("Get alerted when tracked shows air locally") },
+            headlineContent = { Text(stringResource(id = R.string.settings_episode_notifications)) },
+            supportingContent = { Text(stringResource(id = R.string.settings_episode_notifications_desc)) },
             trailingContent = {
                 Switch(
                     checked = notificationsEnabled,
@@ -99,7 +100,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
         // Theme Setting
         var showThemeDialog by remember { mutableStateOf(false) }
         ListItem(
-            headlineContent = { Text("App Theme") },
+            headlineContent = { Text(stringResource(id = R.string.settings_app_theme)) },
             supportingContent = { Text(theme.name) },
             modifier = Modifier.clickable { showThemeDialog = !showThemeDialog },
         )
@@ -112,6 +113,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
                         modifier =
                             Modifier
                                 .fillMaxWidth()
+                                .minimumInteractiveComponentSize()
                                 .clickable {
                                     viewModel.onThemeSelected(themeOption)
                                     showThemeDialog = false
@@ -120,7 +122,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
                     ) {
                         Text(text = themeOption.name, modifier = Modifier.weight(1f))
                         if (theme == themeOption) {
-                            Icon(Icons.Default.Check, contentDescription = "Selected", tint = MaterialTheme.colorScheme.primary)
+                            Icon(Icons.Default.Check, contentDescription = stringResource(id = R.string.settings_theme_selected), tint = MaterialTheme.colorScheme.primary)
                         }
                     }
                 }
@@ -128,8 +130,8 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
         }
 
         ListItem(
-            headlineContent = { Text("Data Saver Mode") },
-            supportingContent = { Text("Limit image quality to save bandwidth") },
+            headlineContent = { Text(stringResource(id = R.string.settings_data_saver)) },
+            supportingContent = { Text(stringResource(id = R.string.settings_data_saver_desc)) },
             trailingContent = {
                 Switch(checked = dataSaver, onCheckedChange = { viewModel.onDataSaverToggled(it) })
             },
@@ -138,20 +140,20 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
         Divider(modifier = Modifier.padding(vertical = 8.dp))
 
         // Account Section
-        SettingsSectionHeader(title = "Account")
+        SettingsSectionHeader(title = stringResource(id = R.string.settings_account))
 
         // Disconnect confirmation state
         var showDisconnectDialog by remember { mutableStateOf(false) }
 
         if (traktToken != null) {
             ListItem(
-                headlineContent = { Text("Trakt.tv Connection") },
-                supportingContent = { Text("Connected") },
+                headlineContent = { Text(stringResource(id = R.string.settings_trakt_connection)) },
+                supportingContent = { Text(stringResource(id = R.string.settings_connected)) },
                 trailingContent = {
                     Text(
-                        text = "Disconnect",
+                        text = stringResource(id = R.string.settings_disconnect),
                         color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.clickable { showDisconnectDialog = true },
+                        modifier = Modifier.minimumInteractiveComponentSize().clickable { showDisconnectDialog = true },
                     )
                 },
             )
@@ -167,14 +169,14 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
             }
         } else {
             ListItem(
-                headlineContent = { Text("Trakt.tv Connection") },
-                supportingContent = { Text("Not connected. Track progress and sync history.") },
+                headlineContent = { Text(stringResource(id = R.string.settings_trakt_connection)) },
+                supportingContent = { Text(stringResource(id = R.string.settings_trakt_not_connected)) },
                 trailingContent = {
                     Text(
-                        text = "Connect",
+                        text = stringResource(id = R.string.settings_connect),
                         color = MaterialTheme.colorScheme.primary,
                         modifier =
-                            Modifier.clickable {
+                            Modifier.minimumInteractiveComponentSize().clickable {
                                 val builder = CustomTabsIntent.Builder()
                                 val customTabsIntent = builder.build()
                                 customTabsIntent.launchUrl(context, Uri.parse(TraktConstants.TRAKT_AUTH_URL))
@@ -187,9 +189,9 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
         Divider(modifier = Modifier.padding(vertical = 8.dp))
 
         // About Section
-        SettingsSectionHeader(title = "About")
+        SettingsSectionHeader(title = stringResource(id = R.string.settings_about))
         ListItem(
-            headlineContent = { Text("Version") },
+            headlineContent = { Text(stringResource(id = R.string.settings_version)) },
             supportingContent = { Text(com.theupnextapp.BuildConfig.VERSION_NAME) },
         )
     }

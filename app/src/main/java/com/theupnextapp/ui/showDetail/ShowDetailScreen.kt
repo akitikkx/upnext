@@ -731,7 +731,7 @@ private fun ShowDetailButtonsExpanded(
             onClick = onSeasonsClick,
             modifier = Modifier.fillMaxWidth().height(48.dp),
         ) {
-            Text(text = "Seasons")
+            Text(text = stringResource(id = R.string.btn_show_detail_seasons))
         }
         if (isAuthorizedOnTrakt == true) {
             if (isLoading) {
@@ -758,7 +758,7 @@ private fun ShowDetailButtonsExpanded(
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "Listed",
+                            text = stringResource(id = R.string.btn_show_detail_remove_from_favorites),
                             maxLines = 1,
                         )
                     }
@@ -774,7 +774,7 @@ private fun ShowDetailButtonsExpanded(
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "List",
+                            text = stringResource(id = R.string.btn_show_detail_add_to_favorites),
                             maxLines = 1,
                         )
                     }
@@ -805,7 +805,7 @@ private fun ShowDetailButtonsExpanded(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = if (userRating != null) "$userRating★" else "Rate",
+                        text = if (userRating != null) "$userRating★" else stringResource(id = R.string.show_detail_rating_heading),
                     )
                 }
             }
@@ -841,7 +841,7 @@ private fun ShowDetailButtonsCompact(
             onClick = onSeasonsClick,
             modifier = Modifier.widthIn(min = 120.dp).fillMaxHeight(),
         ) {
-            Text(text = "Seasons")
+            Text(text = stringResource(id = R.string.btn_show_detail_seasons))
         }
         if (isAuthorizedOnTrakt == true) {
             if (isLoading) {
@@ -865,7 +865,7 @@ private fun ShowDetailButtonsCompact(
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "Listed",
+                            text = stringResource(id = R.string.btn_show_detail_remove_from_favorites),
                             maxLines = 1,
                         )
                     }
@@ -881,7 +881,7 @@ private fun ShowDetailButtonsCompact(
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "List",
+                            text = stringResource(id = R.string.btn_show_detail_add_to_favorites),
                             maxLines = 1,
                         )
                     }
@@ -913,7 +913,7 @@ private fun ShowDetailButtonsCompact(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = if (userRating != null) "$userRating★" else "Rate",
+                        text = if (userRating != null) "$userRating★" else stringResource(id = R.string.show_detail_rating_heading),
                     )
                 }
             }

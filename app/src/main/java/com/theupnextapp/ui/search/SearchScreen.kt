@@ -43,6 +43,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -278,7 +279,7 @@ fun RecentSearchesList(
                 ListItem(
                     headlineContent = { Text(recentSearch.query) },
                     leadingContent = { Icon(Icons.Default.History, contentDescription = null) },
-                    modifier = Modifier.clickable { onRecentSearchClick(recentSearch.query) },
+                    modifier = Modifier.minimumInteractiveComponentSize().clickable { onRecentSearchClick(recentSearch.query) },
                 )
             }
         }

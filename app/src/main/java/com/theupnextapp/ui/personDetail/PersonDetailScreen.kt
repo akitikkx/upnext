@@ -59,6 +59,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -93,9 +94,10 @@ import com.theupnextapp.navigation.Destinations
 import com.theupnextapp.network.models.tmdb.NetworkTmdbPersonProfile
 import com.theupnextapp.network.models.trakt.NetworkTraktPersonResponse
 import com.theupnextapp.ui.personDetail.PersonDetailViewModel.PersonCreditUiModel
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
+import java.time.temporal.ChronoUnit
 
 private const val HERO_IMAGE_ALPHA = 0.6f
 private const val BIO_LENGTH_THRESHOLD = 250
@@ -233,6 +235,7 @@ fun PersonDetailScreen(
                                         modifier =
                                             Modifier
                                                 .fillMaxWidth()
+                                                .minimumInteractiveComponentSize()
                                                 .clickable { isBioExpanded = !isBioExpanded }
                                                 .padding(vertical = 12.dp),
                                         textAlign = TextAlign.Center,
@@ -431,28 +434,20 @@ fun PersonProfileHeader(
                         summary.known_for_department.takeIf { !it.isNullOrBlank() }?.let { "Known for $it" },
                         summary.birthday?.let {
                             try {
-                                val parseFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                                val displayFormat = SimpleDateFormat("MMM d, yyyy", Locale.getDefault())
-
-                                val date = parseFormat.parse(it)
-                                val cal = Calendar.getInstance().apply { date?.let { d -> time = d } }
-                                val birthYear = cal.get(Calendar.YEAR)
+                                val date = LocalDate.parse(it, DateTimeFormatter.ISO_LOCAL_DATE)
+                                val birthYear = date.year
 
                                 val ageOrLifespan =
                                     if (summary.death != null) {
-                                        val deathDate = parseFormat.parse(summary.death!!)
-                                        val deathCal = Calendar.getInstance().apply { deathDate?.let { d -> time = d } }
-                                        "$birthYear - ${deathCal.get(Calendar.YEAR)}"
+                                        val deathDate = LocalDate.parse(summary.death!!, DateTimeFormatter.ISO_LOCAL_DATE)
+                                        "$birthYear - ${deathDate.year}"
                                     } else {
-                                        val currentCal = Calendar.getInstance()
-                                        var age = currentCal.get(Calendar.YEAR) - birthYear
-                                        if (currentCal.get(Calendar.DAY_OF_YEAR) < cal.get(Calendar.DAY_OF_YEAR)) {
-                                            age--
-                                        }
+                                        val age = ChronoUnit.YEARS.between(date, LocalDate.now())
                                         "Age $age"
                                     }
 
-                                val formattedDate = date?.let { d -> displayFormat.format(d) } ?: it
+                                val formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
+                                val formattedDate = date.format(formatter)
                                 "$formattedDate ($ageOrLifespan)"
                             } catch (e: Exception) {
                                 it

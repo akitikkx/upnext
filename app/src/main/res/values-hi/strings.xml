@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings Screen -->
+    <string name="settings_general">सामान्य</string>
+    <string name="settings_episode_notifications">एपिसोड सूचनाएं</string>
+    <string name="settings_episode_notifications_desc">आपके ट्रैक किए गए शो के प्रसारित होने पर अलर्ट प्राप्त करें</string>
+    <string name="settings_app_theme">ऐप थीम</string>
+    <string name="settings_theme_selected">चयनित</string>
+    <string name="settings_data_saver">डेटा सेवर मोड</string>
+    <string name="settings_data_saver_desc">बैंडविड्थ बचाने के लिए छवि गुणवत्ता सीमित करें</string>
+    <string name="settings_account">खाता</string>
+    <string name="settings_trakt_connection">Trakt.tv कनेक्शन</string>
+    <string name="settings_connected">कनेक्ट हो गया</string>
+    <string name="settings_disconnect">डिस्कनेक्ट करें</string>
+    <string name="settings_trakt_not_connected">कनेक्ट नहीं है। अपनी प्रगति को ट्रैक करें और इतिहास सिंक करें।</string>
+    <string name="settings_connect">कनेक्ट करें</string>
+    <string name="settings_about">के बारे में</string>
+    <string name="settings_version">संस्करण</string>
+
+    <!-- Dashboard Screen -->
+    <string name="dashboard_my_upnext">मेरा Upnext</string>
+    <string name="dashboard_tonight_on_tv">आज रात टीवी पर</string>
+    <string name="dashboard_no_tv_schedule">कोई टीवी शेड्यूल नहीं</string>
+    <string name="dashboard_no_tv_schedule_desc">ऐसा लगता है कि शेड्यूल खाली हैं। बाद में फिर से जांचें।</string>
+    <string name="dashboard_connect_trakt_desc">Trakt कनेक्ट करें</string>
+    <string name="dashboard_unlock_personal_tracker">अपने व्यक्तिगत टीवी ट्रैकर को अनलॉक करें</string>
+    <string name="dashboard_connect_trakt_body">अपनी प्रगति को ट्रैक करने और व्यक्तिगत सिफारिशें प्राप्त करने के लिए अपने Trakt खाते को कनेक्ट करें।</string>
+    <string name="dashboard_most_anticipated">सबसे प्रतीक्षित</string>
+    <string name="dashboard_airing_soon">जल्द ही आ रहा है</string>
+    <string name="dashboard_nothing_airing_soon">जल्द ही कुछ नहीं आ रहा है</string>
+    <string name="dashboard_nothing_airing_soon_desc">आगामी एपिसोड के लिए बाद में फिर से जांचें।</string>
+    <string name="dashboard_tba">टीबीए</string>
+    <string name="dashboard_recent_activity">हाल की गतिविधि</string>
+    <string name="dashboard_no_recent_activity">कोई हाल की गतिविधि नहीं</string>
+    <string name="dashboard_no_recent_activity_desc">जब आप एपिसोड को देखा गया के रूप में चिह्नित करते हैं, तो वे यहां दिखाई देंगे।</string>
+    <string name="dashboard_season_episode">सीज़न %1$d • एपिसोड %2$d</string>
+    <string name="dashboard_watched">देखा गया</string>
+    <string name="dashboard_recommended_for_you">आपके लिए अनुशंसित</string>
+
+    <!-- Watchlist -->
+    <string name="watchlist_sort_recently_added">हाल ही में जोड़ा गया</string>
+    <string name="watchlist_sort_title">शीर्षक</string>
+    <string name="watchlist_sort_release_year">रिलीज का वर्ष</string>
+    <string name="watchlist_sort_rating">रेटिंग</string>
+    <string name="watchlist_search_placeholder">अपनी वॉचलिस्ट खोजें…</string>
+    <string name="watchlist_filter_all">सभी</string>
+    <string name="watchlist_remove_content_desc">वॉचलिस्ट से हटाएं</string>
+    <string name="watchlist_no_image_content_desc">कोई चित्र उपलब्ध नहीं</string>
+
+    <!-- Episode Details -->
+    <string name="episode_detail_guest_stars">अतिथि कलाकार</string>
+    <string name="episode_detail_crew">क्रू</string>
+    <string name="episode_detail_aired_date">प्रसारित: %1$s</string>
+    <string name="episode_detail_aired_relative_date">प्रसारित: %1$s (%2$s)</string>
+    <string name="episode_detail_show_backdrop">शो पृष्ठभूमि</string>
+    <string name="episode_detail_season_episode">सीज़न %1$s • एपिसोड %2$s</string>
+    <string name="episode_detail_rating_format">%1$d%% (%2$s वोट)</string>
+    <string name="episode_detail_imdb">IMDB</string>
+    <string name="episode_detail_tvdb">TVDB</string>
+    <string name="episode_detail_cancel_checkin">चेक-इन रद्द करें</string>
+    <string name="episode_detail_checkin">Trakt पर एपिसोड के लिए चेक इन करें</string>
+    <string name="episode_detail_overview">अवलोकन</string>
+</resources>

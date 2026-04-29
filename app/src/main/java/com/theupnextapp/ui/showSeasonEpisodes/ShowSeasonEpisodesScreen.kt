@@ -56,6 +56,9 @@ import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -271,7 +274,7 @@ fun ShowSeasonEpisodes(
                                     style = MaterialTheme.typography.headlineMedium,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onBackground,
-                                    modifier = Modifier.clickable { onShowTitleClick() },
+                                    modifier = Modifier.minimumInteractiveComponentSize().clickable { onShowTitleClick() },
                                 )
                             }
                             Text(

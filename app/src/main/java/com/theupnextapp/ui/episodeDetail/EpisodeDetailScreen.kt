@@ -86,7 +86,9 @@ import com.theupnextapp.domain.TraktCrew
 import com.theupnextapp.navigation.Destinations
 import com.valentinilk.shimmer.shimmer
 import java.text.NumberFormat
-import java.text.SimpleDateFormat
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -162,11 +164,11 @@ fun EpisodeDetailScreen(
                             )
 
                             if (uiState.isPeopleLoading) {
-                                PersonPlaceholderRow(title = "Cast")
+                                PersonPlaceholderRow(title = stringResource(id = R.string.show_detail_cast_list))
                                 Spacer(modifier = Modifier.height(16.dp))
-                                PersonPlaceholderRow(title = "Guest Stars")
+                                PersonPlaceholderRow(title = stringResource(id = R.string.episode_detail_guest_stars))
                                 Spacer(modifier = Modifier.height(16.dp))
-                                PersonPlaceholderRow(title = "Crew")
+                                PersonPlaceholderRow(title = stringResource(id = R.string.episode_detail_crew))
                             } else {
                                 uiState.episodePeople?.cast?.let { cast ->
                                     if (cast.isNotEmpty()) {
@@ -229,25 +231,25 @@ fun EpisodeDetailScreen(
     }
 }
 
-private fun formatRelativeDate(dateString: String): String {
+private fun formatRelativeDate(context: android.content.Context, dateString: String): String {
     return try {
-        val parser = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
-        val date = parser.parse(dateString) ?: return "Aired: $dateString"
-        val formatter = SimpleDateFormat("MMM d, yyyy", Locale.getDefault())
-        val formattedDate = formatter.format(date)
+        val zonedDateTime = ZonedDateTime.parse(dateString, DateTimeFormatter.ISO_ZONED_DATE_TIME)
+        val timeMillis = zonedDateTime.toInstant().toEpochMilli()
+        val formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
+        val formattedDate = zonedDateTime.format(formatter)
         val relativeTime =
             DateUtils.getRelativeTimeSpanString(
-                date.time,
+                timeMillis,
                 System.currentTimeMillis(),
                 DateUtils.DAY_IN_MILLIS,
             ).toString()
         if (relativeTime == formattedDate) {
-            "Aired: $formattedDate"
+            context.getString(R.string.episode_detail_aired_date, formattedDate)
         } else {
-            "Aired: $relativeTime ($formattedDate)"
+            context.getString(R.string.episode_detail_aired_relative_date, relativeTime, formattedDate)
         }
     } catch (e: Exception) {
-        "Aired: $dateString"
+        context.getString(R.string.episode_detail_aired_date, dateString)
     }
 }
 
@@ -255,7 +257,7 @@ private fun formatRelativeDate(dateString: String): String {
 fun CastRow(cast: List<TraktCast>, onPersonClick: (TraktCast) -> Unit) {
     Column(modifier = Modifier.widthIn(max = 840.dp).fillMaxWidth().padding(bottom = 16.dp)) {
         Text(
-            text = "Cast",
+            text = stringResource(id = R.string.show_detail_cast_list),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
@@ -280,7 +282,7 @@ fun CastRow(cast: List<TraktCast>, onPersonClick: (TraktCast) -> Unit) {
 fun GuestStarsRow(guestStars: List<TraktCast>, onPersonClick: (TraktCast) -> Unit) {
     Column(modifier = Modifier.widthIn(max = 840.dp).fillMaxWidth().padding(bottom = 16.dp)) {
         Text(
-            text = "Guest Stars",
+            text = stringResource(id = R.string.episode_detail_guest_stars),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
@@ -305,7 +307,7 @@ fun GuestStarsRow(guestStars: List<TraktCast>, onPersonClick: (TraktCast) -> Uni
 fun CrewRow(crew: List<TraktCrew>, onPersonClick: (TraktCrew) -> Unit) {
     Column(modifier = Modifier.widthIn(max = 840.dp).fillMaxWidth().padding(bottom = 16.dp)) {
         Text(
-            text = "Crew",
+            text = stringResource(id = R.string.episode_detail_crew),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
@@ -386,7 +388,7 @@ fun EpisodeBackdrop(backdropUrl: String?) {
                     .data(backdropUrl)
                     .crossfade(true)
                     .build(),
-            contentDescription = "Show Backdrop",
+            contentDescription = stringResource(id = R.string.episode_detail_show_backdrop),
             modifier =
                 Modifier
                     .fillMaxWidth()
@@ -463,7 +465,7 @@ fun EpisodeSummaryCard(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "Season ${episodeDetail?.season} • Episode ${episodeDetail?.number}",
+                    text = stringResource(id = R.string.episode_detail_season_episode, episodeDetail?.season?.toString() ?: "", episodeDetail?.number?.toString() ?: ""),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.secondary,
                 )
@@ -487,7 +489,7 @@ fun EpisodeSummaryCard(
                                 "0"
                             }
                         Text(
-                            text = "$scaledRating% ($votesString votes)",
+                            text = stringResource(id = R.string.episode_detail_rating_format, scaledRating, votesString),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                         )
@@ -497,7 +499,7 @@ fun EpisodeSummaryCard(
 
             episodeDetail?.firstAired?.let { aired ->
                 Text(
-                    text = formatRelativeDate(aired),
+                    text = formatRelativeDate(LocalContext.current, aired),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -508,12 +510,12 @@ fun EpisodeSummaryCard(
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 episodeDetail?.imdbId?.let { imdb ->
                     OutlinedButton(onClick = { uriHandler.openUri("https://www.imdb.com/title/$imdb") }) {
-                        Text("IMDB")
+                        Text(stringResource(id = R.string.episode_detail_imdb))
                     }
                 }
                 episodeDetail?.tvdbId?.let { tvdb ->
                     OutlinedButton(onClick = { uriHandler.openUri("https://thetvdb.com/episodes/$tvdb") }) {
-                        Text("TVDB")
+                        Text(stringResource(id = R.string.episode_detail_tvdb))
                     }
                 }
             }
@@ -537,10 +539,10 @@ fun EpisodeSummaryCard(
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(
                                     imageVector = Icons.Default.Check,
-                                    contentDescription = "Checked In",
+                                    contentDescription = stringResource(id = R.string.show_detail_show_season_episode_trakt_check_in),
                                     modifier = Modifier.padding(end = 8.dp),
                                 )
-                                Text("Cancel Check-in")
+                                Text(stringResource(id = R.string.episode_detail_cancel_checkin))
                             }
                         }
                     }
@@ -557,7 +559,7 @@ fun EpisodeSummaryCard(
                                 strokeWidth = 2.dp,
                             )
                         } else {
-                            Text("Check In to Episode on Trakt")
+                            Text(stringResource(id = R.string.episode_detail_checkin))
                         }
                     }
                 }
@@ -565,7 +567,7 @@ fun EpisodeSummaryCard(
             }
 
             Text(
-                text = "Overview",
+                text = stringResource(id = R.string.episode_detail_overview),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
             )

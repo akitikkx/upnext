@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings Screen -->
+    <string name="settings_general">Algemeen</string>
+    <string name="settings_episode_notifications">Aflevering meldingen</string>
+    <string name="settings_episode_notifications_desc">Ontvang een waarschuwing wanneer je favoriete series worden uitgezonden</string>
+    <string name="settings_app_theme">App-thema</string>
+    <string name="settings_theme_selected">Geselecteerd</string>
+    <string name="settings_data_saver">Databesparing</string>
+    <string name="settings_data_saver_desc">Beperk beeldkwaliteit om data te besparen</string>
+    <string name="settings_account">Account</string>
+    <string name="settings_trakt_connection">Trakt.tv verbinding</string>
+    <string name="settings_connected">Verbonden</string>
+    <string name="settings_disconnect">Verbinding verbreken</string>
+    <string name="settings_trakt_not_connected">Niet verbonden. Volg je voortgang en synchroniseer je geschiedenis.</string>
+    <string name="settings_connect">Verbinden</string>
+    <string name="settings_about">Over</string>
+    <string name="settings_version">Versie</string>
+
+    <!-- Dashboard Screen -->
+    <string name="dashboard_my_upnext">Mijn Upnext</string>
+    <string name="dashboard_tonight_on_tv">Vanavond op TV</string>
+    <string name="dashboard_no_tv_schedule">Geen tv-schema</string>
+    <string name="dashboard_no_tv_schedule_desc">Het lijkt erop dat de schema\'s leeg zijn. Kijk later nog eens.</string>
+    <string name="dashboard_connect_trakt_desc">Verbind Trakt</string>
+    <string name="dashboard_unlock_personal_tracker">Ontgrendel je persoonlijke tv-tracker</string>
+    <string name="dashboard_connect_trakt_body">Koppel je Trakt-account om je voortgang bij te houden en gepersonaliseerde aanbevelingen te krijgen.</string>
+    <string name="dashboard_most_anticipated">Meest verwacht</string>
+    <string name="dashboard_airing_soon">Binnenkort op tv</string>
+    <string name="dashboard_nothing_airing_soon">Niets binnenkort</string>
+    <string name="dashboard_nothing_airing_soon_desc">Kijk later nog eens voor aankomende afleveringen.</string>
+    <string name="dashboard_tba">TBA</string>
+    <string name="dashboard_recent_activity">Recente activiteit</string>
+    <string name="dashboard_no_recent_activity">Geen recente activiteit</string>
+    <string name="dashboard_no_recent_activity_desc">Wanneer je afleveringen als bekeken markeert, verschijnen ze hier.</string>
+    <string name="dashboard_season_episode">Seizoen %1$d • Aflevering %2$d</string>
+    <string name="dashboard_watched">Bekeken</string>
+    <string name="dashboard_recommended_for_you">Voor jou aanbevolen</string>
+
+    <!-- Watchlist -->
+    <string name="watchlist_sort_recently_added">Recent toegevoegd</string>
+    <string name="watchlist_sort_title">Titel</string>
+    <string name="watchlist_sort_release_year">Uitgavejaar</string>
+    <string name="watchlist_sort_rating">Beoordeling</string>
+    <string name="watchlist_search_placeholder">Zoek in je lijst…</string>
+    <string name="watchlist_filter_all">Alles</string>
+    <string name="watchlist_remove_content_desc">Verwijderen van watchlist</string>
+    <string name="watchlist_no_image_content_desc">Geen afbeelding beschikbaar</string>
+
+    <!-- Episode Details -->
+    <string name="episode_detail_guest_stars">Gastacteurs</string>
+    <string name="episode_detail_crew">Crew</string>
+    <string name="episode_detail_aired_date">Uitgezonden: %1$s</string>
+    <string name="episode_detail_aired_relative_date">Uitgezonden: %1$s (%2$s)</string>
+    <string name="episode_detail_show_backdrop">Achtergrond van de serie</string>
+    <string name="episode_detail_season_episode">Seizoen %1$s • Aflevering %2$s</string>
+    <string name="episode_detail_rating_format">%1$d%% (%2$s stemmen)</string>
+    <string name="episode_detail_imdb">IMDB</string>
+    <string name="episode_detail_tvdb">TVDB</string>
+    <string name="episode_detail_cancel_checkin">Check-in annuleren</string>
+    <string name="episode_detail_checkin">Check in aflevering op Trakt</string>
+    <string name="episode_detail_overview">Overzicht</string>
+</resources>
