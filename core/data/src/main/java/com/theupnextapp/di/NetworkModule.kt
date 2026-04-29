@@ -172,6 +172,7 @@ object NetworkModule {
                             val originalHttpUrl = original.url
                             val url = originalHttpUrl.newBuilder()
                                 .addQueryParameter("api_key", com.theupnextapp.core.data.BuildConfig.TMDB_ACCESS_TOKEN)
+                                .addQueryParameter("language", java.util.Locale.getDefault().toLanguageTag())
                                 .build()
                             val requestBuilder = original.newBuilder().url(url)
                             chain.proceed(requestBuilder.build())
