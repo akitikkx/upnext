@@ -133,4 +133,14 @@
     <string name="status_planned">Planejado</string>
     <string name="status_canceled">Cancelado</string>
     <string name="status_ended">Terminou</string>
+    <string name="nav_title_search">Pesquisar</string>
+    <string name="nav_title_dashboard">Painel</string>
+    <string name="nav_title_schedule">Programação</string>
+    <string name="nav_title_history">Histórico</string>
+    <string name="nav_title_watchlist">Lista de Seguimento</string>
+    <string name="nav_title_library">Biblioteca</string>
+    <string name="nav_title_explore">Explorar</string>
+    <string name="nav_title_settings">Configurações</string>
+    <string name="nav_title_account">Conta</string>
+
 </resources>
