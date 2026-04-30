@@ -106,7 +106,7 @@ class NavigationTest {
                 composeTestRule.waitUntil(timeoutMillis = 5000) {
                     composeTestRule
                         .onAllNodes(
-                            hasText("Unlock Personalization").or(hasText("Connect to Trakt")),
+                            hasText("Unlock Personalization").or(hasText("Connect Trakt account")),
                         )
                         .fetchSemanticsNodes()
                         .isNotEmpty()

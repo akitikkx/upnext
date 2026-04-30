@@ -52,8 +52,8 @@ class TraktAccountScreenTest {
             )
         }
 
-        rule.onNodeWithText("Connect to Trakt").assertIsDisplayed()
-        rule.onNodeWithText("Connect to Trakt").performClick()
+        rule.onNodeWithText("Connect Trakt account").assertIsDisplayed()
+        rule.onNodeWithText("Connect Trakt account").performClick()
 
         assert(connectClicked)
     }
@@ -84,7 +84,7 @@ class TraktAccountScreenTest {
 
         // Assuming TraktProfileHeader displays "Logout" or checking for absence of "Connect to Trakt"
         // Since we don't have the string resource for Logout handy, we can check that Connect button is NOT displayed.
-        rule.onNodeWithText("Connect to Trakt").assertDoesNotExist()
+        rule.onNodeWithText("Connect Trakt account").assertDoesNotExist()
     }
 
     @Test
@@ -175,7 +175,7 @@ class TraktAccountScreenTest {
         rule.onNodeWithContentDescription("Search Watchlist").performClick()
 
         // Wait for animation, verify TextField placeholder exists
-        rule.onNodeWithText("Search your watchlist...").assertIsDisplayed()
+        rule.onNodeWithText("Search your watchlist…").assertIsDisplayed()
     }
 
     @Test
