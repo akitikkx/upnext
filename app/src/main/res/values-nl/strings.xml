@@ -133,4 +133,14 @@
     <string name="status_planned">Gepland</string>
     <string name="status_canceled">Geannuleerd</string>
     <string name="status_ended">Beëindigd</string>
+    <string name="nav_title_search">Zoeken</string>
+    <string name="nav_title_dashboard">Dashboard</string>
+    <string name="nav_title_schedule">TV Gids</string>
+    <string name="nav_title_history">Geschiedenis</string>
+    <string name="nav_title_watchlist">Kijklijst</string>
+    <string name="nav_title_library">Bibliotheek</string>
+    <string name="nav_title_explore">Ontdekken</string>
+    <string name="nav_title_settings">Instellingen</string>
+    <string name="nav_title_account">Account</string>
+
 </resources>

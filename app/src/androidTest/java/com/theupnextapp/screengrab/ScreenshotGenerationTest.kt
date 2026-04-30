@@ -109,7 +109,7 @@ class ScreenshotGenerationTest {
             }
             try {
                 composeTestRule.waitUntil(timeoutMillis = 15000) {
-                    composeTestRule.onAllNodesWithText("Seasons").fetchSemanticsNodes().isNotEmpty()
+                    composeTestRule.onAllNodesWithText(InstrumentationRegistry.getInstrumentation().targetContext.getString(com.theupnextapp.R.string.title_seasons)).fetchSemanticsNodes().isNotEmpty()
                 }
                 composeTestRule.waitUntilDoesNotExist(androidx.compose.ui.test.hasTestTag("watch_providers_loading"), timeoutMillis = 15000)
                 composeTestRule.waitUntilDoesNotExist(androidx.compose.ui.test.hasTestTag("cast_loading"), timeoutMillis = 15000)
@@ -122,9 +122,9 @@ class ScreenshotGenerationTest {
         } catch (e: AssertionError) {
             // Dashboard cards missing, fallback to Explore to get a show detail screenshot!
             try {
-                device.findObject(By.text("Explore"))?.click()
+                device.findObject(By.text(InstrumentationRegistry.getInstrumentation().targetContext.getString(com.theupnextapp.R.string.nav_title_explore)))?.click()
                 composeTestRule.waitForIdle()
-                composeTestRule.onNodeWithText("POPULAR", ignoreCase = true).performClick()
+                composeTestRule.onNodeWithText(InstrumentationRegistry.getInstrumentation().targetContext.getString(com.theupnextapp.R.string.explore_popular_shows_list_title), ignoreCase = true).performClick()
                 composeTestRule.waitUntil(timeoutMillis = 45000) {
                     composeTestRule.onAllNodesWithTag("explore_bento_card").fetchSemanticsNodes().isNotEmpty()
                 }
@@ -133,7 +133,7 @@ class ScreenshotGenerationTest {
                 
                 try {
                     composeTestRule.waitUntil(timeoutMillis = 15000) {
-                        composeTestRule.onAllNodesWithText("Seasons").fetchSemanticsNodes().isNotEmpty()
+                        composeTestRule.onAllNodesWithText(InstrumentationRegistry.getInstrumentation().targetContext.getString(com.theupnextapp.R.string.title_seasons)).fetchSemanticsNodes().isNotEmpty()
                     }
                     composeTestRule.waitUntilDoesNotExist(androidx.compose.ui.test.hasTestTag("watch_providers_loading"), timeoutMillis = 15000)
                     composeTestRule.waitUntilDoesNotExist(androidx.compose.ui.test.hasTestTag("cast_loading"), timeoutMillis = 15000)
@@ -143,27 +143,27 @@ class ScreenshotGenerationTest {
                 Thread.sleep(4000)
                 Screengrab.screenshot("02_show_detail")
                 device.pressBack() // back to explore
-                device.findObject(By.text("Dashboard"))?.click() // back to dashboard
+                device.findObject(By.text(InstrumentationRegistry.getInstrumentation().targetContext.getString(com.theupnextapp.R.string.nav_title_dashboard)))?.click() // back to dashboard
                 composeTestRule.waitForIdle()
             } catch (inner: Throwable) {}
         }
 
         // 1.2 Dashboard Bottom (Recent Activity)
         try {
-            composeTestRule.onNodeWithText("Recent Activity").performScrollTo()
+            composeTestRule.onNodeWithText(InstrumentationRegistry.getInstrumentation().targetContext.getString(com.theupnextapp.R.string.dashboard_recent_activity)).performScrollTo()
             composeTestRule.waitForIdle()
             Thread.sleep(4000) // Allow Recent Activity posters to render
             Screengrab.screenshot("03_dashboard_recent_activity")
         } catch (e: AssertionError) {
-            // "Recent Activity" not found, fail gracefully
+            // InstrumentationRegistry.getInstrumentation().targetContext.getString(com.theupnextapp.R.string.dashboard_recent_activity) not found, fail gracefully
         }
 
-        device.findObject(By.text("Explore"))?.click()
+        device.findObject(By.text(InstrumentationRegistry.getInstrumentation().targetContext.getString(com.theupnextapp.R.string.nav_title_explore)))?.click()
         composeTestRule.waitForIdle()
         Thread.sleep(2000)
         
         try {
-            composeTestRule.onNodeWithText("POPULAR", ignoreCase = true).performClick()
+            composeTestRule.onNodeWithText(InstrumentationRegistry.getInstrumentation().targetContext.getString(com.theupnextapp.R.string.explore_popular_shows_list_title), ignoreCase = true).performClick()
         } catch (e: Throwable) {}
         
         try {
@@ -174,7 +174,7 @@ class ScreenshotGenerationTest {
         Screengrab.screenshot("04_explore")
 
         // 3. Schedule
-        device.findObject(By.text("Schedule"))?.click()
+        device.findObject(By.text(InstrumentationRegistry.getInstrumentation().targetContext.getString(com.theupnextapp.R.string.nav_title_schedule)))?.click()
         composeTestRule.waitForIdle()
         try {
             composeTestRule.waitUntil(timeoutMillis = 15000) {
@@ -184,7 +184,7 @@ class ScreenshotGenerationTest {
         Screengrab.screenshot("05_schedule")
         
         // 4. Search
-        device.findObject(By.text("Search"))?.click()
+        device.findObject(By.text(InstrumentationRegistry.getInstrumentation().targetContext.getString(com.theupnextapp.R.string.nav_title_search)))?.click()
         composeTestRule.waitForIdle()
         Thread.sleep(2000)
         Screengrab.screenshot("06_search")
@@ -218,7 +218,7 @@ class ScreenshotGenerationTest {
         
         try {
             composeTestRule.waitUntil(timeoutMillis = 15000) {
-                composeTestRule.onAllNodesWithText("Seasons").fetchSemanticsNodes().isNotEmpty()
+                composeTestRule.onAllNodesWithText(InstrumentationRegistry.getInstrumentation().targetContext.getString(com.theupnextapp.R.string.title_seasons)).fetchSemanticsNodes().isNotEmpty()
             }
             composeTestRule.waitUntilDoesNotExist(androidx.compose.ui.test.hasTestTag("watch_providers_loading"), timeoutMillis = 15000)
             composeTestRule.waitUntilDoesNotExist(androidx.compose.ui.test.hasTestTag("cast_loading"), timeoutMillis = 15000)
@@ -234,7 +234,7 @@ class ScreenshotGenerationTest {
         
         try {
             composeTestRule.waitUntil(timeoutMillis = 15000) {
-                composeTestRule.onAllNodesWithText("Seasons").fetchSemanticsNodes().isNotEmpty()
+                composeTestRule.onAllNodesWithText(InstrumentationRegistry.getInstrumentation().targetContext.getString(com.theupnextapp.R.string.title_seasons)).fetchSemanticsNodes().isNotEmpty()
             }
             composeTestRule.waitUntilDoesNotExist(androidx.compose.ui.test.hasTestTag("watch_providers_loading"), timeoutMillis = 15000)
             composeTestRule.waitUntilDoesNotExist(androidx.compose.ui.test.hasTestTag("cast_loading"), timeoutMillis = 15000)
@@ -246,20 +246,20 @@ class ScreenshotGenerationTest {
 
         // 1.2 Dashboard Bottom (Recent Activity)
         try {
-            composeTestRule.onNodeWithText("Recent Activity").performScrollTo()
+            composeTestRule.onNodeWithText(InstrumentationRegistry.getInstrumentation().targetContext.getString(com.theupnextapp.R.string.dashboard_recent_activity)).performScrollTo()
             composeTestRule.waitForIdle()
             Thread.sleep(4000) // Allow Recent Activity posters to render
             Screengrab.screenshot("03_dashboard_recent_activity")
         } catch (e: AssertionError) {
-            // "Recent Activity" not found, fail gracefully
+            // InstrumentationRegistry.getInstrumentation().targetContext.getString(com.theupnextapp.R.string.dashboard_recent_activity) not found, fail gracefully
         }
 
-        device.findObject(By.text("Explore"))?.click()
+        device.findObject(By.text(InstrumentationRegistry.getInstrumentation().targetContext.getString(com.theupnextapp.R.string.nav_title_explore)))?.click()
         composeTestRule.waitForIdle()
         Thread.sleep(2000)
         
         try {
-            composeTestRule.onNodeWithText("POPULAR", ignoreCase = true).performClick()
+            composeTestRule.onNodeWithText(InstrumentationRegistry.getInstrumentation().targetContext.getString(com.theupnextapp.R.string.explore_popular_shows_list_title), ignoreCase = true).performClick()
         } catch (e: Throwable) {}
         
         try {
@@ -272,7 +272,7 @@ class ScreenshotGenerationTest {
         try {
             composeTestRule.onAllNodesWithTag("explore_bento_card").onFirst().performClick()
             composeTestRule.waitUntil(timeoutMillis = 15000) {
-                composeTestRule.onAllNodesWithText("Seasons").fetchSemanticsNodes().isNotEmpty()
+                composeTestRule.onAllNodesWithText(InstrumentationRegistry.getInstrumentation().targetContext.getString(com.theupnextapp.R.string.title_seasons)).fetchSemanticsNodes().isNotEmpty()
             }
             composeTestRule.waitUntilDoesNotExist(androidx.compose.ui.test.hasTestTag("watch_providers_loading"), timeoutMillis = 15000)
             composeTestRule.waitUntilDoesNotExist(androidx.compose.ui.test.hasTestTag("cast_loading"), timeoutMillis = 15000)
@@ -282,7 +282,7 @@ class ScreenshotGenerationTest {
 
         Screengrab.screenshot("04_explore")
 
-        device.findObject(By.text("Schedule"))?.click()
+        device.findObject(By.text(InstrumentationRegistry.getInstrumentation().targetContext.getString(com.theupnextapp.R.string.nav_title_schedule)))?.click()
         composeTestRule.waitForIdle()
         try {
             composeTestRule.waitUntil(timeoutMillis = 15000) {
@@ -296,7 +296,7 @@ class ScreenshotGenerationTest {
             composeTestRule.onAllNodesWithTag("show_item").onFirst().performClick()
             try {
                 composeTestRule.waitUntil(timeoutMillis = 15000) {
-                    composeTestRule.onAllNodesWithText("Seasons").fetchSemanticsNodes().isNotEmpty()
+                    composeTestRule.onAllNodesWithText(InstrumentationRegistry.getInstrumentation().targetContext.getString(com.theupnextapp.R.string.title_seasons)).fetchSemanticsNodes().isNotEmpty()
                 }
                 composeTestRule.waitUntilDoesNotExist(androidx.compose.ui.test.hasTestTag("watch_providers_loading"), timeoutMillis = 15000)
                 composeTestRule.waitUntilDoesNotExist(androidx.compose.ui.test.hasTestTag("cast_loading"), timeoutMillis = 15000)
@@ -307,7 +307,7 @@ class ScreenshotGenerationTest {
 
         Screengrab.screenshot("05_schedule")
         
-        device.findObject(By.text("Search"))?.click()
+        device.findObject(By.text(InstrumentationRegistry.getInstrumentation().targetContext.getString(com.theupnextapp.R.string.nav_title_search)))?.click()
         composeTestRule.waitForIdle()
         Thread.sleep(2000)
         
@@ -327,7 +327,7 @@ class ScreenshotGenerationTest {
                 composeTestRule.onAllNodesWithTag("search_result_card").onFirst().performClick()
                 try {
                     composeTestRule.waitUntil(timeoutMillis = 15000) {
-                        composeTestRule.onAllNodesWithText("Seasons").fetchSemanticsNodes().isNotEmpty()
+                        composeTestRule.onAllNodesWithText(InstrumentationRegistry.getInstrumentation().targetContext.getString(com.theupnextapp.R.string.title_seasons)).fetchSemanticsNodes().isNotEmpty()
                     }
                     composeTestRule.waitUntilDoesNotExist(androidx.compose.ui.test.hasTestTag("watch_providers_loading"), timeoutMillis = 15000)
                     composeTestRule.waitUntilDoesNotExist(androidx.compose.ui.test.hasTestTag("cast_loading"), timeoutMillis = 15000)
