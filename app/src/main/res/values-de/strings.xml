@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <!-- Settings Screen -->
     <string name="settings_general">Allgemein</string>
     <string name="settings_episode_notifications">Episodenbenachrichtigungen</string>
     <string name="settings_episode_notifications_desc">Benachrichtigungen erhalten, wenn verfolgte Serien laufen</string>
@@ -16,8 +15,6 @@
     <string name="settings_connect">Verbinden</string>
     <string name="settings_about">Über</string>
     <string name="settings_version">Version</string>
-
-    <!-- Dashboard Screen -->
     <string name="dashboard_my_upnext">Mein Upnext</string>
     <string name="dashboard_tonight_on_tv">Heute im TV</string>
     <string name="dashboard_no_tv_schedule">Kein TV-Programm</string>
@@ -36,8 +33,6 @@
     <string name="dashboard_season_episode">Staffel %1$d • Episode %2$d</string>
     <string name="dashboard_watched">Angesehen</string>
     <string name="dashboard_recommended_for_you">Für dich empfohlen</string>
-
-    <!-- Watchlist -->
     <string name="watchlist_sort_recently_added">Kürzlich hinzugefügt</string>
     <string name="watchlist_sort_title">Titel</string>
     <string name="watchlist_sort_release_year">Erscheinungsjahr</string>
@@ -46,8 +41,6 @@
     <string name="watchlist_filter_all">Alle</string>
     <string name="watchlist_remove_content_desc">Von der Watchlist entfernen</string>
     <string name="watchlist_no_image_content_desc">Kein Bild verfügbar</string>
-
-    <!-- Episode Details -->
     <string name="episode_detail_guest_stars">Gaststars</string>
     <string name="episode_detail_crew">Crew</string>
     <string name="episode_detail_aired_date">Gesendet: %1$s</string>
@@ -60,4 +53,64 @@
     <string name="episode_detail_cancel_checkin">Check-in abbrechen</string>
     <string name="episode_detail_checkin">Auf Trakt einchecken</string>
     <string name="episode_detail_overview">Übersicht</string>
+    <string name="title_yesterday_shows">Gestern ausgestrahlt</string>
+    <string name="title_today_shows">Heute im TV</string>
+    <string name="title_tomorrow_shows">Morgen im TV</string>
+    <string name="title_trending_shows">Im Trend</string>
+    <string name="title_popular_shows">Beliebt</string>
+    <string name="title_anticipated_shows">Erwartet</string>
+    <string name="search_input_hint">Suche nach einer Serie...</string>
+    <string name="search_empty_title">Keine Ergebnisse gefunden</string>
+    <string name="show_detail_genres_heading">Genres</string>
+    <string name="show_detail_air_days_heading">Sendetage</string>
+    <string name="show_detail_next_episode_heading">Nächste Episode</string>
+    <string name="show_detail_previous_episode_heading">Vorherige Episode</string>
+    <string name="btn_show_detail_seasons">Staffeln</string>
+    <string name="show_detail_cast_list">Besetzung</string>
+    <string name="show_detail_rating_heading">Trakt-Bewertung</string>
+    <string name="show_detail_where_to_watch">Wo zu sehen</string>
+    <string name="show_detail_add_to_watchlist_button">Zur Watchlist hinzufügen</string>
+    <string name="show_detail_remove_from_watchlist_button">Von Watchlist entfernen</string>
+    <string name="trakt_unlock_personalization">Personalisierung freischalten</string>
+    <string name="trakt_connect_benefits">Verbinde dein Trakt-Konto, um deinen Fortschritt automatisch zu verfolgen, deinen Verlauf sicher zu synchronisieren und deine Watchlists nahtlos zu verwalten.</string>
+    <string name="connect_to_trakt_button">Trakt-Konto verbinden</string>
+    <string name="btn_show_detail_add_to_favorites">Auf die Beobachtungsliste</string>
+    <string name="btn_show_detail_remove_from_favorites">Von der Merkliste entfernen</string>
+    <string name="show_detail_similar_shows_heading">Ähnliche Shows</string>
+    <string name="show_detail_season_premiere_date">Uraufführung: %1$s</string>
+    <string name="show_detail_season_end_date">Beendet: %1$s</string>
+    <string name="tv_maze_creative_commons_attribution_text_multiple">Alle Bilder unter CC BY-SA 4.0 lizenziert</string>
+    <string name="btn_mark_season_watched">Mark Staffel gesehen</string>
+    <string name="btn_mark_season_unwatched">Staffel als „Ungesehen“ markieren</string>
+    <string name="episode_mark_watched">Als gesehen markieren</string>
+    <string name="episode_mark_unwatched">Als unbeobachtet markieren</string>
+    <string name="btn_show_detail_submit_rating">Bewertung abgeben</string>
+    <string name="show_detail_episode_and_number">Folge %1$s</string>
+    <string name="show_detail_season_and_number">Staffel %1$s</string>
+    <string name="why_do_need_trakt_account_body">Das Ziel des UpNext TV Series Managers ist es, Ihnen nicht nur Serieninformationen bereitzustellen, sondern auch
+        Funktionalität, mit der Sie Ihre Lieblingssendungen verfolgen und verwalten können. \n\nDiese Tracking-Funktionalität wird von einem sehr seriösen Unternehmen angeboten
+        Trakt-Dienst, den wir in die Verwaltungsbereiche des UpNext TV Series Managers integriert haben. Um die Vorteile nutzen zu können
+        Trakt-Funktionen im Upnext TV-Serien-Manager, wie z. B. die Verwaltung Ihrer Beobachtungsliste oder Ihres Serien-Wiedergabeverlaufs, benötigen Sie
+        Sie müssen ein Trakt-Konto haben und über eine der Schaltflächen „Mit Trakt verbinden“ im UpNext TV Series Manager können wir dann Ihr Trakt verknüpfen
+        Konto. \n\nSie können den Zugriff des UpNext TV Series Managers auf Ihr Konto jederzeit über Ihr Trakt.tv-Konto widerrufen. Bedenken Sie dies
+        trennt dann jegliche Verbindung, die der UpNext TV Series Manager zu Ihrem Konto hat, und deaktiviert somit alle Verwaltungsfunktionen – Beobachtungsliste und Verlauf.</string>
+    <string name="why_do_need_trakt_account_title">Warum benötige ich ein Trakt-Konto?</string>
+    <string name="what_is_trakt_body">Trakt ist eine Plattform, die viele Dinge tut, vor allem aber behält
+        Verfolgen Sie die Fernsehsendungen und Filme, die Sie ansehen. Es lässt sich in Ihr Media Center oder Ihren Heimkino-PC integrieren
+        um das Scrobbeln zu aktivieren, damit alles automatisch abläuft. Manche Leute checken gerne über ihr Telefon ein,
+        also ermöglichen wir das auch.</string>
+    <string name="what_is_trakt_title">Was ist Trakt?</string>
+    <string name="what_is_a_watchlist_body">Wenn Sie eine Sendung haben, die Sie gerade ansehen oder ansehen möchten, können Sie sie zu Ihrer Beobachtungsliste hinzufügen.
+    Diese Beobachtungsliste wird vom Trakt-Dienst verwaltet. Sie können Elemente in Ihrer Beobachtungsliste im UpNext TV Series Manager anzeigen, indem Sie auf gehen
+    Registerkarte „Beobachtungsliste“. Hier werden alle Artikel aufgelistet, die sich auf Ihrer Trakt-Beobachtungsliste befinden. Dort können Sie auch Artikel entfernen, die wiederum entfernt werden
+        Trakt.</string>
+    <string name="how_trakt_manages_the_watchlist_title">Wie Trakt Ihre Beobachtungsliste verwaltet</string>
+    <string name="how_trakt_manages_the_watchlist_body">Ihre Beobachtungsliste ist eine integrierte Liste, um den Überblick über alles zu behalten, was Sie sehen möchten.
+        Sobald Sie einen Artikel aus Ihrer Merkliste ansehen, wird er automatisch entfernt. Wenn Sie sich eine Folge einer Serie oder Staffel ansehen, wird dies entfernt
+        Artikel auch. Ihre Kalender und Fortschritte werden automatisch mit dem, was Sie gerade ansehen, auf dem Laufenden gehalten.
+        Sie müssen es nicht auf Ihrer Beobachtungsliste behalten. \n\nWenn Ihr Wiedergabefortschritt für eine Serie zu 100 % angezeigt wird, bedeutet das, dass Sie alle Episoden angesehen haben, die dies getan haben
+    Wird die Serie seit der Erstausstrahlung bis zur letzten Folge ausgestrahlt, ist das Hinzufügen zur Beobachtungsliste erst möglich, wenn neue Folgen verfügbar sind.
+        Eine Watchlist ist für Sendungen gedacht, die Sie sehen möchten
+    auf 100 %. Mit anderen Worten: Sie möchten alle bisher ausgestrahlten Folgen der Serie sehen.</string>
+    <string name="menu_trakt_add_to_history">Als gesehen markieren</string>
 </resources>

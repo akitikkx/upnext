@@ -428,7 +428,7 @@ fun ConnectToTrakt(onClick: () -> Unit) {
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Text(
-                    text = "Unlock Personalization",
+                    text = stringResource(id = R.string.trakt_unlock_personalization),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -437,7 +437,7 @@ fun ConnectToTrakt(onClick: () -> Unit) {
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "Connect your Trakt account to automatically track your watch progress, sync your history securely, and manage your watchlists seamlessly.",
+                    text = stringResource(id = R.string.trakt_connect_benefits),
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),

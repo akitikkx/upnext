@@ -932,7 +932,7 @@ fun WatchProvidersSection(uiState: ShowDetailViewModel.ShowDetailUiState) {
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Start,
         ) {
-            SectionHeadingText(text = "Where to Watch")
+            SectionHeadingText(text = stringResource(id = R.string.show_detail_where_to_watch))
 
             LazyRow(
                 modifier =
@@ -963,7 +963,7 @@ fun WatchProvidersSection(uiState: ShowDetailViewModel.ShowDetailUiState) {
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Start,
         ) {
-            SectionHeadingText(text = "Where to Watch")
+            SectionHeadingText(text = stringResource(id = R.string.show_detail_where_to_watch))
             LazyRow(
                 modifier =
                     Modifier
@@ -1347,7 +1347,7 @@ fun RatingBottomSheet(
                         .fillMaxWidth()
                         .testTag("submit_rating_button"),
             ) {
-                Text(text = "Submit Rating")
+                Text(text = stringResource(id = R.string.btn_show_detail_submit_rating))
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -1377,7 +1377,7 @@ fun ErrorState(
         onRetry?.let {
             Spacer(modifier = Modifier.height(8.dp))
             Button(onClick = it) {
-                Text("Retry")
+                Text(text = stringResource(id = R.string.load_state_retry_button))
             }
         }
     }

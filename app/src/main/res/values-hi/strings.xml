@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <!-- Settings Screen -->
     <string name="settings_general">सामान्य</string>
     <string name="settings_episode_notifications">एपिसोड सूचनाएं</string>
     <string name="settings_episode_notifications_desc">आपके ट्रैक किए गए शो के प्रसारित होने पर अलर्ट प्राप्त करें</string>
@@ -16,8 +15,6 @@
     <string name="settings_connect">कनेक्ट करें</string>
     <string name="settings_about">के बारे में</string>
     <string name="settings_version">संस्करण</string>
-
-    <!-- Dashboard Screen -->
     <string name="dashboard_my_upnext">मेरा Upnext</string>
     <string name="dashboard_tonight_on_tv">आज रात टीवी पर</string>
     <string name="dashboard_no_tv_schedule">कोई टीवी शेड्यूल नहीं</string>
@@ -36,8 +33,6 @@
     <string name="dashboard_season_episode">सीज़न %1$d • एपिसोड %2$d</string>
     <string name="dashboard_watched">देखा गया</string>
     <string name="dashboard_recommended_for_you">आपके लिए अनुशंसित</string>
-
-    <!-- Watchlist -->
     <string name="watchlist_sort_recently_added">हाल ही में जोड़ा गया</string>
     <string name="watchlist_sort_title">शीर्षक</string>
     <string name="watchlist_sort_release_year">रिलीज का वर्ष</string>
@@ -46,8 +41,6 @@
     <string name="watchlist_filter_all">सभी</string>
     <string name="watchlist_remove_content_desc">वॉचलिस्ट से हटाएं</string>
     <string name="watchlist_no_image_content_desc">कोई चित्र उपलब्ध नहीं</string>
-
-    <!-- Episode Details -->
     <string name="episode_detail_guest_stars">अतिथि कलाकार</string>
     <string name="episode_detail_crew">क्रू</string>
     <string name="episode_detail_aired_date">प्रसारित: %1$s</string>
@@ -60,4 +53,64 @@
     <string name="episode_detail_cancel_checkin">चेक-इन रद्द करें</string>
     <string name="episode_detail_checkin">Trakt पर एपिसोड के लिए चेक इन करें</string>
     <string name="episode_detail_overview">अवलोकन</string>
+    <string name="title_yesterday_shows">कल प्रसारित</string>
+    <string name="title_today_shows">आज टीवी पर</string>
+    <string name="title_tomorrow_shows">कल टीवी पर</string>
+    <string name="title_trending_shows">ट्रेंडिंग</string>
+    <string name="title_popular_shows">लोकप्रिय</string>
+    <string name="title_anticipated_shows">प्रतीक्षित</string>
+    <string name="search_input_hint">एक शो खोजें...</string>
+    <string name="search_empty_title">कोई परिणाम नहीं मिला</string>
+    <string name="show_detail_genres_heading">शैलियां</string>
+    <string name="show_detail_air_days_heading">प्रसारण के दिन</string>
+    <string name="show_detail_next_episode_heading">अगला एपिसोड</string>
+    <string name="show_detail_previous_episode_heading">पिछला एपिसोड</string>
+    <string name="btn_show_detail_seasons">सीजन</string>
+    <string name="show_detail_cast_list">कास्ट</string>
+    <string name="show_detail_rating_heading">ट्रैक्ट रेटिंग</string>
+    <string name="show_detail_where_to_watch">कहाँ देखें</string>
+    <string name="show_detail_add_to_watchlist_button">वॉचलिस्ट में जोड़ें</string>
+    <string name="show_detail_remove_from_watchlist_button">वॉचलिस्ट से हटाएं</string>
+    <string name="trakt_unlock_personalization">वैयक्तिकरण अनलॉक करें</string>
+    <string name="trakt_connect_benefits">अपनी प्रगति को स्वचालित रूप से ट्रैक करने, अपने इतिहास को सुरक्षित रूप से सिंक करने और अपनी वॉचलिस्ट को सहजता से प्रबंधित करने के लिए अपने ट्रैक्ट खाते को कनेक्ट करें।</string>
+    <string name="connect_to_trakt_button">ट्रैक्ट खाता कनेक्ट करें</string>
+    <string name="btn_show_detail_add_to_favorites">घड़ी सूची में जोड़ें</string>
+    <string name="btn_show_detail_remove_from_favorites">निगरानी सूची से हटाएँ</string>
+    <string name="show_detail_similar_shows_heading">समान शो</string>
+    <string name="show_detail_season_premiere_date">प्रीमियर: %1$s</string>
+    <string name="show_detail_season_end_date">समाप्त: %1$s</string>
+    <string name="tv_maze_creative_commons_attribution_text_multiple">सभी छवियाँ CC BY-SA 4.0 के अंतर्गत लाइसेंसीकृत हैं</string>
+    <string name="btn_mark_season_watched">मार्क सीज़न देखा गया</string>
+    <string name="btn_mark_season_unwatched">मार्क सीज़न नहीं देखा गया</string>
+    <string name="episode_mark_watched">देखे गए के रूप में चिह्नित करें</string>
+    <string name="episode_mark_unwatched">न देखे गए के रूप में चिह्नित करें</string>
+    <string name="btn_show_detail_submit_rating">रेटिंग सबमिट करें</string>
+    <string name="show_detail_episode_and_number">एपिसोड %1$s</string>
+    <string name="show_detail_season_and_number">सीज़न %1$s</string>
+    <string name="why_do_need_trakt_account_body">अपनेक्स्ट टीवी सीरीज़ मैनेजर का उद्देश्य न केवल आपको सीरीज़ की जानकारी प्रदान करना है
+        कार्यक्षमता जो आपको अपने पसंदीदा शो को ट्रैक और प्रबंधित करने की अनुमति देगी। \n\nयह ट्रैकिंग कार्यक्षमता बहुत प्रतिष्ठित लोगों द्वारा पेश की जाती है
+        ट्रैक्ट सेवा जिसे हमने अपनेक्स्ट टीवी सीरीज़ मैनेजर के प्रबंधन अनुभागों में एकीकृत किया है। का लाभ उठाने में सक्षम होना
+        अपनेक्स्ट टीवी सीरीज़ मैनेजर में ट्रैक्ट फीचर्स जैसे कि आपकी वॉचलिस्ट या आपकी सीरीज़ देखने के इतिहास को प्रबंधित करना, आपको इसकी आवश्यकता होगी
+        एक ट्रैक्ट खाता रखने के लिए और अपनेक्स्ट टीवी सीरीज़ मैनेजर में किसी भी \'\'ट्रैक्ट से कनेक्ट करें\'\' बटन के माध्यम से हम आपके ट्रैक्ट को लिंक कर सकते हैं
+        खाता. \n\nआप किसी भी समय अपने Trakt.tv खाते से अपनेक्स्ट टीवी सीरीज़ मैनेजर की अपने खाते तक पहुंच रद्द कर सकते हैं। इस बात का ध्यान रखें
+        इसके बाद अपनेक्स्ट टीवी सीरीज़ प्रबंधक का आपके खाते से कोई भी कनेक्शन टूट जाएगा और इस प्रकार कोई भी प्रबंधन सुविधाएँ - वॉचलिस्ट और इतिहास अक्षम हो जाएगा।</string>
+    <string name="why_do_need_trakt_account_title">मुझे ट्रैक्ट खाते की आवश्यकता क्यों है?</string>
+    <string name="what_is_trakt_body">Trakt is a platform that does many things, but primarily keeps
+        आपके द्वारा देखे जाने वाले टीवी शो और फिल्मों का ट्रैक। It integrates with your media center or home theater PC
+        to enable scrobbling, so everything is automatic. कुछ लोग अपने फ़ोन से चेक इन करना पसंद करते हैं,
+        इसलिए हम उसे भी सक्षम करते हैं।</string>
+    <string name="what_is_trakt_title">ट्रैक्ट क्या है?</string>
+    <string name="what_is_a_watchlist_body">यदि आपके पास कोई शो है जिसे आप वर्तमान में देख रहे हैं या देखने का इरादा रखते हैं, तो आप इसे अपनी वॉचलिस्ट में जोड़ सकते हैं।
+    इस वॉचलिस्ट का प्रबंधन ट्रैक्ट सेवा द्वारा किया जाएगा। आप अपनेक्स्ट टीवी सीरीज़ मैनेजर पर जाकर अपनी वॉचलिस्ट में आइटम देख सकते हैं
+    \"वॉचलिस्ट\" टैब. यहां आपके ट्रैक्ट वॉचलिस्ट पर मौजूद सभी आइटम सूचीबद्ध किए जाएंगे, जहां आप आइटम हटा भी सकते हैं, जिन्हें बाद में हटा दिया जाएगा
+        ट्रैक्ट.</string>
+    <string name="how_trakt_manages_the_watchlist_title">ट्रैक्ट आपकी वॉचलिस्ट को कैसे प्रबंधित करता है</string>
+    <string name="how_trakt_manages_the_watchlist_body">आप जो कुछ भी देखना चाहते हैं उस पर नज़र रखने के लिए आपकी वॉचलिस्ट बनाई गई है।
+        एक बार जब आप अपनी वॉचलिस्ट से कोई आइटम देखते हैं, तो वह स्वचालित रूप से हटा दिया जाता है। किसी शो या सीज़न का 1 एपिसोड देखने से वह दूर हो जाएगा
+        आइटम भी. आप जो देख रहे हैं उसके साथ आपके कैलेंडर और प्रगति स्वचालित रूप से अद्यतित रखी जाती है,
+        इसे अपनी निगरानी सूची में रखने की कोई आवश्यकता नहीं है। \n\nयदि किसी श्रृंखला के लिए आपकी देखी गई प्रगति 100%% देखी गई है, अर्थात, आपने सभी एपिसोड देख लिए हैं
+    श्रृंखला के पहले प्रीमियर से लेकर इसके सबसे हालिया एपिसोड तक प्रसारित होने के बाद, नए एपिसोड उपलब्ध होने तक वॉचलिस्ट में जोड़ना संभव नहीं होगा।
+        वॉचलिस्ट उन शो के लिए है जिन्हें आप देखना चाहते हैं
+    100%% तक. दूसरे शब्दों में आप श्रृंखला के अब तक प्रसारित सभी एपिसोड देखना चाहते हैं।</string>
+    <string name="menu_trakt_add_to_history">देखे गए के रूप में चिह्नित करें</string>
 </resources>

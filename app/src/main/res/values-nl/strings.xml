@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <!-- Settings Screen -->
     <string name="settings_general">Algemeen</string>
     <string name="settings_episode_notifications">Aflevering meldingen</string>
     <string name="settings_episode_notifications_desc">Ontvang een waarschuwing wanneer je favoriete series worden uitgezonden</string>
@@ -16,8 +15,6 @@
     <string name="settings_connect">Verbinden</string>
     <string name="settings_about">Over</string>
     <string name="settings_version">Versie</string>
-
-    <!-- Dashboard Screen -->
     <string name="dashboard_my_upnext">Mijn Upnext</string>
     <string name="dashboard_tonight_on_tv">Vanavond op TV</string>
     <string name="dashboard_no_tv_schedule">Geen tv-schema</string>
@@ -36,8 +33,6 @@
     <string name="dashboard_season_episode">Seizoen %1$d • Aflevering %2$d</string>
     <string name="dashboard_watched">Bekeken</string>
     <string name="dashboard_recommended_for_you">Voor jou aanbevolen</string>
-
-    <!-- Watchlist -->
     <string name="watchlist_sort_recently_added">Recent toegevoegd</string>
     <string name="watchlist_sort_title">Titel</string>
     <string name="watchlist_sort_release_year">Uitgavejaar</string>
@@ -46,8 +41,6 @@
     <string name="watchlist_filter_all">Alles</string>
     <string name="watchlist_remove_content_desc">Verwijderen van watchlist</string>
     <string name="watchlist_no_image_content_desc">Geen afbeelding beschikbaar</string>
-
-    <!-- Episode Details -->
     <string name="episode_detail_guest_stars">Gastacteurs</string>
     <string name="episode_detail_crew">Crew</string>
     <string name="episode_detail_aired_date">Uitgezonden: %1$s</string>
@@ -60,4 +53,64 @@
     <string name="episode_detail_cancel_checkin">Check-in annuleren</string>
     <string name="episode_detail_checkin">Check in aflevering op Trakt</string>
     <string name="episode_detail_overview">Overzicht</string>
+    <string name="title_yesterday_shows">Gisteren uitgezonden</string>
+    <string name="title_today_shows">Vandaag op TV</string>
+    <string name="title_tomorrow_shows">Morgen op TV</string>
+    <string name="title_trending_shows">Trending</string>
+    <string name="title_popular_shows">Populair</string>
+    <string name="title_anticipated_shows">Verwacht</string>
+    <string name="search_input_hint">Zoek naar een serie...</string>
+    <string name="search_empty_title">Geen resultaten gevonden</string>
+    <string name="show_detail_genres_heading">Genres</string>
+    <string name="show_detail_air_days_heading">Uitzenddagen</string>
+    <string name="show_detail_next_episode_heading">Volgende Aflevering</string>
+    <string name="show_detail_previous_episode_heading">Vorige Aflevering</string>
+    <string name="btn_show_detail_seasons">Seizoenen</string>
+    <string name="show_detail_cast_list">Vorm</string>
+    <string name="show_detail_rating_heading">Trakt Beoordeling</string>
+    <string name="show_detail_where_to_watch">Waar te bekijken</string>
+    <string name="show_detail_add_to_watchlist_button">Toevoegen aan watchlist</string>
+    <string name="show_detail_remove_from_watchlist_button">Verwijderen van watchlist</string>
+    <string name="trakt_unlock_personalization">Ontgrendel Personalisatie</string>
+    <string name="trakt_connect_benefits">Koppel je Trakt-account om je voortgang automatisch bij te houden, je geschiedenis veilig te synchroniseren en je watchlists naadloos te beheren.</string>
+    <string name="connect_to_trakt_button">Verbind Trakt Account</string>
+    <string name="btn_show_detail_add_to_favorites">Voeg toe aan volglijst</string>
+    <string name="btn_show_detail_remove_from_favorites">Verwijderen uit volglijst</string>
+    <string name="show_detail_similar_shows_heading">Soortgelijke shows</string>
+    <string name="show_detail_season_premiere_date">In première: %1$s</string>
+    <string name="show_detail_season_end_date">Beëindigd: %1$s</string>
+    <string name="tv_maze_creative_commons_attribution_text_multiple">Alle afbeeldingen zijn gelicentieerd onder CC BY-SA 4.0</string>
+    <string name="btn_mark_season_watched">Mark seizoen gekeken</string>
+    <string name="btn_mark_season_unwatched">Markeer seizoen onbewaakt</string>
+    <string name="episode_mark_watched">Markeer als bekeken</string>
+    <string name="episode_mark_unwatched">Markeer als onbewaakt</string>
+    <string name="btn_show_detail_submit_rating">Beoordeling indienen</string>
+    <string name="show_detail_episode_and_number">Aflevering %1$s</string>
+    <string name="show_detail_season_and_number">Seizoen %1$s</string>
+    <string name="why_do_need_trakt_account_body">Het doel van de UpNext TV Series Manager is om u niet alleen serie-informatie te bieden, maar ook
+        functionaliteit waarmee u uw favoriete programma\'s kunt volgen en beheren. \n\nDeze trackingfunctionaliteit wordt aangeboden door het zeer gerenommeerde
+        Trakt-service die we hebben geïntegreerd in de beheersecties van de UpNext TV Series Manager. Om te kunnen profiteren van de
+        Trakt-functies in de Upnext TV Series Manager, zoals het beheren van uw volglijst of uw seriekijkgeschiedenis, heeft u nodig
+        om een Trakt-account te hebben en via een van de \"Verbinden met Trakt\"-knoppen in de UpNext TV Series Manager kunnen we vervolgens uw Trakt koppelen
+        rekening. \n\nU kunt op elk moment de toegang van UpNext TV Series Manager tot uw account intrekken via uw Trakt.tv-account. Houd hier rekening mee
+        zal dan elke verbinding verbreken die de UpNext TV Series-manager met uw account heeft, waardoor alle beheerfuncties (volglijst en geschiedenis) worden uitgeschakeld.</string>
+    <string name="why_do_need_trakt_account_title">Waarom heb ik een Trakt-account nodig?</string>
+    <string name="what_is_trakt_body">Trakt is een platform dat veel dingen doet, maar vooral behoudt
+        bijhouden van tv-programma\'s en films die u bekijkt. Het kan worden geïntegreerd met uw mediacenter of thuisbioscoop-pc
+        om scrobbling mogelijk te maken, zodat alles automatisch gaat. Sommige mensen checken graag in vanaf hun telefoon,
+        dus dat schakelen wij ook in.</string>
+    <string name="what_is_trakt_title">Wat is Trakt?</string>
+    <string name="what_is_a_watchlist_body">Als u een programma heeft dat u momenteel bekijkt of van plan bent te bekijken, kunt u dit aan uw volglijst toevoegen.
+    Deze volglijst wordt beheerd door de Trakt-service. U kunt items in uw volglijst bekijken in UpNext TV Series Manager door naar de te gaan
+    tabblad \"volglijst\". Hier worden alle items weergegeven die op uw Trakt-volglijst staan, waar u ook items kunt verwijderen die op hun beurt worden verwijderd
+        Trakt.</string>
+    <string name="how_trakt_manages_the_watchlist_title">Hoe Trakt uw volglijst beheert</string>
+    <string name="how_trakt_manages_the_watchlist_body">Uw volglijst is een ingebouwde lijst om alles bij te houden wat u wilt bekijken.
+        Zodra je een item uit je volglijst bekijkt, wordt het automatisch verwijderd. Door 1 aflevering van een programma of seizoen te bekijken, wordt dat verwijderd
+        artikel ook. Uw agenda\'s en voortgang worden automatisch op de hoogte gehouden van wat u bekijkt,
+        Het is niet nodig om het op uw volglijst te houden. \n\nAls je bekeken voortgang voor een serie 100%% bekeken is, dat wil zeggen dat je alle afleveringen hebt bekeken die
+    uitgezonden sinds de serie voor het eerst in première ging tot aan de meest recente aflevering, en toevoegen aan de kijklijst is pas mogelijk als er nieuwe afleveringen beschikbaar komen.
+        Een volglijst is bedoeld voor programma’s die je wilt bekijken
+    tot 100%%. Met andere woorden, je wilt alle afleveringen van de serie bekijken die tot nu toe zijn uitgezonden.</string>
+    <string name="menu_trakt_add_to_history">Markeer als bekeken</string>
 </resources>

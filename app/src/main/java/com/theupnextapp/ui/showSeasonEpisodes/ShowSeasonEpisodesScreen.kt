@@ -278,7 +278,7 @@ fun ShowSeasonEpisodes(
                                 )
                             }
                             Text(
-                                text = "Season $seasonNumber",
+                                text = stringResource(id = R.string.show_detail_season_and_number, seasonNumber.toString()),
                                 style = MaterialTheme.typography.titleMedium,
                                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
                             )
@@ -290,7 +290,7 @@ fun ShowSeasonEpisodes(
             if (isAuthorizedOnTrakt && list.isNotEmpty()) {
                 item {
                     val allWatched = list.all { it.isWatched }
-                    val buttonText = if (allWatched) "Mark Season Unwatched" else "Mark Season Watched"
+                    val buttonText = if (allWatched) stringResource(id = R.string.btn_mark_season_unwatched) else stringResource(id = R.string.btn_mark_season_watched)
                     val buttonIcon = if (allWatched) Icons.Outlined.CheckCircle else Icons.Filled.CheckCircle
 
                     FilledTonalButton(
@@ -382,7 +382,7 @@ fun ShowSeasonEpisodeCard(
                 ) {
                     if (item.number.toString().isNotEmpty()) {
                         Text(
-                            text = "Episode ${item.number}",
+                            text = stringResource(id = R.string.show_detail_episode_and_number, item.number.toString()),
                             modifier = Modifier.padding(4.dp),
                             style = MaterialTheme.typography.bodyLarge,
                             fontWeight = FontWeight.Bold,
