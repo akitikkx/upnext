@@ -841,7 +841,7 @@ private fun ShowDetailButtonsCompact(
     ) {
         OutlinedButton(
             onClick = onSeasonsClick,
-            modifier = Modifier.widthIn(min = 120.dp).fillMaxHeight(),
+            modifier = Modifier.widthIn(min = 120.dp),
         ) {
             Text(text = stringResource(id = R.string.btn_show_detail_seasons))
         }

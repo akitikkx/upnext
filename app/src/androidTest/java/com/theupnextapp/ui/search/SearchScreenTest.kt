@@ -7,6 +7,8 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import com.theupnextapp.domain.RecentSearch
 import com.theupnextapp.domain.ShowSearch
+import androidx.test.platform.app.InstrumentationRegistry
+import com.theupnextapp.R
 import org.junit.Rule
 import org.junit.Test
 
@@ -106,7 +108,8 @@ class SearchScreenTest {
             )
         }
 
-        rule.onNodeWithText("Search for the show").assertIsDisplayed()
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        rule.onNodeWithText(context.getString(R.string.search_input_hint)).assertIsDisplayed()
     }
 
     @Test
@@ -125,6 +128,7 @@ class SearchScreenTest {
         // The empty state only appears when the query is non-empty,
         // but the search input starts empty, so no empty state should appear.
         // Verify the search hint is still visible as a baseline.
-        rule.onNodeWithText("Search for the show").assertIsDisplayed()
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        rule.onNodeWithText(context.getString(R.string.search_input_hint)).assertIsDisplayed()
     }
 }

@@ -12,6 +12,8 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import dagger.hilt.android.testing.HiltAndroidRule
+import androidx.test.platform.app.InstrumentationRegistry
+import com.theupnextapp.R
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -81,7 +83,8 @@ class NavigationTest {
             }.getOrDefault(false)
 
         assumeTrue("Skipping test: Show detail did not load", showDetailLoaded)
-        composeTestRule.onNodeWithText("Seasons").assertIsDisplayed()
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        composeTestRule.onNodeWithText(context.getString(R.string.btn_show_detail_seasons), substring = true, ignoreCase = true).assertIsDisplayed()
     }
 
     @Test
@@ -103,10 +106,11 @@ class NavigationTest {
         // Look for signature texts from `TraktAccountScreen` components like "Unlock Personalization"
         val navigatedToTraktScreen =
             runCatching {
+                val context = InstrumentationRegistry.getInstrumentation().targetContext
                 composeTestRule.waitUntil(timeoutMillis = 5000) {
                     composeTestRule
                         .onAllNodes(
-                            hasText("Unlock Personalization").or(hasText("Connect Trakt account")),
+                            hasText(context.getString(R.string.connect_to_trakt_button)),
                         )
                         .fetchSemanticsNodes()
                         .isNotEmpty()

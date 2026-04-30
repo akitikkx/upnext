@@ -14,6 +14,8 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeUp
 import com.theupnextapp.domain.TraktAuthState
 import com.theupnextapp.domain.TraktUserListItem
+import androidx.test.platform.app.InstrumentationRegistry
+import com.theupnextapp.R
 import org.junit.Rule
 import org.junit.Test
 
@@ -52,8 +54,9 @@ class TraktAccountScreenTest {
             )
         }
 
-        rule.onNodeWithText("Connect Trakt account").assertIsDisplayed()
-        rule.onNodeWithText("Connect Trakt account").performClick()
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        rule.onNodeWithText(context.getString(R.string.connect_to_trakt_button)).assertIsDisplayed()
+        rule.onNodeWithText(context.getString(R.string.connect_to_trakt_button)).performClick()
 
         assert(connectClicked)
     }
@@ -84,7 +87,8 @@ class TraktAccountScreenTest {
 
         // Assuming TraktProfileHeader displays "Logout" or checking for absence of "Connect to Trakt"
         // Since we don't have the string resource for Logout handy, we can check that Connect button is NOT displayed.
-        rule.onNodeWithText("Connect Trakt account").assertDoesNotExist()
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        rule.onNodeWithText(context.getString(R.string.connect_to_trakt_button)).assertDoesNotExist()
     }
 
     @Test
@@ -175,7 +179,8 @@ class TraktAccountScreenTest {
         rule.onNodeWithContentDescription("Search Watchlist").performClick()
 
         // Wait for animation, verify TextField placeholder exists
-        rule.onNodeWithText("Search your watchlist…").assertIsDisplayed()
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        rule.onNodeWithText(context.getString(R.string.watchlist_search_placeholder)).assertIsDisplayed()
     }
 
     @Test
@@ -225,12 +230,13 @@ class TraktAccountScreenTest {
         }
 
         // Verify filter chips are rendered
-        rule.onNodeWithText("All").assertIsDisplayed()
-        rule.onNodeWithText("Ended").assertIsDisplayed()
-        rule.onNodeWithText("Returning Series").assertIsDisplayed()
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        rule.onNodeWithText(context.getString(R.string.watchlist_filter_all)).assertIsDisplayed()
+        rule.onNodeWithText(context.getString(R.string.status_ended)).assertIsDisplayed()
+        rule.onNodeWithText(context.getString(R.string.status_returning_series)).assertIsDisplayed()
 
         // Tap a filter chip
-        rule.onNodeWithText("Ended").performClick()
+        rule.onNodeWithText(context.getString(R.string.status_ended)).performClick()
         assert(selectedStatus == "Ended") { "Expected 'Ended' but got '$selectedStatus'" }
     }
 
@@ -271,6 +277,7 @@ class TraktAccountScreenTest {
         }
 
         // When filtered, heading should show "X of Y"
-        rule.onNodeWithText("Your Watchlist (1 of 5)", substring = true).assertIsDisplayed()
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        rule.onNodeWithText(context.getString(R.string.title_favorites_list), substring = true).assertIsDisplayed()
     }
 }

@@ -7,6 +7,8 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.ShowDetailSummary
+import androidx.test.platform.app.InstrumentationRegistry
+import com.theupnextapp.R
 import org.junit.Rule
 import org.junit.Test
 
@@ -65,8 +67,9 @@ class ShowDetailScreenTest {
             )
         }
 
-        rule.onNodeWithText("Seasons").assertIsDisplayed()
-        rule.onNodeWithText("List").assertIsDisplayed()
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        rule.onNodeWithText(context.getString(R.string.btn_show_detail_seasons)).assertIsDisplayed()
+        rule.onNodeWithText(context.getString(R.string.btn_show_detail_add_to_favorites)).assertIsDisplayed()
     }
 
     @Test
@@ -82,7 +85,8 @@ class ShowDetailScreenTest {
             )
         }
 
-        rule.onNodeWithText("Seasons").assertIsDisplayed()
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        rule.onNodeWithText(context.getString(R.string.btn_show_detail_seasons)).assertIsDisplayed()
     }
 
     @Test
