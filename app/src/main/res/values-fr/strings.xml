@@ -108,9 +108,29 @@
     <string name="how_trakt_manages_the_watchlist_body">Votre liste de surveillance est intégrée pour garder une trace de tout ce que vous souhaitez regarder.
         Une fois que vous regardez un élément de votre liste de surveillance, il est automatiquement supprimé. Regarder 1 épisode d\'une émission ou d\'une saison supprimera cela
         article également. Vos calendriers et vos progrès sont automatiquement mis à jour avec ce que vous regardez,
-        pas besoin de le garder sur votre liste de surveillance. \n\nSi votre progression de visionnage pour une série est regardée à 100 %, c\'est-à-dire que vous avez regardé tous les épisodes qui ont été regardés.
+        pas besoin de le garder sur votre liste de surveillance. \n\nSi votre progression de visionnage pour une série est regardée à 100%%, c\'est-à-dire que vous avez regardé tous les épisodes qui ont été regardés.
     diffusé depuis la première de la série jusqu\'à son épisode le plus récent, puis l\'ajout à la liste de surveillance ne sera pas possible tant que de nouveaux épisodes ne seront pas disponibles.
         Une liste de surveillance est destinée aux émissions que vous souhaitez regarder
-    à 100 %. En d’autres termes, vous souhaitez regarder tous les épisodes de la série diffusés jusqu’à présent.</string>
+    à 100%%. En d’autres termes, vous souhaitez regarder tous les épisodes de la série diffusés jusqu’à présent.</string>
     <string name="menu_trakt_add_to_history">Marquer comme regardé</string>
+    <string name="watchlist_description">Les émissions que vous avez l\'intention de regarder. Appuyez pour afficher, faites glisser pour supprimer.\nRemarque : Trakt supprime automatiquement les éléments de votre liste de surveillance une fois que vous enregistrez un épisode comme regardé.</string>
+    <string name="title_favorites_list">Votre liste de surveillance</string>
+    <string name="episode_watched">Regardé</string>
+    <string name="person_detail_biography">Biographie</string>
+    <string name="person_detail_wikipedia_attribution">Description ci-dessus tirée de l\'article Wikipédia%1$s</string>
+    <string name="person_detail_show_less">Afficher moins</string>
+    <string name="person_detail_read_more">En savoir plus</string>
+    <string name="person_detail_known_for">Connu pour %1$s</string>
+    <string name="person_detail_age">Âge %1$s</string>
+    <string name="person_detail_photos">Photos</string>
+    <string name="person_detail_filmography">Filmographie</string>
+    <string name="person_detail_navigate_back">Naviguer en arrière</string>
+    <string name="person_detail_image_content_description">Image de la personne</string>
+    <string name="person_detail_photo_content_description">Photo de la personne</string>
+    <string name="person_detail_close_gallery">Fermer la galerie</string>
+    <string name="status_returning_series">Série de retour</string>
+    <string name="status_in_production">En production</string>
+    <string name="status_planned">Prévu</string>
+    <string name="status_canceled">Annulé</string>
+    <string name="status_ended">Terminé</string>
 </resources>

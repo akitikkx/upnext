@@ -113,4 +113,24 @@
         वॉचलिस्ट उन शो के लिए है जिन्हें आप देखना चाहते हैं
     100%% तक. दूसरे शब्दों में आप श्रृंखला के अब तक प्रसारित सभी एपिसोड देखना चाहते हैं।</string>
     <string name="menu_trakt_add_to_history">देखे गए के रूप में चिह्नित करें</string>
+    <string name="watchlist_description">दिखाता है कि आप देखने का इरादा रखते हैं। देखने के लिए टैप करें, हटाने के लिए स्वाइप करें।\nध्यान दें: जब आप किसी एपिसोड को देखे गए के रूप में लॉग इन करते हैं तो ट्रैक्ट स्वचालित रूप से आपकी वॉचलिस्ट से आइटम हटा देता है।</string>
+    <string name="title_favorites_list">आपकी निगरानी सूची</string>
+    <string name="episode_watched">देखे</string>
+    <string name="person_detail_biography">जीवनी</string>
+    <string name="person_detail_wikipedia_attribution">उपरोक्त विवरण विकिपीडिया लेख%1$s से</string>
+    <string name="person_detail_show_less">कम दिखाओ</string>
+    <string name="person_detail_read_more">और पढ़ें</string>
+    <string name="person_detail_known_for">%1$s के लिए जाना जाता है</string>
+    <string name="person_detail_age">उम्र %1$s</string>
+    <string name="person_detail_photos">तस्वीरें</string>
+    <string name="person_detail_filmography">फिल्मोग्राफी</string>
+    <string name="person_detail_navigate_back">वापस नेविगेट करें</string>
+    <string name="person_detail_image_content_description">व्यक्ति छवि</string>
+    <string name="person_detail_photo_content_description">व्यक्ति फोटो</string>
+    <string name="person_detail_close_gallery">गैलरी बंद करें</string>
+    <string name="status_returning_series">वापसी श्रृंखला</string>
+    <string name="status_in_production">उत्पादन में</string>
+    <string name="status_planned">की योजना बनाई</string>
+    <string name="status_canceled">रद्द कर दिया गया</string>
+    <string name="status_ended">समाप्त</string>
 </resources>

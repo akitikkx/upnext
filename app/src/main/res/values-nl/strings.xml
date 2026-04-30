@@ -113,4 +113,24 @@
         Een volglijst is bedoeld voor programma’s die je wilt bekijken
     tot 100%%. Met andere woorden, je wilt alle afleveringen van de serie bekijken die tot nu toe zijn uitgezonden.</string>
     <string name="menu_trakt_add_to_history">Markeer als bekeken</string>
+    <string name="watchlist_description">Programma\'s die u wilt bekijken. Tik om te bekijken, veeg om te verwijderen.\nOpmerking: Trakt verwijdert automatisch items van je kijklijst zodra je een aflevering als bekeken hebt geregistreerd.</string>
+    <string name="title_favorites_list">Jouw volglijst</string>
+    <string name="episode_watched">Bekeken</string>
+    <string name="person_detail_biography">Biografie</string>
+    <string name="person_detail_wikipedia_attribution">Beschrijving hierboven uit het Wikipedia-artikel%1$s</string>
+    <string name="person_detail_show_less">Laat minder zien</string>
+    <string name="person_detail_read_more">Lees meer</string>
+    <string name="person_detail_known_for">Bekend om %1$s</string>
+    <string name="person_detail_age">Leeftijd %1$s</string>
+    <string name="person_detail_photos">Foto\'s</string>
+    <string name="person_detail_filmography">Filmografie</string>
+    <string name="person_detail_navigate_back">Navigeer terug</string>
+    <string name="person_detail_image_content_description">Persoon afbeelding</string>
+    <string name="person_detail_photo_content_description">Persoonsfoto</string>
+    <string name="person_detail_close_gallery">Galerij sluiten</string>
+    <string name="status_returning_series">Terugkerende serie</string>
+    <string name="status_in_production">In productie</string>
+    <string name="status_planned">Gepland</string>
+    <string name="status_canceled">Geannuleerd</string>
+    <string name="status_ended">Beëindigd</string>
 </resources>

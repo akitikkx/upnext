@@ -113,4 +113,24 @@
         Uma lista de observação destina-se aos programas que você deseja assistir
     para 100%%. Em outras palavras, você deseja assistir todos os episódios da série que foram ao ar até o momento.</string>
     <string name="menu_trakt_add_to_history">Marcar como assistido</string>
+    <string name="watchlist_description">Programas que você pretende assistir. Toque para visualizar, deslize para remover.\nObservação: o Trakt remove automaticamente os itens da sua lista de observação assim que você registra um episódio como assistido.</string>
+    <string name="title_favorites_list">Sua lista de observação</string>
+    <string name="episode_watched">Assistido</string>
+    <string name="person_detail_biography">Biografia</string>
+    <string name="person_detail_wikipedia_attribution">Descrição acima do artigo da Wikipedia%1$s</string>
+    <string name="person_detail_show_less">Mostrar menos</string>
+    <string name="person_detail_read_more">Leia mais</string>
+    <string name="person_detail_known_for">Conhecido por %1$s</string>
+    <string name="person_detail_age">Idade %1$s</string>
+    <string name="person_detail_photos">Fotos</string>
+    <string name="person_detail_filmography">Filmografia</string>
+    <string name="person_detail_navigate_back">Navegue de volta</string>
+    <string name="person_detail_image_content_description">Imagem da pessoa</string>
+    <string name="person_detail_photo_content_description">Foto da pessoa</string>
+    <string name="person_detail_close_gallery">Fechar galeria</string>
+    <string name="status_returning_series">Série de retorno</string>
+    <string name="status_in_production">Em produção</string>
+    <string name="status_planned">Planejado</string>
+    <string name="status_canceled">Cancelado</string>
+    <string name="status_ended">Terminou</string>
 </resources>

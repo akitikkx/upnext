@@ -113,4 +113,24 @@
         Una lista de seguimiento está destinada a los programas que deseas ver.
     al 100%%. En otras palabras, quieres ver todos los episodios de la serie que se han emitido hasta la fecha.</string>
     <string name="menu_trakt_add_to_history">Marcar como visto</string>
+    <string name="watchlist_description">Programas que deseas ver. Toque para ver, deslice para eliminar.\nNota: Trakt elimina automáticamente elementos de su lista de observación una vez que registra un episodio como visto.</string>
+    <string name="title_favorites_list">Tu lista de seguimiento</string>
+    <string name="episode_watched">Observó</string>
+    <string name="person_detail_biography">Biografía</string>
+    <string name="person_detail_wikipedia_attribution">Descripción anterior del artículo de Wikipedia%1$s</string>
+    <string name="person_detail_show_less">Mostrar menos</string>
+    <string name="person_detail_read_more">Leer más</string>
+    <string name="person_detail_known_for">Conocido por %1$s</string>
+    <string name="person_detail_age">Edad %1$s</string>
+    <string name="person_detail_photos">Fotos</string>
+    <string name="person_detail_filmography">Filmografía</string>
+    <string name="person_detail_navigate_back">Navegar hacia atrás</string>
+    <string name="person_detail_image_content_description">Imagen de persona</string>
+    <string name="person_detail_photo_content_description">Foto de persona</string>
+    <string name="person_detail_close_gallery">Cerrar galería</string>
+    <string name="status_returning_series">Serie que regresa</string>
+    <string name="status_in_production">En producción</string>
+    <string name="status_planned">Planificado</string>
+    <string name="status_canceled">Cancelado</string>
+    <string name="status_ended">Terminado</string>
 </resources>

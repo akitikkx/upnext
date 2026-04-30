@@ -108,9 +108,29 @@
     <string name="how_trakt_manages_the_watchlist_body">Ihre Beobachtungsliste ist eine integrierte Liste, um den Überblick über alles zu behalten, was Sie sehen möchten.
         Sobald Sie einen Artikel aus Ihrer Merkliste ansehen, wird er automatisch entfernt. Wenn Sie sich eine Folge einer Serie oder Staffel ansehen, wird dies entfernt
         Artikel auch. Ihre Kalender und Fortschritte werden automatisch mit dem, was Sie gerade ansehen, auf dem Laufenden gehalten.
-        Sie müssen es nicht auf Ihrer Beobachtungsliste behalten. \n\nWenn Ihr Wiedergabefortschritt für eine Serie zu 100 % angezeigt wird, bedeutet das, dass Sie alle Episoden angesehen haben, die dies getan haben
+        Sie müssen es nicht auf Ihrer Beobachtungsliste behalten. \n\nWenn Ihr Wiedergabefortschritt für eine Serie zu 100%% angezeigt wird, bedeutet das, dass Sie alle Episoden angesehen haben, die dies getan haben
     Wird die Serie seit der Erstausstrahlung bis zur letzten Folge ausgestrahlt, ist das Hinzufügen zur Beobachtungsliste erst möglich, wenn neue Folgen verfügbar sind.
         Eine Watchlist ist für Sendungen gedacht, die Sie sehen möchten
-    auf 100 %. Mit anderen Worten: Sie möchten alle bisher ausgestrahlten Folgen der Serie sehen.</string>
+    auf 100%%. Mit anderen Worten: Sie möchten alle bisher ausgestrahlten Folgen der Serie sehen.</string>
     <string name="menu_trakt_add_to_history">Als gesehen markieren</string>
+    <string name="watchlist_description">Zeigt Sendungen, die Sie sich ansehen möchten. Zum Ansehen tippen, zum Entfernen wischen.\nHinweis: Trakt entfernt Elemente automatisch aus Ihrer Beobachtungsliste, sobald Sie eine Episode als angesehen protokollieren.</string>
+    <string name="title_favorites_list">Ihre Beobachtungsliste</string>
+    <string name="episode_watched">Beobachtet</string>
+    <string name="person_detail_biography">Biographie</string>
+    <string name="person_detail_wikipedia_attribution">Beschreibung oben aus dem Wikipedia-Artikel%1$s</string>
+    <string name="person_detail_show_less">Weniger anzeigen</string>
+    <string name="person_detail_read_more">Mehr lesen</string>
+    <string name="person_detail_known_for">Bekannt für %1$s</string>
+    <string name="person_detail_age">Alter %1$s</string>
+    <string name="person_detail_photos">Fotos</string>
+    <string name="person_detail_filmography">Filmographie</string>
+    <string name="person_detail_navigate_back">Navigieren Sie zurück</string>
+    <string name="person_detail_image_content_description">Personenbild</string>
+    <string name="person_detail_photo_content_description">Personenfoto</string>
+    <string name="person_detail_close_gallery">Galerie schließen</string>
+    <string name="status_returning_series">Wiederkehrende Serie</string>
+    <string name="status_in_production">In Produktion</string>
+    <string name="status_planned">Geplant</string>
+    <string name="status_canceled">Abgesagt</string>
+    <string name="status_ended">Beendet</string>
 </resources>

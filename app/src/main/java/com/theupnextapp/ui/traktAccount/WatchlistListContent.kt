@@ -285,7 +285,7 @@ fun WatchlistListContent(
                                             if (statusFilter == status) null else status,
                                         )
                                     },
-                                    label = { Text(status) },
+                                    label = { Text(getLocalizedStatus(status)) },
                                 )
                             }
                         }
@@ -487,7 +487,7 @@ fun WatchlistListItemCard(
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                val statusText = item.status ?: ""
+                val statusText = getLocalizedStatus(item.status)
                 val rating = item.rating
                 val ratingText = if (rating != null && rating > 0.0) String.format(Locale.getDefault(), "★ %.1f", rating) else ""
 
@@ -502,5 +502,18 @@ fun WatchlistListItemCard(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun getLocalizedStatus(status: String?): String {
+    if (status == null) return ""
+    return when (status.lowercase(java.util.Locale.ROOT)) {
+        "returning series" -> stringResource(R.string.status_returning_series)
+        "in production" -> stringResource(R.string.status_in_production)
+        "planned" -> stringResource(R.string.status_planned)
+        "canceled" -> stringResource(R.string.status_canceled)
+        "ended" -> stringResource(R.string.status_ended)
+        else -> status
     }
 }

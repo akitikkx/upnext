@@ -468,6 +468,7 @@ fun EpisodeSummaryCard(
                     text = stringResource(id = R.string.episode_detail_season_episode, episodeDetail?.season?.toString() ?: "", episodeDetail?.number?.toString() ?: ""),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier.weight(1f).padding(end = 8.dp)
                 )
 
                 if (episodeDetail?.rating != null && episodeDetail.rating!! > 0.0) {

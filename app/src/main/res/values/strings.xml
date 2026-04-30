@@ -328,4 +328,21 @@
     <string name="show_detail_where_to_watch">Where to Watch</string>
     <string name="trakt_unlock_personalization">Unlock Personalization</string>
     <string name="trakt_connect_benefits">Connect your Trakt account to automatically track your watch progress, sync your history securely, and manage your watchlists seamlessly.</string>
+    <string name="person_detail_biography">Biography</string>
+    <string name="person_detail_wikipedia_attribution">Description above from the Wikipedia article%1$s</string>
+    <string name="person_detail_show_less">Show less</string>
+    <string name="person_detail_read_more">Read more</string>
+    <string name="person_detail_known_for">Known for %1$s</string>
+    <string name="person_detail_age">Age %1$s</string>
+    <string name="person_detail_photos">Photos</string>
+    <string name="person_detail_filmography">Filmography</string>
+    <string name="person_detail_navigate_back">Navigate back</string>
+    <string name="person_detail_image_content_description">Person Image</string>
+    <string name="person_detail_photo_content_description">Person Photo</string>
+    <string name="person_detail_close_gallery">Close Gallery</string>
+    <string name="status_returning_series">Returning Series</string>
+    <string name="status_in_production">In Production</string>
+    <string name="status_planned">Planned</string>
+    <string name="status_canceled">Canceled</string>
+    <string name="status_ended">Ended</string>
 </resources>

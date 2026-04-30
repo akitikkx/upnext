@@ -20,6 +20,9 @@
  */
 
 package com.theupnextapp.ui.personDetail
+import androidx.compose.ui.res.stringResource
+import com.theupnextapp.R
+
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
@@ -161,7 +164,7 @@ fun PersonDetailScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Navigate back",
+                                contentDescription = stringResource(R.string.person_detail_navigate_back),
                                 tint = Color.White,
                             )
                         }
@@ -201,7 +204,7 @@ fun PersonDetailScreen(
                                         .animateContentSize(),
                             ) {
                                 Text(
-                                    text = "Biography",
+                                    text = stringResource(R.string.person_detail_biography),
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier.padding(bottom = 8.dp),
@@ -220,7 +223,7 @@ fun PersonDetailScreen(
                                 if (parts.size > 1 && isBioExpanded) {
                                     Spacer(modifier = Modifier.height(8.dp))
                                     Text(
-                                        text = "Description above from the Wikipedia article${parts[1]}",
+                                        text = stringResource(R.string.person_detail_wikipedia_attribution, parts[1]),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                                     )
@@ -229,7 +232,7 @@ fun PersonDetailScreen(
                                 // If text is somewhat long, show the interaction toggle
                                 if (parts[0].length > BIO_LENGTH_THRESHOLD || parts.size > 1) {
                                     Text(
-                                        text = if (isBioExpanded) "Show less" else "Read more",
+                                        text = if (isBioExpanded) stringResource(R.string.person_detail_show_less) else stringResource(R.string.person_detail_read_more),
                                         style = MaterialTheme.typography.labelLarge,
                                         color = MaterialTheme.colorScheme.primary,
                                         modifier =
@@ -320,7 +323,7 @@ fun PersonImageGalleryOverlay(
                             .data(imageUrl)
                             .crossfade(true)
                             .build(),
-                    contentDescription = "Person Image",
+                    contentDescription = stringResource(R.string.person_detail_image_content_description),
                     contentScale = ContentScale.Fit,
                     modifier = Modifier.fillMaxSize(),
                 )
@@ -336,7 +339,7 @@ fun PersonImageGalleryOverlay(
             ) {
                 Icon(
                     imageVector = Icons.Default.Close,
-                    contentDescription = "Close Gallery",
+                    contentDescription = stringResource(R.string.person_detail_close_gallery),
                     tint = Color.White,
                 )
             }
@@ -431,25 +434,30 @@ fun PersonProfileHeader(
 
                 val primaryMeta =
                     listOfNotNull(
-                        summary.known_for_department.takeIf { !it.isNullOrBlank() }?.let { "Known for $it" },
+                        summary.known_for_department.takeIf { !it.isNullOrBlank() }?.let { stringResource(R.string.person_detail_known_for, it) },
                         summary.birthday?.let {
-                            try {
+                            val parsedInfo = try {
                                 val date = LocalDate.parse(it, DateTimeFormatter.ISO_LOCAL_DATE)
                                 val birthYear = date.year
-
-                                val ageOrLifespan =
-                                    if (summary.death != null) {
-                                        val deathDate = LocalDate.parse(summary.death!!, DateTimeFormatter.ISO_LOCAL_DATE)
-                                        "$birthYear - ${deathDate.year}"
-                                    } else {
-                                        val age = ChronoUnit.YEARS.between(date, LocalDate.now())
-                                        "Age $age"
-                                    }
-
                                 val formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
                                 val formattedDate = date.format(formatter)
-                                "$formattedDate ($ageOrLifespan)"
+
+                                if (summary.death != null) {
+                                    val deathDate = LocalDate.parse(summary.death!!, DateTimeFormatter.ISO_LOCAL_DATE)
+                                    Triple(formattedDate, "$birthYear - ${deathDate.year}", true)
+                                } else {
+                                    val age = ChronoUnit.YEARS.between(date, LocalDate.now())
+                                    Triple(formattedDate, age.toString(), false)
+                                }
                             } catch (e: Exception) {
+                                null
+                            }
+
+                            if (parsedInfo != null) {
+                                val (formattedDate, extraInfo, isLifespan) = parsedInfo
+                                val extraText = if (isLifespan) extraInfo else stringResource(R.string.person_detail_age, extraInfo)
+                                "$formattedDate ($extraText)"
+                            } else {
                                 it
                             }
                         },
@@ -483,7 +491,7 @@ fun PersonImageStrip(
 ) {
     Column(modifier = Modifier.padding(top = 16.dp, bottom = 16.dp)) {
         Text(
-            text = "Photos",
+            text = stringResource(R.string.person_detail_photos),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 8.dp),
@@ -511,7 +519,7 @@ fun PersonImageStrip(
                                 .data(imageUrl)
                                 .crossfade(true)
                                 .build(),
-                        contentDescription = "Person Photo",
+                        contentDescription = stringResource(R.string.person_detail_photo_content_description),
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize(),
                     )
@@ -527,7 +535,7 @@ fun PersonFilmographyStrip(
     onCreditClicked: (String?, String, Int?) -> Unit,
 ) {
     Text(
-        text = "Filmography",
+        text = stringResource(R.string.person_detail_filmography),
         style = MaterialTheme.typography.titleMedium,
         fontWeight = FontWeight.Bold,
         modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
