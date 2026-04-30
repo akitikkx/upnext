@@ -20,10 +20,6 @@
  */
 
 package com.theupnextapp.ui.personDetail
-import androidx.compose.ui.res.stringResource
-import com.theupnextapp.R
-
-
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.fadeIn
@@ -83,6 +79,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -92,6 +89,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.theupnextapp.R
 import com.theupnextapp.domain.PersonDetailArg
 import com.theupnextapp.navigation.Destinations
 import com.theupnextapp.network.models.tmdb.NetworkTmdbPersonProfile
