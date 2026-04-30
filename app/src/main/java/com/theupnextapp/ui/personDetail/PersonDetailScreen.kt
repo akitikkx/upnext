@@ -20,7 +20,6 @@
  */
 
 package com.theupnextapp.ui.personDetail
-
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.fadeIn
@@ -65,6 +64,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -79,6 +79,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -88,14 +89,16 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.theupnextapp.R
 import com.theupnextapp.domain.PersonDetailArg
 import com.theupnextapp.navigation.Destinations
 import com.theupnextapp.network.models.tmdb.NetworkTmdbPersonProfile
 import com.theupnextapp.network.models.trakt.NetworkTraktPersonResponse
 import com.theupnextapp.ui.personDetail.PersonDetailViewModel.PersonCreditUiModel
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
+import java.time.temporal.ChronoUnit
 
 private const val HERO_IMAGE_ALPHA = 0.6f
 private const val BIO_LENGTH_THRESHOLD = 250
@@ -159,7 +162,7 @@ fun PersonDetailScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Navigate back",
+                                contentDescription = stringResource(R.string.person_detail_navigate_back),
                                 tint = Color.White,
                             )
                         }
@@ -199,7 +202,7 @@ fun PersonDetailScreen(
                                         .animateContentSize(),
                             ) {
                                 Text(
-                                    text = "Biography",
+                                    text = stringResource(R.string.person_detail_biography),
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier.padding(bottom = 8.dp),
@@ -218,7 +221,7 @@ fun PersonDetailScreen(
                                 if (parts.size > 1 && isBioExpanded) {
                                     Spacer(modifier = Modifier.height(8.dp))
                                     Text(
-                                        text = "Description above from the Wikipedia article${parts[1]}",
+                                        text = stringResource(R.string.person_detail_wikipedia_attribution, parts[1]),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                                     )
@@ -227,12 +230,13 @@ fun PersonDetailScreen(
                                 // If text is somewhat long, show the interaction toggle
                                 if (parts[0].length > BIO_LENGTH_THRESHOLD || parts.size > 1) {
                                     Text(
-                                        text = if (isBioExpanded) "Show less" else "Read more",
+                                        text = if (isBioExpanded) stringResource(R.string.person_detail_show_less) else stringResource(R.string.person_detail_read_more),
                                         style = MaterialTheme.typography.labelLarge,
                                         color = MaterialTheme.colorScheme.primary,
                                         modifier =
                                             Modifier
                                                 .fillMaxWidth()
+                                                .minimumInteractiveComponentSize()
                                                 .clickable { isBioExpanded = !isBioExpanded }
                                                 .padding(vertical = 12.dp),
                                         textAlign = TextAlign.Center,
@@ -317,7 +321,7 @@ fun PersonImageGalleryOverlay(
                             .data(imageUrl)
                             .crossfade(true)
                             .build(),
-                    contentDescription = "Person Image",
+                    contentDescription = stringResource(R.string.person_detail_image_content_description),
                     contentScale = ContentScale.Fit,
                     modifier = Modifier.fillMaxSize(),
                 )
@@ -333,7 +337,7 @@ fun PersonImageGalleryOverlay(
             ) {
                 Icon(
                     imageVector = Icons.Default.Close,
-                    contentDescription = "Close Gallery",
+                    contentDescription = stringResource(R.string.person_detail_close_gallery),
                     tint = Color.White,
                 )
             }
@@ -428,33 +432,30 @@ fun PersonProfileHeader(
 
                 val primaryMeta =
                     listOfNotNull(
-                        summary.known_for_department.takeIf { !it.isNullOrBlank() }?.let { "Known for $it" },
+                        summary.known_for_department.takeIf { !it.isNullOrBlank() }?.let { stringResource(R.string.person_detail_known_for, it) },
                         summary.birthday?.let {
-                            try {
-                                val parseFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                                val displayFormat = SimpleDateFormat("MMM d, yyyy", Locale.getDefault())
+                            val parsedInfo = try {
+                                val date = LocalDate.parse(it, DateTimeFormatter.ISO_LOCAL_DATE)
+                                val birthYear = date.year
+                                val formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
+                                val formattedDate = date.format(formatter)
 
-                                val date = parseFormat.parse(it)
-                                val cal = Calendar.getInstance().apply { date?.let { d -> time = d } }
-                                val birthYear = cal.get(Calendar.YEAR)
-
-                                val ageOrLifespan =
-                                    if (summary.death != null) {
-                                        val deathDate = parseFormat.parse(summary.death!!)
-                                        val deathCal = Calendar.getInstance().apply { deathDate?.let { d -> time = d } }
-                                        "$birthYear - ${deathCal.get(Calendar.YEAR)}"
-                                    } else {
-                                        val currentCal = Calendar.getInstance()
-                                        var age = currentCal.get(Calendar.YEAR) - birthYear
-                                        if (currentCal.get(Calendar.DAY_OF_YEAR) < cal.get(Calendar.DAY_OF_YEAR)) {
-                                            age--
-                                        }
-                                        "Age $age"
-                                    }
-
-                                val formattedDate = date?.let { d -> displayFormat.format(d) } ?: it
-                                "$formattedDate ($ageOrLifespan)"
+                                if (summary.death != null) {
+                                    val deathDate = LocalDate.parse(summary.death!!, DateTimeFormatter.ISO_LOCAL_DATE)
+                                    Triple(formattedDate, "$birthYear - ${deathDate.year}", true)
+                                } else {
+                                    val age = ChronoUnit.YEARS.between(date, LocalDate.now())
+                                    Triple(formattedDate, age.toString(), false)
+                                }
                             } catch (e: Exception) {
+                                null
+                            }
+
+                            if (parsedInfo != null) {
+                                val (formattedDate, extraInfo, isLifespan) = parsedInfo
+                                val extraText = if (isLifespan) extraInfo else stringResource(R.string.person_detail_age, extraInfo)
+                                "$formattedDate ($extraText)"
+                            } else {
                                 it
                             }
                         },
@@ -488,7 +489,7 @@ fun PersonImageStrip(
 ) {
     Column(modifier = Modifier.padding(top = 16.dp, bottom = 16.dp)) {
         Text(
-            text = "Photos",
+            text = stringResource(R.string.person_detail_photos),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 8.dp),
@@ -516,7 +517,7 @@ fun PersonImageStrip(
                                 .data(imageUrl)
                                 .crossfade(true)
                                 .build(),
-                        contentDescription = "Person Photo",
+                        contentDescription = stringResource(R.string.person_detail_photo_content_description),
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize(),
                     )
@@ -532,7 +533,7 @@ fun PersonFilmographyStrip(
     onCreditClicked: (String?, String, Int?) -> Unit,
 ) {
     Text(
-        text = "Filmography",
+        text = stringResource(R.string.person_detail_filmography),
         style = MaterialTheme.typography.titleMedium,
         fontWeight = FontWeight.Bold,
         modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),

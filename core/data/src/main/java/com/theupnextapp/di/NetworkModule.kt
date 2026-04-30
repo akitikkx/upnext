@@ -28,6 +28,7 @@ import com.chuckerteam.chucker.api.RetentionManager
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import com.theupnextapp.common.utils.TmdbLanguageInterceptor
 import com.theupnextapp.common.utils.TraktAuthInterceptor
 import com.theupnextapp.common.utils.TraktAuthenticator
 import com.theupnextapp.common.utils.TraktConnectionInterceptor
@@ -166,17 +167,7 @@ object NetworkModule {
         return Retrofit.Builder()
             .client(
                 networkClient.newBuilder()
-                    .addInterceptor(
-                        Interceptor { chain ->
-                            val original = chain.request()
-                            val originalHttpUrl = original.url
-                            val url = originalHttpUrl.newBuilder()
-                                .addQueryParameter("api_key", com.theupnextapp.core.data.BuildConfig.TMDB_ACCESS_TOKEN)
-                                .build()
-                            val requestBuilder = original.newBuilder().url(url)
-                            chain.proceed(requestBuilder.build())
-                        }
-                    )
+                    .addInterceptor(TmdbLanguageInterceptor())
                     .build(),
             )
             .baseUrl("https://api.themoviedb.org/3/")

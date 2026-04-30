@@ -24,6 +24,7 @@ package com.theupnextapp.common.utils
 import com.theupnextapp.core.data.BuildConfig
 import okhttp3.Interceptor
 import okhttp3.Response
+import java.util.Locale
 
 class TraktConnectionInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
@@ -33,6 +34,7 @@ class TraktConnectionInterceptor : Interceptor {
                 .addHeader("Content-Type", "application/json")
                 .addHeader("trakt-api-version", "2")
                 .addHeader("trakt-api-key", BuildConfig.TRAKT_CLIENT_ID)
+                .addHeader("Accept-Language", Locale.getDefault().language)
                 .build()
         return chain.proceed(request)
     }

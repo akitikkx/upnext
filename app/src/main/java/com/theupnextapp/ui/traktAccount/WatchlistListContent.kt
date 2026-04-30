@@ -63,6 +63,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -183,7 +184,7 @@ fun WatchlistListContent(
                                     DropdownMenuItem(
                                         text = {
                                             Text(
-                                                "Recently Added",
+                                                stringResource(id = R.string.watchlist_sort_recently_added),
                                                 fontWeight = if (watchlistSortOption == WatchlistSortOption.ADDED) FontWeight.Bold else null,
                                             )
                                         },
@@ -195,7 +196,7 @@ fun WatchlistListContent(
                                     DropdownMenuItem(
                                         text = {
                                             Text(
-                                                "Title",
+                                                stringResource(id = R.string.watchlist_sort_title),
                                                 fontWeight = if (watchlistSortOption == WatchlistSortOption.TITLE) FontWeight.Bold else null,
                                             )
                                         },
@@ -207,7 +208,7 @@ fun WatchlistListContent(
                                     DropdownMenuItem(
                                         text = {
                                             Text(
-                                                "Release Year",
+                                                stringResource(id = R.string.watchlist_sort_release_year),
                                                 fontWeight = if (watchlistSortOption == WatchlistSortOption.RELEASE_YEAR) FontWeight.Bold else null,
                                             )
                                         },
@@ -219,7 +220,7 @@ fun WatchlistListContent(
                                     DropdownMenuItem(
                                         text = {
                                             Text(
-                                                "Rating",
+                                                stringResource(id = R.string.watchlist_sort_rating),
                                                 fontWeight = if (watchlistSortOption == WatchlistSortOption.RATING) FontWeight.Bold else null,
                                             )
                                         },
@@ -248,7 +249,7 @@ fun WatchlistListContent(
                                     .fillMaxWidth()
                                     .padding(horizontal = 16.dp)
                                     .padding(top = 12.dp),
-                            placeholder = { Text("Search your watchlist...") },
+                            placeholder = { Text(stringResource(id = R.string.watchlist_search_placeholder)) },
                             singleLine = true,
                             trailingIcon = {
                                 if (watchlistSearchQuery.isNotEmpty()) {
@@ -274,7 +275,7 @@ fun WatchlistListContent(
                             FilterChip(
                                 selected = statusFilter == null,
                                 onClick = { onStatusFilterChange(null) },
-                                label = { Text("All") },
+                                label = { Text(stringResource(id = R.string.watchlist_filter_all)) },
                             )
                             availableStatuses.forEach { status ->
                                 FilterChip(
@@ -284,7 +285,7 @@ fun WatchlistListContent(
                                             if (statusFilter == status) null else status,
                                         )
                                     },
-                                    label = { Text(status) },
+                                    label = { Text(getLocalizedStatus(status)) },
                                 )
                             }
                         }
@@ -351,7 +352,7 @@ fun WatchlistListContent(
                             if (dismissState.targetValue != SwipeToDismissBoxValue.Settled || isPeeking) {
                                 Icon(
                                     imageVector = Icons.Default.Delete,
-                                    contentDescription = "Remove from Watchlist",
+                                    contentDescription = stringResource(id = R.string.watchlist_remove_content_desc),
                                     tint = MaterialTheme.colorScheme.onError,
                                 )
                             }
@@ -408,6 +409,7 @@ fun WatchlistListItemCard(
             modifier
                 .fillMaxWidth()
                 .height(140.dp)
+                .minimumInteractiveComponentSize()
                 .clickable { onClick() },
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
@@ -439,7 +441,7 @@ fun WatchlistListItemCard(
                 } else {
                     Icon(
                         imageVector = Icons.Default.ImageNotSupported,
-                        contentDescription = "No image available",
+                        contentDescription = stringResource(id = R.string.watchlist_no_image_content_desc),
                         modifier =
                             Modifier
                                 .align(Alignment.Center)
@@ -461,7 +463,7 @@ fun WatchlistListItemCard(
                 verticalArrangement = Arrangement.Center,
             ) {
                 Text(
-                    text = item.title ?: "Unknown Title",
+                    text = item.title ?: stringResource(id = R.string.title_unknown),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -485,7 +487,7 @@ fun WatchlistListItemCard(
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                val statusText = item.status ?: ""
+                val statusText = getLocalizedStatus(item.status)
                 val rating = item.rating
                 val ratingText = if (rating != null && rating > 0.0) String.format(Locale.getDefault(), "★ %.1f", rating) else ""
 
@@ -500,5 +502,18 @@ fun WatchlistListItemCard(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun getLocalizedStatus(status: String?): String {
+    if (status == null) return ""
+    return when (status.lowercase(java.util.Locale.ROOT)) {
+        "returning series" -> stringResource(R.string.status_returning_series)
+        "in production" -> stringResource(R.string.status_in_production)
+        "planned" -> stringResource(R.string.status_planned)
+        "canceled" -> stringResource(R.string.status_canceled)
+        "ended" -> stringResource(R.string.status_ended)
+        else -> status
     }
 }

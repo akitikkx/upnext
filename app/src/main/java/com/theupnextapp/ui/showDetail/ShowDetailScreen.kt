@@ -23,6 +23,7 @@ package com.theupnextapp.ui.showDetail
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -731,7 +732,7 @@ private fun ShowDetailButtonsExpanded(
             onClick = onSeasonsClick,
             modifier = Modifier.fillMaxWidth().height(48.dp),
         ) {
-            Text(text = "Seasons")
+            Text(text = stringResource(id = R.string.btn_show_detail_seasons))
         }
         if (isAuthorizedOnTrakt == true) {
             if (isLoading) {
@@ -758,7 +759,7 @@ private fun ShowDetailButtonsExpanded(
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "Listed",
+                            text = stringResource(id = R.string.btn_show_detail_remove_from_favorites),
                             maxLines = 1,
                         )
                     }
@@ -774,7 +775,7 @@ private fun ShowDetailButtonsExpanded(
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "List",
+                            text = stringResource(id = R.string.btn_show_detail_add_to_favorites),
                             maxLines = 1,
                         )
                     }
@@ -805,7 +806,7 @@ private fun ShowDetailButtonsExpanded(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = if (userRating != null) "$userRating★" else "Rate",
+                        text = if (userRating != null) "$userRating★" else stringResource(id = R.string.show_detail_rating_heading),
                     )
                 }
             }
@@ -829,6 +830,7 @@ private fun ShowDetailButtonsCompact(
         modifier =
             Modifier
                 .wrapContentWidth(Alignment.Start)
+                .horizontalScroll(rememberScrollState())
                 .padding(
                     horizontal = dimensionResource(id = R.dimen.padding_standard_double),
                     vertical = dimensionResource(id = R.dimen.padding_standard),
@@ -839,9 +841,9 @@ private fun ShowDetailButtonsCompact(
     ) {
         OutlinedButton(
             onClick = onSeasonsClick,
-            modifier = Modifier.widthIn(min = 120.dp).fillMaxHeight(),
+            modifier = Modifier.widthIn(min = 120.dp),
         ) {
-            Text(text = "Seasons")
+            Text(text = stringResource(id = R.string.btn_show_detail_seasons))
         }
         if (isAuthorizedOnTrakt == true) {
             if (isLoading) {
@@ -865,7 +867,7 @@ private fun ShowDetailButtonsCompact(
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "Listed",
+                            text = stringResource(id = R.string.btn_show_detail_remove_from_favorites),
                             maxLines = 1,
                         )
                     }
@@ -881,7 +883,7 @@ private fun ShowDetailButtonsCompact(
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "List",
+                            text = stringResource(id = R.string.btn_show_detail_add_to_favorites),
                             maxLines = 1,
                         )
                     }
@@ -913,7 +915,7 @@ private fun ShowDetailButtonsCompact(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = if (userRating != null) "$userRating★" else "Rate",
+                        text = if (userRating != null) "$userRating★" else stringResource(id = R.string.show_detail_rating_heading),
                     )
                 }
             }
@@ -930,7 +932,7 @@ fun WatchProvidersSection(uiState: ShowDetailViewModel.ShowDetailUiState) {
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Start,
         ) {
-            SectionHeadingText(text = "Where to Watch")
+            SectionHeadingText(text = stringResource(id = R.string.show_detail_where_to_watch))
 
             LazyRow(
                 modifier =
@@ -961,7 +963,7 @@ fun WatchProvidersSection(uiState: ShowDetailViewModel.ShowDetailUiState) {
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Start,
         ) {
-            SectionHeadingText(text = "Where to Watch")
+            SectionHeadingText(text = stringResource(id = R.string.show_detail_where_to_watch))
             LazyRow(
                 modifier =
                     Modifier
@@ -1345,7 +1347,7 @@ fun RatingBottomSheet(
                         .fillMaxWidth()
                         .testTag("submit_rating_button"),
             ) {
-                Text(text = "Submit Rating")
+                Text(text = stringResource(id = R.string.btn_show_detail_submit_rating))
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -1375,7 +1377,7 @@ fun ErrorState(
         onRetry?.let {
             Spacer(modifier = Modifier.height(8.dp))
             Button(onClick = it) {
-                Text("Retry")
+                Text(text = stringResource(id = R.string.load_state_retry_button))
             }
         }
     }

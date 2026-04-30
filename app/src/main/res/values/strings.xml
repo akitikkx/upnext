@@ -1,29 +1,8 @@
-<!--
- MIT License
-
- Copyright (c) 2022 Ahmed Tikiwa
-
- Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- associated documentation files (the "Software"), to deal in the Software without restriction,
- including without limitation the rights to use, copy, modify, merge, publish, distribute,
- sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all copies or
- substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
- BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- -->
-
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
     <string name="app_name">Upnext: TV Series Manager</string>
     <string name="show_poster">%1$s poster</string>
     <string name="show_backdrop_image">%1$s backdrop image</string>
-
     <string name="title_new_shows">New Shows</string>
     <string name="title_yesterday_shows">Aired Yesterday</string>
     <string name="title_today_shows">Airing Today</string>
@@ -38,11 +17,8 @@
     <string name="watchlist_description">Shows you intend to watch. Tap to view, swipe to remove.\nNote: Trakt automatically removes items from your watchlist once you log an episode as watched.</string>
     <string name="title_loading">Loading</string>
     <string name="title_unknown">Title Unknown</string>
-
     <string name="action_navigate_up_description">Navigation arrow</string>
     <string name="desc_back_arrow">Back</string>
-
-    <!-- Bottom navigation -->
     <string name="nav_title_search">Search</string>
     <string name="nav_title_dashboard">Dashboard</string>
     <string name="nav_title_schedule">Schedule</string>
@@ -52,11 +28,7 @@
     <string name="nav_title_explore">Explore</string>
     <string name="nav_title_settings">Settings</string>
     <string name="nav_title_account">Account</string>
-
-    <!-- Empty detail screen -->
     <string name="empty_detail_screen_prompt">Select a show from the list to see its details.</string>
-
-    <!-- Show Detail -->
     <string name="show_detail_synopsis_heading">Synopsis</string>
     <string name="show_detail_next_episode_heading">Next Episode</string>
     <string name="show_detail_previous_episode_heading">Previous Episode</string>
@@ -69,6 +41,11 @@
     <string name="show_detail_genres_heading">Genres</string>
     <string name="show_detail_air_days_heading">Airs on</string>
     <string name="btn_show_detail_seasons">Seasons</string>
+    <string name="btn_mark_season_watched">Mark Season Watched</string>
+    <string name="btn_mark_season_unwatched">Mark Season Unwatched</string>
+    <string name="show_detail_episode_and_number">Episode %1$s</string>
+    <string name="show_detail_season_and_number">Season %1$s</string>
+    <string name="btn_show_detail_submit_rating">Submit Rating</string>
     <string name="btn_show_detail_add_to_favorites">Add to watchlist</string>
     <string name="btn_show_detail_remove_from_favorites">Remove from watchlist</string>
     <string name="show_detail_cast_list">Cast</string>
@@ -85,8 +62,6 @@
     <string name="show_detail_ratings_heading">Ratings (users on Trakt)</string>
     <string name="show_detail_rating_content_description">Rating Star</string>
     <string name="show_detail_connect_trakt_prompt">Go to the Account screen to connect your Trakt Account so you can add this show to your watchlist</string>
-
-    <!-- Cast -->
     <string name="cast_member_details_heading">Actor Details</string>
     <string name="cast_member_birthday">Born</string>
     <string name="cast_member_deathday">Died</string>
@@ -96,26 +71,18 @@
     <string name="character_image_description">%s character image</string>
     <string name="cast_member_voice_actor">(Voice)</string>
     <string name="cast_member_plays_self">(Plays Self)</string>
-    <string name="cast_member_profile_image_description">%s profile image</string> <!-- Already had this -->
-
-    <!-- Watched progress bottom sheet -->
+    <string name="cast_member_profile_image_description">%s profile image</string>
     <string name="trakt_watched_overall_progress_percentage">%1$d%% watched</string>
     <string name="trakt_watched_progress_episodes_aired_heading">Episodes aired</string>
     <string name="trakt_watched_progress_episodes_watched_heading">Episodes you watched</string>
     <string name="trakt_watched_progress_season_percentage">%1$d%%</string>
     <string name="trakt_watched_progress_sheet_title">Your watched progress</string>
     <string name="trakt_watched_progress_sheet_title_with_show_name">Your \"%1$s\" watched progress</string>
-
-    <!-- Show seasons -->
     <string name="show_detail_season_count">%1$d Episodes</string>
-    <string name="show_detail_season_and_number">Season %1$s</string>
     <string name="show_detail_season_premiere_date">Premiered: %1$s</string>
     <string name="show_detail_season_end_date">Ended: %1$s</string>
-    <string name="show_detail_episode_and_number">Episode %1$d</string>
     <string name="show_detail_season_and_episode_number">Season %1$s Episode %2$s</string>
     <string name="show_detail_show_seasons_title">Seasons Summary</string>
-
-    <!-- Show season episodes -->
     <string name="show_detail_show_season_episodes_title">Season episodes</string>
     <string name="show_detail_show_season_episodes_title_with_number">Season %1$s episodes</string>
     <string name="show_detail_show_season_episode_trakt_check_in">Trakt Check-in</string>
@@ -123,26 +90,19 @@
     <string name="show_detail_show_season_episode_check_in_dialog_message">Checking in means you are currently watching this episode right now. Trakt will automatically set the episode to watched status once the duration of the episode has lapsed.</string>
     <string name="show_detail_show_season_episode_check_in_dialog_negative">No thanks</string>
     <string name="show_detail_show_season_episode_check_in_dialog_positive">Proceed</string>
-
-    <!-- Splash screen -->
     <string name="splash_screen_loading_text_tomorrow_schedule">Fetching tomorrow\'s schedule…</string>
     <string name="splash_screen_loading_text_today_schedule">Fetching today\'s schedule…</string>
     <string name="splash_screen_loading_text_yesterday_schedule">Fetching yesterday\'s schedule…</string>
     <string name="splash_screen_loading_text_recommended_shows">Fetching recommended shows…</string>
-
-    <!-- Search -->
-    <string name="search_input_hint">Search for the show</string>
+    <string name="search_input_hint">Search for a show...</string>
     <string name="search_title">Search</string>
     <string name="search_recent_searches">Recent Searches</string>
     <string name="search_clear_recent">Clear</string>
     <string name="search_empty_title">No results found</string>
     <string name="search_empty_message">We couldn\'t find any shows matching your search query. Try searching for a different term.</string>
-
     <string name="pref_first_time_launch">first_time_launch</string>
-
     <string name="tv_maze_creative_commons_attribution_text_single">Image licensed under CC BY-SA 4.0</string>
     <string name="tv_maze_creative_commons_attribution_text_multiple">All images licensed under CC BY-SA 4.0</string>
-
     <string name="trakt_logo_description">Trakt logo</string>
     <string name="trakt_connect_description">Trakt is a platform that does many things, but primarily keeps
         track of TV shows and movies you watch. It integrates with your media center or home theater PC
@@ -151,9 +111,7 @@
         TV Series Manager app, click the connect button below. You will be redirected to the Trakt website where you will be required
         to authorize the UpNext app. You can revoke the access at any time from your Trakt account.</string>
     <string name="trakt_connect_description_source">[Source: https://trakt.tv/about]</string>
-
-    <!-- Trakt account screen  -->
-    <string name="connect_to_trakt_button">Connect to Trakt</string>
+    <string name="connect_to_trakt_button">Connect Trakt account</string>
     <string name="trakt_connection_status_connected">Connection status: Connected</string>
     <string name="trakt_connection_status_disconnect">Logout</string>
     <string name="disconnect_from_trakt_dialog_title">Disconnect  Trakt account?</string>
@@ -169,8 +127,6 @@
     <string name="trakt_loading_favorites">Loading your Trakt watchlist…</string>
     <string name="trakt_no_favorites_message">Watchlist Empty</string>
     <string name="trakt_no_favorites_description">Add shows to your watchlist on Trakt, and they\'ll appear here!</string>
-
-    <!-- Library -->
     <string name="library_connect_to_trakt_dialog_title">Heads up!</string>
     <string name="library_connect_to_trakt_dialog_message">You are about to be redirected to your browser and outside of the UpNext TV Series Manager
         app, where you will be taken to the Trakt website. From there, you will need to authorise UpNext TV Series Manager access to your Trakt account
@@ -187,47 +143,31 @@
     <string name="library_loading_recommendations_data">Synchronizing Trakt recommendations…</string>
     <string name="library_table_last_update">Last sync: %1$d %2$s ago</string>
     <string name="library_table_last_update_null">Last sync: -</string>
-
-    <!-- Explore -->
     <string name="explore_trending_shows_list_title">Trending shows</string>
     <string name="explore_popular_shows_list_title">Popular shows</string>
     <string name="explore_most_anticipated_shows_list_title">Most Anticipated shows</string>
-
     <string name="trakt_button_text_not_connected">Connect Trakt account</string>
     <string name="trakt_button_text_is_connected">Disconnect Trakt account</string>
     <string name="fetch_access_token_progress_text">Validating access with Trakt, please wait…</string>
     <string name="storing_access_token_progress_text">Validation complete, setting up your account…</string>
-
-    <!-- Trakt Watchlist -->
     <string name="watchlist_item_listed_at">Listed at: %1$s</string>
     <string name="watchlist_empty_state_text">Your Trakt watchlist is empty. Add shows to your watchlist in your Trakt account and they will appear here</string>
     <string name="remove_from_watchlist_confirm">Remove %1$s from your watchlist?</string>
     <string name="remove_from_watchlist_dialog_button_negative">Cancel</string>
     <string name="remove_from_watchlist_dialog_button_positive">Yes</string>
-
-    <!-- Trakt History -->
     <string name="trakt_history_episode_details">Season %1$d Episode %2$d</string>
     <string name="history_empty_state_text">Your Trakt history is empty. When you mark episodes as watched in Trakt, they will appear here</string>
     <string name="history_screen_subtitle">Your most recently watched episodes of your shows will be shown here</string>
-
-    <!-- Trakt Recommendations -->
     <string name="recommendations_title_with_year">%1$s (%2$d)</string>
     <string name="recommendations_title_without_year">%1$s</string>
     <string name="recommendations_screen_subtitle">Here are the shows Trakt has recommended for you</string>
     <string name="recommendations_empty_state_text">No shows have been recommended as yet</string>
-
-    <!-- Transitions -->
     <string name="transition_poster_name">transition poster</string>
-
-    <!-- Cast Bottomsheet -->
     <string name="cast_info_date_of_birth">Date of birth</string>
     <string name="cast_info_date_of_death">Died</string>
     <string name="cast_info_country">Country</string>
     <string name="cast_info_gender">Gender</string>
-
     <string name="empty_state_icon">Empty state icon</string>
-
-    <!-- Features bottomsheet -->
     <string name="features_bottom_sheet_title">Introducing a whole new and updated UpNext</string>
     <string name="features_bottom_sheet_search">You can still search for your favorite shows by clicking on the search icon on the bottom menu.</string>
     <string name="features_bottom_sheet_dashboard">The dashboard now contains a nicely curated list of the TV schedules (Yesterday\'s, Today\s and Tomorrow\'s),
@@ -244,13 +184,9 @@
     Trakt.tv platform will be displayed here.</string>
     <string name="features_confirm_button">Got it</string>
     <string name="upnext_logo">Upnext logo</string>
-
-    <!-- Contextual menu-->
     <string name="menu_refresh">Refresh shows</string>
     <string name="menu_trakt_add_to_history">Mark as watched</string>
     <string name="menu_trakt_remove_from_history">Remove from watched</string>
-
-    <!-- Connect Trakt Account bottom sheet-->
     <string name="why_do_need_trakt_account_title">Why do I need a Trakt account?</string>
     <string name="why_do_need_trakt_account_body">The aim of the UpNext TV Series Manager is to not only provide you with series information but also
         functionality that will allow you to track and manage your favorite shows. \n\nThis tracking functionality is offered by the very reputable
@@ -265,8 +201,6 @@
         track of TV shows and movies you watch. It integrates with your media center or home theater PC
         to enable scrobbling, so everything is automatic. Some people like to check in from their phone,
         so we enable that too.</string>
-
-    <!-- Watchlist bottom sheet -->
     <string name="what_is_a_watchlist_title">What is a watchlist?</string>
     <string name="what_is_a_watchlist_body">If you have a show that you are currently watching or intend to watch, then you can add it to your watchlist.
     This watchlist will be managed by the Trakt service. You can view items in your watchlist on the UpNext TV Series Manager by going to the
@@ -276,12 +210,10 @@
     <string name="how_trakt_manages_the_watchlist_body">Your watchlist is built in list to keep track of everything you want to watch.
         Once you watch an item from your watchlist, it automatically gets removed. Watching 1 episode of a show or season will remove that
         item as well. Your calendars and progress are automatically kept up to date with what you’re watching,
-        no need to keep it on your watchlist. \n\nIf your watched progress for a series is 100% watched, that is, you have watched all the episodes that have
+        no need to keep it on your watchlist. \n\nIf your watched progress for a series is 100%% watched, that is, you have watched all the episodes that have
     aired since the series first premiered up until its most recent episode, then adding to watchlist will not be possible until new episodes become available.
         A watchlist is intended for shows you want to watch
-    to 100%. In other words you want to watch all the episodes for the series that have aired to date.</string>
-
-    <!-- Transition names -->
+    to 100%%. In other words you want to watch all the episodes for the series that have aired to date.</string>
     <string name="dashboard_yesterday_transition_name">dashboard_yesterday_%1$s</string>
     <string name="dashboard_today_transition_name">dashboard_today_%1$s</string>
     <string name="dashboard_tomorrow_transition_name">dashboard_tomorrow_%1$s</string>
@@ -299,13 +231,9 @@
     <string name="history_transition_name">history_%1$s</string>
     <string name="recommendation_transition_name">recommendation_%1$s</string>
     <string name="recommendations_transition_name">recommendations</string>
-
-    <!-- Messages -->
     <string name="loading_general">Loading…</string>
     <string name="load_state_retry_button">Retry</string>
     <string name="load_state_error_default">There was an error loading the results: %1$s</string>
-
-    <!-- Error -->
     <string name="error_connect_to_internet">Settings</string>
     <string name="error_show_detail_watched_progress_empty">You currently have no progress data available for this show</string>
     <string name="error_show_detail_seasons_empty">Season information for this show is currently not available</string>
@@ -314,8 +242,6 @@
     <string name="error_device_not_connected_to_internet">You are not connected to the internet</string>
     <string name="error_trakt_account_connection_required">Connect your Trakt account in order to continue</string>
     <string name="error_connect_trakt_account">Connect</string>
-
-    <!-- Episode Watch Progress -->
     <string name="episode_watched">Watched</string>
     <string name="episode_not_watched">Not watched</string>
     <string name="episode_mark_watched">Mark as watched</string>
@@ -323,23 +249,15 @@
     <string name="watch_progress_format">%1$d/%2$d episodes watched</string>
     <string name="sync_watch_progress">Syncing watch progress</string>
     <string name="sync_watch_progress_failed">Failed to sync watch progress</string>
-
-    <!-- Preference Titles -->
     <string name="appearance_header">Appearance</string>
     <string name="sync_header">Sync</string>
-
     <string name="dark_mode_follow_system">System Default</string>
     <string name="dark_mode_no">Light</string>
     <string name="dark_mode_yes">Dark</string>
     <string name="dark_mode_auto_battery">Battery Saver</string>
-
     <string name="notification_channel_name">UpNext Notifications</string>
     <string name="notification_channel_description">Notifications for new episodes and updates</string>
-
-    <!-- Dark Mode Preferences -->
     <string name="signature_title">Your signature</string>
-
-    <!-- Sync Preferences -->
     <string name="sync_title">Sync email periodically</string>
     <string name="attachment_title">Download incoming attachments</string>
     <string name="attachment_summary_on">Automatically download attachments for incoming emails
@@ -350,5 +268,81 @@
     <string name="back_arrow_content_description">Back</string>
     <string name="error_fetching_episode_details">Failed to load episode details.</string>
     <string name="no_overview_available">No overview available for this episode.</string>
-
+    <string name="settings_general">General</string>
+    <string name="settings_episode_notifications">Episode Notifications</string>
+    <string name="settings_episode_notifications_desc">Get alerted when tracked shows air locally</string>
+    <string name="settings_app_theme">App Theme</string>
+    <string name="settings_theme_selected">Selected</string>
+    <string name="settings_data_saver">Data Saver Mode</string>
+    <string name="settings_data_saver_desc">Limit image quality to save bandwidth</string>
+    <string name="settings_account">Account</string>
+    <string name="settings_trakt_connection">Trakt.tv Connection</string>
+    <string name="settings_connected">Connected</string>
+    <string name="settings_disconnect">Disconnect</string>
+    <string name="settings_trakt_not_connected">Not connected. Track progress and sync history.</string>
+    <string name="settings_connect">Connect</string>
+    <string name="settings_about">About</string>
+    <string name="settings_version">Version</string>
+    <string name="dashboard_my_upnext">My Upnext</string>
+    <string name="dashboard_tonight_on_tv">Tonight on TV</string>
+    <string name="dashboard_no_tv_schedule">No TV Schedule</string>
+    <string name="dashboard_no_tv_schedule_desc">It looks like the schedules are empty. Check back later.</string>
+    <string name="dashboard_connect_trakt_desc">Connect Trakt</string>
+    <string name="dashboard_unlock_personal_tracker">Unlock your personal TV tracker</string>
+    <string name="dashboard_connect_trakt_body">Connect your Trakt account to track your progress and get personalized recommendations.</string>
+    <string name="dashboard_most_anticipated">Most Anticipated</string>
+    <string name="dashboard_airing_soon">Airing Soon</string>
+    <string name="dashboard_nothing_airing_soon">Nothing Airing Soon</string>
+    <string name="dashboard_nothing_airing_soon_desc">Check back later for upcoming episodes.</string>
+    <string name="dashboard_tba">TBA</string>
+    <string name="dashboard_recent_activity">Recent Activity</string>
+    <string name="dashboard_no_recent_activity">No Recent Activity</string>
+    <string name="dashboard_no_recent_activity_desc">When you mark episodes as watched, they will appear here.</string>
+    <string name="dashboard_season_episode">Season %1$d • Episode %2$d</string>
+    <string name="dashboard_watched">Watched</string>
+    <string name="dashboard_recommended_for_you">Recommended for You</string>
+    <string name="dashboard_show_poster_desc">Show Poster</string>
+    <string name="watchlist_sort_recently_added">Recently Added</string>
+    <string name="watchlist_sort_title">Title</string>
+    <string name="watchlist_sort_release_year">Release Year</string>
+    <string name="watchlist_sort_rating">Rating</string>
+    <string name="watchlist_search_placeholder">Search your watchlist…</string>
+    <string name="watchlist_filter_all">All</string>
+    <string name="watchlist_remove_content_desc">Remove from Watchlist</string>
+    <string name="watchlist_no_image_content_desc">No image available</string>
+    <string name="episode_detail_guest_stars">Guest Stars</string>
+    <string name="episode_detail_crew">Crew</string>
+    <string name="episode_detail_aired_date">Aired: %1$s</string>
+    <string name="episode_detail_aired_relative_date">Aired: %1$s (%2$s)</string>
+    <string name="episode_detail_show_backdrop">Show Backdrop</string>
+    <string name="episode_detail_season_episode">Season %1$s • Episode %2$s</string>
+    <string name="episode_detail_rating_format">%1$d%% (%2$s votes)</string>
+    <string name="episode_detail_imdb">IMDB</string>
+    <string name="episode_detail_tvdb">TVDB</string>
+    <string name="episode_detail_cancel_checkin">Cancel Check-in</string>
+    <string name="episode_detail_checkin">Check In to Episode on Trakt</string>
+    <string name="episode_detail_overview">Overview</string>
+    <string name="title_trending_shows">Trending</string>
+    <string name="title_popular_shows">Popular</string>
+    <string name="title_anticipated_shows">Anticipated</string>
+    <string name="show_detail_where_to_watch">Where to Watch</string>
+    <string name="trakt_unlock_personalization">Unlock Personalization</string>
+    <string name="trakt_connect_benefits">Connect your Trakt account to automatically track your watch progress, sync your history securely, and manage your watchlists seamlessly.</string>
+    <string name="person_detail_biography">Biography</string>
+    <string name="person_detail_wikipedia_attribution">Description above from the Wikipedia article%1$s</string>
+    <string name="person_detail_show_less">Show less</string>
+    <string name="person_detail_read_more">Read more</string>
+    <string name="person_detail_known_for">Known for %1$s</string>
+    <string name="person_detail_age">Age %1$s</string>
+    <string name="person_detail_photos">Photos</string>
+    <string name="person_detail_filmography">Filmography</string>
+    <string name="person_detail_navigate_back">Navigate back</string>
+    <string name="person_detail_image_content_description">Person Image</string>
+    <string name="person_detail_photo_content_description">Person Photo</string>
+    <string name="person_detail_close_gallery">Close Gallery</string>
+    <string name="status_returning_series">Returning Series</string>
+    <string name="status_in_production">In Production</string>
+    <string name="status_planned">Planned</string>
+    <string name="status_canceled">Canceled</string>
+    <string name="status_ended">Ended</string>
 </resources>

@@ -58,6 +58,15 @@
 
 ---
 
+### Option E: 🔄 Multi-Provider Sync (SIMKL Integration)
+**What**: Abstract the existing Trakt-specific syncing layer into a generic `SyncProvider` interface to support SIMKL integration natively. Enables users to sync watched episodes, watchlists, and ratings to/from SIMKL instead of or alongside Trakt.
+
+**Impact**: High for user acquisition. Allows users with existing SIMKL tracking history to onboard seamlessly without rebuilding their data. Satisfies direct user requests.
+
+**Effort**: ~15-20 hours (Major Architecture Epic)
+
+---
+
 ## My Recommendation
 
 Given the analytics:
@@ -65,11 +74,13 @@ Given the analytics:
 - **Acquisition is the gap** — 52 active installs from 2.58K lifetime downloads means most people try and leave early
 - **Churn is down** — the -40.63% device loss trend is encouraging
 
-**I'd recommend Option C (Advanced Filtering)** as the highest-impact next move because:
+**For immediate impact, I'd recommend Option C (Advanced Filtering)** because:
 1. It's the #1 complaint about the official Trakt app (poor list management)
 2. It makes the *existing* content more discoverable without building new screens
 3. It benefits every user on every session (Dashboard, Explore, Watchlist)
 4. It compounds with the watchlist sync work we just shipped
+
+**For long-term acquisition strategy, Option E (SIMKL Integration)** should be prioritized as the next major Epic (Phase 2). By supporting an alternative provider, we remove the friction for users already invested in the SIMKL ecosystem, directly addressing the acquisition gap.
 
 Alternatively, if you want to close out Phase 1 cleanly first, **Option A** is a quick win (~2h) before moving to growth features.
 

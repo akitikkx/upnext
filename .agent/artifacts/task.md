@@ -1,13 +1,9 @@
-# Adaptive Detail Layout Execution
+# Phase 2: API Localization Tasks
 
-- [x] Refactor `SynopsisArea.kt`
-    - [x] Create `SynopsisAreaTextOnly` composable for Expanded mode (no poster).
-    - [x] Route `WindowWidthSizeClass.Expanded` to use `SynopsisAreaTextOnly`.
-- [x] Refactor `ShowDetailScreen.kt`
-    - [x] Add `ExpandedDetailArea()` composable with `Row` (Left Pane / Right Pane).
-    - [x] Build Left Pane: `PosterImage`, `ShowDetailButtons`, `TraktRatingSummary`.
-    - [x] Build Right Pane: Title, Status, `SynopsisArea`, `WatchProviders`, `ShowCast`, `NextEpisode`, `PreviousEpisode`, `SimilarShows`.
-    - [x] Update main `DetailArea` to dynamically render `CompactDetailArea` (the old vertical stack) or `ExpandedDetailArea`.
-- [x] Update `ShowDetailButtons`
-    - [x] Adjust the layout/wrappers so the buttons fill the left pane neatly when in Expanded mode.
-- [x] Verify build and layout rendering locally without crashing.
+- [x] **1. TMDB Interceptor Localization**
+  - [x] Update `provideTmdbService` in `NetworkModule.kt` to inject the `language` query parameter using `Locale.getDefault().toLanguageTag()`.
+- [x] **2. Trakt Interceptor Localization**
+  - [x] Add `TraktLanguageInterceptor` to `NetworkModule.kt`.
+  - [x] Apply `TraktLanguageInterceptor` to `provideTraktService` to inject `Accept-Language` headers dynamically based on device locale.
+- [ ] **3. Verification**
+  - [ ] Run Lint and Unit tests to ensure no regressions.

@@ -1,0 +1,136 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="settings_general">Général</string>
+    <string name="settings_episode_notifications">Notifications d\'épisodes</string>
+    <string name="settings_episode_notifications_desc">Soyez alerté quand vos séries sont diffusées</string>
+    <string name="settings_app_theme">Thème de l\'application</string>
+    <string name="settings_theme_selected">Sélectionné</string>
+    <string name="settings_data_saver">Économiseur de données</string>
+    <string name="settings_data_saver_desc">Réduire la qualité d\'image pour économiser la bande passante</string>
+    <string name="settings_account">Compte</string>
+    <string name="settings_trakt_connection">Connexion Trakt.tv</string>
+    <string name="settings_connected">Connecté</string>
+    <string name="settings_disconnect">Se déconnecter</string>
+    <string name="settings_trakt_not_connected">Non connecté. Suivez votre progression et synchronisez votre historique.</string>
+    <string name="settings_connect">Se connecter</string>
+    <string name="settings_about">À propos</string>
+    <string name="settings_version">Version</string>
+    <string name="dashboard_my_upnext">Mon Upnext</string>
+    <string name="dashboard_tonight_on_tv">Ce soir à la télé</string>
+    <string name="dashboard_no_tv_schedule">Pas de programme TV</string>
+    <string name="dashboard_no_tv_schedule_desc">Il semble qu\'il n\'y ait aucun programme prévu. Revenez plus tard.</string>
+    <string name="dashboard_connect_trakt_desc">Associer Trakt</string>
+    <string name="dashboard_unlock_personal_tracker">Débloquez votre outil de suivi personnel</string>
+    <string name="dashboard_connect_trakt_body">Associez votre compte Trakt pour suivre votre progression et obtenir des recommandations sur mesure.</string>
+    <string name="dashboard_most_anticipated">Les plus attendus</string>
+    <string name="dashboard_airing_soon">Prochaines diffusions</string>
+    <string name="dashboard_nothing_airing_soon">Rien de prévu prochainement</string>
+    <string name="dashboard_nothing_airing_soon_desc">Revenez plus tard pour voir les prochains épisodes.</string>
+    <string name="dashboard_tba">À confirmer</string>
+    <string name="dashboard_recent_activity">Activité récente</string>
+    <string name="dashboard_no_recent_activity">Aucune activité récente</string>
+    <string name="dashboard_no_recent_activity_desc">Lorsque vous marquerez des épisodes comme vus, ils apparaîtront ici.</string>
+    <string name="dashboard_season_episode">Saison %1$d • Épisode %2$d</string>
+    <string name="dashboard_watched">Vu</string>
+    <string name="dashboard_recommended_for_you">Recommandé pour vous</string>
+    <string name="watchlist_sort_recently_added">Ajoutés récemment</string>
+    <string name="watchlist_sort_title">Titre</string>
+    <string name="watchlist_sort_release_year">Année de sortie</string>
+    <string name="watchlist_sort_rating">Note</string>
+    <string name="watchlist_search_placeholder">Rechercher dans votre liste…</string>
+    <string name="watchlist_filter_all">Tout</string>
+    <string name="watchlist_remove_content_desc">Retirer de la liste</string>
+    <string name="watchlist_no_image_content_desc">Aucune image disponible</string>
+    <string name="episode_detail_guest_stars">Invités spéciaux</string>
+    <string name="episode_detail_crew">Équipe</string>
+    <string name="episode_detail_aired_date">Diffusé : %1$s</string>
+    <string name="episode_detail_aired_relative_date">Diffusé : %1$s (%2$s)</string>
+    <string name="episode_detail_show_backdrop">Affiche de la série</string>
+    <string name="episode_detail_season_episode">Saison %1$s • Épisode %2$s</string>
+    <string name="episode_detail_rating_format">%1$d%% (%2$s avis)</string>
+    <string name="episode_detail_imdb">IMDB</string>
+    <string name="episode_detail_tvdb">TVDB</string>
+    <string name="episode_detail_cancel_checkin">Annuler le Check-in</string>
+    <string name="episode_detail_checkin">Faire un Check-in sur Trakt</string>
+    <string name="episode_detail_overview">Résumé</string>
+    <string name="title_yesterday_shows">Diffusé Hier</string>
+    <string name="title_today_shows">Aujourd\'hui à la TV</string>
+    <string name="title_tomorrow_shows">Demain à la TV</string>
+    <string name="title_trending_shows">Tendances</string>
+    <string name="title_popular_shows">Populaire</string>
+    <string name="title_anticipated_shows">Attendu</string>
+    <string name="search_input_hint">Rechercher une série...</string>
+    <string name="search_empty_title">Aucun résultat trouvé</string>
+    <string name="show_detail_genres_heading">Genres</string>
+    <string name="show_detail_air_days_heading">Jours de diffusion</string>
+    <string name="show_detail_next_episode_heading">Épisode Suivant</string>
+    <string name="show_detail_previous_episode_heading">Épisode Précédent</string>
+    <string name="btn_show_detail_seasons">Saisons</string>
+    <string name="show_detail_cast_list">Distribution</string>
+    <string name="show_detail_rating_heading">Note Trakt</string>
+    <string name="show_detail_where_to_watch">Où regarder</string>
+    <string name="show_detail_add_to_watchlist_button">Ajouter à la watchlist</string>
+    <string name="show_detail_remove_from_watchlist_button">Retirer de la watchlist</string>
+    <string name="trakt_unlock_personalization">Débloquer la Personnalisation</string>
+    <string name="trakt_connect_benefits">Connectez votre compte Trakt pour suivre automatiquement vos progrès, synchroniser votre historique en toute sécurité et gérer vos watchlists en toute transparence.</string>
+    <string name="connect_to_trakt_button">Connecter le compte Trakt</string>
+    <string name="btn_show_detail_add_to_favorites">Ajouter à la liste de surveillance</string>
+    <string name="btn_show_detail_remove_from_favorites">Supprimer de la liste de surveillance</string>
+    <string name="show_detail_similar_shows_heading">Émissions similaires</string>
+    <string name="show_detail_season_premiere_date">Première : %1$s</string>
+    <string name="show_detail_season_end_date">Terminé : %1$s</string>
+    <string name="tv_maze_creative_commons_attribution_text_multiple">Toutes les images sous licence CC BY-SA 4.0</string>
+    <string name="btn_mark_season_watched">Marquer la saison regardée</string>
+    <string name="btn_mark_season_unwatched">Marquer la saison sans surveillance</string>
+    <string name="episode_mark_watched">Marquer comme regardé</string>
+    <string name="episode_mark_unwatched">Marquer comme non surveillé</string>
+    <string name="btn_show_detail_submit_rating">Soumettre une évaluation</string>
+    <string name="show_detail_episode_and_number">Épisode %1$s</string>
+    <string name="show_detail_season_and_number">Saison %1$s</string>
+    <string name="why_do_need_trakt_account_body">L\'objectif d\'UpNext TV Series Manager est non seulement de vous fournir des informations sur les séries, mais également
+        fonctionnalité qui vous permettra de suivre et de gérer vos émissions préférées. \n\nCette fonctionnalité de suivi est proposée par le très réputé
+        Service Trakt que nous avons intégré dans les sections de gestion d\'UpNext TV Series Manager. Pour pouvoir profiter du
+        Fonctionnalités Trakt dans Upnext TV Series Manager, telles que la gestion de votre liste de surveillance ou de l\'historique de visionnage de vos séries, vous aurez besoin
+        avoir un compte Trakt et via l\'un des boutons « Se connecter à Trakt » dans UpNext TV Series Manager, nous pouvons ensuite lier votre Trakt
+        compte. \n\nÀ tout moment, vous pouvez révoquer l\'accès d\'UpNext TV Series Manager à votre compte depuis votre compte Trakt.tv. Gardez à l\'esprit ceci
+        coupera alors toute connexion du gestionnaire d\'UpNext TV Series à votre compte, désactivant ainsi toutes les fonctionnalités de gestion - liste de surveillance et historique.</string>
+    <string name="why_do_need_trakt_account_title">Pourquoi ai-je besoin d\'un compte Trakt ?</string>
+    <string name="what_is_trakt_body">Trakt est une plateforme qui fait beaucoup de choses, mais qui garde principalement
+        suivi des émissions de télévision et des films que vous regardez. Il s\'intègre à votre centre multimédia ou à votre PC home cinéma
+        pour activer le srobbling, donc tout est automatique. Certaines personnes aiment s\'enregistrer depuis leur téléphone,
+        donc nous permettons cela aussi.</string>
+    <string name="what_is_trakt_title">Qu’est-ce que Trakt ?</string>
+    <string name="what_is_a_watchlist_body">Si vous regardez actuellement une émission ou avez l’intention de la regarder, vous pouvez l’ajouter à votre liste de surveillance.
+    Cette liste de surveillance sera gérée par le service Trakt. Vous pouvez afficher les éléments de votre liste de surveillance sur UpNext TV Series Manager en accédant à
+    Onglet \"Liste de surveillance\". Ici, tous les éléments figurant sur votre liste de surveillance Trakt seront répertoriés. Vous pourrez également supprimer des éléments qui, à leur tour, seront supprimés.
+        Trakt.</string>
+    <string name="how_trakt_manages_the_watchlist_title">Comment Trakt gère votre liste de surveillance</string>
+    <string name="how_trakt_manages_the_watchlist_body">Votre liste de surveillance est intégrée pour garder une trace de tout ce que vous souhaitez regarder.
+        Une fois que vous regardez un élément de votre liste de surveillance, il est automatiquement supprimé. Regarder 1 épisode d\'une émission ou d\'une saison supprimera cela
+        article également. Vos calendriers et vos progrès sont automatiquement mis à jour avec ce que vous regardez,
+        pas besoin de le garder sur votre liste de surveillance. \n\nSi votre progression de visionnage pour une série est regardée à 100%%, c\'est-à-dire que vous avez regardé tous les épisodes qui ont été regardés.
+    diffusé depuis la première de la série jusqu\'à son épisode le plus récent, puis l\'ajout à la liste de surveillance ne sera pas possible tant que de nouveaux épisodes ne seront pas disponibles.
+        Une liste de surveillance est destinée aux émissions que vous souhaitez regarder
+    à 100%%. En d’autres termes, vous souhaitez regarder tous les épisodes de la série diffusés jusqu’à présent.</string>
+    <string name="menu_trakt_add_to_history">Marquer comme regardé</string>
+    <string name="watchlist_description">Les émissions que vous avez l\'intention de regarder. Appuyez pour afficher, faites glisser pour supprimer.\nRemarque : Trakt supprime automatiquement les éléments de votre liste de surveillance une fois que vous enregistrez un épisode comme regardé.</string>
+    <string name="title_favorites_list">Votre liste de surveillance</string>
+    <string name="episode_watched">Regardé</string>
+    <string name="person_detail_biography">Biographie</string>
+    <string name="person_detail_wikipedia_attribution">Description ci-dessus tirée de l\'article Wikipédia%1$s</string>
+    <string name="person_detail_show_less">Afficher moins</string>
+    <string name="person_detail_read_more">En savoir plus</string>
+    <string name="person_detail_known_for">Connu pour %1$s</string>
+    <string name="person_detail_age">Âge %1$s</string>
+    <string name="person_detail_photos">Photos</string>
+    <string name="person_detail_filmography">Filmographie</string>
+    <string name="person_detail_navigate_back">Naviguer en arrière</string>
+    <string name="person_detail_image_content_description">Image de la personne</string>
+    <string name="person_detail_photo_content_description">Photo de la personne</string>
+    <string name="person_detail_close_gallery">Fermer la galerie</string>
+    <string name="status_returning_series">Série de retour</string>
+    <string name="status_in_production">En production</string>
+    <string name="status_planned">Prévu</string>
+    <string name="status_canceled">Annulé</string>
+    <string name="status_ended">Terminé</string>
+</resources>

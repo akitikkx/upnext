@@ -58,6 +58,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
@@ -242,11 +243,11 @@ fun ShowSeasons(
                                 style = MaterialTheme.typography.headlineMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onBackground,
-                                modifier = Modifier.clickable { onShowTitleClick() },
+                                modifier = Modifier.minimumInteractiveComponentSize().clickable { onShowTitleClick() },
                             )
                         }
                         Text(
-                            text = "Seasons",
+                            text = stringResource(id = R.string.btn_show_detail_seasons),
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
                         )
@@ -334,28 +335,34 @@ fun ShowSeasonCard(
 
                 val premiereDate = item.premiereDate
                 if (!premiereDate.isNullOrEmpty()) {
-                    Text(
-                        text =
-                            stringResource(
-                                R.string.show_detail_season_premiere_date,
-                                premiereDate,
-                            ),
-                        modifier = Modifier.padding(2.dp),
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
+                    val date = com.theupnextapp.common.utils.DateUtils.getDisplayDate(premiereDate)
+                    if (date != null) {
+                        Text(
+                            text =
+                                stringResource(
+                                    R.string.show_detail_season_premiere_date,
+                                    date,
+                                ),
+                            modifier = Modifier.padding(2.dp),
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                    }
                 }
 
                 val endDate = item.endDate
                 if (!endDate.isNullOrEmpty()) {
-                    Text(
-                        text =
-                            stringResource(
-                                R.string.show_detail_season_end_date,
-                                endDate,
-                            ),
-                        modifier = Modifier.padding(2.dp),
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
+                    val date = com.theupnextapp.common.utils.DateUtils.getDisplayDate(endDate)
+                    if (date != null) {
+                        Text(
+                            text =
+                                stringResource(
+                                    R.string.show_detail_season_end_date,
+                                    date,
+                                ),
+                            modifier = Modifier.padding(2.dp),
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                    }
                 }
 
                 if (isAuthorizedOnTrakt) {
@@ -376,7 +383,7 @@ fun ShowSeasonCard(
                             },
                     ) {
                         Text(
-                            text = if (item.isWatched == true) "Mark Season Unwatched" else "Mark Season Watched",
+                            text = if (item.isWatched == true) stringResource(id = R.string.btn_mark_season_unwatched) else stringResource(id = R.string.btn_mark_season_watched),
                             style = MaterialTheme.typography.labelMedium,
                         )
                     }

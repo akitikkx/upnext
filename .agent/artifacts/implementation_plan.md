@@ -1,71 +1,67 @@
-# UI Metadata Enrichment for Optimistic Watchlist Insertion
+### 2. Full UI Localization (Dutch and Global)
 
-When a standard Trakt sync occurs, the application properly fetches and maps TVMaze records with heavy metadata properties (such as Network, Status, and Premiere year), ensuring the user's Watchlist looks rich and informative.
-However, when a user explicitly taps **"Add to Watchlist"** from `ShowDetailScreen`, `ShowDetailViewModel` dispatches an `AddToWatchlistWorker`. While the worker completes the cloud action, it skips the heavy reverse-sync from Trakt to avoid overwriting the app's snappy local Optimistic Update with Trakt's slow-to-update cache.
-Unfortunately, the optimistic update was hardcoded to only insert the `title` and `images`, leaving fields like `year`, `tvMazeID`, `network`, `status`, and `rating` forcibly `null` inside `TraktRepositoryImpl.addToWatchlist`. 
-
-To fix this, we will pass the extra metadata properties downward across the chain, capturing them directly from the `ShowDetailScreen`'s existing TVMaze payload.
+The goal is to ensure all remaining hardcoded strings in the UpNext application are extracted to `strings.xml` and fully translated into Dutch (testing language). This includes the Show Detail, Schedule, Explore, Search, and Account screens.
 
 ## User Review Required
 
-Please review the proposed data-flow below. Since this involves expanding an existing Database Entity's initialization arguments, it is a low-risk change safely extending the `TraktRepository` boundaries.
+Please review the proposed keys and English/Dutch string mappings. I will use standard string extraction to `res/values/strings.xml` and provide Dutch translations in `res/values-nl/strings.xml`. I will also run the test suite afterwards.
 
 ## Proposed Changes
 
-### Domain & Network Layer
+---
 
-We will expose the previously dormant `premiered` and `network` metadata from the core TVMaze endpoint up to the `ShowSummary` state.
+### `values/strings.xml` and `values-nl/strings.xml`
+I will add or update the following string keys in both the default English `strings.xml` and the Dutch `values-nl/strings.xml` file. 
+For existing keys that are simply missing in the Dutch file, I will add the translated equivalents.
 
-#### [MODIFY] [ShowDetailSummary.kt](file:///Users/ahmedtikiwa/upnext4/core/domain/src/main/java/com/theupnextapp/domain/ShowDetailSummary.kt)
-- Expand the Parcelable model to include:
-  - `val network: String?`
-  - `val premiered: String?`
-- Apply these changes symmetrically to `constructor`, `writeToParcel`, and `#emptyShowData`.
+- **Schedule / Explore**:
+  - `title_yesterday_shows` (Aired Yesterday -> Gisteren uitgezonden)
+  - `title_today_shows` (Airing Today -> Vandaag op TV)
+  - `title_tomorrow_shows` (Airing Tomorrow -> Morgen op TV)
+  - `title_trending_shows` (Trending -> Trending)
+  - `title_popular_shows` (Popular -> Populair)
+  - `title_anticipated_shows` (Anticipated -> Verwacht)
 
-#### [MODIFY] [NetworkShowInfoResponse.kt](file:///Users/ahmedtikiwa/upnext4/core/data/src/main/java/com/theupnextapp/network/models/tvmaze/NetworkShowInfoResponse.kt)
-- In the `asDomainModel` mapping extension, assign `premiered = premiered` and `network = network?.name`.
+- **Search**:
+  - `search_input_hint` (Search for a show... -> Zoek naar een serie...)
+  - `search_empty_title` (No results found -> Geen resultaten gevonden)
+
+- **Show Detail** (missing Dutch equivalents for existing keys):
+  - `show_detail_genres_heading` (Genres -> Genres)
+  - `show_detail_air_days_heading` (Airs on -> Uitzenddagen)
+  - `show_detail_next_episode_heading` (Next Episode -> Volgende Aflevering)
+  - `show_detail_previous_episode_heading` (Previous Episode -> Vorige Aflevering)
+  - `btn_show_detail_seasons` (Seasons -> Seizoenen)
+  - `show_detail_cast_list` (Cast -> Cast)
+  - `show_detail_rating_heading` (Trakt Rating -> Trakt Beoordeling)
+  - `show_detail_where_to_watch` (Where to Watch -> Waar te bekijken)
+  - `show_detail_add_to_watchlist_button` (Add to watchlist -> Toevoegen aan watchlist)
+  - `show_detail_remove_from_watchlist_button` (Remove from watchlist -> Verwijderen van watchlist)
+
+- **Account / Watchlist**:
+  - `trakt_unlock_personalization` (Unlock Personalization -> Ontgrendel Personalisatie)
+  - `trakt_connect_benefits` (Connect your Trakt account to automatically track your watch progress, sync your history securely, and manage your watchlists seamlessly. -> Koppel je Trakt-account om je voortgang automatisch bij te houden, je geschiedenis veilig te synchroniseren en je watchlists naadloos te beheren.)
+  - `connect_to_trakt_button` (Connect Trakt Account -> Verbind Trakt Account)
 
 ---
 
-### Data & Worker Layer
+### UI Components
 
-We will adjust the caching pipeline to persist the enriched data for optimistic viewing on the UI.
+#### [MODIFY] `app/src/main/java/com/theupnextapp/ui/explore/ExploreScreen.kt`
+- Replace hardcoded `listOf("Trending", "Popular", "Anticipated")` with `listOf(stringResource(R.string.title_trending_shows), stringResource(R.string.title_popular_shows), stringResource(R.string.title_anticipated_shows))`.
 
-#### [MODIFY] [AddToWatchlistWorker.kt](file:///Users/ahmedtikiwa/upnext4/core/data/src/main/java/com/theupnextapp/work/AddToWatchlistWorker.kt)
-- Establish static constants: `ARG_TVMAZE_ID`, `ARG_YEAR`, `ARG_NETWORK`, `ARG_STATUS`, `ARG_RATING`.
-- Extract these keys from `inputData` inside `doWork()`.
-- Route the populated parameters onward into `addShowToWatchlist` and identically through to the repository layer.
+#### [MODIFY] `app/src/main/java/com/theupnextapp/ui/showDetail/ShowDetailScreen.kt`
+- Replace hardcoded `"Where to Watch"` with `stringResource(id = R.string.show_detail_where_to_watch)`.
 
-#### [MODIFY] [TraktRepository.kt](file:///Users/ahmedtikiwa/upnext4/core/data/src/main/java/com/theupnextapp/repository/TraktRepository.kt) & [TraktRepositoryImpl.kt](file:///Users/ahmedtikiwa/upnext4/core/data/src/main/java/com/theupnextapp/repository/TraktRepositoryImpl.kt)
-- Amend the `addToWatchlist` signature.
-- Provide the variables directly into the `DatabaseWatchlistShows` instantiation instead of hardcoded `nulls`.
-
----
-
-### UI & Presentation Layer
-
-We will pack the parameters originating from our view state inside the Worker creation blueprint natively.
-
-#### [MODIFY] [ShowDetailViewModel.kt](file:///Users/ahmedtikiwa/upnext4/app/src/main/java/com/theupnextapp/ui/showDetail/ShowDetailViewModel.kt)
-- In `onAddRemoveWatchlistClick`, enrich the `Data.Builder()` payload:
-  - Extract `.putInt(ARG_TVMAZE_ID)` from `showSummary.id`.
-  - Slice the year using `.putString(ARG_YEAR)` from `showSummary.premiered.substring(0,4)`.
-  - Provide `showSummary.network` and `showSummary.status` as `.putString()`.
-  - Provide `.putDouble(ARG_RATING)` mapping to the currently tracked `showRating.value?.rating`.
-
-## Open Questions
-None.
+#### [MODIFY] `app/src/main/java/com/theupnextapp/ui/traktAccount/TraktAccountScreen.kt`
+- Replace hardcoded `"Unlock Personalization"` with `stringResource(id = R.string.trakt_unlock_personalization)`.
+- Replace hardcoded `"Connect your Trakt account to..."` with `stringResource(id = R.string.trakt_connect_benefits)`.
 
 ## Verification Plan
 
 ### Automated Tests
-We will add and update unit tests to ensure that the augmented metadata traverses the architectural boundaries accurately:
-- **`ShowDetailViewModelTest.kt`**: Verify the `WorkManager` data builder correctly maps properties from `uiState` to `Data` when `onAddRemoveWatchlistClick()` is triggered.
-- **`TraktRepositoryImplTest.kt`**: Add tests to ensure that `addToWatchlist` safely incorporates the newly available `year`, `network`, `status`, etc., without defaults to `null`.
-- **`AddToWatchlistWorkerTest.kt` [NEW]**: Since it doesn't currently exist, we'll configure a `TestListenableWorkerBuilder` to verify that the `doWork()` loop natively extracts our new `ARG_YEAR`, `ARG_NETWORK`, etc. from its input data and successfully calls the repository method with full parameters.
-- Validate local building and running the test suite using `./gradlew :app:testDebugUnitTest`.
+- Run `./gradlew testDebugUnitTest` to ensure no UI snapshot tests or logic tests are broken by the string changes.
+- Ensure `./gradlew ktlintCheck detekt` continues to pass, given the import/code modifications.
 
 ### Manual Verification
-- Navigating to a non-watchlisted Show Detail screen.
-- Watchlisting the item from the FAB button.
-- Re-opening the Account Watchlist screen to verify the `year`, `status`, `rating` and `network` instantly display without requiring a swipe-down manual sync.
+Ensure that no instrumented UI tests fail as a result of the network changes.

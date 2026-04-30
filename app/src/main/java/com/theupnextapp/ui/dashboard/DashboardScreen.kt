@@ -55,6 +55,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -65,6 +66,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.theupnextapp.R
 import com.theupnextapp.common.utils.TraktConstants
 import com.theupnextapp.core.designsystem.ui.components.ShimmerAiringSoon
 import com.theupnextapp.core.designsystem.ui.components.ShimmerPosterCardRow
@@ -73,7 +75,8 @@ import com.theupnextapp.core.designsystem.ui.widgets.ListPosterCard
 import com.theupnextapp.core.designsystem.ui.widgets.UpNextEpisodeCard
 import com.theupnextapp.navigation.Destinations
 import com.theupnextapp.ui.components.EmptyState
-import java.text.SimpleDateFormat
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 import java.util.TimeZone
 import kotlin.math.absoluteValue
@@ -127,7 +130,7 @@ fun DashboardScreen(
             if (traktAccessToken != null) {
                 item {
                     Text(
-                        text = "My Upnext",
+                        text = stringResource(id = R.string.dashboard_my_upnext),
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(bottom = 16.dp),
@@ -138,7 +141,7 @@ fun DashboardScreen(
             if (traktAccessToken == null) {
                 item {
                     Text(
-                        text = "Tonight on TV",
+                        text = stringResource(id = R.string.dashboard_tonight_on_tv),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.padding(bottom = 8.dp),
@@ -241,8 +244,8 @@ fun DashboardScreen(
                     } else {
                         EmptyState(
                             icon = Icons.Default.Tv,
-                            title = "No TV Schedule",
-                            message = "It looks like the schedules are empty. Check back later.",
+                            title = stringResource(id = R.string.dashboard_no_tv_schedule),
+                            message = stringResource(id = R.string.dashboard_no_tv_schedule_desc),
                             modifier = Modifier.fillMaxWidth().height(250.dp).padding(16.dp),
                         )
                     }
@@ -261,20 +264,20 @@ fun DashboardScreen(
                                 if (!isCompactPane) {
                                     Icon(
                                         imageVector = Icons.Default.AccountBox,
-                                        contentDescription = "Connect Trakt",
+                                        contentDescription = stringResource(id = R.string.dashboard_connect_trakt_desc),
                                         modifier = Modifier.padding(bottom = 8.dp),
                                         tint = MaterialTheme.colorScheme.onSecondaryContainer,
                                     )
                                 }
                                 Text(
-                                    "Unlock your personal TV tracker",
+                                    stringResource(id = R.string.dashboard_unlock_personal_tracker),
                                     style = if (isCompactPane) MaterialTheme.typography.titleMedium else MaterialTheme.typography.titleLarge,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onSecondaryContainer,
                                     textAlign = TextAlign.Center,
                                 )
                                 Text(
-                                    "Connect your Trakt account to track your progress and get personalized recommendations.",
+                                    stringResource(id = R.string.dashboard_connect_trakt_body),
                                     style = if (isCompactPane) MaterialTheme.typography.bodySmall else MaterialTheme.typography.bodyMedium,
                                     textAlign = TextAlign.Center,
                                     color = MaterialTheme.colorScheme.onSecondaryContainer,
@@ -285,7 +288,7 @@ fun DashboardScreen(
                                     val customTabsIntent = builder.build()
                                     customTabsIntent.launchUrl(context, Uri.parse(TraktConstants.TRAKT_AUTH_URL))
                                 }) {
-                                    Text("Connect Trakt")
+                                    Text(stringResource(id = R.string.dashboard_connect_trakt_desc))
                                 }
                             }
                         }
@@ -294,7 +297,7 @@ fun DashboardScreen(
                     Spacer(modifier = Modifier.height(24.dp))
 
                     Text(
-                        text = "Most Anticipated",
+                        text = stringResource(id = R.string.dashboard_most_anticipated),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.padding(bottom = 8.dp),
@@ -334,7 +337,7 @@ fun DashboardScreen(
                 // Airing Soon Section
                 item {
                     Text(
-                        text = "Airing Soon",
+                        text = stringResource(id = R.string.dashboard_airing_soon),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.padding(bottom = 8.dp),
@@ -345,8 +348,8 @@ fun DashboardScreen(
                     } else if (airingSoonShows.isNullOrEmpty()) {
                         EmptyState(
                             icon = Icons.Default.EventNote,
-                            title = "Nothing Airing Soon",
-                            message = "Check back later for upcoming episodes.",
+                            title = stringResource(id = R.string.dashboard_nothing_airing_soon),
+                            message = stringResource(id = R.string.dashboard_nothing_airing_soon_desc),
                             modifier = Modifier.fillMaxWidth().height(250.dp).padding(16.dp),
                         )
                     } else {
@@ -384,12 +387,8 @@ fun DashboardScreen(
                             val airDateTxt =
                                 try {
                                     showResponse.first_aired?.let {
-                                        val format =
-                                            SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault()).apply {
-                                                timeZone = TimeZone.getTimeZone("UTC")
-                                            }
-                                        val parsed = format.parse(it)
-                                        val timeMillis = parsed?.time ?: System.currentTimeMillis()
+                                        val zonedDateTime = ZonedDateTime.parse(it, DateTimeFormatter.ISO_ZONED_DATE_TIME)
+                                        val timeMillis = zonedDateTime.toInstant().toEpochMilli()
                                         DateUtils.getRelativeTimeSpanString(
                                             timeMillis,
                                             System.currentTimeMillis(),
@@ -401,7 +400,7 @@ fun DashboardScreen(
                                     "TBA"
                                 }
 
-                            val episodeInfoText = "S${showResponse.episode?.season ?: 0} E${showResponse.episode?.number ?: 0} • ${showResponse.episode?.title ?: "TBA"}"
+                            val episodeInfoText = "${stringResource(id = R.string.dashboard_season_episode, showResponse.episode?.season ?: 0, showResponse.episode?.number ?: 0)} • ${showResponse.episode?.title ?: stringResource(id = R.string.dashboard_tba)}"
 
                             Box(
                                 modifier =
@@ -457,7 +456,7 @@ fun DashboardScreen(
                 // Recent Activity Section
                 item {
                     Text(
-                        text = "Recent Activity",
+                        text = stringResource(id = R.string.dashboard_recent_activity),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.padding(bottom = 8.dp),
@@ -468,8 +467,8 @@ fun DashboardScreen(
                     } else if (recentHistory.isNullOrEmpty()) {
                         EmptyState(
                             icon = Icons.Default.History,
-                            title = "No Recent Activity",
-                            message = "When you mark episodes as watched, they will appear here.",
+                            title = stringResource(id = R.string.dashboard_no_recent_activity),
+                            message = stringResource(id = R.string.dashboard_no_recent_activity_desc),
                             modifier = Modifier.fillMaxWidth().height(250.dp).padding(16.dp),
                         )
                     }
@@ -519,7 +518,7 @@ fun DashboardScreen(
                                                 .data(imageUrl)
                                                 .crossfade(true)
                                                 .build(),
-                                        contentDescription = historyItem.show?.title ?: "Show Poster",
+                                        contentDescription = historyItem.show?.title ?: stringResource(id = R.string.dashboard_show_poster_desc),
                                         contentScale = ContentScale.Crop,
                                         modifier =
                                             Modifier
@@ -537,14 +536,14 @@ fun DashboardScreen(
                                         overflow = TextOverflow.Ellipsis,
                                     )
                                     Text(
-                                        text = "Season ${historyItem.episode?.season ?: 0} • Episode ${historyItem.episode?.number ?: 0}",
+                                        text = stringResource(id = R.string.dashboard_season_episode, historyItem.episode?.season ?: 0, historyItem.episode?.number ?: 0),
                                         style = MaterialTheme.typography.bodyMedium,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis,
                                     )
                                     Text(
-                                        text = "Watched",
+                                        text = stringResource(id = R.string.dashboard_watched),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
                                         maxLines = 1,
@@ -562,7 +561,7 @@ fun DashboardScreen(
                 // Recommended for You Section
                 item {
                     Text(
-                        text = "Recommended for You",
+                        text = stringResource(id = R.string.dashboard_recommended_for_you),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.padding(bottom = 8.dp),
@@ -638,7 +637,7 @@ fun DashboardScreen(
                                                     .data(imageUrl)
                                                     .crossfade(true)
                                                     .build(),
-                                            contentDescription = show?.title ?: "Show Poster",
+                                            contentDescription = show?.title ?: stringResource(id = R.string.dashboard_show_poster_desc),
                                             contentScale = ContentScale.Crop,
                                             modifier = Modifier.fillMaxSize(),
                                         )

@@ -38,7 +38,8 @@ This skill outlines the strict workflow and quality standards that must be follo
 - **Linting & Detekt**: You must run code analysis tools before finalizing the feature.
   - Run `./gradlew :app:ktlintFormat` to format styling.
   - Run `./gradlew :app:detekt` to ensure no static analysis rules are broken.
-- **Build Verification**: Run `./gradlew :app:assembleDebug` and `./gradlew :app:testDebugUnitTest` to ensure the project compiles and tests pass successfully locally.
+  - Run `./gradlew lintDebug` to catch Compose-specific lint errors (like using `context.getString()` within a Composable instead of `stringResource()`).
+- **Build Verification**: Run `./gradlew :app:assembleDebug` and `./gradlew testDebugUnitTest` to ensure the project compiles and tests pass successfully locally.
 - Fix any formatting, linting, or analysis errors immediately.
 
 ## 🚀 6. Commit & Push Protocol

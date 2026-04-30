@@ -14,6 +14,8 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.printToLog
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.test.platform.app.InstrumentationRegistry
+import com.theupnextapp.R
 import org.junit.Rule
 import org.junit.Test
 
@@ -51,7 +53,8 @@ class ShowDetailButtonsAdaptiveTest {
 
         // Get the seasons button
         // Note: OutlinedButton has semantics { mergeDescendants = true } so onNodeWithText matches the Button itself
-        val seasonsButton = composeTestRule.onNodeWithText("Seasons", useUnmergedTree = true)
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val seasonsButton = composeTestRule.onNodeWithText(context.getString(R.string.btn_show_detail_seasons), useUnmergedTree = true)
 
         // Let's print the semantics tree for debugging if it fails
         composeTestRule.onRoot().printToLog("ADAPTIVE_TEST")

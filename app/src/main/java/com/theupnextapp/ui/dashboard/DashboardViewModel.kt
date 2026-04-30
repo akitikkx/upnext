@@ -26,9 +26,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 data class ExtractedTraktInfo(
@@ -140,9 +139,7 @@ class DashboardViewModel
             viewModelScope.launch {
                 _isLoadingAiringSoon.value = true
                 try {
-                    val cal = Calendar.getInstance()
-                    val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                    val today = format.format(cal.time)
+                    val today = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
 
                     val response = traktRepository.getTraktMySchedule("Bearer $bearerToken", today, 14)
                     if (response.isSuccess) {

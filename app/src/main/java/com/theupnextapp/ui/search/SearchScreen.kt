@@ -47,6 +47,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -278,7 +279,7 @@ fun RecentSearchesList(
                 ListItem(
                     headlineContent = { Text(recentSearch.query) },
                     leadingContent = { Icon(Icons.Default.History, contentDescription = null) },
-                    modifier = Modifier.clickable { onRecentSearchClick(recentSearch.query) },
+                    modifier = Modifier.minimumInteractiveComponentSize().clickable { onRecentSearchClick(recentSearch.query) },
                 )
             }
         }

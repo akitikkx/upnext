@@ -111,6 +111,7 @@ android {
     }
 
     compileOptions {
+        coreLibraryDesugaringEnabled true
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
@@ -133,6 +134,10 @@ android {
         unitTests.returnDefaultValues = true
         unitTests.includeAndroidResources = true
     }
+
+    lint {
+        disable += ['MissingTranslation']
+    }
 }
 
 detekt {
@@ -141,6 +146,7 @@ detekt {
 }
 
 dependencies {
+    coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:2.0.4"
     detektPlugins libs.detekt.formatting
     implementation libs.appcompat
     implementation libs.android.ktx
