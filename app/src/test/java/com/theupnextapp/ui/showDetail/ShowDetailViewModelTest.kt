@@ -64,6 +64,7 @@ class ShowDetailViewModelTest {
     val workManager: WorkManager = mock()
     val firebaseCrashlytics: FirebaseCrashlytics = mock()
     val traktAuthManager: TraktAuthManager = mock()
+    val firebaseAnalytics: com.google.firebase.analytics.FirebaseAnalytics = mock()
 
     private lateinit var showDetailRepository: FakeShowDetailRepository
     private lateinit var traktRepository: FakeTraktRepository
@@ -83,6 +84,7 @@ class ShowDetailViewModelTest {
                 workManager,
                 traktRepository,
                 firebaseCrashlytics,
+                firebaseAnalytics,
                 traktAuthManager,
             )
     }
@@ -132,6 +134,36 @@ class ShowDetailViewModelTest {
             assertNotNull("Similar shows should not be null", state.similarShows)
             assertEquals("Should have exactly 1 similar show", 1, state.similarShows?.size)
             assertEquals("Related Show", state.similarShows?.firstOrNull()?.title)
+        }
+
+    @Test
+    fun `selectedShow fetches certification and updates ui state`() =
+        runTest {
+            // Given
+            val imdbId = "tt12345"
+            val showDetailArg =
+                ShowDetailArg(
+                    showId = "123",
+                    showTitle = "Test Show",
+                    showImageUrl = null,
+                    showBackgroundUrl = null,
+                    imdbID = imdbId,
+                    isAuthorizedOnTrakt = false,
+                    showTraktId = 1,
+                )
+
+            val testCertification = "TV-MA"
+            traktRepository.certificationResult = StdResult.success(testCertification)
+
+            // When
+            viewModel.selectedShow(showDetailArg)
+
+            // Let coroutines settle
+            kotlinx.coroutines.delay(100)
+
+            // Then
+            val state = viewModel.uiState.value
+            assertEquals("Certification should be updated in ui state", testCertification, state.certification)
         }
 
     @Test

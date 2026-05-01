@@ -5,9 +5,12 @@ import androidx.lifecycle.viewModelScope
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.logEvent
 import com.theupnextapp.domain.ScheduleShow
 import com.theupnextapp.domain.TraktAccessToken
 import com.theupnextapp.domain.TraktMostAnticipated
+import com.theupnextapp.domain.TraktTrendingShows
 import com.theupnextapp.network.models.trakt.NetworkTraktHistoryResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktRecommendationsResponse
@@ -37,278 +40,369 @@ data class ExtractedTraktInfo(
 
 @HiltViewModel
 class DashboardViewModel
-    @Inject
-    constructor(
-        private val traktRepository: TraktRepository,
-        private val dashboardRepository: DashboardRepository,
-        private val watchProgressRepository: WatchProgressRepository,
-        private val localWorkManager: WorkManager,
-    ) : ViewModel() {
-        val traktAccessToken: StateFlow<TraktAccessToken?> =
-            traktRepository.traktAccessToken
-                .stateIn(
-                    scope = viewModelScope,
-                    started = SharingStarted.WhileSubscribed(5000),
-                    initialValue = null,
-                )
+@Inject
+constructor(
+    private val traktRepository: TraktRepository,
+    private val dashboardRepository: DashboardRepository,
+    private val watchProgressRepository: WatchProgressRepository,
+    private val localWorkManager: WorkManager,
+    private val firebaseAnalytics: FirebaseAnalytics,
+) : ViewModel() {
+    val traktAccessToken: StateFlow<TraktAccessToken?> =
+        traktRepository.traktAccessToken
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = null,
+            )
 
-        private val _airingSoonShows = MutableStateFlow<NetworkTraktMyScheduleResponse?>(null)
-        val airingSoonShows: StateFlow<NetworkTraktMyScheduleResponse?> = _airingSoonShows.asStateFlow()
+    private val _airingSoonShows = MutableStateFlow<NetworkTraktMyScheduleResponse?>(null)
+    val airingSoonShows: StateFlow<NetworkTraktMyScheduleResponse?> = _airingSoonShows.asStateFlow()
 
-        private val _airingSoonImages = MutableStateFlow<Map<String, ExtractedTraktInfo>>(emptyMap())
-        val airingSoonImages: StateFlow<Map<String, ExtractedTraktInfo>> = _airingSoonImages.asStateFlow()
+    private val _airingSoonImages = MutableStateFlow<Map<String, ExtractedTraktInfo>>(emptyMap())
+    val airingSoonImages: StateFlow<Map<String, ExtractedTraktInfo>> =
+        _airingSoonImages.asStateFlow()
 
-        private val _isLoadingAiringSoon = MutableStateFlow(false)
-        val isLoadingAiringSoon: StateFlow<Boolean> = _isLoadingAiringSoon.asStateFlow()
+    private val _isLoadingAiringSoon = MutableStateFlow(false)
+    val isLoadingAiringSoon: StateFlow<Boolean> = _isLoadingAiringSoon.asStateFlow()
 
-        private val _recentHistory =
-            MutableStateFlow<List<NetworkTraktHistoryResponse>?>(null)
-        val recentHistory: StateFlow<List<NetworkTraktHistoryResponse>?> = _recentHistory.asStateFlow()
+    private val _recentHistory =
+        MutableStateFlow<List<NetworkTraktHistoryResponse>?>(null)
+    val recentHistory: StateFlow<List<NetworkTraktHistoryResponse>?> = _recentHistory.asStateFlow()
 
-        private val _historyImages = MutableStateFlow<Map<String, ExtractedTraktInfo>>(emptyMap())
-        val historyImages: StateFlow<Map<String, ExtractedTraktInfo>> = _historyImages.asStateFlow()
+    private val _historyImages = MutableStateFlow<Map<String, ExtractedTraktInfo>>(emptyMap())
+    val historyImages: StateFlow<Map<String, ExtractedTraktInfo>> = _historyImages.asStateFlow()
 
-        private val _isLoadingHistory = MutableStateFlow(false)
-        val isLoadingHistory: StateFlow<Boolean> = _isLoadingHistory.asStateFlow()
+    private val _isLoadingHistory = MutableStateFlow(false)
+    val isLoadingHistory: StateFlow<Boolean> = _isLoadingHistory.asStateFlow()
 
-        private val _recommendedShows =
-            MutableStateFlow<NetworkTraktRecommendationsResponse?>(null)
-        val recommendedShows: StateFlow<NetworkTraktRecommendationsResponse?> = _recommendedShows.asStateFlow()
+    private val _recommendedShows =
+        MutableStateFlow<NetworkTraktRecommendationsResponse?>(null)
+    val recommendedShows: StateFlow<NetworkTraktRecommendationsResponse?> =
+        _recommendedShows.asStateFlow()
 
-        private val _recommendedShowsImages = MutableStateFlow<Map<String, ExtractedTraktInfo>>(emptyMap())
-        val recommendedShowsImages: StateFlow<Map<String, ExtractedTraktInfo>> = _recommendedShowsImages.asStateFlow()
+    private val _recommendedShowsImages =
+        MutableStateFlow<Map<String, ExtractedTraktInfo>>(emptyMap())
+    val recommendedShowsImages: StateFlow<Map<String, ExtractedTraktInfo>> =
+        _recommendedShowsImages.asStateFlow()
 
-        private val _isLoadingRecommendations = MutableStateFlow(false)
-        val isLoadingRecommendations: StateFlow<Boolean> = _isLoadingRecommendations.asStateFlow()
+    private val _isLoadingRecommendations = MutableStateFlow(false)
+    val isLoadingRecommendations: StateFlow<Boolean> = _isLoadingRecommendations.asStateFlow()
 
-        val todayShows: StateFlow<List<ScheduleShow>?> =
-            dashboardRepository.todayShows
-                .stateIn(
-                    scope = viewModelScope,
-                    started = SharingStarted.WhileSubscribed(5000),
-                    initialValue = null,
-                )
+    val todayShows: StateFlow<List<ScheduleShow>?> =
+        dashboardRepository.todayShows
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = null,
+            )
 
-        val mostAnticipatedShows: StateFlow<List<TraktMostAnticipated>?> =
-            traktRepository.traktMostAnticipatedShows
-                .stateIn(
-                    scope = viewModelScope,
-                    started = SharingStarted.WhileSubscribed(5000),
-                    initialValue = null,
-                )
+    val mostAnticipatedShows: StateFlow<List<TraktMostAnticipated>?> =
+        traktRepository.traktMostAnticipatedShows
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = null,
+            )
 
-        val isLoadingTodayShows = dashboardRepository.isLoadingTodayShows
-        val isLoadingMostAnticipated: StateFlow<Boolean> = traktRepository.isLoadingTraktMostAnticipated
+    val isLoadingTodayShows = dashboardRepository.isLoadingTodayShows
+    val isLoadingMostAnticipated: StateFlow<Boolean> = traktRepository.isLoadingTraktMostAnticipated
 
-        init {
-            viewModelScope.launch {
-                traktRepository.refreshTraktMostAnticipatedShows(forceRefresh = false)
-                dashboardRepository.refreshTodayShows(
-                    countryCode = "US",
-                    date = null,
-                )
+    private val _regionalTrendingShows = MutableStateFlow<List<TraktTrendingShows>?>(null)
+    val regionalTrendingShows: StateFlow<List<TraktTrendingShows>?> =
+        _regionalTrendingShows.asStateFlow()
+
+    private val _regionalTrendingShowsImages =
+        MutableStateFlow<Map<String, ExtractedTraktInfo>>(emptyMap())
+    val regionalTrendingShowsImages: StateFlow<Map<String, ExtractedTraktInfo>> =
+        _regionalTrendingShowsImages.asStateFlow()
+
+    private val _isLoadingRegionalTrending = MutableStateFlow(false)
+    val isLoadingRegionalTrending: StateFlow<Boolean> = _isLoadingRegionalTrending.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW) {
+                param(FirebaseAnalytics.Param.SCREEN_NAME, "Dashboard")
+                param(FirebaseAnalytics.Param.SCREEN_CLASS, "DashboardScreen")
             }
 
-            viewModelScope.launch {
-                var wasSyncing = false
-                watchProgressRepository.isSyncing.collect { isSyncing ->
-                    if (wasSyncing && !isSyncing) {
-                        traktRepository.traktAccessToken.firstOrNull()?.access_token?.let { token ->
-                            fetchRecentHistory(token)
-                        }
+            traktRepository.refreshTraktMostAnticipatedShows(forceRefresh = false)
+            dashboardRepository.refreshTodayShows(
+                countryCode = "US",
+                date = null,
+            )
+            fetchRegionalTrendingShows()
+        }
+
+        viewModelScope.launch {
+            var wasSyncing = false
+            watchProgressRepository.isSyncing.collect { isSyncing ->
+                if (wasSyncing && !isSyncing) {
+                    traktRepository.traktAccessToken.firstOrNull()?.access_token?.let { token ->
+                        fetchRecentHistory(token)
                     }
-                    wasSyncing = isSyncing
                 }
-            }
-        }
-
-        fun fetchDashboardData(token: String) {
-            val bearerToken = token
-            if (_airingSoonShows.value == null && !_isLoadingAiringSoon.value) {
-                fetchAiringSoonShows(bearerToken)
-            }
-            if (_recommendedShows.value == null && !_isLoadingRecommendations.value) {
-                fetchRecommendations(bearerToken)
-            }
-            if (_recentHistory.value == null && !_isLoadingHistory.value) {
-                fetchRecentHistory(bearerToken)
-            }
-        }
-
-        private fun fetchAiringSoonShows(bearerToken: String) {
-            viewModelScope.launch {
-                _isLoadingAiringSoon.value = true
-                try {
-                    val today = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
-
-                    val response = traktRepository.getTraktMySchedule("Bearer $bearerToken", today, 14)
-                    if (response.isSuccess) {
-                        val shows =
-                            response.getOrNull()?.let { responseList ->
-                                val filtered = responseList.filter { it.episode?.season != 0 }
-                                NetworkTraktMyScheduleResponse().apply {
-                                    addAll(filtered)
-                                }
-                            }
-                        _airingSoonShows.value = shows
-                        shows?.let { scheduleList ->
-                            val deferredImages =
-                                scheduleList.mapNotNull { scheduleItem ->
-                                    val traktId = scheduleItem.show?.ids?.trakt
-                                    val imdbId = scheduleItem.show?.ids?.imdb
-                                    val season = scheduleItem.episode?.season
-                                    val number = scheduleItem.episode?.number
-                                    if (traktId != null && imdbId != null) {
-                                        async(Dispatchers.IO.limitedParallelism(5)) {
-                                            try {
-                                                val (url, tvmazeId) = dashboardRepository.getShowImageAndTvmazeId(imdbId)
-                                                val uniqueKey = "$traktId-${season ?: 0}-${number ?: 0}"
-                                                uniqueKey to ExtractedTraktInfo(imageUrl = url, tvmazeId = tvmazeId)
-                                            } catch (e: Exception) {
-                                                null
-                                            }
-                                        }
-                                    } else {
-                                        null
-                                    }
-                                }
-                            val newImages = deferredImages.awaitAll().filterNotNull().toMap()
-                            _airingSoonImages.value = newImages
-                        }
-                    } else {
-                        _airingSoonShows.value = null
-                    }
-                } catch (e: Exception) {
-                    _airingSoonShows.value = null
-                } finally {
-                    _isLoadingAiringSoon.value = false
-                }
-            }
-        }
-
-        private fun fetchRecommendations(bearerToken: String) {
-            viewModelScope.launch {
-                _isLoadingRecommendations.value = true
-                try {
-                    val response = traktRepository.getTraktRecommendations(bearerToken)
-                    if (response.isSuccess) {
-                        val shows = response.getOrNull()
-                        _recommendedShows.value = shows
-
-                        shows?.let { recommendedList ->
-                            val deferredImages =
-                                recommendedList.mapNotNull { item ->
-                                    val traktId = item.ids?.trakt
-                                    val imdbId = item.ids?.imdb
-                                    if (traktId != null && imdbId != null) {
-                                        async(Dispatchers.IO.limitedParallelism(5)) {
-                                            try {
-                                                val (url, tvmazeId) = dashboardRepository.getShowImageAndTvmazeId(imdbId)
-                                                val uniqueKey = traktId.toString()
-                                                uniqueKey to ExtractedTraktInfo(imageUrl = url, tvmazeId = tvmazeId)
-                                            } catch (e: Exception) {
-                                                null
-                                            }
-                                        }
-                                    } else {
-                                        null
-                                    }
-                                }
-                            val newImages = deferredImages.awaitAll().filterNotNull().toMap()
-                            _recommendedShowsImages.value = newImages
-                        }
-                    } else {
-                        _recommendedShows.value = null
-                    }
-                } catch (e: Exception) {
-                    _recommendedShows.value = null
-                } finally {
-                    _isLoadingRecommendations.value = false
-                }
-            }
-        }
-
-        private fun fetchRecentHistory(bearerToken: String) {
-            viewModelScope.launch {
-                _isLoadingHistory.value = true
-                try {
-                    val response = traktRepository.getTraktRecentHistory(bearerToken)
-                    if (response.isSuccess) {
-                        val items = response.getOrNull()
-                        _recentHistory.value = items
-                        items?.let { historyList ->
-                            val deferredImages =
-                                historyList.mapNotNull { item ->
-                                    val traktId = item.show?.ids?.trakt
-                                    val imdbId = item.show?.ids?.imdb
-                                    if (traktId != null && imdbId != null) {
-                                        async(Dispatchers.IO.limitedParallelism(5)) {
-                                            try {
-                                                val season = item.episode?.season
-                                                val number = item.episode?.number
-                                                val (url, tvmazeId) =
-                                                    if (season != null && number != null) {
-                                                        dashboardRepository.getEpisodeImageAndTvmazeId(imdbId, season, number)
-                                                    } else {
-                                                        dashboardRepository.getShowImageAndTvmazeId(imdbId)
-                                                    }
-                                                val uniqueKey = "$traktId-${season ?: 0}-${number ?: 0}"
-                                                uniqueKey to ExtractedTraktInfo(imageUrl = url, tvmazeId = tvmazeId)
-                                            } catch (e: Exception) {
-                                                null
-                                            }
-                                        }
-                                    } else {
-                                        null
-                                    }
-                                }
-                            val newImages = deferredImages.awaitAll().filterNotNull().toMap()
-                            _historyImages.value = newImages
-                        }
-                    } else {
-                        _recentHistory.value = null
-                    }
-                } catch (e: Exception) {
-                    _recentHistory.value = null
-                } finally {
-                    _isLoadingHistory.value = false
-                }
-            }
-        }
-
-        fun onMarkEpisodeWatched(
-            showTvMazeId: Int?,
-            imdbId: String?,
-            showTraktId: Int?,
-            season: Int,
-            number: Int,
-        ) {
-            val validTraktId = showTraktId ?: return
-            viewModelScope.launch {
-                watchProgressRepository.markEpisodeWatched(
-                    showTraktId = validTraktId,
-                    showTvMazeId = showTvMazeId,
-                    showImdbId = imdbId,
-                    seasonNumber = season,
-                    episodeNumber = number,
-                )
-                triggerSyncIfAuthenticated()
-            }
-        }
-
-        private fun triggerSyncIfAuthenticated() {
-            viewModelScope.launch {
-                traktRepository.traktAccessToken.firstOrNull()?.access_token?.let { token ->
-                    val syncWork =
-                        OneTimeWorkRequestBuilder<SyncWatchProgressWorker>()
-                            .setInputData(
-                                Data
-                                    .Builder()
-                                    .putString(SyncWatchProgressWorker.ARG_TOKEN, token)
-                                    .build(),
-                            ).build()
-                    localWorkManager.enqueue(syncWork)
-                }
+                wasSyncing = isSyncing
             }
         }
     }
+
+    fun fetchDashboardData(token: String) {
+        val bearerToken = token
+        if (_airingSoonShows.value == null && !_isLoadingAiringSoon.value) {
+            fetchAiringSoonShows(bearerToken)
+        }
+        if (_recommendedShows.value == null && !_isLoadingRecommendations.value) {
+            fetchRecommendations(bearerToken)
+        }
+        if (_recentHistory.value == null && !_isLoadingHistory.value) {
+            fetchRecentHistory(bearerToken)
+        }
+    }
+
+    private fun fetchAiringSoonShows(bearerToken: String) {
+        viewModelScope.launch {
+            _isLoadingAiringSoon.value = true
+            try {
+                val today = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+
+                val response = traktRepository.getTraktMySchedule("Bearer $bearerToken", today, 14)
+                if (response.isSuccess) {
+                    val shows =
+                        response.getOrNull()?.let { responseList ->
+                            val filtered = responseList.filter { it.episode?.season != 0 }
+                            NetworkTraktMyScheduleResponse().apply {
+                                addAll(filtered)
+                            }
+                        }
+                    _airingSoonShows.value = shows
+                    shows?.let { scheduleList ->
+                        val deferredImages =
+                            scheduleList.mapNotNull { scheduleItem ->
+                                val traktId = scheduleItem.show?.ids?.trakt
+                                val imdbId = scheduleItem.show?.ids?.imdb
+                                val season = scheduleItem.episode?.season
+                                val number = scheduleItem.episode?.number
+                                if (traktId != null && imdbId != null) {
+                                    async(Dispatchers.IO.limitedParallelism(5)) {
+                                        try {
+                                            val (url, tvmazeId) = dashboardRepository.getShowImageAndTvmazeId(
+                                                imdbId,
+                                            )
+                                            val uniqueKey = "$traktId-${season ?: 0}-${number ?: 0}"
+                                            uniqueKey to ExtractedTraktInfo(
+                                                imageUrl = url,
+                                                tvmazeId = tvmazeId,
+                                            )
+                                        } catch (e: Exception) {
+                                            null
+                                        }
+                                    }
+                                } else {
+                                    null
+                                }
+                            }
+                        val newImages = deferredImages.awaitAll().filterNotNull().toMap()
+                        _airingSoonImages.value = newImages
+                    }
+                } else {
+                    _airingSoonShows.value = null
+                }
+            } catch (e: Exception) {
+                _airingSoonShows.value = null
+            } finally {
+                _isLoadingAiringSoon.value = false
+            }
+        }
+    }
+
+    private fun fetchRecommendations(bearerToken: String) {
+        viewModelScope.launch {
+            _isLoadingRecommendations.value = true
+            try {
+                val response = traktRepository.getTraktRecommendations(bearerToken)
+                if (response.isSuccess) {
+                    val shows = response.getOrNull()
+                    _recommendedShows.value = shows
+
+                    shows?.let { recommendedList ->
+                        val deferredImages =
+                            recommendedList.mapNotNull { item ->
+                                val traktId = item.ids?.trakt
+                                val imdbId = item.ids?.imdb
+                                if (traktId != null && imdbId != null) {
+                                    async(Dispatchers.IO.limitedParallelism(5)) {
+                                        try {
+                                            val (url, tvmazeId) = dashboardRepository.getShowImageAndTvmazeId(
+                                                imdbId,
+                                            )
+                                            val uniqueKey = traktId.toString()
+                                            uniqueKey to ExtractedTraktInfo(
+                                                imageUrl = url,
+                                                tvmazeId = tvmazeId,
+                                            )
+                                        } catch (e: Exception) {
+                                            null
+                                        }
+                                    }
+                                } else {
+                                    null
+                                }
+                            }
+                        val newImages = deferredImages.awaitAll().filterNotNull().toMap()
+                        _recommendedShowsImages.value = newImages
+                    }
+                } else {
+                    _recommendedShows.value = null
+                }
+            } catch (e: Exception) {
+                _recommendedShows.value = null
+            } finally {
+                _isLoadingRecommendations.value = false
+            }
+        }
+    }
+
+    private fun fetchRecentHistory(bearerToken: String) {
+        viewModelScope.launch {
+            _isLoadingHistory.value = true
+            try {
+                val response = traktRepository.getTraktRecentHistory(bearerToken)
+                if (response.isSuccess) {
+                    val items = response.getOrNull()
+                    _recentHistory.value = items
+                    items?.let { historyList ->
+                        val deferredImages =
+                            historyList.mapNotNull { item ->
+                                val traktId = item.show?.ids?.trakt
+                                val imdbId = item.show?.ids?.imdb
+                                if (traktId != null && imdbId != null) {
+                                    async(Dispatchers.IO.limitedParallelism(5)) {
+                                        try {
+                                            val season = item.episode?.season
+                                            val number = item.episode?.number
+                                            val (url, tvmazeId) =
+                                                if (season != null && number != null) {
+                                                    dashboardRepository.getEpisodeImageAndTvmazeId(
+                                                        imdbId,
+                                                        season,
+                                                        number,
+                                                    )
+                                                } else {
+                                                    dashboardRepository.getShowImageAndTvmazeId(
+                                                        imdbId,
+                                                    )
+                                                }
+                                            val uniqueKey = "$traktId-${season ?: 0}-${number ?: 0}"
+                                            uniqueKey to ExtractedTraktInfo(
+                                                imageUrl = url,
+                                                tvmazeId = tvmazeId,
+                                            )
+                                        } catch (e: Exception) {
+                                            null
+                                        }
+                                    }
+                                } else {
+                                    null
+                                }
+                            }
+                        val newImages = deferredImages.awaitAll().filterNotNull().toMap()
+                        _historyImages.value = newImages
+                    }
+                } else {
+                    _recentHistory.value = null
+                }
+            } catch (e: Exception) {
+                _recentHistory.value = null
+            } finally {
+                _isLoadingHistory.value = false
+            }
+        }
+    }
+
+    private fun fetchRegionalTrendingShows() {
+        viewModelScope.launch {
+            _isLoadingRegionalTrending.value = true
+            val countryCode = java.util.Locale.getDefault().country
+            traktRepository.getRegionalTrendingShows(countryCode)
+                .onSuccess { response ->
+                    _regionalTrendingShows.value = response
+
+                    val deferredImages =
+                        response.mapNotNull { item ->
+                            val traktId = item.traktID
+                            val imdbId = item.imdbID
+                            if (traktId != null && imdbId != null) {
+                                async(Dispatchers.IO.limitedParallelism(5)) {
+                                    try {
+                                        val (url, tvmazeId) = dashboardRepository.getShowImageAndTvmazeId(
+                                            imdbId,
+                                        )
+                                        val uniqueKey = traktId.toString()
+                                        uniqueKey to ExtractedTraktInfo(
+                                            imageUrl = url,
+                                            tvmazeId = tvmazeId,
+                                        )
+                                    } catch (e: Exception) {
+                                        null
+                                    }
+                                }
+                            } else {
+                                null
+                            }
+                        }
+                    val newImages = deferredImages.awaitAll().filterNotNull().toMap()
+                    _regionalTrendingShowsImages.value = newImages
+                }
+                .onFailure {
+                    _regionalTrendingShows.value = emptyList()
+                }
+            _isLoadingRegionalTrending.value = false
+        }
+    }
+
+    fun onMarkEpisodeWatched(
+        showTvMazeId: Int?,
+        imdbId: String?,
+        showTraktId: Int?,
+        season: Int,
+        number: Int,
+    ) {
+        val validTraktId = showTraktId ?: return
+
+        firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT) {
+            param(FirebaseAnalytics.Param.CONTENT_TYPE, "episode")
+            param(FirebaseAnalytics.Param.ITEM_ID, validTraktId.toString())
+            param("season", season.toLong())
+            param("episode", number.toLong())
+        }
+
+        viewModelScope.launch {
+            watchProgressRepository.markEpisodeWatched(
+                showTraktId = validTraktId,
+                showTvMazeId = showTvMazeId,
+                showImdbId = imdbId,
+                seasonNumber = season,
+                episodeNumber = number,
+            )
+            triggerSyncIfAuthenticated()
+        }
+    }
+
+    private fun triggerSyncIfAuthenticated() {
+        viewModelScope.launch {
+            traktRepository.traktAccessToken.firstOrNull()?.access_token?.let { token ->
+                val syncWork =
+                    OneTimeWorkRequestBuilder<SyncWatchProgressWorker>()
+                        .setInputData(
+                            Data
+                                .Builder()
+                                .putString(SyncWatchProgressWorker.ARG_TOKEN, token)
+                                .build(),
+                        ).build()
+                localWorkManager.enqueue(syncWork)
+            }
+        }
+    }
+}

@@ -23,7 +23,7 @@ interface ShowDetailRepository {
     fun getShowCast(showId: Int): Flow<Result<List<ShowCast>>>
     fun getShowSeasons(showId: Int): Flow<Result<List<ShowSeason>>>
     fun getShowSeasonEpisodes(showId: Int, seasonNumber: Int): Flow<Result<List<ShowSeasonEpisode>>>
-    fun getShowWatchProviders(imdbID: String?, countryCode: String = "US"): Flow<Result<TmdbWatchProviders>>
+    fun getShowWatchProviders(imdbID: String?, countryCode: String = java.util.Locale.getDefault().country): Flow<Result<TmdbWatchProviders>>
     fun getEpisodeDetails(traktId: Int, seasonNumber: Int, episodeNumber: Int): Flow<Result<EpisodeDetail>>
     fun getEpisodePeople(traktId: Int, seasonNumber: Int, episodeNumber: Int): Flow<Result<EpisodePeople>>
     fun getPersonTvCredits(personId: Int): Flow<Result<NetworkTmdbPersonTvCreditsResponse>>

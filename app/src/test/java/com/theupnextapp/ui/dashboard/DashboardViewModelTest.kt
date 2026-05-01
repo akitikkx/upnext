@@ -16,6 +16,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.work.Operation
 import androidx.work.WorkManager
 import androidx.work.WorkRequest
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.theupnextapp.CoroutineTestRule
 import com.theupnextapp.domain.TraktAccessToken
 import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponse
@@ -52,6 +53,7 @@ class DashboardViewModelTest {
     private lateinit var dashboardRepository: DashboardRepository
     private lateinit var watchProgressRepository: WatchProgressRepository
     private lateinit var localWorkManager: WorkManager
+    private lateinit var firebaseAnalytics: FirebaseAnalytics
 
     private lateinit var viewModel: DashboardViewModel
 
@@ -61,9 +63,17 @@ class DashboardViewModelTest {
         dashboardRepository = mock(DashboardRepository::class.java)
         watchProgressRepository = mock(WatchProgressRepository::class.java)
         localWorkManager = mock(WorkManager::class.java)
+        firebaseAnalytics = mock(FirebaseAnalytics::class.java)
 
         `when`(traktRepository.traktAccessToken).thenReturn(MutableStateFlow(null))
         `when`(traktRepository.traktMostAnticipatedShows).thenReturn(flowOf(emptyList()))
+        kotlinx.coroutines.runBlocking {
+            `when`(traktRepository.getRegionalTrendingShows(any())).thenReturn(
+                Result.success(
+                    emptyList(),
+                ),
+            )
+        }
         `when`(dashboardRepository.todayShows).thenReturn(flowOf(emptyList()))
         `when`(watchProgressRepository.isSyncing).thenReturn(MutableStateFlow(false))
 
@@ -73,6 +83,7 @@ class DashboardViewModelTest {
                 dashboardRepository = dashboardRepository,
                 watchProgressRepository = watchProgressRepository,
                 localWorkManager = localWorkManager,
+                firebaseAnalytics = firebaseAnalytics,
             )
     }
 
@@ -94,6 +105,7 @@ class DashboardViewModelTest {
                     dashboardRepository = dashboardRepository,
                     watchProgressRepository = watchProgressRepository,
                     localWorkManager = localWorkManager,
+                    firebaseAnalytics = firebaseAnalytics,
                 )
 
             // Give flows time to emit initial states
@@ -103,8 +115,14 @@ class DashboardViewModelTest {
 
             // Validate that null access token safely maps to null/empty dependent structures, not crashes
             assertNull("Access token should be null", accessTokenValue)
-            assertTrue("Airing soon shows should be empty when unauthorized", airingSoonValue.isNullOrEmpty())
-            assertTrue("Recent history should be empty when unauthorized", recentHistoryValue.isNullOrEmpty())
+            assertTrue(
+                "Airing soon shows should be empty when unauthorized",
+                airingSoonValue.isNullOrEmpty(),
+            )
+            assertTrue(
+                "Recent history should be empty when unauthorized",
+                recentHistoryValue.isNullOrEmpty(),
+            )
         }
 
     @Test
@@ -127,6 +145,7 @@ class DashboardViewModelTest {
                     dashboardRepository = dashboardRepository,
                     watchProgressRepository = watchProgressRepository,
                     localWorkManager = localWorkManager,
+                    firebaseAnalytics = firebaseAnalytics,
                 )
 
             // Use a specific non-null invocation since workManager.enqueue expects a non-null WorkRequest
@@ -169,6 +188,7 @@ class DashboardViewModelTest {
                     dashboardRepository = dashboardRepository,
                     watchProgressRepository = watchProgressRepository,
                     localWorkManager = localWorkManager,
+                    firebaseAnalytics = firebaseAnalytics,
                 )
 
             // Trigger sync start
@@ -188,8 +208,18 @@ class DashboardViewModelTest {
 
             // Setup responses for the repository
             val mockScheduleResponse = NetworkTraktMyScheduleResponse()
-            `when`(traktRepository.getTraktMySchedule(any(), any(), any())).thenReturn(Result.success(mockScheduleResponse))
-            `when`(traktRepository.getTraktRecommendations(token)).thenReturn(Result.success(NetworkTraktRecommendationsResponse()))
+            `when`(
+                traktRepository.getTraktMySchedule(
+                    any(),
+                    any(),
+                    any(),
+                ),
+            ).thenReturn(Result.success(mockScheduleResponse))
+            `when`(traktRepository.getTraktRecommendations(token)).thenReturn(
+                Result.success(
+                    NetworkTraktRecommendationsResponse(),
+                ),
+            )
             `when`(traktRepository.getTraktRecentHistory(token)).thenReturn(Result.success(listOf()))
 
             val testViewModel = DashboardViewModel(
@@ -197,6 +227,7 @@ class DashboardViewModelTest {
                 dashboardRepository = dashboardRepository,
                 watchProgressRepository = watchProgressRepository,
                 localWorkManager = localWorkManager,
+                firebaseAnalytics = firebaseAnalytics,
             )
 
             // First invocation should trigger the fetches
@@ -224,5 +255,20 @@ class DashboardViewModelTest {
             verify(traktRepository, Mockito.times(1)).getTraktMySchedule(any(), any(), any())
             verify(traktRepository, Mockito.times(1)).getTraktRecommendations(token)
             verify(traktRepository, Mockito.times(1)).getTraktRecentHistory(token)
+        }
+
+    @Test
+    fun `viewModel fetches regional trending shows on init`() =
+        runTest {
+            val countryCode = java.util.Locale.getDefault().country
+
+            // Verify that the repository method was called with the default country code
+            verify(traktRepository, Mockito.times(1)).getRegionalTrendingShows(countryCode)
+
+            // Give flows time to emit initial states
+            advanceUntilIdle()
+
+            // Since we mocked success with emptyList(), regionalTrendingShows should not be null
+            assertNotNull(viewModel.regionalTrendingShows.value)
         }
 }

@@ -23,6 +23,8 @@ package com.theupnextapp.ui.explore
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.logEvent
 import com.theupnextapp.domain.TraktMostAnticipated
 import com.theupnextapp.domain.TraktPopularShows
 import com.theupnextapp.domain.TraktTrendingShows
@@ -46,6 +48,7 @@ class ExploreViewModel
     @Inject
     constructor(
         private val traktRepository: TraktRepository,
+        private val firebaseAnalytics: FirebaseAnalytics,
     ) : ViewModel() {
         private val _isPullRefreshing = MutableStateFlow(false)
         val isPullRefreshing: StateFlow<Boolean> = _isPullRefreshing.asStateFlow()
@@ -112,6 +115,10 @@ class ExploreViewModel
                 .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
 
         init {
+            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW) {
+                param(FirebaseAnalytics.Param.SCREEN_NAME, "Explore")
+                param(FirebaseAnalytics.Param.SCREEN_CLASS, "ExploreScreen")
+            }
             Timber.d("ExploreViewModel initialized. Triggering initial data check.")
             checkAndRefreshAllExploreData(forceRefresh = false)
         }

@@ -26,6 +26,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.logEvent
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.theupnextapp.common.utils.TraktAuthManager
 import com.theupnextapp.domain.Result
@@ -74,6 +76,7 @@ class ShowDetailViewModel
         private val workManager: WorkManager,
         private val traktRepository: TraktRepository,
         private val firebaseCrashlytics: FirebaseCrashlytics,
+        private val firebaseAnalytics: FirebaseAnalytics,
         val traktAuthManager: TraktAuthManager,
     ) : BaseTraktViewModel(
             traktRepository,
@@ -165,6 +168,7 @@ class ShowDetailViewModel
 
         data class ShowDetailUiState(
             val showSummary: ShowDetailSummary? = null,
+            val certification: String? = null,
             val showPreviousEpisode: ShowPreviousEpisode? = null,
             val showNextEpisode: ShowNextEpisode? = null,
             val showCast: List<ShowCast>? = null,
@@ -189,6 +193,17 @@ class ShowDetailViewModel
         )
 
         fun selectedShow(show: ShowDetailArg?) {
+            _show.value = show
+
+            show?.let {
+                firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW) {
+                    param(FirebaseAnalytics.Param.SCREEN_NAME, "ShowDetail")
+                    param(FirebaseAnalytics.Param.SCREEN_CLASS, "ShowDetailScreen")
+                    param(FirebaseAnalytics.Param.ITEM_ID, it.showId ?: "")
+                    param(FirebaseAnalytics.Param.ITEM_NAME, it.showTitle ?: "")
+                }
+            }
+
             if (show == null) {
                 _isLoading.value = false
                 _uiState.update { currentState ->
@@ -253,6 +268,7 @@ class ShowDetailViewModel
                                 getShowPreviousEpisode(summary.previousEpisodeHref)
                                 getShowNextEpisode(summary.nextEpisodeHref)
                                 getTraktShowRating(summary.imdbID)
+                                getTraktShowCertification(summary.imdbID)
                                 fetchUserRating(summary.imdbID)
                                 getTraktShowStats(summary.imdbID)
                                 getTraktId(summary.imdbID)
@@ -622,6 +638,20 @@ class ShowDetailViewModel
                         ),
                     )
                 }
+            }
+        }
+
+        private fun getTraktShowCertification(imdbID: String?) {
+            if (imdbID.isNullOrEmpty()) return
+
+            viewModelScope.launch {
+                traktRepository.getTraktShowCertification(imdbID)
+                    .onSuccess { cert ->
+                        _uiState.update { it.copy(certification = cert) }
+                    }
+                    .onFailure { error ->
+                        Timber.e(error, "Failed to fetch certification for IMDB ID: $imdbID")
+                    }
             }
         }
 

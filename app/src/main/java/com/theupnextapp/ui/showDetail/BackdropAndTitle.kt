@@ -15,10 +15,13 @@ package com.theupnextapp.ui.showDetail
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
@@ -48,6 +51,7 @@ import com.theupnextapp.ui.showDetail.BackdropAndTitleConfig.backdropHeight
 fun BackdropAndTitle(
     showDetailArgs: ShowDetailArg?,
     showSummary: ShowDetailSummary?,
+    certification: String? = null,
     onBack: () -> Unit,
 ) {
     val imageUrl: String? =
@@ -101,20 +105,40 @@ fun BackdropAndTitle(
                 )
             }
 
-            showSummary?.status?.let { status ->
-                Text(
-                    text = status,
-                    style = MaterialTheme.typography.labelMedium,
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(
-                                start = 16.dp,
-                                top = 4.dp,
-                                end = 16.dp,
-                                bottom = 4.dp,
-                            ),
-                )
+            Row(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            start = 16.dp,
+                            top = 4.dp,
+                            end = 16.dp,
+                            bottom = 4.dp,
+                        ),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                showSummary?.status?.let { status ->
+                    Text(
+                        text = status,
+                        style = MaterialTheme.typography.labelMedium,
+                    )
+                }
+
+                if (!showSummary?.status.isNullOrEmpty() && !certification.isNullOrEmpty()) {
+                    Spacer(modifier = Modifier.size(8.dp))
+                    Text(
+                        text = "•",
+                        style = MaterialTheme.typography.labelMedium,
+                    )
+                    Spacer(modifier = Modifier.size(8.dp))
+                }
+
+                certification?.let { cert ->
+                    Text(
+                        text = cert,
+                        style = MaterialTheme.typography.labelMedium,
+                    )
+                }
             }
         }
     }

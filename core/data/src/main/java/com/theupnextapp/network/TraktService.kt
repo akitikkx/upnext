@@ -91,7 +91,8 @@ interface TraktService {
 
     @GET("shows/{id}")
     fun getShowInfoAsync(
-        @Path("id") imdbID: String,
+        @Path("id") id: String,
+        @Query("extended") extended: String = "full"
     ): Deferred<NetworkTraktShowInfoResponse>
 
     @GET("shows/{id}/ratings")
@@ -106,6 +107,11 @@ interface TraktService {
 
     @GET("shows/trending")
     fun getTrendingShowsAsync(): Deferred<NetworkTraktTrendingShowsResponse>
+
+    @GET("shows/trending")
+    fun getRegionalTrendingShowsAsync(
+        @Query("countries") countries: String
+    ): Deferred<NetworkTraktTrendingShowsResponse>
 
     @GET("shows/popular")
     fun getPopularShowsAsync(): Deferred<NetworkTraktPopularShowsResponse>

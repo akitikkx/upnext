@@ -25,6 +25,8 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.work.WorkManager
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.logEvent
 import com.theupnextapp.repository.DashboardRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -35,7 +37,15 @@ class ScheduleViewModel
     constructor(
         dashboardRepository: DashboardRepository,
         private val workManager: WorkManager,
+        private val firebaseAnalytics: FirebaseAnalytics,
     ) : ViewModel() {
+        init {
+            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW) {
+                param(FirebaseAnalytics.Param.SCREEN_NAME, "Schedule")
+                param(FirebaseAnalytics.Param.SCREEN_CLASS, "ScheduleScreen")
+            }
+        }
+
         val isLoadingYesterdayShows = dashboardRepository.isLoadingYesterdayShows
         val isLoadingTodayShows = dashboardRepository.isLoadingTodayShows
         val isLoadingTomorrowShows = dashboardRepository.isLoadingTomorrowShows

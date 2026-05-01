@@ -262,6 +262,14 @@ class FakeTraktRepository : TraktRepository {
 
     override suspend fun getRelatedShows(imdbID: String): Result<List<TraktRelatedShows>> = relatedShowsResult
 
+    var certificationResult: Result<String?> = Result.success(null)
+
+    override suspend fun getTraktShowCertification(imdbID: String): Result<String?> = certificationResult
+
+    var regionalTrendingResult: Result<List<TraktTrendingShows>> = Result.success(emptyList())
+
+    override suspend fun getRegionalTrendingShows(countryCode: String): Result<List<TraktTrendingShows>> = regionalTrendingResult
+
     override suspend fun getTraktPlaybackProgress(token: String): Result<List<NetworkTraktPlaybackResponse>> =
         Result.success(
             emptyList(),

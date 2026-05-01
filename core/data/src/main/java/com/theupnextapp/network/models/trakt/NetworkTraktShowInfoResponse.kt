@@ -25,6 +25,7 @@ data class NetworkTraktShowInfoResponse(
     val ids: NetworkTraktShowInfoResponseIds?,
     val title: String?,
     val year: Int?,
+    val certification: String?,
 )
 
 data class NetworkTraktShowInfoResponseIds(
