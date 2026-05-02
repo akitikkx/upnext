@@ -108,6 +108,10 @@ fun DashboardScreen(
     val isLoadingTodayShows by viewModel.isLoadingTodayShows.observeAsState(false)
     val isLoadingMostAnticipated by viewModel.isLoadingMostAnticipated.collectAsState()
 
+    val regionalTrendingShows by viewModel.regionalTrendingShows.collectAsStateWithLifecycle()
+    val regionalTrendingShowsImages by viewModel.regionalTrendingShowsImages.collectAsStateWithLifecycle()
+    val isLoadingRegionalTrending by viewModel.isLoadingRegionalTrending.collectAsStateWithLifecycle()
+
     LaunchedEffect(traktAccessToken) {
         traktAccessToken?.access_token?.let {
             viewModel.fetchDashboardData(it)
@@ -670,6 +674,47 @@ fun DashboardScreen(
                     }
 
                     Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
+            }
+
+            if (!regionalTrendingShows.isNullOrEmpty()) {
+                item {
+                    Text(
+                        text = stringResource(id = R.string.dashboard_trending_near_you),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(bottom = 8.dp),
+                    )
+
+                    LazyRow {
+                        items(regionalTrendingShows.orEmpty()) { show ->
+                            val extractedInfo = show.traktID?.let { regionalTrendingShowsImages[it.toString()] }
+                            val imageUrl = extractedInfo?.imageUrl ?: show.originalImageUrl ?: show.mediumImageUrl
+                            val tvmazeId = extractedInfo?.tvmazeId ?: show.tvMazeID
+
+                            ListPosterCard(
+                                itemName = show.title,
+                                itemUrl = imageUrl,
+                                modifier = Modifier.testTag("regional_trending_show_card"),
+                                onClick = {
+                                    val direction =
+                                        Destinations.ShowDetail(
+                                            source = "trending_near_you",
+                                            showId = tvmazeId?.toString(),
+                                            showTitle = show.title,
+                                            showImageUrl = imageUrl,
+                                            showBackgroundUrl = show.mediumImageUrl,
+                                            imdbID = show.imdbID,
+                                            isAuthorizedOnTrakt = traktAccessToken != null,
+                                            showTraktId = show.traktID,
+                                        )
+                                    navController.navigate(direction)
+                                },
+                            )
+                        }
+                    }
+
                     Spacer(modifier = Modifier.height(24.dp))
                 }
             }

@@ -14,6 +14,7 @@ package com.theupnextapp.ui.schedule
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.work.WorkManager
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.theupnextapp.CoroutineTestRule
 import com.theupnextapp.domain.ScheduleShow
 import com.theupnextapp.getOrAwaitValue
@@ -36,6 +37,7 @@ class ScheduleViewModelTest {
     var coroutineTestRule = CoroutineTestRule()
 
     private lateinit var workManager: WorkManager
+    private val firebaseAnalytics: FirebaseAnalytics = Mockito.mock(FirebaseAnalytics::class.java)
 
     private lateinit var viewModel: ScheduleViewModel
     private lateinit var fakeRepository: FakeDashboardRepository
@@ -44,7 +46,7 @@ class ScheduleViewModelTest {
     fun setup() {
         workManager = Mockito.mock(WorkManager::class.java)
         fakeRepository = FakeDashboardRepository()
-        viewModel = ScheduleViewModel(fakeRepository, workManager)
+        viewModel = ScheduleViewModel(fakeRepository, workManager, firebaseAnalytics)
     }
 
     @Test

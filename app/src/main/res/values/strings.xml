@@ -291,6 +291,7 @@
     <string name="dashboard_unlock_personal_tracker">Unlock your personal TV tracker</string>
     <string name="dashboard_connect_trakt_body">Connect your Trakt account to track your progress and get personalized recommendations.</string>
     <string name="dashboard_most_anticipated">Most Anticipated</string>
+    <string name="dashboard_trending_near_you">Trending Near You</string>
     <string name="dashboard_airing_soon">Airing Soon</string>
     <string name="dashboard_nothing_airing_soon">Nothing Airing Soon</string>
     <string name="dashboard_nothing_airing_soon_desc">Check back later for upcoming episodes.</string>

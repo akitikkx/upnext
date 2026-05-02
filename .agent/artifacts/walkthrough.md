@@ -41,6 +41,12 @@ To improve the user experience for our diverse user base and boost our app store
 
 In a subsequent pass, several missing or hardcoded UI strings were identified that were not covered by the initial extraction (e.g. "Submit Rating", "Seasons", "Mark Season Watched", "Episode 1"). 
 
+### Dashboard UI Adjustments & Bug Fixes
+* **Regional Trending Bug Fixes**:
+  * **Visibility Issue**: Fixed an issue where the "Trending Near You" row was only visible when the user was *not* authenticated. It has been moved outside the authentication block so that it correctly appears for all users at the bottom of the Dashboard `LazyColumn`.
+  * **Missing Images Issue**: Resolved a bug where TV show posters were showing up as placeholders (e.g., "L" for Lanterns). Since the Trakt API does not return images natively, `DashboardViewModel.fetchRegionalTrendingShows` was updated to cross-reference `tvMazeID` and `imdbID` to fetch the high-quality images via `dashboardRepository.getShowImageAndTvmazeId`, similar to other dynamic sections.
+* **Age Ratings**: Now visible on the Show Details screen (`ShowDetailScreen.kt`) through the `ShowDetailViewModel` integrating with `TraktRepository.getTraktShowCertification()`.
+
 1. **Extracting Hardcoded Strings**: We removed all remaining hardcoded strings in `ShowSeasonsScreen.kt` and `ShowSeasonEpisodesScreen.kt` and replaced them with their `stringResource` counterparts. 
 2. **Locale-Aware Formatting**: We updated the `premiereDate` and `endDate` fields in `ShowSeasonsScreen.kt` to pass through `DateUtils.getDisplayDate()`, ensuring that dates are formatted appropriately based on the device's selected locale.
 3. **Automated Translation Injection**: Using a python script leveraging `deep-translator`, we accurately translated the missing string resource keys across all supported target language `strings.xml` files, taking care to preserve `%1$s` String formatting arguments.

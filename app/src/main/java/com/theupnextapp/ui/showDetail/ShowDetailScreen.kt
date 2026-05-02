@@ -420,6 +420,7 @@ private fun CompactDetailArea(
                 BackdropAndTitle(
                     showDetailArgs = showDetailArgs,
                     showSummary = uiState.showSummary,
+                    certification = uiState.certification,
                     onBack = onBack,
                 )
                 Box(modifier = Modifier.widthIn(max = 600.dp).fillMaxWidth()) {
@@ -609,12 +610,29 @@ private fun ExpandedDetailArea(
                             modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp)
                         )
                     }
-                    uiState.showSummary.status?.let { status ->
-                        Text(
-                            text = status,
-                            style = MaterialTheme.typography.labelMedium,
-                            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
-                        )
+                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
+                        uiState.showSummary.status?.let { status ->
+                            Text(
+                                text = status,
+                                style = MaterialTheme.typography.labelMedium,
+                            )
+                        }
+
+                        if (!uiState.showSummary.status.isNullOrEmpty() && !uiState.certification.isNullOrEmpty()) {
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "•",
+                                style = MaterialTheme.typography.labelMedium,
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                        }
+
+                        uiState.certification?.let { cert ->
+                            Text(
+                                text = cert,
+                                style = MaterialTheme.typography.labelMedium,
+                            )
+                        }
                     }
 
                     SynopsisArea(

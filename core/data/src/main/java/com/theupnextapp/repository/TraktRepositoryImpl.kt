@@ -428,6 +428,14 @@ class TraktRepositoryImpl(
         }
     }
 
+    override suspend fun getTraktShowCertification(imdbID: String): Result<String?> {
+        return traktRecommendationsDataSource.getTraktShowCertification(imdbID)
+    }
+
+    override suspend fun getRegionalTrendingShows(countryCode: String): Result<List<TraktTrendingShows>> {
+        return traktRecommendationsDataSource.getRegionalTrendingShows(countryCode)
+    }
+
     override suspend fun getTraktIdLookup(imdbID: String): Result<Int?> {
         return traktRecommendationsDataSource.getTraktIdFromImdbId(imdbID)
     }

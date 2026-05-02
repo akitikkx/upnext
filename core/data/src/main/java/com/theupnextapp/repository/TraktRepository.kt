@@ -163,6 +163,10 @@ interface TraktRepository {
 
     suspend fun getTraktShowStats(imdbID: String?)
 
+    suspend fun getTraktShowCertification(imdbID: String): Result<String?>
+
+    suspend fun getRegionalTrendingShows(countryCode: String): Result<List<TraktTrendingShows>>
+
     // Check-in
     suspend fun checkInToShow(
         showTraktId: Int,

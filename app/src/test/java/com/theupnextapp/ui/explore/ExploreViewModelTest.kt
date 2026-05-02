@@ -22,6 +22,7 @@
 package com.theupnextapp.ui.explore
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.theupnextapp.CoroutineTestRule
 import com.theupnextapp.domain.TraktMostAnticipated
 import com.theupnextapp.domain.TraktPopularShows
@@ -47,11 +48,12 @@ class ExploreViewModelTest {
 
     private lateinit var viewModel: ExploreViewModel
     private lateinit var fakeRepository: FakeTraktRepository
+    private val firebaseAnalytics: FirebaseAnalytics = org.mockito.Mockito.mock(FirebaseAnalytics::class.java)
 
     @Before
     fun setup() {
         fakeRepository = FakeTraktRepository()
-        viewModel = ExploreViewModel(fakeRepository)
+        viewModel = ExploreViewModel(fakeRepository, firebaseAnalytics)
     }
 
     @Test

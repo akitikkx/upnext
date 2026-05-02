@@ -32,6 +32,7 @@ import com.theupnextapp.domain.TraktCast
 import com.theupnextapp.domain.TraktRelatedShows
 import com.theupnextapp.domain.TraktShowRating
 import com.theupnextapp.domain.TraktShowStats
+import com.theupnextapp.domain.TraktTrendingShows
 import com.theupnextapp.network.TraktService
 import com.theupnextapp.network.TvMazeService
 import com.theupnextapp.network.asDatabaseModel
@@ -412,6 +413,20 @@ constructor(
                 lists = networkResponse.lists,
                 votes = networkResponse.votes,
             )
+        }
+    }
+
+    suspend fun getTraktShowCertification(imdbID: String): Result<String?> {
+        return safeApiCall {
+            val networkResponse = traktService.getShowInfoAsync(imdbID, extended = "full").await()
+            networkResponse.certification
+        }
+    }
+
+    suspend fun getRegionalTrendingShows(countryCode: String): Result<List<TraktTrendingShows>> {
+        return safeApiCall {
+            val networkResponse = traktService.getRegionalTrendingShowsAsync(countryCode).await()
+            networkResponse.map { it.asDomainModel() }
         }
     }
 
