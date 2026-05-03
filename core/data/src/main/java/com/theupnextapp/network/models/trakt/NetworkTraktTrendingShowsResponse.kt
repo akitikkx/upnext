@@ -21,7 +21,7 @@
 
 package com.theupnextapp.network.models.trakt
 
-import com.theupnextapp.database.DatabaseTraktTrendingShows
+import com.theupnextapp.database.DatabaseTrendingShows
 import com.theupnextapp.domain.TraktTrendingShows
 
 class NetworkTraktTrendingShowsResponse : ArrayList<NetworkTraktTrendingShowsResponseItem>()
@@ -64,9 +64,9 @@ fun NetworkTraktTrendingShowsResponseItem.asDomainModel(): TraktTrendingShows {
     )
 }
 
-fun NetworkTraktTrendingShowsResponseItemShow.asDatabaseModel(): DatabaseTraktTrendingShows {
-    return DatabaseTraktTrendingShows(
-        id = ids.trakt,
+fun NetworkTraktTrendingShowsResponseItemShow.asDatabaseModel(): DatabaseTrendingShows {
+    return DatabaseTrendingShows(
+        showId = ids.trakt,
         title = title,
         year = year.toString(),
         medium_image_url = mediumImageUrl,
@@ -77,5 +77,6 @@ fun NetworkTraktTrendingShowsResponseItemShow.asDatabaseModel(): DatabaseTraktTr
         traktID = ids.trakt,
         tvdbID = ids.tvdb,
         tvMazeID = ids.tvMazeID,
+        providerId = "trakt"
     )
 }

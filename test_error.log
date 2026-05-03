@@ -1,0 +1,208 @@
+Reusing configuration cache.
+> Task :core:data:preBuild UP-TO-DATE
+> Task :core:common:generateDebugAssets UP-TO-DATE
+> Task :core:designsystem:preBuild UP-TO-DATE
+> Task :core:domain:preBuild UP-TO-DATE
+> Task :core:common:preBuild UP-TO-DATE
+> Task :app:preBuild UP-TO-DATE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :core:common:preDebugBuild UP-TO-DATE
+> Task :core:data:preDebugBuild UP-TO-DATE
+> Task :core:designsystem:preDebugBuild UP-TO-DATE
+> Task :core:data:generateDebugAssets UP-TO-DATE
+> Task :core:domain:preDebugBuild UP-TO-DATE
+> Task :core:designsystem:processDebugNavigationResources UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :core:common:generateDebugResValues UP-TO-DATE
+> Task :app:injectCrashlyticsVersionControlInfoDebug UP-TO-DATE
+> Task :core:data:processDebugNavigationResources UP-TO-DATE
+> Task :app:generateDebugBuildConfig UP-TO-DATE
+> Task :core:domain:processDebugNavigationResources UP-TO-DATE
+> Task :core:common:processDebugNavigationResources UP-TO-DATE
+> Task :app:processDebugGoogleServices UP-TO-DATE
+> Task :app:injectCrashlyticsMappingFileIdDebug UP-TO-DATE
+> Task :core:data:generateDebugResValues UP-TO-DATE
+> Task :core:domain:generateDebugResValues UP-TO-DATE
+> Task :core:data:generateDebugBuildConfig UP-TO-DATE
+> Task :core:designsystem:generateDebugResValues UP-TO-DATE
+> Task :core:common:generateDebugResources UP-TO-DATE
+> Task :core:designsystem:generateDebugResources UP-TO-DATE
+> Task :core:designsystem:javaPreCompileDebug UP-TO-DATE
+> Task :core:data:generateDebugResources UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :core:domain:generateDebugResources UP-TO-DATE
+> Task :core:data:javaPreCompileDebug UP-TO-DATE
+> Task :core:common:javaPreCompileDebug UP-TO-DATE
+> Task :core:domain:javaPreCompileDebug UP-TO-DATE
+> Task :app:javaPreCompileDebug UP-TO-DATE
+> Task :core:designsystem:writeDebugAarMetadata UP-TO-DATE
+> Task :core:domain:writeDebugAarMetadata UP-TO-DATE
+> Task :core:data:writeDebugAarMetadata UP-TO-DATE
+> Task :core:common:writeDebugAarMetadata UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :core:common:extractDeepLinksDebug UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :core:data:extractDeepLinksDebug UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :core:designsystem:extractDeepLinksDebug UP-TO-DATE
+> Task :core:designsystem:packageDebugResources UP-TO-DATE
+> Task :core:common:packageDebugResources UP-TO-DATE
+> Task :core:common:processDebugManifest UP-TO-DATE
+> Task :core:domain:packageDebugResources UP-TO-DATE
+> Task :core:data:packageDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :core:designsystem:processDebugManifest UP-TO-DATE
+> Task :core:data:processDebugManifest UP-TO-DATE
+> Task :core:domain:extractDeepLinksDebug UP-TO-DATE
+> Task :core:common:mapDebugSourceSetPaths UP-TO-DATE
+> Task :core:data:mapDebugSourceSetPaths UP-TO-DATE
+> Task :core:domain:processDebugManifest UP-TO-DATE
+> Task :core:common:compileDebugLibraryResources UP-TO-DATE
+> Task :core:designsystem:mapDebugSourceSetPaths UP-TO-DATE
+> Task :core:data:parseDebugLocalResources UP-TO-DATE
+> Task :core:data:compileDebugLibraryResources UP-TO-DATE
+> Task :core:designsystem:parseDebugLocalResources UP-TO-DATE
+> Task :core:designsystem:compileDebugLibraryResources UP-TO-DATE
+> Task :core:domain:mapDebugSourceSetPaths UP-TO-DATE
+> Task :core:domain:compileDebugLibraryResources UP-TO-DATE
+> Task :core:domain:parseDebugLocalResources UP-TO-DATE
+> Task :core:common:parseDebugLocalResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:processDebugNavigationResources UP-TO-DATE
+> Task :core:common:mergeDebugAssets UP-TO-DATE
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :core:data:mergeDebugAssets UP-TO-DATE
+> Task :core:designsystem:generateDebugAssets UP-TO-DATE
+> Task :core:domain:generateDebugAssets UP-TO-DATE
+> Task :core:data:generateDebugRFile UP-TO-DATE
+> Task :core:domain:generateDebugRFile UP-TO-DATE
+> Task :app:preDebugUnitTestBuild UP-TO-DATE
+> Task :core:common:generateDebugRFile UP-TO-DATE
+> Task :core:designsystem:generateDebugRFile UP-TO-DATE
+> Task :app:compileDebugNavigationResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :core:designsystem:mergeDebugAssets UP-TO-DATE
+> Task :core:domain:mergeDebugAssets UP-TO-DATE
+> Task :core:common:preDebugUnitTestBuild UP-TO-DATE
+> Task :core:data:preDebugUnitTestBuild UP-TO-DATE
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :app:generateDebugRFile UP-TO-DATE
+> Task :core:designsystem:preDebugUnitTestBuild UP-TO-DATE
+> Task :core:common:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :core:data:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :core:domain:preDebugUnitTestBuild UP-TO-DATE
+> Task :app:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :core:domain:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :core:designsystem:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :core:common:generateDebugUnitTestStubRFile UP-TO-DATE
+> Task :app:processDebugUnitTestManifest UP-TO-DATE
+> Task :core:domain:generateDebugUnitTestStubRFile UP-TO-DATE
+> Task :app:mergeDebugAssets UP-TO-DATE
+> Task :core:data:generateDebugUnitTestStubRFile UP-TO-DATE
+> Task :core:designsystem:generateDebugUnitTestStubRFile UP-TO-DATE
+> Task :core:common:kspDebugKotlin UP-TO-DATE
+> Task :core:common:compileDebugKotlin UP-TO-DATE
+> Task :core:common:processDebugJavaRes UP-TO-DATE
+> Task :core:common:compileDebugJavaWithJavac UP-TO-DATE
+> Task :core:common:transformDebugClassesWithAsm UP-TO-DATE
+> Task :core:common:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :core:common:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :core:common:kspDebugUnitTestKotlin UP-TO-DATE
+> Task :core:domain:compileDebugKotlin UP-TO-DATE
+> Task :core:domain:processDebugJavaRes UP-TO-DATE
+> Task :core:domain:compileDebugJavaWithJavac NO-SOURCE
+> Task :core:domain:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :core:domain:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :core:domain:compileDebugUnitTestKotlin NO-SOURCE
+> Task :core:domain:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :core:domain:processDebugUnitTestJavaRes NO-SOURCE
+> Task :core:common:compileDebugUnitTestKotlin UP-TO-DATE
+> Task :core:domain:testDebugUnitTest NO-SOURCE
+> Task :core:common:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :core:common:hiltSyncDebugUnitTest UP-TO-DATE
+> Task :core:common:processDebugUnitTestJavaRes UP-TO-DATE
+> Task :core:data:kspDebugKotlin UP-TO-DATE
+> Task :core:designsystem:compileDebugKotlin UP-TO-DATE
+> Task :core:designsystem:processDebugJavaRes UP-TO-DATE
+> Task :core:designsystem:compileDebugJavaWithJavac NO-SOURCE
+> Task :core:designsystem:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :core:designsystem:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :core:common:hiltAggregateDepsDebugUnitTest UP-TO-DATE
+> Task :core:common:hiltJavaCompileDebugUnitTest NO-SOURCE
+> Task :core:designsystem:compileDebugUnitTestKotlin NO-SOURCE
+> Task :core:designsystem:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :core:designsystem:processDebugUnitTestJavaRes NO-SOURCE
+> Task :core:designsystem:testDebugUnitTest NO-SOURCE
+> Task :core:common:transformDebugUnitTestClassesWithAsm UP-TO-DATE
+> Task :core:common:testDebugUnitTest UP-TO-DATE
+> Task :core:data:compileDebugKotlin UP-TO-DATE
+> Task :core:data:processDebugJavaRes UP-TO-DATE
+> Task :core:data:compileDebugJavaWithJavac UP-TO-DATE
+> Task :core:data:transformDebugClassesWithAsm UP-TO-DATE
+> Task :core:data:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :core:data:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :app:processDebugResources UP-TO-DATE
+> Task :app:packageDebugUnitTestForUnitTest UP-TO-DATE
+> Task :app:generateDebugUnitTestConfig UP-TO-DATE
+> Task :core:data:kspDebugUnitTestKotlin UP-TO-DATE
+> Task :app:kspDebugKotlin UP-TO-DATE
+> Task :core:data:compileDebugUnitTestKotlin UP-TO-DATE
+> Task :core:data:processDebugUnitTestJavaRes UP-TO-DATE
+> Task :core:data:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :core:data:hiltSyncDebugUnitTest UP-TO-DATE
+> Task :core:data:hiltAggregateDepsDebugUnitTest UP-TO-DATE
+> Task :app:compileDebugKotlin UP-TO-DATE
+> Task :core:data:hiltJavaCompileDebugUnitTest NO-SOURCE
+> Task :app:processDebugJavaRes UP-TO-DATE
+> Task :app:compileDebugJavaWithJavac UP-TO-DATE
+> Task :app:hiltSyncDebug UP-TO-DATE
+> Task :core:data:transformDebugUnitTestClassesWithAsm UP-TO-DATE
+> Task :core:data:testDebugUnitTest UP-TO-DATE
+> Task :app:hiltAggregateDepsDebug UP-TO-DATE
+
+> Task :app:hiltJavaCompileDebug FAILED
+/Users/ahmedtikiwa/upnext4/app/build/generated/hilt/component_sources/debug/com/theupnextapp/UpnextApplication_HiltComponents.java:194: error: [Dagger/MissingBinding] com.theupnextapp.network.SimklService cannot be provided without an @Provides-annotated method.
+  public abstract static class SingletonC implements UpnextApplication_GeneratedInjector,
+                         ^
+  
+      com.theupnextapp.network.SimklService is injected at
+          [com.theupnextapp.UpnextApplication_HiltComponents.ViewModelC] com.theupnextapp.repository.SimklRepository(simklService)
+      com.theupnextapp.repository.SimklRepository is injected at
+          [com.theupnextapp.UpnextApplication_HiltComponents.ViewModelC] com.theupnextapp.ui.explore.ExploreViewModel(…, simklRepository, …)
+      com.theupnextapp.ui.explore.ExploreViewModel is injected at
+          [com.theupnextapp.UpnextApplication_HiltComponents.ViewModelC] com.theupnextapp.ui.explore.ExploreViewModel_HiltModules.BindsModule.binds(arg0)
+      @dagger.hilt.android.internal.lifecycle.HiltViewModelMap java.util.Map<java.lang.Class<?>,javax.inject.Provider<androidx.lifecycle.ViewModel>> is requested at
+          [com.theupnextapp.UpnextApplication_HiltComponents.ViewModelC] dagger.hilt.android.internal.lifecycle.HiltViewModelFactory.ViewModelFactoriesEntryPoint.getHiltViewModelMap() [com.theupnextapp.UpnextApplication_HiltComponents.SingletonC → com.theupnextapp.UpnextApplication_HiltComponents.ActivityRetainedC → com.theupnextapp.UpnextApplication_HiltComponents.ViewModelC]
+1 error
+
+[Incubating] Problems report is available at: file:///Users/ahmedtikiwa/upnext4/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:hiltJavaCompileDebug'.
+> Compilation failed; see the compiler output below.
+  /Users/ahmedtikiwa/upnext4/app/build/generated/hilt/component_sources/debug/com/theupnextapp/UpnextApplication_HiltComponents.java:194: error: [Dagger/MissingBinding] com.theupnextapp.network.SimklService cannot be provided without an @Provides-annotated method.
+    public abstract static class SingletonC implements UpnextApplication_GeneratedInjector,
+                           ^
+    
+        com.theupnextapp.network.SimklService is injected at
+            [com.theupnextapp.UpnextApplication_HiltComponents.ViewModelC] com.theupnextapp.repository.SimklRepository(simklService)
+        com.theupnextapp.repository.SimklRepository is injected at
+            [com.theupnextapp.UpnextApplication_HiltComponents.ViewModelC] com.theupnextapp.ui.explore.ExploreViewModel(…, simklRepository, …)
+        com.theupnextapp.ui.explore.ExploreViewModel is injected at
+            [com.theupnextapp.UpnextApplication_HiltComponents.ViewModelC] com.theupnextapp.ui.explore.ExploreViewModel_HiltModules.BindsModule.binds(arg0)
+        @dagger.hilt.android.internal.lifecycle.HiltViewModelMap java.util.Map<java.lang.Class<?>,javax.inject.Provider<androidx.lifecycle.ViewModel>> is requested at
+            [com.theupnextapp.UpnextApplication_HiltComponents.ViewModelC] dagger.hilt.android.internal.lifecycle.HiltViewModelFactory.ViewModelFactoriesEntryPoint.getHiltViewModelMap() [com.theupnextapp.UpnextApplication_HiltComponents.SingletonC → com.theupnextapp.UpnextApplication_HiltComponents.ActivityRetainedC → com.theupnextapp.UpnextApplication_HiltComponents.ViewModelC]
+  1 error
+
+* Try:
+> Check your code and dependencies to fix the compilation error(s)
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+
+BUILD FAILED in 8s
+127 actionable tasks: 1 executed, 126 up-to-date
+Configuration cache entry reused.

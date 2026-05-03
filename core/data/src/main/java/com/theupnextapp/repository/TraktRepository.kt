@@ -38,7 +38,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 
-interface TraktRepository {
+interface TraktRepository : com.theupnextapp.domain.TrackingProvider {
     fun tableUpdate(tableName: String): Flow<TableUpdate?>
 
     val traktPopularShows: Flow<List<TraktPopularShows>>

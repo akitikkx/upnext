@@ -69,6 +69,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.withContext
 
+import com.theupnextapp.domain.TrackingProvider
+import com.theupnextapp.domain.TrendingShow
+
 class TraktRepositoryImpl(
     upnextDao: UpnextDao,
     tvMazeService: TvMazeService,
@@ -76,12 +79,14 @@ class TraktRepositoryImpl(
     private val traktAuthDataSource: TraktAuthDataSource,
     private val traktRecommendationsDataSource: TraktRecommendationsDataSource,
     private val traktAccountDataSource: TraktAccountDataSource,
-) : BaseRepository(upnextDao, tvMazeService), TraktRepository {
+) : BaseRepository(upnextDao, tvMazeService), TraktRepository, TrackingProvider {
     private val repositoryScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     companion object {
         private const val FLOW_STOP_TIMEOUT_MS = 5000L
     }
+
+    override val providerId: String = "trakt"
 
     @Volatile
     private var hasMigratedWatchlistThisSession = false
@@ -95,11 +100,31 @@ class TraktRepositoryImpl(
             initialValue = null,
         )
 
+    override val isAuthorized: StateFlow<Boolean> = isAuthorizedOnTrakt()
+
     private val _isLoadingTraktTrending = MutableStateFlow(false)
     override val isLoadingTraktTrending: StateFlow<Boolean> = _isLoadingTraktTrending.asStateFlow()
+    override val isLoadingTrending: StateFlow<Boolean> = _isLoadingTraktTrending.asStateFlow()
 
     override val traktTrendingShows: Flow<List<TraktTrendingShows>> =
-        traktDao.getTraktTrending().map { list -> list.asDomainModel() }
+        traktDao.getTrendingShows(providerId).map { list -> list.asDomainModel().map { 
+            TraktTrendingShows(
+                id = it.id,
+                title = it.title,
+                year = it.year,
+                mediumImageUrl = it.mediumImageUrl,
+                originalImageUrl = it.originalImageUrl,
+                imdbID = it.imdbID,
+                slug = null,
+                tmdbID = it.tmdbID,
+                traktID = it.id,
+                tvdbID = null,
+                tvMazeID = it.tvMazeID
+            ) 
+        } }
+
+    override val trendingShows: Flow<List<TrendingShow>> = 
+        traktDao.getTrendingShows(providerId).map { list -> list.asDomainModel() }
 
     private val _isLoadingTraktPopular = MutableStateFlow(false)
     override val isLoadingTraktPopular: StateFlow<Boolean> = _isLoadingTraktPopular.asStateFlow()
@@ -107,12 +132,20 @@ class TraktRepositoryImpl(
     override val traktPopularShows: Flow<List<TraktPopularShows>> =
         traktDao.getTraktPopular().map { list -> list.asDomainModel() }
 
+    override val popularShows: Flow<List<TraktPopularShows>> = traktPopularShows
+
     private val _isLoadingTraktMostAnticipated = MutableStateFlow(false)
     override val isLoadingTraktMostAnticipated: StateFlow<Boolean> =
         _isLoadingTraktMostAnticipated.asStateFlow()
 
     override val traktMostAnticipatedShows: Flow<List<TraktMostAnticipated>> =
         traktDao.getTraktMostAnticipated().map { list -> list.asDomainModel() }
+        
+    override val mostAnticipatedShows: Flow<List<TraktMostAnticipated>> = traktMostAnticipatedShows
+
+    override suspend fun refreshTrendingShows() = refreshTraktTrendingShows(forceRefresh = true)
+    override suspend fun refreshPopularShows() = refreshTraktPopularShows(forceRefresh = true)
+    override suspend fun refreshMostAnticipatedShows() = refreshTraktMostAnticipatedShows(forceRefresh = true)
 
     private val _isLoading = MutableStateFlow(false)
     override val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()

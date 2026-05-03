@@ -76,6 +76,15 @@ In a subsequent pass, several missing or hardcoded UI strings were identified th
 
 The Upnext UI is now fully localized and dynamically updates its UI based on the device's locale, with native fallbacks using the `TMDB` and `Trakt` API.
 
+## Phase 2: Multi-Provider Architecture (SIMKL Prep)
+
+We have laid the foundational architecture to support SIMKL alongside Trakt:
+
+1. **Database Generalization:** Renamed `DatabaseTraktTrendingShows` to `DatabaseTrendingShows` and added a `providerId` column. A destructive migration (version 33 to 34) handles purging the cached Trakt data so that Room can recreate the schema cleanly. 
+2. **Domain Abstraction:** Introduced a unified `TrendingShow` domain model and refactored the `TrackingProvider` interface to leverage reactive `Flow` sequences instead of generic results.
+3. **Repository Injection:** Built `SimklRepository` implementing `TrackingProvider`. Refactored `ExploreViewModel` to inject `ProviderManager`, allowing it to dynamically switch its `trendingShows` data stream depending on whether SIMKL or Trakt is active.
+4. **SIMKL Networking:** Created generic DTOs for the SIMKL trending endpoint. Configured `SimklInterceptor` to automatically inject mandatory API query parameters (`app-name`, `app-version`, `client_id`) and the `User-Agent` HTTP header for every request to abide by SIMKL’s API rules.
+
 ## Phase 2: API Localization
 To prevent a "mixed-language" experience where the static UI is localized but dynamic data is in English, we refactored the Data layer:
 

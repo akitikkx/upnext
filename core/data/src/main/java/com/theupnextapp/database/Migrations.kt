@@ -264,3 +264,32 @@ val MIGRATION_32_33 =
             db.execSQL("ALTER TABLE `favorite_shows` ADD COLUMN `rating` REAL")
         }
     }
+
+val MIGRATION_33_34 =
+    object : Migration(
+        33,
+        34,
+    ) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("DROP TABLE IF EXISTS `trakt_trending`")
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `trending_shows` (
+                    `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    `showId` INTEGER,
+                    `title` TEXT,
+                    `year` TEXT,
+                    `medium_image_url` TEXT,
+                    `original_image_url` TEXT,
+                    `imdbID` TEXT,
+                    `slug` TEXT,
+                    `tmdbID` INTEGER,
+                    `traktID` INTEGER,
+                    `tvdbID` INTEGER,
+                    `tvMazeID` INTEGER,
+                    `providerId` TEXT NOT NULL
+                )
+                """.trimIndent()
+            )
+        }
+    }

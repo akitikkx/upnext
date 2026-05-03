@@ -28,6 +28,9 @@ import com.google.firebase.analytics.logEvent
 import com.theupnextapp.domain.TraktMostAnticipated
 import com.theupnextapp.domain.TraktPopularShows
 import com.theupnextapp.domain.TraktTrendingShows
+import com.theupnextapp.domain.TrendingShow
+import com.theupnextapp.repository.ProviderManager
+import com.theupnextapp.repository.SimklRepository
 import com.theupnextapp.repository.TraktRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -36,6 +39,8 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -48,18 +53,25 @@ class ExploreViewModel
     @Inject
     constructor(
         private val traktRepository: TraktRepository,
+        private val simklRepository: SimklRepository,
+        private val providerManager: ProviderManager,
         private val firebaseAnalytics: FirebaseAnalytics,
     ) : ViewModel() {
         private val _isPullRefreshing = MutableStateFlow(false)
         val isPullRefreshing: StateFlow<Boolean> = _isPullRefreshing.asStateFlow()
 
-        val trendingShows: StateFlow<List<TraktTrendingShows>> =
-            traktRepository.traktTrendingShows
-                .stateIn(
-                    scope = viewModelScope,
-                    started = SharingStarted.WhileSubscribed(5000),
-                    initialValue = emptyList(),
-                )
+        val trendingShows: StateFlow<List<TrendingShow>> =
+            providerManager.activeProvider.flatMapLatest { provider ->
+                if (provider == ProviderManager.PROVIDER_SIMKL) {
+                    simklRepository.trendingShows
+                } else {
+                    traktRepository.trendingShows
+                }
+            }.stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyList(),
+            )
 
         val popularShows: StateFlow<List<TraktPopularShows>> =
             traktRepository.traktPopularShows
@@ -77,14 +89,22 @@ class ExploreViewModel
                     initialValue = emptyList(),
                 )
 
-        internal val isLoadingTraktTrending: StateFlow<Boolean> = traktRepository.isLoadingTraktTrending
+        internal val isLoadingTrending: StateFlow<Boolean> =
+            providerManager.activeProvider.flatMapLatest { provider ->
+                if (provider == ProviderManager.PROVIDER_SIMKL) {
+                    simklRepository.isLoadingTrending
+                } else {
+                    traktRepository.isLoadingTrending
+                }
+            }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
         internal val isLoadingTraktPopular: StateFlow<Boolean> = traktRepository.isLoadingTraktPopular
         internal val isLoadingTraktMostAnticipated: StateFlow<Boolean> =
             traktRepository.isLoadingTraktMostAnticipated
 
         val isLoading: StateFlow<Boolean> =
             combine(
-                isLoadingTraktTrending,
+                isLoadingTrending,
                 isLoadingTraktPopular,
                 isLoadingTraktMostAnticipated,
             ) { trending, popular, anticipated ->
@@ -155,15 +175,23 @@ class ExploreViewModel
 
             // For Trending Shows
             viewModelScope.launch {
+                val activeProvider = providerManager.activeProvider.first()
+                val isSimkl = activeProvider == ProviderManager.PROVIDER_SIMKL
+                val isTrendingLoading = if (isSimkl) simklRepository.isLoadingTrending else traktRepository.isLoadingTraktTrending
+
                 if (forceRefresh || trendingShowsEmpty.value) {
-                    if (!isLoadingTraktTrending.value) {
-                        Timber.i("Refreshing Trakt trending shows due to forceRefresh ($forceRefresh) or empty data.")
-                        traktRepository.refreshTraktTrendingShows(forceRefresh = forceRefresh)
+                    if (!isTrendingLoading.value) {
+                        Timber.i("Refreshing trending shows due to forceRefresh ($forceRefresh) or empty data.")
+                        if (isSimkl) {
+                            simklRepository.refreshTrendingShows()
+                        } else {
+                            traktRepository.refreshTraktTrendingShows(forceRefresh = forceRefresh)
+                        }
                     } else {
-                        Timber.d("RefreshTraktTrendingShows NOT executed, already loading.")
+                        Timber.d("RefreshTrendingShows NOT executed, already loading.")
                     }
                 } else {
-                    Timber.d("RefreshTraktTrendingShows NOT executed, not forced and data not empty.")
+                    Timber.d("RefreshTrendingShows NOT executed, not forced and data not empty.")
                 }
             }
 

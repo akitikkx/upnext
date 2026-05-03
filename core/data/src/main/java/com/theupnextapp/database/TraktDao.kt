@@ -102,24 +102,24 @@ interface TraktDao {
     @Query("DELETE FROM trakt_popular WHERE id IN (:showIds)")
     suspend fun deleteSpecificPopularShows(showIds: List<Int>)
 
-    // TRAKT TRENDING SHOWS
+    // TRENDING SHOWS
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAllTraktTrending(vararg traktTrendingShows: DatabaseTraktTrendingShows)
+    suspend fun insertAllTrending(vararg trendingShows: DatabaseTrendingShows)
 
-    @Query("select * from trakt_trending")
-    fun getTraktTrending(): Flow<List<DatabaseTraktTrendingShows>>
+    @Query("select * from trending_shows where providerId = :providerId")
+    fun getTrendingShows(providerId: String): Flow<List<DatabaseTrendingShows>>
 
-    @Query("SELECT * FROM trakt_trending")
-    fun getTraktTrendingRaw(): List<DatabaseTraktTrendingShows>
+    @Query("SELECT * FROM trending_shows where providerId = :providerId")
+    fun getTrendingShowsRaw(providerId: String): List<DatabaseTrendingShows>
 
-    @Query("DELETE FROM trakt_trending")
-    suspend fun clearTrendingShows()
+    @Query("DELETE FROM trending_shows where providerId = :providerId")
+    suspend fun clearTrendingShows(providerId: String)
 
-    @Query("SELECT COUNT(id) == 0 FROM trakt_trending")
-    suspend fun checkIfTrendingShowsIsEmpty(): Boolean
+    @Query("SELECT COUNT(id) == 0 FROM trending_shows where providerId = :providerId")
+    suspend fun checkIfTrendingShowsIsEmpty(providerId: String): Boolean
 
-    @Query("DELETE FROM trakt_trending WHERE id IN (:showIds)")
-    suspend fun deleteSpecificTrendingShows(showIds: List<Int>)
+    @Query("DELETE FROM trending_shows WHERE id IN (:showIds) AND providerId = :providerId")
+    suspend fun deleteSpecificTrendingShows(showIds: List<Int>, providerId: String)
 
     // TRAKT MOST ANTICIPATED SHOWS
     @Insert(onConflict = OnConflictStrategy.REPLACE)

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Ahmed Tikiwa
+ * Copyright (c) 2024 Ahmed Tikiwa
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
  * associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -19,32 +19,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.theupnextapp.database
+package com.theupnextapp.network.interceptors
 
-import androidx.room.Database
-import androidx.room.RoomDatabase
+import com.theupnextapp.core.data.BuildConfig
+import okhttp3.Interceptor
+import okhttp3.Response
 
-@Database(
-    entities = [
-        DatabaseYesterdaySchedule::class,
-        DatabaseTodaySchedule::class,
-        DatabaseTomorrowSchedule::class,
-        DatabaseShowInfo::class,
-        DatabaseTableUpdate::class,
-        DatabaseTraktPopularShows::class,
-        DatabaseTrendingShows::class,
-        DatabaseTraktMostAnticipated::class,
-        DatabaseWatchlistShows::class,
-        DatabaseTraktAccess::class,
-        DatabaseWatchedEpisode::class,
-        DatabaseRecentSearch::class,
-    ],
-    version = 34,
-    exportSchema = true,
-)
-abstract class UpnextDatabase : RoomDatabase() {
-    abstract val upnextDao: UpnextDao
-    abstract val traktDao: TraktDao
-    abstract val tvMazeDao: TvMazeDao
-    abstract val recentSearchDao: RecentSearchDao
+class SimklInterceptor : Interceptor {
+    override fun intercept(chain: Interceptor.Chain): Response {
+        val originalRequest = chain.request()
+        val originalUrl = originalRequest.url
+
+        val url = originalUrl.newBuilder()
+            .addQueryParameter("client_id", BuildConfig.SIMKL_CLIENT_ID)
+            .addQueryParameter("app-name", "UpNextTVSeriesManager") // Matches standard format without spaces
+            .addQueryParameter("app-version", "1.0.0")
+            .build()
+
+        val requestBuilder = originalRequest.newBuilder()
+            .url(url)
+            .header("User-Agent", "UpNextTVSeriesManager/1.0.0")
+
+        val request = requestBuilder.build()
+        return chain.proceed(request)
+    }
 }

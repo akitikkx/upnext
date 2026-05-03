@@ -19,32 +19,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.theupnextapp.database
+package com.theupnextapp.domain
 
-import androidx.room.Database
-import androidx.room.RoomDatabase
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 
-@Database(
-    entities = [
-        DatabaseYesterdaySchedule::class,
-        DatabaseTodaySchedule::class,
-        DatabaseTomorrowSchedule::class,
-        DatabaseShowInfo::class,
-        DatabaseTableUpdate::class,
-        DatabaseTraktPopularShows::class,
-        DatabaseTrendingShows::class,
-        DatabaseTraktMostAnticipated::class,
-        DatabaseWatchlistShows::class,
-        DatabaseTraktAccess::class,
-        DatabaseWatchedEpisode::class,
-        DatabaseRecentSearch::class,
-    ],
-    version = 34,
-    exportSchema = true,
-)
-abstract class UpnextDatabase : RoomDatabase() {
-    abstract val upnextDao: UpnextDao
-    abstract val traktDao: TraktDao
-    abstract val tvMazeDao: TvMazeDao
-    abstract val recentSearchDao: RecentSearchDao
+/**
+ * A generic interface defining the core functionalities required by any TV show tracking provider
+ * (e.g., Trakt, SIMKL) supported by Upnext.
+ */
+interface TrackingProvider {
+    val providerId: String
+    val isAuthorized: StateFlow<Boolean>
+
+    val trendingShows: Flow<List<TrendingShow>>
+    val popularShows: Flow<List<TraktPopularShows>> // We will make these generic later
+    val mostAnticipatedShows: Flow<List<TraktMostAnticipated>>
+    
+    val isLoadingTrending: StateFlow<Boolean>
+    
+    suspend fun refreshTrendingShows()
+    suspend fun refreshPopularShows()
+    suspend fun refreshMostAnticipatedShows()
+
+    // Additional methods will be abstracted here over time
 }

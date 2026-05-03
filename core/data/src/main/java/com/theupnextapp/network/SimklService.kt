@@ -19,32 +19,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.theupnextapp.database
+package com.theupnextapp.network
 
-import androidx.room.Database
-import androidx.room.RoomDatabase
+import com.theupnextapp.network.models.simkl.NetworkSimklTrendingResponse
+import retrofit2.Response
+import retrofit2.http.GET
+import retrofit2.http.Header
+import retrofit2.http.Query
 
-@Database(
-    entities = [
-        DatabaseYesterdaySchedule::class,
-        DatabaseTodaySchedule::class,
-        DatabaseTomorrowSchedule::class,
-        DatabaseShowInfo::class,
-        DatabaseTableUpdate::class,
-        DatabaseTraktPopularShows::class,
-        DatabaseTrendingShows::class,
-        DatabaseTraktMostAnticipated::class,
-        DatabaseWatchlistShows::class,
-        DatabaseTraktAccess::class,
-        DatabaseWatchedEpisode::class,
-        DatabaseRecentSearch::class,
-    ],
-    version = 34,
-    exportSchema = true,
-)
-abstract class UpnextDatabase : RoomDatabase() {
-    abstract val upnextDao: UpnextDao
-    abstract val traktDao: TraktDao
-    abstract val tvMazeDao: TvMazeDao
-    abstract val recentSearchDao: RecentSearchDao
+/**
+ * Retrofit interface for the SIMKL API.
+ * Defines the endpoints required for the `TrackingProvider` implementation.
+ */
+interface SimklService {
+
+    @GET("tv/trending")
+    suspend fun getTrendingShows(
+        @Header("Authorization") token: String?
+    ): Response<List<NetworkSimklTrendingResponse>>
+
+    @GET("sync/all")
+    suspend fun getSyncState(
+        @Header("Authorization") token: String,
+        @Query("client_id") clientId: String
+    ): Response<Any> // TODO: Replace 'Any' with NetworkSimklSyncResponse
+
+    // Additional endpoints (OAuth, Search, etc.) will be added here
 }

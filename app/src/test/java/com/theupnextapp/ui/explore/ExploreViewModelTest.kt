@@ -49,11 +49,19 @@ class ExploreViewModelTest {
     private lateinit var viewModel: ExploreViewModel
     private lateinit var fakeRepository: FakeTraktRepository
     private val firebaseAnalytics: FirebaseAnalytics = org.mockito.Mockito.mock(FirebaseAnalytics::class.java)
+    private val simklRepository: com.theupnextapp.repository.SimklRepository = org.mockito.Mockito.mock(com.theupnextapp.repository.SimklRepository::class.java)
+    private val providerManager: com.theupnextapp.repository.ProviderManager = org.mockito.Mockito.mock(com.theupnextapp.repository.ProviderManager::class.java)
 
     @Before
     fun setup() {
         fakeRepository = FakeTraktRepository()
-        viewModel = ExploreViewModel(fakeRepository, firebaseAnalytics)
+        org.mockito.Mockito.`when`(providerManager.activeProvider).thenReturn(kotlinx.coroutines.flow.flowOf(com.theupnextapp.repository.ProviderManager.PROVIDER_TRAKT))
+        viewModel = ExploreViewModel(
+            traktRepository = fakeRepository,
+            simklRepository = simklRepository,
+            providerManager = providerManager,
+            firebaseAnalytics = firebaseAnalytics
+        )
     }
 
     @Test
@@ -62,18 +70,16 @@ class ExploreViewModelTest {
             // Given
             val shows =
                 listOf(
-                    TraktTrendingShows(
+                    com.theupnextapp.domain.TrendingShow(
                         id = 1,
                         title = "Breaking Bad",
                         year = "2008",
                         mediumImageUrl = "url",
                         originalImageUrl = "url",
                         imdbID = "tt0903747",
-                        slug = "breaking-bad",
                         tmdbID = 1396,
-                        traktID = 1388,
-                        tvdbID = 81189,
                         tvMazeID = 169,
+                        providerId = com.theupnextapp.repository.ProviderManager.PROVIDER_TRAKT
                     ),
                 )
             fakeRepository.setTrendingShows(shows)
@@ -171,18 +177,16 @@ class ExploreViewModelTest {
             // Given
             fakeRepository.setTrendingShows(
                 listOf(
-                    TraktTrendingShows(
+                    com.theupnextapp.domain.TrendingShow(
                         id = 1,
                         title = "Test",
                         year = "2024",
                         mediumImageUrl = null,
                         originalImageUrl = null,
                         imdbID = null,
-                        slug = null,
                         tmdbID = null,
-                        traktID = null,
-                        tvdbID = null,
                         tvMazeID = null,
+                        providerId = com.theupnextapp.repository.ProviderManager.PROVIDER_TRAKT
                     ),
                 ),
             )

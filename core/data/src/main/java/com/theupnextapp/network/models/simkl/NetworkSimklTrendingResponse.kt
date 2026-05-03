@@ -19,32 +19,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.theupnextapp.database
+package com.theupnextapp.network.models.simkl
 
-import androidx.room.Database
-import androidx.room.RoomDatabase
+import com.google.gson.annotations.SerializedName
 
-@Database(
-    entities = [
-        DatabaseYesterdaySchedule::class,
-        DatabaseTodaySchedule::class,
-        DatabaseTomorrowSchedule::class,
-        DatabaseShowInfo::class,
-        DatabaseTableUpdate::class,
-        DatabaseTraktPopularShows::class,
-        DatabaseTrendingShows::class,
-        DatabaseTraktMostAnticipated::class,
-        DatabaseWatchlistShows::class,
-        DatabaseTraktAccess::class,
-        DatabaseWatchedEpisode::class,
-        DatabaseRecentSearch::class,
-    ],
-    version = 34,
-    exportSchema = true,
+data class NetworkSimklTrendingResponse(
+    val title: String?,
+    val year: Int?,
+    val poster: String?,
+    val ids: NetworkSimklIds?
 )
-abstract class UpnextDatabase : RoomDatabase() {
-    abstract val upnextDao: UpnextDao
-    abstract val traktDao: TraktDao
-    abstract val tvMazeDao: TvMazeDao
-    abstract val recentSearchDao: RecentSearchDao
-}
+
+data class NetworkSimklIds(
+    @SerializedName("simkl")
+    val simklId: Int?,
+    @SerializedName("imdb")
+    val imdbId: String?,
+    @SerializedName("tmdb")
+    val tmdbId: String?,
+    @SerializedName("tvdb")
+    val tvdbId: String?
+)

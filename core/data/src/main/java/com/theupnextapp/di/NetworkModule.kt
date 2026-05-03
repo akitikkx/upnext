@@ -176,4 +176,29 @@ object NetworkModule {
             .build()
             .create(TmdbService::class.java)
     }
+
+    @Singleton
+    @Provides
+    fun provideSimklInterceptor(): com.theupnextapp.network.interceptors.SimklInterceptor {
+        return com.theupnextapp.network.interceptors.SimklInterceptor()
+    }
+
+    @Singleton
+    @Provides
+    fun provideSimklService(
+        networkClient: OkHttpClient,
+        simklInterceptor: com.theupnextapp.network.interceptors.SimklInterceptor
+    ): com.theupnextapp.network.SimklService {
+        return Retrofit.Builder()
+            .client(
+                networkClient.newBuilder()
+                    .addInterceptor(simklInterceptor)
+                    .build()
+            )
+            .baseUrl("https://api.simkl.com/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .addCallAdapterFactory(CoroutineCallAdapterFactory())
+            .build()
+            .create(com.theupnextapp.network.SimklService::class.java)
+    }
 }

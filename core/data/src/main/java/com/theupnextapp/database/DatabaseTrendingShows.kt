@@ -23,12 +23,13 @@ package com.theupnextapp.database
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.theupnextapp.domain.TraktTrendingShows
+import com.theupnextapp.domain.TrendingShow
 
-@Entity(tableName = "trakt_trending")
-data class DatabaseTraktTrendingShows(
-    @PrimaryKey
-    val id: Int,
+@Entity(tableName = "trending_shows")
+data class DatabaseTrendingShows(
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
+    val showId: Int?, // e.g. traktId or simklId
     val title: String?,
     val year: String?,
     val medium_image_url: String?,
@@ -39,22 +40,21 @@ data class DatabaseTraktTrendingShows(
     val traktID: Int?,
     val tvdbID: Int?,
     val tvMazeID: Int?,
+    val providerId: String
 )
 
-fun List<DatabaseTraktTrendingShows>.asDomainModel(): List<TraktTrendingShows> {
+fun List<DatabaseTrendingShows>.asDomainModel(): List<TrendingShow> {
     return map {
-        TraktTrendingShows(
-            id = it.traktID,
+        TrendingShow(
+            id = it.showId,
             title = it.title,
             year = it.year,
             mediumImageUrl = it.medium_image_url,
             originalImageUrl = it.original_image_url,
             imdbID = it.imdbID,
-            slug = it.slug,
             tmdbID = it.tmdbID,
-            traktID = it.traktID,
-            tvdbID = it.tvdbID,
             tvMazeID = it.tvMazeID,
+            providerId = it.providerId
         )
     }
 }

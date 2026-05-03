@@ -68,7 +68,7 @@ import com.theupnextapp.core.designsystem.ui.components.PosterImage
 import com.theupnextapp.core.designsystem.ui.modifiers.bounceClick
 import com.theupnextapp.domain.TraktMostAnticipated
 import com.theupnextapp.domain.TraktPopularShows
-import com.theupnextapp.domain.TraktTrendingShows
+import com.theupnextapp.domain.TrendingShow
 import com.theupnextapp.navigation.Destinations
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
@@ -81,12 +81,9 @@ fun ExploreScreen(
     navController: NavController,
     contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
-    val popularShowsList: List<TraktPopularShows>
-        by viewModel.popularShows.collectAsStateWithLifecycle()
-    val trendingShowsList: List<TraktTrendingShows>
-        by viewModel.trendingShows.collectAsStateWithLifecycle()
-    val mostAnticipatedShowsList: List<TraktMostAnticipated>
-        by viewModel.mostAnticipatedShows.collectAsStateWithLifecycle()
+    val popularShowsList by viewModel.popularShows.collectAsStateWithLifecycle()
+    val trendingShowsList by viewModel.trendingShows.collectAsStateWithLifecycle()
+    val mostAnticipatedShowsList by viewModel.mostAnticipatedShows.collectAsStateWithLifecycle()
 
     val isOverallLoading by viewModel.isLoading.collectAsStateWithLifecycle()
     val isPullRefreshing by viewModel.isPullRefreshing.collectAsStateWithLifecycle()
@@ -272,14 +269,14 @@ private fun BentoCard(
 ) {
     val title =
         when (item) {
-            is TraktTrendingShows -> item.title
+            is TrendingShow -> item.title
             is TraktPopularShows -> item.title
             is TraktMostAnticipated -> item.title
             else -> null
         }
     val imageUrl =
         when (item) {
-            is TraktTrendingShows -> item.originalImageUrl
+            is TrendingShow -> item.originalImageUrl
             is TraktPopularShows -> item.originalImageUrl
             is TraktMostAnticipated -> item.originalImageUrl
             else -> null
@@ -331,14 +328,14 @@ private fun FeaturedShowHero(
 ) {
     val title =
         when (item) {
-            is TraktTrendingShows -> item.title
+            is TrendingShow -> item.title
             is TraktPopularShows -> item.title
             is TraktMostAnticipated -> item.title
             else -> null
         }
     val imageUrl =
         when (item) {
-            is TraktTrendingShows -> item.originalImageUrl
+            is TrendingShow -> item.originalImageUrl
             is TraktPopularShows -> item.originalImageUrl
             is TraktMostAnticipated -> item.originalImageUrl
             else -> null
@@ -416,14 +413,14 @@ private fun navigateToShowDetails(
 ) {
     val match =
         when (item) {
-            is TraktTrendingShows ->
+            is TrendingShow ->
                 listOf(
                     item.title,
                     item.originalImageUrl,
                     item.mediumImageUrl,
                     item.tvMazeID,
                     item.imdbID,
-                    item.traktID,
+                    if (item.providerId == "trakt") item.id else null,
                 )
             is TraktPopularShows -> listOf(item.title, item.originalImageUrl, item.mediumImageUrl, item.tvMazeID, item.imdbID, item.traktID)
             is TraktMostAnticipated ->

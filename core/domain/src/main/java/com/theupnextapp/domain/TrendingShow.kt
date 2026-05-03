@@ -19,32 +19,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.theupnextapp.database
+package com.theupnextapp.domain
 
-import androidx.room.Database
-import androidx.room.RoomDatabase
-
-@Database(
-    entities = [
-        DatabaseYesterdaySchedule::class,
-        DatabaseTodaySchedule::class,
-        DatabaseTomorrowSchedule::class,
-        DatabaseShowInfo::class,
-        DatabaseTableUpdate::class,
-        DatabaseTraktPopularShows::class,
-        DatabaseTrendingShows::class,
-        DatabaseTraktMostAnticipated::class,
-        DatabaseWatchlistShows::class,
-        DatabaseTraktAccess::class,
-        DatabaseWatchedEpisode::class,
-        DatabaseRecentSearch::class,
-    ],
-    version = 34,
-    exportSchema = true,
+/**
+ * A unified domain model representing a trending TV show, abstracted away from any specific
+ * tracking provider (like Trakt or SIMKL).
+ */
+data class TrendingShow(
+    val id: Int?,
+    val title: String?,
+    val year: String?,
+    val mediumImageUrl: String?,
+    val originalImageUrl: String?,
+    val imdbID: String?,
+    val tmdbID: Int?,
+    val tvMazeID: Int?,
+    val providerId: String // e.g. "trakt" or "simkl"
 )
-abstract class UpnextDatabase : RoomDatabase() {
-    abstract val upnextDao: UpnextDao
-    abstract val traktDao: TraktDao
-    abstract val tvMazeDao: TvMazeDao
-    abstract val recentSearchDao: RecentSearchDao
-}
