@@ -42,7 +42,21 @@ interface SimklService {
     suspend fun getSyncState(
         @Header("Authorization") token: String,
         @Query("client_id") clientId: String
-    ): Response<Any> // TODO: Replace 'Any' with NetworkSimklSyncResponse
+    ): Response<Any>
 
-    // Additional endpoints (OAuth, Search, etc.) will be added here
+    @GET("sync/activities")
+    suspend fun getActivities(
+        @Header("Authorization") token: String
+    ): Response<com.theupnextapp.network.models.simkl.NetworkSimklActivityResponse>
+
+    @GET("sync/shows")
+    suspend fun getSyncShows(
+        @Header("Authorization") token: String
+    ): Response<List<com.theupnextapp.network.models.simkl.NetworkSimklLibraryResponse>>
+
+    @GET("sync/all-items")
+    suspend fun getAllItems(
+        @Header("Authorization") token: String,
+        @Query("date_from") dateFrom: String
+    ): Response<com.theupnextapp.network.models.simkl.NetworkSimklAllItemsResponse>
 }

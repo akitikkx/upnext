@@ -33,14 +33,40 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
+import com.theupnextapp.database.DatabaseWatchlistShows
+import com.theupnextapp.database.TraktDao
+
 class SimklRepository @Inject constructor(
-    private val simklService: SimklService
+    private val simklService: SimklService,
+    private val traktDao: TraktDao
 ) : TrackingProvider {
 
     override val providerId: String = "simkl"
 
     private val _isAuthorized = MutableStateFlow(false)
     override val isAuthorized: StateFlow<Boolean> = _isAuthorized.asStateFlow()
+
+    suspend fun saveSyncShows(shows: List<com.theupnextapp.network.models.simkl.NetworkSimklShowItem>) {
+        val databaseShows = shows.map { networkShow ->
+            DatabaseWatchlistShows(
+                id = networkShow.ids?.simklId ?: networkShow.ids?.tmdbId?.toIntOrNull(),
+                title = networkShow.title,
+                year = networkShow.year?.toString(),
+                mediumImageUrl = null, // Can be populated later by TvMaze fallback
+                originalImageUrl = null,
+                imdbID = networkShow.ids?.imdbId,
+                slug = null,
+                tmdbID = networkShow.ids?.tmdbId?.toIntOrNull(),
+                traktID = null,
+                tvdbID = networkShow.ids?.tvdbId?.toIntOrNull(),
+                tvMazeID = null,
+                network = null,
+                status = null,
+                rating = null
+            )
+        }
+        traktDao.insertAllWatchlistShows(*databaseShows.toTypedArray())
+    }
 
     private val _trendingShows = MutableStateFlow<List<TrendingShow>>(emptyList())
     override val trendingShows: Flow<List<TrendingShow>> = _trendingShows.asStateFlow()
