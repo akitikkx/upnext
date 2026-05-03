@@ -33,6 +33,19 @@ import kotlinx.coroutines.flow.flowOf
 import kotlin.Result
 
 class FakeTraktRepository : TraktRepository {
+    override val providerId: String = "trakt"
+    override val isAuthorized: StateFlow<Boolean> = MutableStateFlow(false)
+
+    private val _trendingShows = MutableStateFlow<List<com.theupnextapp.domain.TrendingShow>>(emptyList())
+    override val trendingShows: Flow<List<com.theupnextapp.domain.TrendingShow>> = _trendingShows.asStateFlow()
+
+    override val popularShows: Flow<List<TraktPopularShows>> get() = traktPopularShows
+    override val mostAnticipatedShows: Flow<List<TraktMostAnticipated>> get() = traktMostAnticipatedShows
+
+    override suspend fun refreshTrendingShows() {}
+    override suspend fun refreshPopularShows() {}
+    override suspend fun refreshMostAnticipatedShows() {}
+
     override fun tableUpdate(tableName: String): Flow<TableUpdate?> = flowOf(null)
 
     private val _traktPopularShows = MutableStateFlow<List<TraktPopularShows>>(emptyList())
@@ -57,6 +70,7 @@ class FakeTraktRepository : TraktRepository {
 
     private val _isLoadingTraktTrending = MutableStateFlow(false)
     override val isLoadingTraktTrending: StateFlow<Boolean> = _isLoadingTraktTrending.asStateFlow()
+    override val isLoadingTrending: StateFlow<Boolean> get() = isLoadingTraktTrending
 
     private val _isLoadingTraktPopular = MutableStateFlow(false)
     override val isLoadingTraktPopular: StateFlow<Boolean> = _isLoadingTraktPopular.asStateFlow()
@@ -315,8 +329,8 @@ class FakeTraktRepository : TraktRepository {
         _isLoading.value = loading
     }
 
-    fun setTrendingShows(shows: List<TraktTrendingShows>) {
-        _traktTrendingShows.value = shows
+    fun setTrendingShows(shows: List<com.theupnextapp.domain.TrendingShow>) {
+        _trendingShows.value = shows
     }
 
     fun setPopularShows(shows: List<TraktPopularShows>) {

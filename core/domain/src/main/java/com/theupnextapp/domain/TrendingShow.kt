@@ -21,26 +21,18 @@
 
 package com.theupnextapp.domain
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
-
 /**
- * A generic interface defining the core functionalities required by any TV show tracking provider
- * (e.g., Trakt, SIMKL) supported by Upnext.
+ * A unified domain model representing a trending TV show, abstracted away from any specific
+ * tracking provider (like Trakt or SIMKL).
  */
-interface TrackingProvider {
-    val providerId: String
-    val isAuthorized: StateFlow<Boolean>
-
-    val trendingShows: Flow<List<TrendingShow>>
-    val popularShows: Flow<List<TraktPopularShows>> // We will make these generic later
-    val mostAnticipatedShows: Flow<List<TraktMostAnticipated>>
-    
-    val isLoadingTrending: StateFlow<Boolean>
-    
-    suspend fun refreshTrendingShows()
-    suspend fun refreshPopularShows()
-    suspend fun refreshMostAnticipatedShows()
-
-    // Additional methods will be abstracted here over time
-}
+data class TrendingShow(
+    val id: Int?,
+    val title: String?,
+    val year: String?,
+    val mediumImageUrl: String?,
+    val originalImageUrl: String?,
+    val imdbID: String?,
+    val tmdbID: Int?,
+    val tvMazeID: Int?,
+    val providerId: String // e.g. "trakt" or "simkl"
+)

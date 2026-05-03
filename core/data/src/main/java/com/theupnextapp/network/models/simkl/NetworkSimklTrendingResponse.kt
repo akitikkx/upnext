@@ -19,28 +19,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.theupnextapp.domain
+package com.theupnextapp.network.models.simkl
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
+import com.google.gson.annotations.SerializedName
 
-/**
- * A generic interface defining the core functionalities required by any TV show tracking provider
- * (e.g., Trakt, SIMKL) supported by Upnext.
- */
-interface TrackingProvider {
-    val providerId: String
-    val isAuthorized: StateFlow<Boolean>
+data class NetworkSimklTrendingResponse(
+    val title: String?,
+    val year: Int?,
+    val poster: String?,
+    val ids: NetworkSimklIds?
+)
 
-    val trendingShows: Flow<List<TrendingShow>>
-    val popularShows: Flow<List<TraktPopularShows>> // We will make these generic later
-    val mostAnticipatedShows: Flow<List<TraktMostAnticipated>>
-    
-    val isLoadingTrending: StateFlow<Boolean>
-    
-    suspend fun refreshTrendingShows()
-    suspend fun refreshPopularShows()
-    suspend fun refreshMostAnticipatedShows()
-
-    // Additional methods will be abstracted here over time
-}
+data class NetworkSimklIds(
+    @SerializedName("simkl")
+    val simklId: Int?,
+    @SerializedName("imdb")
+    val imdbId: String?,
+    @SerializedName("tmdb")
+    val tmdbId: String?,
+    @SerializedName("tvdb")
+    val tvdbId: String?
+)

@@ -24,7 +24,7 @@ package com.theupnextapp.database.fakes
 import com.theupnextapp.database.DatabaseTraktAccess
 import com.theupnextapp.database.DatabaseTraktMostAnticipated
 import com.theupnextapp.database.DatabaseTraktPopularShows
-import com.theupnextapp.database.DatabaseTraktTrendingShows
+import com.theupnextapp.database.DatabaseTrendingShows
 import com.theupnextapp.database.DatabaseWatchedEpisode
 import com.theupnextapp.database.DatabaseWatchlistShows
 import com.theupnextapp.database.TraktDao
@@ -92,17 +92,17 @@ class FakeTraktDao : TraktDao {
 
     override suspend fun deleteSpecificPopularShows(showIds: List<Int>) {}
 
-    override suspend fun insertAllTraktTrending(vararg traktTrendingShows: DatabaseTraktTrendingShows) {}
+    override suspend fun insertAllTrending(vararg trendingShows: DatabaseTrendingShows) {}
 
-    override fun getTraktTrending(): Flow<List<DatabaseTraktTrendingShows>> = flowOf(emptyList())
+    override fun getTrendingShows(providerId: String): Flow<List<DatabaseTrendingShows>> = flowOf(emptyList())
 
-    override fun getTraktTrendingRaw(): List<DatabaseTraktTrendingShows> = emptyList()
+    override fun getTrendingShowsRaw(providerId: String): List<DatabaseTrendingShows> = emptyList()
 
-    override suspend fun clearTrendingShows() {}
+    override suspend fun clearTrendingShows(providerId: String) {}
 
-    override suspend fun checkIfTrendingShowsIsEmpty(): Boolean = true
+    override suspend fun checkIfTrendingShowsIsEmpty(providerId: String): Boolean = true
 
-    override suspend fun deleteSpecificTrendingShows(showIds: List<Int>) {}
+    override suspend fun deleteSpecificTrendingShows(showIds: List<Int>, providerId: String) {}
 
     override suspend fun insertAllTraktMostAnticipated(vararg traktMostAnticipatedShows: DatabaseTraktMostAnticipated) {}
 

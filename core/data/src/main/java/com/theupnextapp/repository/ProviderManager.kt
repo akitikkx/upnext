@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Ahmed Tikiwa
+ * Copyright (c) 2024 Ahmed Tikiwa
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
  * associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -19,28 +19,36 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.theupnextapp.domain
+package com.theupnextapp.repository
 
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import javax.inject.Inject
 
 /**
- * A generic interface defining the core functionalities required by any TV show tracking provider
- * (e.g., Trakt, SIMKL) supported by Upnext.
+ * Manages the currently active tracking provider (e.g. Trakt vs SIMKL).
  */
-interface TrackingProvider {
-    val providerId: String
-    val isAuthorized: StateFlow<Boolean>
+class ProviderManager @Inject constructor(
+    private val dataStore: DataStore<Preferences>
+) {
+    companion object {
+        const val PROVIDER_TRAKT = "trakt"
+        const val PROVIDER_SIMKL = "simkl"
+        private val ACTIVE_PROVIDER = stringPreferencesKey("active_tracking_provider")
+    }
 
-    val trendingShows: Flow<List<TrendingShow>>
-    val popularShows: Flow<List<TraktPopularShows>> // We will make these generic later
-    val mostAnticipatedShows: Flow<List<TraktMostAnticipated>>
-    
-    val isLoadingTrending: StateFlow<Boolean>
-    
-    suspend fun refreshTrendingShows()
-    suspend fun refreshPopularShows()
-    suspend fun refreshMostAnticipatedShows()
+    val activeProvider: Flow<String> = dataStore.data
+        .map { preferences ->
+            preferences[ACTIVE_PROVIDER] ?: PROVIDER_TRAKT // Trakt is the default
+        }
 
-    // Additional methods will be abstracted here over time
+    suspend fun setActiveProvider(providerId: String) {
+        dataStore.edit { preferences ->
+            preferences[ACTIVE_PROVIDER] = providerId
+        }
+    }
 }

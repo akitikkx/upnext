@@ -21,6 +21,7 @@
 
 package com.theupnextapp.network
 
+import com.theupnextapp.network.models.simkl.NetworkSimklTrendingResponse
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Header
@@ -34,9 +35,8 @@ interface SimklService {
 
     @GET("tv/trending")
     suspend fun getTrendingShows(
-        @Header("Authorization") token: String?,
-        @Query("client_id") clientId: String
-    ): Response<Any> // TODO: Replace 'Any' with NetworkSimklTrendingResponse
+        @Header("Authorization") token: String?
+    ): Response<List<NetworkSimklTrendingResponse>>
 
     @GET("sync/all")
     suspend fun getSyncState(

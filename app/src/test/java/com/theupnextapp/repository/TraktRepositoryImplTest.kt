@@ -48,7 +48,7 @@ class TraktRepositoryImplTest {
     @Before
     fun setup() {
         whenever(traktDao.getTraktAccessData()).thenReturn(flowOf(null))
-        whenever(traktDao.getTraktTrending()).thenReturn(flowOf(emptyList()))
+        whenever(traktDao.getTrendingShows("trakt")).thenReturn(flowOf(emptyList()))
         whenever(traktDao.getTraktPopular()).thenReturn(flowOf(emptyList()))
         whenever(traktDao.getTraktMostAnticipated()).thenReturn(flowOf(emptyList()))
         whenever(traktDao.getWatchlistShows()).thenReturn(flowOf(emptyList()))

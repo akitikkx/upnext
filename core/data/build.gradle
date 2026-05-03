@@ -47,11 +47,13 @@ android {
         def clientSecret = localProperties.getProperty("TraktClientSecret") ?: "\"${System.getenv("TRAKT_CLIENT_SECRET") ?: ""}\""
         def redirectUri = localProperties.getProperty("TraktRedirectURI") ?: "\"${System.getenv("TRAKT_REDIRECT_URI") ?: ""}\""
         def tmdbAccessToken = localProperties.getProperty("TmdbAccessToken") ?: "\"${System.getenv("TMDB_ACCESS_TOKEN") ?: ""}\""
+        def simklClientId = localProperties.getProperty("SIMKLClientID") ?: "\"${System.getenv("SIMKL_CLIENT_ID") ?: ""}\""
 
         it.buildConfigField('String', 'TRAKT_CLIENT_ID', clientId)
         it.buildConfigField('String', 'TRAKT_CLIENT_SECRET', clientSecret)
         it.buildConfigField('String', 'TRAKT_REDIRECT_URI', redirectUri)
         it.buildConfigField('String', 'TMDB_ACCESS_TOKEN', tmdbAccessToken)
+        it.buildConfigField('String', 'SIMKL_CLIENT_ID', simklClientId)
     }
 
     compileOptions {

@@ -25,7 +25,7 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.theupnextapp.common.utils.models.DatabaseTables
 import com.theupnextapp.database.DatabaseTraktMostAnticipated
 import com.theupnextapp.database.DatabaseTraktPopularShows
-import com.theupnextapp.database.DatabaseTraktTrendingShows
+import com.theupnextapp.database.DatabaseTrendingShows
 import com.theupnextapp.database.TraktDao
 import com.theupnextapp.database.UpnextDao
 import com.theupnextapp.domain.TraktCast
@@ -60,7 +60,7 @@ constructor(
     suspend fun refreshTraktTrendingShows(forceRefresh: Boolean): Result<Unit> {
         return withContext(Dispatchers.IO) {
             val tableName = DatabaseTables.TABLE_TRAKT_TRENDING.tableName
-            val isEmpty = traktDao.checkIfTrendingShowsIsEmpty()
+            val isEmpty = traktDao.checkIfTrendingShowsIsEmpty("trakt")
             val needsUpdate = isEmpty || isUpdateNeededByDay(tableName) || forceRefresh
 
             if (!needsUpdate) {
@@ -70,12 +70,12 @@ constructor(
             try {
                 val networkTrendingShowsResponse = traktService.getTrendingShowsAsync().await()
                 if (networkTrendingShowsResponse.isEmpty()) {
-                    traktDao.clearTrendingShows()
+                    traktDao.clearTrendingShows("trakt")
                     logTableUpdateTimestamp(tableName)
                     return@withContext Result.success(Unit)
                 }
 
-                val newShowDatabaseModels: List<DatabaseTraktTrendingShows> =
+                val newShowDatabaseModels: List<DatabaseTrendingShows> =
                     networkTrendingShowsResponse.mapNotNull { responseItem: NetworkTraktTrendingShowsResponseItem ->
                         responseItem.show.asDatabaseModel()
                     }
@@ -84,15 +84,15 @@ constructor(
                     return@withContext Result.failure(Exception("Failed to map network items to database models"))
                 }
 
-                val networkShowIds = newShowDatabaseModels.map { it.id }.toSet()
-                val localShowsList = traktDao.getTraktTrendingRaw()
-                val localShowsMap = localShowsList.associateBy { it.id }
+                val networkShowIds = newShowDatabaseModels.map { it.showId }.toSet()
+                val localShowsList = traktDao.getTrendingShowsRaw("trakt")
+                val localShowsMap = localShowsList.associateBy { it.showId }
 
-                val showsToUpsert = mutableListOf<DatabaseTraktTrendingShows>()
-                val showsMissingImages = mutableListOf<DatabaseTraktTrendingShows>()
+                val showsToUpsert = mutableListOf<DatabaseTrendingShows>()
+                val showsMissingImages = mutableListOf<DatabaseTrendingShows>()
 
                 for (networkShowModel in newShowDatabaseModels) {
-                    val existingLocalShow = localShowsMap[networkShowModel.id]
+                    val existingLocalShow = localShowsMap[networkShowModel.showId]
 
                     if (existingLocalShow != null) {
                         val updatedShow =
@@ -119,18 +119,18 @@ constructor(
                 }
 
                 if (showsToUpsert.isNotEmpty()) {
-                    traktDao.insertAllTraktTrending(*showsToUpsert.toTypedArray())
+                    traktDao.insertAllTrending(*showsToUpsert.toTypedArray())
                 }
 
-                val showsToDelete = localShowsList.filter { it.id !in networkShowIds }
+                val showsToDelete = localShowsList.filter { it.showId !in networkShowIds }
                 if (showsToDelete.isNotEmpty()) {
-                    traktDao.deleteSpecificTrendingShows(showsToDelete.map { it.id })
+                    traktDao.deleteSpecificTrendingShows(showsToDelete.map { it.id }, "trakt")
                 }
 
                 if (showsMissingImages.isNotEmpty()) {
-                    val showsToUpdateWithFetchedImages = kotlinx.coroutines.coroutineScope {
+                    val showsToUpdateWithFetchedImages: List<DatabaseTrendingShows> = kotlinx.coroutines.coroutineScope {
                         showsMissingImages.map { showNeedingImage ->
-                            async(Dispatchers.IO.limitedParallelism(5)) {
+                            async<DatabaseTrendingShows?>(Dispatchers.IO.limitedParallelism(5)) {
                                 var changed = false
                                 var imageUpdatedShow = showNeedingImage
                                 showNeedingImage.imdbID?.let { imdbId ->
@@ -155,7 +155,7 @@ constructor(
                     }
 
                     if (showsToUpdateWithFetchedImages.isNotEmpty()) {
-                        traktDao.insertAllTraktTrending(*showsToUpdateWithFetchedImages.toTypedArray())
+                        traktDao.insertAllTrending(*showsToUpdateWithFetchedImages.toTypedArray())
                     }
                 }
 

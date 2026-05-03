@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Ahmed Tikiwa
+ * Copyright (c) 2024 Ahmed Tikiwa
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
  * associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -19,28 +19,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.theupnextapp.domain
+package com.theupnextapp.network.interceptors
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
+import com.theupnextapp.core.data.BuildConfig
+import okhttp3.Interceptor
+import okhttp3.Response
 
-/**
- * A generic interface defining the core functionalities required by any TV show tracking provider
- * (e.g., Trakt, SIMKL) supported by Upnext.
- */
-interface TrackingProvider {
-    val providerId: String
-    val isAuthorized: StateFlow<Boolean>
+class SimklInterceptor : Interceptor {
+    override fun intercept(chain: Interceptor.Chain): Response {
+        val originalRequest = chain.request()
+        val originalUrl = originalRequest.url
 
-    val trendingShows: Flow<List<TrendingShow>>
-    val popularShows: Flow<List<TraktPopularShows>> // We will make these generic later
-    val mostAnticipatedShows: Flow<List<TraktMostAnticipated>>
-    
-    val isLoadingTrending: StateFlow<Boolean>
-    
-    suspend fun refreshTrendingShows()
-    suspend fun refreshPopularShows()
-    suspend fun refreshMostAnticipatedShows()
+        val url = originalUrl.newBuilder()
+            .addQueryParameter("client_id", BuildConfig.SIMKL_CLIENT_ID)
+            .addQueryParameter("app-name", "UpNextTVSeriesManager") // Matches standard format without spaces
+            .addQueryParameter("app-version", "1.0.0")
+            .build()
 
-    // Additional methods will be abstracted here over time
+        val requestBuilder = originalRequest.newBuilder()
+            .url(url)
+            .header("User-Agent", "UpNextTVSeriesManager/1.0.0")
+
+        val request = requestBuilder.build()
+        return chain.proceed(request)
+    }
 }
