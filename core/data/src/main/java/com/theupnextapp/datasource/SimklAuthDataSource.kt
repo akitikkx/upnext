@@ -25,7 +25,7 @@ constructor(
     suspend fun getAccessToken(code: String): Result<SimklAccessToken> {
         if (code.isEmpty()) {
             val message = "Attempted to get access token with empty code."
-            logTraktException(message) // Reusing logTraktException from base class for simplicity
+            logProviderException(message) // Reusing logProviderException from base class for simplicity
             return Result.failure(IllegalArgumentException(message))
         }
 
@@ -34,6 +34,7 @@ constructor(
                 NetworkSimklAccessTokenRequest(
                     code = code,
                     clientId = BuildConfig.SIMKL_CLIENT_ID,
+                    clientSecret = BuildConfig.SIMKL_CLIENT_SECRET,
                     redirectUri = BuildConfig.SIMKL_REDIRECT_URI,
                     grantType = "authorization_code",
                 )

@@ -162,7 +162,7 @@ constructor(
                 logTableUpdateTimestamp(tableName)
                 Result.success(Unit)
             } catch (e: Exception) {
-                logTraktException("refreshTraktTrendingShows failed", e)
+                logProviderException("refreshTraktTrendingShows failed", e)
                 Result.failure(e)
             }
         }
@@ -266,7 +266,7 @@ constructor(
                 logTableUpdateTimestamp(tableName)
                 Result.success(Unit)
             } catch (e: Exception) {
-                logTraktException("refreshTraktPopularShows failed", e)
+                logProviderException("refreshTraktPopularShows failed", e)
                 Result.failure(e)
             }
         }
@@ -384,7 +384,7 @@ constructor(
                 logTableUpdateTimestamp(tableName)
                 Result.success(Unit)
             } catch (e: Exception) {
-                logTraktException("refreshTraktMostAnticipatedShows failed", e)
+                logProviderException("refreshTraktMostAnticipatedShows failed", e)
                 Result.failure(e)
             }
         }
