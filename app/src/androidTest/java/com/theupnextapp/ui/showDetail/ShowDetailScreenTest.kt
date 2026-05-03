@@ -110,4 +110,18 @@ class ShowDetailScreenTest {
 
         rule.onNodeWithText("Walter White begins his transformation.").assertIsDisplayed()
     }
+
+    @Test
+    fun backdropAndTitle_whenCertificationIsNotNull_displaysCertification() {
+        rule.setContent {
+            BackdropAndTitle(
+                showDetailArgs = testShowDetailArg,
+                showSummary = testShowSummary,
+                certification = "TV-MA",
+                onBack = {},
+            )
+        }
+
+        rule.onNodeWithText("TV-MA").assertIsDisplayed()
+    }
 }
