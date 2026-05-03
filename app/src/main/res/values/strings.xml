@@ -282,6 +282,14 @@
     <string name="settings_trakt_not_connected">Not connected. Track progress and sync history.</string>
     <string name="settings_connect">Connect</string>
     <string name="settings_about">About</string>
+    <string name="settings_tracking_provider">Tracking Provider</string>
+    <string name="settings_active_provider">Active Tracking Provider</string>
+    <string name="settings_simkl_connection">SIMKL Connection</string>
+    <string name="settings_simkl_not_connected">Not connected. Track progress and sync history with SIMKL.</string>
+    <string name="disconnect_from_simkl_dialog_title">Disconnect SIMKL account?</string>
+    <string name="disconnect_from_simkl_dialog_message">Continue with disconnecting your SIMKL account from Upnext: TV Series Manager?</string>
+    <string name="disconnect_from_simkl_dialog_confirm">Logout</string>
+    <string name="disconnect_from_simkl_dialog_cancel">Cancel</string>
     <string name="settings_version">Version</string>
     <string name="dashboard_my_upnext">My Upnext</string>
     <string name="dashboard_tonight_on_tv">Tonight on TV</string>

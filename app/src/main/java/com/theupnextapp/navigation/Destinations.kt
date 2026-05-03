@@ -20,7 +20,7 @@ sealed interface Destinations {
     data object Explore : Destinations
 
     @Serializable
-    data class TraktAccount(val code: String? = null) : Destinations
+    data class Account(val code: String? = null) : Destinations
 
     @Serializable
     data object Settings : Destinations

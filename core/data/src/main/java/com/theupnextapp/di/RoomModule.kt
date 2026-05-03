@@ -43,7 +43,9 @@ import com.theupnextapp.database.MIGRATION_30_31
 import com.theupnextapp.database.MIGRATION_31_32
 import com.theupnextapp.database.MIGRATION_32_33
 import com.theupnextapp.database.MIGRATION_33_34
+import com.theupnextapp.database.MIGRATION_34_35
 import com.theupnextapp.database.RecentSearchDao
+import com.theupnextapp.database.SimklDao
 import com.theupnextapp.database.TraktDao
 import com.theupnextapp.database.TvMazeDao
 import com.theupnextapp.database.UpnextDao
@@ -90,6 +92,7 @@ class RoomModule {
                 MIGRATION_31_32,
                 MIGRATION_32_33,
                 MIGRATION_33_34,
+                MIGRATION_34_35,
             )
             .build()
     }
@@ -98,6 +101,12 @@ class RoomModule {
     @Provides
     fun provideUpnextDao(upnextDatabase: UpnextDatabase): UpnextDao {
         return upnextDatabase.upnextDao
+    }
+
+    @Singleton
+    @Provides
+    fun provideSimklDao(upnextDatabase: UpnextDatabase): SimklDao {
+        return upnextDatabase.simklDao
     }
 
     @Singleton

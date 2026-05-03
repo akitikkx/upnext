@@ -293,3 +293,22 @@ val MIGRATION_33_34 =
             )
         }
     }
+
+val MIGRATION_34_35 =
+    object : Migration(
+        34,
+        35,
+    ) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `simkl_access` (
+                    `accessToken` TEXT NOT NULL,
+                    `tokenType` TEXT,
+                    `scope` TEXT,
+                    PRIMARY KEY(`accessToken`)
+                )
+                """.trimIndent()
+            )
+        }
+    }

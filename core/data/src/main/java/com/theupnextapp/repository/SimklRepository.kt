@@ -68,6 +68,10 @@ class SimklRepository @Inject constructor(
         traktDao.insertAllWatchlistShows(*databaseShows.toTypedArray())
     }
 
+    suspend fun clearSyncShows() {
+        traktDao.deleteAllWatchlistShows()
+    }
+
     private val _trendingShows = MutableStateFlow<List<TrendingShow>>(emptyList())
     override val trendingShows: Flow<List<TrendingShow>> = _trendingShows.asStateFlow()
 

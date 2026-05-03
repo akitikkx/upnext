@@ -36,10 +36,11 @@ import androidx.room.RoomDatabase
         DatabaseTraktMostAnticipated::class,
         DatabaseWatchlistShows::class,
         DatabaseTraktAccess::class,
+        DatabaseSimklAccess::class,
         DatabaseWatchedEpisode::class,
         DatabaseRecentSearch::class,
     ],
-    version = 34,
+    version = 35,
     exportSchema = true,
 )
 abstract class UpnextDatabase : RoomDatabase() {
@@ -47,4 +48,5 @@ abstract class UpnextDatabase : RoomDatabase() {
     abstract val traktDao: TraktDao
     abstract val tvMazeDao: TvMazeDao
     abstract val recentSearchDao: RecentSearchDao
+    abstract val simklDao: SimklDao
 }

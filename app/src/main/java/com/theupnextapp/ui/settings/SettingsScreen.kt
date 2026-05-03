@@ -45,6 +45,7 @@ import com.theupnextapp.common.utils.TraktConstants
 import com.theupnextapp.domain.Theme
 
 @OptIn(ExperimentalPermissionsApi::class)
+@Suppress("LongMethod")
 @Composable
 fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
     val theme by viewModel.themeStream.collectAsState()
@@ -139,51 +140,140 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
 
         Divider(modifier = Modifier.padding(vertical = 8.dp))
 
+        // Tracking Provider Section
+        SettingsSectionHeader(title = stringResource(id = R.string.settings_tracking_provider))
+        var showProviderDialog by remember { mutableStateOf(false) }
+        val activeProvider by viewModel.activeProvider.collectAsState()
+        val simklAccessToken by viewModel.simklAccessToken.collectAsState()
+
+        val providerName = if (activeProvider == com.theupnextapp.repository.ProviderManager.PROVIDER_SIMKL) {
+            "SIMKL"
+        } else {
+            "Trakt"
+        }
+
+        ListItem(
+            headlineContent = { Text(stringResource(id = R.string.settings_active_provider)) },
+            supportingContent = { Text(providerName) },
+            modifier = Modifier.clickable { showProviderDialog = !showProviderDialog },
+        )
+
+        if (showProviderDialog) {
+            Column(modifier = Modifier.padding(start = 32.dp, end = 16.dp)) {
+                listOf(
+                    com.theupnextapp.repository.ProviderManager.PROVIDER_TRAKT to "Trakt",
+                    com.theupnextapp.repository.ProviderManager.PROVIDER_SIMKL to "SIMKL"
+                ).forEach { (providerId, providerDisplayName) ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .minimumInteractiveComponentSize()
+                            .clickable {
+                                viewModel.onProviderSelected(providerId)
+                                showProviderDialog = false
+                            }
+                            .padding(vertical = 12.dp),
+                    ) {
+                        Text(text = providerDisplayName, modifier = Modifier.weight(1f))
+                        if (activeProvider == providerId) {
+                            Icon(Icons.Default.Check, contentDescription = stringResource(id = R.string.settings_theme_selected), tint = MaterialTheme.colorScheme.primary)
+                        }
+                    }
+                }
+            }
+        }
+
+        Divider(modifier = Modifier.padding(vertical = 8.dp))
+
         // Account Section
         SettingsSectionHeader(title = stringResource(id = R.string.settings_account))
 
         // Disconnect confirmation state
         var showDisconnectDialog by remember { mutableStateOf(false) }
 
-        if (traktToken != null) {
-            ListItem(
-                headlineContent = { Text(stringResource(id = R.string.settings_trakt_connection)) },
-                supportingContent = { Text(stringResource(id = R.string.settings_connected)) },
-                trailingContent = {
-                    Text(
-                        text = stringResource(id = R.string.settings_disconnect),
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.minimumInteractiveComponentSize().clickable { showDisconnectDialog = true },
-                    )
-                },
-            )
+        if (activeProvider == com.theupnextapp.repository.ProviderManager.PROVIDER_TRAKT) {
+            if (traktToken != null) {
+                ListItem(
+                    headlineContent = { Text(stringResource(id = R.string.settings_trakt_connection)) },
+                    supportingContent = { Text(stringResource(id = R.string.settings_connected)) },
+                    trailingContent = {
+                        Text(
+                            text = stringResource(id = R.string.settings_disconnect),
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.minimumInteractiveComponentSize().clickable { showDisconnectDialog = true },
+                        )
+                    },
+                )
 
-            if (showDisconnectDialog) {
-                DisconnectTraktDialog(
-                    onDismissed = { showDisconnectDialog = false },
-                    onConfirmed = {
-                        viewModel.onDisconnectTrakt()
-                        showDisconnectDialog = false
+                if (showDisconnectDialog) {
+                    DisconnectTraktDialog(
+                        onDismissed = { showDisconnectDialog = false },
+                        onConfirmed = {
+                            viewModel.onDisconnectTrakt()
+                            showDisconnectDialog = false
+                        },
+                    )
+                }
+            } else {
+                ListItem(
+                    headlineContent = { Text(stringResource(id = R.string.settings_trakt_connection)) },
+                    supportingContent = { Text(stringResource(id = R.string.settings_trakt_not_connected)) },
+                    trailingContent = {
+                        Text(
+                            text = stringResource(id = R.string.settings_connect),
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier =
+                                Modifier.minimumInteractiveComponentSize().clickable {
+                                    val builder = CustomTabsIntent.Builder()
+                                    val customTabsIntent = builder.build()
+                                    customTabsIntent.launchUrl(context, Uri.parse(TraktConstants.TRAKT_AUTH_URL))
+                                },
+                        )
                     },
                 )
             }
-        } else {
-            ListItem(
-                headlineContent = { Text(stringResource(id = R.string.settings_trakt_connection)) },
-                supportingContent = { Text(stringResource(id = R.string.settings_trakt_not_connected)) },
-                trailingContent = {
-                    Text(
-                        text = stringResource(id = R.string.settings_connect),
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier =
-                            Modifier.minimumInteractiveComponentSize().clickable {
-                                val builder = CustomTabsIntent.Builder()
-                                val customTabsIntent = builder.build()
-                                customTabsIntent.launchUrl(context, Uri.parse(TraktConstants.TRAKT_AUTH_URL))
-                            },
+        } else if (activeProvider == com.theupnextapp.repository.ProviderManager.PROVIDER_SIMKL) {
+            if (simklAccessToken != null) {
+                ListItem(
+                    headlineContent = { Text(stringResource(id = R.string.settings_simkl_connection)) },
+                    supportingContent = { Text(stringResource(id = R.string.settings_connected)) },
+                    trailingContent = {
+                        Text(
+                            text = stringResource(id = R.string.settings_disconnect),
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.minimumInteractiveComponentSize().clickable { showDisconnectDialog = true },
+                        )
+                    },
+                )
+
+                if (showDisconnectDialog) {
+                    DisconnectSimklDialog(
+                        onDismissed = { showDisconnectDialog = false },
+                        onConfirmed = {
+                            viewModel.onDisconnectSimkl()
+                            showDisconnectDialog = false
+                        },
                     )
-                },
-            )
+                }
+            } else {
+                ListItem(
+                    headlineContent = { Text(stringResource(id = R.string.settings_simkl_connection)) },
+                    supportingContent = { Text(stringResource(id = R.string.settings_simkl_not_connected)) },
+                    trailingContent = {
+                        Text(
+                            text = stringResource(id = R.string.settings_connect),
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier =
+                                Modifier.minimumInteractiveComponentSize().clickable {
+                                    val builder = CustomTabsIntent.Builder()
+                                    val customTabsIntent = builder.build()
+                                    customTabsIntent.launchUrl(context, Uri.parse(com.theupnextapp.common.utils.SimklConstants.SIMKL_AUTH_URL))
+                                },
+                        )
+                    },
+                )
+            }
         }
 
         Divider(modifier = Modifier.padding(vertical = 8.dp))
@@ -233,6 +323,36 @@ private fun DisconnectTraktDialog(
         dismissButton = {
             TextButton(onClick = { onDismissed() }) {
                 Text(text = stringResource(id = R.string.disconnect_from_trakt_dialog_cancel))
+            }
+        },
+    )
+}
+
+@Composable
+private fun DisconnectSimklDialog(
+    onDismissed: () -> Unit,
+    onConfirmed: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = { onDismissed() },
+        title = {
+            Text(
+                text = stringResource(id = R.string.disconnect_from_simkl_dialog_title),
+            )
+        },
+        text = {
+            Text(
+                text = stringResource(id = R.string.disconnect_from_simkl_dialog_message),
+            )
+        },
+        confirmButton = {
+            TextButton(onClick = { onConfirmed() }) {
+                Text(text = stringResource(id = R.string.disconnect_from_simkl_dialog_confirm))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = { onDismissed() }) {
+                Text(text = stringResource(id = R.string.disconnect_from_simkl_dialog_cancel))
             }
         },
     )
