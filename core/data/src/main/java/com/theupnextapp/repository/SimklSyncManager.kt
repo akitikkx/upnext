@@ -101,6 +101,11 @@ class SimklSyncManager @Inject constructor(
                 }
             }
 
+            // 3. Refresh Watched History
+            Timber.d("SIMKL Sync Phase 3: Push pending history and refreshing watched history.")
+            simklRepository.pushPendingWatchedHistory(token)
+            simklRepository.refreshWatchedHistory(token)
+
             // Update activity hash to prevent redundant syncs
             if (tvShowsUpdatedAt != null) {
                 providerManager.setSimklLastActivityHash(tvShowsUpdatedAt)

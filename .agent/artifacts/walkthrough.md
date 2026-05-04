@@ -83,7 +83,23 @@ We have laid the foundational architecture to support SIMKL alongside Trakt:
 1. **Database Generalization:** Renamed `DatabaseTraktTrendingShows` to `DatabaseTrendingShows` and added a `providerId` column. A destructive migration (version 33 to 34) handles purging the cached Trakt data so that Room can recreate the schema cleanly. 
 2. **Domain Abstraction:** Introduced a unified `TrendingShow` domain model and refactored the `TrackingProvider` interface to leverage reactive `Flow` sequences instead of generic results.
 3. **Repository Injection:** Built `SimklRepository` implementing `TrackingProvider`. Refactored `ExploreViewModel` to inject `ProviderManager`, allowing it to dynamically switch its `trendingShows` data stream depending on whether SIMKL or Trakt is active.
-4. **SIMKL Networking:** Created generic DTOs for the SIMKL trending endpoint. Configured `SimklInterceptor` to automatically inject mandatory API query parameters (`app-name`, `app-version`, `client_id`) and the `User-Agent` HTTP header for every request to abide by SIMKL’s API rules.
+4. **SIMKL Networking:** Created generic DTOs for the SIMKL trending endpoint. Configured `SimklInterceptor` to automatically inject mandatory API query parameters (`app-name`, `app-version`, `client_id`) and the `User-Agent` HTTP header for every request
+
+## Two-Way Watch History Sync (SIMKL)
+
+### Goal
+Establish robust, two-way watch history synchronization for SIMKL to achieve feature parity with the existing Trakt integration.
+
+### What Was Done
+- **Offline-First Data Storage:** Implemented a new `simkl_watched_episodes` table via `MIGRATION_35_36` with Room to cache user viewing activity.
+- **Repository Abstraction:** Modified `SimklRepository.kt` to record episodes as `PENDING_ADD` or `PENDING_REMOVE` when marked via the UI rather than firing off the API requests blindly.
+- **Simkl Sync Logic:** Added `pushPendingWatchedHistory()` and `refreshWatchedHistory()` in `SimklRepository.kt`. The first aggregates any local, unsynced changes to SIMKL’s API structure, and the second downloads the updated state while properly ignoring offline pending states (so background updates don't overwrite user edits).
+- **Worker Integration:** Wired these mechanisms directly into `SimklSyncManager.kt` so the `SimklSyncWorker` natively processes background synchronization. 
+- **Reactive UI Multiplexing:** Expanded the reactive flow in `ShowSeasonEpisodesViewModel` so the watched history cache directly depends on the active tracking provider settings. 
+
+### Testing
+- `core:data` and `app` components cleanly compile and run.
+- Build logic verified under AGP 9 with tests passing locally.
 
 ## Phase 2: API Localization
 To prevent a "mixed-language" experience where the static UI is localized but dynamic data is in English, we refactored the Data layer:

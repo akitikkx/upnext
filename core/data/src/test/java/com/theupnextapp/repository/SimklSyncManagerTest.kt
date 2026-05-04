@@ -137,5 +137,31 @@ class SimklSyncManagerTest {
         verify(simklService).getAllItems(any(), org.mockito.kotlin.eq(lastSyncDate))
         verify(providerManager).setSimklLastActivityHash("new_hash")
         verify(providerManager).setSimklLastSyncDate(any())
+        verify(simklRepository).pushPendingWatchedHistory(validToken)
+        verify(simklRepository).refreshWatchedHistory(validToken)
+    }
+
+    @Test
+    fun `sync triggers watch history refresh in Phase 1`() = runTest {
+        // Given
+        whenever(providerManager.simklLastActivityHash).thenReturn(flowOf("old_hash"))
+        whenever(providerManager.simklLastSyncDate).thenReturn(flowOf(null))
+
+        val activityResponse = NetworkSimklActivityResponse(
+            tvShows = NetworkSimklActivityTimestamps(updatedAt = "new_hash", removedAt = null),
+            all = null
+        )
+        whenever(simklService.getActivities(any())).thenReturn(Response.success(activityResponse))
+        
+        val showsResponse = listOf<NetworkSimklLibraryResponse>()
+        whenever(simklService.getSyncShows(any())).thenReturn(Response.success(showsResponse))
+
+        // When
+        val result = simklSyncManager.sync(validToken)
+
+        // Then
+        assertTrue(result.isSuccess)
+        verify(simklRepository).pushPendingWatchedHistory(validToken)
+        verify(simklRepository).refreshWatchedHistory(validToken)
     }
 }

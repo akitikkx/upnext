@@ -50,6 +50,9 @@ class ShowSeasonEpisodesViewModel
     constructor(
         private val showDetailRepository: ShowDetailRepository,
         private val watchProgressRepository: WatchProgressRepository,
+        private val simklRepository: com.theupnextapp.repository.SimklRepository,
+        private val providerManager: com.theupnextapp.repository.ProviderManager,
+        private val simklAuthManager: com.theupnextapp.repository.SimklAuthManager,
         private val localWorkManager: WorkManager,
         private val traktRepository: TraktRepository,
         val traktAuthManager: TraktAuthManager,
@@ -94,19 +97,7 @@ class ShowSeasonEpisodesViewModel
             seasonNumber: Int,
         ) {
             viewModelScope.launch {
-                // Pull latest watched state from Trakt before reading local DB
-                currentShowTraktId?.let { traktId ->
-                    traktRepository.traktAccessToken.firstOrNull()?.access_token?.let { token ->
-                        try {
-                            watchProgressRepository.refreshWatchedFromTrakt(
-                                token = token,
-                                showTraktId = traktId,
-                            )
-                        } catch (e: Exception) {
-                            Timber.w(e, "Failed to refresh watched state from Trakt, using local cache")
-                        }
-                    }
-                }
+                val activeProviderFlow = providerManager.activeProvider
 
                 val episodesFlow =
                     showDetailRepository.getShowSeasonEpisodes(
@@ -119,14 +110,44 @@ class ShowSeasonEpisodesViewModel
                         watchProgressRepository.getWatchedEpisodesForShow(it)
                     } ?: flowOf(emptyList())
 
-                combine(episodesFlow, watchedEpisodesFlow) { episodeResult, watchedEpisodes ->
+                val simklWatchedEpisodesFlow =
+                    currentShowImdbId?.let {
+                        simklRepository.getWatchedEpisodesForShowByImdbId(it)
+                    } ?: flowOf(emptyList())
+
+                combine(episodesFlow, watchedEpisodesFlow, simklWatchedEpisodesFlow, activeProviderFlow) { episodeResult, watchedEpisodes, simklWatchedEpisodes, activeProvider ->
+                    val provider = activeProvider
+
+                    if (provider == com.theupnextapp.repository.ProviderManager.PROVIDER_TRAKT) {
+                        // Pull latest watched state from Trakt before reading local DB
+                        currentShowTraktId?.let { traktId ->
+                            traktRepository.traktAccessToken.value?.access_token?.let { token ->
+                                try {
+                                    watchProgressRepository.refreshWatchedFromTrakt(
+                                        token = token,
+                                        showTraktId = traktId,
+                                    )
+                                } catch (e: Exception) {
+                                    Timber.w(e, "Failed to refresh watched state from Trakt, using local cache")
+                                }
+                            }
+                        }
+                    }
+
                     when (episodeResult) {
                         is Result.Success -> {
-                            val watchedSet =
+                            val isSimkl = provider == com.theupnextapp.repository.ProviderManager.PROVIDER_SIMKL
+                            val watchedSet = if (isSimkl) {
+                                simklWatchedEpisodes
+                                    .filter { it.seasonNumber == seasonNumber }
+                                    .map { it.episodeNumber }
+                                    .toSet()
+                            } else {
                                 watchedEpisodes
                                     .filter { it.seasonNumber == seasonNumber }
                                     .map { it.episodeNumber }
                                     .toSet()
+                            }
 
                             episodeResult.data.map { episode ->
                                 episode.copy(isWatched = episode.number in watchedSet)
@@ -147,62 +168,126 @@ class ShowSeasonEpisodesViewModel
         }
 
         fun onToggleWatched(episode: ShowSeasonEpisode) {
-            if (isAuthorizedOnTrakt.value != true) return
             val showTraktId = currentShowTraktId ?: return
             val season = episode.season ?: return
             val episodeNum = episode.number ?: return
 
             viewModelScope.launch {
-                if (episode.isWatched) {
-                    watchProgressRepository.markEpisodeUnwatched(
-                        showTraktId = showTraktId,
-                        seasonNumber = season,
-                        episodeNumber = episodeNum,
-                    )
+                val activeProvider = providerManager.activeProvider.firstOrNull() ?: com.theupnextapp.repository.ProviderManager.PROVIDER_TRAKT
+                if (activeProvider == com.theupnextapp.repository.ProviderManager.PROVIDER_SIMKL) {
+                    val currentSimklToken = simklAuthManager.simklAccessToken.firstOrNull()?.accessToken
+                    if (currentSimklToken != null) {
+                        if (episode.isWatched) {
+                            simklRepository.markEpisodeUnwatched(
+                                simklId = showTraktId, // map appropriately later if needed
+                                imdbID = currentShowImdbId,
+                                seasonNumber = season,
+                                episodeNumber = episodeNum,
+                                token = currentSimklToken
+                            )
+                        } else {
+                            simklRepository.markEpisodeWatched(
+                                simklId = showTraktId, // map appropriately later if needed
+                                imdbID = currentShowImdbId,
+                                seasonNumber = season,
+                                episodeNumber = episodeNum,
+                                token = currentSimklToken
+                            )
+                        }
+                        triggerSimklSync(currentSimklToken)
+                    }
                 } else {
-                    watchProgressRepository.markEpisodeWatched(
-                        showTraktId = showTraktId,
-                        showTvMazeId = currentShowTvMazeId,
-                        showImdbId = currentShowImdbId,
-                        seasonNumber = season,
-                        episodeNumber = episodeNum,
-                    )
+                    if (isAuthorizedOnTrakt.value != true) return@launch
+                    if (episode.isWatched) {
+                        watchProgressRepository.markEpisodeUnwatched(
+                            showTraktId = showTraktId,
+                            seasonNumber = season,
+                            episodeNumber = episodeNum,
+                        )
+                    } else {
+                        watchProgressRepository.markEpisodeWatched(
+                            showTraktId = showTraktId,
+                            showTvMazeId = currentShowTvMazeId,
+                            showImdbId = currentShowImdbId,
+                            seasonNumber = season,
+                            episodeNumber = episodeNum,
+                        )
+                    }
+                    triggerSyncIfAuthenticated()
                 }
-
-                triggerSyncIfAuthenticated()
             }
         }
 
         fun markSeasonAsWatched() {
-            if (isAuthorizedOnTrakt.value != true) return
             val showTraktId = currentShowTraktId ?: return
             val season = currentSeasonNumber ?: return
             val episodesList = _episodes.value ?: return
 
             viewModelScope.launch {
-                watchProgressRepository.markSeasonWatched(
-                    showTraktId = showTraktId,
-                    showTvMazeId = currentShowTvMazeId,
-                    showImdbId = currentShowImdbId,
-                    seasonNumber = season,
-                    episodes = episodesList,
-                )
-                triggerSyncIfAuthenticated()
+                val activeProvider = providerManager.activeProvider.firstOrNull() ?: com.theupnextapp.repository.ProviderManager.PROVIDER_TRAKT
+                if (activeProvider == com.theupnextapp.repository.ProviderManager.PROVIDER_SIMKL) {
+                    val currentSimklToken = simklAuthManager.simklAccessToken.firstOrNull()?.accessToken
+                    if (currentSimklToken != null) {
+                        simklRepository.markSeasonWatched(
+                            simklId = showTraktId, // map appropriately later if needed
+                            imdbID = currentShowImdbId,
+                            seasonNumber = season,
+                            token = currentSimklToken
+                        )
+                        triggerSimklSync(currentSimklToken)
+                    }
+                } else {
+                    if (isAuthorizedOnTrakt.value != true) return@launch
+                    watchProgressRepository.markSeasonWatched(
+                        showTraktId = showTraktId,
+                        showTvMazeId = currentShowTvMazeId,
+                        showImdbId = currentShowImdbId,
+                        seasonNumber = season,
+                        episodes = episodesList,
+                    )
+                    triggerSyncIfAuthenticated()
+                }
             }
         }
 
         fun markSeasonAsUnwatched() {
-            if (isAuthorizedOnTrakt.value != true) return
             val showTraktId = currentShowTraktId ?: return
             val season = currentSeasonNumber ?: return
 
             viewModelScope.launch {
-                watchProgressRepository.markSeasonUnwatched(
-                    showTraktId = showTraktId,
-                    seasonNumber = season,
-                )
-                triggerSyncIfAuthenticated()
+                val activeProvider = providerManager.activeProvider.firstOrNull() ?: com.theupnextapp.repository.ProviderManager.PROVIDER_TRAKT
+                if (activeProvider == com.theupnextapp.repository.ProviderManager.PROVIDER_SIMKL) {
+                    val currentSimklToken = simklAuthManager.simklAccessToken.firstOrNull()?.accessToken
+                    if (currentSimklToken != null) {
+                        simklRepository.markSeasonUnwatched(
+                            simklId = showTraktId, // map appropriately later if needed
+                            imdbID = currentShowImdbId,
+                            seasonNumber = season,
+                            token = currentSimklToken
+                        )
+                        triggerSimklSync(currentSimklToken)
+                    }
+                } else {
+                    if (isAuthorizedOnTrakt.value != true) return@launch
+                    watchProgressRepository.markSeasonUnwatched(
+                        showTraktId = showTraktId,
+                        seasonNumber = season,
+                    )
+                    triggerSyncIfAuthenticated()
+                }
             }
+        }
+
+        private fun triggerSimklSync(token: String) {
+            val syncWork =
+                OneTimeWorkRequestBuilder<com.theupnextapp.work.SimklSyncWorker>()
+                    .setInputData(
+                        Data
+                            .Builder()
+                            .putString(com.theupnextapp.work.SimklSyncWorker.ARG_TOKEN, token)
+                            .build(),
+                    ).build()
+            localWorkManager.enqueue(syncWork)
         }
 
         private fun triggerSyncIfAuthenticated() {

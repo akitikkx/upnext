@@ -312,3 +312,32 @@ val MIGRATION_34_35 =
             )
         }
     }
+
+val MIGRATION_35_36 =
+    object : Migration(
+        35,
+        36,
+    ) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `simkl_watched_episodes` (
+                    `showSimklId` INTEGER NOT NULL,
+                    `showTvMazeId` INTEGER,
+                    `showImdbId` TEXT,
+                    `showTraktId` INTEGER,
+                    `seasonNumber` INTEGER NOT NULL,
+                    `episodeNumber` INTEGER NOT NULL,
+                    `watchedAt` INTEGER NOT NULL,
+                    `syncStatus` INTEGER NOT NULL DEFAULT 0,
+                    `lastModified` INTEGER NOT NULL,
+                    PRIMARY KEY(`showSimklId`, `seasonNumber`, `episodeNumber`)
+                )
+                """.trimIndent(),
+            )
+
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_simkl_watched_episodes_showSimklId` ON `simkl_watched_episodes` (`showSimklId`)")
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_simkl_watched_episodes_showImdbId` ON `simkl_watched_episodes` (`showImdbId`)")
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_simkl_watched_episodes_syncStatus` ON `simkl_watched_episodes` (`syncStatus`)")
+        }
+    }

@@ -72,4 +72,27 @@ interface SimklService {
         @Header("Authorization") token: String,
         @Query("date_from") dateFrom: String
     ): Response<com.theupnextapp.network.models.simkl.NetworkSimklAllItemsResponse>
+
+    @POST("sync/add-to-list")
+    suspend fun addToList(
+        @Header("Authorization") token: String,
+        @Body request: com.theupnextapp.network.models.simkl.NetworkSimklSyncRequest
+    ): Response<Any>
+
+    @POST("sync/ratings")
+    suspend fun addRating(
+        @Header("Authorization") token: String,
+        @Body request: com.theupnextapp.network.models.simkl.NetworkSimklSyncRequest
+    ): Response<Any>
+
+    @POST("sync/history")
+    suspend fun addHistory(
+        @Header("Authorization") token: String,
+        @Body request: com.theupnextapp.network.models.simkl.NetworkSimklSyncRequest
+    ): Response<Any>
+
+    @GET("sync/episodes")
+    suspend fun getWatchedEpisodes(
+        @Header("Authorization") token: String
+    ): Response<List<com.theupnextapp.network.models.simkl.NetworkSimklHistoryResponse>>
 }
