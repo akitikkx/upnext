@@ -105,7 +105,7 @@ class SettingsViewModel
         fun onDisconnectSimkl() {
             viewModelScope.launch {
                 simklRepository.clearSyncShows()
-                // TODO: revoke access token for SIMKL if API allows, or simply delete local
+                simklAuthManager.disconnect()
             }
         }
     }

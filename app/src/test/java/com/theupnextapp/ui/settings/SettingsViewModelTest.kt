@@ -106,4 +106,13 @@ class SettingsViewModelTest {
             testDispatcher.scheduler.advanceUntilIdle()
             verify(mockTraktRepository).clearWatchlist()
         }
+
+    @Test
+    fun `onDisconnectSimkl clears sync shows and disconnects auth manager`() =
+        runTest {
+            viewModel.onDisconnectSimkl()
+            testDispatcher.scheduler.advanceUntilIdle()
+            verify(mockSimklRepository).clearSyncShows()
+            verify(mockSimklAuthManager).disconnect()
+        }
 }

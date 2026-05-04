@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface SimklDao {
     @Query("delete from simkl_access")
-    fun deleteSimklAccessData()
+    suspend fun deleteSimklAccessData()
 
     @Query("select * from simkl_access")
     fun getSimklAccessData(): Flow<DatabaseSimklAccess?>
@@ -18,5 +18,5 @@ interface SimklDao {
     fun getSimklAccessDataRaw(): DatabaseSimklAccess?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertAllSimklAccessData(databaseSimklAccess: DatabaseSimklAccess)
+    suspend fun insertAllSimklAccessData(databaseSimklAccess: DatabaseSimklAccess)
 }

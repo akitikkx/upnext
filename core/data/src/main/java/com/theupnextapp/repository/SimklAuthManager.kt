@@ -20,4 +20,8 @@ class SimklAuthManager @Inject constructor(
                 )
             }
         }
+
+    suspend fun disconnect() {
+        simklDao.deleteSimklAccessData()
+    }
 }

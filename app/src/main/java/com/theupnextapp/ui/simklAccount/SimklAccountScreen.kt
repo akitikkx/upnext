@@ -97,8 +97,25 @@ fun SimklAccountScreen(
                     CircularProgressIndicator()
                 }
             } else if (isAuthorized) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(text = "SIMKL Account Connected")
+                Column(
+                    modifier = Modifier.fillMaxSize().padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    SimklProfileHeader()
+                    Spacer(modifier = Modifier.height(24.dp))
+                    Text(
+                        text = "SIMKL Account Connected",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Your watch history is securely syncing in the background.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                        textAlign = TextAlign.Center
+                    )
                 }
             } else {
                 ConnectToSimkl(onClick = { viewModel.onConnectToSimklClick() })
@@ -109,8 +126,6 @@ fun SimklAccountScreen(
 
 @Composable
 fun ConnectToSimkl(onClick: () -> Unit) {
-    // Reusing the trakt icon for now until we add a SIMKL icon
-    val image: Painter = painterResource(id = R.drawable.ic_trakt_wide_red_white)
     Box(
         modifier = Modifier.fillMaxSize().padding(24.dp),
         contentAlignment = Alignment.Center,
@@ -131,11 +146,7 @@ fun ConnectToSimkl(onClick: () -> Unit) {
                         .fillMaxWidth()
                         .padding(32.dp),
             ) {
-                Image(
-                    painter = image,
-                    contentDescription = "SIMKL Logo",
-                    modifier = Modifier.height(56.dp),
-                )
+                SimklProfileHeader()
 
                 Spacer(modifier = Modifier.height(24.dp))
 
