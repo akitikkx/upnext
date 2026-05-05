@@ -35,6 +35,8 @@ data class ShowDetailArg(
     val imdbID: String? = null,
     val isAuthorizedOnTrakt: Boolean? = false,
     val showTraktId: Int? = null,
+    val tvdbID: Int? = null,
+    val simklID: Int? = null,
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readString(),
@@ -44,6 +46,8 @@ data class ShowDetailArg(
         parcel.readString(),
         parcel.readString(),
         parcel.readValue(Boolean::class.java.classLoader) as? Boolean,
+        parcel.readValue(Int::class.java.classLoader) as? Int,
+        parcel.readValue(Int::class.java.classLoader) as? Int,
         parcel.readValue(Int::class.java.classLoader) as? Int
     )
 
@@ -56,6 +60,8 @@ data class ShowDetailArg(
         parcel.writeString(imdbID)
         parcel.writeValue(isAuthorizedOnTrakt)
         parcel.writeValue(showTraktId)
+        parcel.writeValue(tvdbID)
+        parcel.writeValue(simklID)
     }
 
     override fun describeContents(): Int = 0

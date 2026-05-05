@@ -13,7 +13,6 @@
 package com.theupnextapp.baselineprofile
 
 import androidx.benchmark.macro.CompilationMode
-import androidx.benchmark.macro.FrameTimingMetric
 import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.TraceSectionMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
@@ -25,21 +24,21 @@ import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-class ScrollBenchmarks {
+class SimklPerformanceBenchmark {
 
     @get:Rule
     val rule = MacrobenchmarkRule()
 
     @Test
-    fun scrollCompilationNone() = scroll(CompilationMode.None())
+    fun benchmarkSimklDashboardFetchNone() = benchmark(CompilationMode.None())
 
     @Test
-    fun scrollCompilationBaselineProfiles() = scroll(CompilationMode.Partial())
+    fun benchmarkSimklDashboardFetchBaselineProfiles() = benchmark(CompilationMode.Partial())
 
-    private fun scroll(compilationMode: CompilationMode) {
+    private fun benchmark(compilationMode: CompilationMode) {
         rule.measureRepeated(
             packageName = "com.theupnextapp",
-            metrics = listOf(FrameTimingMetric(), TraceSectionMetric("TMDBImageFetch")),
+            metrics = listOf(TraceSectionMetric("SimklDashboardFetch")),
             compilationMode = compilationMode,
             iterations = 10,
             startupMode = StartupMode.WARM,
@@ -49,7 +48,7 @@ class ScrollBenchmarks {
             },
             measureBlock = {
                 waitForAsyncContent()
-                scrollDashboardListJourney()
+                simklDashboardJourney()
             }
         )
     }

@@ -106,7 +106,7 @@ fun ShowSeasonEpisodesScreen(
 
     val isLoading = viewModel.isLoading.observeAsState()
 
-    val isAuthorizedOnTrakt = viewModel.isAuthorizedOnTrakt.collectAsStateWithLifecycle()
+    val isAuthorizedOnProvider = viewModel.isAuthorizedOnProvider.collectAsStateWithLifecycle()
 
     Surface {
         Column {
@@ -127,7 +127,7 @@ fun ShowSeasonEpisodesScreen(
                             onMarkSeasonUnwatched = {
                                 viewModel.markSeasonAsUnwatched()
                             },
-                            isAuthorizedOnTrakt = isAuthorizedOnTrakt.value,
+                            isAuthorizedOnTrakt = isAuthorizedOnProvider.value,
                             onEpisodeClick = { episode ->
                                 val showTraktId = showSeasonEpisodesArg.showTraktId
                                 val season = episode.season
@@ -141,7 +141,7 @@ fun ShowSeasonEpisodesScreen(
                                             showTitle = showSeasonEpisodesArg.showTitle,
                                             showId = showSeasonEpisodesArg.showId,
                                             imdbID = showSeasonEpisodesArg.imdbID,
-                                            isAuthorizedOnTrakt = showSeasonEpisodesArg.isAuthorizedOnTrakt,
+                                            isAuthorizedOnTrakt = isAuthorizedOnProvider.value,
                                             showImageUrl = showSeasonEpisodesArg.showImageUrl,
                                             showBackgroundUrl = showSeasonEpisodesArg.showBackgroundUrl,
                                             episodeImageUrl = episode.originalImageUrl, // Inject specific episode image
@@ -158,7 +158,7 @@ fun ShowSeasonEpisodesScreen(
                                         showImageUrl = showSeasonEpisodesArg.showImageUrl,
                                         showBackgroundUrl = showSeasonEpisodesArg.showBackgroundUrl,
                                         imdbID = showSeasonEpisodesArg.imdbID,
-                                        isAuthorizedOnTrakt = showSeasonEpisodesArg.isAuthorizedOnTrakt,
+                                        isAuthorizedOnTrakt = isAuthorizedOnProvider.value,
                                         showTraktId = showSeasonEpisodesArg.showTraktId,
                                     ),
                                 )

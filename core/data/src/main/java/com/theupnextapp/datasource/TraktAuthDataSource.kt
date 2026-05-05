@@ -42,8 +42,9 @@ constructor(
     private val traktDao: TraktDao,
     upnextDao: UpnextDao,
     tvMazeService: TvMazeService,
+    tmdbService: com.theupnextapp.network.TmdbService,
     firebaseCrashlytics: FirebaseCrashlytics,
-) : BaseTraktDataSource(upnextDao, tvMazeService, firebaseCrashlytics) {
+) : BaseTraktDataSource(upnextDao, tvMazeService, tmdbService, firebaseCrashlytics) {
     suspend fun getAccessToken(code: String): Result<TraktAccessToken> {
         if (code.isEmpty()) {
             val message = "Attempted to get access token with empty code."

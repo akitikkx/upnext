@@ -55,8 +55,9 @@ constructor(
     private val traktService: TraktService,
     upnextDao: UpnextDao,
     tvMazeService: TvMazeService,
+    tmdbService: com.theupnextapp.network.TmdbService,
     firebaseCrashlytics: FirebaseCrashlytics,
-) : BaseTraktDataSource(upnextDao, tvMazeService, firebaseCrashlytics) {
+) : BaseTraktDataSource(upnextDao, tvMazeService, tmdbService, firebaseCrashlytics) {
     suspend fun refreshTraktTrendingShows(forceRefresh: Boolean): Result<Unit> {
         return withContext(Dispatchers.IO) {
             val tableName = DatabaseTables.TABLE_TRAKT_TRENDING.tableName
@@ -511,7 +512,7 @@ constructor(
         return safeApiCall {
             kotlinx.coroutines.coroutineScope {
                 val networkResponse = traktService.getRelatedShowsAsync(imdbID).await()
-                networkResponse.map { item ->
+                networkResponse.take(6).map { item ->
                     async {
                         item.ids.imdb?.let { imdbId ->
                             val (_, original, medium) = getImages(imdbId)

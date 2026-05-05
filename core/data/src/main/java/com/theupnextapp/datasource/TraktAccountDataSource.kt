@@ -81,8 +81,9 @@ constructor(
     private val moshi: Moshi,
     upnextDao: UpnextDao,
     tvMazeService: TvMazeService,
+    tmdbService: com.theupnextapp.network.TmdbService,
     firebaseCrashlytics: FirebaseCrashlytics,
-) : BaseTraktDataSource(upnextDao, tvMazeService, firebaseCrashlytics) {
+) : BaseTraktDataSource(upnextDao, tvMazeService, tmdbService, firebaseCrashlytics) {
     private val traktConflictErrorAdapter = moshi.adapter(TraktConflictErrorResponse::class.java)
 
     suspend fun refreshWatchlistShows(token: String): Result<Unit> {
@@ -163,7 +164,6 @@ constructor(
                                 existingLocalShow.tvMazeID == null
 
                         if (needsImageFetch && !networkListItem.show.ids.imdb.isNullOrEmpty()) {
-                            kotlinx.coroutines.delay(400L) // Rate limit prevention
                             val (tvMazeIdResult, poster, heroImage) = getImages(networkListItem.show.ids.imdb)
                             dbShow =
                                 dbShow.copy(

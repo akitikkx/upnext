@@ -19,8 +19,9 @@ constructor(
     private val simklDao: SimklDao,
     upnextDao: UpnextDao,
     tvMazeService: TvMazeService,
+    tmdbService: com.theupnextapp.network.TmdbService,
     firebaseCrashlytics: FirebaseCrashlytics,
-) : BaseTraktDataSource(upnextDao, tvMazeService, firebaseCrashlytics) {
+) : BaseTraktDataSource(upnextDao, tvMazeService, tmdbService, firebaseCrashlytics) {
 
     suspend fun getAccessToken(code: String): Result<SimklAccessToken> {
         if (code.isEmpty()) {

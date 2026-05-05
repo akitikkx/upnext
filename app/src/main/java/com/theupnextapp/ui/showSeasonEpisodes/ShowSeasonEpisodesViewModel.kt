@@ -37,9 +37,12 @@ import com.theupnextapp.repository.WatchProgressRepository
 import com.theupnextapp.ui.common.BaseTraktViewModel
 import com.theupnextapp.work.SyncWatchProgressWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -63,6 +66,29 @@ class ShowSeasonEpisodesViewModel
         ) {
         private val _isLoading = MutableLiveData<Boolean>()
         val isLoading: LiveData<Boolean> = _isLoading
+
+        val activeProvider: StateFlow<String> = providerManager.activeProvider
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5000L),
+                com.theupnextapp.repository.ProviderManager.PROVIDER_TRAKT
+            )
+
+        val isAuthorizedOnProvider: StateFlow<Boolean> = combine(
+            activeProvider,
+            traktAuthManager.traktAuthState,
+            simklAuthManager.simklAccessToken
+        ) { provider, traktState, simklToken ->
+            if (provider == com.theupnextapp.repository.ProviderManager.PROVIDER_SIMKL) {
+                simklToken != null
+            } else {
+                traktState == com.theupnextapp.domain.TraktAuthState.LoggedIn
+            }
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000L),
+            false
+        )
 
         private val _episodes = MutableLiveData<List<ShowSeasonEpisode>?>()
         val episodes: LiveData<List<ShowSeasonEpisode>?> = _episodes

@@ -247,6 +247,9 @@ dependencies {
     // Baseline Profiles
     implementation libs.profileinstaller
     baselineProfile project(path: ':baselineprofile')
+    
+    // Tracing
+    implementation libs.androidx.tracing.ktx
 
     debugImplementation(libs.androidx.ui.test.manifest)
 

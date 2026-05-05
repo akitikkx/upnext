@@ -167,6 +167,29 @@ class ShowDetailViewModel
                     null,
                 )
 
+        val activeProvider: StateFlow<String> = providerManager.activeProvider
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5000L),
+                com.theupnextapp.repository.ProviderManager.PROVIDER_TRAKT
+            )
+
+        val isAuthorizedOnProvider: StateFlow<Boolean> = combine(
+            activeProvider,
+            traktAuthManager.traktAuthState,
+            simklAuthManager.simklAccessToken
+        ) { provider, traktState, simklToken ->
+            if (provider == com.theupnextapp.repository.ProviderManager.PROVIDER_SIMKL) {
+                simklToken != null
+            } else {
+                traktState == com.theupnextapp.domain.TraktAuthState.LoggedIn
+            }
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000L),
+            false
+        )
+
         private val _traktId = MutableStateFlow<Int?>(null)
         val traktId: StateFlow<Int?> = _traktId.asStateFlow()
 
@@ -351,15 +374,89 @@ class ShowDetailViewModel
                 } else {
                     // showId (TVMaze ID) is null or invalid — try to resolve via IMDB lookup
                     val imdbId = show.imdbID
-                    if (!imdbId.isNullOrEmpty()) {
+                    val tvdbId = show.tvdbID
+                    val simklID = show.simklID
+                    if (simklID != null) {
+                        Timber.d("showId is null/missing, attempting SIMKL lookup for: $simklID")
+                        resolveShowViaSimklLookup(simklID, show)
+                    } else if (!imdbId.isNullOrEmpty()) {
                         Timber.d("showId is null/missing, attempting IMDB lookup for: $imdbId")
                         resolveShowViaImdbLookup(imdbId, show)
+                    } else if (tvdbId != null) {
+                        Timber.d("showId and imdbId are null/missing, attempting TVDB lookup for: $tvdbId")
+                        resolveShowViaTvdbLookup(tvdbId, show)
                     } else {
                         _isLoading.value = false
                         _uiState.update {
                             it.copy(
                                 isLoadingSummary = false,
-                                generalErrorMessage = "This show is missing a required TVMaze or IMDB ID.",
+                                generalErrorMessage = "This show is missing a required TVMaze, IMDB, or TVDB ID.",
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        private suspend fun resolveShowViaSimklLookup(
+            simklId: Int,
+            show: ShowDetailArg,
+        ) {
+            val result = simklRepository.getShowSummary(simklId)
+            if (result.isSuccess) {
+                val data = result.getOrNull()
+                val fetchedImdb = data?.ids?.imdbId
+                val fetchedTvdb = data?.ids?.tvdbId?.toIntOrNull()
+                if (!fetchedImdb.isNullOrEmpty() || fetchedTvdb != null) {
+                    Timber.d("Resolved SIMKL $simklId to IMDB: $fetchedImdb, TVDB: $fetchedTvdb")
+                    getShowSummary(show.copy(imdbID = fetchedImdb, tvdbID = fetchedTvdb, simklID = null))
+                } else {
+                    Timber.w("Failed to resolve IMDB/TVDB for SIMKL ID: $simklId")
+                    _isLoading.value = false
+                    _uiState.update {
+                        it.copy(
+                            isLoadingSummary = false,
+                            generalErrorMessage = "This show is not available for detailed viewing yet.",
+                        )
+                    }
+                }
+            } else {
+                Timber.w("Failed to resolve SIMKL ID: $simklId. Error: ${result.exceptionOrNull()?.message}")
+                _isLoading.value = false
+                _uiState.update {
+                    it.copy(
+                        isLoadingSummary = false,
+                        generalErrorMessage = "This show is not available for detailed viewing yet.",
+                    )
+                }
+            }
+        }
+
+        private suspend fun resolveShowViaTvdbLookup(
+            tvdbId: Int,
+            show: ShowDetailArg,
+        ) {
+            showDetailRepository.getShowLookupByTvdb(tvdbId).collect { result ->
+                when (result) {
+                    is Result.Success -> {
+                        val tvMazeId = result.data.id
+                        Timber.d("Resolved TVDB $tvdbId to TVMaze ID: $tvMazeId")
+                        // Re-invoke getShowSummary with the resolved TVMaze ID
+                        getShowSummary(show.copy(showId = tvMazeId.toString()))
+                    }
+
+                    is Result.Loading -> {
+                        // Already showing loading state from getShowSummary
+                    }
+
+                    else -> {
+                        Timber.w("Failed to resolve TVMaze ID for TVDB: $tvdbId")
+                        _isLoading.value = false
+                        _uiState.update {
+                            it.copy(
+                                isLoadingSummary = false,
+                                generalErrorMessage =
+                                    "This show is not available for detailed viewing yet.",
                             )
                         }
                     }
@@ -724,7 +821,7 @@ class ShowDetailViewModel
 
         fun onSimilarShowClicked(show: TraktRelatedShows) {
             viewModelScope.launch(Dispatchers.IO) {
-                launchShowDetail(show.imdbID, show.title, show.traktID)
+                launchShowDetail(show.imdbID, show.title, show.traktID, show.tvdbID)
             }
         }
 
@@ -732,12 +829,16 @@ class ShowDetailViewModel
             imdbId: String?,
             title: String?,
             traktId: Int?,
+            tvdbId: Int? = null,
         ) {
+            _uiState.update { it.copy(isSimilarShowsLoading = true) }
+
             if (!imdbId.isNullOrEmpty()) {
-                _uiState.update { it.copy(isSimilarShowsLoading = true) }
+                var success = false
                 showDetailRepository.getShowLookup(imdbId).collect { result ->
                     when (result) {
                         is Result.Success -> {
+                            success = true
                             val tvMazeId = result.data.id
                             val arg =
                                 ShowDetailArg(
@@ -753,19 +854,70 @@ class ShowDetailViewModel
                             _uiState.update { it.copy(isSimilarShowsLoading = false) }
                         }
                         is Result.Error, is Result.GenericError, is Result.NetworkError -> {
-                            _uiState.update {
-                                it.copy(
-                                    isSimilarShowsLoading = false,
-                                    generalErrorMessage = "Could not find show details",
-                                )
-                            }
+                            // Wait for collect to finish, fallback handled outside flow collect
                         }
                         is Result.Loading -> {
                         }
                     }
                 }
+                if (!success && tvdbId != null) {
+                    fallbackToTvdbLookup(tvdbId, title, imdbId, traktId)
+                } else if (!success) {
+                    _uiState.update {
+                        it.copy(
+                            isSimilarShowsLoading = false,
+                            generalErrorMessage = "Could not find show details",
+                        )
+                    }
+                }
+            } else if (tvdbId != null) {
+                fallbackToTvdbLookup(tvdbId, title, imdbId, traktId)
             } else {
-                _uiState.update { it.copy(generalErrorMessage = "No IMDB ID available for this show") }
+                _uiState.update {
+                    it.copy(
+                        isSimilarShowsLoading = false,
+                        generalErrorMessage = "No IMDB or TVDB ID available for this show"
+                    )
+                }
+            }
+        }
+
+        private suspend fun fallbackToTvdbLookup(
+            tvdbId: Int,
+            title: String?,
+            imdbId: String?,
+            traktId: Int?
+        ) {
+            var success = false
+            showDetailRepository.getShowLookupByTvdb(tvdbId).collect { result ->
+                when (result) {
+                    is Result.Success -> {
+                        success = true
+                        val tvMazeId = result.data.id
+                        val arg =
+                            ShowDetailArg(
+                                showId = tvMazeId.toString(),
+                                showTitle = title,
+                                showImageUrl = null,
+                                showBackgroundUrl = null,
+                                imdbID = imdbId,
+                                isAuthorizedOnTrakt = false,
+                                showTraktId = traktId,
+                            )
+                        _navigateToShowDetail.value = arg
+                        _uiState.update { it.copy(isSimilarShowsLoading = false) }
+                    }
+                    is Result.Error, is Result.GenericError, is Result.NetworkError -> { }
+                    is Result.Loading -> { }
+                }
+            }
+            if (!success) {
+                _uiState.update {
+                    it.copy(
+                        isSimilarShowsLoading = false,
+                        generalErrorMessage = "Could not find show details via TVDB either",
+                    )
+                }
             }
         }
 

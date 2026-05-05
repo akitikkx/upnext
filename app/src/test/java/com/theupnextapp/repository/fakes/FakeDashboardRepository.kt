@@ -58,7 +58,10 @@ class FakeDashboardRepository : DashboardRepository {
         _isLoadingTomorrowShows.postValue(false)
     }
 
-    override suspend fun getShowImageAndTvmazeId(imdbId: String?): Pair<String?, Int?> {
+    override suspend fun getShowImageAndTvmazeId(
+        imdbId: String?,
+        tmdbId: Int?
+    ): Pair<String?, Int?> {
         return Pair(null, null)
     }
 

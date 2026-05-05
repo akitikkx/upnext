@@ -49,6 +49,7 @@ class TraktAuthDataSourceTest {
     private lateinit var traktDao: TraktDao
     private lateinit var upnextDao: UpnextDao
     private lateinit var tvMazeService: TvMazeService
+    private lateinit var tmdbService: com.theupnextapp.network.TmdbService
     private lateinit var firebaseCrashlytics: FirebaseCrashlytics
 
     private lateinit var traktAuthDataSource: TraktAuthDataSource
@@ -59,6 +60,7 @@ class TraktAuthDataSourceTest {
         traktDao = mock()
         upnextDao = mock()
         tvMazeService = mock()
+        tmdbService = mock()
         firebaseCrashlytics = mock()
 
         traktAuthDataSource = TraktAuthDataSource(
@@ -66,6 +68,7 @@ class TraktAuthDataSourceTest {
             traktDao = traktDao,
             upnextDao = upnextDao,
             tvMazeService = tvMazeService,
+            tmdbService = tmdbService,
             firebaseCrashlytics = firebaseCrashlytics
         )
     }

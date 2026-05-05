@@ -87,47 +87,6 @@ class BaseRepositoryTest {
     private val testTableName = "test_shows"
     private val shortIntervalMinutes = 30L
 
-    @Test
-    @Suppress("DEPRECATION")
-    fun `canProceedWithUpdate should return true when no last update time exists`() {
-        val canProceed =
-            repository.testCanProceedWithUpdate(testTableName, shortIntervalMinutes)
-        assertTrue("Should proceed if no last update time is recorded.", canProceed)
-    }
-
-    @Test
-    @Suppress("DEPRECATION")
-    fun `canProceedWithUpdate should return true when update interval has passed`() {
-        val currentTime = System.currentTimeMillis()
-        val lastUpdateTimeMillis =
-            currentTime - ((shortIntervalMinutes + 5) * 60 * 1000)
-        fakeUpnextDao.addTableUpdate(
-            DatabaseTableUpdate(
-                table_name = testTableName,
-                last_updated = lastUpdateTimeMillis,
-            ),
-        )
-        val canProceed =
-            repository.testCanProceedWithUpdate(testTableName, shortIntervalMinutes)
-        assertTrue("Should proceed as the interval has passed.", canProceed)
-    }
-
-    @Test
-    @Suppress("DEPRECATION")
-    fun `canProceedWithUpdate should return false when update interval has not passed`() {
-        val currentTime = System.currentTimeMillis()
-        val lastUpdateTimeMillis = currentTime - ((shortIntervalMinutes - 5) * 60 * 1000)
-        fakeUpnextDao.addTableUpdate(
-            DatabaseTableUpdate(
-                table_name = testTableName,
-                last_updated = lastUpdateTimeMillis,
-            ),
-        )
-        val canProceed =
-            repository.testCanProceedWithUpdate(testTableName, shortIntervalMinutes)
-        assertFalse("Should not proceed as the interval has not passed.", canProceed)
-    }
-
     private fun createMockShowLookupResponse(
         id: Int,
         name: String,

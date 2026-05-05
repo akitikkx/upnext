@@ -37,6 +37,8 @@
     <string name="show_detail_add_to_watchlist_button">Add to watchlist</string>
     <string name="show_detail_remove_from_watchlist_button">Remove from watchlist</string>
     <string name="show_detail_remove_from_watchlist_button_description">Remove from watchlist button</string>
+    <string name="btn_show_detail_add_to_watchlist_provider">Add to Watchlist (%1$s)</string>
+    <string name="btn_show_detail_remove_from_watchlist_provider">Remove from Watchlist (%1$s)</string>
     <string name="show_detail_get_watched_progress">Your Watched Progress</string>
     <string name="show_detail_genres_heading">Genres</string>
     <string name="show_detail_air_days_heading">Airs on</string>
@@ -296,8 +298,10 @@
     <string name="dashboard_no_tv_schedule">No TV Schedule</string>
     <string name="dashboard_no_tv_schedule_desc">It looks like the schedules are empty. Check back later.</string>
     <string name="dashboard_connect_trakt_desc">Connect Trakt</string>
-    <string name="dashboard_unlock_personal_tracker">Unlock your personal TV tracker</string>
+    <string name="dashboard_connect_simkl_desc">Connect SIMKL</string>
+    <string name="dashboard_unlock_personal_tracker">Unlock your personal tracker</string>
     <string name="dashboard_connect_trakt_body">Connect your Trakt account to track your progress and get personalized recommendations.</string>
+    <string name="dashboard_connect_simkl_body">Connect your SIMKL account to track your progress and manage your watch history.</string>
     <string name="dashboard_most_anticipated">Most Anticipated</string>
     <string name="dashboard_trending_near_you">Trending Near You</string>
     <string name="dashboard_airing_soon">Airing Soon</string>
@@ -307,6 +311,14 @@
     <string name="dashboard_recent_activity">Recent Activity</string>
     <string name="dashboard_no_recent_activity">No Recent Activity</string>
     <string name="dashboard_no_recent_activity_desc">When you mark episodes as watched, they will appear here.</string>
+    <string name="dashboard_no_recent_activity_desc_trakt">Your Trakt watch history is empty. Watch episodes to see them here.</string>
+    <string name="dashboard_no_recent_activity_desc_simkl">Your SIMKL watch history is empty. Watch episodes to see them here.</string>
+    <!-- Dashboard: SIMKL Active empty states -->
+    <string name="dashboard_simkl_upcoming_empty_title">No TV Premieres</string>
+    <string name="dashboard_simkl_upcoming_empty_desc">There are currently no upcoming TV premieres available on SIMKL.</string>
+    <string name="dashboard_simkl_premieres_title">TV Premieres</string>
+    <string name="dashboard_series_premiere">Series Premiere</string>
+    <string name="dashboard_new_premiere">New Premiere</string>
     <string name="dashboard_season_episode">Season %1$d • Episode %2$d</string>
     <string name="dashboard_watched">Watched</string>
     <string name="dashboard_recommended_for_you">Recommended for You</string>

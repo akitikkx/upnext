@@ -122,6 +122,9 @@ dependencies {
     implementation libs.android.hilt.work
     ksp libs.android.hilt.work.compiler
     implementation libs.work.runtime.ktx
+    
+    // Tracing
+    implementation libs.androidx.tracing.ktx
 
     // Testing
     testImplementation libs.junit

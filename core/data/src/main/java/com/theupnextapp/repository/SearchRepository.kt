@@ -47,7 +47,9 @@ open class SearchRepository(
                 val response =
                     name?.let {
                         safeApiCall(Dispatchers.IO) {
-                            tvMazeService.getSuggestionListAsync(it).await().asDomainModel()
+                            com.theupnextapp.network.TvMazeRateLimiter.acquire(isHighPriority = true) {
+                                tvMazeService.getSuggestionListAsync(it).await().asDomainModel()
+                            }
                         }
                     }
                 emit(Result.Loading(false))

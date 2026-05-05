@@ -100,4 +100,22 @@ class SimklRepositoryTest {
         verify(simklService).addHistory(any(), any())
         verify(simklDao).updateSyncStatus(123, 1, 1, SyncStatus.SYNCED.ordinal)
     }
+
+    @Test
+    fun `refreshPremieres fetches premieres successfully and updates state`() = runTest {
+        val networkShow = com.theupnextapp.network.models.simkl.NetworkSimklTrendingResponse(
+            title = "Test Premiere",
+            year = 2026,
+            ids = com.theupnextapp.network.models.simkl.NetworkSimklIds(simklId = 1, imdbId = "tt1", tmdbId = null, tvdbId = null),
+            poster = "poster1"
+        )
+        whenever(simklService.getPremieres(org.mockito.kotlin.anyOrNull())).thenReturn(Response.success(listOf(networkShow)))
+
+        simklRepository.refreshPremieres()
+
+        val premieres = simklRepository.premieresShows.value
+        assertTrue(premieres.size == 1)
+        assertTrue(premieres.first().title == "Test Premiere")
+        verify(simklService).getPremieres(org.mockito.kotlin.anyOrNull())
+    }
 }

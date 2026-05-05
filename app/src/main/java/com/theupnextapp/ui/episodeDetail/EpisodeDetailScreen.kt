@@ -157,7 +157,8 @@ fun EpisodeDetailScreen(
                                 uriHandler = uriHandler,
                                 isCheckingIn = uiState.isCheckingIn,
                                 isCheckInSuccessful = uiState.isCheckInSuccessful,
-                                isAuthorizedOnTrakt = uiState.isAuthorizedOnTrakt,
+                                isAuthorizedOnProvider = uiState.isAuthorizedOnProvider,
+                                activeProvider = uiState.activeProvider,
                                 onCheckInClick = { viewModel.onCheckIn() },
                                 onCancelCheckInClick = { viewModel.onCancelCheckIn() },
                                 onNavigateToShowDetail = onNavigateToShowDetail,
@@ -423,7 +424,8 @@ fun EpisodeSummaryCard(
     uriHandler: UriHandler,
     isCheckingIn: Boolean,
     isCheckInSuccessful: Boolean,
-    isAuthorizedOnTrakt: Boolean,
+    isAuthorizedOnProvider: Boolean,
+    activeProvider: String,
     onCheckInClick: () -> Unit,
     onCancelCheckInClick: () -> Unit,
     onNavigateToShowDetail: (EpisodeDetailArg) -> Unit = {},
@@ -523,7 +525,7 @@ fun EpisodeSummaryCard(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            if (isAuthorizedOnTrakt) {
+            if (isAuthorizedOnProvider && activeProvider == com.theupnextapp.repository.ProviderManager.PROVIDER_TRAKT) {
                 if (isCheckInSuccessful) {
                     OutlinedButton(
                         onClick = onCancelCheckInClick,

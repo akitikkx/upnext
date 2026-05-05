@@ -35,6 +35,8 @@ sealed interface Destinations {
         val imdbID: String? = null,
         val isAuthorizedOnTrakt: Boolean? = false,
         val showTraktId: Int? = null,
+        val tvdbID: Int? = null,
+        val simklID: Int? = null,
     ) : Destinations {
         fun toArg() =
             ShowDetailArg(
@@ -46,6 +48,8 @@ sealed interface Destinations {
                 imdbID,
                 isAuthorizedOnTrakt,
                 showTraktId,
+                tvdbID,
+                simklID,
             )
     }
 

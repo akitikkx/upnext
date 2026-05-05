@@ -30,7 +30,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.EventNote
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.ImageNotSupported
 import androidx.compose.material.icons.filled.Tv
+import androidx.compose.material.icons.outlined.ArrowCircleRight
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -112,9 +114,24 @@ fun DashboardScreen(
     val regionalTrendingShowsImages by viewModel.regionalTrendingShowsImages.collectAsStateWithLifecycle()
     val isLoadingRegionalTrending by viewModel.isLoadingRegionalTrending.collectAsStateWithLifecycle()
 
+    val activeProvider by viewModel.activeProvider.collectAsStateWithLifecycle()
+    val simklAccessToken by viewModel.simklAccessToken.collectAsStateWithLifecycle()
+    val simklPremieres by viewModel.simklPremieres.collectAsStateWithLifecycle()
+    val isLoadingSimklPremieres by viewModel.isLoadingSimklPremieres.collectAsStateWithLifecycle()
+
+    val isAuthorizedOnProvider by viewModel.isAuthorizedOnProvider.collectAsStateWithLifecycle()
+
     LaunchedEffect(traktAccessToken) {
         traktAccessToken?.access_token?.let {
             viewModel.fetchDashboardData(it)
+        }
+    }
+
+    LaunchedEffect(traktAccessToken, simklAccessToken, activeProvider) {
+        viewModel.fetchDashboardHistoryData()
+
+        if (activeProvider == com.theupnextapp.repository.ProviderManager.PROVIDER_SIMKL && simklAccessToken != null) {
+            viewModel.fetchSimklDashboardData()
         }
     }
 
@@ -131,7 +148,7 @@ fun DashboardScreen(
                 bottom = 16.dp + contentPadding.calculateBottomPadding()
             ),
         ) {
-            if (traktAccessToken != null) {
+            if (isAuthorizedOnProvider) {
                 item {
                     Text(
                         text = stringResource(id = R.string.dashboard_my_upnext),
@@ -142,7 +159,7 @@ fun DashboardScreen(
                 }
             }
 
-            if (traktAccessToken == null) {
+            if (!isAuthorizedOnProvider) {
                 item {
                     Text(
                         text = stringResource(id = R.string.dashboard_tonight_on_tv),
@@ -268,7 +285,7 @@ fun DashboardScreen(
                                 if (!isCompactPane) {
                                     Icon(
                                         imageVector = Icons.Default.AccountBox,
-                                        contentDescription = stringResource(id = R.string.dashboard_connect_trakt_desc),
+                                        contentDescription = if (activeProvider == com.theupnextapp.repository.ProviderManager.PROVIDER_SIMKL) stringResource(id = R.string.dashboard_connect_simkl_desc) else stringResource(id = R.string.dashboard_connect_trakt_desc),
                                         modifier = Modifier.padding(bottom = 8.dp),
                                         tint = MaterialTheme.colorScheme.onSecondaryContainer,
                                     )
@@ -281,7 +298,7 @@ fun DashboardScreen(
                                     textAlign = TextAlign.Center,
                                 )
                                 Text(
-                                    stringResource(id = R.string.dashboard_connect_trakt_body),
+                                    if (activeProvider == com.theupnextapp.repository.ProviderManager.PROVIDER_SIMKL) stringResource(id = R.string.dashboard_connect_simkl_body) else stringResource(id = R.string.dashboard_connect_trakt_body),
                                     style = if (isCompactPane) MaterialTheme.typography.bodySmall else MaterialTheme.typography.bodyMedium,
                                     textAlign = TextAlign.Center,
                                     color = MaterialTheme.colorScheme.onSecondaryContainer,
@@ -290,9 +307,13 @@ fun DashboardScreen(
                                 Button(onClick = {
                                     val builder = CustomTabsIntent.Builder()
                                     val customTabsIntent = builder.build()
-                                    customTabsIntent.launchUrl(context, Uri.parse(TraktConstants.TRAKT_AUTH_URL))
+                                    if (activeProvider == com.theupnextapp.repository.ProviderManager.PROVIDER_SIMKL) {
+                                        customTabsIntent.launchUrl(context, Uri.parse(com.theupnextapp.common.utils.SimklConstants.SIMKL_AUTH_URL))
+                                    } else {
+                                        customTabsIntent.launchUrl(context, Uri.parse(TraktConstants.TRAKT_AUTH_URL))
+                                    }
                                 }) {
-                                    Text(stringResource(id = R.string.dashboard_connect_trakt_desc))
+                                    Text(if (activeProvider == com.theupnextapp.repository.ProviderManager.PROVIDER_SIMKL) stringResource(id = R.string.dashboard_connect_simkl_desc) else stringResource(id = R.string.dashboard_connect_trakt_desc))
                                 }
                             }
                         }
@@ -338,8 +359,9 @@ fun DashboardScreen(
                     Spacer(modifier = Modifier.height(24.dp))
                 }
             } else {
-                // Airing Soon Section
-                item {
+                if (activeProvider == com.theupnextapp.repository.ProviderManager.PROVIDER_TRAKT) {
+                    // Airing Soon Section
+                    item {
                     Text(
                         text = stringResource(id = R.string.dashboard_airing_soon),
                         style = MaterialTheme.typography.titleLarge,
@@ -354,7 +376,7 @@ fun DashboardScreen(
                             icon = Icons.Default.EventNote,
                             title = stringResource(id = R.string.dashboard_nothing_airing_soon),
                             message = stringResource(id = R.string.dashboard_nothing_airing_soon_desc),
-                            modifier = Modifier.fillMaxWidth().height(250.dp).padding(16.dp),
+                            modifier = Modifier.fillMaxWidth().padding(16.dp),
                         )
                     } else {
                         val pagerState = rememberPagerState(pageCount = { airingSoonShows.orEmpty().size })
@@ -455,7 +477,101 @@ fun DashboardScreen(
                         }
                     }
                     Spacer(modifier = Modifier.height(24.dp))
-                }
+                } // ends item {
+                } else if (activeProvider == com.theupnextapp.repository.ProviderManager.PROVIDER_SIMKL) {
+                    item {
+                        Text(
+                            text = stringResource(id = R.string.dashboard_simkl_premieres_title),
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.padding(bottom = 8.dp),
+                        )
+
+                        if (isLoadingSimklPremieres) {
+                            ShimmerAiringSoon()
+                        } else if (simklPremieres.isNullOrEmpty()) {
+                            EmptyState(
+                                icon = Icons.Default.EventNote,
+                                title = stringResource(id = R.string.dashboard_simkl_upcoming_empty_title),
+                                message = stringResource(id = R.string.dashboard_simkl_upcoming_empty_desc),
+                                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                            )
+                        } else {
+                            val pagerState = rememberPagerState(pageCount = { simklPremieres.orEmpty().size })
+                            HorizontalPager(
+                                state = pagerState,
+                                pageSize = PageSize.Fixed(carouselPageSize),
+                                pageSpacing = 16.dp,
+                                modifier = Modifier.fillMaxWidth(),
+                            ) { page ->
+                                val showResponse = simklPremieres.orEmpty().toList().getOrNull(page) ?: return@HorizontalPager
+                                val pageOffset = (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
+                                val scale =
+                                    lerp(
+                                        start = 0.85f,
+                                        stop = 1f,
+                                        fraction = 1f - pageOffset.absoluteValue.coerceIn(0f, 1f),
+                                    )
+                                val alphaOffset =
+                                    lerp(
+                                        start = 0.5f,
+                                        stop = 1f,
+                                        fraction = 1f - pageOffset.absoluteValue.coerceIn(0f, 1f),
+                                    )
+
+                                val simklId = showResponse.id
+                                val imdbId = showResponse.imdbID
+                                val imageUrl = showResponse.originalImageUrl ?: showResponse.mediumImageUrl
+                                val tvmazeId = showResponse.tvMazeID
+
+                                val airDateTxt = stringResource(id = R.string.dashboard_new_premiere)
+                                val episodeInfoText = showResponse.year?.let {
+                                    stringResource(id = R.string.dashboard_series_premiere) + " ($it)"
+                                } ?: stringResource(id = R.string.dashboard_series_premiere)
+
+                                Box(
+                                    modifier =
+                                        Modifier
+                                            .graphicsLayer {
+                                                scaleX = scale
+                                                scaleY = scale
+                                                alpha = alphaOffset
+                                            }
+                                            .padding(horizontal = 8.dp),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    UpNextEpisodeCard(
+                                        showTitle = showResponse.title ?: "Unknown",
+                                        episodeInfo = episodeInfoText,
+                                        airDateRibbon = airDateTxt,
+                                        imageUrl = imageUrl,
+                                        modifier = Modifier.fillMaxWidth(),
+                                        onCardClick = {
+                                            val direction =
+                                                Destinations.ShowDetail(
+                                                    source = "simkl_premieres",
+                                                    showId = tvmazeId?.toString(),
+                                                    showTitle = showResponse.title,
+                                                    showImageUrl = imageUrl,
+                                                    showBackgroundUrl = null,
+                                                    imdbID = imdbId,
+                                                    isAuthorizedOnTrakt = traktAccessToken != null,
+                                                    showTraktId = null,
+                                                    tvdbID = showResponse.tvdbID,
+                                                    simklID = simklId?.toInt(),
+                                                )
+                                            navController.navigate(direction)
+                                        },
+                                        onMarkAsWatchedClick = {
+                                            // Handle marking as watched for SIMKL later
+                                        },
+                                    )
+                                }
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(24.dp))
+                    }
+                } // ends if (activeProvider == PROVIDER_TRAKT) else if (...)
 
                 // Recent Activity Section
                 item {
@@ -472,8 +588,12 @@ fun DashboardScreen(
                         EmptyState(
                             icon = Icons.Default.History,
                             title = stringResource(id = R.string.dashboard_no_recent_activity),
-                            message = stringResource(id = R.string.dashboard_no_recent_activity_desc),
-                            modifier = Modifier.fillMaxWidth().height(250.dp).padding(16.dp),
+                            message = if (activeProvider == com.theupnextapp.repository.ProviderManager.PROVIDER_SIMKL) {
+                                stringResource(id = R.string.dashboard_no_recent_activity_desc_simkl)
+                            } else {
+                                stringResource(id = R.string.dashboard_no_recent_activity_desc_trakt)
+                            },
+                            modifier = Modifier.fillMaxWidth().padding(16.dp),
                         )
                     }
                 }
@@ -487,12 +607,13 @@ fun DashboardScreen(
                             modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
                         ) {
                             items(recentHistory.orEmpty().take(5)) { historyItem ->
-                                val traktId = historyItem.show?.ids?.trakt
-                                val imdbId = historyItem.show?.ids?.imdb
-                                val season = historyItem.episode?.season
-                                val number = historyItem.episode?.number
-                                val uniqueKey = "$traktId-${season ?: 0}-${number ?: 0}"
-                                val extractedInfo = traktId?.let { historyImages[uniqueKey] }
+                                val traktId = historyItem.showTraktId
+                                val imdbId = historyItem.showImdbId
+                                val season = historyItem.season
+                                val number = historyItem.number
+
+                                val imageKey = "$traktId-${season ?: 0}-${number ?: 0}"
+                                val extractedInfo = traktId?.let { historyImages[imageKey] }
                                 val imageUrl = extractedInfo?.imageUrl
                                 val tvmazeId = extractedInfo?.tvmazeId
 
@@ -506,7 +627,7 @@ fun DashboardScreen(
                                                         showTraktId = traktId ?: 0,
                                                         seasonNumber = season ?: 0,
                                                         episodeNumber = number ?: 0,
-                                                        showTitle = historyItem.show?.title,
+                                                        showTitle = historyItem.showTitle,
                                                         showId = tvmazeId,
                                                         imdbID = imdbId,
                                                         isAuthorizedOnTrakt = true,
@@ -516,31 +637,32 @@ fun DashboardScreen(
                                                 navController.navigate(direction)
                                             },
                                 ) {
-                                    AsyncImage(
-                                        model =
-                                            ImageRequest.Builder(LocalContext.current)
-                                                .data(imageUrl)
-                                                .crossfade(true)
-                                                .build(),
-                                        contentDescription = historyItem.show?.title ?: stringResource(id = R.string.dashboard_show_poster_desc),
-                                        contentScale = ContentScale.Crop,
-                                        modifier =
-                                            Modifier
-                                                .fillMaxWidth()
-                                                .aspectRatio(16f / 9f)
-                                                .clip(RoundedCornerShape(8.dp)),
-                                    )
+                                    Card(
+                                        modifier = Modifier.fillMaxWidth().aspectRatio(2f / 3f).clip(MaterialTheme.shapes.medium),
+                                    ) {
+                                        if (imageUrl != null) {
+                                            AsyncImage(
+                                                model = imageUrl,
+                                                contentDescription = historyItem.showTitle ?: stringResource(id = R.string.dashboard_show_poster_desc),
+                                                contentScale = ContentScale.Crop,
+                                                modifier = Modifier.fillMaxSize(),
+                                            )
+                                        } else {
+                                            Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surfaceVariant), contentAlignment = Alignment.Center) {
+                                                Icon(imageVector = Icons.Default.ImageNotSupported, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                                            }
+                                        }
+                                    }
                                     Spacer(modifier = Modifier.height(8.dp))
                                     Text(
-                                        text = historyItem.show?.title ?: "Unknown Show",
+                                        text = historyItem.showTitle ?: "Unknown Show",
                                         style = MaterialTheme.typography.titleMedium,
-                                        fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.onSurface,
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis,
+                                        color = MaterialTheme.colorScheme.onBackground,
                                     )
                                     Text(
-                                        text = stringResource(id = R.string.dashboard_season_episode, historyItem.episode?.season ?: 0, historyItem.episode?.number ?: 0),
+                                        text = stringResource(id = R.string.dashboard_season_episode, historyItem.season ?: 0, historyItem.number ?: 0),
                                         style = MaterialTheme.typography.bodyMedium,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                         maxLines = 1,
@@ -562,8 +684,9 @@ fun DashboardScreen(
                     }
                 }
 
-                // Recommended for You Section
-                item {
+                if (activeProvider == com.theupnextapp.repository.ProviderManager.PROVIDER_TRAKT) {
+                    // Recommended for You Section
+                    item {
                     Text(
                         text = stringResource(id = R.string.dashboard_recommended_for_you),
                         style = MaterialTheme.typography.titleLarge,
@@ -675,7 +798,8 @@ fun DashboardScreen(
 
                     Spacer(modifier = Modifier.height(24.dp))
                     Spacer(modifier = Modifier.height(24.dp))
-                }
+                } // ends item {
+                } // ends if (activeProvider == PROVIDER_TRAKT) {
             }
 
             if (!regionalTrendingShows.isNullOrEmpty()) {

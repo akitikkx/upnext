@@ -286,7 +286,7 @@ class ShowDetailViewModelTest {
 
             // Then
             val state = viewModel.uiState.value
-            assertEquals("This show is missing a required TVMaze or IMDB ID.", state.generalErrorMessage)
+            assertEquals("This show is missing a required TVMaze, IMDB, or TVDB ID.", state.generalErrorMessage)
         }
 
     @Test

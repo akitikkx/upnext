@@ -87,6 +87,12 @@ class SimklRepository @Inject constructor(
     private val _mostAnticipatedShows = MutableStateFlow<List<TraktMostAnticipated>>(emptyList())
     override val mostAnticipatedShows: Flow<List<TraktMostAnticipated>> = _mostAnticipatedShows.asStateFlow()
 
+    private val _premieresShows = MutableStateFlow<List<TrendingShow>>(emptyList())
+    val premieresShows: StateFlow<List<TrendingShow>> = _premieresShows.asStateFlow()
+
+    private val _isLoadingPremieres = MutableStateFlow(false)
+    val isLoadingPremieres: StateFlow<Boolean> = _isLoadingPremieres.asStateFlow()
+
     override suspend fun refreshTrendingShows() {
         if (_isLoadingTrending.value) return
         _isLoadingTrending.value = true
@@ -97,14 +103,18 @@ class SimklRepository @Inject constructor(
 
             if (response.isSuccessful && response.body() != null) {
                 val mappedShows = response.body()!!.map { networkShow ->
+                    val posterUrl = networkShow.poster?.let { 
+                        if (it.startsWith("http")) it else "https://simkl.in/posters/${it}_m.webp" 
+                    }
                     TrendingShow(
                         id = networkShow.ids?.simklId,
                         title = networkShow.title,
                         year = networkShow.year?.toString(),
-                        mediumImageUrl = networkShow.poster,
-                        originalImageUrl = networkShow.poster,
+                        mediumImageUrl = posterUrl,
+                        originalImageUrl = posterUrl,
                         imdbID = networkShow.ids?.imdbId,
                         tmdbID = networkShow.ids?.tmdbId?.toIntOrNull(),
+                        tvdbID = networkShow.ids?.tvdbId?.toIntOrNull(),
                         tvMazeID = null, // SIMKL may not return TVMaze
                         providerId = providerId
                     )
@@ -115,6 +125,57 @@ class SimklRepository @Inject constructor(
             // Handle error, optionally update an error state flow
         } finally {
             _isLoadingTrending.value = false
+        }
+    }
+
+    suspend fun refreshPremieres() {
+        if (_isLoadingPremieres.value) return
+        _isLoadingPremieres.value = true
+        val cookie = 1001
+        androidx.tracing.Trace.beginAsyncSection("SimklDashboardFetch", cookie)
+        try {
+            val response = simklService.getPremieres(
+                token = null
+            )
+
+            if (response.isSuccessful && response.body() != null) {
+                val mappedShows = response.body()!!.map { networkShow ->
+                    val posterUrl = networkShow.poster?.let { 
+                        if (it.startsWith("http")) it else "https://simkl.in/posters/${it}_m.webp" 
+                    }
+                    TrendingShow(
+                        id = networkShow.ids?.simklId,
+                        title = networkShow.title,
+                        year = networkShow.year?.toString(),
+                        mediumImageUrl = posterUrl,
+                        originalImageUrl = posterUrl,
+                        imdbID = networkShow.ids?.imdbId,
+                        tmdbID = networkShow.ids?.tmdbId?.toIntOrNull(),
+                        tvdbID = networkShow.ids?.tvdbId?.toIntOrNull(),
+                        tvMazeID = null, // SIMKL may not return TVMaze
+                        providerId = providerId
+                    )
+                }
+                _premieresShows.value = mappedShows
+            }
+        } catch (e: Exception) {
+            // Handle error
+        } finally {
+            androidx.tracing.Trace.endAsyncSection("SimklDashboardFetch", cookie)
+            _isLoadingPremieres.value = false
+        }
+    }
+
+    suspend fun getShowSummary(simklId: Int): Result<com.theupnextapp.network.models.simkl.NetworkSimklTrendingResponse> {
+        return try {
+            val response = simklService.getShowSummary(simklId)
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception("Failed to get SIMKL show summary: ${response.message()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
 
@@ -337,6 +398,19 @@ class SimklRepository @Inject constructor(
     fun getWatchedEpisodesForShowByImdbId(imdbId: String): Flow<List<com.theupnextapp.domain.WatchedEpisode>> {
         return simklDao.getWatchedEpisodesForShowByImdbId(imdbId).map { episodes -> 
             episodes.map { it.asDomainModel() }
+        }
+    }
+
+    suspend fun getWatchedEpisodes(token: String): Result<List<com.theupnextapp.network.models.simkl.NetworkSimklHistoryResponse>> {
+        return try {
+            val response = simklService.getWatchedEpisodes("Bearer $token")
+            if (response.isSuccessful) {
+                Result.success(response.body() ?: emptyList())
+            } else {
+                Result.failure(Exception("Failed to get SIMKL watched episodes: ${response.message()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
 

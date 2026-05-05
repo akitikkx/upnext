@@ -33,8 +33,9 @@ import timber.log.Timber
 abstract class BaseTraktDataSource(
     upnextDao: UpnextDao,
     tvMazeService: TvMazeService,
+    tmdbService: com.theupnextapp.network.TmdbService,
     private val firebaseCrashlytics: FirebaseCrashlytics,
-) : BaseRepository(upnextDao, tvMazeService) {
+) : BaseRepository(upnextDao, tvMazeService, tmdbService) {
     protected suspend fun <T> safeApiCall(apiCall: suspend () -> T): Result<T> {
         return withContext(Dispatchers.IO) {
             try {

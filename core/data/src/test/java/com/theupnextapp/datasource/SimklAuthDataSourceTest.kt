@@ -45,6 +45,7 @@ class SimklAuthDataSourceTest {
     private lateinit var simklDao: SimklDao
     private lateinit var upnextDao: UpnextDao
     private lateinit var tvMazeService: TvMazeService
+    private lateinit var tmdbService: com.theupnextapp.network.TmdbService
     private lateinit var firebaseCrashlytics: FirebaseCrashlytics
 
     private lateinit var simklAuthDataSource: SimklAuthDataSource
@@ -55,6 +56,7 @@ class SimklAuthDataSourceTest {
         simklDao = mock()
         upnextDao = mock()
         tvMazeService = mock()
+        tmdbService = mock()
         firebaseCrashlytics = mock()
 
         simklAuthDataSource = SimklAuthDataSource(
@@ -62,6 +64,7 @@ class SimklAuthDataSourceTest {
             simklDao = simklDao,
             upnextDao = upnextDao,
             tvMazeService = tvMazeService,
+            tmdbService = tmdbService,
             firebaseCrashlytics = firebaseCrashlytics
         )
     }

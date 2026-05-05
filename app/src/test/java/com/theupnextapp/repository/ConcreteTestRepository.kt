@@ -20,12 +20,5 @@ import com.theupnextapp.network.TvMazeService
 class ConcreteTestRepository(
     upnextDao: UpnextDao,
     tvMazeService: TvMazeService,
-) : BaseRepository(upnextDao, tvMazeService) {
-    // testCanProceedWithUpdate is deprecated in BaseRepository, if not used, consider removing from here too
-    fun testCanProceedWithUpdate(
-        tableName: String,
-        intervalMinutes: Long,
-    ): Boolean {
-        return super.canProceedWithUpdate(tableName, intervalMinutes)
-    }
-}
+    tmdbService: com.theupnextapp.network.TmdbService = com.theupnextapp.repository.fakes.FakeTmdbService()
+) : BaseRepository(upnextDao, tvMazeService, tmdbService)
