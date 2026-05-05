@@ -1,8 +1,12 @@
 package com.theupnextapp.ui.settings
 
+import com.theupnextapp.domain.SimklAccessToken
 import com.theupnextapp.domain.Theme
 import com.theupnextapp.domain.TraktAccessToken
+import com.theupnextapp.repository.ProviderManager
 import com.theupnextapp.repository.SettingsRepository
+import com.theupnextapp.repository.SimklAuthManager
+import com.theupnextapp.repository.SimklRepository
 import com.theupnextapp.repository.TraktRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -27,6 +31,9 @@ class SettingsViewModelTest {
     private lateinit var viewModel: SettingsViewModel
     private val mockSettingsRepository = mock(SettingsRepository::class.java)
     private val mockTraktRepository = mock(TraktRepository::class.java)
+    private val mockProviderManager = mock(ProviderManager::class.java)
+    private val mockSimklAuthManager = mock(SimklAuthManager::class.java)
+    private val mockSimklRepository = mock(SimklRepository::class.java)
 
     private val testDispatcher = StandardTestDispatcher()
 
@@ -36,6 +43,8 @@ class SettingsViewModelTest {
 
         val themeFlow = MutableStateFlow(Theme.DARK)
         val dataSaverFlow = MutableStateFlow(true)
+        val providerFlow = MutableStateFlow(ProviderManager.PROVIDER_TRAKT)
+        val simklTokenFlow = MutableStateFlow<SimklAccessToken?>(null)
         val traktTokenFlow =
             MutableStateFlow(
                 TraktAccessToken(
@@ -51,8 +60,16 @@ class SettingsViewModelTest {
         `when`(mockSettingsRepository.themeStream).thenReturn(themeFlow)
         `when`(mockSettingsRepository.dataSaverStream).thenReturn(dataSaverFlow)
         `when`(mockTraktRepository.traktAccessToken).thenReturn(traktTokenFlow)
+        `when`(mockProviderManager.activeProvider).thenReturn(providerFlow)
+        `when`(mockSimklAuthManager.simklAccessToken).thenReturn(simklTokenFlow)
 
-        viewModel = SettingsViewModel(mockSettingsRepository, mockTraktRepository)
+        viewModel = SettingsViewModel(
+            mockSettingsRepository,
+            mockTraktRepository,
+            mockProviderManager,
+            mockSimklAuthManager,
+            mockSimklRepository
+        )
     }
 
     @After
@@ -88,5 +105,14 @@ class SettingsViewModelTest {
             viewModel.onDisconnectTrakt()
             testDispatcher.scheduler.advanceUntilIdle()
             verify(mockTraktRepository).clearWatchlist()
+        }
+
+    @Test
+    fun `onDisconnectSimkl clears sync shows and disconnects auth manager`() =
+        runTest {
+            viewModel.onDisconnectSimkl()
+            testDispatcher.scheduler.advanceUntilIdle()
+            verify(mockSimklRepository).clearSyncShows()
+            verify(mockSimklAuthManager).disconnect()
         }
 }

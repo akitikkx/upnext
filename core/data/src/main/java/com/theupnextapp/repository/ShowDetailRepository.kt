@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.Flow
 interface ShowDetailRepository {
     fun getShowSummary(showId: Int): Flow<Result<ShowDetailSummary>>
     fun getShowLookup(imdbId: String): Flow<Result<NetworkTvMazeShowLookupResponse>>
+    fun getShowLookupByTvdb(tvdbId: Int): Flow<Result<NetworkTvMazeShowLookupResponse>>
     fun getPreviousEpisode(episodeRef: String?): Flow<Result<ShowPreviousEpisode>>
     fun getNextEpisode(episodeRef: String?): Flow<Result<ShowNextEpisode>>
     fun getShowCast(showId: Int): Flow<Result<List<ShowCast>>>

@@ -37,6 +37,7 @@ import com.theupnextapp.domain.ScheduleShow
 import com.theupnextapp.domain.TableUpdate
 import com.theupnextapp.network.TvMazeService
 import com.theupnextapp.network.asDatabaseModel
+import com.theupnextapp.network.TvMazeRateLimiter
 import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowImageResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -70,7 +71,7 @@ interface DashboardRepository {
         date: String?,
     )
 
-    suspend fun getShowImageAndTvmazeId(imdbId: String?): Pair<String?, Int?>
+    suspend fun getShowImageAndTvmazeId(imdbId: String?, tmdbId: Int?): Pair<String?, Int?>
 
     suspend fun getEpisodeImageAndTvmazeId(imdbId: String?, season: Int, number: Int): Pair<String?, Int?>
 }
@@ -78,9 +79,10 @@ interface DashboardRepository {
 class DashboardRepositoryImpl(
     upnextDao: UpnextDao,
     tvMazeService: TvMazeService,
+    tmdbService: com.theupnextapp.network.TmdbService,
     private val tvMazeDao: TvMazeDao,
     private val firebaseCrashlytics: CrashlyticsHelper,
-) : BaseRepository(upnextDao = upnextDao, tvMazeService = tvMazeService), DashboardRepository {
+) : BaseRepository(upnextDao = upnextDao, tvMazeService = tvMazeService, tmdbService = tmdbService), DashboardRepository {
     private val _isLoadingYesterdayShows = MutableLiveData<Boolean>(false)
     override val isLoadingYesterdayShows: LiveData<Boolean> = _isLoadingYesterdayShows
 
@@ -119,45 +121,32 @@ class DashboardRepositoryImpl(
     ) {
         withContext(Dispatchers.IO) {
             try {
-                if (canProceedWithUpdate(
-                        tableName = DatabaseTables.TABLE_YESTERDAY_SHOWS.tableName,
-                        intervalMinutes = TableUpdateInterval.DASHBOARD_ITEMS.intervalMins,
-                    )
-                ) {
-                    _isLoadingYesterdayShows.postValue(true)
-                    val shows: MutableList<DatabaseYesterdaySchedule> = arrayListOf()
-                    val yesterdayShowsList =
-                        tvMazeService.getYesterdayScheduleAsync(
-                            countryCode,
-                            date,
-                        )
-                            .await()
-                    if (!yesterdayShowsList.isNullOrEmpty()) {
-                        yesterdayShowsList.forEach { yesterdayShow ->
-                            // only adding shows that have an image and an imdb id
-                            if (!yesterdayShow.show.image?.original.isNullOrEmpty() && !yesterdayShow.show.externals?.imdb.isNullOrEmpty()) {
-                                shows.add(yesterdayShow.asDatabaseModel())
+                performDatabaseSync(
+                    tableName = DatabaseTables.TABLE_YESTERDAY_SHOWS.tableName,
+                    intervalMinutes = TableUpdateInterval.DASHBOARD_ITEMS.intervalMins,
+                    onLoadingChange = { _isLoadingYesterdayShows.postValue(it) },
+                    performSync = {
+                        val shows: MutableList<DatabaseYesterdaySchedule> = arrayListOf()
+                        val yesterdayShowsList =
+                            TvMazeRateLimiter.acquire {
+                                tvMazeService.getYesterdayScheduleAsync(
+                                    countryCode,
+                                    date,
+                                ).await()
                             }
-                        }
+                        if (!yesterdayShowsList.isNullOrEmpty()) {
+                            yesterdayShowsList.forEach { yesterdayShow ->
+                                if (!yesterdayShow.show.image?.original.isNullOrEmpty() && !yesterdayShow.show.externals?.imdb.isNullOrEmpty()) {
+                                    shows.add(yesterdayShow.asDatabaseModel())
+                                }
+                            }
 
-                        tvMazeDao.deleteAllYesterdayShows()
-                        tvMazeDao.insertAllYesterdayShows(*shows.toTypedArray())
-                        upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_YESTERDAY_SHOWS.tableName)
-                        upnextDao.insertTableUpdateLog(
-                            DatabaseTableUpdate(
-                                table_name = DatabaseTables.TABLE_YESTERDAY_SHOWS.tableName,
-                                last_updated = System.currentTimeMillis(),
-                            ),
-                        )
+                            tvMazeDao.deleteAllYesterdayShows()
+                            tvMazeDao.insertAllYesterdayShows(*shows.toTypedArray())
+                        }
                     }
-                    _isLoadingYesterdayShows.postValue(false)
-                } else {
-                    if (_isLoadingYesterdayShows.value == true) {
-                        _isLoadingYesterdayShows.postValue(false)
-                    }
-                }
+                )
             } catch (e: Exception) {
-                _isLoadingYesterdayShows.postValue(false)
                 Timber.d(e)
                 firebaseCrashlytics.recordException(e)
             }
@@ -170,41 +159,27 @@ class DashboardRepositoryImpl(
     ) {
         withContext(Dispatchers.IO) {
             try {
-                if (canProceedWithUpdate(
-                        tableName = DatabaseTables.TABLE_TODAY_SHOWS.tableName,
-                        intervalMinutes = TableUpdateInterval.DASHBOARD_ITEMS.intervalMins,
-                    )
-                ) {
-                    _isLoadingTodayShows.postValue(true)
-                    val shows: MutableList<DatabaseTodaySchedule> = arrayListOf()
-                    val todayShowsList =
-                        tvMazeService.getTodayScheduleAsync(countryCode, date).await()
-                    if (!todayShowsList.isNullOrEmpty()) {
-                        todayShowsList.forEach { todayShow ->
-                            // only adding shows that have an image and an imdb id
-                            if (!todayShow.show.image?.original.isNullOrEmpty() && !todayShow.show.externals?.imdb.isNullOrEmpty()) {
-                                shows.add(todayShow.asDatabaseModel())
+                performDatabaseSync(
+                    tableName = DatabaseTables.TABLE_TODAY_SHOWS.tableName,
+                    intervalMinutes = TableUpdateInterval.DASHBOARD_ITEMS.intervalMins,
+                    onLoadingChange = { _isLoadingTodayShows.postValue(it) },
+                    performSync = {
+                        val shows: MutableList<DatabaseTodaySchedule> = arrayListOf()
+                        val todayShowsList =
+                            TvMazeRateLimiter.acquire { tvMazeService.getTodayScheduleAsync(countryCode, date).await() }
+                        if (!todayShowsList.isNullOrEmpty()) {
+                            todayShowsList.forEach { todayShow ->
+                                if (!todayShow.show.image?.original.isNullOrEmpty() && !todayShow.show.externals?.imdb.isNullOrEmpty()) {
+                                    shows.add(todayShow.asDatabaseModel())
+                                }
                             }
-                        }
 
-                        tvMazeDao.deleteAllTodayShows()
-                        tvMazeDao.insertAllTodayShows(*shows.toTypedArray())
-                        upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TODAY_SHOWS.tableName)
-                        upnextDao.insertTableUpdateLog(
-                            DatabaseTableUpdate(
-                                table_name = DatabaseTables.TABLE_TODAY_SHOWS.tableName,
-                                last_updated = System.currentTimeMillis(),
-                            ),
-                        )
+                            tvMazeDao.deleteAllTodayShows()
+                            tvMazeDao.insertAllTodayShows(*shows.toTypedArray())
+                        }
                     }
-                    _isLoadingTodayShows.postValue(false)
-                } else {
-                    if (_isLoadingTodayShows.value == true) {
-                        _isLoadingTodayShows.postValue(false)
-                    }
-                }
+                )
             } catch (e: Exception) {
-                _isLoadingTodayShows.postValue(false)
                 Timber.d(e)
                 firebaseCrashlytics.recordException(e)
             }
@@ -217,51 +192,50 @@ class DashboardRepositoryImpl(
     ) {
         withContext(Dispatchers.IO) {
             try {
-                if (canProceedWithUpdate(
-                        tableName = DatabaseTables.TABLE_TOMORROW_SHOWS.tableName,
-                        intervalMinutes = TableUpdateInterval.DASHBOARD_ITEMS.intervalMins,
-                    )
-                ) {
-                    _isLoadingTomorrowShows.postValue(true)
-                    val tomorrowShowsList =
-                        tvMazeService.getTomorrowScheduleAsync(countryCode, date).await()
+                performDatabaseSync(
+                    tableName = DatabaseTables.TABLE_TOMORROW_SHOWS.tableName,
+                    intervalMinutes = TableUpdateInterval.DASHBOARD_ITEMS.intervalMins,
+                    onLoadingChange = { _isLoadingTomorrowShows.postValue(it) },
+                    performSync = {
+                        val tomorrowShowsList =
+                            TvMazeRateLimiter.acquire { tvMazeService.getTomorrowScheduleAsync(countryCode, date).await() }
 
-                    val shows: MutableList<DatabaseTomorrowSchedule> = arrayListOf()
-                    if (!tomorrowShowsList.isNullOrEmpty()) {
-                        tomorrowShowsList.forEach { tomorrowShow ->
-                            // only adding shows that have an image and an imdb id
-                            if (!tomorrowShow.show.image?.original.isNullOrEmpty() && !tomorrowShow.show.externals?.imdb.isNullOrEmpty()) {
-                                shows.add(tomorrowShow.asDatabaseModel())
+                        val shows: MutableList<DatabaseTomorrowSchedule> = arrayListOf()
+                        if (!tomorrowShowsList.isNullOrEmpty()) {
+                            tomorrowShowsList.forEach { tomorrowShow ->
+                                if (!tomorrowShow.show.image?.original.isNullOrEmpty() && !tomorrowShow.show.externals?.imdb.isNullOrEmpty()) {
+                                    shows.add(tomorrowShow.asDatabaseModel())
+                                }
                             }
-                        }
 
-                        tvMazeDao.deleteAllTomorrowShows()
-                        tvMazeDao.insertAllTomorrowShows(*shows.toTypedArray())
-                        upnextDao.deleteRecentTableUpdate(DatabaseTables.TABLE_TOMORROW_SHOWS.tableName)
-                        upnextDao.insertTableUpdateLog(
-                            DatabaseTableUpdate(
-                                table_name = DatabaseTables.TABLE_TOMORROW_SHOWS.tableName,
-                                last_updated = System.currentTimeMillis(),
-                            ),
-                        )
+                            tvMazeDao.deleteAllTomorrowShows()
+                            tvMazeDao.insertAllTomorrowShows(*shows.toTypedArray())
+                        }
                     }
-                    _isLoadingTomorrowShows.postValue(false)
-                } else {
-                    if (_isLoadingTomorrowShows.value == true) {
-                        _isLoadingTomorrowShows.postValue(false)
-                    }
-                }
+                )
             } catch (e: Exception) {
-                _isLoadingTomorrowShows.postValue(false)
                 Timber.d(e)
                 firebaseCrashlytics.recordException(e)
             }
         }
     }
 
-    override suspend fun getShowImageAndTvmazeId(imdbId: String?): Pair<String?, Int?> {
-        val (tvmazeId, original, medium) = super.getImages(imdbId)
-        return Pair(original ?: medium, tvmazeId)
+    override suspend fun getShowImageAndTvmazeId(imdbId: String?, tmdbId: Int?): Pair<String?, Int?> {
+        val cookie = 1002
+        androidx.tracing.Trace.beginAsyncSection("TMDBImageFetch", cookie)
+        try {
+            if (tmdbId != null) {
+                val (tvmazeId, original, medium) = super.getTmdbImages(tmdbId)
+                if (original != null || medium != null) {
+                    return Pair(original ?: medium, tvmazeId)
+                }
+            }
+            
+            val (tvmazeId, original, medium) = super.getImages(imdbId)
+            return Pair(original ?: medium, tvmazeId)
+        } finally {
+            androidx.tracing.Trace.endAsyncSection("TMDBImageFetch", cookie)
+        }
     }
 
     override suspend fun getEpisodeImageAndTvmazeId(
@@ -276,11 +250,11 @@ class DashboardRepositoryImpl(
         if (imdbId != null) {
             try {
                 // Lookup TVMaze ID from IMDB ID
-                val showLookup = tvMazeService.getShowLookupAsync(imdbId).await()
+                val showLookup = TvMazeRateLimiter.acquire { tvMazeService.getShowLookupAsync(imdbId).await() }
                 tvmazeId = showLookup.id
                 
                 val episode =
-                    tvMazeService.getEpisodeByNumberAsync(tvmazeId.toString(), season, number).await()
+                    TvMazeRateLimiter.acquire { tvMazeService.getEpisodeByNumberAsync(tvmazeId.toString(), season, number).await() }
                 
                 originalImage = episode.image?.original ?: showLookup.image?.original
                 mediumImage = episode.image?.medium ?: showLookup.image?.medium
@@ -306,9 +280,10 @@ class DashboardRepositoryImpl(
 
         var showImagesResponse: NetworkTvMazeShowImageResponse? = null
         try {
-            showImagesResponse =
+            showImagesResponse = TvMazeRateLimiter.acquire {
                 tvMazeService.getShowImagesAsync(id)
                     .await()
+            }
         } catch (e: Exception) {
             Timber.d(e)
             firebaseCrashlytics.recordException(e)

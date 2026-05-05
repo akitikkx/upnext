@@ -53,6 +53,7 @@ fun List<DatabaseTrendingShows>.asDomainModel(): List<TrendingShow> {
             originalImageUrl = it.original_image_url,
             imdbID = it.imdbID,
             tmdbID = it.tmdbID,
+            tvdbID = it.tvdbID,
             tvMazeID = it.tvMazeID,
             providerId = it.providerId
         )

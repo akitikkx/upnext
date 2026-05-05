@@ -23,6 +23,7 @@ class TraktAccountDataSourceTest {
     private val traktDao: TraktDao = mock()
     private val upnextDao: UpnextDao = mock()
     private val tvMazeService: TvMazeService = mock()
+    private val tmdbService: com.theupnextapp.network.TmdbService = mock()
     private val firebaseCrashlytics: FirebaseCrashlytics = mock()
     private val traktService: TraktService = mock()
     private val moshi: Moshi = Moshi.Builder()
@@ -39,6 +40,7 @@ class TraktAccountDataSourceTest {
             moshi,
             upnextDao,
             tvMazeService,
+            tmdbService,
             firebaseCrashlytics
         )
     }

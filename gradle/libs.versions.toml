@@ -18,6 +18,7 @@ androidxUiTooling = "1.10.4"
 animation = "1.10.4"
 appcompat = "1.7.1"
 baselineProfile = "1.5.0-alpha05"
+androidxTracing = "1.2.0"
 browser = "1.9.0"
 coilCompose = "2.7.0"
 chuckerVersion = "4.0.0"
@@ -96,6 +97,7 @@ androidx-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4", versi
 androidx-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "uiTestManifest" }
 androidx-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "androidxUiTooling" }
 androidx-work-testing = { module = "androidx.work:work-testing", version.ref = "workTesting" }
+androidx-tracing-ktx = { module = "androidx.tracing:tracing-ktx", version.ref = "androidxTracing" }
 animation = { module = "androidx.compose.animation:animation", version.ref = "animation" }
 appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
 browser = { module = "androidx.browser:browser", version.ref = "browser" }

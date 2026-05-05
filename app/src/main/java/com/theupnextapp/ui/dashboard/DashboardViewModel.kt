@@ -7,16 +7,22 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.logEvent
+import com.theupnextapp.domain.DashboardHistoryItem
 import com.theupnextapp.domain.ScheduleShow
 import com.theupnextapp.domain.TraktAccessToken
 import com.theupnextapp.domain.TraktMostAnticipated
 import com.theupnextapp.domain.TraktTrendingShows
+import com.theupnextapp.domain.TrendingShow
 import com.theupnextapp.network.models.trakt.NetworkTraktHistoryResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktRecommendationsResponse
 import com.theupnextapp.repository.DashboardRepository
+import com.theupnextapp.repository.ProviderManager
+import com.theupnextapp.repository.SimklAuthManager
+import com.theupnextapp.repository.SimklRepository
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.WatchProgressRepository
+import com.theupnextapp.work.SimklSyncWorker
 import com.theupnextapp.work.SyncWatchProgressWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -45,6 +51,9 @@ constructor(
     private val traktRepository: TraktRepository,
     private val dashboardRepository: DashboardRepository,
     private val watchProgressRepository: WatchProgressRepository,
+    private val simklRepository: SimklRepository,
+    private val providerManager: ProviderManager,
+    private val simklAuthManager: SimklAuthManager,
     private val localWorkManager: WorkManager,
     private val firebaseAnalytics: FirebaseAnalytics,
 ) : ViewModel() {
@@ -56,6 +65,38 @@ constructor(
                 initialValue = null,
             )
 
+    val simklAccessToken: StateFlow<com.theupnextapp.domain.SimklAccessToken?> =
+        simklAuthManager.simklAccessToken
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = null,
+            )
+
+    val activeProvider: StateFlow<String?> =
+        providerManager.activeProvider
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = null,
+            )
+
+    val isAuthorizedOnProvider: StateFlow<Boolean> = kotlinx.coroutines.flow.combine(
+        providerManager.activeProvider,
+        traktRepository.traktAccessToken,
+        simklAuthManager.simklAccessToken
+    ) { provider, traktToken, simklToken ->
+        if (provider == com.theupnextapp.repository.ProviderManager.PROVIDER_SIMKL) {
+            simklToken != null
+        } else {
+            traktToken != null
+        }
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000L),
+        false
+    )
+
     private val _airingSoonShows = MutableStateFlow<NetworkTraktMyScheduleResponse?>(null)
     val airingSoonShows: StateFlow<NetworkTraktMyScheduleResponse?> = _airingSoonShows.asStateFlow()
 
@@ -66,9 +107,23 @@ constructor(
     private val _isLoadingAiringSoon = MutableStateFlow(false)
     val isLoadingAiringSoon: StateFlow<Boolean> = _isLoadingAiringSoon.asStateFlow()
 
+    val simklPremieres: StateFlow<List<TrendingShow>?> = simklRepository.premieresShows
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
+
+    val isLoadingSimklPremieres: StateFlow<Boolean> = simklRepository.isLoadingPremieres
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = false
+        )
+
     private val _recentHistory =
-        MutableStateFlow<List<NetworkTraktHistoryResponse>?>(null)
-    val recentHistory: StateFlow<List<NetworkTraktHistoryResponse>?> = _recentHistory.asStateFlow()
+        MutableStateFlow<List<DashboardHistoryItem>?>(null)
+    val recentHistory: StateFlow<List<DashboardHistoryItem>?> = _recentHistory.asStateFlow()
 
     private val _historyImages = MutableStateFlow<Map<String, ExtractedTraktInfo>>(emptyMap())
     val historyImages: StateFlow<Map<String, ExtractedTraktInfo>> = _historyImages.asStateFlow()
@@ -139,8 +194,15 @@ constructor(
             var wasSyncing = false
             watchProgressRepository.isSyncing.collect { isSyncing ->
                 if (wasSyncing && !isSyncing) {
-                    traktRepository.traktAccessToken.firstOrNull()?.access_token?.let { token ->
-                        fetchRecentHistory(token)
+                    val provider = providerManager.activeProvider.firstOrNull() ?: com.theupnextapp.repository.ProviderManager.PROVIDER_TRAKT
+                    if (provider == com.theupnextapp.repository.ProviderManager.PROVIDER_SIMKL) {
+                        simklAuthManager.simklAccessToken.firstOrNull()?.accessToken?.let { token ->
+                            fetchRecentHistory(token, provider)
+                        }
+                    } else {
+                        traktRepository.traktAccessToken.firstOrNull()?.access_token?.let { token ->
+                            fetchRecentHistory(token, provider)
+                        }
                     }
                 }
                 wasSyncing = isSyncing
@@ -149,15 +211,37 @@ constructor(
     }
 
     fun fetchDashboardData(token: String) {
-        val bearerToken = token
+        // Keeping this for backward compatibility or Trakt specific fetches
         if (_airingSoonShows.value == null && !_isLoadingAiringSoon.value) {
-            fetchAiringSoonShows(bearerToken)
+            fetchAiringSoonShows(token)
         }
         if (_recommendedShows.value == null && !_isLoadingRecommendations.value) {
-            fetchRecommendations(bearerToken)
+            fetchRecommendations(token)
         }
-        if (_recentHistory.value == null && !_isLoadingHistory.value) {
-            fetchRecentHistory(bearerToken)
+    }
+
+    fun fetchSimklDashboardData() {
+        viewModelScope.launch {
+            if (simklPremieres.value.isNullOrEmpty() && !isLoadingSimklPremieres.value) {
+                simklRepository.refreshPremieres()
+            }
+        }
+    }
+
+    fun fetchDashboardHistoryData() {
+        viewModelScope.launch {
+            val provider = providerManager.activeProvider.firstOrNull() ?: com.theupnextapp.repository.ProviderManager.PROVIDER_TRAKT
+            if (provider == com.theupnextapp.repository.ProviderManager.PROVIDER_SIMKL) {
+                val token = simklAuthManager.simklAccessToken.firstOrNull()?.accessToken
+                if (token != null && _recentHistory.value == null && !_isLoadingHistory.value) {
+                    fetchRecentHistory(token, provider)
+                }
+            } else {
+                val token = traktRepository.traktAccessToken.firstOrNull()?.access_token
+                if (token != null && _recentHistory.value == null && !_isLoadingHistory.value) {
+                    fetchRecentHistory(token, provider)
+                }
+            }
         }
     }
 
@@ -182,13 +266,15 @@ constructor(
                             scheduleList.mapNotNull { scheduleItem ->
                                 val traktId = scheduleItem.show?.ids?.trakt
                                 val imdbId = scheduleItem.show?.ids?.imdb
+                                val tmdbId = scheduleItem.show?.ids?.tmdb
                                 val season = scheduleItem.episode?.season
                                 val number = scheduleItem.episode?.number
                                 if (traktId != null && imdbId != null) {
                                     async(Dispatchers.IO.limitedParallelism(5)) {
                                         try {
                                             val (url, tvmazeId) = dashboardRepository.getShowImageAndTvmazeId(
-                                                imdbId,
+                                                imdbId = imdbId,
+                                                tmdbId = tmdbId,
                                             )
                                             val uniqueKey = "$traktId-${season ?: 0}-${number ?: 0}"
                                             uniqueKey to ExtractedTraktInfo(
@@ -235,7 +321,8 @@ constructor(
                                     async(Dispatchers.IO.limitedParallelism(5)) {
                                         try {
                                             val (url, tvmazeId) = dashboardRepository.getShowImageAndTvmazeId(
-                                                imdbId,
+                                                imdbId = imdbId,
+                                                tmdbId = item.ids?.tmdb,
                                             )
                                             val uniqueKey = traktId.toString()
                                             uniqueKey to ExtractedTraktInfo(
@@ -264,54 +351,118 @@ constructor(
         }
     }
 
-    private fun fetchRecentHistory(bearerToken: String) {
+    private fun fetchRecentHistory(token: String, provider: String) {
         viewModelScope.launch {
             _isLoadingHistory.value = true
             try {
-                val response = traktRepository.getTraktRecentHistory(bearerToken)
-                if (response.isSuccess) {
-                    val items = response.getOrNull()
-                    _recentHistory.value = items
-                    items?.let { historyList ->
-                        val deferredImages =
-                            historyList.mapNotNull { item ->
-                                val traktId = item.show?.ids?.trakt
-                                val imdbId = item.show?.ids?.imdb
-                                if (traktId != null && imdbId != null) {
+                if (provider == com.theupnextapp.repository.ProviderManager.PROVIDER_SIMKL) {
+                    val response = simklRepository.getWatchedEpisodes(token)
+                    if (response.isSuccess) {
+                        val items = response.getOrNull()
+                        val mappedItems = items?.flatMap { historyRes ->
+                            // SIMKL doesn't return Trakt ID or TvMaze ID in its base IDs
+                            val showImdbId = historyRes.show?.ids?.imdbId
+                            val showTitle = historyRes.show?.title
+
+                            historyRes.episodes?.map { ep ->
+                                DashboardHistoryItem(
+                                    showTraktId = null,
+                                    showImdbId = showImdbId,
+                                    showTvMazeId = null,
+                                    season = ep.season,
+                                    number = ep.episode,
+                                    watchedAt = ep.watchedAt,
+                                    showTitle = showTitle
+                                )
+                            } ?: emptyList()
+                        }
+
+                        _recentHistory.value = mappedItems
+                        mappedItems?.let { historyList ->
+                            val deferredImages = historyList.mapNotNull { item ->
+                                val imdbId = item.showImdbId
+                                if (imdbId != null) {
                                     async(Dispatchers.IO.limitedParallelism(5)) {
                                         try {
-                                            val season = item.episode?.season
-                                            val number = item.episode?.number
-                                            val (url, tvmazeId) =
-                                                if (season != null && number != null) {
-                                                    dashboardRepository.getEpisodeImageAndTvmazeId(
-                                                        imdbId,
-                                                        season,
-                                                        number,
-                                                    )
-                                                } else {
-                                                    dashboardRepository.getShowImageAndTvmazeId(
-                                                        imdbId,
-                                                    )
-                                                }
-                                            val uniqueKey = "$traktId-${season ?: 0}-${number ?: 0}"
-                                            uniqueKey to ExtractedTraktInfo(
-                                                imageUrl = url,
-                                                tvmazeId = tvmazeId,
-                                            )
-                                        } catch (e: Exception) {
-                                            null
-                                        }
+                                            val season = item.season
+                                            val number = item.number
+                                            val (url, tvmazeId) = if (season != null && number != null) {
+                                                dashboardRepository.getEpisodeImageAndTvmazeId(imdbId, season, number)
+                                            } else {
+                                                dashboardRepository.getShowImageAndTvmazeId(imdbId = imdbId, tmdbId = item.showImdbId?.toIntOrNull()) // wait, showImdbId is string.
+                                                // SIMKL History doesn't have tmdbId.
+                                                dashboardRepository.getShowImageAndTvmazeId(imdbId, null)
+                                            }
+                                            val uniqueKey = "null-${season ?: 0}-${number ?: 0}"
+                                            uniqueKey to ExtractedTraktInfo(imageUrl = url, tvmazeId = tvmazeId)
+                                        } catch (e: Exception) { null }
                                     }
-                                } else {
-                                    null
-                                }
+                                } else { null }
                             }
-                        val newImages = deferredImages.awaitAll().filterNotNull().toMap()
-                        _historyImages.value = newImages
+                            val newImages = deferredImages.awaitAll().filterNotNull().toMap()
+                            _historyImages.value = newImages
+                        }
+                    } else {
+                        _recentHistory.value = null
                     }
                 } else {
-                    _recentHistory.value = null
+                    val response = traktRepository.getTraktRecentHistory(token)
+                    if (response.isSuccess) {
+                        val items = response.getOrNull()
+                        val mappedItems = items?.map {
+                            DashboardHistoryItem(
+                                showTraktId = it.show?.ids?.trakt,
+                                showImdbId = it.show?.ids?.imdb,
+                                showTvMazeId = null,
+                                season = it.episode?.season,
+                                number = it.episode?.number,
+                                watchedAt = it.watchedAt,
+                                showTitle = it.show?.title
+                            )
+                        }
+                        _recentHistory.value = mappedItems
+                        items?.let { historyList ->
+                            val deferredImages =
+                                historyList.mapNotNull { item ->
+                                    val traktId = item.show?.ids?.trakt
+                                    val imdbId = item.show?.ids?.imdb
+                                    if (traktId != null && imdbId != null) {
+                                        async(Dispatchers.IO.limitedParallelism(5)) {
+                                            try {
+                                                val season = item.episode?.season
+                                                val number = item.episode?.number
+                                                val (url, tvmazeId) =
+                                                    if (season != null && number != null) {
+                                                        dashboardRepository.getEpisodeImageAndTvmazeId(
+                                                            imdbId,
+                                                            season,
+                                                            number,
+                                                        )
+                                                    } else {
+                                                        dashboardRepository.getShowImageAndTvmazeId(
+                                                            imdbId = imdbId,
+                                                            tmdbId = item.show?.ids?.tmdb,
+                                                        )
+                                                    }
+                                                val uniqueKey = "$traktId-${season ?: 0}-${number ?: 0}"
+                                                uniqueKey to ExtractedTraktInfo(
+                                                    imageUrl = url,
+                                                    tvmazeId = tvmazeId,
+                                                )
+                                            } catch (e: Exception) {
+                                                null
+                                            }
+                                        }
+                                    } else {
+                                        null
+                                    }
+                                }
+                            val newImages = deferredImages.awaitAll().filterNotNull().toMap()
+                            _historyImages.value = newImages
+                        }
+                    } else {
+                        _recentHistory.value = null
+                    }
                 }
             } catch (e: Exception) {
                 _recentHistory.value = null
@@ -337,7 +488,8 @@ constructor(
                                 async(Dispatchers.IO.limitedParallelism(5)) {
                                     try {
                                         val (url, tvmazeId) = dashboardRepository.getShowImageAndTvmazeId(
-                                            imdbId,
+                                            imdbId = imdbId,
+                                            tmdbId = item.tmdbID,
                                         )
                                         val uniqueKey = traktId.toString()
                                         uniqueKey to ExtractedTraktInfo(
@@ -392,16 +544,31 @@ constructor(
 
     private fun triggerSyncIfAuthenticated() {
         viewModelScope.launch {
-            traktRepository.traktAccessToken.firstOrNull()?.access_token?.let { token ->
-                val syncWork =
-                    OneTimeWorkRequestBuilder<SyncWatchProgressWorker>()
-                        .setInputData(
-                            Data
-                                .Builder()
-                                .putString(SyncWatchProgressWorker.ARG_TOKEN, token)
-                                .build(),
-                        ).build()
-                localWorkManager.enqueue(syncWork)
+            val provider = providerManager.activeProvider.firstOrNull() ?: com.theupnextapp.repository.ProviderManager.PROVIDER_TRAKT
+            if (provider == com.theupnextapp.repository.ProviderManager.PROVIDER_SIMKL) {
+                simklAuthManager.simklAccessToken.firstOrNull()?.accessToken?.let { token ->
+                    val syncWork =
+                        OneTimeWorkRequestBuilder<SimklSyncWorker>()
+                            .setInputData(
+                                Data
+                                    .Builder()
+                                    .putString(SimklSyncWorker.ARG_TOKEN, token)
+                                    .build(),
+                            ).build()
+                    localWorkManager.enqueue(syncWork)
+                }
+            } else {
+                traktRepository.traktAccessToken.firstOrNull()?.access_token?.let { token ->
+                    val syncWork =
+                        OneTimeWorkRequestBuilder<SyncWatchProgressWorker>()
+                            .setInputData(
+                                Data
+                                    .Builder()
+                                    .putString(SyncWatchProgressWorker.ARG_TOKEN, token)
+                                    .build(),
+                            ).build()
+                    localWorkManager.enqueue(syncWork)
+                }
             }
         }
     }

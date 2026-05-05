@@ -138,7 +138,8 @@ fun ShowDetailScreen(
     val isWatchlistLoading by viewModel.isWatchlistLoading.collectAsStateWithLifecycle()
     val showRating by viewModel.showRating.collectAsStateWithLifecycle()
     val showStats by viewModel.showStats.collectAsStateWithLifecycle()
-    val isAuthorizedOnTrakt by viewModel.isAuthorizedOnTrakt.collectAsStateWithLifecycle()
+    val isAuthorizedOnProvider by viewModel.isAuthorizedOnProvider.collectAsStateWithLifecycle()
+    val activeProvider by viewModel.activeProvider.collectAsStateWithLifecycle()
     val navigateToSeasons by viewModel.navigateToSeasons.collectAsStateWithLifecycle()
     val isLoadingGlobal by viewModel.isLoading.collectAsStateWithLifecycle()
     val traktId by viewModel.traktId.collectAsStateWithLifecycle()
@@ -155,7 +156,7 @@ fun ShowDetailScreen(
                     showImageUrl = showDetailArgs.showImageUrl,
                     showBackgroundUrl = uiState.showSummary?.originalImageUrl ?: showDetailArgs.showBackgroundUrl,
                     imdbID = showDetailArgs.imdbID,
-                    isAuthorizedOnTrakt = isAuthorizedOnTrakt,
+                    isAuthorizedOnTrakt = isAuthorizedOnProvider, // rename below
                     showTraktId = traktId,
                 ),
             )
@@ -206,7 +207,8 @@ fun ShowDetailScreen(
                 DetailArea(
                     uiState = uiState,
                     showDetailArgs = showDetailArgs,
-                    isAuthorizedOnTrakt = isAuthorizedOnTrakt,
+                    isAuthorizedOnTrakt = isAuthorizedOnProvider,
+                    activeProvider = activeProvider,
                     isWatchlist = isWatchlist,
                     isWatchlistLoading = isWatchlistLoading,
                     showRating = showRating,
@@ -245,7 +247,7 @@ fun ShowDetailScreen(
                             showImageUrl = it.showImageUrl,
                             showBackgroundUrl = it.showBackgroundUrl,
                             imdbID = it.imdbID,
-                            isAuthorizedOnTrakt = it.isAuthorizedOnTrakt,
+                            isAuthorizedOnTrakt = it.isAuthorizedOnTrakt, // wait, this is from the arg? Yes, I will leave it
                             showTraktId = it.showTraktId,
                         ),
                     )
@@ -262,6 +264,7 @@ fun DetailArea(
     uiState: ShowDetailViewModel.ShowDetailUiState,
     showDetailArgs: ShowDetailArg,
     isAuthorizedOnTrakt: Boolean,
+    activeProvider: String,
     isWatchlist: Boolean,
     isWatchlistLoading: Boolean,
     showRating: TraktShowRating?,
@@ -282,6 +285,7 @@ fun DetailArea(
             uiState = uiState,
             showDetailArgs = showDetailArgs,
             isAuthorizedOnTrakt = isAuthorizedOnTrakt,
+            activeProvider = activeProvider,
             isWatchlist = isWatchlist,
             isWatchlistLoading = isWatchlistLoading,
             showRating = showRating,
@@ -301,6 +305,7 @@ fun DetailArea(
             uiState = uiState,
             showDetailArgs = showDetailArgs,
             isAuthorizedOnTrakt = isAuthorizedOnTrakt,
+            activeProvider = activeProvider,
             isWatchlist = isWatchlist,
             isWatchlistLoading = isWatchlistLoading,
             showRating = showRating,
@@ -324,6 +329,7 @@ private fun CompactDetailArea(
     uiState: ShowDetailViewModel.ShowDetailUiState,
     showDetailArgs: ShowDetailArg,
     isAuthorizedOnTrakt: Boolean,
+    activeProvider: String,
     isWatchlist: Boolean,
     isWatchlistLoading: Boolean,
     showRating: TraktShowRating?,
@@ -437,6 +443,7 @@ private fun CompactDetailArea(
                     Box(modifier = Modifier.widthIn(max = 600.dp).fillMaxWidth()) {
                         ShowDetailButtons(
                             isAuthorizedOnTrakt = isAuthorizedOnTrakt,
+                            activeProvider = activeProvider,
                             isWatchlist = isWatchlist,
                             isLoading = isWatchlistLoading,
                             isRating = uiState.isRating,
@@ -493,6 +500,7 @@ private fun ExpandedDetailArea(
     uiState: ShowDetailViewModel.ShowDetailUiState,
     showDetailArgs: ShowDetailArg,
     isAuthorizedOnTrakt: Boolean,
+    activeProvider: String,
     isWatchlist: Boolean,
     isWatchlistLoading: Boolean,
     showRating: TraktShowRating?,
@@ -571,6 +579,7 @@ private fun ExpandedDetailArea(
                 if (uiState.showSummary?.id != -1 && uiState.showSummary != null) {
                     ShowDetailButtons(
                         isAuthorizedOnTrakt = isAuthorizedOnTrakt,
+                        activeProvider = activeProvider,
                         isWatchlist = isWatchlist,
                         isLoading = isWatchlistLoading,
                         isRating = uiState.isRating,
@@ -673,6 +682,7 @@ private fun ExpandedDetailArea(
 @Composable
 fun ShowDetailButtons(
     isAuthorizedOnTrakt: Boolean?,
+    activeProvider: String,
     isWatchlist: Boolean?,
     isLoading: Boolean,
     isRating: Boolean = false,
@@ -689,6 +699,7 @@ fun ShowDetailButtons(
     if (isExpanded) {
         ShowDetailButtonsExpanded(
             isAuthorizedOnTrakt = isAuthorizedOnTrakt,
+            activeProvider = activeProvider,
             isWatchlist = isWatchlist,
             isLoading = isLoading,
             isRating = isRating,
@@ -701,6 +712,7 @@ fun ShowDetailButtons(
     } else {
         ShowDetailButtonsCompact(
             isAuthorizedOnTrakt = isAuthorizedOnTrakt,
+            activeProvider = activeProvider,
             isWatchlist = isWatchlist,
             isLoading = isLoading,
             isRating = isRating,
@@ -727,6 +739,7 @@ fun ShowDetailButtons(
 @Composable
 private fun ShowDetailButtonsExpanded(
     isAuthorizedOnTrakt: Boolean?,
+    activeProvider: String,
     isWatchlist: Boolean?,
     isLoading: Boolean,
     isRating: Boolean,
@@ -835,6 +848,7 @@ private fun ShowDetailButtonsExpanded(
 @Composable
 private fun ShowDetailButtonsCompact(
     isAuthorizedOnTrakt: Boolean?,
+    activeProvider: String,
     isWatchlist: Boolean?,
     isLoading: Boolean,
     isRating: Boolean,

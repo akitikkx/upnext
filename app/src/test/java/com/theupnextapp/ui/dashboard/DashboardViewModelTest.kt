@@ -22,10 +22,14 @@ import com.theupnextapp.domain.TraktAccessToken
 import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktRecommendationsResponse
 import com.theupnextapp.repository.DashboardRepository
+import com.theupnextapp.repository.ProviderManager
+import com.theupnextapp.repository.SimklAuthManager
+import com.theupnextapp.repository.SimklRepository
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.WatchProgressRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -50,6 +54,9 @@ class DashboardViewModelTest {
     var coroutineTestRule = CoroutineTestRule()
 
     private lateinit var traktRepository: TraktRepository
+    private lateinit var simklRepository: SimklRepository
+    private lateinit var simklAuthManager: SimklAuthManager
+    private lateinit var providerManager: ProviderManager
     private lateinit var dashboardRepository: DashboardRepository
     private lateinit var watchProgressRepository: WatchProgressRepository
     private lateinit var localWorkManager: WorkManager
@@ -60,13 +67,20 @@ class DashboardViewModelTest {
     @Before
     fun setup() {
         traktRepository = mock(TraktRepository::class.java)
+        simklRepository = mock(SimklRepository::class.java)
+        simklAuthManager = mock(SimklAuthManager::class.java)
+        providerManager = mock(ProviderManager::class.java)
         dashboardRepository = mock(DashboardRepository::class.java)
         watchProgressRepository = mock(WatchProgressRepository::class.java)
         localWorkManager = mock(WorkManager::class.java)
         firebaseAnalytics = mock(FirebaseAnalytics::class.java)
 
         `when`(traktRepository.traktAccessToken).thenReturn(MutableStateFlow(null))
+        `when`(simklAuthManager.simklAccessToken).thenReturn(MutableStateFlow(null))
+        `when`(providerManager.activeProvider).thenReturn(MutableStateFlow("trakt"))
         `when`(traktRepository.traktMostAnticipatedShows).thenReturn(flowOf(emptyList()))
+        `when`(simklRepository.premieresShows).thenReturn(MutableStateFlow(emptyList()))
+        `when`(simklRepository.isLoadingPremieres).thenReturn(MutableStateFlow(false))
         kotlinx.coroutines.runBlocking {
             `when`(traktRepository.getRegionalTrendingShows(any())).thenReturn(
                 Result.success(
@@ -80,6 +94,9 @@ class DashboardViewModelTest {
         viewModel =
             DashboardViewModel(
                 traktRepository = traktRepository,
+                simklRepository = simklRepository,
+                simklAuthManager = simklAuthManager,
+                providerManager = providerManager,
                 dashboardRepository = dashboardRepository,
                 watchProgressRepository = watchProgressRepository,
                 localWorkManager = localWorkManager,
@@ -102,6 +119,9 @@ class DashboardViewModelTest {
             val testViewModel =
                 DashboardViewModel(
                     traktRepository = traktRepository,
+                    simklRepository = simklRepository,
+                    simklAuthManager = simklAuthManager,
+                    providerManager = providerManager,
                     dashboardRepository = dashboardRepository,
                     watchProgressRepository = watchProgressRepository,
                     localWorkManager = localWorkManager,
@@ -142,6 +162,9 @@ class DashboardViewModelTest {
             val testViewModel =
                 DashboardViewModel(
                     traktRepository = traktRepository,
+                    simklRepository = simklRepository,
+                    simklAuthManager = simklAuthManager,
+                    providerManager = providerManager,
                     dashboardRepository = dashboardRepository,
                     watchProgressRepository = watchProgressRepository,
                     localWorkManager = localWorkManager,
@@ -185,6 +208,9 @@ class DashboardViewModelTest {
             val testViewModel =
                 DashboardViewModel(
                     traktRepository = traktRepository,
+                    simklRepository = simklRepository,
+                    simklAuthManager = simklAuthManager,
+                    providerManager = providerManager,
                     dashboardRepository = dashboardRepository,
                     watchProgressRepository = watchProgressRepository,
                     localWorkManager = localWorkManager,
@@ -224,6 +250,9 @@ class DashboardViewModelTest {
 
             val testViewModel = DashboardViewModel(
                 traktRepository = traktRepository,
+                simklRepository = simklRepository,
+                simklAuthManager = simklAuthManager,
+                providerManager = providerManager,
                 dashboardRepository = dashboardRepository,
                 watchProgressRepository = watchProgressRepository,
                 localWorkManager = localWorkManager,
@@ -239,12 +268,10 @@ class DashboardViewModelTest {
             // Verify they were called once
             verify(traktRepository, Mockito.times(1)).getTraktMySchedule(any(), any(), any())
             verify(traktRepository, Mockito.times(1)).getTraktRecommendations(token)
-            verify(traktRepository, Mockito.times(1)).getTraktRecentHistory(token)
 
             // Explicitly verify the states have values so the guard should be active
             assertNotNull(testViewModel.airingSoonShows.value)
             assertNotNull(testViewModel.recommendedShows.value)
-            assertNotNull(testViewModel.recentHistory.value)
 
             // Second invocation should NOT trigger the fetches again because of the guard
             testViewModel.fetchDashboardData(token)
@@ -254,6 +281,59 @@ class DashboardViewModelTest {
             // Verify they were STILL only called once total
             verify(traktRepository, Mockito.times(1)).getTraktMySchedule(any(), any(), any())
             verify(traktRepository, Mockito.times(1)).getTraktRecommendations(token)
+        }
+
+    @Test
+    fun `when fetchDashboardHistoryData is invoked multiple times, guards prevent redundant network calls`() =
+        runTest {
+            val token = "mock_token"
+
+            // Setup responses for the repository
+            `when`(traktRepository.getTraktRecentHistory(token)).thenReturn(Result.success(listOf()))
+
+            val testViewModel = DashboardViewModel(
+                traktRepository = traktRepository,
+                simklRepository = simklRepository,
+                simklAuthManager = simklAuthManager,
+                providerManager = providerManager,
+                dashboardRepository = dashboardRepository,
+                watchProgressRepository = watchProgressRepository,
+                localWorkManager = localWorkManager,
+                firebaseAnalytics = firebaseAnalytics,
+            )
+
+            // Override provider and token specifically for this internal launch
+            `when`(providerManager.activeProvider).thenReturn(MutableStateFlow("trakt"))
+            `when`(traktRepository.traktAccessToken).thenReturn(
+                MutableStateFlow(
+                    TraktAccessToken(
+                        access_token = token,
+                        created_at = 1,
+                        expires_in = 1,
+                        refresh_token = "",
+                        scope = "",
+                        token_type = ""
+                    )
+                )
+            )
+
+            // First invocation should trigger the fetches
+            testViewModel.fetchDashboardHistoryData()
+
+            // Wait for coroutines to complete
+            advanceUntilIdle()
+
+            verify(traktRepository, Mockito.times(1)).getTraktRecentHistory(token)
+
+            // Explicitly verify the states have values so the guard should be active
+            assertNotNull(testViewModel.recentHistory.value)
+
+            // Second invocation should NOT trigger the fetches again because of the guard
+            testViewModel.fetchDashboardHistoryData()
+
+            advanceUntilIdle()
+
+            // Verify they were STILL only called once total
             verify(traktRepository, Mockito.times(1)).getTraktRecentHistory(token)
         }
 
@@ -271,4 +351,80 @@ class DashboardViewModelTest {
             // Since we mocked success with emptyList(), regionalTrendingShows should not be null
             assertNotNull(viewModel.regionalTrendingShows.value)
         }
+
+    @Test
+    fun `isAuthorizedOnProvider reflects true when active provider is Trakt and Trakt is authenticated`() = runTest {
+        `when`(providerManager.activeProvider).thenReturn(MutableStateFlow(com.theupnextapp.repository.ProviderManager.PROVIDER_TRAKT))
+        val token = TraktAccessToken(
+            access_token = "trakt_token",
+            created_at = 1,
+            expires_in = 1,
+            refresh_token = "",
+            scope = "",
+            token_type = ""
+        )
+        `when`(traktRepository.traktAccessToken).thenReturn(MutableStateFlow(token))
+        `when`(simklAuthManager.simklAccessToken).thenReturn(MutableStateFlow(null))
+
+        val testViewModel = DashboardViewModel(
+            traktRepository = traktRepository, simklRepository = simklRepository, simklAuthManager = simklAuthManager,
+            providerManager = providerManager, dashboardRepository = dashboardRepository, watchProgressRepository = watchProgressRepository,
+            localWorkManager = localWorkManager, firebaseAnalytics = firebaseAnalytics
+        )
+
+        advanceUntilIdle()
+        assertTrue(testViewModel.isAuthorizedOnProvider.first())
+    }
+
+    @Test
+    fun `isAuthorizedOnProvider reflects false when active provider is Trakt and Trakt is NOT authenticated`() = runTest {
+        `when`(providerManager.activeProvider).thenReturn(MutableStateFlow(com.theupnextapp.repository.ProviderManager.PROVIDER_TRAKT))
+        `when`(traktRepository.traktAccessToken).thenReturn(MutableStateFlow(null))
+        val simklToken = com.theupnextapp.domain.SimklAccessToken(accessToken = "simkl_token", tokenType = "Bearer", scope = "public")
+        `when`(simklAuthManager.simklAccessToken).thenReturn(MutableStateFlow(simklToken))
+
+        val testViewModel = DashboardViewModel(
+            traktRepository = traktRepository, simklRepository = simklRepository, simklAuthManager = simklAuthManager,
+            providerManager = providerManager, dashboardRepository = dashboardRepository, watchProgressRepository = watchProgressRepository,
+            localWorkManager = localWorkManager, firebaseAnalytics = firebaseAnalytics
+        )
+
+        advanceUntilIdle()
+        assertTrue(!testViewModel.isAuthorizedOnProvider.first())
+    }
+
+    @Test
+    fun `isAuthorizedOnProvider reflects true when active provider is SIMKL and SIMKL is authenticated`() = runTest {
+        `when`(providerManager.activeProvider).thenReturn(MutableStateFlow(com.theupnextapp.repository.ProviderManager.PROVIDER_SIMKL))
+        `when`(traktRepository.traktAccessToken).thenReturn(MutableStateFlow(null))
+        val simklToken = com.theupnextapp.domain.SimklAccessToken(accessToken = "simkl_token", tokenType = "Bearer", scope = "public")
+        `when`(simklAuthManager.simklAccessToken).thenReturn(MutableStateFlow(simklToken))
+
+        val testViewModel = DashboardViewModel(
+            traktRepository = traktRepository, simklRepository = simklRepository, simklAuthManager = simklAuthManager,
+            providerManager = providerManager, dashboardRepository = dashboardRepository, watchProgressRepository = watchProgressRepository,
+            localWorkManager = localWorkManager, firebaseAnalytics = firebaseAnalytics
+        )
+
+        advanceUntilIdle()
+        assertTrue(testViewModel.isAuthorizedOnProvider.first())
+    }
+
+    @Test
+    fun `when simkl access token is present and active provider is SIMKL, fetches simkl dashboard`() = runTest {
+        val simklToken = com.theupnextapp.domain.SimklAccessToken(accessToken = "simkl_token", tokenType = "Bearer", scope = "public")
+        `when`(simklAuthManager.simklAccessToken).thenReturn(MutableStateFlow(simklToken))
+        `when`(providerManager.activeProvider).thenReturn(MutableStateFlow(com.theupnextapp.repository.ProviderManager.PROVIDER_SIMKL))
+
+        val testViewModel = DashboardViewModel(
+            traktRepository = traktRepository, simklRepository = simklRepository, simklAuthManager = simklAuthManager,
+            providerManager = providerManager, dashboardRepository = dashboardRepository, watchProgressRepository = watchProgressRepository,
+            localWorkManager = localWorkManager, firebaseAnalytics = firebaseAnalytics
+        )
+
+        testViewModel.fetchSimklDashboardData()
+        advanceUntilIdle()
+
+        verify(simklRepository, Mockito.times(1)).refreshPremieres()
+    }
 }

@@ -81,14 +81,15 @@ constructor(
     private val moshi: Moshi,
     upnextDao: UpnextDao,
     tvMazeService: TvMazeService,
+    tmdbService: com.theupnextapp.network.TmdbService,
     firebaseCrashlytics: FirebaseCrashlytics,
-) : BaseTraktDataSource(upnextDao, tvMazeService, firebaseCrashlytics) {
+) : BaseTraktDataSource(upnextDao, tvMazeService, tmdbService, firebaseCrashlytics) {
     private val traktConflictErrorAdapter = moshi.adapter(TraktConflictErrorResponse::class.java)
 
     suspend fun refreshWatchlistShows(token: String): Result<Unit> {
         if (token.isEmpty()) {
             val message = "Cannot refresh watchlist shows: token is empty."
-            logTraktException(message)
+            logProviderException(message)
             return Result.failure(IllegalArgumentException(message))
         }
 
@@ -107,7 +108,7 @@ constructor(
                     Result.failure(error)
                 }
             } catch (e: Exception) {
-                logTraktException("Error refreshing watchlist shows", e)
+                logProviderException("Error refreshing watchlist shows", e)
                 Result.failure(e)
             }
         }
@@ -131,11 +132,11 @@ constructor(
         } catch (e: HttpException) {
             val errorBody = e.response()?.errorBody()?.stringSuspending()
             val detailedMessage = "HTTP error fetching native watchlist show items: ${e.code()} - $errorBody"
-            logTraktException(detailedMessage, e)
+            logProviderException(detailedMessage, e)
             val userMessage = parseTraktApiError(errorBody, "Server error fetching watchlist items.", moshi)
             Result.failure(Exception(userMessage, e))
         } catch (e: Exception) {
-            logTraktException("Error fetching and storing items from native Trakt Watchlist", e)
+            logProviderException("Error fetching and storing items from native Trakt Watchlist", e)
             Result.failure(e)
         }
     }
@@ -163,7 +164,6 @@ constructor(
                                 existingLocalShow.tvMazeID == null
 
                         if (needsImageFetch && !networkListItem.show.ids.imdb.isNullOrEmpty()) {
-                            kotlinx.coroutines.delay(400L) // Rate limit prevention
                             val (tvMazeIdResult, poster, heroImage) = getImages(networkListItem.show.ids.imdb)
                             dbShow =
                                 dbShow.copy(
@@ -211,7 +211,7 @@ constructor(
                 val userMessage = parseTraktApiError(errorBody, "Failed to fetch watchlist.", moshi)
                 Result.failure(Exception(userMessage, e))
             } catch (e: Exception) {
-                logTraktException("Error fetching watchlist", e)
+                logProviderException("Error fetching watchlist", e)
                 Result.failure(e)
             }
         }
@@ -244,7 +244,7 @@ constructor(
                 val userMessage = parseTraktApiError(errorBody, "Failed to add to watchlist.", moshi)
                 Result.failure(Exception(userMessage, e))
             } catch (e: Exception) {
-                logTraktException("Error adding to watchlist", e)
+                logProviderException("Error adding to watchlist", e)
                 Result.failure(e)
             }
         }
@@ -277,7 +277,7 @@ constructor(
                 val userMessage = parseTraktApiError(errorBody, "Failed to remove from watchlist.", moshi)
                 Result.failure(Exception(userMessage, e))
             } catch (e: Exception) {
-                logTraktException("Error removing from watchlist", e)
+                logProviderException("Error removing from watchlist", e)
                 Result.failure(e)
             }
         }
@@ -337,7 +337,7 @@ constructor(
                     TraktCheckInStatus(message = msg)
                 }
             } catch (e: Exception) {
-                logTraktException("Generic error during Trakt check-in.", e)
+                logProviderException("Generic error during Trakt check-in.", e)
                 TraktCheckInStatus(message = "An unexpected error occurred.")
             }
         }
@@ -360,7 +360,7 @@ constructor(
             } catch (e: HttpException) {
                 Result.failure(Exception("Failed to cancel check-in.", e))
             } catch (e: Exception) {
-                logTraktException("Generic error during Trakt check-in cancellation.", e)
+                logProviderException("Generic error during Trakt check-in cancellation.", e)
                 Result.failure(e)
             }
         }
@@ -397,7 +397,7 @@ constructor(
             } catch (e: HttpException) {
                 Result.failure(Exception("Failed to rate show.", e))
             } catch (e: Exception) {
-                logTraktException("Generic error during Trakt show rating.", e)
+                logProviderException("Generic error during Trakt show rating.", e)
                 Result.failure(e)
             }
         }
@@ -415,7 +415,7 @@ constructor(
                 val ratings = traktService.getUserShowRatingsAsync(bearerToken).await()
                 ratings.firstOrNull { it.show?.ids?.imdb == imdbId }?.rating
             } catch (e: Exception) {
-                logTraktException("Error fetching user show rating", e)
+                logProviderException("Error fetching user show rating", e)
                 null
             }
         }
@@ -440,7 +440,7 @@ constructor(
                 val userMessage = parseTraktApiError(errorBody, "Failed to fetch calendar.", moshi)
                 Result.failure(Exception(userMessage, e))
             } catch (e: Exception) {
-                logTraktException("Error fetching calendar", e)
+                logProviderException("Error fetching calendar", e)
                 Result.failure(e)
             }
         }
@@ -516,7 +516,7 @@ constructor(
                 
                 Result.success(upNextItems.take(20))
             } catch (e: Exception) {
-                logTraktException("Error fetching playback progress", e)
+                logProviderException("Error fetching playback progress", e)
                 Result.failure(e)
             }
         }
@@ -529,7 +529,7 @@ constructor(
                 val response = traktService.getWatchedShowsAsync("Bearer $token").await()
                 Result.success(response)
             } catch (e: Exception) {
-                logTraktException("Error fetching watched shows", e)
+                logProviderException("Error fetching watched shows", e)
                 Result.failure(e)
             }
         }
@@ -542,7 +542,7 @@ constructor(
                 val response = traktService.getRecentHistoryAsync("Bearer $token").await()
                 Result.success(response)
             } catch (e: Exception) {
-                logTraktException("Error fetching recent history", e)
+                logProviderException("Error fetching recent history", e)
                 Result.failure(e)
             }
         }
@@ -555,7 +555,7 @@ constructor(
                 val response = traktService.getShowProgressAsync("Bearer $token", showId).await()
                 Result.success(response)
             } catch (e: Exception) {
-                logTraktException("Error fetching show progress", e)
+                logProviderException("Error fetching show progress", e)
                 Result.failure(e)
             }
         }
@@ -567,7 +567,7 @@ constructor(
                 val response = traktService.getRecommendationsAsync(token = token).await()
                 Result.success(response)
             } catch (e: Exception) {
-                logTraktException("Error fetching recommendations", e)
+                logProviderException("Error fetching recommendations", e)
                 Result.failure(e)
             }
         }

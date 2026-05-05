@@ -78,6 +78,7 @@ class ExploreViewModelTest {
                         originalImageUrl = "url",
                         imdbID = "tt0903747",
                         tmdbID = 1396,
+                        tvdbID = null,
                         tvMazeID = 169,
                         providerId = com.theupnextapp.repository.ProviderManager.PROVIDER_TRAKT
                     ),
@@ -185,6 +186,7 @@ class ExploreViewModelTest {
                         originalImageUrl = null,
                         imdbID = null,
                         tmdbID = null,
+                        tvdbID = null,
                         tvMazeID = null,
                         providerId = com.theupnextapp.repository.ProviderManager.PROVIDER_TRAKT
                     ),

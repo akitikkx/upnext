@@ -21,10 +21,19 @@
 
 package com.theupnextapp.network
 
+import com.theupnextapp.network.models.simkl.NetworkSimklAccessTokenRequest
+import com.theupnextapp.network.models.simkl.NetworkSimklAccessTokenResponse
+import com.theupnextapp.network.models.simkl.NetworkSimklActivityResponse
+import com.theupnextapp.network.models.simkl.NetworkSimklAllItemsResponse
+import com.theupnextapp.network.models.simkl.NetworkSimklLibraryResponse
 import com.theupnextapp.network.models.simkl.NetworkSimklTrendingResponse
+import kotlinx.coroutines.Deferred
 import retrofit2.Response
+import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.POST
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 /**
@@ -33,16 +42,68 @@ import retrofit2.http.Query
  */
 interface SimklService {
 
+    @POST("/oauth/token")
+    fun getAccessTokenAsync(
+        @Body request: NetworkSimklAccessTokenRequest
+    ): Deferred<NetworkSimklAccessTokenResponse>
+
     @GET("tv/trending")
     suspend fun getTrendingShows(
         @Header("Authorization") token: String?
     ): Response<List<NetworkSimklTrendingResponse>>
 
+    @GET("tv/premieres")
+    suspend fun getPremieres(
+        @Header("Authorization") token: String?
+    ): Response<List<NetworkSimklTrendingResponse>>
+
+    @GET("tv/{id}")
+    suspend fun getShowSummary(
+        @Path("id") id: Int
+    ): Response<NetworkSimklTrendingResponse>
+
     @GET("sync/all")
     suspend fun getSyncState(
         @Header("Authorization") token: String,
         @Query("client_id") clientId: String
-    ): Response<Any> // TODO: Replace 'Any' with NetworkSimklSyncResponse
+    ): Response<Any>
 
-    // Additional endpoints (OAuth, Search, etc.) will be added here
+    @GET("sync/activities")
+    suspend fun getActivities(
+        @Header("Authorization") token: String
+    ): Response<com.theupnextapp.network.models.simkl.NetworkSimklActivityResponse>
+
+    @GET("sync/shows")
+    suspend fun getSyncShows(
+        @Header("Authorization") token: String
+    ): Response<List<com.theupnextapp.network.models.simkl.NetworkSimklLibraryResponse>>
+
+    @GET("sync/all-items")
+    suspend fun getAllItems(
+        @Header("Authorization") token: String,
+        @Query("date_from") dateFrom: String
+    ): Response<com.theupnextapp.network.models.simkl.NetworkSimklAllItemsResponse>
+
+    @POST("sync/add-to-list")
+    suspend fun addToList(
+        @Header("Authorization") token: String,
+        @Body request: com.theupnextapp.network.models.simkl.NetworkSimklSyncRequest
+    ): Response<Any>
+
+    @POST("sync/ratings")
+    suspend fun addRating(
+        @Header("Authorization") token: String,
+        @Body request: com.theupnextapp.network.models.simkl.NetworkSimklSyncRequest
+    ): Response<Any>
+
+    @POST("sync/history")
+    suspend fun addHistory(
+        @Header("Authorization") token: String,
+        @Body request: com.theupnextapp.network.models.simkl.NetworkSimklSyncRequest
+    ): Response<Any>
+
+    @GET("sync/episodes")
+    suspend fun getWatchedEpisodes(
+        @Header("Authorization") token: String
+    ): Response<List<com.theupnextapp.network.models.simkl.NetworkSimklHistoryResponse>>
 }

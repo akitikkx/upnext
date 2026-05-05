@@ -69,6 +69,8 @@ class BaselineProfileGenerator {
             scrollDashboardListJourney()
 
             goToShowDetailJourney()
+            
+            accountScreenJourney()
 
             // Check UiAutomator documentation for more information how to interact with the app.
             // https://d.android.com/training/testing/other-components/ui-automator
@@ -96,4 +98,11 @@ fun MacrobenchmarkScope.goToShowDetailJourney() {
     val index = (iteration ?: 0) % showItems.size
     showItems[index].click()
     device.wait(Until.gone(By.res("dashboard_list")), 5_000)
+}
+
+fun MacrobenchmarkScope.accountScreenJourney() {
+    device.wait(Until.hasObject(By.text("Account")), 10_000)
+    device.findObject(By.text("Account"))?.click()
+    device.wait(Until.hasObject(By.text("Connect to Trakt")), 10_000)
+    device.waitForIdle()
 }

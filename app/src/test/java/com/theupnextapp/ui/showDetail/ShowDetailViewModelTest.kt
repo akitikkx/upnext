@@ -65,6 +65,9 @@ class ShowDetailViewModelTest {
     val firebaseCrashlytics: FirebaseCrashlytics = mock()
     val traktAuthManager: TraktAuthManager = mock()
     val firebaseAnalytics: com.google.firebase.analytics.FirebaseAnalytics = mock()
+    val providerManager: com.theupnextapp.repository.ProviderManager = mock()
+    val simklRepository: com.theupnextapp.repository.SimklRepository = mock()
+    val simklAuthManager: com.theupnextapp.repository.SimklAuthManager = mock()
 
     private lateinit var showDetailRepository: FakeShowDetailRepository
     private lateinit var traktRepository: FakeTraktRepository
@@ -77,12 +80,16 @@ class ShowDetailViewModelTest {
         traktRepository = FakeTraktRepository()
 
         whenever(traktAuthManager.traktAuthState).thenReturn(MutableStateFlow(TraktAuthState.LoggedIn))
+        whenever(providerManager.activeProvider).thenReturn(MutableStateFlow(com.theupnextapp.repository.ProviderManager.PROVIDER_TRAKT))
 
         viewModel =
             ShowDetailViewModel(
                 showDetailRepository,
                 workManager,
                 traktRepository,
+                simklRepository,
+                providerManager,
+                simklAuthManager,
                 firebaseCrashlytics,
                 firebaseAnalytics,
                 traktAuthManager,
@@ -279,7 +286,7 @@ class ShowDetailViewModelTest {
 
             // Then
             val state = viewModel.uiState.value
-            assertEquals("This show is missing a required TVMaze or IMDB ID.", state.generalErrorMessage)
+            assertEquals("This show is missing a required TVMaze, IMDB, or TVDB ID.", state.generalErrorMessage)
         }
 
     @Test

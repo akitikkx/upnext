@@ -75,11 +75,12 @@ import com.theupnextapp.domain.TrendingShow
 class TraktRepositoryImpl(
     upnextDao: UpnextDao,
     tvMazeService: TvMazeService,
+    tmdbService: com.theupnextapp.network.TmdbService,
     private val traktDao: TraktDao,
     private val traktAuthDataSource: TraktAuthDataSource,
     private val traktRecommendationsDataSource: TraktRecommendationsDataSource,
     private val traktAccountDataSource: TraktAccountDataSource,
-) : BaseRepository(upnextDao, tvMazeService), TraktRepository, TrackingProvider {
+) : BaseRepository(upnextDao, tvMazeService, tmdbService), TraktRepository, TrackingProvider {
     private val repositoryScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     companion object {

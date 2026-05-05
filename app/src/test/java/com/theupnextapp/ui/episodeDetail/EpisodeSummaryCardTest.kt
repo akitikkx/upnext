@@ -59,8 +59,9 @@ class EpisodeSummaryCardTest {
                 uriHandler = uriHandler,
                 isCheckingIn = false,
                 isCheckInSuccessful = false,
-                isAuthorizedOnTrakt = false,
-                onCheckInClick = {},
+                isAuthorizedOnProvider = false,
+                activeProvider = com.theupnextapp.repository.ProviderManager.PROVIDER_TRAKT,
+                onCheckInClick = { },
                 onCancelCheckInClick = {},
             )
         }
@@ -80,8 +81,9 @@ class EpisodeSummaryCardTest {
                 uriHandler = uriHandler,
                 isCheckingIn = false,
                 isCheckInSuccessful = false,
-                isAuthorizedOnTrakt = true,
-                onCheckInClick = {},
+                isAuthorizedOnProvider = true,
+                activeProvider = com.theupnextapp.repository.ProviderManager.PROVIDER_TRAKT,
+                onCheckInClick = { },
                 onCancelCheckInClick = {},
             )
         }

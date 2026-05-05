@@ -71,7 +71,11 @@ object NetworkModule {
             .cache(Cache(context.cacheDir, CACHE_SIZE_BYTES))
             .addInterceptor(
                 HttpLoggingInterceptor().apply {
-                    level = HttpLoggingInterceptor.Level.BODY
+                    level = if (com.theupnextapp.core.data.BuildConfig.DEBUG) {
+                        HttpLoggingInterceptor.Level.BODY
+                    } else {
+                        HttpLoggingInterceptor.Level.NONE
+                    }
                 },
             )
             .addInterceptor { chain ->

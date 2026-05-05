@@ -55,6 +55,7 @@ class TraktAuthDataSourceTest {
                 traktDao,
                 upnextDao,
                 tvMazeService,
+                mock(), // tmdbService
                 firebaseCrashlytics,
             )
     }
