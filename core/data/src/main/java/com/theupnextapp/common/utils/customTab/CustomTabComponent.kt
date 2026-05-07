@@ -28,6 +28,7 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.net.Uri
+import androidx.core.net.toUri
 import android.os.Bundle
 import androidx.browser.customtabs.CustomTabsClient
 import androidx.browser.customtabs.CustomTabsIntent
@@ -122,7 +123,7 @@ open class CustomTabComponent : TabServiceConnectionCallback {
             return correctPackage
         }
         val packageManager = context.packageManager
-        val activityIntent = Intent(Intent.ACTION_VIEW, Uri.parse("http://www.google.com"))
+        val activityIntent = Intent(Intent.ACTION_VIEW, "http://www.google.com".toUri())
         val defaultViewHandlerInfo = packageManager.resolveActivity(activityIntent, 0)
         val defaultViewHandlerPackageName: String? =
             defaultViewHandlerInfo?.activityInfo?.packageName

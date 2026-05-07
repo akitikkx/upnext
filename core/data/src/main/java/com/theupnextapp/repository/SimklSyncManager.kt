@@ -44,6 +44,7 @@ class SimklSyncManager @Inject constructor(
      *
      * @param token The OAuth Bearer token to authorize the sync requests.
      */
+    @android.annotation.SuppressLint("NewApi")
     suspend fun sync(token: String): Result<Unit> {
         return try {
             val formattedToken = "Bearer $token"
