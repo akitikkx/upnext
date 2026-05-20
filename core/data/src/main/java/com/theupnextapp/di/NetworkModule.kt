@@ -105,7 +105,7 @@ object NetworkModule {
                     }
                 },
             )
-            .addInterceptor(GzipDecompressionInterceptor())
+            .addNetworkInterceptor(GzipDecompressionInterceptor())
             .connectTimeout(CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .retryOnConnectionFailure(true)
             .readTimeout(READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)
