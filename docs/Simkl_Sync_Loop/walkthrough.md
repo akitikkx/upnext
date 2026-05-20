@@ -47,7 +47,13 @@ The following implementation steps successfully stabilized the SIMKL sync pipeli
 - Resolved `MigrationTest` asset validation failures in `app/build.gradle` by declaring a custom `copyRoomSchemas` Copy task that combines `$projectDir/schemas` and `${project(':core:data').projectDir}/schemas` into `$buildDir/intermediates/room-schemas` with `duplicatesStrategy = DuplicatesStrategy.EXCLUDE`. This avoids asset merging conflicts (e.g. over `31.json`) on CI.
 - Configured unit tests and instrumented tests to `failFast = true` / `failFast: 'true'` in `app/build.gradle` and `core/data/build.gradle` to abort test suites immediately on the first failure, preserving CI minutes.
 
+## 7. Gzip/TeeSource Interceptor Conflict Resolution
+
+**Changes Made:**
+- Swapped the registration order of `ChuckerInterceptor` and `HttpLoggingInterceptor` inside `NetworkModule.kt`. 
+- By registering `ChuckerInterceptor` first, it becomes the outer application interceptor, meaning `HttpLoggingInterceptor` (downstream) consumes the raw network response body stream first. This prevents `HttpLoggingInterceptor` from attempting to read and decompress a stream wrapped by Chucker's custom `TeeSource`/`DepletingSource`, completely eliminating the `java.io.IOException: gzip finished without exhausting source` error on compressed endpoints (such as TMDB).
+
 ## Validation Results
 
-- ✔️ `./gradlew testDebugUnitTest` fully passes (verified that the new `refreshPremieres filters out shows without imdbId or tvdbId` test passes successfully).
+- ✔️ `./gradlew testDebugUnitTest` fully passes (verified that all repository and network configuration tests pass successfully).
 - ✔️ Build and compilation verified locally (Gradle build successful in under 2 minutes).

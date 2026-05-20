@@ -70,22 +70,6 @@ object NetworkModule {
         return OkHttpClient().newBuilder()
             .cache(Cache(context.cacheDir, CACHE_SIZE_BYTES))
             .addInterceptor(
-                HttpLoggingInterceptor().apply {
-                    level = if (com.theupnextapp.core.data.BuildConfig.DEBUG) {
-                        HttpLoggingInterceptor.Level.BODY
-                    } else {
-                        HttpLoggingInterceptor.Level.NONE
-                    }
-                },
-            )
-            .addInterceptor { chain ->
-                var request = chain.request()
-                request =
-                    request.newBuilder().header("Cache-Control", "public, max-age=$CACHE_MAX_AGE_SECONDS")
-                        .build()
-                chain.proceed(request)
-            }
-            .addInterceptor(
                 ChuckerInterceptor.Builder(context)
                     .collector(
                         ChuckerCollector(
@@ -99,6 +83,22 @@ object NetworkModule {
                     .alwaysReadResponseBody(true)
                     .createShortcut(true)
                     .build(),
+            )
+            .addInterceptor { chain ->
+                var request = chain.request()
+                request =
+                    request.newBuilder().header("Cache-Control", "public, max-age=$CACHE_MAX_AGE_SECONDS")
+                        .build()
+                chain.proceed(request)
+            }
+            .addInterceptor(
+                HttpLoggingInterceptor().apply {
+                    level = if (com.theupnextapp.core.data.BuildConfig.DEBUG) {
+                        HttpLoggingInterceptor.Level.BODY
+                    } else {
+                        HttpLoggingInterceptor.Level.NONE
+                    }
+                },
             )
             .connectTimeout(CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .retryOnConnectionFailure(true)
