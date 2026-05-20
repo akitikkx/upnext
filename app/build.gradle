@@ -67,10 +67,7 @@ android {
     }
 
     sourceSets {
-        androidTest.assets.srcDirs += files(
-            "$projectDir/schemas".toString(),
-            "${project(':core:data').projectDir}/schemas".toString()
-        )
+        androidTest.assets.srcDirs += files("$buildDir/intermediates/room-schemas")
     }
 
     signingConfigs {
@@ -307,4 +304,17 @@ dependencies {
 configurations.all {
     resolutionStrategy.force("androidx.concurrent:concurrent-futures:1.2.0")
     resolutionStrategy.force("androidx.concurrent:concurrent-futures-ktx:1.2.0")
+}
+
+tasks.register('copyRoomSchemas', Copy) {
+    from("$projectDir/schemas")
+    from("${project(':core:data').projectDir}/schemas")
+    into("$buildDir/intermediates/room-schemas")
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.configureEach { task ->
+    if (task.name.startsWith("merge") && task.name.endsWith("AndroidTestAssets")) {
+        task.dependsOn("copyRoomSchemas")
+    }
 }

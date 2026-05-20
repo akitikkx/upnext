@@ -33,7 +33,8 @@ This plan addresses the UI test failures, the app startup regression (623% slowe
 - Add `migrate35To36()` to test the new SIMKL integration schema changes (`simkl_watched_episodes`, `simkl_trending_shows`, etc.). Missing migration tests often cause the Room schema verification to fail in CI.
 
 #### [MODIFY] [app/build.gradle](file:///Users/ahmedtikiwa/upnext4/app/build.gradle)
-- Include `core/data/schemas` in `androidTest.assets.srcDirs` so the migration test helper can access the version 35 and 36 JSON schemas during runtime.
+- Declare a custom task `copyRoomSchemas` to copy both `$projectDir/schemas` and `${project(':core:data').projectDir}/schemas` into `$buildDir/intermediates/room-schemas` with `duplicatesStrategy = DuplicatesStrategy.EXCLUDE`.
+- Map `$buildDir/intermediates/room-schemas` to `androidTest.assets.srcDirs` so the migration test helper can access the version 35 and 36 JSON schemas during runtime without causing duplicate asset merge failures on common schemas like `31.json`.
 - Add `testInstrumentationRunnerArguments failFast: 'true'` to terminate instrumented tests on the first failure.
 - Configure `testOptions.unitTests.all { failFast = true }` to fail fast during unit test execution.
 

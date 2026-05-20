@@ -44,7 +44,7 @@ The following implementation steps successfully stabilized the SIMKL sync pipeli
 ## 6. Test & Build Performance Optimizations
 
 **Changes Made:**
-- Map `core/data/schemas` to the `app` module's `androidTest` assets in `app/build.gradle` to resolve `MigrationTest` asset validation failures.
+- Resolved `MigrationTest` asset validation failures in `app/build.gradle` by declaring a custom `copyRoomSchemas` Copy task that combines `$projectDir/schemas` and `${project(':core:data').projectDir}/schemas` into `$buildDir/intermediates/room-schemas` with `duplicatesStrategy = DuplicatesStrategy.EXCLUDE`. This avoids asset merging conflicts (e.g. over `31.json`) on CI.
 - Configured unit tests and instrumented tests to `failFast = true` / `failFast: 'true'` in `app/build.gradle` and `core/data/build.gradle` to abort test suites immediately on the first failure, preserving CI minutes.
 
 ## Validation Results
