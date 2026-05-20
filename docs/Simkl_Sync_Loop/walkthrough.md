@@ -30,7 +30,7 @@ The following implementation steps successfully stabilized the SIMKL sync pipeli
 ## 4. Macrobenchmark & CI Pipelines
 
 **Changes Made:**
-- Developed `.github/workflows/performance_benchmarks.yml` to automatically assess UI performance constraints via Macrobenchmarks on PRs to `main`.
+- Combined pull request checks and performance benchmarks into a unified CI pipeline `.github/workflows/ci.yml`. The macOS-based Macrobenchmark job runs sequentially after code verification (`verify`) and instrumented UI tests (`ui-tests`) succeed to optimize GitHub Action minutes.
 - Upgraded `BaselineProfileGenerator.kt` with a simulated `simklDashboardJourney()` rule set.
 
 ## Validation Results
