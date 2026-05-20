@@ -81,7 +81,9 @@ fun MainScreen(
     onTraktAuthCompleted: () -> Unit,
     traktAccountViewModel: TraktAccountViewModel = androidx.hilt.navigation.compose.hiltViewModel(),
 ) {
-    // val scope = rememberCoroutineScope() // Removed unused scope
+    val accountViewModel: com.theupnextapp.ui.account.AccountViewModel = androidx.hilt.navigation.compose.hiltViewModel()
+    val activeProvider by accountViewModel.activeProvider.collectAsState()
+    val simklAccountViewModel: com.theupnextapp.ui.simklAccount.SimklAccountViewModel = androidx.hilt.navigation.compose.hiltViewModel()
 
     val activity = LocalActivity.current
     val windowSizeClass = activity?.let { calculateWindowSizeClass(it) }
@@ -192,7 +194,24 @@ fun MainScreen(
                     modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface),
                     topBar = {
                         TopAppBar(
-                            title = { Text(stringResource(currentListSection.label)) },
+                            title = {
+                                Column {
+                                    Text(
+                                        text = stringResource(currentListSection.label),
+                                        style = MaterialTheme.typography.titleLarge
+                                    )
+                                    val providerRes = if (activeProvider == com.theupnextapp.repository.ProviderManager.PROVIDER_SIMKL) {
+                                        R.string.provider_via_simkl
+                                    } else {
+                                        R.string.provider_via_trakt
+                                    }
+                                    Text(
+                                        text = stringResource(providerRes),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            },
                             actions = {
                                 IconButton(
                                     onClick = {
@@ -236,10 +255,6 @@ fun MainScreen(
     }
 
     // Trakt/SIMKL OAuth handling
-    val accountViewModel: com.theupnextapp.ui.account.AccountViewModel = androidx.hilt.navigation.compose.hiltViewModel()
-    val activeProvider by accountViewModel.activeProvider.collectAsState()
-    val simklAccountViewModel: com.theupnextapp.ui.simklAccount.SimklAccountViewModel = androidx.hilt.navigation.compose.hiltViewModel()
-
     LaunchedEffect(valueState.value) {
         if (!valueState.value.isNullOrEmpty()) {
             val codeArg = valueState.value

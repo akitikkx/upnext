@@ -118,7 +118,7 @@ class SimklRepository @Inject constructor(
                         tvMazeID = null, // SIMKL may not return TVMaze
                         providerId = providerId
                     )
-                }
+                }.filter { !it.imdbID.isNullOrEmpty() || it.tvdbID != null }
                 _trendingShows.value = mappedShows
             }
         } catch (e: Exception) {
@@ -155,7 +155,7 @@ class SimklRepository @Inject constructor(
                         tvMazeID = null, // SIMKL may not return TVMaze
                         providerId = providerId
                     )
-                }
+                }.filter { !it.imdbID.isNullOrEmpty() || it.tvdbID != null }
                 _premieresShows.value = mappedShows
             }
         } catch (e: Exception) {

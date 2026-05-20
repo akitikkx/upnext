@@ -17,9 +17,17 @@ android {
     defaultConfig {
         minSdkVersion 24
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunnerArguments failFast: 'true'
         
         ksp {
             arg("room.schemaLocation", "$projectDir/schemas".toString())
+        }
+    }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+        unitTests.all {
+            failFast = true
         }
     }
     

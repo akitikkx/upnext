@@ -59,6 +59,7 @@ android {
         versionCode versionProps['VERSION_CODE'].toInteger()
         versionName versionProps['VERSION_NAME']
         testInstrumentationRunner "com.theupnextapp.CustomTestRunner"
+        testInstrumentationRunnerArguments failFast: 'true'
 
         ksp {
             arg("room.schemaLocation", "$projectDir/schemas".toString())
@@ -66,7 +67,10 @@ android {
     }
 
     sourceSets {
-        androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
+        androidTest.assets.srcDirs += files(
+            "$projectDir/schemas".toString(),
+            "${project(':core:data').projectDir}/schemas".toString()
+        )
     }
 
     signingConfigs {
@@ -135,6 +139,9 @@ android {
     testOptions {
         unitTests.returnDefaultValues = true
         unitTests.includeAndroidResources = true
+        unitTests.all {
+            failFast = true
+        }
     }
 
     lint {

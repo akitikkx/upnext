@@ -1,24 +1,44 @@
 # SIMKL Integration & Performance Optimization Plan
 
-This plan addresses the UI test failures, the app startup regression (623% slower), and implements the requested performance benchmarking for the new SIMKL provider.
+This plan addresses the UI test failures, the app startup regression (623% slower), implements the requested performance benchmarking for the new SIMKL provider, filters out incomplete SIMKL shows, and adds a UI indicator for the active provider.
 
 ## User Review Required
 
 > [!WARNING]
 > Thank you for the clarification. Since the 623% startup degradation is on the *production* branch, the cause is the eager Dependency Injection (DI) initialization in `UpnextApplication.onCreate()`. Currently, `TraktRepository` (and all its dependencies like `OkHttpClient`, Retrofit, and Room) are injected synchronously on the main thread, but only used inside a background coroutine. I will use `dagger.Lazy<TraktRepository>` to defer this massive DI graph instantiation to the background thread, and remove unused injections like `TraktAuthManager`.
 
-## Open Questions
-
-> [!IMPORTANT]
-> 1. Do you have a specific trace marker string for the Macrobenchmark besides `SimklDashboardFetch`? 
-> 2. For the Firebase and Google Play metrics analysis, would you like me to focus solely on ANRs and startup times, or also include network latency metrics?
-
 ## Proposed Changes
+
+### SIMKL Show Filtering & Provider UI Indicator
+
+#### [MODIFY] [SimklRepository.kt](file:///Users/ahmedtikiwa/upnext4/core/data/src/main/java/com/theupnextapp/repository/SimklRepository.kt)
+- Update `refreshTrendingShows` and `refreshPremieres` to filter out shows that do not have enough data to load details.
+- Since Upnext relies on TVMaze for show details (which requires either an IMDB ID or a TVDB ID), any SIMKL show lacking both of these identifiers cannot be loaded and should be filtered out from the list flows.
+- Filter criteria: `!it.imdbID.isNullOrEmpty() || it.tvdbID != null`
+
+#### [MODIFY] [MainScreen.kt](file:///Users/ahmedtikiwa/upnext4/app/src/main/java/com/theupnextapp/ui/main/MainScreen.kt)
+- Move `activeProvider` collection to the top of `MainScreen`.
+- Modify the `TopAppBar` title in the list pane scaffold to show a subtitle indicating the active provider (e.g., "via Trakt" or "via SIMKL").
+
+#### [MODIFY] [strings.xml](file:///Users/ahmedtikiwa/upnext4/app/src/main/res/values/strings.xml)
+- Add new string resources for the provider subtitles:
+  - `provider_via_trakt` ("via Trakt")
+  - `provider_via_simkl` ("via SIMKL")
+
+---
 
 ### UI Test Fixes & Migration Coverage
 
 #### [MODIFY] [MigrationTest.kt](file:///Users/ahmedtikiwa/upnext4/app/src/androidTest/java/com/theupnextapp/database/MigrationTest.kt)
 - Add `migrate35To36()` to test the new SIMKL integration schema changes (`simkl_watched_episodes`, `simkl_trending_shows`, etc.). Missing migration tests often cause the Room schema verification to fail in CI.
+
+#### [MODIFY] [app/build.gradle](file:///Users/ahmedtikiwa/upnext4/app/build.gradle)
+- Include `core/data/schemas` in `androidTest.assets.srcDirs` so the migration test helper can access the version 35 and 36 JSON schemas during runtime.
+- Add `testInstrumentationRunnerArguments failFast: 'true'` to terminate instrumented tests on the first failure.
+- Configure `testOptions.unitTests.all { failFast = true }` to fail fast during unit test execution.
+
+#### [MODIFY] [core/data/build.gradle](file:///Users/ahmedtikiwa/upnext4/core/data/build.gradle)
+- Add `testInstrumentationRunnerArguments failFast: 'true'` and unit tests `failFast = true` configuration.
 
 #### [MODIFY] [FakeTraktDao.kt](file:///Users/ahmedtikiwa/upnext4/app/src/test/java/com/theupnextapp/database/fakes/FakeTraktDao.kt)
 - Ensure all mocked `DatabaseTrendingShows` functions (e.g., `deleteSpecificTrendingShows`) include the new `providerId` parameter introduced for multi-provider support. This resolves unit test compilation failures.
@@ -56,9 +76,10 @@ This plan addresses the UI test failures, the app startup regression (623% slowe
 
 ### Automated Tests
 - `./gradlew :app:connectedDebugAndroidTest` (Run UI and migration tests)
-- `./gradlew :app:testDebugUnitTest` (Verify FakeTraktDao fixes)
+- `./gradlew :app:testDebugUnitTest` (Verify FakeTraktDao fixes and repository filters)
 - `./gradlew :baselineprofile:connectedAndroidTest` (Verify Macrobenchmark execution)
 
 ### Manual Verification
-- Deploy to an emulator/device and monitor the logcat for `Choreographer` skipped frames during app startup.
-- Review Firebase Crashlytics and Google Play Console (via mock/local analysis) for regression metrics.
+- Deploy to an emulator/device and verify that the TopAppBar shows the active provider subtitle correctly.
+- Verify that shows without IMDB/TVDB IDs are no longer displayed on the Dashboard/Explore screens.
+

@@ -118,4 +118,27 @@ class SimklRepositoryTest {
         assertTrue(premieres.first().title == "Test Premiere")
         verify(simklService).getPremieres(org.mockito.kotlin.anyOrNull())
     }
+
+    @Test
+    fun `refreshPremieres filters out shows without imdbId or tvdbId`() = runTest {
+        val validShow = com.theupnextapp.network.models.simkl.NetworkSimklTrendingResponse(
+            title = "Valid Show",
+            year = 2026,
+            ids = com.theupnextapp.network.models.simkl.NetworkSimklIds(simklId = 1, imdbId = "tt1", tmdbId = null, tvdbId = null),
+            poster = "poster1"
+        )
+        val invalidShow = com.theupnextapp.network.models.simkl.NetworkSimklTrendingResponse(
+            title = "Invalid Show",
+            year = 2026,
+            ids = com.theupnextapp.network.models.simkl.NetworkSimklIds(simklId = 2, imdbId = null, tmdbId = null, tvdbId = null),
+            poster = "poster2"
+        )
+        whenever(simklService.getPremieres(org.mockito.kotlin.anyOrNull())).thenReturn(Response.success(listOf(validShow, invalidShow)))
+
+        simklRepository.refreshPremieres()
+
+        val premieres = simklRepository.premieresShows.value
+        assertTrue(premieres.size == 1)
+        assertTrue(premieres.first().title == "Valid Show")
+    }
 }

@@ -27,13 +27,27 @@ The following implementation steps successfully stabilized the SIMKL sync pipeli
 - Updated `FakeTraktRepository` with implementations to align with changes made to `TraktRepository`.
 - Added missing `MIGRATION_35_36` backwards-compatibility verifications directly into `MigrationTest.kt` to ensure standard Android testing paradigms evaluate the new `simkl_watched_episodes` schema.
 
-## 4. Macrobenchmark & CI Pipelines
+## 4. Macrobenchmark & CI Integration
 
 **Changes Made:**
 - Combined pull request checks and performance benchmarks into a unified CI pipeline `.github/workflows/ci.yml`. The macOS-based Macrobenchmark job runs sequentially after code verification (`verify`) and instrumented UI tests (`ui-tests`) succeed to optimize GitHub Action minutes.
 - Upgraded `BaselineProfileGenerator.kt` with a simulated `simklDashboardJourney()` rule set.
 
+## 5. SIMKL Show Filtering & Provider UI Indicator
+
+**Changes Made:**
+- Updated `refreshTrendingShows` and `refreshPremieres` in `SimklRepository.kt` to filter out shows that lack both an `imdbId` and `tvdbId` using the criteria `.filter { !it.imdbID.isNullOrEmpty() || it.tvdbID != null }`. This prevents empty, unclickable shows from displaying on the dashboard.
+- Added a new unit test in `SimklRepositoryTest.kt` (`refreshPremieres filters out shows without imdbId or tvdbId`) to verify filtering works as expected.
+- Added string resources (`provider_via_trakt`, `provider_via_simkl`) to `strings.xml`.
+- Refactored `MainScreen.kt` to collect `activeProvider` at the top level and updated `TopAppBar` to display a subtitle indicating the active provider (e.g. "via Trakt" or "via SIMKL").
+
+## 6. Test & Build Performance Optimizations
+
+**Changes Made:**
+- Map `core/data/schemas` to the `app` module's `androidTest` assets in `app/build.gradle` to resolve `MigrationTest` asset validation failures.
+- Configured unit tests and instrumented tests to `failFast = true` / `failFast: 'true'` in `app/build.gradle` and `core/data/build.gradle` to abort test suites immediately on the first failure, preserving CI minutes.
+
 ## Validation Results
 
-- ✔️ `./gradlew testDebugUnitTest` fully passes (fixed `DashboardViewModelTest` timing race condition with `Mockito.timeout(1000)`).
-- ✔️ `./gradlew assembleDebugAndroidTest` compiles and is verified to execute standard application navigation flows without crashing.
+- ✔️ `./gradlew testDebugUnitTest` fully passes (verified that the new `refreshPremieres filters out shows without imdbId or tvdbId` test passes successfully).
+- ✔️ Build and compilation verified locally (Gradle build successful in under 2 minutes).
