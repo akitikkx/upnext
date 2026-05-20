@@ -543,7 +543,7 @@ constructor(
     }
 
     private fun triggerSyncIfAuthenticated() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val provider = providerManager.activeProvider.firstOrNull() ?: com.theupnextapp.repository.ProviderManager.PROVIDER_TRAKT
             if (provider == com.theupnextapp.repository.ProviderManager.PROVIDER_SIMKL) {
                 simklAuthManager.simklAccessToken.firstOrNull()?.accessToken?.let { token ->

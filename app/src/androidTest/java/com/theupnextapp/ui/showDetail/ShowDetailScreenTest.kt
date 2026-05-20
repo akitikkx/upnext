@@ -58,6 +58,7 @@ class ShowDetailScreenTest {
     fun showDetailButtons_whenAuthorized_showsSeasonsAndWatchlistButtons() {
         rule.setContent {
             ShowDetailButtons(
+                activeProvider = "trakt",
                 isAuthorizedOnTrakt = true,
                 isWatchlist = false,
                 isLoading = false,
@@ -76,6 +77,7 @@ class ShowDetailScreenTest {
     fun showDetailButtons_whenNotAuthorized_showsOnlySeasonsButton() {
         rule.setContent {
             ShowDetailButtons(
+                activeProvider = "trakt",
                 isAuthorizedOnTrakt = false,
                 isWatchlist = false,
                 isLoading = false,

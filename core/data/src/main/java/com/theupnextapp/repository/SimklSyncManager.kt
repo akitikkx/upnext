@@ -24,6 +24,7 @@ package com.theupnextapp.repository
 import com.theupnextapp.network.SimklService
 import com.theupnextapp.network.models.simkl.NetworkSimklLibraryResponse
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.sync.withLock
 import timber.log.Timber
 import java.time.Instant
 import java.time.format.DateTimeFormatter
@@ -37,6 +38,8 @@ class SimklSyncManager @Inject constructor(
     private val simklRepository: SimklRepository
 ) {
 
+    private val syncMutex = kotlinx.coroutines.sync.Mutex()
+
     /**
      * Executes the SIMKL Sync Loop.
      * Phase 1: If no previous sync date exists, fetches the entire TV show library.
@@ -45,7 +48,7 @@ class SimklSyncManager @Inject constructor(
      * @param token The OAuth Bearer token to authorize the sync requests.
      */
     @android.annotation.SuppressLint("NewApi")
-    suspend fun sync(token: String): Result<Unit> {
+    suspend fun sync(token: String): Result<Unit> = syncMutex.withLock {
         return try {
             val formattedToken = "Bearer $token"
             

@@ -185,7 +185,7 @@ class DashboardViewModelTest {
             )
 
             // Verify work manager was told to enqueue the sync
-            verify(localWorkManager).enqueue(any<WorkRequest>())
+            verify(localWorkManager, Mockito.timeout(1000)).enqueue(any<WorkRequest>())
         }
 
     @Test

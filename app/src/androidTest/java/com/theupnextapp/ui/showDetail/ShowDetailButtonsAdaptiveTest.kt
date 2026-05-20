@@ -33,6 +33,7 @@ class ShowDetailButtonsAdaptiveTest {
             ) {
                 Box(modifier = Modifier.fillMaxSize()) {
                     ShowDetailButtons(
+                        activeProvider = "trakt",
                         isAuthorizedOnTrakt = true,
                         isWatchlist = false,
                         isLoading = false,

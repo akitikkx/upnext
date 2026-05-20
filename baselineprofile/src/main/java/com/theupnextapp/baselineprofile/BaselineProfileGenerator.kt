@@ -106,3 +106,13 @@ fun MacrobenchmarkScope.accountScreenJourney() {
     device.wait(Until.hasObject(By.text("Connect to Trakt")), 10_000)
     device.waitForIdle()
 }
+
+fun MacrobenchmarkScope.simklDashboardJourney() {
+    val dashboardList = device.findObject(By.res("dashboard_list"))
+    if (dashboardList != null) {
+        dashboardList.setGestureMargin(device.displayWidth / 5)
+        dashboardList.fling(Direction.DOWN)
+        dashboardList.fling(Direction.UP)
+        device.waitForIdle()
+    }
+}

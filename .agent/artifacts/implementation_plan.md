@@ -1,67 +1,64 @@
-### 2. Full UI Localization (Dutch and Global)
+# SIMKL Integration & Performance Optimization Plan
 
-The goal is to ensure all remaining hardcoded strings in the UpNext application are extracted to `strings.xml` and fully translated into Dutch (testing language). This includes the Show Detail, Schedule, Explore, Search, and Account screens.
+This plan addresses the UI test failures, the app startup regression (623% slower), and implements the requested performance benchmarking for the new SIMKL provider.
 
 ## User Review Required
 
-Please review the proposed keys and English/Dutch string mappings. I will use standard string extraction to `res/values/strings.xml` and provide Dutch translations in `res/values-nl/strings.xml`. I will also run the test suite afterwards.
+> [!WARNING]
+> Thank you for the clarification. Since the 623% startup degradation is on the *production* branch, the cause is the eager Dependency Injection (DI) initialization in `UpnextApplication.onCreate()`. Currently, `TraktRepository` (and all its dependencies like `OkHttpClient`, Retrofit, and Room) are injected synchronously on the main thread, but only used inside a background coroutine. I will use `dagger.Lazy<TraktRepository>` to defer this massive DI graph instantiation to the background thread, and remove unused injections like `TraktAuthManager`.
+
+## Open Questions
+
+> [!IMPORTANT]
+> 1. Do you have a specific trace marker string for the Macrobenchmark besides `SimklDashboardFetch`? 
+> 2. For the Firebase and Google Play metrics analysis, would you like me to focus solely on ANRs and startup times, or also include network latency metrics?
 
 ## Proposed Changes
 
----
+### UI Test Fixes & Migration Coverage
 
-### `values/strings.xml` and `values-nl/strings.xml`
-I will add or update the following string keys in both the default English `strings.xml` and the Dutch `values-nl/strings.xml` file. 
-For existing keys that are simply missing in the Dutch file, I will add the translated equivalents.
+#### [MODIFY] [MigrationTest.kt](file:///Users/ahmedtikiwa/upnext4/app/src/androidTest/java/com/theupnextapp/database/MigrationTest.kt)
+- Add `migrate35To36()` to test the new SIMKL integration schema changes (`simkl_watched_episodes`, `simkl_trending_shows`, etc.). Missing migration tests often cause the Room schema verification to fail in CI.
 
-- **Schedule / Explore**:
-  - `title_yesterday_shows` (Aired Yesterday -> Gisteren uitgezonden)
-  - `title_today_shows` (Airing Today -> Vandaag op TV)
-  - `title_tomorrow_shows` (Airing Tomorrow -> Morgen op TV)
-  - `title_trending_shows` (Trending -> Trending)
-  - `title_popular_shows` (Popular -> Populair)
-  - `title_anticipated_shows` (Anticipated -> Verwacht)
-
-- **Search**:
-  - `search_input_hint` (Search for a show... -> Zoek naar een serie...)
-  - `search_empty_title` (No results found -> Geen resultaten gevonden)
-
-- **Show Detail** (missing Dutch equivalents for existing keys):
-  - `show_detail_genres_heading` (Genres -> Genres)
-  - `show_detail_air_days_heading` (Airs on -> Uitzenddagen)
-  - `show_detail_next_episode_heading` (Next Episode -> Volgende Aflevering)
-  - `show_detail_previous_episode_heading` (Previous Episode -> Vorige Aflevering)
-  - `btn_show_detail_seasons` (Seasons -> Seizoenen)
-  - `show_detail_cast_list` (Cast -> Cast)
-  - `show_detail_rating_heading` (Trakt Rating -> Trakt Beoordeling)
-  - `show_detail_where_to_watch` (Where to Watch -> Waar te bekijken)
-  - `show_detail_add_to_watchlist_button` (Add to watchlist -> Toevoegen aan watchlist)
-  - `show_detail_remove_from_watchlist_button` (Remove from watchlist -> Verwijderen van watchlist)
-
-- **Account / Watchlist**:
-  - `trakt_unlock_personalization` (Unlock Personalization -> Ontgrendel Personalisatie)
-  - `trakt_connect_benefits` (Connect your Trakt account to automatically track your watch progress, sync your history securely, and manage your watchlists seamlessly. -> Koppel je Trakt-account om je voortgang automatisch bij te houden, je geschiedenis veilig te synchroniseren en je watchlists naadloos te beheren.)
-  - `connect_to_trakt_button` (Connect Trakt Account -> Verbind Trakt Account)
+#### [MODIFY] [FakeTraktDao.kt](file:///Users/ahmedtikiwa/upnext4/app/src/test/java/com/theupnextapp/database/fakes/FakeTraktDao.kt)
+- Ensure all mocked `DatabaseTrendingShows` functions (e.g., `deleteSpecificTrendingShows`) include the new `providerId` parameter introduced for multi-provider support. This resolves unit test compilation failures.
 
 ---
 
-### UI Components
+### App Startup Performance Fixes (Production)
 
-#### [MODIFY] `app/src/main/java/com/theupnextapp/ui/explore/ExploreScreen.kt`
-- Replace hardcoded `listOf("Trending", "Popular", "Anticipated")` with `listOf(stringResource(R.string.title_trending_shows), stringResource(R.string.title_popular_shows), stringResource(R.string.title_anticipated_shows))`.
+#### [MODIFY] [UpnextApplication.kt](file:///Users/ahmedtikiwa/upnext4/app/src/main/java/com/theupnextapp/UpnextApplication.kt)
+- Wrap `traktRepository` with `dagger.Lazy<TraktRepository>` to defer the instantiation of the entire network and database DI graph until the background worker thread actually accesses it.
+- Remove the completely unused `traktAuthManager` injection from `UpnextApplication`, eliminating unnecessary DI overhead during the critical `onCreate()` path.
+- Verify `initializeBackgroundTasks()` executes properly without blocking the main thread.
 
-#### [MODIFY] `app/src/main/java/com/theupnextapp/ui/showDetail/ShowDetailScreen.kt`
-- Replace hardcoded `"Where to Watch"` with `stringResource(id = R.string.show_detail_where_to_watch)`.
+#### [MODIFY] [DashboardViewModel.kt](file:///Users/ahmedtikiwa/upnext4/app/src/main/java/com/theupnextapp/ui/dashboard/DashboardViewModel.kt)
+- Move `SimklSyncWorker` enqueue logic to a background coroutine to prevent WorkManager's internal SQLite database accesses from blocking the UI thread during view model initialization.
 
-#### [MODIFY] `app/src/main/java/com/theupnextapp/ui/traktAccount/TraktAccountScreen.kt`
-- Replace hardcoded `"Unlock Personalization"` with `stringResource(id = R.string.trakt_unlock_personalization)`.
-- Replace hardcoded `"Connect your Trakt account to..."` with `stringResource(id = R.string.trakt_connect_benefits)`.
+---
+
+### Macrobenchmark & CI Integration
+
+#### [MODIFY] [SimklPerformanceBenchmark.kt](file:///Users/ahmedtikiwa/upnext4/baselineprofile/src/main/java/com/theupnextapp/baselineprofile/SimklPerformanceBenchmark.kt)
+- Enhance the trace section metrics to accurately measure `SimklDashboardFetch` and report custom trace telemetry.
+
+#### [NEW] [performance_benchmarks.yml](file:///Users/ahmedtikiwa/upnext4/.github/workflows/performance_benchmarks.yml)
+- Create a new GitHub Actions workflow to run the Macrobenchmark suite automatically on a weekly schedule and on PRs modifying core architecture, leveraging `ubuntu-latest` and hardware-accelerated emulators.
+
+---
+
+### SIMKL Sync Loop Hardening
+
+#### [MODIFY] [SimklSyncWorker.kt](file:///Users/ahmedtikiwa/upnext4/core/data/src/main/java/com/theupnextapp/work/SimklSyncWorker.kt)
+- Wrap `simklSyncManager.sync(token)` in a `Mutex` or `Mutex`-like synchronization block within `SimklSyncManager` to ensure thread safety if multiple syncs trigger simultaneously.
 
 ## Verification Plan
 
 ### Automated Tests
-- Run `./gradlew testDebugUnitTest` to ensure no UI snapshot tests or logic tests are broken by the string changes.
-- Ensure `./gradlew ktlintCheck detekt` continues to pass, given the import/code modifications.
+- `./gradlew :app:connectedDebugAndroidTest` (Run UI and migration tests)
+- `./gradlew :app:testDebugUnitTest` (Verify FakeTraktDao fixes)
+- `./gradlew :baselineprofile:connectedAndroidTest` (Verify Macrobenchmark execution)
 
 ### Manual Verification
-Ensure that no instrumented UI tests fail as a result of the network changes.
+- Deploy to an emulator/device and monitor the logcat for `Choreographer` skipped frames during app startup.
+- Review Firebase Crashlytics and Google Play Console (via mock/local analysis) for regression metrics.
