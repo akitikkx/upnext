@@ -1,6 +1,8 @@
-name: Pull Request
+name: CI
 
 on:
+  push:
+    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
@@ -120,6 +122,63 @@ jobs:
           name: instrumented-test-report
           path: '**/build/reports/androidTests/'
           
+      - name: Remove generated local.properties file
+        run: |
+          rm "${GITHUB_WORKSPACE}/local.properties"
+          
+      - name: Remove generated google-services.json file
+        run: |
+          rm ./app/google-services.json
+
+  benchmark:
+    name: Performance Benchmarks
+    needs: [verify, ui-tests]
+    runs-on: macos-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v5
+        with:
+          java-version: 17
+          distribution: 'zulu'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Create a copy of the local.properties from the example file
+        run: |
+          cp "${GITHUB_WORKSPACE}/local.properties.example" "${GITHUB_WORKSPACE}/local.properties"
+          chmod u+x "${GITHUB_WORKSPACE}/local.properties"
+          
+      - name: Create and configure google-services.json file
+        env:
+          GOOGLE_SERVICES: ${{ secrets.GOOGLE_SERVICES }}
+        run: echo $GOOGLE_SERVICES > app/google-services.json
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Run Macrobenchmarks
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 31
+          target: aosp_atd
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: true
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          script: ./gradlew :baselineprofile:connectedCheck --stacktrace
+
+      - name: Upload Benchmark Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: macrobenchmark-results
+          path: baselineprofile/build/outputs/connected_android_test_additional_output/
+
       - name: Remove generated local.properties file
         run: |
           rm "${GITHUB_WORKSPACE}/local.properties"
