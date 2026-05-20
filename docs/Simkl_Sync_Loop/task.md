@@ -21,7 +21,19 @@
 - `[x]` **Macrobenchmark & CI Integration**
     - `[x]` Refine `SimklPerformanceBenchmark.kt`.
     - `[x]` Create `.github/workflows/ci.yml` and configure benchmarks dependency.
+- `[x]` **Gzip Decompression Issues (TMDB Fix)**
+    - `[x]` Create `GzipDecompressionInterceptor` in `NetworkModule.kt` using lenient `GZIPInputStream`.
+    - `[x]` Register it as a **Network Interceptor** to intercept raw network responses before `BridgeInterceptor` strips encoding headers.
+    - `[x]` Add `GzipDecompressionInterceptorTest` to verify decompression, lenient trailing byte handling, and plain forwarding.
+- `[x]` **CI Runner Architecture Fix**
+    - `[x]` Update `.github/workflows/ci.yml` to change Macrobenchmark emulator runner architecture from `x86_64` to `arm64-v8a` for Apple Silicon `macos-latest` host compatibility.
 - `[x]` **Verification**
     - `[x]` Run unit tests (`testDebugUnitTest`).
-    - `[x]` Run Android tests (`assembleDebugAndroidTest` / `connectedDebugAndroidTest`).
+    - `[x]` Run full local verification: `ktlintCheck detekt lintDebug testDebugUnitTest assembleDebug assembleRelease`.
+- `[x]` **SIMKL Sync & Provider UI Improvements (Part 2)**
+    - `[x]` Update `posterUrl` mapping and filter in `SimklRepository.kt` to allow shows with valid posters and a SIMKL ID.
+    - `[x]` Update `SimklRepositoryTest.kt` to verify filtering of shows without posters.
+    - `[x]` Add `currentHistoryProvider` logic and cache clearing on provider switch to `DashboardViewModel.kt` to fix blank history.
+    - `[x]` Add active provider badge next to "My Upnext" on Dashboard Screen.
+    - `[x]` Update `BackdropAndTitle.kt` and `ShowDetailScreen.kt` to display provider subtitle.
 

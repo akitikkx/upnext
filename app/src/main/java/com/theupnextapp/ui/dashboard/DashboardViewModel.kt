@@ -131,6 +131,8 @@ constructor(
     private val _isLoadingHistory = MutableStateFlow(false)
     val isLoadingHistory: StateFlow<Boolean> = _isLoadingHistory.asStateFlow()
 
+    private var currentHistoryProvider: String? = null
+
     private val _recommendedShows =
         MutableStateFlow<NetworkTraktRecommendationsResponse?>(null)
     val recommendedShows: StateFlow<NetworkTraktRecommendationsResponse?> =
@@ -231,6 +233,11 @@ constructor(
     fun fetchDashboardHistoryData() {
         viewModelScope.launch {
             val provider = providerManager.activeProvider.firstOrNull() ?: com.theupnextapp.repository.ProviderManager.PROVIDER_TRAKT
+            if (currentHistoryProvider != provider) {
+                _recentHistory.value = null
+                _historyImages.value = emptyMap()
+                currentHistoryProvider = provider
+            }
             if (provider == com.theupnextapp.repository.ProviderManager.PROVIDER_SIMKL) {
                 val token = simklAuthManager.simklAccessToken.firstOrNull()?.accessToken
                 if (token != null && _recentHistory.value == null && !_isLoadingHistory.value) {

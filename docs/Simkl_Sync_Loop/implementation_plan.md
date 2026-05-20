@@ -84,3 +84,21 @@ This plan addresses the UI test failures, the app startup regression (623% slowe
 - Deploy to an emulator/device and verify that the TopAppBar shows the active provider subtitle correctly.
 - Verify that shows without IMDB/TVDB IDs are no longer displayed on the Dashboard/Explore screens.
 
+## Part 2: SIMKL Integration Fixes & Provider UI Improvements (Approved)
+
+This plan addresses the blank SIMKL Premieres section on the dashboard, the blank Trakt recent history after provider switches, and adds a subtle UI indicator for the active provider.
+
+### Proposed Changes
+
+#### SIMKL Show Filtering (Part 2)
+- [SimklRepository.kt](file:///Users/ahmedtikiwa/upnext4/core/data/src/main/java/com/theupnextapp/repository/SimklRepository.kt): Do not construct a URL if `networkShow.poster` is null or empty. Relax the filter in `refreshPremieres` and `refreshTrendingShows` to allow shows with a valid poster image and a `simkl_id`. Filter criteria: `!it.mediumImageUrl.isNullOrEmpty() && (!it.imdbID.isNullOrEmpty() || it.tvdbID != null || it.id != null)`.
+- [SimklRepositoryTest.kt](file:///Users/ahmedtikiwa/upnext4/core/data/src/test/java/com/theupnextapp/repository/SimklRepositoryTest.kt): Update unit tests to reflect the new mapping and filtering logic.
+
+#### Dashboard History Sync & Switching (Part 2)
+- [DashboardViewModel.kt](file:///Users/ahmedtikiwa/upnext4/app/src/main/java/com/theupnextapp/ui/dashboard/DashboardViewModel.kt): Keep track of `currentHistoryProvider` and clear cache (`_recentHistory.value = null` and `_historyImages.value = emptyMap()`) on provider changes.
+
+#### UI Provider Indicators (Part 2)
+- [DashboardScreen.kt](file:///Users/ahmedtikiwa/upnext4/app/src/main/java/com/theupnextapp/ui/dashboard/DashboardScreen.kt): In the "My Upnext" section header, add a subtle, modern badge indicating the active provider ("Trakt" or "SIMKL").
+- [ShowDetailScreen.kt](file:///Users/ahmedtikiwa/upnext4/app/src/main/java/com/theupnextapp/ui/showDetail/ShowDetailScreen.kt) / [BackdropAndTitle.kt](file:///Users/ahmedtikiwa/upnext4/app/src/main/java/com/theupnextapp/ui/showDetail/BackdropAndTitle.kt): Pass `activeProvider` to `BackdropAndTitle` and display a subtle subtitle "via Trakt" or "via SIMKL" next to show status/certification.
+
+

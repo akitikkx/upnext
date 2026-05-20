@@ -120,7 +120,7 @@ class SimklRepositoryTest {
     }
 
     @Test
-    fun `refreshPremieres filters out shows without imdbId or tvdbId`() = runTest {
+    fun `refreshPremieres filters out shows without poster`() = runTest {
         val validShow = com.theupnextapp.network.models.simkl.NetworkSimklTrendingResponse(
             title = "Valid Show",
             year = 2026,
@@ -131,7 +131,7 @@ class SimklRepositoryTest {
             title = "Invalid Show",
             year = 2026,
             ids = com.theupnextapp.network.models.simkl.NetworkSimklIds(simklId = 2, imdbId = null, tmdbId = null, tvdbId = null),
-            poster = "poster2"
+            poster = null
         )
         whenever(simklService.getPremieres(org.mockito.kotlin.anyOrNull())).thenReturn(Response.success(listOf(validShow, invalidShow)))
 

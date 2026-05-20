@@ -67,3 +67,19 @@ The following implementation steps successfully stabilized the SIMKL sync pipeli
   ./gradlew ktlintCheck detekt lintDebug testDebugUnitTest assembleDebug assembleRelease
   ```
   Completed successfully in `12m 46s` with a zero-exit status.
+
+## 8. SIMKL Integration Fixes & Provider UI Improvements (Part 2)
+
+**Changes Made:**
+- **SIMKL Show Filtering**: Updated `posterUrl` mapping and filter logic in `SimklRepository.kt` to only construct poster URLs if `networkShow.poster` is not null or empty. Relaxed the filter to check `!it.mediumImageUrl.isNullOrEmpty() && (!it.imdbID.isNullOrEmpty() || it.tvdbID != null || it.id != null)`. This prevents stub shows with empty posters from showing on the dashboard while keeping valid premieres with a SIMKL ID.
+- **Unit Test Updates**: Updated `SimklRepositoryTest.kt` (`refreshPremieres filters out shows without poster`) to verify the new filtering behavior.
+- **Dashboard History Switching**: Added `currentHistoryProvider` state to `DashboardViewModel.kt` to track which provider's history is currently loaded. When switching providers, the cache (`_recentHistory` and `_historyImages`) is cleared, forcing a fresh history fetch for the active provider.
+- **UI Provider Indicators**:
+  - Added a modern active provider badge (M3 `Surface`) next to the "My Upnext" header on the Dashboard Screen.
+  - Passed `activeProvider` to `BackdropAndTitle` and rendered a subtitle "via [Provider]" next to show status/certification on the Show Detail Screen.
+
+## Validation Results (Part 2)
+
+- ✔️ `./gradlew :app:testDebugUnitTest --tests "com.theupnextapp.ui.dashboard.DashboardViewModelTest"` completed successfully.
+- ✔️ `./gradlew :core:data:testDebugUnitTest --tests "com.theupnextapp.repository.SimklRepositoryTest"` completed successfully.
+

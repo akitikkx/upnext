@@ -103,9 +103,9 @@ class SimklRepository @Inject constructor(
 
             if (response.isSuccessful && response.body() != null) {
                 val mappedShows = response.body()!!.map { networkShow ->
-                    val posterUrl = networkShow.poster?.let { 
-                        if (it.startsWith("http")) it else "https://simkl.in/posters/${it}_m.webp" 
-                    }
+                    val posterUrl = if (!networkShow.poster.isNullOrEmpty()) {
+                        if (networkShow.poster.startsWith("http")) networkShow.poster else "https://simkl.in/posters/${networkShow.poster}_m.webp"
+                    } else null
                     TrendingShow(
                         id = networkShow.ids?.simklId,
                         title = networkShow.title,
@@ -118,7 +118,7 @@ class SimklRepository @Inject constructor(
                         tvMazeID = null, // SIMKL may not return TVMaze
                         providerId = providerId
                     )
-                }.filter { !it.imdbID.isNullOrEmpty() || it.tvdbID != null }
+                }.filter { !it.mediumImageUrl.isNullOrEmpty() && (!it.imdbID.isNullOrEmpty() || it.tvdbID != null || it.id != null) }
                 _trendingShows.value = mappedShows
             }
         } catch (e: Exception) {
@@ -140,9 +140,9 @@ class SimklRepository @Inject constructor(
 
             if (response.isSuccessful && response.body() != null) {
                 val mappedShows = response.body()!!.map { networkShow ->
-                    val posterUrl = networkShow.poster?.let { 
-                        if (it.startsWith("http")) it else "https://simkl.in/posters/${it}_m.webp" 
-                    }
+                    val posterUrl = if (!networkShow.poster.isNullOrEmpty()) {
+                        if (networkShow.poster.startsWith("http")) networkShow.poster else "https://simkl.in/posters/${networkShow.poster}_m.webp"
+                    } else null
                     TrendingShow(
                         id = networkShow.ids?.simklId,
                         title = networkShow.title,
@@ -155,7 +155,7 @@ class SimklRepository @Inject constructor(
                         tvMazeID = null, // SIMKL may not return TVMaze
                         providerId = providerId
                     )
-                }.filter { !it.imdbID.isNullOrEmpty() || it.tvdbID != null }
+                }.filter { !it.mediumImageUrl.isNullOrEmpty() && (!it.imdbID.isNullOrEmpty() || it.tvdbID != null || it.id != null) }
                 _premieresShows.value = mappedShows
             }
         } catch (e: Exception) {

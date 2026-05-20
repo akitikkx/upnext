@@ -427,6 +427,7 @@ private fun CompactDetailArea(
                     showDetailArgs = showDetailArgs,
                     showSummary = uiState.showSummary,
                     certification = uiState.certification,
+                    activeProvider = activeProvider,
                     onBack = onBack,
                 )
                 Box(modifier = Modifier.widthIn(max = 600.dp).fillMaxWidth()) {
@@ -456,7 +457,12 @@ private fun CompactDetailArea(
                     }
                 }
             } else if (showDetailArgs.showImageUrl != null || showDetailArgs.showBackgroundUrl != null) {
-                BackdropAndTitle(showDetailArgs = showDetailArgs, showSummary = null, onBack = onBack)
+                BackdropAndTitle(
+                    showDetailArgs = showDetailArgs,
+                    showSummary = null,
+                    activeProvider = activeProvider,
+                    onBack = onBack,
+                )
             }
 
             showRating?.let { ratingData ->
