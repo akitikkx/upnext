@@ -47,10 +47,15 @@ import okhttp3.Cache
 import okhttp3.ConnectionPool
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.Response
+import okhttp3.ResponseBody.Companion.asResponseBody
 import okhttp3.logging.HttpLoggingInterceptor
+import okio.buffer
+import okio.source
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
+import java.util.zip.GZIPInputStream
 import javax.inject.Singleton
 
 @Module
@@ -100,6 +105,7 @@ object NetworkModule {
                     }
                 },
             )
+            .addInterceptor(GzipDecompressionInterceptor())
             .connectTimeout(CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .retryOnConnectionFailure(true)
             .readTimeout(READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)
@@ -204,5 +210,31 @@ object NetworkModule {
             .addCallAdapterFactory(CoroutineCallAdapterFactory())
             .build()
             .create(com.theupnextapp.network.SimklService::class.java)
+    }
+}
+
+class GzipDecompressionInterceptor : Interceptor {
+    override fun intercept(chain: Interceptor.Chain): Response {
+        val response = chain.proceed(chain.request())
+        val body = response.body
+        if ("gzip".equals(response.header("Content-Encoding"), ignoreCase = true)) {
+            val gzipInputStream = try {
+                GZIPInputStream(body.source().inputStream())
+            } catch (e: Exception) {
+                return response
+            }
+
+            val decompressedSource = gzipInputStream.source().buffer()
+            val newHeaders = response.headers.newBuilder()
+                .removeAll("Content-Encoding")
+                .removeAll("Content-Length")
+                .build()
+
+            return response.newBuilder()
+                .headers(newHeaders)
+                .body(decompressedSource.asResponseBody(body.contentType(), -1))
+                .build()
+        }
+        return response
     }
 }
