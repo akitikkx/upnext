@@ -4,6 +4,7 @@ import com.theupnextapp.core.data.BuildConfig
 import okhttp3.Interceptor
 import okhttp3.Protocol
 import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -39,7 +40,7 @@ class TraktConnectionInterceptorTest {
         val originalRequest = Request.Builder()
             .url("https://api.trakt.tv/shows/trending")
             // Intentionally add a dummy method to ensure it's preserved
-            .post(okhttp3.RequestBody.create(null, ""))
+            .post("".toRequestBody(null))
             .build()
 
         val mockResponse = Response.Builder()

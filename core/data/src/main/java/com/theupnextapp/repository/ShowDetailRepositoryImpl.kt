@@ -39,6 +39,7 @@ import com.theupnextapp.domain.TraktCrew
 import com.theupnextapp.domain.safeApiCall
 import com.theupnextapp.network.TmdbService
 import com.theupnextapp.network.TraktService
+import com.theupnextapp.network.TvMazeRateLimiter
 import com.theupnextapp.network.TvMazeService
 import com.theupnextapp.network.models.tmdb.NetworkTmdbPersonImagesResponse
 import com.theupnextapp.network.models.tmdb.NetworkTmdbPersonTvCreditsResponse
@@ -59,15 +60,17 @@ class ShowDetailRepositoryImpl(
     upnextDao: UpnextDao,
     tvMazeService: TvMazeService,
     private val traktService: TraktService,
-    private val tmdbService: TmdbService,
+    tmdbService: TmdbService,
     private val crashlytics: CrashlyticsHelper,
-) : BaseRepository(upnextDao = upnextDao, tvMazeService = tvMazeService), ShowDetailRepository {
+) : BaseRepository(upnextDao = upnextDao, tvMazeService = tvMazeService, tmdbService = tmdbService), ShowDetailRepository {
     override fun getShowSummary(showId: Int): Flow<Result<ShowDetailSummary>> {
         return flow {
             emit(Result.Loading(true))
             val response =
                 safeApiCall(Dispatchers.IO) {
-                    tvMazeService.getShowSummaryAsync(showId.toString()).await().asDomainModel()
+                    TvMazeRateLimiter.acquire(isHighPriority = true) {
+                        tvMazeService.getShowSummaryAsync(showId.toString()).await().asDomainModel()
+                    }
                 }
 
             when (response) {
@@ -93,7 +96,33 @@ class ShowDetailRepositoryImpl(
             emit(Result.Loading(true))
             val response =
                 safeApiCall(Dispatchers.IO) {
-                    tvMazeService.getShowLookupAsync(imdbId).await()
+                    TvMazeRateLimiter.acquire(isHighPriority = true) { tvMazeService.getShowLookupAsync(imdbId).await() }
+                }
+
+            when (response) {
+                is Result.NetworkError -> crashlytics.recordException(response.exception)
+                is Result.GenericError -> crashlytics.recordException(response.exception)
+                is Result.Error -> response.exception?.let { crashlytics.recordException(it) }
+                else -> { /* No action for Success or Loading */ }
+            }
+
+            emit(Result.Loading(false))
+            emit(response)
+        }
+            .catch {
+                crashlytics.recordException(it)
+                emit(Result.Loading(false))
+                emit(Result.Error(it, "An unexpected error occurred in the repository flow."))
+            }
+            .flowOn(Dispatchers.IO)
+    }
+
+    override fun getShowLookupByTvdb(tvdbId: Int): Flow<Result<NetworkTvMazeShowLookupResponse>> {
+        return flow {
+            emit(Result.Loading(true))
+            val response =
+                safeApiCall(Dispatchers.IO) {
+                    TvMazeRateLimiter.acquire(isHighPriority = true) { tvMazeService.getShowLookupByTvdbAsync(tvdbId).await() }
                 }
 
             when (response) {
@@ -126,9 +155,11 @@ class ShowDetailRepositoryImpl(
             if (!previousEpisodeLink.isNullOrEmpty()) {
                 val response =
                     safeApiCall(Dispatchers.IO) {
-                        tvMazeService.getPreviousEpisodeAsync(
-                            previousEpisodeLink.replace("/", ""),
-                        ).await().asDomainModel()
+                        TvMazeRateLimiter.acquire(isHighPriority = true) {
+                            tvMazeService.getPreviousEpisodeAsync(
+                                previousEpisodeLink.replace("/", ""),
+                            ).await().asDomainModel()
+                        }
                     }
 
                 when (response) {
@@ -164,9 +195,11 @@ class ShowDetailRepositoryImpl(
             if (!nextEpisodeLink.isNullOrEmpty()) {
                 val response =
                     safeApiCall(Dispatchers.IO) {
-                        tvMazeService.getNextEpisodeAsync(
-                            nextEpisodeLink.replace("/", ""),
-                        ).await().asDomainModel()
+                        TvMazeRateLimiter.acquire(isHighPriority = true) {
+                            tvMazeService.getNextEpisodeAsync(
+                                nextEpisodeLink.replace("/", ""),
+                            ).await().asDomainModel()
+                        }
                     }
 
                 when (response) {
@@ -195,7 +228,7 @@ class ShowDetailRepositoryImpl(
             emit(Result.Loading(true))
             val response =
                 safeApiCall(Dispatchers.IO) {
-                    tvMazeService.getShowCastAsync(showId.toString()).await().asDomainModel()
+                    TvMazeRateLimiter.acquire(isHighPriority = true) { tvMazeService.getShowCastAsync(showId.toString()).await().asDomainModel() }
                 }
 
             when (response) {
@@ -221,7 +254,7 @@ class ShowDetailRepositoryImpl(
             emit(Result.Loading(true))
             val response =
                 safeApiCall(Dispatchers.IO) {
-                    tvMazeService.getShowSeasonsAsync(showId.toString()).await().asDomainModel()
+                    TvMazeRateLimiter.acquire(isHighPriority = true) { tvMazeService.getShowSeasonsAsync(showId.toString()).await().asDomainModel() }
                 }
 
             when (response) {
@@ -250,8 +283,10 @@ class ShowDetailRepositoryImpl(
             emit(Result.Loading(true))
             val response =
                 safeApiCall(Dispatchers.IO) {
-                    tvMazeService.getSeasonEpisodesAsync(showId.toString()).await().asDomainModel()
-                        .filter { it.season == seasonNumber }
+                    TvMazeRateLimiter.acquire(isHighPriority = true) {
+                        tvMazeService.getSeasonEpisodesAsync(showId.toString()).await().asDomainModel()
+                            .filter { it.season == seasonNumber }
+                    }
                 }
 
             when (response) {

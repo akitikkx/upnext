@@ -42,12 +42,13 @@ constructor(
     private val traktDao: TraktDao,
     upnextDao: UpnextDao,
     tvMazeService: TvMazeService,
+    tmdbService: com.theupnextapp.network.TmdbService,
     firebaseCrashlytics: FirebaseCrashlytics,
-) : BaseTraktDataSource(upnextDao, tvMazeService, firebaseCrashlytics) {
+) : BaseTraktDataSource(upnextDao, tvMazeService, tmdbService, firebaseCrashlytics) {
     suspend fun getAccessToken(code: String): Result<TraktAccessToken> {
         if (code.isEmpty()) {
             val message = "Attempted to get access token with empty code."
-            logTraktException(message)
+            logProviderException(message)
             return Result.failure(IllegalArgumentException(message))
         }
 
@@ -70,7 +71,7 @@ constructor(
     suspend fun revokeAccessToken(token: String): Result<Unit> {
         if (token.isEmpty()) {
             val message = "Attempted to revoke access token with empty token string."
-            logTraktException(message)
+            logProviderException(message)
             return Result.failure(IllegalArgumentException(message))
         }
 
@@ -90,7 +91,7 @@ constructor(
     suspend fun getAccessRefreshToken(refreshToken: String?): Result<TraktAccessToken> {
         if (refreshToken.isNullOrEmpty()) {
             val message = "Attempted to refresh access token with null or empty refresh token."
-            logTraktException(message)
+            logProviderException(message)
             return Result.failure(IllegalArgumentException(message))
         }
 

@@ -15,10 +15,14 @@ package com.theupnextapp.ui.episodeDetail
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.SavedStateHandle
 import com.theupnextapp.CoroutineTestRule
+import com.theupnextapp.common.utils.TraktAuthManager
 import com.theupnextapp.domain.EpisodeDetail
 import com.theupnextapp.domain.Result
+import com.theupnextapp.domain.TraktAuthState
 import com.theupnextapp.navigation.Destinations
+import com.theupnextapp.repository.ProviderManager
 import com.theupnextapp.repository.ShowDetailRepository
+import com.theupnextapp.repository.SimklAuthManager
 import com.theupnextapp.repository.TraktRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -56,6 +60,15 @@ class EpisodeDetailViewModelTest {
     @Mock
     private lateinit var traktRepository: TraktRepository
 
+    @Mock
+    private lateinit var providerManager: ProviderManager
+
+    @Mock
+    private lateinit var traktAuthManager: TraktAuthManager
+
+    @Mock
+    private lateinit var simklAuthManager: SimklAuthManager
+
     @Before
     fun setUp() {
         savedStateHandle =
@@ -73,7 +86,9 @@ class EpisodeDetailViewModelTest {
             kotlinx.coroutines.flow.emptyFlow(),
         )
         `when`(traktRepository.traktCheckInEvent).thenReturn(MutableSharedFlow())
-        `when`(traktRepository.isAuthorizedOnTrakt()).thenReturn(MutableStateFlow(false))
+        `when`(providerManager.activeProvider).thenReturn(MutableStateFlow(ProviderManager.PROVIDER_TRAKT))
+        `when`(traktAuthManager.traktAuthState).thenReturn(MutableStateFlow(TraktAuthState.LoggedOut))
+        `when`(simklAuthManager.simklAccessToken).thenReturn(MutableStateFlow(null))
     }
 
     @Test
@@ -98,7 +113,7 @@ class EpisodeDetailViewModelTest {
                 flowOf(Result.Loading(true), Result.Success(mockEpisode)),
             )
 
-            viewModel = EpisodeDetailViewModel(savedStateHandle, showDetailRepository, traktRepository)
+            viewModel = EpisodeDetailViewModel(savedStateHandle, showDetailRepository, traktRepository, providerManager, traktAuthManager, simklAuthManager)
             advanceUntilIdle()
 
             val finalState = viewModel.uiState.value
@@ -118,7 +133,7 @@ class EpisodeDetailViewModelTest {
                 flowOf(Result.Loading(true), Result.GenericError(404, null, mockException)),
             )
 
-            viewModel = EpisodeDetailViewModel(savedStateHandle, showDetailRepository, traktRepository)
+            viewModel = EpisodeDetailViewModel(savedStateHandle, showDetailRepository, traktRepository, providerManager, traktAuthManager, simklAuthManager)
             advanceUntilIdle()
 
             val finalState = viewModel.uiState.value
@@ -149,7 +164,7 @@ class EpisodeDetailViewModelTest {
                 flowOf(Result.Loading(true), Result.Success(mockEpisode)),
             )
 
-            viewModel = EpisodeDetailViewModel(savedStateHandle, showDetailRepository, traktRepository)
+            viewModel = EpisodeDetailViewModel(savedStateHandle, showDetailRepository, traktRepository, providerManager, traktAuthManager, simklAuthManager)
 
             // Bypass SavedStateHandle's bundle mapping issues with kotlinx.serialization Navigation 2.8 in tests
             val routeField = EpisodeDetailViewModel::class.java.getDeclaredField("route")
@@ -165,17 +180,17 @@ class EpisodeDetailViewModelTest {
         }
 
     @Test
-    fun `when repository emits authorized state, uiState updates isAuthorizedOnTrakt`() =
+    fun `when repository emits authorized state, uiState updates isAuthorizedOnProvider`() =
         runTest {
             `when`(showDetailRepository.getEpisodeDetails(anyInt(), anyInt(), anyInt())).thenReturn(
                 flowOf(Result.Loading(true)),
             )
-            `when`(traktRepository.isAuthorizedOnTrakt()).thenReturn(MutableStateFlow(true))
+            `when`(traktAuthManager.traktAuthState).thenReturn(MutableStateFlow(TraktAuthState.LoggedIn))
 
-            viewModel = EpisodeDetailViewModel(savedStateHandle, showDetailRepository, traktRepository)
+            viewModel = EpisodeDetailViewModel(savedStateHandle, showDetailRepository, traktRepository, providerManager, traktAuthManager, simklAuthManager)
             advanceUntilIdle()
 
             val finalState = viewModel.uiState.value
-            assertEquals(true, finalState.isAuthorizedOnTrakt)
+            assertEquals(true, finalState.isAuthorizedOnProvider)
         }
 }

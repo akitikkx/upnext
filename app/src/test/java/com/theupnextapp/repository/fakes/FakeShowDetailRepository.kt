@@ -61,6 +61,8 @@ class FakeShowDetailRepository : ShowDetailRepository {
 
     override fun getShowLookup(imdbId: String): Flow<Result<NetworkTvMazeShowLookupResponse>> = flowOf(showLookupResult)
 
+    override fun getShowLookupByTvdb(tvdbId: Int): Flow<Result<NetworkTvMazeShowLookupResponse>> = flowOf(showLookupResult)
+
     override fun getPreviousEpisode(episodeRef: String?): Flow<Result<ShowPreviousEpisode>> = flowOf(previousEpisodeResult)
 
     override fun getNextEpisode(episodeRef: String?): Flow<Result<ShowNextEpisode>> = flowOf(nextEpisodeResult)

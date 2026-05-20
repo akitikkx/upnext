@@ -79,6 +79,7 @@ object RepositoryModule {
         upnextDao: UpnextDao,
         traktDao: TraktDao,
         tvMazeService: TvMazeService,
+        tmdbService: TmdbService,
         traktAuthDataSource: TraktAuthDataSource,
         traktRecommendationsDataSource: TraktRecommendationsDataSource,
         traktAccountDataSource: TraktAccountDataSource,
@@ -87,6 +88,7 @@ object RepositoryModule {
             upnextDao = upnextDao,
             traktDao = traktDao,
             tvMazeService = tvMazeService,
+            tmdbService = tmdbService,
             traktAuthDataSource = traktAuthDataSource,
             traktRecommendationsDataSource = traktRecommendationsDataSource,
             traktAccountDataSource = traktAccountDataSource,
@@ -111,12 +113,14 @@ object RepositoryModule {
         upnextDao: UpnextDao,
         tvMazeDao: TvMazeDao,
         tvMazeService: TvMazeService,
+        tmdbService: TmdbService,
         crashlyticsHelper: CrashlyticsHelper,
     ): DashboardRepository {
         return DashboardRepositoryImpl(
             upnextDao = upnextDao,
             tvMazeDao = tvMazeDao,
             tvMazeService = tvMazeService,
+            tmdbService = tmdbService,
             firebaseCrashlytics = crashlyticsHelper,
         )
     }

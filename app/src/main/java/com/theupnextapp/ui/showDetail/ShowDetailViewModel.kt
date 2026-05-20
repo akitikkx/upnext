@@ -69,12 +69,16 @@ import javax.inject.Inject
 
 @HiltViewModel
 @OptIn(ExperimentalCoroutinesApi::class)
+@Suppress("LargeClass")
 class ShowDetailViewModel
     @Inject
     constructor(
         private val showDetailRepository: ShowDetailRepository,
         private val workManager: WorkManager,
         private val traktRepository: TraktRepository,
+        private val simklRepository: com.theupnextapp.repository.SimklRepository,
+        private val providerManager: com.theupnextapp.repository.ProviderManager,
+        private val simklAuthManager: com.theupnextapp.repository.SimklAuthManager,
         private val firebaseCrashlytics: FirebaseCrashlytics,
         private val firebaseAnalytics: FirebaseAnalytics,
         val traktAuthManager: TraktAuthManager,
@@ -162,6 +166,29 @@ class ShowDetailViewModel
                     SharingStarted.WhileSubscribed(5000L),
                     null,
                 )
+
+        val activeProvider: StateFlow<String> = providerManager.activeProvider
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5000L),
+                com.theupnextapp.repository.ProviderManager.PROVIDER_TRAKT
+            )
+
+        val isAuthorizedOnProvider: StateFlow<Boolean> = combine(
+            activeProvider,
+            traktAuthManager.traktAuthState,
+            simklAuthManager.simklAccessToken
+        ) { provider, traktState, simklToken ->
+            if (provider == com.theupnextapp.repository.ProviderManager.PROVIDER_SIMKL) {
+                simklToken != null
+            } else {
+                traktState == com.theupnextapp.domain.TraktAuthState.LoggedIn
+            }
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000L),
+            false
+        )
 
         private val _traktId = MutableStateFlow<Int?>(null)
         val traktId: StateFlow<Int?> = _traktId.asStateFlow()
@@ -347,15 +374,89 @@ class ShowDetailViewModel
                 } else {
                     // showId (TVMaze ID) is null or invalid — try to resolve via IMDB lookup
                     val imdbId = show.imdbID
-                    if (!imdbId.isNullOrEmpty()) {
+                    val tvdbId = show.tvdbID
+                    val simklID = show.simklID
+                    if (simklID != null) {
+                        Timber.d("showId is null/missing, attempting SIMKL lookup for: $simklID")
+                        resolveShowViaSimklLookup(simklID, show)
+                    } else if (!imdbId.isNullOrEmpty()) {
                         Timber.d("showId is null/missing, attempting IMDB lookup for: $imdbId")
                         resolveShowViaImdbLookup(imdbId, show)
+                    } else if (tvdbId != null) {
+                        Timber.d("showId and imdbId are null/missing, attempting TVDB lookup for: $tvdbId")
+                        resolveShowViaTvdbLookup(tvdbId, show)
                     } else {
                         _isLoading.value = false
                         _uiState.update {
                             it.copy(
                                 isLoadingSummary = false,
-                                generalErrorMessage = "This show is missing a required TVMaze or IMDB ID.",
+                                generalErrorMessage = "This show is missing a required TVMaze, IMDB, or TVDB ID.",
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        private suspend fun resolveShowViaSimklLookup(
+            simklId: Int,
+            show: ShowDetailArg,
+        ) {
+            val result = simklRepository.getShowSummary(simklId)
+            if (result.isSuccess) {
+                val data = result.getOrNull()
+                val fetchedImdb = data?.ids?.imdbId
+                val fetchedTvdb = data?.ids?.tvdbId?.toIntOrNull()
+                if (!fetchedImdb.isNullOrEmpty() || fetchedTvdb != null) {
+                    Timber.d("Resolved SIMKL $simklId to IMDB: $fetchedImdb, TVDB: $fetchedTvdb")
+                    getShowSummary(show.copy(imdbID = fetchedImdb, tvdbID = fetchedTvdb, simklID = null))
+                } else {
+                    Timber.w("Failed to resolve IMDB/TVDB for SIMKL ID: $simklId")
+                    _isLoading.value = false
+                    _uiState.update {
+                        it.copy(
+                            isLoadingSummary = false,
+                            generalErrorMessage = "This show is not available for detailed viewing yet.",
+                        )
+                    }
+                }
+            } else {
+                Timber.w("Failed to resolve SIMKL ID: $simklId. Error: ${result.exceptionOrNull()?.message}")
+                _isLoading.value = false
+                _uiState.update {
+                    it.copy(
+                        isLoadingSummary = false,
+                        generalErrorMessage = "This show is not available for detailed viewing yet.",
+                    )
+                }
+            }
+        }
+
+        private suspend fun resolveShowViaTvdbLookup(
+            tvdbId: Int,
+            show: ShowDetailArg,
+        ) {
+            showDetailRepository.getShowLookupByTvdb(tvdbId).collect { result ->
+                when (result) {
+                    is Result.Success -> {
+                        val tvMazeId = result.data.id
+                        Timber.d("Resolved TVDB $tvdbId to TVMaze ID: $tvMazeId")
+                        // Re-invoke getShowSummary with the resolved TVMaze ID
+                        getShowSummary(show.copy(showId = tvMazeId.toString()))
+                    }
+
+                    is Result.Loading -> {
+                        // Already showing loading state from getShowSummary
+                    }
+
+                    else -> {
+                        Timber.w("Failed to resolve TVMaze ID for TVDB: $tvdbId")
+                        _isLoading.value = false
+                        _uiState.update {
+                            it.copy(
+                                isLoadingSummary = false,
+                                generalErrorMessage =
+                                    "This show is not available for detailed viewing yet.",
                             )
                         }
                     }
@@ -720,7 +821,7 @@ class ShowDetailViewModel
 
         fun onSimilarShowClicked(show: TraktRelatedShows) {
             viewModelScope.launch(Dispatchers.IO) {
-                launchShowDetail(show.imdbID, show.title, show.traktID)
+                launchShowDetail(show.imdbID, show.title, show.traktID, show.tvdbID)
             }
         }
 
@@ -728,12 +829,16 @@ class ShowDetailViewModel
             imdbId: String?,
             title: String?,
             traktId: Int?,
+            tvdbId: Int? = null,
         ) {
+            _uiState.update { it.copy(isSimilarShowsLoading = true) }
+
             if (!imdbId.isNullOrEmpty()) {
-                _uiState.update { it.copy(isSimilarShowsLoading = true) }
+                var success = false
                 showDetailRepository.getShowLookup(imdbId).collect { result ->
                     when (result) {
                         is Result.Success -> {
+                            success = true
                             val tvMazeId = result.data.id
                             val arg =
                                 ShowDetailArg(
@@ -749,19 +854,70 @@ class ShowDetailViewModel
                             _uiState.update { it.copy(isSimilarShowsLoading = false) }
                         }
                         is Result.Error, is Result.GenericError, is Result.NetworkError -> {
-                            _uiState.update {
-                                it.copy(
-                                    isSimilarShowsLoading = false,
-                                    generalErrorMessage = "Could not find show details",
-                                )
-                            }
+                            // Wait for collect to finish, fallback handled outside flow collect
                         }
                         is Result.Loading -> {
                         }
                     }
                 }
+                if (!success && tvdbId != null) {
+                    fallbackToTvdbLookup(tvdbId, title, imdbId, traktId)
+                } else if (!success) {
+                    _uiState.update {
+                        it.copy(
+                            isSimilarShowsLoading = false,
+                            generalErrorMessage = "Could not find show details",
+                        )
+                    }
+                }
+            } else if (tvdbId != null) {
+                fallbackToTvdbLookup(tvdbId, title, imdbId, traktId)
             } else {
-                _uiState.update { it.copy(generalErrorMessage = "No IMDB ID available for this show") }
+                _uiState.update {
+                    it.copy(
+                        isSimilarShowsLoading = false,
+                        generalErrorMessage = "No IMDB or TVDB ID available for this show"
+                    )
+                }
+            }
+        }
+
+        private suspend fun fallbackToTvdbLookup(
+            tvdbId: Int,
+            title: String?,
+            imdbId: String?,
+            traktId: Int?
+        ) {
+            var success = false
+            showDetailRepository.getShowLookupByTvdb(tvdbId).collect { result ->
+                when (result) {
+                    is Result.Success -> {
+                        success = true
+                        val tvMazeId = result.data.id
+                        val arg =
+                            ShowDetailArg(
+                                showId = tvMazeId.toString(),
+                                showTitle = title,
+                                showImageUrl = null,
+                                showBackgroundUrl = null,
+                                imdbID = imdbId,
+                                isAuthorizedOnTrakt = false,
+                                showTraktId = traktId,
+                            )
+                        _navigateToShowDetail.value = arg
+                        _uiState.update { it.copy(isSimilarShowsLoading = false) }
+                    }
+                    is Result.Error, is Result.GenericError, is Result.NetworkError -> { }
+                    is Result.Loading -> { }
+                }
+            }
+            if (!success) {
+                _uiState.update {
+                    it.copy(
+                        isSimilarShowsLoading = false,
+                        generalErrorMessage = "Could not find show details via TVDB either",
+                    )
+                }
             }
         }
 
@@ -775,90 +931,138 @@ class ShowDetailViewModel
 
         fun onAddRemoveWatchlistClick() {
             viewModelScope.launch {
-                val currentAccessToken = traktRepository.traktAccessToken.firstOrNull()
+                val activeProvider = providerManager.activeProvider.firstOrNull() ?: com.theupnextapp.repository.ProviderManager.PROVIDER_TRAKT
                 val currentWatchlistShow = observedWatchlistShow.value // Use source of truth
                 val currentShowSummary = uiState.value.showSummary
                 val imdbID = currentShowSummary?.imdbID
 
-                if (currentAccessToken != null && imdbID != null) {
-                    // Optimistic UI: toggle immediately
-                    val wasOnWatchlist = currentWatchlistShow != null
-                    _watchlistOverride.value = !wasOnWatchlist
+                if (activeProvider == com.theupnextapp.repository.ProviderManager.PROVIDER_SIMKL) {
+                    val currentSimklToken = simklAuthManager.simklAccessToken.firstOrNull()
+                    if (currentSimklToken != null && imdbID != null) {
+                        val wasOnWatchlist = currentWatchlistShow != null
+                        _watchlistOverride.value = !wasOnWatchlist
 
-                    if (currentWatchlistShow != null) {
-                        val workerDataBuilder = Data.Builder()
-                        currentWatchlistShow.traktID?.let {
-                            workerDataBuilder.putInt(RemoveFromWatchlistWorker.ARG_TRAKT_ID, it)
+                        if (currentWatchlistShow != null) {
+                            val workerDataBuilder = Data.Builder()
+                            currentWatchlistShow.traktID?.let { // Assuming SimklID can be fetched or we use imdbId for now
+                                workerDataBuilder.putInt(com.theupnextapp.work.SimklRemoveFromWatchlistWorker.ARG_SIMKL_ID, it)
+                            }
+                            workerDataBuilder.putString(
+                                com.theupnextapp.work.SimklRemoveFromWatchlistWorker.ARG_IMDB_ID,
+                                currentWatchlistShow.imdbID ?: imdbID,
+                            )
+                            workerDataBuilder.putString(
+                                com.theupnextapp.work.SimklRemoveFromWatchlistWorker.ARG_TOKEN,
+                                currentSimklToken.accessToken,
+                            )
+
+                            val removeWatchlistWork =
+                                OneTimeWorkRequest.Builder(com.theupnextapp.work.SimklRemoveFromWatchlistWorker::class.java)
+                                    .addTag(WORK_TAG_WATCHLIST_PREFIX + imdbID)
+                                    .setInputData(workerDataBuilder.build())
+                                    .build()
+                            workManager.enqueue(removeWatchlistWork)
+                        } else {
+                            val workerDataBuilder = Data.Builder()
+                            traktId.value?.let { workerDataBuilder.putInt(com.theupnextapp.work.SimklAddToWatchlistWorker.ARG_SIMKL_ID, it) }
+                            imdbID?.let { workerDataBuilder.putString(com.theupnextapp.work.SimklAddToWatchlistWorker.ARG_IMDB_ID, it) }
+                            workerDataBuilder.putString(
+                                com.theupnextapp.work.SimklAddToWatchlistWorker.ARG_TOKEN,
+                                currentSimklToken.accessToken,
+                            )
+
+                            val addWatchlistWork =
+                                OneTimeWorkRequest.Builder(com.theupnextapp.work.SimklAddToWatchlistWorker::class.java)
+                                    .addTag(WORK_TAG_WATCHLIST_PREFIX + imdbID)
+                                    .setInputData(workerDataBuilder.build())
+                                    .build()
+                            workManager.enqueue(addWatchlistWork)
                         }
-                        workerDataBuilder.putString(
-                            RemoveFromWatchlistWorker.ARG_IMDB_ID,
-                            currentWatchlistShow.imdbID ?: imdbID,
-                        )
-                        workerDataBuilder.putString(
-                            RemoveFromWatchlistWorker.ARG_TOKEN,
-                            currentAccessToken.access_token,
-                        )
-
-                        val removeWatchlistWork =
-                            OneTimeWorkRequest.Builder(RemoveFromWatchlistWorker::class.java)
-                                .addTag(WORK_TAG_WATCHLIST_PREFIX + imdbID)
-                                .setInputData(workerDataBuilder.build())
-                                .build()
-                        workManager.enqueue(removeWatchlistWork)
                     } else {
-                        val workerDataBuilder = Data.Builder()
-                        traktId.value?.let { workerDataBuilder.putInt(AddToWatchlistWorker.ARG_TRAKT_ID, it) }
-                        imdbID?.let { workerDataBuilder.putString(AddToWatchlistWorker.ARG_IMDB_ID, it) }
-                        workerDataBuilder.putString(
-                            AddToWatchlistWorker.ARG_TOKEN,
-                            currentAccessToken.access_token,
-                        )
-                        uiState.value.showSummary?.name?.let { workerDataBuilder.putString(AddToWatchlistWorker.ARG_TITLE, it) }
-                        uiState.value.showSummary?.originalImageUrl?.let {
-                            workerDataBuilder.putString(
-                                AddToWatchlistWorker.ARG_ORIGINAL_IMAGE_URL,
-                                it,
-                            )
-                        }
-                        uiState.value.showSummary?.mediumImageUrl?.let {
-                            workerDataBuilder.putString(
-                                AddToWatchlistWorker.ARG_MEDIUM_IMAGE_URL,
-                                it,
-                            )
-                        }
-                        uiState.value.showSummary?.id?.let {
-                            workerDataBuilder.putInt(AddToWatchlistWorker.ARG_TVMAZE_ID, it)
-                        }
-                        uiState.value.showSummary?.tmdbID?.let {
-                            workerDataBuilder.putInt(AddToWatchlistWorker.ARG_TMDB_ID, it)
-                        }
-                        uiState.value.showSummary?.premiered?.takeIf { it.length >= 4 }?.substring(0, 4)?.let {
-                            workerDataBuilder.putString(AddToWatchlistWorker.ARG_YEAR, it)
-                        }
-                        uiState.value.showSummary?.network?.let {
-                            workerDataBuilder.putString(AddToWatchlistWorker.ARG_NETWORK, it)
-                        }
-                        uiState.value.showSummary?.status?.let {
-                            workerDataBuilder.putString(AddToWatchlistWorker.ARG_STATUS, it)
-                        }
-                        val currentRating = showRating.value?.rating
-                        if (currentRating != null) {
-                            workerDataBuilder.putDouble(AddToWatchlistWorker.ARG_RATING, currentRating)
-                        }
-
-                        val addWatchlistWork =
-                            OneTimeWorkRequest.Builder(AddToWatchlistWorker::class.java)
-                                .addTag(WORK_TAG_WATCHLIST_PREFIX + imdbID)
-                                .setInputData(workerDataBuilder.build())
-                                .build()
-                        workManager.enqueue(addWatchlistWork)
+                        _uiState.update { it.copy(generalErrorMessage = "Please login to SIMKL") }
                     }
                 } else {
-                    if (currentAccessToken == null) {
-                        firebaseCrashlytics.log("Cannot add/remove watchlist: Trakt access token is null.")
-                        _uiState.update { it.copy(generalErrorMessage = "Please log in to Trakt to manage watchlists.") }
+                    val currentAccessToken = traktRepository.traktAccessToken.firstOrNull()
+                    if (currentAccessToken != null && imdbID != null) {
+                        // Optimistic UI: toggle immediately
+                        val wasOnWatchlist = currentWatchlistShow != null
+                        _watchlistOverride.value = !wasOnWatchlist
+
+                        if (currentWatchlistShow != null) {
+                            val workerDataBuilder = Data.Builder()
+                            currentWatchlistShow.traktID?.let {
+                                workerDataBuilder.putInt(RemoveFromWatchlistWorker.ARG_TRAKT_ID, it)
+                            }
+                            workerDataBuilder.putString(
+                                RemoveFromWatchlistWorker.ARG_IMDB_ID,
+                                currentWatchlistShow.imdbID ?: imdbID,
+                            )
+                            workerDataBuilder.putString(
+                                RemoveFromWatchlistWorker.ARG_TOKEN,
+                                currentAccessToken.access_token,
+                            )
+
+                            val removeWatchlistWork =
+                                OneTimeWorkRequest.Builder(RemoveFromWatchlistWorker::class.java)
+                                    .addTag(WORK_TAG_WATCHLIST_PREFIX + imdbID)
+                                    .setInputData(workerDataBuilder.build())
+                                    .build()
+                            workManager.enqueue(removeWatchlistWork)
+                        } else {
+                            val workerDataBuilder = Data.Builder()
+                            traktId.value?.let { workerDataBuilder.putInt(AddToWatchlistWorker.ARG_TRAKT_ID, it) }
+                            imdbID?.let { workerDataBuilder.putString(AddToWatchlistWorker.ARG_IMDB_ID, it) }
+                            workerDataBuilder.putString(
+                                AddToWatchlistWorker.ARG_TOKEN,
+                                currentAccessToken.access_token,
+                            )
+                            uiState.value.showSummary?.name?.let { workerDataBuilder.putString(AddToWatchlistWorker.ARG_TITLE, it) }
+                            uiState.value.showSummary?.originalImageUrl?.let {
+                                workerDataBuilder.putString(
+                                    AddToWatchlistWorker.ARG_ORIGINAL_IMAGE_URL,
+                                    it,
+                                )
+                            }
+                            uiState.value.showSummary?.mediumImageUrl?.let {
+                                workerDataBuilder.putString(
+                                    AddToWatchlistWorker.ARG_MEDIUM_IMAGE_URL,
+                                    it,
+                                )
+                            }
+                            uiState.value.showSummary?.id?.let {
+                                workerDataBuilder.putInt(AddToWatchlistWorker.ARG_TVMAZE_ID, it)
+                            }
+                            uiState.value.showSummary?.tmdbID?.let {
+                                workerDataBuilder.putInt(AddToWatchlistWorker.ARG_TMDB_ID, it)
+                            }
+                            uiState.value.showSummary?.premiered?.takeIf { it.length >= 4 }?.substring(0, 4)?.let {
+                                workerDataBuilder.putString(AddToWatchlistWorker.ARG_YEAR, it)
+                            }
+                            uiState.value.showSummary?.network?.let {
+                                workerDataBuilder.putString(AddToWatchlistWorker.ARG_NETWORK, it)
+                            }
+                            uiState.value.showSummary?.status?.let {
+                                workerDataBuilder.putString(AddToWatchlistWorker.ARG_STATUS, it)
+                            }
+                            val currentRating = showRating.value?.rating
+                            if (currentRating != null) {
+                                workerDataBuilder.putDouble(AddToWatchlistWorker.ARG_RATING, currentRating)
+                            }
+
+                            val addWatchlistWork =
+                                OneTimeWorkRequest.Builder(AddToWatchlistWorker::class.java)
+                                    .addTag(WORK_TAG_WATCHLIST_PREFIX + imdbID)
+                                    .setInputData(workerDataBuilder.build())
+                                    .build()
+                            workManager.enqueue(addWatchlistWork)
+                        }
                     } else {
-                        firebaseCrashlytics.log("Cannot add/remove watchlist: IMDB ID is null.")
+                        if (currentAccessToken == null) {
+                            firebaseCrashlytics.log("Cannot add/remove watchlist: Trakt access token is null.")
+                            _uiState.update { it.copy(generalErrorMessage = "Please log in to Trakt to manage watchlists.") }
+                        } else {
+                            firebaseCrashlytics.log("Cannot add/remove watchlist: IMDB ID is null.")
+                        }
                     }
                 }
             }
@@ -874,9 +1078,22 @@ class ShowDetailViewModel
 
         fun onRateShow(rating: Int) {
             val imdbId = uiState.value.showSummary?.imdbID ?: return
+            val simklId = traktId.value // Might be different if we properly map simkl ids
             viewModelScope.launch(Dispatchers.IO) {
                 _uiState.update { it.copy(isRating = true, ratingMessage = null) }
-                val result = traktRepository.rateShow(imdbId, rating)
+
+                val activeProvider = providerManager.activeProvider.firstOrNull() ?: com.theupnextapp.repository.ProviderManager.PROVIDER_TRAKT
+                val result = if (activeProvider == com.theupnextapp.repository.ProviderManager.PROVIDER_SIMKL) {
+                    val currentSimklToken = simklAuthManager.simklAccessToken.firstOrNull()?.accessToken
+                    if (currentSimklToken != null) {
+                        simklRepository.rateShow(simklId, imdbId, rating, currentSimklToken)
+                    } else {
+                        kotlin.Result.failure(Exception("Please login to SIMKL"))
+                    }
+                } else {
+                    traktRepository.rateShow(imdbId, rating)
+                }
+
                 if (result.isSuccess) {
                     _uiState.update {
                         it.copy(

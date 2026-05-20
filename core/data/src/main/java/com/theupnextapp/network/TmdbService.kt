@@ -23,12 +23,18 @@ package com.theupnextapp.network
 
 import com.theupnextapp.network.models.tmdb.NetworkTmdbPersonImagesResponse
 import com.theupnextapp.network.models.tmdb.NetworkTmdbPersonTvCreditsResponse
+import com.theupnextapp.network.models.tmdb.NetworkTmdbShowDetailsResponse
 import com.theupnextapp.network.models.tmdb.NetworkTmdbWatchProvidersResponse
 import kotlinx.coroutines.Deferred
 import retrofit2.http.GET
 import retrofit2.http.Path
 
 interface TmdbService {
+    @GET("tv/{series_id}")
+    fun getShowDetailsAsync(
+        @Path("series_id") tmdbId: Int
+    ): Deferred<NetworkTmdbShowDetailsResponse>
+
     @GET("tv/{series_id}/watch/providers")
     fun getShowWatchProvidersAsync(
         @Path("series_id") tmdbId: Int

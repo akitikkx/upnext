@@ -40,5 +40,5 @@ enum class NavigationDestination(
     Schedule(Icons.Default.DateRange, R.string.nav_title_schedule, Destinations.Schedule),
     SearchScreen(Icons.Default.Search, R.string.nav_title_search, Destinations.Search),
     Explore(Icons.Filled.Explore, R.string.nav_title_explore, Destinations.Explore),
-    TraktAccount(Icons.Filled.AccountBox, R.string.nav_title_account, Destinations.TraktAccount()),
+    Account(Icons.Filled.AccountBox, R.string.nav_title_account, Destinations.Account()),
 }

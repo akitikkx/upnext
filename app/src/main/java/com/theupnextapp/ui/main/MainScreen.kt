@@ -42,6 +42,7 @@ import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -80,7 +81,9 @@ fun MainScreen(
     onTraktAuthCompleted: () -> Unit,
     traktAccountViewModel: TraktAccountViewModel = androidx.hilt.navigation.compose.hiltViewModel(),
 ) {
-    // val scope = rememberCoroutineScope() // Removed unused scope
+    val accountViewModel: com.theupnextapp.ui.account.AccountViewModel = androidx.hilt.navigation.compose.hiltViewModel()
+    val activeProvider by accountViewModel.activeProvider.collectAsState()
+    val simklAccountViewModel: com.theupnextapp.ui.simklAccount.SimklAccountViewModel = androidx.hilt.navigation.compose.hiltViewModel()
 
     val activity = LocalActivity.current
     val windowSizeClass = activity?.let { calculateWindowSizeClass(it) }
@@ -191,7 +194,24 @@ fun MainScreen(
                     modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface),
                     topBar = {
                         TopAppBar(
-                            title = { Text(stringResource(currentListSection.label)) },
+                            title = {
+                                Column {
+                                    Text(
+                                        text = stringResource(currentListSection.label),
+                                        style = MaterialTheme.typography.titleLarge
+                                    )
+                                    val providerRes = if (activeProvider == com.theupnextapp.repository.ProviderManager.PROVIDER_SIMKL) {
+                                        R.string.provider_via_simkl
+                                    } else {
+                                        R.string.provider_via_trakt
+                                    }
+                                    Text(
+                                        text = stringResource(providerRes),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            },
                             actions = {
                                 IconButton(
                                     onClick = {
@@ -212,8 +232,8 @@ fun MainScreen(
                         NavigationDestination.Schedule -> ScheduleScreen(navController = mainNavController, contentPadding = innerPadding)
                         NavigationDestination.SearchScreen -> SearchScreen(navController = mainNavController, contentPadding = innerPadding)
                         NavigationDestination.Explore -> ExploreScreen(navController = mainNavController, contentPadding = innerPadding)
-                        NavigationDestination.TraktAccount ->
-                            TraktAccountScreen(
+                        NavigationDestination.Account ->
+                            com.theupnextapp.ui.account.AccountScreen(
                                 navController = mainNavController,
                                 code = null, // Code handled by LaunchedEffect below
                                 contentPadding = innerPadding,
@@ -234,16 +254,20 @@ fun MainScreen(
         )
     }
 
-    // Trakt OAuth handling
+    // Trakt/SIMKL OAuth handling
     LaunchedEffect(valueState.value) {
         if (!valueState.value.isNullOrEmpty()) {
             val codeArg = valueState.value
             valueState.value = null
-            onTraktAuthCompleted()
+            onTraktAuthCompleted() // Reusing this for general auth completion
 
-            traktAccountViewModel.onCodeReceived(codeArg!!)
+            if (activeProvider == com.theupnextapp.repository.ProviderManager.PROVIDER_SIMKL) {
+                simklAccountViewModel.onCodeReceived(codeArg!!)
+            } else {
+                traktAccountViewModel.onCodeReceived(codeArg!!)
+            }
 
-            currentListSection = NavigationDestination.Dashboard // Switch list pane
+            currentListSection = NavigationDestination.Account // Switch list pane
 
             mainNavController.navigate(Destinations.EmptyDetail) {
                 popUpTo(Destinations.EmptyDetail) { inclusive = true }

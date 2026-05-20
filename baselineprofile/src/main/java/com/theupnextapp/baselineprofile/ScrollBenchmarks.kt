@@ -15,6 +15,7 @@ package com.theupnextapp.baselineprofile
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.FrameTimingMetric
 import androidx.benchmark.macro.StartupMode
+import androidx.benchmark.macro.TraceSectionMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -38,7 +39,7 @@ class ScrollBenchmarks {
     private fun scroll(compilationMode: CompilationMode) {
         rule.measureRepeated(
             packageName = "com.theupnextapp",
-            metrics = listOf(FrameTimingMetric()),
+            metrics = listOf(FrameTimingMetric(), TraceSectionMetric("TMDBImageFetch")),
             compilationMode = compilationMode,
             iterations = 10,
             startupMode = StartupMode.WARM,

@@ -41,6 +41,7 @@ class DashboardRepositoryTest {
     private lateinit var fakeUpnextDao: FakeUpnextDao
     private lateinit var fakeTvMazeDao: FakeTvMazeDao
     private lateinit var fakeTvMazeService: FakeTvMazeService
+    private lateinit var fakeTmdbService: com.theupnextapp.repository.fakes.FakeTmdbService
     private lateinit var fakeCrashlytics: FakeCrashlytics
 
     private lateinit var repository: DashboardRepository
@@ -50,11 +51,13 @@ class DashboardRepositoryTest {
         fakeUpnextDao = FakeUpnextDao()
         fakeTvMazeDao = FakeTvMazeDao()
         fakeTvMazeService = FakeTvMazeService()
+        fakeTmdbService = com.theupnextapp.repository.fakes.FakeTmdbService()
         fakeCrashlytics = FakeCrashlytics()
 
         fakeUpnextDao.clearAll()
         fakeTvMazeDao.clearAllData()
         fakeTvMazeService.reset()
+        fakeTmdbService.reset()
         fakeCrashlytics.clear()
 
         repository =
@@ -62,6 +65,7 @@ class DashboardRepositoryTest {
                 upnextDao = fakeUpnextDao,
                 tvMazeDao = fakeTvMazeDao,
                 tvMazeService = fakeTvMazeService,
+                tmdbService = fakeTmdbService,
                 firebaseCrashlytics = fakeCrashlytics,
             )
     }
@@ -639,4 +643,129 @@ class DashboardRepositoryTest {
                 ),
         )
     }
+
+    @Test
+    fun `getShowImageAndTvmazeId - uses TmdbService when tmdbId is provided`() =
+        runTest {
+            val tmdbId = 123
+            val tvmazeId = 456
+            fakeTmdbService.mockShowDetailsResponse = com.theupnextapp.network.models.tmdb.NetworkTmdbShowDetailsResponse(id = tmdbId, poster_path = "tmdb_poster.png", backdrop_path = "tmdb_backdrop.png")
+            fakeTvMazeService.mockShowLookupResponse =
+                com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupResponse(
+                    id = tvmazeId,
+                    image = com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupImage(medium = "tvm_med", original = "tvm_orig"),
+                    _links = null,
+                    externals = null,
+                    name = "Show Title",
+                    premiered = "2024-01-01",
+                    status = "Running",
+                    summary = "Summary",
+                    updated = 123456789,
+                    url = "http://example.com",
+                    averageRuntime = 60,
+                    dvdCountry = null,
+                    genres = emptyList(),
+                    language = "English",
+                    network =
+                        com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupNetwork(
+                            id = 1,
+                            name = "Network",
+                            country =
+                                com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupCountry(
+                                    code = "US",
+                                    name = "United States",
+                                    timezone = "America/New_York",
+                                ),
+                        ),
+                    officialSite = "http://example.com",
+                    rating = com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupRating(average = 8.0),
+                    runtime = 60,
+                    schedule = com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupSchedule(days = emptyList(), time = "20:00"),
+                    type = "Scripted",
+                    webChannel =
+                        com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupWebChannel(
+                            id = 1,
+                            name = "WebChannel",
+                            country =
+                                com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupCountryX(
+                                    code = "US",
+                                    name = "United States",
+                                    timezone = "America/New_York",
+                                ),
+                        ),
+                    weight = 100,
+                )
+
+            val result = repository.getShowImageAndTvmazeId("tt123", tmdbId)
+
+            assertEquals(Pair("https://image.tmdb.org/t/p/originaltmdb_poster.png", null), result)
+        }
+
+    @Test
+    fun `getShowImageAndTvmazeId - falls back to TvMazeService when tmdbId is null`() =
+        runTest {
+            val tvmazeId = 456
+            fakeTvMazeService.mockShowLookupResponse =
+                com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupResponse(
+                    id = tvmazeId,
+                    image = com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupImage(medium = "tvm_med", original = "tvm_orig"),
+                    _links = null,
+                    externals = null,
+                    name = "Show Title",
+                    premiered = "2024-01-01",
+                    status = "Running",
+                    summary = "Summary",
+                    updated = 123456789,
+                    url = "http://example.com",
+                    averageRuntime = 60,
+                    dvdCountry = null,
+                    genres = emptyList(),
+                    language = "English",
+                    network =
+                        com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupNetwork(
+                            id = 1,
+                            name = "Network",
+                            country =
+                                com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupCountry(
+                                    code = "US",
+                                    name = "United States",
+                                    timezone = "America/New_York",
+                                ),
+                        ),
+                    officialSite = "http://example.com",
+                    rating = com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupRating(average = 8.0),
+                    runtime = 60,
+                    schedule = com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupSchedule(days = emptyList(), time = "20:00"),
+                    type = "Scripted",
+                    webChannel =
+                        com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupWebChannel(
+                            id = 1,
+                            name = "WebChannel",
+                            country =
+                                com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupCountryX(
+                                    code = "US",
+                                    name = "United States",
+                                    timezone = "America/New_York",
+                                ),
+                        ),
+                    weight = 100,
+                )
+            fakeTvMazeService.mockShowImagesResponse =
+                com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowImageResponse().apply {
+                    add(
+                        com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowImageResponseItem(
+                            id = 101, type = "poster", main = true,
+                            resolutions =
+                                com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowImageResolutions(
+                                    original = com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowImageOriginal(url = "tvm_orig_res"),
+                                    medium = com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowImageMedium(url = "tvm_med_res"),
+                                ),
+                        ),
+                    )
+                }
+
+            val result = repository.getShowImageAndTvmazeId("tt123", null)
+
+            assertEquals(Pair("tvm_orig", tvmazeId), result)
+        }
 }

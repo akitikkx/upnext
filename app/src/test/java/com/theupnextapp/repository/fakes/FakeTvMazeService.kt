@@ -106,6 +106,12 @@ class FakeTvMazeService : TvMazeService {
         throw NotImplementedError("mockShowLookupResponse not set for this test, or showLookupError not specified.")
     }
 
+    override fun getShowLookupByTvdbAsync(tvdbId: Int): Deferred<NetworkTvMazeShowLookupResponse> {
+        showLookupError?.let { throw it }
+        mockShowLookupResponse?.let { return CompletableDeferred(it) }
+        throw NotImplementedError("mockShowLookupResponse not set for this test, or showLookupError not specified.")
+    }
+
     override fun getShowImagesAsync(id: String): Deferred<NetworkTvMazeShowImageResponse> {
         showImagesError?.let { throw it }
         // Assuming NetworkTvMazeShowImageResponse is a typealias for List<SomeImageItem>

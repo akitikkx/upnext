@@ -86,6 +86,7 @@ class TraktRecommendationsDataSourceTest {
                 traktService,
                 upnextDao,
                 tvMazeService,
+                mock(), // tmdbService
                 firebaseCrashlytics,
             )
     }

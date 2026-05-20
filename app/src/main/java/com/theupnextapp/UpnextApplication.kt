@@ -48,6 +48,7 @@ import com.theupnextapp.work.BaseWorker
 import com.theupnextapp.work.NotificationWorker
 import com.theupnextapp.work.RefreshDashboardShowsWorker
 import com.theupnextapp.work.RefreshWatchlistWorker
+import dagger.Lazy
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -65,10 +66,7 @@ class UpnextApplication : Application(), Configuration.Provider {
     lateinit var workerFactory: HiltWorkerFactory
 
     @Inject
-    lateinit var traktRepository: TraktRepository
-
-    @Inject
-    lateinit var traktAuthManager: TraktAuthManager
+    lateinit var traktRepository: Lazy<TraktRepository>
 
     @Inject
     lateinit var preferenceManager: UpnextPreferenceManager
@@ -168,7 +166,7 @@ class UpnextApplication : Application(), Configuration.Provider {
         val traktAccessTokenDomain: TraktAccessToken? =
             try {
                 // Explicit type for clarity
-                val rawTokenEntity = traktRepository.getTraktAccessTokenRaw()
+                val rawTokenEntity = traktRepository.get().getTraktAccessTokenRaw()
 
                 // Check if the raw entity is of the correct database type
                 if (rawTokenEntity is DatabaseTraktAccess) {

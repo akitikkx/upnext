@@ -25,48 +25,66 @@ import com.theupnextapp.common.utils.DateUtils
 import com.theupnextapp.database.DatabaseTableUpdate
 import com.theupnextapp.database.UpnextDao
 import com.theupnextapp.network.TvMazeService
+import com.theupnextapp.network.TvMazeRateLimiter
 import com.theupnextapp.network.models.tvmaze.NetworkShowNextEpisodeResponse
 import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
+import com.theupnextapp.network.TmdbService
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
 abstract class BaseRepository(
     protected val upnextDao: UpnextDao,
     protected val tvMazeService: TvMazeService,
+    protected val tmdbService: TmdbService,
 ) {
     /**
-     * Determines whether a data update operation can proceed based on the last update timestamp
-     * for a given table and a specified interval.
-     *
-     * @param tableName The name of the table to check the last update time for.
-     * @param intervalMinutes The minimum time in minutes that must have passed since the last update.
-     * @return `true` if the update can proceed (either enough time has passed or no previous update recorded),
-     *         `false` otherwise.
+     * Modern synchronization wrapper for database tables.
+     * Evaluates the interval, updates the loading state, performs the sync,
+     * and logs the database table update upon success.
      */
-    @Deprecated(message = "This will be replaced with a more robust update mechanism in the future.")
-    protected fun canProceedWithUpdate(
+    protected suspend fun performDatabaseSync(
         tableName: String,
         intervalMinutes: Long,
-    ): Boolean {
-        val lastUpdateTimeStamp =
-            upnextDao.getTableLastUpdateTime(tableName)?.last_updated
-                ?: return true
+        onLoadingChange: (Boolean) -> Unit,
+        performSync: suspend () -> Unit
+    ) {
+        val lastUpdateInfo = upnextDao.getTableLastUpdateTime(tableName)
+        val lastUpdateTimeStamp = lastUpdateInfo?.last_updated
 
-        val elapsedMinutes =
-            DateUtils.calculateDifference(
+        val canProceed = if (lastUpdateTimeStamp == null || lastUpdateTimeStamp == 0L) {
+            true
+        } else {
+            val elapsedMinutes = DateUtils.calculateDifference(
                 startTimeMillis = lastUpdateTimeStamp,
                 endTimeMillis = System.currentTimeMillis(),
                 unit = TimeUnit.MINUTES,
             )
+            elapsedMinutes >= intervalMinutes
+        }
 
-        val canProceed = elapsedMinutes >= intervalMinutes
-        Timber.d(
-            "canProceedWithUpdate for table '$tableName': lastUpdate=$lastUpdateTimeStamp, elapsedMinutes=$elapsedMinutes, interval=$intervalMinutes, proceed=$canProceed",
-        )
-        return canProceed
+        if (canProceed) {
+            onLoadingChange(true)
+            try {
+                performSync()
+                upnextDao.deleteRecentTableUpdate(tableName)
+                upnextDao.insertTableUpdateLog(
+                    DatabaseTableUpdate(
+                        table_name = tableName,
+                        last_updated = System.currentTimeMillis(),
+                    ),
+                )
+            } catch (e: Exception) {
+                Timber.e(e, "Error performing database sync for table $tableName")
+                throw e
+            } finally {
+                onLoadingChange(false)
+            }
+        } else {
+            onLoadingChange(false)
+        }
     }
 
     /**
@@ -129,7 +147,7 @@ abstract class BaseRepository(
             withContext(Dispatchers.IO) { // Ensure network call is on IO dispatcher
                 Timber.d("Fetching next episode for TVMaze ID: $tvMazeID")
 
-                val showInfo = tvMazeService.getShowSummaryAsync(tvMazeID.toString()).await()
+                val showInfo = TvMazeRateLimiter.acquire { tvMazeService.getShowSummaryAsync(tvMazeID.toString()).await() }
                 Timber.v("Show summary response for $tvMazeID: $showInfo")
 
                 val nextEpisodeHref = showInfo._links?.nextepisode?.href
@@ -174,7 +192,7 @@ abstract class BaseRepository(
         }
         return try {
             Timber.d("Fetching details for episode ID: $episodeId")
-            val episodeResponse = tvMazeService.getNextEpisodeAsync(episodeId).await()
+            val episodeResponse = TvMazeRateLimiter.acquire { tvMazeService.getNextEpisodeAsync(episodeId).await() }
             Timber.v("Next episode details response for ID $episodeId: $episodeResponse")
             episodeResponse
         } catch (e: Exception) {
@@ -202,7 +220,7 @@ abstract class BaseRepository(
             withContext(Dispatchers.IO) {
                 Timber.d("Fetching TVMaze info for IMDb ID: $imdbId")
                 val showLookupResponse: NetworkTvMazeShowLookupResponse =
-                    tvMazeService.getShowLookupAsync(imdbId).await()
+                    TvMazeRateLimiter.acquire { tvMazeService.getShowLookupAsync(imdbId).await() }
 
                 val show = showLookupResponse
 
@@ -212,6 +230,41 @@ abstract class BaseRepository(
         } catch (e: HttpException) {
             Triple(null, null, null)
         } catch (e: Exception) {
+            Triple(null, null, null)
+        }
+    }
+
+    /**
+     * Fetches original and medium image URLs for a show using its TMDB ID.
+     * TVMaze ID will be returned as null since TMDB doesn't guarantee it.
+     *
+     * @param tmdbId The TMDB ID of the show.
+     * @return A Triple containing:
+     *         - First: null (for TVMaze ID)
+     *         - Second: Original image URL (String?)
+     *         - Third: Medium image URL (String?)
+     */
+    open suspend fun getTmdbImages(tmdbId: Int?): Triple<Int?, String?, String?> {
+        if (tmdbId == null) {
+            Timber.w("getTmdbImages called with null tmdbId.")
+            return Triple(null, null, null)
+        }
+        return try {
+            withContext(Dispatchers.IO) {
+                Timber.d("Fetching TMDB info for TMDB ID: $tmdbId")
+                val response = tmdbService.getShowDetailsAsync(tmdbId).await()
+                
+                val originalImageUrl = response.poster_path?.let { "https://image.tmdb.org/t/p/original$it" }
+                val mediumImageUrl = response.poster_path?.let { "https://image.tmdb.org/t/p/w500$it" }
+                
+                Timber.v("TMDB show image data for TMDB ID $tmdbId: original=$originalImageUrl, medium=$mediumImageUrl")
+                Triple(null, originalImageUrl, mediumImageUrl)
+            }
+        } catch (e: HttpException) {
+            Timber.e(e, "HTTP Exception fetching TMDB images for TMDB ID: $tmdbId")
+            Triple(null, null, null)
+        } catch (e: Exception) {
+            Timber.e(e, "Exception fetching TMDB images for TMDB ID: $tmdbId")
             Triple(null, null, null)
         }
     }

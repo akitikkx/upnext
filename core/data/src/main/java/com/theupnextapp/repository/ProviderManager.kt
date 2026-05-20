@@ -39,6 +39,8 @@ class ProviderManager @Inject constructor(
         const val PROVIDER_TRAKT = "trakt"
         const val PROVIDER_SIMKL = "simkl"
         private val ACTIVE_PROVIDER = stringPreferencesKey("active_tracking_provider")
+        private val SIMKL_LAST_SYNC_DATE = stringPreferencesKey("simkl_last_sync_date")
+        private val SIMKL_LAST_ACTIVITY_HASH = stringPreferencesKey("simkl_last_activity_hash")
     }
 
     val activeProvider: Flow<String> = dataStore.data
@@ -46,9 +48,39 @@ class ProviderManager @Inject constructor(
             preferences[ACTIVE_PROVIDER] ?: PROVIDER_TRAKT // Trakt is the default
         }
 
+    val simklLastSyncDate: Flow<String?> = dataStore.data
+        .map { preferences ->
+            preferences[SIMKL_LAST_SYNC_DATE]
+        }
+
+    val simklLastActivityHash: Flow<String?> = dataStore.data
+        .map { preferences ->
+            preferences[SIMKL_LAST_ACTIVITY_HASH]
+        }
+
     suspend fun setActiveProvider(providerId: String) {
         dataStore.edit { preferences ->
             preferences[ACTIVE_PROVIDER] = providerId
+        }
+    }
+
+    suspend fun setSimklLastSyncDate(date: String?) {
+        dataStore.edit { preferences ->
+            if (date != null) {
+                preferences[SIMKL_LAST_SYNC_DATE] = date
+            } else {
+                preferences.remove(SIMKL_LAST_SYNC_DATE)
+            }
+        }
+    }
+
+    suspend fun setSimklLastActivityHash(hash: String?) {
+        dataStore.edit { preferences ->
+            if (hash != null) {
+                preferences[SIMKL_LAST_ACTIVITY_HASH] = hash
+            } else {
+                preferences.remove(SIMKL_LAST_ACTIVITY_HASH)
+            }
         }
     }
 }

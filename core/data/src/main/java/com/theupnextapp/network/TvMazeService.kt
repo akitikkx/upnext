@@ -64,6 +64,11 @@ interface TvMazeService {
         @Query("imdb") imdbId: String,
     ): Deferred<NetworkTvMazeShowLookupResponse>
 
+    @GET("lookup/shows")
+    fun getShowLookupByTvdbAsync(
+        @Query("thetvdb") tvdbId: Int,
+    ): Deferred<NetworkTvMazeShowLookupResponse>
+
     @GET("shows/{id}/images")
     fun getShowImagesAsync(
         @Path("id") id: String,

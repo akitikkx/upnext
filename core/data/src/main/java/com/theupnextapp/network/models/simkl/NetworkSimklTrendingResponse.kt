@@ -31,7 +31,7 @@ data class NetworkSimklTrendingResponse(
 )
 
 data class NetworkSimklIds(
-    @SerializedName("simkl")
+    @SerializedName(value = "simkl", alternate = ["simkl_id"])
     val simklId: Int?,
     @SerializedName("imdb")
     val imdbId: String?,

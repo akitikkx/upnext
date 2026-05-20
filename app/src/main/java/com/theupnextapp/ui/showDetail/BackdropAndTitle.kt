@@ -52,6 +52,7 @@ fun BackdropAndTitle(
     showDetailArgs: ShowDetailArg?,
     showSummary: ShowDetailSummary?,
     certification: String? = null,
+    activeProvider: String? = null,
     onBack: () -> Unit,
 ) {
     val imageUrl: String? =
@@ -137,6 +138,28 @@ fun BackdropAndTitle(
                     Text(
                         text = cert,
                         style = MaterialTheme.typography.labelMedium,
+                    )
+                }
+
+                val providerLabel = when (activeProvider) {
+                    "simkl" -> "via SIMKL"
+                    "trakt" -> "via Trakt"
+                    else -> null
+                }
+
+                if (providerLabel != null) {
+                    if (!showSummary?.status.isNullOrEmpty() || !certification.isNullOrEmpty()) {
+                        Spacer(modifier = Modifier.size(8.dp))
+                        Text(
+                            text = "•",
+                            style = MaterialTheme.typography.labelMedium,
+                        )
+                        Spacer(modifier = Modifier.size(8.dp))
+                    }
+                    Text(
+                        text = providerLabel,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
                     )
                 }
             }

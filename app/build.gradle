@@ -59,6 +59,7 @@ android {
         versionCode versionProps['VERSION_CODE'].toInteger()
         versionName versionProps['VERSION_NAME']
         testInstrumentationRunner "com.theupnextapp.CustomTestRunner"
+        testInstrumentationRunnerArguments failFast: 'true'
 
         ksp {
             arg("room.schemaLocation", "$projectDir/schemas".toString())
@@ -66,7 +67,7 @@ android {
     }
 
     sourceSets {
-        androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
+        androidTest.assets.srcDirs += files("$buildDir/intermediates/room-schemas")
     }
 
     signingConfigs {
@@ -135,6 +136,9 @@ android {
     testOptions {
         unitTests.returnDefaultValues = true
         unitTests.includeAndroidResources = true
+        unitTests.all {
+            failFast = true
+        }
     }
 
     lint {
@@ -247,6 +251,9 @@ dependencies {
     // Baseline Profiles
     implementation libs.profileinstaller
     baselineProfile project(path: ':baselineprofile')
+    
+    // Tracing
+    implementation libs.androidx.tracing.ktx
 
     debugImplementation(libs.androidx.ui.test.manifest)
 
@@ -297,4 +304,17 @@ dependencies {
 configurations.all {
     resolutionStrategy.force("androidx.concurrent:concurrent-futures:1.2.0")
     resolutionStrategy.force("androidx.concurrent:concurrent-futures-ktx:1.2.0")
+}
+
+tasks.register('copyRoomSchemas', Copy) {
+    from("$projectDir/schemas")
+    from("${project(':core:data').projectDir}/schemas")
+    into("$buildDir/intermediates/room-schemas")
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.configureEach { task ->
+    if (task.name.startsWith("merge") && task.name.endsWith("AndroidTestAssets")) {
+        task.dependsOn("copyRoomSchemas")
+    }
 }

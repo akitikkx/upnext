@@ -28,6 +28,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import androidx.core.net.toUri
 import android.os.Build
 import android.os.Bundle
 import androidx.core.app.NotificationCompat
@@ -127,7 +128,7 @@ class NotificationWorker @AssistedInject constructor(
                 .setContentText(message)
 
             if (traktId != null && seasonNumber != null && episodeNumber != null) {
-                val deepLinkUri = Uri.parse("theupnextapp://episode/$traktId/$seasonNumber/$episodeNumber")
+                val deepLinkUri = "theupnextapp://episode/$traktId/$seasonNumber/$episodeNumber".toUri()
                 val intent = Intent(Intent.ACTION_VIEW, deepLinkUri).apply {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 }

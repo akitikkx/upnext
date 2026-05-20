@@ -52,4 +52,19 @@ class MigrationTest {
             assertTrue(it.isNull(it.getColumnIndexOrThrow("showId")))
         }
     }
+
+    @Test
+    @Throws(IOException::class)
+    fun migrate35To36() {
+        helper.createDatabase(TEST_DB_NAME, 35).apply {
+            close()
+        }
+
+        val db = helper.runMigrationsAndValidate(TEST_DB_NAME, 36, true, MIGRATION_35_36)
+
+        val cursor = db.query("SELECT * FROM simkl_watched_episodes")
+        cursor.use {
+            assertEquals(0, it.count)
+        }
+    }
 }

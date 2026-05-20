@@ -33,6 +33,7 @@ data class TrendingShow(
     val originalImageUrl: String?,
     val imdbID: String?,
     val tmdbID: Int?,
+    val tvdbID: Int?,
     val tvMazeID: Int?,
     val providerId: String // e.g. "trakt" or "simkl"
 )

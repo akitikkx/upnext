@@ -57,6 +57,7 @@ class TraktRepositoryImplTest {
             TraktRepositoryImpl(
                 upnextDao,
                 tvMazeService,
+                mock(), // tmdbService
                 traktDao,
                 traktAuthDataSource,
                 traktRecommendationsDataSource,
