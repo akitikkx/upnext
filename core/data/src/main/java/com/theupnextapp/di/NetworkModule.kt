@@ -47,10 +47,15 @@ import okhttp3.Cache
 import okhttp3.ConnectionPool
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.Response
+import okhttp3.ResponseBody.Companion.asResponseBody
 import okhttp3.logging.HttpLoggingInterceptor
+import okio.buffer
+import okio.source
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
+import java.util.zip.GZIPInputStream
 import javax.inject.Singleton
 
 @Module
@@ -70,18 +75,6 @@ object NetworkModule {
         return OkHttpClient().newBuilder()
             .cache(Cache(context.cacheDir, CACHE_SIZE_BYTES))
             .addInterceptor(
-                HttpLoggingInterceptor().apply {
-                    level = HttpLoggingInterceptor.Level.BODY
-                },
-            )
-            .addInterceptor { chain ->
-                var request = chain.request()
-                request =
-                    request.newBuilder().header("Cache-Control", "public, max-age=$CACHE_MAX_AGE_SECONDS")
-                        .build()
-                chain.proceed(request)
-            }
-            .addInterceptor(
                 ChuckerInterceptor.Builder(context)
                     .collector(
                         ChuckerCollector(
@@ -96,6 +89,23 @@ object NetworkModule {
                     .createShortcut(true)
                     .build(),
             )
+            .addInterceptor { chain ->
+                var request = chain.request()
+                request =
+                    request.newBuilder().header("Cache-Control", "public, max-age=$CACHE_MAX_AGE_SECONDS")
+                        .build()
+                chain.proceed(request)
+            }
+            .addInterceptor(
+                HttpLoggingInterceptor().apply {
+                    level = if (com.theupnextapp.core.data.BuildConfig.DEBUG) {
+                        HttpLoggingInterceptor.Level.BODY
+                    } else {
+                        HttpLoggingInterceptor.Level.NONE
+                    }
+                },
+            )
+            .addNetworkInterceptor(GzipDecompressionInterceptor())
             .connectTimeout(CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .retryOnConnectionFailure(true)
             .readTimeout(READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)
@@ -175,5 +185,31 @@ object NetworkModule {
             .addCallAdapterFactory(CoroutineCallAdapterFactory())
             .build()
             .create(TmdbService::class.java)
+    }
+}
+
+class GzipDecompressionInterceptor : Interceptor {
+    override fun intercept(chain: Interceptor.Chain): Response {
+        val response = chain.proceed(chain.request())
+        val body = response.body
+        if ("gzip".equals(response.header("Content-Encoding"), ignoreCase = true)) {
+            val gzipInputStream = try {
+                GZIPInputStream(body.source().inputStream())
+            } catch (e: Exception) {
+                return response
+            }
+
+            val decompressedSource = gzipInputStream.source().buffer()
+            val newHeaders = response.headers.newBuilder()
+                .removeAll("Content-Encoding")
+                .removeAll("Content-Length")
+                .build()
+
+            return response.newBuilder()
+                .headers(newHeaders)
+                .body(decompressedSource.asResponseBody(body.contentType(), -1))
+                .build()
+        }
+        return response
     }
 }
