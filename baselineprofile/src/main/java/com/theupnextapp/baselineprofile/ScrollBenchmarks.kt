@@ -54,9 +54,11 @@ class ScrollBenchmarks {
             setupBlock = {
                 pressHome()
                 startActivityAndWait()
+                waitForAsyncContent()
+                pressHome()
             },
             measureBlock = {
-                waitForAsyncContent()
+                startActivityAndWait()
                 scrollDashboardListJourney()
             }
         )
@@ -72,10 +74,12 @@ class ScrollBenchmarks {
             setupBlock = {
                 pressHome()
                 startActivityAndWait()
-            },
-            measureBlock = {
                 waitForAsyncContent()
                 navigateToExploreScreenJourney()
+                pressHome()
+            },
+            measureBlock = {
+                startActivityAndWait()
                 scrollExploreListJourney()
             }
         )
