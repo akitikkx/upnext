@@ -94,7 +94,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.theupnextapp.R
 import com.theupnextapp.common.utils.DateUtils
@@ -127,7 +126,8 @@ fun ShowDetailScreen(
     modifier: Modifier = Modifier,
     viewModel: ShowDetailViewModel = hiltViewModel(),
     showDetailArgs: ShowDetailArg,
-    navController: NavController,
+    onNavigate: (Destinations) -> Unit,
+    onBack: () -> Unit,
 ) {
     LaunchedEffect(showDetailArgs.showId) {
         viewModel.selectedShow(showDetailArgs)
@@ -148,7 +148,7 @@ fun ShowDetailScreen(
 
     LaunchedEffect(navigateToSeasons) {
         if (navigateToSeasons) {
-            navController.navigate(
+            onNavigate(
                 Destinations.ShowSeasons(
                     showId = showDetailArgs.showId,
                     showTitle = showDetailArgs.showTitle,
@@ -218,7 +218,7 @@ fun ShowDetailScreen(
                         val personId = castItem.traktId?.toString()
                         val name = castItem.name
                         if (!personId.isNullOrEmpty() && !name.isNullOrEmpty()) {
-                            navController.navigate(
+                            onNavigate(
                                 Destinations.PersonDetail(
                                     personId = personId,
                                     personName = name,
@@ -229,7 +229,7 @@ fun ShowDetailScreen(
                     },
                     onSimilarShowClick = { show -> viewModel.onSimilarShowClicked(show) },
                     onRetry = { viewModel.selectedShow(showDetailArgs) },
-                    onBack = { navController.navigateUp() },
+                    onBack = onBack,
                     contentPadding = innerPadding,
                 )
             }
@@ -238,7 +238,7 @@ fun ShowDetailScreen(
 
             LaunchedEffect(navigateToShowDetail) {
                 navigateToShowDetail?.let {
-                    navController.navigate(
+                    onNavigate(
                         Destinations.ShowDetail(
                             showId = it.showId,
                             showTitle = it.showTitle,

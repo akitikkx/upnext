@@ -107,7 +107,8 @@ private const val BIO_LENGTH_THRESHOLD = 250
 @Composable
 fun PersonDetailScreen(
     personDetailArg: PersonDetailArg,
-    navController: NavController,
+    onNavigate: (Destinations) -> Unit,
+    onBack: () -> Unit,
     viewModel: PersonDetailViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -125,7 +126,7 @@ fun PersonDetailScreen(
 
     LaunchedEffect(navigateToShowDetail) {
         navigateToShowDetail?.let {
-            navController.navigate(
+            onNavigate(
                 Destinations.ShowDetail(
                     showId = it.showId,
                     showTitle = it.showTitle,
@@ -154,7 +155,7 @@ fun PersonDetailScreen(
                     title = {},
                     navigationIcon = {
                         IconButton(
-                            onClick = { navController.popBackStack() },
+                            onClick = onBack,
                             modifier =
                                 Modifier
                                     .padding(8.dp)

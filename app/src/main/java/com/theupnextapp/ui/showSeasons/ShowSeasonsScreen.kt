@@ -73,7 +73,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.theupnextapp.R
@@ -88,7 +87,8 @@ import com.theupnextapp.navigation.Destinations
 fun ShowSeasonsScreen(
     viewModel: ShowSeasonsViewModel = hiltViewModel(),
     showDetailArg: ShowDetailArg,
-    navController: NavController,
+    onNavigate: (Destinations) -> Unit,
+    onBack: () -> Unit,
 ) {
     LaunchedEffect(showDetailArg) {
         viewModel.setSelectedShow(showDetailArg)
@@ -108,7 +108,7 @@ fun ShowSeasonsScreen(
                         list = it,
                         isAuthorizedOnTrakt = showDetailArg.isAuthorizedOnTrakt == true,
                         onShowTitleClick = {
-                            navController.navigate(
+                            onNavigate(
                                 Destinations.ShowDetail(
                                     source = "seasons",
                                     showId = showDetailArg.showId,
@@ -121,14 +121,12 @@ fun ShowSeasonsScreen(
                                 ),
                             )
                         },
-                        onBackClick = {
-                            navController.navigateUp()
-                        },
+                        onBackClick = onBack,
                         onToggleWatched = { season ->
                             viewModel.onToggleSeasonWatched(season)
                         },
                     ) { showSeason ->
-                        navController.navigate(
+                        onNavigate(
                             Destinations.ShowSeasonEpisodes(
                                 showId = showDetailArg.showId?.toInt(),
                                 seasonNumber = showSeason.seasonNumber,

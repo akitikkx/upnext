@@ -62,7 +62,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import com.theupnextapp.R
 import com.theupnextapp.core.designsystem.ui.components.PosterImage
 import com.theupnextapp.core.designsystem.ui.modifiers.bounceClick
@@ -78,7 +77,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 @Composable
 fun ExploreScreen(
     viewModel: ExploreViewModel = hiltViewModel(),
-    navController: NavController,
+    onNavigate: (Destinations) -> Unit,
     contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
     val popularShowsList by viewModel.popularShows.collectAsStateWithLifecycle()
@@ -147,7 +146,7 @@ fun ExploreScreen(
                         FeaturedShowHero(
                             item = heroShow,
                             categoryName = tabs[selectedTabIndex].uppercase(),
-                            onClick = { navigateToShowDetails(heroShow, tabs[selectedTabIndex].lowercase(), navController) },
+                            onClick = { navigateToShowDetails(heroShow, tabs[selectedTabIndex].lowercase(), onNavigate) },
                         )
                     }
                 }
@@ -180,7 +179,7 @@ fun ExploreScreen(
                         BentoBoxGrid(
                             items = bentoItems,
                             source = tabs[selectedTabIndex].lowercase(),
-                            navController = navController,
+                            onNavigate = onNavigate,
                         )
                     }
                 }
@@ -193,7 +192,7 @@ fun ExploreScreen(
 private fun BentoBoxGrid(
     items: List<Any>,
     source: String,
-    navController: NavController,
+    onNavigate: (Destinations) -> Unit,
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -207,19 +206,19 @@ private fun BentoBoxGrid(
             ) {
                 BentoCard(
                     item = items[0],
-                    onClick = { navigateToShowDetails(items[0], source, navController) },
+                    onClick = { navigateToShowDetails(items[0], source, onNavigate) },
                     modifier = Modifier.weight(1f).height(220.dp),
                 )
                 BentoCard(
                     item = items[1],
-                    onClick = { navigateToShowDetails(items[1], source, navController) },
+                    onClick = { navigateToShowDetails(items[1], source, onNavigate) },
                     modifier = Modifier.weight(1f).height(220.dp),
                 )
             }
         } else if (items.size == 1) {
             BentoCard(
                 item = items[0],
-                onClick = { navigateToShowDetails(items[0], source, navController) },
+                onClick = { navigateToShowDetails(items[0], source, onNavigate) },
                 modifier = Modifier.fillMaxWidth().height(220.dp),
             )
         }
@@ -228,7 +227,7 @@ private fun BentoBoxGrid(
             // Row 2: One wide rectangle
             BentoCard(
                 item = items[2],
-                onClick = { navigateToShowDetails(items[2], source, navController) },
+                onClick = { navigateToShowDetails(items[2], source, onNavigate) },
                 modifier = Modifier.fillMaxWidth().height(160.dp),
             )
         }
@@ -241,19 +240,19 @@ private fun BentoBoxGrid(
             ) {
                 BentoCard(
                     item = items[3],
-                    onClick = { navigateToShowDetails(items[3], source, navController) },
+                    onClick = { navigateToShowDetails(items[3], source, onNavigate) },
                     modifier = Modifier.weight(1f).height(220.dp),
                 )
                 BentoCard(
                     item = items[4],
-                    onClick = { navigateToShowDetails(items[4], source, navController) },
+                    onClick = { navigateToShowDetails(items[4], source, onNavigate) },
                     modifier = Modifier.weight(1f).height(220.dp),
                 )
             }
         } else if (items.size == 4) {
             BentoCard(
                 item = items[3],
-                onClick = { navigateToShowDetails(items[3], source, navController) },
+                onClick = { navigateToShowDetails(items[3], source, onNavigate) },
                 modifier = Modifier.fillMaxWidth().height(220.dp),
             )
         }
@@ -409,7 +408,7 @@ private fun FeaturedShowHero(
 private fun navigateToShowDetails(
     item: Any,
     source: String,
-    navController: NavController,
+    onNavigate: (Destinations) -> Unit,
 ) {
     val match =
         when (item) {
@@ -442,7 +441,7 @@ private fun navigateToShowDetails(
     val imdbID = match[4] as? String
     val traktID = match[5] as? Int
 
-    navController.navigate(
+    onNavigate(
         Destinations.ShowDetail(
             source = source,
             showId = (tvMazeID as? Int)?.toString(),

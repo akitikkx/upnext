@@ -77,7 +77,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import com.theupnextapp.R
 import com.theupnextapp.domain.TraktAuthState
 import com.theupnextapp.domain.TraktUserListItem
@@ -96,7 +95,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun TraktAccountScreen(
     viewModel: TraktAccountViewModel = hiltViewModel(),
-    navController: NavController,
+    onNavigate: (Destinations) -> Unit,
     code: String? = null,
     contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
@@ -222,7 +221,7 @@ fun TraktAccountScreen(
                     viewModel.onConnectToTraktClick()
                 },
                 onWatchlistClick = { item ->
-                    navController.navigate(
+                    onNavigate(
                         Destinations.ShowDetail(
                             source = "watchlists",
                             showId = item.tvMazeID?.toString(),

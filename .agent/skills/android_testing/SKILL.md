@@ -66,6 +66,29 @@ class MyInstrumentedTest {
 }
 ```
 
+### 🛠️ WorkManager Initialization in Hilt Tests
+
+If your ViewModel or class under test triggers `WorkManager` resolution (e.g. through injection of `WorkManager`), running Hilt tests with the standard `HiltTestApplication` (which does not implement `Configuration.Provider`) will throw `IllegalStateException: WorkManager is not initialized properly`.
+
+**✅ Correct Pattern:**
+Manually configure and initialize `WorkManager` inside the `@Before` method of your test class before calling `hiltTestRule.inject()`. Wrap it in a try-catch to prevent crashes when tests run sequentially in the same test process:
+
+```kotlin
+    @Before
+    fun init() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        try {
+            val config = Configuration.Builder()
+                .setMinimumLoggingLevel(android.util.Log.DEBUG)
+                .build()
+            WorkManager.initialize(context, config)
+        } catch (e: IllegalStateException) {
+            // Already initialized in a previous test within this process
+        }
+        hiltTestRule.inject()
+    }
+```
+
 ---
 
 ## 🎭 Mockito Configuration

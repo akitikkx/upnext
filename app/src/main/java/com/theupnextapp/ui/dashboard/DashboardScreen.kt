@@ -63,7 +63,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.theupnextapp.R
@@ -85,7 +84,7 @@ import kotlin.math.absoluteValue
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
-    navController: NavController,
+    onNavigate: (Destinations) -> Unit,
     viewModel: DashboardViewModel = hiltViewModel(),
     contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
@@ -205,7 +204,7 @@ fun DashboardScreen(
                                                         showImageUrl = show.originalImage,
                                                         showBackgroundUrl = show.mediumImage,
                                                     )
-                                                navController.navigate(direction)
+                                                onNavigate(direction)
                                             },
                                 ) {
                                     Box(modifier = Modifier.fillMaxSize()) {
@@ -328,7 +327,7 @@ fun DashboardScreen(
                                                 isAuthorizedOnTrakt = traktAccessToken != null,
                                                 showTraktId = show.traktID,
                                             )
-                                        navController.navigate(direction)
+                                        onNavigate(direction)
                                     },
                                 )
                             }
@@ -435,7 +434,7 @@ fun DashboardScreen(
                                                 isAuthorizedOnTrakt = traktAccessToken != null,
                                                 showTraktId = traktId,
                                             )
-                                        navController.navigate(direction)
+                                        onNavigate(direction)
                                     },
                                     onMarkAsWatchedClick = {
                                         if (traktAccessToken != null) {
@@ -513,7 +512,7 @@ fun DashboardScreen(
                                                         showImageUrl = imageUrl,
                                                         episodeImageUrl = imageUrl,
                                                     )
-                                                navController.navigate(direction)
+                                                onNavigate(direction)
                                             },
                                 ) {
                                     AsyncImage(
@@ -631,7 +630,7 @@ fun DashboardScreen(
                                                         isAuthorizedOnTrakt = true,
                                                         showTraktId = traktId,
                                                     )
-                                                navController.navigate(direction)
+                                                onNavigate(direction)
                                             },
                                 ) {
                                     Box(modifier = Modifier.fillMaxSize()) {
@@ -709,7 +708,7 @@ fun DashboardScreen(
                                             isAuthorizedOnTrakt = traktAccessToken != null,
                                             showTraktId = show.traktID,
                                         )
-                                    navController.navigate(direction)
+                                    onNavigate(direction)
                                 },
                             )
                         }

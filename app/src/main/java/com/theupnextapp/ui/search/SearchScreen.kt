@@ -63,7 +63,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.theupnextapp.R
 import com.theupnextapp.core.designsystem.ui.widgets.SearchListCard
 import com.theupnextapp.domain.RecentSearch
@@ -77,7 +76,7 @@ import com.theupnextapp.ui.components.EmptyState
 @Composable
 fun SearchScreen(
     viewModel: SearchViewModel = hiltViewModel(),
-    navController: NavController,
+    onNavigate: (Destinations) -> Unit,
     contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
     val searchResultsList = viewModel.searchResponse.observeAsState()
@@ -112,7 +111,7 @@ fun SearchScreen(
                         it.name?.let { name ->
                             viewModel.onQuerySaved(name)
                         }
-                        navController.navigate(
+                        onNavigate(
                             Destinations.ShowDetail(
                                 source = "search",
                                 showId = it.id.toString(),

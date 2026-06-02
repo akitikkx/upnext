@@ -73,7 +73,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
@@ -96,9 +95,27 @@ import java.util.Locale
 @Composable
 fun EpisodeDetailScreen(
     episodeDetailArg: EpisodeDetailArg?,
-    viewModel: EpisodeDetailViewModel = hiltViewModel(),
-    navController: NavController,
+    onNavigate: (Destinations) -> Unit,
+    onBack: () -> Unit,
     onNavigateToShowDetail: (EpisodeDetailArg) -> Unit = {},
+    viewModel: EpisodeDetailViewModel = hiltViewModel<EpisodeDetailViewModel, EpisodeDetailViewModel.Factory>(
+        creationCallback = { factory ->
+            factory.create(
+                route = Destinations.EpisodeDetail(
+                    showTraktId = episodeDetailArg?.showTraktId ?: 0,
+                    seasonNumber = episodeDetailArg?.seasonNumber ?: 0,
+                    episodeNumber = episodeDetailArg?.episodeNumber ?: 0,
+                    showTitle = episodeDetailArg?.showTitle,
+                    showId = episodeDetailArg?.showId,
+                    imdbID = episodeDetailArg?.imdbID,
+                    isAuthorizedOnTrakt = episodeDetailArg?.isAuthorizedOnTrakt ?: false,
+                    showImageUrl = episodeDetailArg?.showImageUrl,
+                    showBackgroundUrl = episodeDetailArg?.showBackgroundUrl,
+                    episodeImageUrl = episodeDetailArg?.episodeImageUrl,
+                )
+            )
+        }
+    ),
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
@@ -176,7 +193,7 @@ fun EpisodeDetailScreen(
                                             val traktId = it.traktId?.toString()
                                             val name = it.name
                                             if (traktId != null && !name.isNullOrEmpty()) {
-                                                navController.navigate(Destinations.PersonDetail(traktId, name, it.originalImageUrl))
+                                                onNavigate(Destinations.PersonDetail(traktId, name, it.originalImageUrl))
                                             }
                                         }
                                     }
@@ -187,7 +204,7 @@ fun EpisodeDetailScreen(
                                             val traktId = it.traktId?.toString()
                                             val name = it.name
                                             if (traktId != null && !name.isNullOrEmpty()) {
-                                                navController.navigate(Destinations.PersonDetail(traktId, name, it.originalImageUrl))
+                                                onNavigate(Destinations.PersonDetail(traktId, name, it.originalImageUrl))
                                             }
                                         }
                                     }
@@ -198,7 +215,7 @@ fun EpisodeDetailScreen(
                                             val traktId = it.traktId?.toString()
                                             val name = it.name
                                             if (traktId != null && !name.isNullOrEmpty()) {
-                                                navController.navigate(Destinations.PersonDetail(traktId, name, it.originalImageUrl))
+                                                onNavigate(Destinations.PersonDetail(traktId, name, it.originalImageUrl))
                                             }
                                         }
                                     }
@@ -212,7 +229,7 @@ fun EpisodeDetailScreen(
             }
 
             IconButton(
-                onClick = { navController.popBackStack() },
+                onClick = onBack,
                 modifier =
                     Modifier
                         .padding(

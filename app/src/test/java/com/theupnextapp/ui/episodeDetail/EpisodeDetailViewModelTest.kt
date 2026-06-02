@@ -50,7 +50,7 @@ class EpisodeDetailViewModelTest {
     @Mock
     private lateinit var showDetailRepository: ShowDetailRepository
 
-    private lateinit var savedStateHandle: SavedStateHandle
+    private lateinit var route: Destinations.EpisodeDetail
     private lateinit var viewModel: EpisodeDetailViewModel
 
     @Mock
@@ -58,14 +58,11 @@ class EpisodeDetailViewModelTest {
 
     @Before
     fun setUp() {
-        savedStateHandle =
-            SavedStateHandle(
-                mapOf(
-                    "showTraktId" to 1234,
-                    "seasonNumber" to 1,
-                    "episodeNumber" to 5,
-                ),
-            )
+        route = Destinations.EpisodeDetail(
+            showTraktId = 1234,
+            seasonNumber = 1,
+            episodeNumber = 5,
+        )
         `when`(showDetailRepository.getEpisodeDetails(anyInt(), anyInt(), anyInt())).thenReturn(
             flowOf(Result.Loading(true)),
         )
@@ -98,7 +95,7 @@ class EpisodeDetailViewModelTest {
                 flowOf(Result.Loading(true), Result.Success(mockEpisode)),
             )
 
-            viewModel = EpisodeDetailViewModel(savedStateHandle, showDetailRepository, traktRepository)
+            viewModel = EpisodeDetailViewModel(route, showDetailRepository, traktRepository)
             advanceUntilIdle()
 
             val finalState = viewModel.uiState.value
@@ -118,7 +115,7 @@ class EpisodeDetailViewModelTest {
                 flowOf(Result.Loading(true), Result.GenericError(404, null, mockException)),
             )
 
-            viewModel = EpisodeDetailViewModel(savedStateHandle, showDetailRepository, traktRepository)
+            viewModel = EpisodeDetailViewModel(route, showDetailRepository, traktRepository)
             advanceUntilIdle()
 
             val finalState = viewModel.uiState.value
@@ -149,12 +146,7 @@ class EpisodeDetailViewModelTest {
                 flowOf(Result.Loading(true), Result.Success(mockEpisode)),
             )
 
-            viewModel = EpisodeDetailViewModel(savedStateHandle, showDetailRepository, traktRepository)
-
-            // Bypass SavedStateHandle's bundle mapping issues with kotlinx.serialization Navigation 2.8 in tests
-            val routeField = EpisodeDetailViewModel::class.java.getDeclaredField("route")
-            routeField.isAccessible = true
-            routeField.set(viewModel, Destinations.EpisodeDetail(1234, 1, 5))
+            viewModel = EpisodeDetailViewModel(route, showDetailRepository, traktRepository)
 
             advanceUntilIdle()
 
@@ -172,7 +164,7 @@ class EpisodeDetailViewModelTest {
             )
             `when`(traktRepository.isAuthorizedOnTrakt()).thenReturn(MutableStateFlow(true))
 
-            viewModel = EpisodeDetailViewModel(savedStateHandle, showDetailRepository, traktRepository)
+            viewModel = EpisodeDetailViewModel(route, showDetailRepository, traktRepository)
             advanceUntilIdle()
 
             val finalState = viewModel.uiState.value
