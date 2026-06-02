@@ -58,28 +58,57 @@ object Dashboard : Destinations
 
 @Serializable
 data class ShowDetail(
-    val showId: Long,
+    val showId: String?,
     val showTitle: String?
 ) : Destinations
 ```
 
-### 2. Navigating
+### 2. Navigating (State-driven Back Stack)
+Under Navigation 3, the back stack is developer-owned, typically managed via a `SnapshotStateList<Any>`:
+
 ```kotlin
-navController.navigate(Destinations.ShowDetail(showId = 123, showTitle = "Arcane"))
+// Navigate by adding keys directly to the back stack state list
+backStack.add(Destinations.ShowDetail(showId = "123", showTitle = "Arcane"))
 ```
 
-### 3. Extracting Arguments (The "Title Unknown" Fix)
-To extract arguments (e.g., for a TopBar title), use `toRoute<T>()` on the `NavBackStackEntry`.
+### 3. Extracting Arguments (Pattern Matching)
+Because the back stack keys themselves are the typed route instances, extracting arguments (e.g., for a TopBar title) is simple pattern matching:
 
 **✅ Correct Pattern:**
 ```kotlin
 // AppNavigation.kt
-val currentEntry = navBackStackEntry
-val showTitle = if (currentEntry?.destination?.hasRoute<Destinations.ShowDetail>() == true) {
-    try {
-        currentEntry.toRoute<Destinations.ShowDetail>().showTitle
-    } catch (e: Exception) { null }
-} else { null }
+val currentKey = backStack.lastOrNull()
+val showTitle = when (currentKey) {
+    is Destinations.ShowDetail -> currentKey.showTitle
+    is Destinations.PersonDetail -> currentKey.personName
+    else -> null
+}
+```
+
+### 4. ViewModel Arguments (Hilt Assisted Injection)
+In Navigation 3, the runtime does not automatically bundle and inject the route arguments into the default `SavedStateHandle`. Calling `toRoute<T>()` in the ViewModel constructor will crash with a deserialization failure.
+
+**✅ Correct Pattern:**
+Use `@AssistedInject` and `@AssistedFactory` in your ViewModels, and resolve them using the `creationCallback` on `hiltViewModel`:
+
+```kotlin
+// ViewModel
+class EpisodeDetailViewModel @AssistedInject constructor(
+    @Assisted val route: Destinations.EpisodeDetail,
+    // ...
+) : ViewModel() {
+    @AssistedFactory
+    interface Factory {
+        fun create(route: Destinations.EpisodeDetail): EpisodeDetailViewModel
+    }
+}
+
+// Screen Composable
+val viewModel: EpisodeDetailViewModel = hiltViewModel(
+    creationCallback = { factory: EpisodeDetailViewModel.Factory ->
+        factory.create(episodeDetailArg)
+    }
+)
 ```
 
 ---

@@ -42,7 +42,9 @@ import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -51,9 +53,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.navigation.NavDestination.Companion.hasRoute
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
 import com.theupnextapp.R
 import com.theupnextapp.navigation.Destinations
 import com.theupnextapp.ui.dashboard.DashboardScreen
@@ -85,19 +84,17 @@ fun MainScreen(
     val activity = LocalActivity.current
     val windowSizeClass = activity?.let { calculateWindowSizeClass(it) }
 
-    val mainNavController = rememberNavController()
+    val backStack = remember { mutableStateListOf<Any>(Destinations.EmptyDetail) }
 
     // State to track the currently active top-level list section
     var currentListSection by rememberSaveable { mutableStateOf(NavigationDestination.Dashboard) }
 
-    val navBackStackEntry by mainNavController.currentBackStackEntryAsState()
-    val currentDestination = navBackStackEntry?.destination
-
     val isDetailFlowActive =
-        remember(currentDestination) {
-            currentDestination?.hasRoute<Destinations.EmptyDetail>() == false &&
-                currentDestination.route != null // If null, maybe nothing loaded yet, but usually means not Empty
-        }
+        remember {
+            derivedStateOf {
+                backStack.lastOrNull() != Destinations.EmptyDetail
+            }
+        }.value
 
     // Let the Material 3 adaptive library calculate the correct directive based on actual
     // window dimensions. This dynamically handles pane proportions, spacer sizes, and
@@ -136,16 +133,12 @@ fun MainScreen(
     BackHandler(
         enabled = isDetailFlowActive || currentListSection != NavigationDestination.Dashboard,
     ) {
-        if (isDetailFlowActive) { // If a detail screen is active in mainNavController
-            val previousEntry = mainNavController.previousBackStackEntry
-            if (previousEntry != null && previousEntry.destination.hasRoute<Destinations.EmptyDetail>() == false) {
-                mainNavController.popBackStack()
+        if (isDetailFlowActive) {
+            if (backStack.size > 1) {
+                backStack.removeAt(backStack.lastIndex)
             } else {
-                // If popping sends us to EmptyDetail (or there is no previous), we navigate to EmptyDetail explicitly to clear
-                mainNavController.navigate(Destinations.EmptyDetail) {
-                    popUpTo(Destinations.EmptyDetail) { inclusive = true }
-                    launchSingleTop = true
-                }
+                backStack.clear()
+                backStack.add(Destinations.EmptyDetail)
             }
         } else if (currentListSection != NavigationDestination.Dashboard) {
             // If we are at a top-level section other than Dashboard, go back to Dashboard
@@ -171,10 +164,8 @@ fun MainScreen(
                         // ensure the detail pane is reset to its empty state
                         // if it's currently showing actual details.
                         if (isDetailFlowActive) {
-                            mainNavController.navigate(Destinations.EmptyDetail) {
-                                popUpTo(Destinations.EmptyDetail) { inclusive = true }
-                                launchSingleTop = true
-                            }
+                            backStack.clear()
+                            backStack.add(Destinations.EmptyDetail)
                         }
                         // isDetailFlowActive will become false if we navigated to EmptyDetailScreen,
                         // triggering listDetailNavigator to Secondary via the LaunchedEffect.
@@ -195,7 +186,7 @@ fun MainScreen(
                             actions = {
                                 IconButton(
                                     onClick = {
-                                        mainNavController.navigate(Destinations.Settings)
+                                        backStack.add(Destinations.Settings)
                                     },
                                 ) {
                                     Icon(
@@ -208,13 +199,13 @@ fun MainScreen(
                     }
                 ) { innerPadding ->
                     when (currentListSection) {
-                        NavigationDestination.Dashboard -> DashboardScreen(navController = mainNavController, contentPadding = innerPadding)
-                        NavigationDestination.Schedule -> ScheduleScreen(navController = mainNavController, contentPadding = innerPadding)
-                        NavigationDestination.SearchScreen -> SearchScreen(navController = mainNavController, contentPadding = innerPadding)
-                        NavigationDestination.Explore -> ExploreScreen(navController = mainNavController, contentPadding = innerPadding)
+                        NavigationDestination.Dashboard -> DashboardScreen(onNavigate = { backStack.add(it) }, contentPadding = innerPadding)
+                        NavigationDestination.Schedule -> ScheduleScreen(onNavigate = { backStack.add(it) }, contentPadding = innerPadding)
+                        NavigationDestination.SearchScreen -> SearchScreen(onNavigate = { backStack.add(it) }, contentPadding = innerPadding)
+                        NavigationDestination.Explore -> ExploreScreen(onNavigate = { backStack.add(it) }, contentPadding = innerPadding)
                         NavigationDestination.TraktAccount ->
                             TraktAccountScreen(
-                                navController = mainNavController,
+                                onNavigate = { backStack.add(it) },
                                 code = null, // Code handled by LaunchedEffect below
                                 contentPadding = innerPadding,
                             )
@@ -224,9 +215,14 @@ fun MainScreen(
             detailPane = {
                 windowSizeClass?.let { windowSizeClass ->
                     AppNavigation(
-                        navHostController = mainNavController,
-                        overrideUpNavigation = {
-                            mainNavController.navigateUp()
+                        backStack = backStack,
+                        onBack = {
+                            if (backStack.size > 1) {
+                                backStack.removeAt(backStack.lastIndex)
+                            } else {
+                                backStack.clear()
+                                backStack.add(Destinations.EmptyDetail)
+                            }
                         },
                     )
                 }
@@ -245,10 +241,8 @@ fun MainScreen(
 
             currentListSection = NavigationDestination.Dashboard // Switch list pane
 
-            mainNavController.navigate(Destinations.EmptyDetail) {
-                popUpTo(Destinations.EmptyDetail) { inclusive = true }
-                launchSingleTop = true
-            }
+            backStack.clear()
+            backStack.add(Destinations.EmptyDetail)
         }
     }
 }

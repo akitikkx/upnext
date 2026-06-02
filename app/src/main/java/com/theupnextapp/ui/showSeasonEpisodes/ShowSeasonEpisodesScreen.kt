@@ -76,7 +76,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.theupnextapp.R
@@ -94,7 +93,8 @@ import org.jsoup.Jsoup
 fun ShowSeasonEpisodesScreen(
     viewModel: ShowSeasonEpisodesViewModel = hiltViewModel(),
     showSeasonEpisodesArg: ShowSeasonEpisodesArg,
-    navController: NavController,
+    onNavigate: (Destinations) -> Unit,
+    onBack: () -> Unit,
 ) {
     LaunchedEffect(showSeasonEpisodesArg) {
         viewModel.selectedSeason(showSeasonEpisodesArg)
@@ -133,7 +133,7 @@ fun ShowSeasonEpisodesScreen(
                                 val season = episode.season
                                 val number = episode.number
                                 if (showTraktId != null && season != null && number != null) {
-                                    navController.navigate(
+                                    onNavigate(
                                         Destinations.EpisodeDetail(
                                             showTraktId = showTraktId,
                                             seasonNumber = season,
@@ -150,7 +150,7 @@ fun ShowSeasonEpisodesScreen(
                                 }
                             },
                             onShowTitleClick = {
-                                navController.navigate(
+                                onNavigate(
                                     Destinations.ShowDetail(
                                         source = "season_episodes",
                                         showId = showSeasonEpisodesArg.showId?.toString(),
@@ -163,9 +163,7 @@ fun ShowSeasonEpisodesScreen(
                                     ),
                                 )
                             },
-                            onBackClick = {
-                                navController.navigateUp()
-                            },
+                            onBackClick = onBack,
                         )
                     }
                 }

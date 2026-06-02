@@ -12,10 +12,8 @@
 
 package com.theupnextapp.ui.episodeDetail
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.toRoute
 import com.theupnextapp.domain.EpisodeDetail
 import com.theupnextapp.domain.EpisodePeople
 import com.theupnextapp.domain.Result
@@ -23,22 +21,28 @@ import com.theupnextapp.domain.TraktCheckInStatus
 import com.theupnextapp.navigation.Destinations
 import com.theupnextapp.repository.ShowDetailRepository
 import com.theupnextapp.repository.TraktRepository
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
+@HiltViewModel(assistedFactory = EpisodeDetailViewModel.Factory::class)
 class EpisodeDetailViewModel
-    @Inject
+    @AssistedInject
     constructor(
-        savedStateHandle: SavedStateHandle,
+        @Assisted val route: Destinations.EpisodeDetail,
         private val showDetailRepository: ShowDetailRepository,
         private val traktRepository: TraktRepository,
     ) : ViewModel() {
-        private val route = savedStateHandle.toRoute<Destinations.EpisodeDetail>()
+
+        @AssistedFactory
+        interface Factory {
+            fun create(route: Destinations.EpisodeDetail): EpisodeDetailViewModel
+        }
 
         private val _uiState = MutableStateFlow(EpisodeDetailState())
         val uiState: StateFlow<EpisodeDetailState> = _uiState.asStateFlow()

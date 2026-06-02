@@ -47,7 +47,6 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.theupnextapp.R
 import com.theupnextapp.core.designsystem.ui.ReferenceDevices
 import com.theupnextapp.core.designsystem.ui.components.SectionHeadingText
@@ -62,7 +61,7 @@ import com.theupnextapp.navigation.Destinations
 @Composable
 fun ScheduleScreen(
     viewModel: ScheduleViewModel = hiltViewModel(),
-    navController: NavController,
+    onNavigate: (Destinations) -> Unit,
     contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
     val yesterdayShowsList = viewModel.yesterdayShowsList.observeAsState()
@@ -107,7 +106,7 @@ fun ScheduleScreen(
                             list = list,
                             rowTitle = stringResource(id = R.string.title_yesterday_shows),
                         ) {
-                            navController.navigate(
+                            onNavigate(
                                 Destinations.ShowDetail(
                                     source = "dashboard",
                                     showId = it.showId.toString(),
@@ -130,7 +129,7 @@ fun ScheduleScreen(
                             list = list,
                             rowTitle = stringResource(id = R.string.title_today_shows),
                         ) {
-                            navController.navigate(
+                            onNavigate(
                                 Destinations.ShowDetail(
                                     source = "dashboard",
                                     showId = it.showId.toString(),
@@ -153,7 +152,7 @@ fun ScheduleScreen(
                             list = list,
                             rowTitle = stringResource(id = R.string.title_tomorrow_shows),
                         ) {
-                            navController.navigate(
+                            onNavigate(
                                 Destinations.ShowDetail(
                                     source = "dashboard",
                                     showId = it.showId.toString(),

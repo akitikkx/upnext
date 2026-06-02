@@ -18,6 +18,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,16 +27,14 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavDestination.Companion.hasRoute
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.navDeepLink
-import androidx.navigation.toRoute
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.NavEntry
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
+import androidx.navigation3.ui.NavDisplay
 import com.theupnextapp.navigation.Destinations
 import com.theupnextapp.ui.episodeDetail.EpisodeDetailScreen
 import com.theupnextapp.ui.main.TopBar
@@ -60,47 +59,28 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 )
 @Composable
 fun AppNavigation(
-    navHostController: NavHostController,
-    overrideUpNavigation: (() -> Unit)? = null,
+    backStack: SnapshotStateList<Any>,
+    onBack: () -> Unit,
 ) {
-    val navBackStackEntry by navHostController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
+    val currentKey = backStack.lastOrNull()
 
     // Extract title from navigation arguments for detail screens
-    val currentEntry = navBackStackEntry
     val dynamicTitle: String? =
-        when {
-            currentEntry?.destination?.hasRoute<Destinations.ShowDetail>() == true -> {
-                try {
-                    currentEntry.toRoute<Destinations.ShowDetail>().showTitle
-                } catch (e: Exception) {
-                    null
-                }
-            }
-            currentEntry?.destination?.hasRoute<Destinations.ShowSeasons>() == true -> {
-                try {
-                    currentEntry.toRoute<Destinations.ShowSeasons>().showTitle
-                } catch (e: Exception) {
-                    null
-                }
-            }
-            currentEntry?.destination?.hasRoute<Destinations.PersonDetail>() == true -> {
-                try {
-                    currentEntry.toRoute<Destinations.PersonDetail>().personName
-                } catch (e: Exception) {
-                    null
-                }
-            }
+        when (currentKey) {
+            is Destinations.ShowDetail -> currentKey.showTitle
+            is Destinations.ShowSeasons -> currentKey.showTitle
+            is Destinations.PersonDetail -> currentKey.personName
             else -> null
         }
 
     val showTopBar =
-        currentEntry?.destination?.hasRoute<Destinations.ShowDetail>() == false &&
-            currentEntry.destination.hasRoute<Destinations.EmptyDetail>() == false &&
-            currentEntry.destination.hasRoute<Destinations.ShowSeasons>() == false &&
-            currentEntry.destination.hasRoute<Destinations.ShowSeasonEpisodes>() == false &&
-            currentEntry.destination.hasRoute<Destinations.EpisodeDetail>() == false &&
-            currentEntry.destination.hasRoute<Destinations.PersonDetail>() == false
+        currentKey != null &&
+            currentKey !is Destinations.ShowDetail &&
+            currentKey !is Destinations.EmptyDetail &&
+            currentKey !is Destinations.ShowSeasons &&
+            currentKey !is Destinations.ShowSeasonEpisodes &&
+            currentKey !is Destinations.EpisodeDetail &&
+            currentKey !is Destinations.PersonDetail
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -108,131 +88,115 @@ fun AppNavigation(
         ) {
             if (showTopBar) {
                 TopBar(
-                    navBackStackEntry = navBackStackEntry,
-                    onArrowClick = {
-                        if (overrideUpNavigation != null) {
-                            overrideUpNavigation()
-                        } else {
-                            navHostController.navigateUp()
-                        }
-                    },
+                    currentKey = currentKey,
+                    onArrowClick = onBack,
                     title = dynamicTitle,
                     onSettingsClick = {
-                        navHostController.navigate(Destinations.Settings) {
-                            launchSingleTop = true
+                        if (backStack.lastOrNull() != Destinations.Settings) {
+                            backStack.add(Destinations.Settings)
                         }
                     },
                 )
             }
 
-            NavHost(
-                navController = navHostController,
-                startDestination = Destinations.EmptyDetail,
+            NavDisplay(
+                backStack = backStack,
+                onBack = onBack,
                 modifier = Modifier.weight(1f),
-                enterTransition = {
-                    slideInHorizontally(
+                transitionSpec = {
+                    (slideInHorizontally(
                         initialOffsetX = { 300 },
                         animationSpec = tween(300),
-                    ) + fadeIn(animationSpec = tween(300))
-                },
-                exitTransition = {
-                    slideOutHorizontally(
+                    ) + fadeIn(animationSpec = tween(300))) togetherWith
+                    (slideOutHorizontally(
                         targetOffsetX = { -300 },
                         animationSpec = tween(300),
-                    ) + fadeOut(animationSpec = tween(300))
+                    ) + fadeOut(animationSpec = tween(300)))
                 },
-                popEnterTransition = {
-                    slideInHorizontally(
+                popTransitionSpec = {
+                    (slideInHorizontally(
                         initialOffsetX = { -300 },
                         animationSpec = tween(300),
-                    ) + fadeIn(animationSpec = tween(300))
-                },
-                popExitTransition = {
-                    slideOutHorizontally(
+                    ) + fadeIn(animationSpec = tween(300))) togetherWith
+                    (slideOutHorizontally(
                         targetOffsetX = { 300 },
                         animationSpec = tween(300),
-                    ) + fadeOut(animationSpec = tween(300))
+                    ) + fadeOut(animationSpec = tween(300)))
                 },
-            ) {
-                composable<Destinations.EmptyDetail> {
-                    EmptyDetailScreen()
-                }
+                entryDecorators = listOf(
+                    rememberSaveableStateHolderNavEntryDecorator(),
+                    rememberViewModelStoreNavEntryDecorator(),
+                ),
+                entryProvider = entryProvider<Any> {
+                    entry<Destinations.EmptyDetail> {
+                        EmptyDetailScreen()
+                    }
 
-                composable<Destinations.ShowDetail> { backStackEntry ->
-                    val args = backStackEntry.toRoute<Destinations.ShowDetail>()
-                    ShowDetailScreen(
-                        showDetailArgs = args.toArg(),
-                        navController = navHostController,
-                    )
-                }
+                    entry<Destinations.ShowDetail> { key ->
+                        ShowDetailScreen(
+                            showDetailArgs = key.toArg(),
+                            onNavigate = { backStack.add(it) },
+                            onBack = onBack,
+                        )
+                    }
 
-                composable<Destinations.PersonDetail> { backStackEntry ->
-                    val args = backStackEntry.toRoute<Destinations.PersonDetail>()
-                    PersonDetailScreen(
-                        personDetailArg = args.toArg(),
-                        navController = navHostController,
-                    )
-                }
+                    entry<Destinations.PersonDetail> { key ->
+                        PersonDetailScreen(
+                            personDetailArg = key.toArg(),
+                            onNavigate = { backStack.add(it) },
+                            onBack = onBack,
+                        )
+                    }
 
-                composable<Destinations.ShowSeasons> { backStackEntry ->
-                    val args = backStackEntry.toRoute<Destinations.ShowSeasons>()
-                    ShowSeasonsScreen(
-                        showDetailArg = args.toArg(),
-                        navController = navHostController,
-                    )
-                }
+                    entry<Destinations.ShowSeasons> { key ->
+                        ShowSeasonsScreen(
+                            showDetailArg = key.toArg(),
+                            onNavigate = { backStack.add(it) },
+                            onBack = onBack,
+                        )
+                    }
 
-                composable<Destinations.ShowSeasonEpisodes> { backStackEntry ->
-                    val args = backStackEntry.toRoute<Destinations.ShowSeasonEpisodes>()
-                    ShowSeasonEpisodesScreen(
-                        showSeasonEpisodesArg = args.toArg(),
-                        navController = navHostController,
-                    )
-                }
+                    entry<Destinations.ShowSeasonEpisodes> { key ->
+                        ShowSeasonEpisodesScreen(
+                            showSeasonEpisodesArg = key.toArg(),
+                            onNavigate = { backStack.add(it) },
+                            onBack = onBack,
+                        )
+                    }
 
-                composable<Destinations.EpisodeDetail>(
-                    deepLinks =
-                        listOf(
-                            navDeepLink<Destinations.EpisodeDetail>(basePath = "theupnextapp://episode"),
-                        ),
-                ) { backStackEntry ->
-                    val args = backStackEntry.toRoute<Destinations.EpisodeDetail>()
-                    EpisodeDetailScreen(
-                        episodeDetailArg = args.toArg(),
-                        navController = navHostController,
-                        onNavigateToShowDetail = { episodeArg ->
-                            navHostController.navigate(
-                                Destinations.ShowDetail(
-                                    showId = episodeArg.showId?.toString(),
-                                    showTitle = episodeArg.showTitle,
-                                    showImageUrl = episodeArg.showImageUrl,
-                                    showBackgroundUrl = episodeArg.showBackgroundUrl,
-                                    imdbID = episodeArg.imdbID,
-                                    isAuthorizedOnTrakt = episodeArg.isAuthorizedOnTrakt,
-                                    showTraktId = episodeArg.showTraktId,
-                                ),
-                            )
-                        },
-                    )
-                }
+                    entry<Destinations.EpisodeDetail> { key ->
+                        EpisodeDetailScreen(
+                            episodeDetailArg = key.toArg(),
+                            onNavigate = { backStack.add(it) },
+                            onBack = onBack,
+                            onNavigateToShowDetail = { episodeArg ->
+                                backStack.add(
+                                    Destinations.ShowDetail(
+                                        showId = episodeArg.showId?.toString(),
+                                        showTitle = episodeArg.showTitle,
+                                        showImageUrl = episodeArg.showImageUrl,
+                                        showBackgroundUrl = episodeArg.showBackgroundUrl,
+                                        imdbID = episodeArg.imdbID,
+                                        isAuthorizedOnTrakt = episodeArg.isAuthorizedOnTrakt,
+                                        showTraktId = episodeArg.showTraktId,
+                                    ),
+                                )
+                            },
+                        )
+                    }
 
-                composable<Destinations.Settings> {
-                    SettingsScreen()
-                }
+                    entry<Destinations.Settings> {
+                        SettingsScreen()
+                    }
 
-                composable<Destinations.TraktAccount>(
-                    deepLinks =
-                        listOf(
-                            navDeepLink<Destinations.TraktAccount>(basePath = "theupnextapp://callback"),
-                        ),
-                ) { backStackEntry ->
-                    val args = backStackEntry.toRoute<Destinations.TraktAccount>()
-                    TraktAccountScreen(
-                        code = args.code,
-                        navController = navHostController,
-                    )
-                }
-            }
+                    entry<Destinations.TraktAccount> { key ->
+                        TraktAccountScreen(
+                            code = key.code,
+                            onNavigate = { backStack.add(it) },
+                        )
+                    }
+                },
+            )
         }
     }
 }

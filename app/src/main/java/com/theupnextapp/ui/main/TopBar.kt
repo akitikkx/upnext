@@ -26,8 +26,6 @@ import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSiz
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavDestination.Companion.hasRoute
 import com.theupnextapp.R
 import com.theupnextapp.navigation.Destinations
 
@@ -82,37 +80,35 @@ fun TopBar(
 )
 @Composable
 fun TopBar(
-    navBackStackEntry: NavBackStackEntry?,
+    currentKey: Any?,
     onArrowClick: () -> Unit,
     modifier: Modifier = Modifier,
     title: String? = null, // Allow passing a specific title
     scrollBehavior: TopAppBarScrollBehavior? = null,
     onSettingsClick: (() -> Unit)? = null,
 ) {
-    val destination = navBackStackEntry?.destination
-
     // Determine if a back arrow should be shown.
     val showBackArrow =
-        when {
-            destination?.hasRoute<Destinations.Settings>() == true -> true
-            destination?.hasRoute<Destinations.ShowDetail>() == true -> true
-            destination?.hasRoute<Destinations.ShowSeasons>() == true -> true
-            destination?.hasRoute<Destinations.ShowSeasonEpisodes>() == true -> true
+        when (currentKey) {
+            is Destinations.Settings -> true
+            is Destinations.ShowDetail -> true
+            is Destinations.ShowSeasons -> true
+            is Destinations.ShowSeasonEpisodes -> true
             else -> false
         }
 
     // Determine the title to display
     // Prioritize passed 'title' from AppNavigation
     val currentTitle: String =
-        title ?: when {
-            destination?.hasRoute<Destinations.Settings>() == true -> stringResource(R.string.title_settings)
-            destination?.hasRoute<Destinations.ShowSeasons>() == true -> ""
-            destination?.hasRoute<Destinations.ShowSeasonEpisodes>() == true -> ""
-            destination?.hasRoute<Destinations.ShowDetail>() == true -> stringResource(id = R.string.title_unknown)
+        title ?: when (currentKey) {
+            is Destinations.Settings -> stringResource(R.string.title_settings)
+            is Destinations.ShowSeasons -> ""
+            is Destinations.ShowSeasonEpisodes -> ""
+            is Destinations.ShowDetail -> stringResource(id = R.string.title_unknown)
             else -> ""
         }
 
-    val showSettingsIcon = destination?.hasRoute<Destinations.Settings>() == false
+    val showSettingsIcon = currentKey !is Destinations.Settings
 
     TopBar(
         title = currentTitle,
