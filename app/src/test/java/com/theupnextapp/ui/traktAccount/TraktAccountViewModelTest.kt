@@ -63,6 +63,22 @@ class TraktAccountViewModelTest {
     }
 
     @Test
+    fun `viewModelInitializesWithoutNullPointerException under unconfined dispatcher`() {
+        val unconfinedDispatcher = kotlinx.coroutines.test.UnconfinedTestDispatcher()
+        Dispatchers.setMain(unconfinedDispatcher)
+        try {
+            val vm = TraktAccountViewModel(
+                traktRepository,
+                workManager,
+                traktAuthManager,
+            )
+            org.junit.Assert.assertNotNull(vm)
+        } finally {
+            Dispatchers.setMain(testDispatcher)
+        }
+    }
+
+    @Test
     fun `watchlistShows initialization observes from repository mapped states`() {
         val state = viewModel.watchlistShows.value
         assert(state.isEmpty())

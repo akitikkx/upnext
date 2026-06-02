@@ -146,7 +146,15 @@ fun ExploreScreen(
                         FeaturedShowHero(
                             item = heroShow,
                             categoryName = tabs[selectedTabIndex].uppercase(),
-                            onClick = { navigateToShowDetails(heroShow, tabs[selectedTabIndex].lowercase(), onNavigate) },
+                            onClick = {
+                                val details = extractShowDetails(heroShow)
+                                viewModel.onShowClicked(
+                                    title = details.title,
+                                    source = tabs[selectedTabIndex].lowercase(),
+                                    traktId = details.traktId
+                                )
+                                navigateToShowDetails(heroShow, tabs[selectedTabIndex].lowercase(), onNavigate)
+                            },
                         )
                     }
                 }
@@ -180,6 +188,14 @@ fun ExploreScreen(
                             items = bentoItems,
                             source = tabs[selectedTabIndex].lowercase(),
                             onNavigate = onNavigate,
+                            onShowClicked = { item ->
+                                val details = extractShowDetails(item)
+                                viewModel.onShowClicked(
+                                    title = details.title,
+                                    source = tabs[selectedTabIndex].lowercase(),
+                                    traktId = details.traktId
+                                )
+                            }
                         )
                     }
                 }
@@ -193,6 +209,7 @@ private fun BentoBoxGrid(
     items: List<Any>,
     source: String,
     onNavigate: (Destinations) -> Unit,
+    onShowClicked: (Any) -> Unit,
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -206,19 +223,28 @@ private fun BentoBoxGrid(
             ) {
                 BentoCard(
                     item = items[0],
-                    onClick = { navigateToShowDetails(items[0], source, onNavigate) },
+                    onClick = {
+                        onShowClicked(items[0])
+                        navigateToShowDetails(items[0], source, onNavigate)
+                    },
                     modifier = Modifier.weight(1f).height(220.dp),
                 )
                 BentoCard(
                     item = items[1],
-                    onClick = { navigateToShowDetails(items[1], source, onNavigate) },
+                    onClick = {
+                        onShowClicked(items[1])
+                        navigateToShowDetails(items[1], source, onNavigate)
+                    },
                     modifier = Modifier.weight(1f).height(220.dp),
                 )
             }
         } else if (items.size == 1) {
             BentoCard(
                 item = items[0],
-                onClick = { navigateToShowDetails(items[0], source, onNavigate) },
+                onClick = {
+                    onShowClicked(items[0])
+                    navigateToShowDetails(items[0], source, onNavigate)
+                },
                 modifier = Modifier.fillMaxWidth().height(220.dp),
             )
         }
@@ -227,7 +253,10 @@ private fun BentoBoxGrid(
             // Row 2: One wide rectangle
             BentoCard(
                 item = items[2],
-                onClick = { navigateToShowDetails(items[2], source, onNavigate) },
+                onClick = {
+                    onShowClicked(items[2])
+                    navigateToShowDetails(items[2], source, onNavigate)
+                },
                 modifier = Modifier.fillMaxWidth().height(160.dp),
             )
         }
@@ -240,19 +269,28 @@ private fun BentoBoxGrid(
             ) {
                 BentoCard(
                     item = items[3],
-                    onClick = { navigateToShowDetails(items[3], source, onNavigate) },
+                    onClick = {
+                        onShowClicked(items[3])
+                        navigateToShowDetails(items[3], source, onNavigate)
+                    },
                     modifier = Modifier.weight(1f).height(220.dp),
                 )
                 BentoCard(
                     item = items[4],
-                    onClick = { navigateToShowDetails(items[4], source, onNavigate) },
+                    onClick = {
+                        onShowClicked(items[4])
+                        navigateToShowDetails(items[4], source, onNavigate)
+                    },
                     modifier = Modifier.weight(1f).height(220.dp),
                 )
             }
         } else if (items.size == 4) {
             BentoCard(
                 item = items[3],
-                onClick = { navigateToShowDetails(items[3], source, onNavigate) },
+                onClick = {
+                    onShowClicked(items[3])
+                    navigateToShowDetails(items[3], source, onNavigate)
+                },
                 modifier = Modifier.fillMaxWidth().height(220.dp),
             )
         }
@@ -275,9 +313,9 @@ private fun BentoCard(
         }
     val imageUrl =
         when (item) {
-            is TrendingShow -> item.originalImageUrl
-            is TraktPopularShows -> item.originalImageUrl
-            is TraktMostAnticipated -> item.originalImageUrl
+            is TrendingShow -> item.originalImageUrl ?: item.mediumImageUrl
+            is TraktPopularShows -> item.originalImageUrl ?: item.mediumImageUrl
+            is TraktMostAnticipated -> item.originalImageUrl ?: item.mediumImageUrl
             else -> null
         }
 
@@ -334,9 +372,9 @@ private fun FeaturedShowHero(
         }
     val imageUrl =
         when (item) {
-            is TrendingShow -> item.originalImageUrl
-            is TraktPopularShows -> item.originalImageUrl
-            is TraktMostAnticipated -> item.originalImageUrl
+            is TrendingShow -> item.originalImageUrl ?: item.mediumImageUrl
+            is TraktPopularShows -> item.originalImageUrl ?: item.mediumImageUrl
+            is TraktMostAnticipated -> item.originalImageUrl ?: item.mediumImageUrl
             else -> null
         }
 
@@ -453,4 +491,25 @@ private fun navigateToShowDetails(
             showTraktId = traktID as? Int,
         ),
     )
+}
+
+private data class ExtractedShowDetails(
+    val title: String?,
+    val traktId: Int?
+)
+
+private fun extractShowDetails(item: Any): ExtractedShowDetails {
+    val title = when (item) {
+        is TrendingShow -> item.title
+        is TraktPopularShows -> item.title
+        is TraktMostAnticipated -> item.title
+        else -> null
+    }
+    val traktId = when (item) {
+        is TrendingShow -> if (item.providerId == "trakt") item.id else null
+        is TraktPopularShows -> item.traktID
+        is TraktMostAnticipated -> item.traktID
+        else -> null
+    }
+    return ExtractedShowDetails(title, traktId)
 }

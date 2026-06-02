@@ -61,7 +61,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -94,9 +94,9 @@ fun ShowSeasonsScreen(
         viewModel.setSelectedShow(showDetailArg)
     }
 
-    val showSeasonsList = viewModel.showSeasons.observeAsState()
+    val showSeasonsList = viewModel.showSeasons.collectAsStateWithLifecycle()
 
-    val isLoading = viewModel.isLoading.observeAsState()
+    val isLoading = viewModel.isLoading.collectAsStateWithLifecycle()
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column {

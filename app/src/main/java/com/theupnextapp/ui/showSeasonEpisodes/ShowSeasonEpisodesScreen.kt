@@ -63,7 +63,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.livedata.observeAsState
+
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -100,11 +100,11 @@ fun ShowSeasonEpisodesScreen(
         viewModel.selectedSeason(showSeasonEpisodesArg)
     }
 
-    val seasonNumber = viewModel.seasonNumber.observeAsState()
+    val seasonNumber = viewModel.seasonNumber.collectAsStateWithLifecycle()
 
-    val episodeList = viewModel.episodes.observeAsState()
+    val episodeList = viewModel.episodes.collectAsStateWithLifecycle()
 
-    val isLoading = viewModel.isLoading.observeAsState()
+    val isLoading = viewModel.isLoading.collectAsStateWithLifecycle()
 
     val isAuthorizedOnTrakt = viewModel.isAuthorizedOnTrakt.collectAsStateWithLifecycle()
 

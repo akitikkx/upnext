@@ -23,6 +23,7 @@ android {
         targetSdk 34
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunnerArgument 'androidx.benchmark.suppressErrors', 'EMULATOR'
     }
 
     targetProjectPath = ":app"

@@ -27,6 +27,8 @@ import com.theupnextapp.datasource.TraktAccountDataSource
 import com.theupnextapp.datasource.TraktAuthDataSource
 import com.theupnextapp.datasource.TraktRecommendationsDataSource
 import com.theupnextapp.network.TvMazeService
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
@@ -43,14 +45,18 @@ class TraktRepositoryImplTest {
     private val traktRecommendationsDataSource: TraktRecommendationsDataSource = mock()
     private val traktAccountDataSource: TraktAccountDataSource = mock()
 
+    private val trendingShowsFlow = MutableStateFlow<List<com.theupnextapp.database.DatabaseTrendingShows>>(emptyList())
+    private val popularShowsFlow = MutableStateFlow<List<com.theupnextapp.database.DatabaseTraktPopularShows>>(emptyList())
+    private val mostAnticipatedShowsFlow = MutableStateFlow<List<com.theupnextapp.database.DatabaseTraktMostAnticipated>>(emptyList())
+
     private lateinit var repository: TraktRepositoryImpl
 
     @Before
     fun setup() {
         whenever(traktDao.getTraktAccessData()).thenReturn(flowOf(null))
-        whenever(traktDao.getTrendingShows("trakt")).thenReturn(flowOf(emptyList()))
-        whenever(traktDao.getTraktPopular()).thenReturn(flowOf(emptyList()))
-        whenever(traktDao.getTraktMostAnticipated()).thenReturn(flowOf(emptyList()))
+        whenever(traktDao.getTrendingShows("trakt")).thenReturn(trendingShowsFlow)
+        whenever(traktDao.getTraktPopular()).thenReturn(popularShowsFlow)
+        whenever(traktDao.getTraktMostAnticipated()).thenReturn(mostAnticipatedShowsFlow)
         whenever(traktDao.getWatchlistShows()).thenReturn(flowOf(emptyList()))
 
         repository =
@@ -223,5 +229,118 @@ class TraktRepositoryImplTest {
             assert(result.isFailure)
             verify(traktDao, org.mockito.kotlin.never()).insertWatchlistShow(org.mockito.kotlin.any())
         }
+    }
+
+    @Test
+    fun traktTrendingShows_filtersOutShowsWithoutImages() = runBlocking {
+        val showWithImages = com.theupnextapp.database.DatabaseTrendingShows(
+            id = 1,
+            showId = 101,
+            title = "Show with Images",
+            year = "2024",
+            medium_image_url = "medium_url",
+            original_image_url = "original_url",
+            imdbID = "tt123",
+            slug = "slug",
+            tmdbID = 10,
+            traktID = 101,
+            tvdbID = 1,
+            tvMazeID = 100,
+            providerId = "trakt"
+        )
+        val showWithoutImages = com.theupnextapp.database.DatabaseTrendingShows(
+            id = 2,
+            showId = 102,
+            title = "Show without Images",
+            year = "2024",
+            medium_image_url = null,
+            original_image_url = null,
+            imdbID = "tt124",
+            slug = "slug2",
+            tmdbID = 11,
+            traktID = 102,
+            tvdbID = 2,
+            tvMazeID = 101,
+            providerId = "trakt"
+        )
+        trendingShowsFlow.value = listOf(showWithImages, showWithoutImages)
+
+        val collectedTrending = repository.trendingShows.first()
+        org.junit.Assert.assertEquals(1, collectedTrending.size)
+        org.junit.Assert.assertEquals("Show with Images", collectedTrending.first().title)
+
+        val collectedTraktTrending = repository.traktTrendingShows.first()
+        org.junit.Assert.assertEquals(1, collectedTraktTrending.size)
+        org.junit.Assert.assertEquals("Show with Images", collectedTraktTrending.first().title)
+    }
+
+    @Test
+    fun popularShows_filtersOutShowsWithoutImages() = runBlocking {
+        val showWithImages = com.theupnextapp.database.DatabaseTraktPopularShows(
+            id = 101,
+            title = "Show with Images",
+            year = "2024",
+            medium_image_url = "medium_url",
+            original_image_url = "original_url",
+            imdbID = "tt123",
+            slug = "slug",
+            tmdbID = 10,
+            traktID = 101,
+            tvdbID = 1,
+            tvMazeID = 100
+        )
+        val showWithoutImages = com.theupnextapp.database.DatabaseTraktPopularShows(
+            id = 102,
+            title = "Show without Images",
+            year = "2024",
+            medium_image_url = null,
+            original_image_url = null,
+            imdbID = "tt124",
+            slug = "slug2",
+            tmdbID = 11,
+            traktID = 102,
+            tvdbID = 2,
+            tvMazeID = 101
+        )
+        popularShowsFlow.value = listOf(showWithImages, showWithoutImages)
+
+        val collectedPopular = repository.traktPopularShows.first()
+        org.junit.Assert.assertEquals(1, collectedPopular.size)
+        org.junit.Assert.assertEquals("Show with Images", collectedPopular.first().title)
+    }
+
+    @Test
+    fun mostAnticipatedShows_filtersOutShowsWithoutImages() = runBlocking {
+        val showWithImages = com.theupnextapp.database.DatabaseTraktMostAnticipated(
+            id = 101,
+            title = "Show with Images",
+            year = "2024",
+            medium_image_url = "medium_url",
+            original_image_url = "original_url",
+            imdbID = "tt123",
+            slug = "slug",
+            tmdbID = 10,
+            traktID = 101,
+            tvdbID = 1,
+            tvMazeID = 100
+        )
+        val showWithoutImages = com.theupnextapp.database.DatabaseTraktMostAnticipated(
+            id = 102,
+            title = "Show without Images",
+            year = "2024",
+            medium_image_url = null,
+            original_image_url = null,
+            imdbID = "tt124",
+            slug = "slug2",
+            tmdbID = 11,
+            traktID = 102,
+            tvdbID = 2,
+            tvMazeID = 101
+        )
+        mostAnticipatedShowsFlow.value = listOf(showWithImages, showWithoutImages)
+
+        val collectedAnticipated = repository.traktMostAnticipatedShows.first()
+        org.junit.Assert.assertEquals(1, collectedAnticipated.size)
+        org.junit.Assert.assertEquals("Show with Images", collectedAnticipated.first().title)
     }
 }

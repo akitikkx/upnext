@@ -103,6 +103,7 @@ constructor(
                                 tmdbID = networkShowModel.tmdbID,
                                 traktID = networkShowModel.traktID,
                                 tvdbID = networkShowModel.tvdbID,
+                                imdbID = networkShowModel.imdbID,
                             )
                         showsToUpsert.add(updatedShow)
 
@@ -128,8 +129,14 @@ constructor(
                 }
 
                 if (showsMissingImages.isNotEmpty()) {
+                    val localShowsAfterUpsert = traktDao.getTrendingShowsRaw("trakt")
+                    val localShowsMapAfterUpsert = localShowsAfterUpsert.associateBy { it.showId }
+                    val showsToFetchImagesFor = showsMissingImages.mapNotNull { show ->
+                        localShowsMapAfterUpsert[show.showId]
+                    }
+
                     val showsToUpdateWithFetchedImages: List<DatabaseTrendingShows> = kotlinx.coroutines.coroutineScope {
-                        showsMissingImages.map { showNeedingImage ->
+                        showsToFetchImagesFor.map { showNeedingImage ->
                             async<DatabaseTrendingShows?>(Dispatchers.IO.limitedParallelism(5)) {
                                 var changed = false
                                 var imageUpdatedShow = showNeedingImage
@@ -207,6 +214,7 @@ constructor(
                                 tmdbID = networkShowModel.tmdbID,
                                 traktID = networkShowModel.traktID,
                                 tvdbID = networkShowModel.tvdbID,
+                                imdbID = networkShowModel.imdbID,
                             )
                         showsToUpsert.add(updatedShow)
 

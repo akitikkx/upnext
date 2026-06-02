@@ -21,7 +21,6 @@
 
 package com.theupnextapp.ui.showDetail
 
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequest
@@ -83,7 +82,7 @@ class ShowDetailViewModel
             workManager,
             traktAuthManager,
         ) {
-        private val _show = MutableLiveData<ShowDetailArg?>()
+        private val _show = MutableStateFlow<ShowDetailArg?>(null)
 
         private val _navigateToSeasons = MutableStateFlow(false)
         val navigateToSeasons: StateFlow<Boolean> = _navigateToSeasons.asStateFlow()
@@ -191,6 +190,31 @@ class ShowDetailViewModel
             val userRating: Int? = null,
             val ratingMessage: String? = null,
         )
+
+        init {
+            viewModelScope.launch {
+                var trace: com.google.firebase.perf.metrics.Trace? = null
+                isLoading.collect { loading ->
+                    if (loading) {
+                        if (trace == null) {
+                            try {
+                                trace = com.google.firebase.perf.FirebasePerformance.getInstance().newTrace("show_detail_data_load")
+                                trace?.start()
+                            } catch (e: Exception) {
+                                // Ignored in unit tests
+                            }
+                        }
+                    } else {
+                        try {
+                            trace?.stop()
+                        } catch (e: Exception) {
+                            // Ignored
+                        }
+                        trace = null
+                    }
+                }
+            }
+        }
 
         fun selectedShow(show: ShowDetailArg?) {
             _show.value = show

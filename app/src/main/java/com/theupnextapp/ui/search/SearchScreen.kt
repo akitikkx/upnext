@@ -51,7 +51,7 @@ import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -79,11 +79,11 @@ fun SearchScreen(
     onNavigate: (Destinations) -> Unit,
     contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
-    val searchResultsList = viewModel.searchResponse.observeAsState()
+    val searchResultsList = viewModel.searchResponse.collectAsStateWithLifecycle()
 
-    val isLoading = viewModel.isLoading.observeAsState()
+    val isLoading = viewModel.isLoading.collectAsStateWithLifecycle()
 
-    val recentSearches = viewModel.recentSearches.observeAsState()
+    val recentSearches = viewModel.recentSearches.collectAsStateWithLifecycle()
 
     val keyboardController = LocalSoftwareKeyboardController.current
 

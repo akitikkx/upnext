@@ -21,8 +21,6 @@
 
 package com.theupnextapp.ui.showSeasons
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.work.Data
@@ -38,6 +36,7 @@ import com.theupnextapp.repository.WatchProgressRepository
 import com.theupnextapp.ui.common.BaseTraktViewModel
 import com.theupnextapp.work.SyncWatchProgressWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOf
@@ -59,11 +58,11 @@ class ShowSeasonsViewModel
             localWorkManager,
             traktAuthManager,
         ) {
-        private val _isLoading = MutableLiveData<Boolean>()
-        val isLoading: LiveData<Boolean> = _isLoading
+        private val _isLoading = kotlinx.coroutines.flow.MutableStateFlow(false)
+        val isLoading: kotlinx.coroutines.flow.StateFlow<Boolean> = _isLoading.asStateFlow()
 
-        private val _showSeasons = MutableLiveData<List<ShowSeason>?>()
-        val showSeasons: LiveData<List<ShowSeason>?> = _showSeasons
+        private val _showSeasons = kotlinx.coroutines.flow.MutableStateFlow<List<ShowSeason>?>(null)
+        val showSeasons: kotlinx.coroutines.flow.StateFlow<List<ShowSeason>?> = _showSeasons.asStateFlow()
 
         private var currentShowTvMazeId: Int? = null
         private var currentShowTraktId: Int? = null
@@ -102,13 +101,13 @@ class ShowSeasonsViewModel
                                 }
                             }
                             is Result.Loading -> {
-                                _isLoading.postValue(seasonsResult.status)
+                                _isLoading.value = seasonsResult.status
                                 null
                             }
                             else -> null
                         }
                     }.collect { processedSeasons ->
-                        processedSeasons?.let { _showSeasons.postValue(it) }
+                        processedSeasons?.let { _showSeasons.value = it }
                     }
                 }
             }

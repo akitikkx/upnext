@@ -107,30 +107,36 @@ class TraktRepositoryImpl(
     override val isLoadingTrending: StateFlow<Boolean> = _isLoadingTraktTrending.asStateFlow()
 
     override val traktTrendingShows: Flow<List<TraktTrendingShows>> =
-        traktDao.getTrendingShows(providerId).map { list -> list.asDomainModel().map { 
-            TraktTrendingShows(
-                id = it.id,
-                title = it.title,
-                year = it.year,
-                mediumImageUrl = it.mediumImageUrl,
-                originalImageUrl = it.originalImageUrl,
-                imdbID = it.imdbID,
-                slug = null,
-                tmdbID = it.tmdbID,
-                traktID = it.id,
-                tvdbID = null,
-                tvMazeID = it.tvMazeID
-            ) 
-        } }
+        traktDao.getTrendingShows(providerId).map { list ->
+            list.asDomainModel().map {
+                TraktTrendingShows(
+                    id = it.id,
+                    title = it.title,
+                    year = it.year,
+                    mediumImageUrl = it.mediumImageUrl,
+                    originalImageUrl = it.originalImageUrl,
+                    imdbID = it.imdbID,
+                    slug = null,
+                    tmdbID = it.tmdbID,
+                    traktID = it.id,
+                    tvdbID = null,
+                    tvMazeID = it.tvMazeID
+                )
+            }.filter { !it.mediumImageUrl.isNullOrEmpty() || !it.originalImageUrl.isNullOrEmpty() }
+        }
 
-    override val trendingShows: Flow<List<TrendingShow>> = 
-        traktDao.getTrendingShows(providerId).map { list -> list.asDomainModel() }
+    override val trendingShows: Flow<List<TrendingShow>> =
+        traktDao.getTrendingShows(providerId).map { list ->
+            list.asDomainModel().filter { !it.mediumImageUrl.isNullOrEmpty() || !it.originalImageUrl.isNullOrEmpty() }
+        }
 
     private val _isLoadingTraktPopular = MutableStateFlow(false)
     override val isLoadingTraktPopular: StateFlow<Boolean> = _isLoadingTraktPopular.asStateFlow()
 
     override val traktPopularShows: Flow<List<TraktPopularShows>> =
-        traktDao.getTraktPopular().map { list -> list.asDomainModel() }
+        traktDao.getTraktPopular().map { list ->
+            list.asDomainModel().filter { !it.mediumImageUrl.isNullOrEmpty() || !it.originalImageUrl.isNullOrEmpty() }
+        }
 
     override val popularShows: Flow<List<TraktPopularShows>> = traktPopularShows
 
@@ -139,7 +145,9 @@ class TraktRepositoryImpl(
         _isLoadingTraktMostAnticipated.asStateFlow()
 
     override val traktMostAnticipatedShows: Flow<List<TraktMostAnticipated>> =
-        traktDao.getTraktMostAnticipated().map { list -> list.asDomainModel() }
+        traktDao.getTraktMostAnticipated().map { list ->
+            list.asDomainModel().filter { !it.mediumImageUrl.isNullOrEmpty() || !it.originalImageUrl.isNullOrEmpty() }
+        }
         
     override val mostAnticipatedShows: Flow<List<TraktMostAnticipated>> = traktMostAnticipatedShows
 

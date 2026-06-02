@@ -21,8 +21,6 @@
 
 package com.theupnextapp.ui.showSeasonEpisodes
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequestBuilder
@@ -37,6 +35,7 @@ import com.theupnextapp.repository.WatchProgressRepository
 import com.theupnextapp.ui.common.BaseTraktViewModel
 import com.theupnextapp.work.SyncWatchProgressWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOf
@@ -58,14 +57,14 @@ class ShowSeasonEpisodesViewModel
             localWorkManager,
             traktAuthManager,
         ) {
-        private val _isLoading = MutableLiveData<Boolean>()
-        val isLoading: LiveData<Boolean> = _isLoading
+        private val _isLoading = kotlinx.coroutines.flow.MutableStateFlow(false)
+        val isLoading: kotlinx.coroutines.flow.StateFlow<Boolean> = _isLoading.asStateFlow()
 
-        private val _episodes = MutableLiveData<List<ShowSeasonEpisode>?>()
-        val episodes: LiveData<List<ShowSeasonEpisode>?> = _episodes
+        private val _episodes = kotlinx.coroutines.flow.MutableStateFlow<List<ShowSeasonEpisode>?>(null)
+        val episodes: kotlinx.coroutines.flow.StateFlow<List<ShowSeasonEpisode>?> = _episodes.asStateFlow()
 
-        private val _seasonNumber = MutableLiveData<Int?>()
-        val seasonNumber: LiveData<Int?> = _seasonNumber
+        private val _seasonNumber = kotlinx.coroutines.flow.MutableStateFlow<Int?>(null)
+        val seasonNumber: kotlinx.coroutines.flow.StateFlow<Int?> = _seasonNumber.asStateFlow()
 
         private var currentShowTraktId: Int? = null
         private var currentShowTvMazeId: Int? = null
@@ -134,14 +133,14 @@ class ShowSeasonEpisodesViewModel
                         }
 
                         is Result.Loading -> {
-                            _isLoading.postValue(episodeResult.status)
+                            _isLoading.value = episodeResult.status
                             null
                         }
 
                         else -> null
                     }
                 }.collect { episodes ->
-                    episodes?.let { _episodes.postValue(it) }
+                    episodes?.let { _episodes.value = it }
                 }
             }
         }
