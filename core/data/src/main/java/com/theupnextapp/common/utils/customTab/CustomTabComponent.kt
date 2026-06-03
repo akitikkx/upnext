@@ -76,10 +76,15 @@ open class CustomTabComponent : TabServiceConnectionCallback {
 
     fun unBindCustomTabService(activity: Activity) {
         if (tabServiceConnection == null) return
-        activity.unbindService(tabServiceConnection as CustomTabsServiceConnection)
-        client = null
-        customTabSession = null
-        tabServiceConnection = null
+        try {
+            activity.unbindService(tabServiceConnection as CustomTabsServiceConnection)
+        } catch (e: IllegalArgumentException) {
+            Timber.e(e, "Service not registered during unbind")
+        } finally {
+            client = null
+            customTabSession = null
+            tabServiceConnection = null
+        }
     }
 
     fun getSession(): CustomTabsSession? {
@@ -99,12 +104,15 @@ open class CustomTabComponent : TabServiceConnectionCallback {
         if (client != null) return
 
         val packageName = detectCorrectPackage(activity) ?: return
-        tabServiceConnection = TabServiceConnection(this)
-        CustomTabsClient.bindCustomTabsService(
+        val connection = TabServiceConnection(this)
+        val bound = CustomTabsClient.bindCustomTabsService(
             activity,
             packageName,
-            tabServiceConnection as TabServiceConnection,
+            connection,
         )
+        if (bound) {
+            tabServiceConnection = connection
+        }
     }
 
     fun mayLaunchUrl(
