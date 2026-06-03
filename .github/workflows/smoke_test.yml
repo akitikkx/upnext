@@ -57,7 +57,7 @@ jobs:
           script: ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.theupnextapp.AppSmokeTest
           
       - name: Upload Test Results
-        if: ${{ failure() }}
+        if: ${{ always() }}
         uses: actions/upload-artifact@v7
         with:
           name: smoke-test-report
