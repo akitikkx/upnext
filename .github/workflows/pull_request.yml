@@ -67,8 +67,8 @@ jobs:
         run: |
           rm ./app/google-services.json
 
-  smoke-tests:
-    name: Smoke Tests (Instrumented)
+  ui-tests:
+    name: UI Tests (Instrumented)
     needs: verify
     runs-on: ubuntu-latest
     timeout-minutes: 45
@@ -101,7 +101,7 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
           
-      - name: Run Smoke Tests
+      - name: Run Instrumented Tests
         uses: reactivecircus/android-emulator-runner@v2
         env:
           TMDB_ACCESS_TOKEN: ${{ secrets.TMDB_ACCESS_TOKEN }}
@@ -112,7 +112,7 @@ jobs:
           target: google_apis
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
-          script: ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.theupnextapp.AppSmokeTest
+          script: ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.notClass=com.theupnextapp.screengrab.ScreenshotGenerationTest
           
       - name: Upload Test Results
         if: ${{ always() }}
