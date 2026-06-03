@@ -104,24 +104,24 @@ fun AppNavigation(
                 onBack = onBack,
                 modifier = Modifier.weight(1f),
                 transitionSpec = {
-                    (slideInHorizontally(
-                        initialOffsetX = { 300 },
+                    ((slideInHorizontally(
+                        initialOffsetX = { it },
                         animationSpec = tween(300),
                     ) + fadeIn(animationSpec = tween(300))) togetherWith
                     (slideOutHorizontally(
-                        targetOffsetX = { -300 },
+                        targetOffsetX = { -it },
                         animationSpec = tween(300),
-                    ) + fadeOut(animationSpec = tween(300)))
+                    ) + fadeOut(animationSpec = tween(300)))).using(null)
                 },
                 popTransitionSpec = {
-                    (slideInHorizontally(
-                        initialOffsetX = { -300 },
+                    ((slideInHorizontally(
+                        initialOffsetX = { -it },
                         animationSpec = tween(300),
                     ) + fadeIn(animationSpec = tween(300))) togetherWith
                     (slideOutHorizontally(
-                        targetOffsetX = { 300 },
+                        targetOffsetX = { it },
                         animationSpec = tween(300),
-                    ) + fadeOut(animationSpec = tween(300)))
+                    ) + fadeOut(animationSpec = tween(300)))).using(null)
                 },
                 entryDecorators = listOf(
                     rememberSaveableStateHolderNavEntryDecorator(),
