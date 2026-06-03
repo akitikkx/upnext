@@ -44,7 +44,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -104,7 +103,7 @@ fun DashboardScreen(
 
     val todayShows by viewModel.todayShows.collectAsState()
     val mostAnticipatedShows by viewModel.mostAnticipatedShows.collectAsState()
-    val isLoadingTodayShows by viewModel.isLoadingTodayShows.observeAsState(false)
+    val isLoadingTodayShows by viewModel.isLoadingTodayShows.collectAsStateWithLifecycle()
     val isLoadingMostAnticipated by viewModel.isLoadingMostAnticipated.collectAsState()
 
     val regionalTrendingShows by viewModel.regionalTrendingShows.collectAsStateWithLifecycle()
@@ -122,7 +121,7 @@ fun DashboardScreen(
         val carouselPageSize = if (isCompactPane) 260.dp else 340.dp
 
         LazyColumn(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().testTag("dashboard_list"),
             contentPadding = PaddingValues(
                 start = 16.dp + contentPadding.calculateStartPadding(LocalLayoutDirection.current),
                 end = 16.dp + contentPadding.calculateEndPadding(LocalLayoutDirection.current),

@@ -38,6 +38,12 @@ class ScrollBenchmarks {
     @Test
     fun scrollCompilationBaselineProfiles() = scroll(CompilationMode.Partial())
 
+    @Test
+    fun scrollExploreCompilationNone() = scrollExplore(CompilationMode.None())
+
+    @Test
+    fun scrollExploreCompilationBaselineProfiles() = scrollExplore(CompilationMode.Partial())
+
     private fun scroll(compilationMode: CompilationMode) {
         rule.measureRepeated(
             packageName = "com.theupnextapp",
@@ -48,10 +54,33 @@ class ScrollBenchmarks {
             setupBlock = {
                 pressHome()
                 startActivityAndWait()
+                waitForAsyncContent()
+                pressHome()
             },
             measureBlock = {
-                waitForAsyncContent()
+                startActivityAndWait()
                 scrollDashboardListJourney()
+            }
+        )
+    }
+
+    private fun scrollExplore(compilationMode: CompilationMode) {
+        rule.measureRepeated(
+            packageName = "com.theupnextapp",
+            metrics = listOf(FrameTimingMetric(), TraceSectionMetric("TMDBImageFetch")),
+            compilationMode = compilationMode,
+            iterations = 10,
+            startupMode = StartupMode.WARM,
+            setupBlock = {
+                pressHome()
+                startActivityAndWait()
+                waitForAsyncContent()
+                navigateToExploreScreenJourney()
+                pressHome()
+            },
+            measureBlock = {
+                startActivityAndWait()
+                scrollExploreListJourney()
             }
         )
     }

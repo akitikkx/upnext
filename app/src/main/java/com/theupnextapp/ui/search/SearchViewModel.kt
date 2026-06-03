@@ -23,14 +23,17 @@ package com.theupnextapp.ui.search
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import com.theupnextapp.domain.RecentSearch
 import com.theupnextapp.domain.Result
 import com.theupnextapp.domain.ShowSearch
 import com.theupnextapp.repository.SearchRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -41,11 +44,36 @@ class SearchViewModel
         application: Application,
         private val searchRepository: SearchRepository,
     ) : AndroidViewModel(application) {
-        private val _isLoading = MutableLiveData<Boolean>()
-        val isLoading: LiveData<Boolean> = _isLoading
+        private val _isLoading = MutableStateFlow(false)
+        val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
-        private val _searchResponse = MutableLiveData<List<ShowSearch>>()
-        val searchResponse: LiveData<List<ShowSearch>> = _searchResponse
+        private val _searchResponse = MutableStateFlow<List<ShowSearch>>(emptyList())
+        val searchResponse: StateFlow<List<ShowSearch>> = _searchResponse.asStateFlow()
+
+        init {
+            viewModelScope.launch {
+                var trace: com.google.firebase.perf.metrics.Trace? = null
+                isLoading.collect { loading ->
+                    if (loading) {
+                        if (trace == null) {
+                            try {
+                                trace = com.google.firebase.perf.FirebasePerformance.getInstance().newTrace("search_data_load")
+                                trace?.start()
+                            } catch (e: Exception) {
+                                // Ignored in unit tests
+                            }
+                        }
+                    } else {
+                        try {
+                            trace?.stop()
+                        } catch (e: Exception) {
+                            // Ignored
+                        }
+                        trace = null
+                    }
+                }
+            }
+        }
 
         fun onQueryTextSubmit(query: String?) {
             handleQuery(query)
@@ -63,7 +91,12 @@ class SearchViewModel
             }
         }
 
-        val recentSearches = searchRepository.getRecentSearches().asLiveData()
+        val recentSearches: StateFlow<List<RecentSearch>> = searchRepository.getRecentSearches()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyList(),
+            )
 
         private fun handleQuery(query: String?) {
             viewModelScope.launch {

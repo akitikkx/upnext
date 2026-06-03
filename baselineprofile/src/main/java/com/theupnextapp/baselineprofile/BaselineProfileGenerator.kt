@@ -68,6 +68,11 @@ class BaselineProfileGenerator {
 
             scrollDashboardListJourney()
 
+            navigateToExploreScreenJourney()
+            scrollExploreListJourney()
+
+            navigateToDashboardScreenJourney()
+
             goToShowDetailJourney()
 
             accountScreenJourney()
@@ -78,26 +83,76 @@ class BaselineProfileGenerator {
     }
 }
 
+fun MacrobenchmarkScope.dismissOnboardingIfVisible() {
+    val startTime = System.currentTimeMillis()
+    while (System.currentTimeMillis() - startTime < 5000) {
+        if (device.hasObject(By.res("dashboard_list"))) {
+            return
+        }
+        val skipButton = device.findObject(By.text("Skip"))
+        if (skipButton != null) {
+            skipButton.click()
+            device.waitForIdle()
+            return
+        }
+        Thread.sleep(200)
+    }
+}
+
 fun MacrobenchmarkScope.waitForAsyncContent() {
+    dismissOnboardingIfVisible()
     device.wait(Until.hasObject(By.res("dashboard_list")), 10_000)
     val dashboardContent = device.findObject(By.res("dashboard_list"))
-    dashboardContent.wait(Until.hasObject(By.res("show_item")), 15_000)
+    dashboardContent?.wait(
+        Until.hasObject(
+            By.res(java.util.regex.Pattern.compile(".*(dashboard_show_card|anticipated_show_card|regional_trending_show_card|show_item)"))
+        ),
+        15_000
+    )
 }
 
 fun MacrobenchmarkScope.scrollDashboardListJourney() {
     val dashboardList = device.findObject(By.res("dashboard_list"))
-    dashboardList.setGestureMargin(device.displayWidth / 5)
-    dashboardList.fling(Direction.DOWN)
-    dashboardList.fling(Direction.UP)
-    device.waitForIdle()
+    dashboardList?.let { list ->
+        list.setGestureMargin(device.displayWidth / 5)
+        list.fling(Direction.DOWN)
+        list.fling(Direction.UP)
+        device.waitForIdle()
+    }
+}
+
+fun MacrobenchmarkScope.navigateToExploreScreenJourney() {
+    device.wait(Until.hasObject(By.res("Explore")), 10_000)
+    device.findObject(By.res("Explore"))?.click()
+    device.wait(Until.hasObject(By.res("explore_grid")), 15_000)
+}
+
+fun MacrobenchmarkScope.scrollExploreListJourney() {
+    val exploreGrid = device.findObject(By.res("explore_grid"))
+    exploreGrid?.let { grid ->
+        grid.setGestureMargin(device.displayWidth / 5)
+        grid.fling(Direction.DOWN)
+        grid.fling(Direction.UP)
+        device.waitForIdle()
+    }
+}
+
+fun MacrobenchmarkScope.navigateToDashboardScreenJourney() {
+    device.wait(Until.hasObject(By.res("Dashboard")), 10_000)
+    device.findObject(By.res("Dashboard"))?.click()
+    device.wait(Until.hasObject(By.res("dashboard_list")), 15_000)
 }
 
 fun MacrobenchmarkScope.goToShowDetailJourney() {
     val dashboardList = device.findObject(By.res("dashboard_list"))
-    val showItems = dashboardList.findObjects(By.res("show_item"))
-    val index = (iteration ?: 0) % showItems.size
-    showItems[index].click()
-    device.wait(Until.gone(By.res("dashboard_list")), 5_000)
+    val showItems = dashboardList?.findObjects(
+        By.res(java.util.regex.Pattern.compile(".*(dashboard_show_card|anticipated_show_card|regional_trending_show_card|show_item)"))
+    ) ?: emptyList()
+    if (showItems.isNotEmpty()) {
+        val index = (iteration ?: 0) % showItems.size
+        showItems[index].click()
+        device.wait(Until.gone(By.res("dashboard_list")), 5_000)
+    }
 }
 
 fun MacrobenchmarkScope.accountScreenJourney() {

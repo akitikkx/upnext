@@ -21,14 +21,19 @@
 
 package com.theupnextapp.ui.schedule
 
-import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import androidx.work.WorkManager
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.logEvent
+import com.theupnextapp.domain.ScheduleShow
 import com.theupnextapp.repository.DashboardRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -39,63 +44,72 @@ class ScheduleViewModel
         private val workManager: WorkManager,
         private val firebaseAnalytics: FirebaseAnalytics,
     ) : ViewModel() {
-        init {
-            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW) {
-                param(FirebaseAnalytics.Param.SCREEN_NAME, "Schedule")
-                param(FirebaseAnalytics.Param.SCREEN_CLASS, "ScheduleScreen")
-            }
-        }
 
         val isLoadingYesterdayShows = dashboardRepository.isLoadingYesterdayShows
         val isLoadingTodayShows = dashboardRepository.isLoadingTodayShows
         val isLoadingTomorrowShows = dashboardRepository.isLoadingTomorrowShows
 
-        val yesterdayShowsList = dashboardRepository.yesterdayShows.asLiveData()
+        val yesterdayShowsList: StateFlow<List<ScheduleShow>> = dashboardRepository.yesterdayShows
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyList(),
+            )
 
-        val todayShowsList = dashboardRepository.todayShows.asLiveData()
+        val todayShowsList: StateFlow<List<ScheduleShow>> = dashboardRepository.todayShows
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyList(),
+            )
 
-        val tomorrowShowsList = dashboardRepository.tomorrowShows.asLiveData()
+        val tomorrowShowsList: StateFlow<List<ScheduleShow>> = dashboardRepository.tomorrowShows
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyList(),
+            )
 
-        private val yesterdayShowsEmpty =
-            MediatorLiveData<Boolean>().apply {
-                addSource(yesterdayShowsList) {
-                    value = it.isNullOrEmpty() == true
-                }
+        val isLoading: StateFlow<Boolean> =
+            combine(
+                isLoadingYesterdayShows,
+                isLoadingTodayShows,
+                isLoadingTomorrowShows
+            ) { yesterday, today, tomorrow ->
+                yesterday || today || tomorrow
+            }.stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = true,
+            )
+
+        init {
+            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW) {
+                param(FirebaseAnalytics.Param.SCREEN_NAME, "Schedule")
+                param(FirebaseAnalytics.Param.SCREEN_CLASS, "ScheduleScreen")
             }
 
-        private val todayShowsEmpty =
-            MediatorLiveData<Boolean>().apply {
-                addSource(todayShowsList) {
-                    value = it.isNullOrEmpty() == true
+            viewModelScope.launch {
+                var trace: com.google.firebase.perf.metrics.Trace? = null
+                isLoading.collect { loading ->
+                    if (loading) {
+                        if (trace == null) {
+                            try {
+                                trace = com.google.firebase.perf.FirebasePerformance.getInstance().newTrace("schedule_data_load")
+                                trace?.start()
+                            } catch (e: Exception) {
+                                // Ignored in unit tests
+                            }
+                        }
+                    } else {
+                        try {
+                            trace?.stop()
+                        } catch (e: Exception) {
+                            // Ignored
+                        }
+                        trace = null
+                    }
                 }
             }
-
-        private val tomorrowShowsEmpty =
-            MediatorLiveData<Boolean>().apply {
-                addSource(tomorrowShowsList) {
-                    value = it.isNullOrEmpty() == true
-                }
-            }
-
-        val isLoading =
-            MediatorLiveData<Boolean>().apply {
-                val updateLoadingState = {
-                    // Value is true if any of the individual loading states are true
-                    // Ensure you handle nulls from the LiveData sources if they haven't emitted yet.
-                    // isLoadingYesterdayShows.value could be null initially.
-                    value = (isLoadingYesterdayShows.value == true) ||
-                        (isLoadingTodayShows.value == true) ||
-                        (isLoadingTomorrowShows.value == true)
-                }
-
-                addSource(isLoadingYesterdayShows) {
-                    updateLoadingState()
-                }
-                addSource(isLoadingTodayShows) {
-                    updateLoadingState()
-                }
-                addSource(isLoadingTomorrowShows) {
-                    updateLoadingState()
-                }
-            }
+        }
     }

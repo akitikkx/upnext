@@ -21,8 +21,6 @@
 
 package com.theupnextapp.repository
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.theupnextapp.common.CrashlyticsHelper
 import com.theupnextapp.common.utils.models.DatabaseTables
 import com.theupnextapp.common.utils.models.TableUpdateInterval
@@ -40,14 +38,17 @@ import com.theupnextapp.network.asDatabaseModel
 import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowImageResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 interface DashboardRepository {
-    val isLoadingYesterdayShows: LiveData<Boolean>
-    val isLoadingTodayShows: LiveData<Boolean>
-    val isLoadingTomorrowShows: LiveData<Boolean>
+    val isLoadingYesterdayShows: StateFlow<Boolean>
+    val isLoadingTodayShows: StateFlow<Boolean>
+    val isLoadingTomorrowShows: StateFlow<Boolean>
 
     val yesterdayShows: Flow<List<ScheduleShow>>
     val todayShows: Flow<List<ScheduleShow>>
@@ -81,14 +82,14 @@ class DashboardRepositoryImpl(
     private val tvMazeDao: TvMazeDao,
     private val firebaseCrashlytics: CrashlyticsHelper,
 ) : BaseRepository(upnextDao = upnextDao, tvMazeService = tvMazeService), DashboardRepository {
-    private val _isLoadingYesterdayShows = MutableLiveData<Boolean>(false)
-    override val isLoadingYesterdayShows: LiveData<Boolean> = _isLoadingYesterdayShows
+    private val _isLoadingYesterdayShows = MutableStateFlow<Boolean>(false)
+    override val isLoadingYesterdayShows: StateFlow<Boolean> = _isLoadingYesterdayShows.asStateFlow()
 
-    private val _isLoadingTodayShows = MutableLiveData<Boolean>(false)
-    override val isLoadingTodayShows: LiveData<Boolean> = _isLoadingTodayShows
+    private val _isLoadingTodayShows = MutableStateFlow<Boolean>(false)
+    override val isLoadingTodayShows: StateFlow<Boolean> = _isLoadingTodayShows.asStateFlow()
 
-    private val _isLoadingTomorrowShows = MutableLiveData<Boolean>(false)
-    override val isLoadingTomorrowShows: LiveData<Boolean> = _isLoadingTomorrowShows
+    private val _isLoadingTomorrowShows = MutableStateFlow<Boolean>(false)
+    override val isLoadingTomorrowShows: StateFlow<Boolean> = _isLoadingTomorrowShows.asStateFlow()
 
     override val yesterdayShows: Flow<List<ScheduleShow>>
         get() =
@@ -124,7 +125,7 @@ class DashboardRepositoryImpl(
                         intervalMinutes = TableUpdateInterval.DASHBOARD_ITEMS.intervalMins,
                     )
                 ) {
-                    _isLoadingYesterdayShows.postValue(true)
+                    _isLoadingYesterdayShows.value = true
                     val shows: MutableList<DatabaseYesterdaySchedule> = arrayListOf()
                     val yesterdayShowsList =
                         tvMazeService.getYesterdayScheduleAsync(
@@ -150,14 +151,14 @@ class DashboardRepositoryImpl(
                             ),
                         )
                     }
-                    _isLoadingYesterdayShows.postValue(false)
+                    _isLoadingYesterdayShows.value = false
                 } else {
-                    if (_isLoadingYesterdayShows.value == true) {
-                        _isLoadingYesterdayShows.postValue(false)
+                    if (_isLoadingYesterdayShows.value) {
+                        _isLoadingYesterdayShows.value = false
                     }
                 }
             } catch (e: Exception) {
-                _isLoadingYesterdayShows.postValue(false)
+                _isLoadingYesterdayShows.value = false
                 Timber.d(e)
                 firebaseCrashlytics.recordException(e)
             }
@@ -175,7 +176,7 @@ class DashboardRepositoryImpl(
                         intervalMinutes = TableUpdateInterval.DASHBOARD_ITEMS.intervalMins,
                     )
                 ) {
-                    _isLoadingTodayShows.postValue(true)
+                    _isLoadingTodayShows.value = true
                     val shows: MutableList<DatabaseTodaySchedule> = arrayListOf()
                     val todayShowsList =
                         tvMazeService.getTodayScheduleAsync(countryCode, date).await()
@@ -197,14 +198,14 @@ class DashboardRepositoryImpl(
                             ),
                         )
                     }
-                    _isLoadingTodayShows.postValue(false)
+                    _isLoadingTodayShows.value = false
                 } else {
-                    if (_isLoadingTodayShows.value == true) {
-                        _isLoadingTodayShows.postValue(false)
+                    if (_isLoadingTodayShows.value) {
+                        _isLoadingTodayShows.value = false
                     }
                 }
             } catch (e: Exception) {
-                _isLoadingTodayShows.postValue(false)
+                _isLoadingTodayShows.value = false
                 Timber.d(e)
                 firebaseCrashlytics.recordException(e)
             }
@@ -222,7 +223,7 @@ class DashboardRepositoryImpl(
                         intervalMinutes = TableUpdateInterval.DASHBOARD_ITEMS.intervalMins,
                     )
                 ) {
-                    _isLoadingTomorrowShows.postValue(true)
+                    _isLoadingTomorrowShows.value = true
                     val tomorrowShowsList =
                         tvMazeService.getTomorrowScheduleAsync(countryCode, date).await()
 
@@ -245,14 +246,14 @@ class DashboardRepositoryImpl(
                             ),
                         )
                     }
-                    _isLoadingTomorrowShows.postValue(false)
+                    _isLoadingTomorrowShows.value = false
                 } else {
-                    if (_isLoadingTomorrowShows.value == true) {
-                        _isLoadingTomorrowShows.postValue(false)
+                    if (_isLoadingTomorrowShows.value) {
+                        _isLoadingTomorrowShows.value = false
                     }
                 }
             } catch (e: Exception) {
-                _isLoadingTomorrowShows.postValue(false)
+                _isLoadingTomorrowShows.value = false
                 Timber.d(e)
                 firebaseCrashlytics.recordException(e)
             }

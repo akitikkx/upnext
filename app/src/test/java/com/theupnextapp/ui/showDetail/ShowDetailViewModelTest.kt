@@ -90,6 +90,11 @@ class ShowDetailViewModelTest {
     }
 
     @Test
+    fun `viewModelInitializesWithoutNullPointerException under unconfined dispatcher`() {
+        assertNotNull(viewModel)
+    }
+
+    @Test
     fun `similarShows_success updates ui state`() =
         runTest {
             // Given

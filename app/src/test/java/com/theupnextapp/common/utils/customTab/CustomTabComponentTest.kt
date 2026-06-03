@@ -28,8 +28,15 @@ import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.net.Uri
+import android.os.Bundle
+import androidx.browser.customtabs.CustomTabsClient
 import androidx.browser.customtabs.CustomTabsIntent
+import androidx.browser.customtabs.CustomTabsSession
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -37,6 +44,8 @@ import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.Mock
+import org.mockito.Mockito.doThrow
+import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
@@ -101,5 +110,130 @@ class CustomTabComponentTest {
         customTabComponent.openCustomTab(activity, customTabsIntent, uri, customTabFallback)
 
         verify(customTabFallback).openUri(activity, uri)
+    }
+
+    @Test
+    fun unBindCustomTabService_whenConnectionIsNull_shouldNotCallUnbindService() {
+        customTabComponent.unBindCustomTabService(activity)
+        verify(activity, never()).unbindService(any())
+    }
+
+    @Test
+    fun unBindCustomTabService_whenConnectionIsNotNull_shouldCallUnbindService() {
+        val mockConnection = org.mockito.Mockito.mock(androidx.browser.customtabs.CustomTabsServiceConnection::class.java)
+        setPrivateField(customTabComponent, "tabServiceConnection", mockConnection)
+
+        customTabComponent.unBindCustomTabService(activity)
+
+        verify(activity).unbindService(mockConnection)
+    }
+
+    @Test
+    fun unBindCustomTabService_whenUnbindThrowsIllegalArgumentException_shouldHandleGracefully() {
+        val mockConnection = org.mockito.Mockito.mock(androidx.browser.customtabs.CustomTabsServiceConnection::class.java)
+        setPrivateField(customTabComponent, "tabServiceConnection", mockConnection)
+
+        doThrow(IllegalArgumentException("Service not registered")).`when`(activity).unbindService(mockConnection)
+
+        // Should not crash
+        customTabComponent.unBindCustomTabService(activity)
+
+        verify(activity).unbindService(mockConnection)
+    }
+
+    @Test
+    fun onTabServiceConnected_shouldWarmupClientAndNotifyCallback() {
+        val mockClient = org.mockito.Mockito.mock(CustomTabsClient::class.java)
+        val mockCallback = org.mockito.Mockito.mock(TabConnectionCallback::class.java)
+        customTabComponent.setConnectionCallback(mockCallback)
+
+        customTabComponent.onTabServiceConnected(mockClient)
+
+        verify(mockClient).warmup(0L)
+        verify(mockCallback).onTabConnected()
+    }
+
+    @Test
+    fun onTabServiceDisconnected_shouldClearClientAndSessionAndNotifyCallback() {
+        val mockCallback = org.mockito.Mockito.mock(TabConnectionCallback::class.java)
+        customTabComponent.setConnectionCallback(mockCallback)
+
+        val mockClient = org.mockito.Mockito.mock(CustomTabsClient::class.java)
+        val mockSession = org.mockito.Mockito.mock(CustomTabsSession::class.java)
+        setPrivateField(customTabComponent, "client", mockClient)
+        setPrivateField(customTabComponent, "customTabSession", mockSession)
+
+        customTabComponent.onTabServiceDisconnected()
+
+        verify(mockCallback).onTabDisconnected()
+        assertNull(customTabComponent.getSession())
+    }
+
+    @Test
+    fun getSession_whenClientIsNull_shouldReturnNull() {
+        setPrivateField(customTabComponent, "client", null)
+        assertNull(customTabComponent.getSession())
+    }
+
+    @Test
+    fun getSession_whenClientIsNotNullAndSessionIsNull_shouldCreateNewSession() {
+        val mockClient = org.mockito.Mockito.mock(CustomTabsClient::class.java)
+        val mockSession = org.mockito.Mockito.mock(CustomTabsSession::class.java)
+        `when`(mockClient.newSession(null)).thenReturn(mockSession)
+        setPrivateField(customTabComponent, "client", mockClient)
+        setPrivateField(customTabComponent, "customTabSession", null)
+
+        val session = customTabComponent.getSession()
+
+        assertNotNull(session)
+        assertEquals(mockSession, session)
+        verify(mockClient).newSession(null)
+    }
+
+    @Test
+    fun getSession_whenClientIsNotNullAndSessionIsNotNull_shouldReturnExistingSession() {
+        val mockClient = org.mockito.Mockito.mock(CustomTabsClient::class.java)
+        val mockSession = org.mockito.Mockito.mock(CustomTabsSession::class.java)
+        setPrivateField(customTabComponent, "client", mockClient)
+        setPrivateField(customTabComponent, "customTabSession", mockSession)
+
+        val session = customTabComponent.getSession()
+
+        assertEquals(mockSession, session)
+        verify(mockClient, never()).newSession(any())
+    }
+
+    @Test
+    fun mayLaunchUrl_whenClientIsNull_shouldReturnFalse() {
+        setPrivateField(customTabComponent, "client", null)
+        val uri = Uri.parse("https://trakt.tv")
+        val result = customTabComponent.mayLaunchUrl(uri, null, null)
+        assertFalse(result)
+    }
+
+    @Test
+    fun mayLaunchUrl_whenClientIsNotNull_shouldDelegateToSession() {
+        val mockClient = org.mockito.Mockito.mock(CustomTabsClient::class.java)
+        val mockSession = org.mockito.Mockito.mock(CustomTabsSession::class.java)
+        val uri = Uri.parse("https://trakt.tv")
+        val bundle = Bundle()
+        val likelyBundles = listOf(Bundle())
+
+        `when`(mockClient.newSession(null)).thenReturn(mockSession)
+        `when`(mockSession.mayLaunchUrl(uri, bundle, likelyBundles)).thenReturn(true)
+
+        setPrivateField(customTabComponent, "client", mockClient)
+        setPrivateField(customTabComponent, "customTabSession", mockSession)
+
+        val result = customTabComponent.mayLaunchUrl(uri, bundle, likelyBundles)
+
+        assertTrue(result)
+        verify(mockSession).mayLaunchUrl(uri, bundle, likelyBundles)
+    }
+
+    private fun setPrivateField(obj: Any, fieldName: String, value: Any?) {
+        val field = obj.javaClass.getDeclaredField(fieldName)
+        field.isAccessible = true
+        field.set(obj, value)
     }
 }

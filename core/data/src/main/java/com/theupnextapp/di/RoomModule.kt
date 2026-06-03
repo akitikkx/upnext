@@ -91,6 +91,7 @@ class RoomModule {
                 MIGRATION_32_33,
                 MIGRATION_33_34,
             )
+            .fallbackToDestructiveMigrationOnDowngrade(dropAllTables = true)
             .build()
     }
 

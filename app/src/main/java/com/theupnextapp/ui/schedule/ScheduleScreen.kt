@@ -39,7 +39,6 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -47,6 +46,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.theupnextapp.R
 import com.theupnextapp.core.designsystem.ui.ReferenceDevices
 import com.theupnextapp.core.designsystem.ui.components.SectionHeadingText
@@ -64,12 +64,12 @@ fun ScheduleScreen(
     onNavigate: (Destinations) -> Unit,
     contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
-    val yesterdayShowsList = viewModel.yesterdayShowsList.observeAsState()
-    val todayShowsList = viewModel.todayShowsList.observeAsState()
-    val tomorrowShowsList = viewModel.tomorrowShowsList.observeAsState()
+    val yesterdayShowsList = viewModel.yesterdayShowsList.collectAsStateWithLifecycle()
+    val todayShowsList = viewModel.todayShowsList.collectAsStateWithLifecycle()
+    val tomorrowShowsList = viewModel.tomorrowShowsList.collectAsStateWithLifecycle()
     val scrollState = rememberScrollState()
     // Set initial value for isLoading
-    val isLoading = viewModel.isLoading.observeAsState(initial = true)
+    val isLoading = viewModel.isLoading.collectAsStateWithLifecycle()
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(

@@ -75,6 +75,13 @@ class DashboardViewModelTest {
             )
         }
         `when`(dashboardRepository.todayShows).thenReturn(flowOf(emptyList()))
+        `when`(dashboardRepository.yesterdayShows).thenReturn(flowOf(emptyList()))
+        `when`(dashboardRepository.tomorrowShows).thenReturn(flowOf(emptyList()))
+        `when`(dashboardRepository.isLoadingYesterdayShows).thenReturn(MutableStateFlow(false))
+        `when`(dashboardRepository.isLoadingTodayShows).thenReturn(MutableStateFlow(false))
+        `when`(dashboardRepository.isLoadingTomorrowShows).thenReturn(MutableStateFlow(false))
+        `when`(traktRepository.isLoading).thenReturn(MutableStateFlow(false))
+        `when`(traktRepository.isLoadingTraktMostAnticipated).thenReturn(MutableStateFlow(false))
         `when`(watchProgressRepository.isSyncing).thenReturn(MutableStateFlow(false))
 
         viewModel =

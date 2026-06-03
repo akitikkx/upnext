@@ -12,14 +12,15 @@
 
 package com.theupnextapp.ui.schedule
 
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.work.WorkManager
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.theupnextapp.CoroutineTestRule
 import com.theupnextapp.domain.ScheduleShow
-import com.theupnextapp.getOrAwaitValue
 import com.theupnextapp.repository.fakes.FakeDashboardRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -30,8 +31,6 @@ import org.mockito.Mockito
 
 @ExperimentalCoroutinesApi
 class ScheduleViewModelTest {
-    @get:Rule
-    var instantTaskExecutorRule = InstantTaskExecutorRule()
 
     @get:Rule
     var coroutineTestRule = CoroutineTestRule()
@@ -50,64 +49,71 @@ class ScheduleViewModelTest {
     }
 
     @Test
-    fun `isLoading is true when only yesterday is loading`() {
+    fun `isLoading is true when only yesterday is loading`() = runTest {
         // Given
+        val collectJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.isLoading.collect {}
+        }
         fakeRepository.setLoadingYesterday(true)
         fakeRepository.setLoadingToday(false)
         fakeRepository.setLoadingTomorrow(false)
 
-        // When
-        val isLoading = viewModel.isLoading.getOrAwaitValue()
-
         // Then
-        assertTrue(isLoading)
+        assertTrue(viewModel.isLoading.value)
+        collectJob.cancel()
     }
 
     @Test
-    fun `isLoading is true when only today is loading`() {
+    fun `isLoading is true when only today is loading`() = runTest {
         // Given
+        val collectJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.isLoading.collect {}
+        }
         fakeRepository.setLoadingYesterday(false)
         fakeRepository.setLoadingToday(true)
         fakeRepository.setLoadingTomorrow(false)
 
-        // When
-        val isLoading = viewModel.isLoading.getOrAwaitValue()
-
         // Then
-        assertTrue(isLoading)
+        assertTrue(viewModel.isLoading.value)
+        collectJob.cancel()
     }
 
     @Test
-    fun `isLoading is true when only tomorrow is loading`() {
+    fun `isLoading is true when only tomorrow is loading`() = runTest {
         // Given
+        val collectJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.isLoading.collect {}
+        }
         fakeRepository.setLoadingYesterday(false)
         fakeRepository.setLoadingToday(false)
         fakeRepository.setLoadingTomorrow(true)
 
-        // When
-        val isLoading = viewModel.isLoading.getOrAwaitValue()
-
         // Then
-        assertTrue(isLoading)
+        assertTrue(viewModel.isLoading.value)
+        collectJob.cancel()
     }
 
     @Test
-    fun `isLoading is false when all of the loading states are false`() {
+    fun `isLoading is false when all of the loading states are false`() = runTest {
         // Given
+        val collectJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.isLoading.collect {}
+        }
         fakeRepository.setLoadingYesterday(false)
         fakeRepository.setLoadingToday(false)
         fakeRepository.setLoadingTomorrow(false)
 
-        // When
-        val isLoading = viewModel.isLoading.getOrAwaitValue()
-
         // Then
-        assertFalse(isLoading)
+        assertFalse(viewModel.isLoading.value)
+        collectJob.cancel()
     }
 
     @Test
-    fun `yesterdayShowsList returns the correct data`() {
+    fun `yesterdayShowsList returns the correct data`() = runTest {
         // Given
+        val collectJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.yesterdayShowsList.collect {}
+        }
         val shows =
             listOf(
                 ScheduleShow(
@@ -129,16 +135,17 @@ class ScheduleViewModelTest {
             )
         fakeRepository.setYesterdayShows(shows)
 
-        // When
-        val yesterdayShows = viewModel.yesterdayShowsList.getOrAwaitValue()
-
         // Then
-        assertEquals(shows, yesterdayShows)
+        assertEquals(shows, viewModel.yesterdayShowsList.value)
+        collectJob.cancel()
     }
 
     @Test
-    fun `todayShowsList returns the correct data`() {
+    fun `todayShowsList returns the correct data`() = runTest {
         // Given
+        val collectJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.todayShowsList.collect {}
+        }
         val shows =
             listOf(
                 ScheduleShow(
@@ -160,16 +167,17 @@ class ScheduleViewModelTest {
             )
         fakeRepository.setTodayShows(shows)
 
-        // When
-        val todayShows = viewModel.todayShowsList.getOrAwaitValue()
-
         // Then
-        assertEquals(shows, todayShows)
+        assertEquals(shows, viewModel.todayShowsList.value)
+        collectJob.cancel()
     }
 
     @Test
-    fun `tomorrowShowsList returns the correct data`() {
+    fun `tomorrowShowsList returns the correct data`() = runTest {
         // Given
+        val collectJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.tomorrowShowsList.collect {}
+        }
         val shows =
             listOf(
                 ScheduleShow(
@@ -191,10 +199,8 @@ class ScheduleViewModelTest {
             )
         fakeRepository.setTomorrowShows(shows)
 
-        // When
-        val tomorrowShows = viewModel.tomorrowShowsList.getOrAwaitValue()
-
         // Then
-        assertEquals(shows, tomorrowShows)
+        assertEquals(shows, viewModel.tomorrowShowsList.value)
+        collectJob.cancel()
     }
 }

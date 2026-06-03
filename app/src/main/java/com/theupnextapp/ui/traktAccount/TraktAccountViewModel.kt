@@ -62,18 +62,6 @@ class TraktAccountViewModel
             workManager,
             traktAuthManager,
         ) {
-        init {
-            viewModelScope.launch {
-                traktAccessToken.collect { token ->
-                    if (token != null && token.isTraktAccessTokenValid()) {
-                        token.access_token?.let {
-                            traktRepository.refreshWatchlist(it)
-                        }
-                    }
-                }
-            }
-        }
-
         // General loading state for initial connection/authorization processes
         val isLoadingConnection: StateFlow<Boolean> = traktRepository.isLoading
 
@@ -194,6 +182,40 @@ class TraktAccountViewModel
                     started = SharingStarted.WhileSubscribed(5000),
                     initialValue = true,
                 )
+
+        init {
+            viewModelScope.launch {
+                traktAccessToken.collect { token ->
+                    if (token != null && token.isTraktAccessTokenValid()) {
+                        token.access_token?.let {
+                            traktRepository.refreshWatchlist(it)
+                        }
+                    }
+                }
+            }
+            viewModelScope.launch {
+                var trace: com.google.firebase.perf.metrics.Trace? = null
+                isScreenLoading.collect { loading ->
+                    if (loading) {
+                        if (trace == null) {
+                            try {
+                                trace = com.google.firebase.perf.FirebasePerformance.getInstance().newTrace("trakt_account_data_load")
+                                trace?.start()
+                            } catch (e: Exception) {
+                                // Ignored in unit tests
+                            }
+                        }
+                    } else {
+                        try {
+                            trace?.stop()
+                        } catch (e: Exception) {
+                            // Ignored
+                        }
+                        trace = null
+                    }
+                }
+            }
+        }
 
         fun onRemoveFromWatchlistClick(traktId: Int) {
             viewModelScope.launch {

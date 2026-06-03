@@ -105,7 +105,7 @@ constructor(
                 initialValue = null,
             )
 
-    val isLoadingTodayShows = dashboardRepository.isLoadingTodayShows
+    val isLoadingTodayShows: StateFlow<Boolean> = dashboardRepository.isLoadingTodayShows
     val isLoadingMostAnticipated: StateFlow<Boolean> = traktRepository.isLoadingTraktMostAnticipated
 
     private val _regionalTrendingShows = MutableStateFlow<List<TraktTrendingShows>?>(null)
@@ -120,7 +120,46 @@ constructor(
     private val _isLoadingRegionalTrending = MutableStateFlow(false)
     val isLoadingRegionalTrending: StateFlow<Boolean> = _isLoadingRegionalTrending.asStateFlow()
 
+    val isLoading: StateFlow<Boolean> =
+        kotlinx.coroutines.flow.combine(
+            isLoadingAiringSoon,
+            isLoadingHistory,
+            isLoadingRecommendations,
+            isLoadingTodayShows,
+            isLoadingMostAnticipated,
+            isLoadingRegionalTrending
+        ) { flowsArray ->
+            flowsArray.any { it }
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = false,
+        )
+
     init {
+        viewModelScope.launch {
+            var trace: com.google.firebase.perf.metrics.Trace? = null
+            isLoading.collect { loading ->
+                if (loading) {
+                    if (trace == null) {
+                        try {
+                            trace = com.google.firebase.perf.FirebasePerformance.getInstance().newTrace("dashboard_data_load")
+                            trace?.start()
+                        } catch (e: Exception) {
+                            // Ignored in unit tests
+                        }
+                    }
+                } else {
+                    try {
+                        trace?.stop()
+                    } catch (e: Exception) {
+                        // Ignored
+                    }
+                    trace = null
+                }
+            }
+        }
+
         viewModelScope.launch {
             firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW) {
                 param(FirebaseAnalytics.Param.SCREEN_NAME, "Dashboard")
