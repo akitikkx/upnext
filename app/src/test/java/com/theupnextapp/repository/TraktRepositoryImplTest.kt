@@ -21,6 +21,9 @@
 
 package com.theupnextapp.repository
 
+import com.theupnextapp.database.DatabaseTraktMostAnticipated
+import com.theupnextapp.database.DatabaseTraktPopularShows
+import com.theupnextapp.database.DatabaseTrendingShows
 import com.theupnextapp.database.TraktDao
 import com.theupnextapp.database.UpnextDao
 import com.theupnextapp.datasource.TraktAccountDataSource
@@ -45,9 +48,9 @@ class TraktRepositoryImplTest {
     private val traktRecommendationsDataSource: TraktRecommendationsDataSource = mock()
     private val traktAccountDataSource: TraktAccountDataSource = mock()
 
-    private val trendingShowsFlow = MutableStateFlow<List<com.theupnextapp.database.DatabaseTrendingShows>>(emptyList())
-    private val popularShowsFlow = MutableStateFlow<List<com.theupnextapp.database.DatabaseTraktPopularShows>>(emptyList())
-    private val mostAnticipatedShowsFlow = MutableStateFlow<List<com.theupnextapp.database.DatabaseTraktMostAnticipated>>(emptyList())
+    private val trendingShowsFlow = MutableStateFlow<List<DatabaseTrendingShows>>(emptyList())
+    private val popularShowsFlow = MutableStateFlow<List<DatabaseTraktPopularShows>>(emptyList())
+    private val mostAnticipatedShowsFlow = MutableStateFlow<List<DatabaseTraktMostAnticipated>>(emptyList())
 
     private lateinit var repository: TraktRepositoryImpl
 
