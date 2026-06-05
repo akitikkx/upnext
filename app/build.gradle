@@ -159,6 +159,11 @@ dependencies {
     implementation libs.android.material3.adaptive.navigation
     implementation libs.android.material3.adaptive.navigation.suite
     implementation libs.androidx.adaptive.navigation.android
+    
+    // Jetpack XR
+    implementation libs.androidx.xr.scenecore
+    implementation libs.androidx.xr.compose
+    implementation libs.androidx.xr.compose.material3
 
 
     // Core modules

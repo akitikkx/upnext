@@ -28,6 +28,8 @@
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
+    <uses-feature android:name="android.software.xr" android:required="false" />
+
     <application
         android:name=".UpnextApplication"
         android:dataExtractionRules="@xml/data_extraction_rules"

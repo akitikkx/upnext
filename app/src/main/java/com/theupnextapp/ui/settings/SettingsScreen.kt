@@ -188,6 +188,25 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
 
         Divider(modifier = Modifier.padding(vertical = 8.dp))
 
+        // XR Spatial Section
+        SettingsSectionHeader(title = "Spatial Computing (XR)")
+        val isSpatial = androidx.xr.compose.platform.LocalSpatialCapabilities.current.isSpatialUiEnabled
+        ListItem(
+            headlineContent = { Text("Environment Mode") },
+            supportingContent = { Text(if (isSpatial) "Active Immersive 3D Space" else "Standard 2D Panel") },
+            trailingContent = {
+                if (isSpatial) {
+                    Icon(
+                        imageVector = Icons.Default.Check,
+                        contentDescription = "Spatial UI Enabled",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+        )
+
+        Divider(modifier = Modifier.padding(vertical = 8.dp))
+
         // About Section
         SettingsSectionHeader(title = stringResource(id = R.string.settings_about))
         ListItem(
