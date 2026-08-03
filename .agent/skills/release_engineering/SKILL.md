@@ -55,8 +55,8 @@ To prevent excessive consumption of GitHub Actions minutes, especially from auto
 
 ### 1. Conditional Deployment (`deploy.yml`)
 The nightly scheduled build incorporates a `check_changes` pre-job. 
-- It evaluates the commit history over the last 24 hours.
-- If no new commits were merged into `main`, it skips the expensive `deploy` job entirely.
+- It checks for commits since the latest git release tag (`git rev-list "${LATEST_TAG}..HEAD" --count`).
+- If no new commits were merged into `main` since the last deployment tag, it skips the expensive `deploy` job entirely.
 - Manual triggers (`workflow_dispatch`) bypass this check and force a deployment.
 
 ### 2. Renovate & PR Auto-Cancellation (`renovate.json` & `pull_request.yml`)
