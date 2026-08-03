@@ -147,7 +147,6 @@ jobs:
 
   ui-tests:
     name: UI Tests (Instrumented)
-    needs: [code-quality, build-validation]
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
