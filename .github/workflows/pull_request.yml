@@ -39,7 +39,7 @@ jobs:
         run: echo $GOOGLE_SERVICES > app/google-services.json
         
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
         
       - name: Run Code Style and Unit Tests
         env:
@@ -86,7 +86,7 @@ jobs:
         run: echo $GOOGLE_SERVICES > app/google-services.json
         
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
         
       - name: Run Android Lint
         env:
@@ -126,7 +126,7 @@ jobs:
         run: echo $GOOGLE_SERVICES > app/google-services.json
         
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
         
       - name: Build Debug and Release
         env:
