@@ -178,7 +178,7 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
           
-      - name: Run Instrumented Tests
+      - name: Run Instrumented & Performance Tests
         uses: reactivecircus/android-emulator-runner@v2
         env:
           TMDB_ACCESS_TOKEN: ${{ secrets.TMDB_ACCESS_TOKEN }}
@@ -189,14 +189,18 @@ jobs:
           target: google_apis
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
-          script: ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.notClass=com.theupnextapp.screengrab.ScreenshotGenerationTest
+          script: |
+            ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.notClass=com.theupnextapp.screengrab.ScreenshotGenerationTest
+            ./gradlew :baselineprofile:connectedNonMinifiedReleaseAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.theupnextapp.baselineprofile.StartupBenchmarks
           
       - name: Upload Test Results
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
-          name: instrumented-test-report
-          path: '**/build/reports/androidTests/'
+          name: instrumented-and-performance-test-report
+          path: |
+            **/build/reports/androidTests/
+            **/build/outputs/connected_android_test_additional_output/
           
       - name: Clean up temporary files
         if: ${{ always() }}
