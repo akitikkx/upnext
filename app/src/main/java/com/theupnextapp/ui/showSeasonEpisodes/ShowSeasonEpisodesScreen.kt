@@ -21,6 +21,7 @@
 
 package com.theupnextapp.ui.showSeasonEpisodes
 
+import androidx.activity.compose.ReportDrawnWhen
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -57,7 +58,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.minimumInteractiveComponentSize
@@ -106,6 +106,10 @@ fun ShowSeasonEpisodesScreen(
     val isLoading = viewModel.isLoading.collectAsStateWithLifecycle()
 
     val isAuthorizedOnTrakt = viewModel.isAuthorizedOnTrakt.collectAsStateWithLifecycle()
+
+    ReportDrawnWhen {
+        !episodeList.value.isNullOrEmpty() || isLoading.value == false
+    }
 
     Surface {
         Column {

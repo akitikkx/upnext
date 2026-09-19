@@ -36,6 +36,8 @@ import com.theupnextapp.repository.WatchProgressRepository
 import com.theupnextapp.ui.common.BaseTraktViewModel
 import com.theupnextapp.work.SyncWatchProgressWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
@@ -58,11 +60,11 @@ class ShowSeasonsViewModel
             localWorkManager,
             traktAuthManager,
         ) {
-        private val _isLoading = kotlinx.coroutines.flow.MutableStateFlow(false)
-        val isLoading: kotlinx.coroutines.flow.StateFlow<Boolean> = _isLoading.asStateFlow()
+        private val _isLoading = MutableStateFlow(false)
+        val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
-        private val _showSeasons = kotlinx.coroutines.flow.MutableStateFlow<List<ShowSeason>?>(null)
-        val showSeasons: kotlinx.coroutines.flow.StateFlow<List<ShowSeason>?> = _showSeasons.asStateFlow()
+        private val _showSeasons = MutableStateFlow<List<ShowSeason>?>(null)
+        val showSeasons: StateFlow<List<ShowSeason>?> = _showSeasons.asStateFlow()
 
         private var currentShowTvMazeId: Int? = null
         private var currentShowTraktId: Int? = null
@@ -117,9 +119,17 @@ class ShowSeasonsViewModel
             val showTraktId = currentShowTraktId ?: return
             val seasonNum = season.seasonNumber ?: return
 
-            viewModelScope.launch {
-                val isCurrentlyWatched = season.isWatched == true
+            val isCurrentlyWatched = season.isWatched == true
+            _showSeasons.value =
+                _showSeasons.value?.map {
+                    if (it.seasonNumber == seasonNum) {
+                        it.copy(isWatched = !isCurrentlyWatched)
+                    } else {
+                        it
+                    }
+                }
 
+            viewModelScope.launch {
                 if (isCurrentlyWatched) {
                     watchProgressRepository.markSeasonUnwatched(
                         showTraktId = showTraktId,

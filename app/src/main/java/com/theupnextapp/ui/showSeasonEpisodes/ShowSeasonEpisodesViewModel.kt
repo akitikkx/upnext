@@ -35,6 +35,8 @@ import com.theupnextapp.repository.WatchProgressRepository
 import com.theupnextapp.ui.common.BaseTraktViewModel
 import com.theupnextapp.work.SyncWatchProgressWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
@@ -57,14 +59,14 @@ class ShowSeasonEpisodesViewModel
             localWorkManager,
             traktAuthManager,
         ) {
-        private val _isLoading = kotlinx.coroutines.flow.MutableStateFlow(false)
-        val isLoading: kotlinx.coroutines.flow.StateFlow<Boolean> = _isLoading.asStateFlow()
+        private val _isLoading = MutableStateFlow(false)
+        val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
-        private val _episodes = kotlinx.coroutines.flow.MutableStateFlow<List<ShowSeasonEpisode>?>(null)
-        val episodes: kotlinx.coroutines.flow.StateFlow<List<ShowSeasonEpisode>?> = _episodes.asStateFlow()
+        private val _episodes = MutableStateFlow<List<ShowSeasonEpisode>?>(null)
+        val episodes: StateFlow<List<ShowSeasonEpisode>?> = _episodes.asStateFlow()
 
-        private val _seasonNumber = kotlinx.coroutines.flow.MutableStateFlow<Int?>(null)
-        val seasonNumber: kotlinx.coroutines.flow.StateFlow<Int?> = _seasonNumber.asStateFlow()
+        private val _seasonNumber = MutableStateFlow<Int?>(null)
+        val seasonNumber: StateFlow<Int?> = _seasonNumber.asStateFlow()
 
         private var currentShowTraktId: Int? = null
         private var currentShowTvMazeId: Int? = null
@@ -92,9 +94,9 @@ class ShowSeasonEpisodesViewModel
             showId: Int,
             seasonNumber: Int,
         ) {
-            viewModelScope.launch {
-                // Pull latest watched state from Trakt before reading local DB
-                currentShowTraktId?.let { traktId ->
+            // Decoupled background refresh of watched status from Trakt
+            currentShowTraktId?.let { traktId ->
+                viewModelScope.launch {
                     traktRepository.traktAccessToken.firstOrNull()?.access_token?.let { token ->
                         try {
                             watchProgressRepository.refreshWatchedFromTrakt(
@@ -106,7 +108,10 @@ class ShowSeasonEpisodesViewModel
                         }
                     }
                 }
+            }
 
+            // Immediately load episodes and watched state from local cache / Room
+            viewModelScope.launch {
                 val episodesFlow =
                     showDetailRepository.getShowSeasonEpisodes(
                         showId = showId,
@@ -151,8 +156,18 @@ class ShowSeasonEpisodesViewModel
             val season = episode.season ?: return
             val episodeNum = episode.number ?: return
 
+            val targetWatchedState = !episode.isWatched
+            _episodes.value =
+                _episodes.value?.map {
+                    if (it.number == episodeNum && it.season == season) {
+                        it.copy(isWatched = targetWatchedState)
+                    } else {
+                        it
+                    }
+                }
+
             viewModelScope.launch {
-                if (episode.isWatched) {
+                if (!targetWatchedState) {
                     watchProgressRepository.markEpisodeUnwatched(
                         showTraktId = showTraktId,
                         seasonNumber = season,
@@ -178,6 +193,8 @@ class ShowSeasonEpisodesViewModel
             val season = currentSeasonNumber ?: return
             val episodesList = _episodes.value ?: return
 
+            _episodes.value = _episodes.value?.map { it.copy(isWatched = true) }
+
             viewModelScope.launch {
                 watchProgressRepository.markSeasonWatched(
                     showTraktId = showTraktId,
@@ -194,6 +211,8 @@ class ShowSeasonEpisodesViewModel
             if (isAuthorizedOnTrakt.value != true) return
             val showTraktId = currentShowTraktId ?: return
             val season = currentSeasonNumber ?: return
+
+            _episodes.value = _episodes.value?.map { it.copy(isWatched = false) }
 
             viewModelScope.launch {
                 watchProgressRepository.markSeasonUnwatched(

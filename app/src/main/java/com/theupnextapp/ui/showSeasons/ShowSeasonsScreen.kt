@@ -21,6 +21,7 @@
 
 package com.theupnextapp.ui.showSeasons
 
+import androidx.activity.compose.ReportDrawnWhen
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -76,6 +77,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.theupnextapp.R
+import com.theupnextapp.common.utils.DateUtils
 import com.theupnextapp.core.designsystem.ui.components.PosterImage
 import com.theupnextapp.core.designsystem.ui.components.ShimmerSeasons
 import com.theupnextapp.domain.ShowDetailArg
@@ -97,6 +99,10 @@ fun ShowSeasonsScreen(
     val showSeasonsList = viewModel.showSeasons.collectAsStateWithLifecycle()
 
     val isLoading = viewModel.isLoading.collectAsStateWithLifecycle()
+
+    ReportDrawnWhen {
+        !showSeasonsList.value.isNullOrEmpty() || isLoading.value == false
+    }
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column {
@@ -333,7 +339,7 @@ fun ShowSeasonCard(
 
                 val premiereDate = item.premiereDate
                 if (!premiereDate.isNullOrEmpty()) {
-                    val date = com.theupnextapp.common.utils.DateUtils.getDisplayDate(premiereDate)
+                    val date = DateUtils.getDisplayDate(premiereDate)
                     if (date != null) {
                         Text(
                             text =
@@ -349,7 +355,7 @@ fun ShowSeasonCard(
 
                 val endDate = item.endDate
                 if (!endDate.isNullOrEmpty()) {
-                    val date = com.theupnextapp.common.utils.DateUtils.getDisplayDate(endDate)
+                    val date = DateUtils.getDisplayDate(endDate)
                     if (date != null) {
                         Text(
                             text =
