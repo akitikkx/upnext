@@ -28,23 +28,24 @@ appId: com.theupnextapp
 - tapOn: "ANTICIPATED"
 - tapOn: "TRENDING"
 
-# 5. Open Show Detail
+# 5. Open Show Detail if content is loaded
 - runFlow:
     when:
       visible: "Retry"
     commands:
       - tapOn: "Retry"
 
-- extendedWaitUntil:
-    visible:
-      id: "explore_hero_card"
-    timeout: 45000
-- tapOn:
-    id: "explore_hero_card"
-- extendedWaitUntil:
-    visible: "GENRES"
-    timeout: 30000
-- back
+- runFlow:
+    when:
+      visible:
+        id: "explore_hero_card"
+    commands:
+      - tapOn:
+          id: "explore_hero_card"
+      - extendedWaitUntil:
+          visible: "GENRES"
+          timeout: 30000
+      - back
 
 # 6. Navigate to Search
 - tapOn: "Search"
