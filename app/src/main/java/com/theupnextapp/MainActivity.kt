@@ -174,7 +174,7 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
         customTabComponent.mayLaunchUrl(null, null, null)
     }
 
-    override fun onNewIntent(intent: Intent) {
+    public override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
         val code = intent.data?.getQueryParameter("code")
