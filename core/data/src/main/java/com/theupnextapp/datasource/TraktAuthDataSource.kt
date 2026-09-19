@@ -23,8 +23,10 @@ package com.theupnextapp.datasource
 
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.theupnextapp.core.data.BuildConfig
+import com.theupnextapp.database.DatabaseTraktAccess
 import com.theupnextapp.database.TraktDao
 import com.theupnextapp.database.UpnextDao
+import com.theupnextapp.database.asDomainModel
 import com.theupnextapp.domain.TraktAccessToken
 import com.theupnextapp.network.TraktService
 import com.theupnextapp.network.TvMazeService
@@ -33,6 +35,8 @@ import com.theupnextapp.network.models.trakt.NetworkTraktAccessTokenRequest
 import com.theupnextapp.network.models.trakt.NetworkTraktRevokeAccessTokenRequest
 import com.theupnextapp.network.models.trakt.asDatabaseModel
 import com.theupnextapp.network.models.trakt.asDomainModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 open class TraktAuthDataSource
@@ -49,6 +53,24 @@ constructor(
             val message = "Attempted to get access token with empty code."
             logTraktException(message)
             return Result.failure(IllegalArgumentException(message))
+        }
+
+        if (BuildConfig.DEBUG && code.startsWith("mock_")) {
+            return withContext(Dispatchers.IO) {
+                val mockAccess =
+                    DatabaseTraktAccess(
+                        id = 1,
+                        access_token = "mock_test_token",
+                        created_at = System.currentTimeMillis() / 1000,
+                        expires_in = 7776000L,
+                        refresh_token = "mock_refresh_token",
+                        scope = "public",
+                        token_type = "bearer",
+                    )
+                traktDao.deleteTraktAccessData()
+                traktDao.insertAllTraktAccessData(mockAccess)
+                Result.success(mockAccess.asDomainModel())
+            }
         }
 
         return safeApiCall {
@@ -72,6 +94,13 @@ constructor(
             val message = "Attempted to revoke access token with empty token string."
             logTraktException(message)
             return Result.failure(IllegalArgumentException(message))
+        }
+
+        if (BuildConfig.DEBUG && token.startsWith("mock_")) {
+            return withContext(Dispatchers.IO) {
+                traktDao.deleteTraktAccessData()
+                Result.success(Unit)
+            }
         }
 
         return safeApiCall {

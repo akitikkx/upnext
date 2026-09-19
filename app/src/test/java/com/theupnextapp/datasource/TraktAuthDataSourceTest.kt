@@ -27,6 +27,7 @@ import com.theupnextapp.database.UpnextDao
 import com.theupnextapp.network.TraktService
 import com.theupnextapp.network.TvMazeService
 import com.theupnextapp.network.models.trakt.NetworkTraktAccessTokenResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktRevokeAccessTokenResponse
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -36,6 +37,7 @@ import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 
 class TraktAuthDataSourceTest {
@@ -81,5 +83,61 @@ class TraktAuthDataSourceTest {
             assertEquals("token", result.getOrNull()?.access_token)
             verify(traktDao).deleteTraktAccessData()
             verify(traktDao).insertAllTraktAccessData(any())
+        }
+
+    @Test
+    fun getAccessToken_withMockCode_successWithoutNetworkCall() =
+        runBlocking {
+            val result = dataSource.getAccessToken("mock_oauth_code")
+
+            assertTrue(result.isSuccess)
+            assertEquals("mock_test_token", result.getOrNull()?.access_token)
+            verify(traktDao).deleteTraktAccessData()
+            verify(traktDao).insertAllTraktAccessData(any())
+            verifyNoInteractions(traktService)
+        }
+
+    @Test
+    fun getAccessToken_withEmptyCode_returnsFailure() =
+        runBlocking {
+            val result = dataSource.getAccessToken("")
+
+            assertTrue(result.isFailure)
+            verifyNoInteractions(traktDao)
+            verifyNoInteractions(traktService)
+        }
+
+    @Test
+    fun revokeAccessToken_withEmptyToken_returnsFailure() =
+        runBlocking {
+            val result = dataSource.revokeAccessToken("")
+
+            assertTrue(result.isFailure)
+            verifyNoInteractions(traktDao)
+            verifyNoInteractions(traktService)
+        }
+
+    @Test
+    fun revokeAccessToken_withMockToken_successWithoutNetworkCall() =
+        runBlocking {
+            val result = dataSource.revokeAccessToken("mock_test_token")
+
+            assertTrue(result.isSuccess)
+            verify(traktDao).deleteTraktAccessData()
+            verifyNoInteractions(traktService)
+        }
+
+    @Test
+    fun revokeAccessToken_success() =
+        runBlocking {
+            whenever(traktService.revokeAccessTokenAsync(any())).thenReturn(
+                CompletableDeferred(NetworkTraktRevokeAccessTokenResponse()),
+            )
+
+            val result = dataSource.revokeAccessToken("valid_token")
+
+            assertTrue(result.isSuccess)
+            verify(traktService).revokeAccessTokenAsync(any())
+            verify(traktDao).deleteTraktAccessData()
         }
 }

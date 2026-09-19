@@ -27,8 +27,10 @@ import com.theupnextapp.database.UpnextDao
 import com.theupnextapp.network.TvMazeService
 import com.theupnextapp.network.models.tvmaze.NetworkShowNextEpisodeResponse
 import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupResponse
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import retrofit2.HttpException
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
@@ -36,6 +38,7 @@ import java.util.concurrent.TimeUnit
 abstract class BaseRepository(
     protected val upnextDao: UpnextDao,
     protected val tvMazeService: TvMazeService,
+    protected val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
     /**
      * Determines whether a data update operation can proceed based on the last update timestamp
@@ -199,15 +202,21 @@ abstract class BaseRepository(
             return Triple(null, null, null)
         }
         return try {
-            withContext(Dispatchers.IO) {
+            withContext(ioDispatcher) {
                 Timber.d("Fetching TVMaze info for IMDb ID: $imdbId")
-                val showLookupResponse: NetworkTvMazeShowLookupResponse =
-                    tvMazeService.getShowLookupAsync(imdbId).await()
+                val showLookupResponse: NetworkTvMazeShowLookupResponse? =
+                    withTimeoutOrNull(8_000L) {
+                        tvMazeService.getShowLookupAsync(imdbId).await()
+                    }
 
-                val show = showLookupResponse
-
-                Timber.v("TVMaze show data for IMDb ID $imdbId: $show")
-                Triple(show.id, show.image.original, show.image.medium)
+                if (showLookupResponse != null) {
+                    val show = showLookupResponse
+                    Timber.v("TVMaze show data for IMDb ID $imdbId: $show")
+                    Triple(show.id, show.image.original, show.image.medium)
+                } else {
+                    Timber.w("TVMaze lookup timed out for IMDb ID: $imdbId")
+                    Triple(null, null, null)
+                }
             }
         } catch (e: HttpException) {
             Triple(null, null, null)

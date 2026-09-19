@@ -1,0 +1,23 @@
+appId: com.theupnextapp
+---
+# 1. Fire real OS OAuth deep link
+- openLink: "theupnextapp://callback?code=mock_oauth_code"
+
+# 2. Verify deep link handoff triggers app and authenticates into My Upnext
+- extendedWaitUntil:
+    visible: "My Upnext"
+    timeout: 30000
+
+# 3. Clean up: Disconnect to leave app in clean guest state so test credentials never persist
+- tapOn: "Settings"
+- extendedWaitUntil:
+    visible: "Disconnect"
+    timeout: 30000
+- tapOn: "Disconnect"
+- extendedWaitUntil:
+    visible: "Logout"
+    timeout: 15000
+- tapOn: "Logout"
+- extendedWaitUntil:
+    visible: "Connect"
+    timeout: 30000

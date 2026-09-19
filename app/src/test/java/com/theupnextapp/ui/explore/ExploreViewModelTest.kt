@@ -27,6 +27,8 @@ import com.theupnextapp.CoroutineTestRule
 import com.theupnextapp.domain.TraktMostAnticipated
 import com.theupnextapp.domain.TraktPopularShows
 import com.theupnextapp.domain.TraktTrendingShows
+import com.theupnextapp.domain.TrendingShow
+import com.theupnextapp.repository.ProviderManager
 import com.theupnextapp.repository.fakes.FakeTraktRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -192,6 +194,31 @@ class ExploreViewModelTest {
             )
 
             // Then
+            assertFalse(viewModel.trendingShowsEmpty.first())
+        }
+
+    @Test
+    fun `trendingShows emits cached shows immediately while loading`() =
+        runTest {
+            val shows =
+                listOf(
+                    TrendingShow(
+                        id = 10,
+                        title = "Cached Show",
+                        year = "2024",
+                        mediumImageUrl = "cached_medium",
+                        originalImageUrl = "cached_orig",
+                        imdbID = "tt123",
+                        tmdbID = 456,
+                        tvMazeID = 789,
+                        providerId = ProviderManager.PROVIDER_TRAKT,
+                    ),
+                )
+            fakeRepository.setTrendingShows(shows)
+            fakeRepository.setLoadingTrending(true)
+
+            assertEquals(shows, viewModel.trendingShows.first())
+            assertTrue(viewModel.isLoadingTrending.first())
             assertFalse(viewModel.trendingShowsEmpty.first())
         }
 }

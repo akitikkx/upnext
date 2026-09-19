@@ -21,21 +21,30 @@
 
 package com.theupnextapp.ui.explore
 
+import androidx.activity.compose.ReportDrawnWhen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Tv
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ScrollableTabRow
@@ -58,6 +67,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -113,94 +123,112 @@ fun ExploreScreen(
         modifier = Modifier.fillMaxSize(),
     ) {
         Surface(modifier = Modifier.fillMaxSize()) {
-            LazyColumn(
+            val currentList =
+                when (selectedTabIndex) {
+                    0 -> trendingShowsList
+                    1 -> popularShowsList
+                    2 -> mostAnticipatedShowsList
+                    else -> emptyList<Any>()
+                }
+
+            Column(
                 modifier =
                     Modifier
                         .fillMaxSize()
-                        .testTag("explore_grid"),
-                contentPadding = PaddingValues(
-                    start = 16.dp + contentPadding.calculateStartPadding(LocalLayoutDirection.current),
-                    end = 16.dp + contentPadding.calculateEndPadding(LocalLayoutDirection.current),
-                    top = 8.dp + contentPadding.calculateTopPadding(),
-                    bottom = 8.dp + contentPadding.calculateBottomPadding()
-                ),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
+                        .padding(top = contentPadding.calculateTopPadding()),
             ) {
-                val currentList =
-                    when (selectedTabIndex) {
-                        0 -> trendingShowsList
-                        1 -> popularShowsList
-                        2 -> mostAnticipatedShowsList
-                        else -> emptyList<Any>()
-                    }
-
-                if (isOverallLoading && !isPullRefreshing && currentList.isEmpty()) {
-                    item {
-                        LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-                    }
-                }
-
-                if (currentList.isNotEmpty()) {
-                    val heroShow = currentList.first()
-                    item {
-                        FeaturedShowHero(
-                            item = heroShow,
-                            categoryName = tabs[selectedTabIndex].uppercase(),
-                            onClick = {
-                                val details = extractShowDetails(heroShow)
-                                viewModel.onShowClicked(
-                                    title = details.title,
-                                    source = tabs[selectedTabIndex].lowercase(),
-                                    traktId = details.traktId
+                ScrollableTabRow(
+                    selectedTabIndex = selectedTabIndex,
+                    edgePadding = 16.dp,
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    divider = {},
+                ) {
+                    tabs.forEachIndexed { index, title ->
+                        Tab(
+                            selected = selectedTabIndex == index,
+                            onClick = { selectedTabIndex = index },
+                            text = {
+                                Text(
+                                    text = title.uppercase(),
+                                    fontWeight = if (selectedTabIndex == index) FontWeight.Bold else FontWeight.Normal,
                                 )
-                                navigateToShowDetails(heroShow, tabs[selectedTabIndex].lowercase(), onNavigate)
                             },
                         )
                     }
                 }
 
-                item {
-                    ScrollableTabRow(
-                        selectedTabIndex = selectedTabIndex,
-                        edgePadding = 8.dp,
-                        containerColor = MaterialTheme.colorScheme.surface,
-                        divider = {},
-                    ) {
-                        tabs.forEachIndexed { index, title ->
-                            Tab(
-                                selected = selectedTabIndex == index,
-                                onClick = { selectedTabIndex = index },
-                                text = {
-                                    Text(
-                                        text = title.uppercase(),
-                                        fontWeight = if (selectedTabIndex == index) FontWeight.Bold else FontWeight.Normal,
-                                    )
-                                },
-                            )
-                        }
-                    }
+                if (isOverallLoading && !isPullRefreshing && currentList.isEmpty()) {
+                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
                 }
 
-                if (currentList.size > 1) {
-                    item {
-                        val bentoItems = currentList.drop(1).take(5)
-                        BentoBoxGrid(
-                            items = bentoItems,
-                            source = tabs[selectedTabIndex].lowercase(),
-                            onNavigate = onNavigate,
-                            onShowClicked = { item ->
-                                val details = extractShowDetails(item)
-                                viewModel.onShowClicked(
-                                    title = details.title,
-                                    source = tabs[selectedTabIndex].lowercase(),
-                                    traktId = details.traktId
+                if (currentList.isEmpty() && !isOverallLoading) {
+                    ExploreEmptyState(
+                        modifier = Modifier.fillMaxSize(),
+                        onRetry = onRefresh,
+                    )
+                } else {
+                    LazyColumn(
+                        modifier =
+                            Modifier
+                                .fillMaxSize()
+                                .testTag("explore_grid"),
+                        contentPadding =
+                            PaddingValues(
+                                start = 16.dp + contentPadding.calculateStartPadding(LocalLayoutDirection.current),
+                                end = 16.dp + contentPadding.calculateEndPadding(LocalLayoutDirection.current),
+                                top = 16.dp,
+                                bottom = 16.dp + contentPadding.calculateBottomPadding(),
+                            ),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                    ) {
+                        if (currentList.isNotEmpty()) {
+                            val heroShow = currentList.first()
+                            item {
+                                FeaturedShowHero(
+                                    item = heroShow,
+                                    categoryName = tabs[selectedTabIndex].uppercase(),
+                                    onClick = {
+                                        val details = extractShowDetails(heroShow)
+                                        viewModel.onShowClicked(
+                                            title = details.title,
+                                            source = tabs[selectedTabIndex].lowercase(),
+                                            traktId = details.traktId,
+                                        )
+                                        navigateToShowDetails(heroShow, tabs[selectedTabIndex].lowercase(), onNavigate)
+                                    },
                                 )
                             }
-                        )
+                        }
+
+                        if (currentList.size > 1) {
+                            item {
+                                val bentoItems = currentList.drop(1).take(5)
+                                BentoBoxGrid(
+                                    items = bentoItems,
+                                    source = tabs[selectedTabIndex].lowercase(),
+                                    onNavigate = onNavigate,
+                                    onShowClicked = { item ->
+                                        val details = extractShowDetails(item)
+                                        viewModel.onShowClicked(
+                                            title = details.title,
+                                            source = tabs[selectedTabIndex].lowercase(),
+                                            traktId = details.traktId,
+                                        )
+                                    },
+                                )
+                            }
+                        }
                     }
                 }
             }
         }
+    }
+
+    ReportDrawnWhen {
+        trendingShowsList.isNotEmpty() ||
+            popularShowsList.isNotEmpty() ||
+            mostAnticipatedShowsList.isNotEmpty() ||
+            !isOverallLoading
     }
 }
 
@@ -385,6 +413,7 @@ private fun FeaturedShowHero(
             Modifier
                 .fillMaxWidth()
                 .height(280.dp)
+                .testTag("explore_hero_card")
                 .bounceClick(onClick = onClick),
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -512,4 +541,55 @@ private fun extractShowDetails(item: Any): ExtractedShowDetails {
         else -> null
     }
     return ExtractedShowDetails(title, traktId)
+}
+
+@Composable
+private fun ExploreEmptyState(
+    modifier: Modifier = Modifier,
+    onRetry: () -> Unit,
+) {
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.padding(24.dp),
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Tv,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(64.dp),
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = stringResource(id = R.string.explore_empty_title),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center,
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = stringResource(id = R.string.explore_empty_message),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+            Button(
+                onClick = onRetry,
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Refresh,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = stringResource(id = R.string.explore_empty_retry_button))
+            }
+        }
+    }
 }

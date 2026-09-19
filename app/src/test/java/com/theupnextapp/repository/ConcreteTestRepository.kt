@@ -14,13 +14,16 @@ package com.theupnextapp.repository
 
 import com.theupnextapp.database.UpnextDao
 import com.theupnextapp.network.TvMazeService
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 
 // Concrete repository for testing protected methods
 @Suppress("DEPRECATION")
 class ConcreteTestRepository(
     upnextDao: UpnextDao,
     tvMazeService: TvMazeService,
-) : BaseRepository(upnextDao, tvMazeService) {
+    ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+) : BaseRepository(upnextDao, tvMazeService, ioDispatcher) {
     // testCanProceedWithUpdate is deprecated in BaseRepository, if not used, consider removing from here too
     fun testCanProceedWithUpdate(
         tableName: String,

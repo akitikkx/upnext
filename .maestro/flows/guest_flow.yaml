@@ -1,0 +1,59 @@
+appId: com.theupnextapp
+---
+# 1. Launch in clean guest state
+- launchApp:
+    clearState: true
+
+# 2. Skip onboarding if visible
+- runFlow:
+    when:
+      visible: "Skip"
+    commands:
+      - tapOn: "Skip"
+
+- runFlow:
+    when:
+      visible: "Continue as Guest"
+    commands:
+      - tapOn: "Continue as Guest"
+
+# 3. Verify Guest Dashboard elements
+- assertVisible: "Tonight on TV"
+- assertVisible: "Connect Trakt"
+
+# 4. Navigate to Explore and test tabs
+- tapOn: "Explore"
+- assertVisible: "TRENDING"
+- tapOn: "POPULAR"
+- tapOn: "ANTICIPATED"
+- tapOn: "TRENDING"
+
+# 5. Open Show Detail if content is loaded
+- runFlow:
+    when:
+      visible: "Retry"
+    commands:
+      - tapOn: "Retry"
+
+- runFlow:
+    when:
+      visible:
+        id: "explore_hero_card"
+    commands:
+      - tapOn:
+          id: "explore_hero_card"
+      - extendedWaitUntil:
+          visible: "GENRES"
+          timeout: 30000
+      - back
+
+# 6. Navigate to Search
+- tapOn: "Search"
+- tapOn:
+    id: "search_input"
+- inputText: "Breaking Bad"
+- pressKey: Enter
+- extendedWaitUntil:
+    visible: "Breaking Bad"
+    timeout: 30000
+

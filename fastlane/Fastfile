@@ -10,13 +10,26 @@ platform :android do
     gradle(task: "bundleRelease")
 
     # 3. Upload to Play Store
-    upload_to_play_store(
-      track: "internal",
-      aab: lane_context[SharedValues::GRADLE_AAB_OUTPUT_PATH],
-      skip_upload_metadata: true,
-      skip_upload_images: true,
-      skip_upload_screenshots: true
-    )
+    attempts = 0
+    begin
+      attempts += 1
+      upload_to_play_store(
+        track: "internal",
+        aab: lane_context[SharedValues::GRADLE_AAB_OUTPUT_PATH],
+        skip_upload_metadata: true,
+        skip_upload_images: true,
+        skip_upload_screenshots: true,
+        timeout: 600
+      )
+    rescue => e
+      if attempts < 3 && e.message.include?("expired")
+        UI.important("Google Play edit expired or invalid. Retrying upload (attempt #{attempts + 1}/3)...")
+        sleep(5)
+        retry
+      else
+        raise e
+      end
+    end
     
     # 4. Git Commit & Tag
     # Commit the version bump back to the repo so we don't drift

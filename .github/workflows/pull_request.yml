@@ -29,8 +29,17 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         
       - name: Create local.properties
+        env:
+          TRAKT_CLIENT_ID: ${{ secrets.TRAKT_CLIENT_ID }}
+          TRAKT_CLIENT_SECRET: ${{ secrets.TRAKT_CLIENT_SECRET }}
         run: |
           cp "${GITHUB_WORKSPACE}/local.properties.example" "${GITHUB_WORKSPACE}/local.properties"
+          if [ -n "$TRAKT_CLIENT_ID" ]; then
+            sed -i "s|TraktClientID=.*|TraktClientID=\"$TRAKT_CLIENT_ID\"|g" "${GITHUB_WORKSPACE}/local.properties"
+          fi
+          if [ -n "$TRAKT_CLIENT_SECRET" ]; then
+            sed -i "s|TraktClientSecret=.*|TraktClientSecret=\"$TRAKT_CLIENT_SECRET\"|g" "${GITHUB_WORKSPACE}/local.properties"
+          fi
           chmod u+x "${GITHUB_WORKSPACE}/local.properties"
           
       - name: Create google-services.json
@@ -76,8 +85,17 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         
       - name: Create local.properties
+        env:
+          TRAKT_CLIENT_ID: ${{ secrets.TRAKT_CLIENT_ID }}
+          TRAKT_CLIENT_SECRET: ${{ secrets.TRAKT_CLIENT_SECRET }}
         run: |
           cp "${GITHUB_WORKSPACE}/local.properties.example" "${GITHUB_WORKSPACE}/local.properties"
+          if [ -n "$TRAKT_CLIENT_ID" ]; then
+            sed -i "s|TraktClientID=.*|TraktClientID=\"$TRAKT_CLIENT_ID\"|g" "${GITHUB_WORKSPACE}/local.properties"
+          fi
+          if [ -n "$TRAKT_CLIENT_SECRET" ]; then
+            sed -i "s|TraktClientSecret=.*|TraktClientSecret=\"$TRAKT_CLIENT_SECRET\"|g" "${GITHUB_WORKSPACE}/local.properties"
+          fi
           chmod u+x "${GITHUB_WORKSPACE}/local.properties"
           
       - name: Create google-services.json
@@ -116,8 +134,17 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         
       - name: Create local.properties
+        env:
+          TRAKT_CLIENT_ID: ${{ secrets.TRAKT_CLIENT_ID }}
+          TRAKT_CLIENT_SECRET: ${{ secrets.TRAKT_CLIENT_SECRET }}
         run: |
           cp "${GITHUB_WORKSPACE}/local.properties.example" "${GITHUB_WORKSPACE}/local.properties"
+          if [ -n "$TRAKT_CLIENT_ID" ]; then
+            sed -i "s|TraktClientID=.*|TraktClientID=\"$TRAKT_CLIENT_ID\"|g" "${GITHUB_WORKSPACE}/local.properties"
+          fi
+          if [ -n "$TRAKT_CLIENT_SECRET" ]; then
+            sed -i "s|TraktClientSecret=.*|TraktClientSecret=\"$TRAKT_CLIENT_SECRET\"|g" "${GITHUB_WORKSPACE}/local.properties"
+          fi
           chmod u+x "${GITHUB_WORKSPACE}/local.properties"
           
       - name: Create google-services.json
@@ -163,8 +190,17 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         
       - name: Create local.properties
+        env:
+          TRAKT_CLIENT_ID: ${{ secrets.TRAKT_CLIENT_ID }}
+          TRAKT_CLIENT_SECRET: ${{ secrets.TRAKT_CLIENT_SECRET }}
         run: |
           cp "${GITHUB_WORKSPACE}/local.properties.example" "${GITHUB_WORKSPACE}/local.properties"
+          if [ -n "$TRAKT_CLIENT_ID" ]; then
+            sed -i "s|TraktClientID=.*|TraktClientID=\"$TRAKT_CLIENT_ID\"|g" "${GITHUB_WORKSPACE}/local.properties"
+          fi
+          if [ -n "$TRAKT_CLIENT_SECRET" ]; then
+            sed -i "s|TraktClientSecret=.*|TraktClientSecret=\"$TRAKT_CLIENT_SECRET\"|g" "${GITHUB_WORKSPACE}/local.properties"
+          fi
           chmod u+x "${GITHUB_WORKSPACE}/local.properties"
           
       - name: Create google-services.json
@@ -178,20 +214,35 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
           
-      - name: Run Instrumented & Performance Tests
+      - name: Install Maestro
+        run: |
+          curl -fsSL "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> $GITHUB_PATH
+
+      - name: Run Instrumented, Performance & Maestro E2E Tests
         uses: reactivecircus/android-emulator-runner@v2
         env:
           TMDB_ACCESS_TOKEN: ${{ secrets.TMDB_ACCESS_TOKEN }}
+          TRAKT_CLIENT_ID: ${{ secrets.TRAKT_CLIENT_ID }}
+          TRAKT_CLIENT_SECRET: ${{ secrets.TRAKT_CLIENT_SECRET }}
         with:
           api-level: 30
           arch: x86_64
           profile: pixel_6
           target: google_apis
-          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -dns-server 8.8.8.8
           disable-animations: true
           script: |
+            export PATH="$HOME/.maestro/bin:$PATH"
+            mkdir -p app/build/reports/maestro
+            trap 'cp -r $HOME/.maestro/tests/* app/build/reports/maestro/ 2>/dev/null || true' EXIT
             ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.notClass=com.theupnextapp.screengrab.ScreenshotGenerationTest
             ./gradlew :baselineprofile:connectedNonMinifiedReleaseAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.theupnextapp.baselineprofile.StartupBenchmarks
+            ./gradlew :app:assembleDebug
+            adb install -r app/build/outputs/apk/debug/*.apk
+            $HOME/.maestro/bin/maestro test .maestro/flows/guest_flow.yaml
+            $HOME/.maestro/bin/maestro test .maestro/flows/authenticated_flow.yaml
+            $HOME/.maestro/bin/maestro test .maestro/flows/deeplink_auth_flow.yaml
           
       - name: Upload Test Results
         if: ${{ always() }}
@@ -201,6 +252,7 @@ jobs:
           path: |
             **/build/reports/androidTests/
             **/build/outputs/connected_android_test_additional_output/
+            **/build/reports/maestro/
           
       - name: Clean up temporary files
         if: ${{ always() }}

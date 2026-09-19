@@ -31,26 +31,34 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.core.util.Consumer
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.lifecycleScope
 import com.theupnextapp.common.utils.TraktConstants
 import com.theupnextapp.common.utils.customTab.CustomTabComponent
 import com.theupnextapp.common.utils.customTab.TabConnectionCallback
 import com.theupnextapp.core.designsystem.ui.theme.UpnextTheme
+import com.theupnextapp.database.DatabaseTraktAccess
+import com.theupnextapp.database.TraktDao
+import com.theupnextapp.repository.SettingsRepository
 import com.theupnextapp.ui.main.MainScreen
 import com.theupnextapp.ui.onboarding.OnboardingScreen
 import com.theupnextapp.ui.onboarding.OnboardingViewModel
 import com.theupnextapp.ui.settings.SettingsViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @ExperimentalAnimationApi
@@ -63,29 +71,32 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
     @Inject
     lateinit var customTabComponent: CustomTabComponent
 
+    @Inject
+    lateinit var traktDao: TraktDao
+
+    @Inject
+    lateinit var settingsRepository: SettingsRepository
+
+    private val authCodeState: MutableState<String?> = mutableStateOf(null)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val initialCode = intent?.data?.getQueryParameter("code")
+        if (!initialCode.isNullOrEmpty()) {
+            authCodeState.value = initialCode
+            lifecycleScope.launch(Dispatchers.IO) {
+                settingsRepository.setOnboardingCompleted(true)
+            }
+        }
+        if (BuildConfig.DEBUG) {
+            handleTestHarness(intent)
+        }
         enableEdgeToEdge()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             window.isNavigationBarContrastEnforced = false
         }
 
         setContent {
-            val dataString: MutableState<String?> = rememberSaveable { mutableStateOf("") }
-
-            DisposableEffect(Unit) {
-                val listener =
-                    Consumer<Intent> {
-                        val code = it.data?.getQueryParameter("code")
-                        dataString.value = code
-                    }
-                addOnNewIntentListener(listener)
-                onDispose {
-                    removeOnNewIntentListener(listener)
-                    dataString.value = null
-                }
-            }
-
             val settingsViewModel: SettingsViewModel = hiltViewModel()
             val themeState by settingsViewModel.themeStream.collectAsState()
 
@@ -93,29 +104,40 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
             val isOnboardingCompleted by onboardingViewModel.isOnboardingCompleted.collectAsState()
             val isTraktConnected by onboardingViewModel.isTraktConnected.collectAsState()
 
+            val shouldShowMainScreen = isOnboardingCompleted == true || authCodeState.value != null
+
             UpnextTheme(themeState = themeState) {
-                when (isOnboardingCompleted) {
-                    null -> {
-                        // Loading state — show nothing while DataStore resolves
-                    }
-                    false -> {
-                        OnboardingScreen(
-                            onComplete = {
-                                onboardingViewModel.completeOnboarding()
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .semantics {
+                                testTagsAsResourceId = true
                             },
-                            onConnectTrakt = {
-                                onboardingViewModel.completeOnboarding()
-                            },
-                            isTraktConnected = isTraktConnected,
-                        )
-                    }
-                    true -> {
-                        MainScreen(
-                            valueState = dataString,
-                            onTraktAuthCompleted = {
-                                dataString.value = null
-                            },
-                        )
+                ) {
+                    when {
+                        shouldShowMainScreen -> {
+                            MainScreen(
+                                valueState = authCodeState,
+                                onTraktAuthCompleted = {
+                                    authCodeState.value = null
+                                },
+                            )
+                        }
+                        isOnboardingCompleted == false -> {
+                            OnboardingScreen(
+                                onComplete = {
+                                    onboardingViewModel.completeOnboarding()
+                                },
+                                onConnectTrakt = {
+                                    onboardingViewModel.completeOnboarding()
+                                },
+                                isTraktConnected = isTraktConnected,
+                            )
+                        }
+                        else -> {
+                            // Loading state — show nothing while DataStore resolves
+                        }
                     }
                 }
             }
@@ -150,6 +172,61 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
 
     override fun onTabDisconnected() {
         customTabComponent.mayLaunchUrl(null, null, null)
+    }
+
+    public override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        val code = intent.data?.getQueryParameter("code")
+        if (!code.isNullOrEmpty()) {
+            authCodeState.value = code
+            lifecycleScope.launch(Dispatchers.IO) {
+                settingsRepository.setOnboardingCompleted(true)
+            }
+        }
+        if (BuildConfig.DEBUG) {
+            handleTestHarness(intent)
+        }
+    }
+
+    private fun handleTestHarness(intent: Intent?) {
+        if (intent == null) return
+        val isMockAuth =
+            intent.getBooleanExtra("mock_trakt_auth", false) ||
+                intent.getStringExtra("mock_trakt_auth")?.toBoolean() == true ||
+                intent.data?.getQueryParameter("code")?.startsWith("mock_") == true
+        val isClearAuth =
+            intent.getBooleanExtra("clear_auth_state", false) ||
+                intent.getStringExtra("clear_auth_state")?.toBoolean() == true
+        val isBypassOnboarding =
+            intent.getBooleanExtra("bypass_onboarding", false) ||
+                intent.getStringExtra("bypass_onboarding")?.toBoolean() == true
+
+        if (isMockAuth) {
+            lifecycleScope.launch(Dispatchers.IO) {
+                traktDao.insertAllTraktAccessData(
+                    DatabaseTraktAccess(
+                        id = 1,
+                        access_token = "mock_test_token",
+                        created_at = System.currentTimeMillis() / 1000,
+                        expires_in = 7776000L,
+                        refresh_token = "mock_refresh_token",
+                        scope = "public",
+                        token_type = "bearer",
+                    ),
+                )
+                settingsRepository.setOnboardingCompleted(true)
+            }
+        } else if (isClearAuth) {
+            lifecycleScope.launch(Dispatchers.IO) {
+                traktDao.deleteTraktAccessData()
+                settingsRepository.setOnboardingCompleted(false)
+            }
+        } else if (isBypassOnboarding) {
+            lifecycleScope.launch(Dispatchers.IO) {
+                settingsRepository.setOnboardingCompleted(true)
+            }
+        }
     }
 
     companion object {

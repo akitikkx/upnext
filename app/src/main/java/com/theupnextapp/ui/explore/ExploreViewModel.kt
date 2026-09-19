@@ -25,6 +25,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.logEvent
+import com.google.firebase.perf.FirebasePerformance
+import com.google.firebase.perf.metrics.Trace
 import com.theupnextapp.domain.TraktMostAnticipated
 import com.theupnextapp.domain.TraktPopularShows
 import com.theupnextapp.domain.TraktTrendingShows
@@ -140,18 +142,24 @@ class ExploreViewModel
                 param(FirebaseAnalytics.Param.SCREEN_CLASS, "ExploreScreen")
             }
             viewModelScope.launch {
-                var trace: com.google.firebase.perf.metrics.Trace? = null
-                isLoading.collect { loading ->
-                    if (loading) {
-                        if (trace == null) {
-                            try {
-                                trace = com.google.firebase.perf.FirebasePerformance.getInstance().newTrace("explore_data_load")
-                                trace?.start()
-                            } catch (e: Exception) {
-                                // Ignored in unit tests
-                            }
-                        }
-                    } else {
+                var trace: Trace? = null
+                try {
+                    trace = FirebasePerformance.getInstance().newTrace("explore_data_load")
+                    trace.start()
+                } catch (e: Exception) {
+                    // Ignored in unit tests
+                }
+
+                combine(
+                    isLoading,
+                    trendingShows,
+                    popularShows,
+                    mostAnticipatedShows,
+                ) { loading, trending, popular, anticipated ->
+                    val hasContent = trending.isNotEmpty() || popular.isNotEmpty() || anticipated.isNotEmpty()
+                    hasContent || !loading
+                }.collect { canStopTrace ->
+                    if (canStopTrace && trace != null) {
                         try {
                             trace?.stop()
                         } catch (e: Exception) {

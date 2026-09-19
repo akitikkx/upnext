@@ -21,9 +21,14 @@
 
 package com.theupnextapp.common.utils
 
+import com.theupnextapp.core.data.BuildConfig
 import com.theupnextapp.database.TraktDao
 import okhttp3.Interceptor
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.Protocol
+import okhttp3.Request
 import okhttp3.Response
+import okhttp3.ResponseBody.Companion.toResponseBody
 import javax.inject.Inject
 
 class TraktAuthInterceptor
@@ -33,13 +38,66 @@ constructor(
 ) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val originalRequest = chain.request()
-        val builder = originalRequest.newBuilder()
-
+        val path = originalRequest.url.encodedPath
         val token = traktDao.getTraktAccessDataRaw()
-        if (!token?.access_token.isNullOrEmpty()) {
-            builder.header("Authorization", "Bearer ${token?.access_token}")
+        val accessToken = token?.access_token
+
+        // In DEBUG mode with a test harness mock token, short-circuit private Trakt endpoints
+        // with mock 200 JSON responses so automated E2E tests do not transmit invalid fake tokens
+        // to live Trakt servers (which would trigger 401 and purge the test session).
+        if (BuildConfig.DEBUG && accessToken?.startsWith("mock_") == true) {
+            if (isPrivateEndpoint(path)) {
+                return createMockResponse(originalRequest, path)
+            }
+            // For public endpoints during mock tests, do not attach the fake token.
+            return chain.proceed(originalRequest)
+        }
+
+        val builder = originalRequest.newBuilder()
+        if (!accessToken.isNullOrEmpty() && originalRequest.header("Authorization") == null) {
+            builder.header("Authorization", "Bearer $accessToken")
         }
 
         return chain.proceed(builder.build())
     }
+
+    private fun isPrivateEndpoint(path: String): Boolean {
+        val privatePrefixes =
+            listOf(
+                "/sync",
+                "/recommendations",
+                "/calendars/my",
+                "/checkin",
+                "/users",
+            )
+        return privatePrefixes.any { path.startsWith(it) }
+    }
+
+    private fun createMockResponse(
+        request: Request,
+        path: String,
+    ): Response {
+        val json =
+            when {
+                path.startsWith("/users/settings") -> {
+                    """{"user":{"username":"UpnextTester","name":"Tester","vip":false}}"""
+                }
+                path.startsWith("/calendars/my") ||
+                    path.startsWith("/sync") ||
+                    path.startsWith("/recommendations") ||
+                    path.startsWith("/users") -> {
+                    "[]"
+                }
+                else -> "{}"
+            }
+
+        return Response.Builder()
+            .request(request)
+            .protocol(Protocol.HTTP_1_1)
+            .code(200)
+            .message("OK")
+            .body(json.toResponseBody("application/json".toMediaType()))
+            .build()
+    }
 }
+
