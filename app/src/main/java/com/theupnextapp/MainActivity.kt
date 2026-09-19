@@ -31,6 +31,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.runtime.DisposableEffect
@@ -40,6 +42,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.core.util.Consumer
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.lifecycleScope
@@ -121,28 +126,37 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
             val isTraktConnected by onboardingViewModel.isTraktConnected.collectAsState()
 
             UpnextTheme(themeState = themeState) {
-                when (isOnboardingCompleted) {
-                    null -> {
-                        // Loading state — show nothing while DataStore resolves
-                    }
-                    false -> {
-                        OnboardingScreen(
-                            onComplete = {
-                                onboardingViewModel.completeOnboarding()
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .semantics {
+                                testTagsAsResourceId = true
                             },
-                            onConnectTrakt = {
-                                onboardingViewModel.completeOnboarding()
-                            },
-                            isTraktConnected = isTraktConnected,
-                        )
-                    }
-                    true -> {
-                        MainScreen(
-                            valueState = dataString,
-                            onTraktAuthCompleted = {
-                                dataString.value = null
-                            },
-                        )
+                ) {
+                    when (isOnboardingCompleted) {
+                        null -> {
+                            // Loading state — show nothing while DataStore resolves
+                        }
+                        false -> {
+                            OnboardingScreen(
+                                onComplete = {
+                                    onboardingViewModel.completeOnboarding()
+                                },
+                                onConnectTrakt = {
+                                    onboardingViewModel.completeOnboarding()
+                                },
+                                isTraktConnected = isTraktConnected,
+                            )
+                        }
+                        true -> {
+                            MainScreen(
+                                valueState = dataString,
+                                onTraktAuthCompleted = {
+                                    dataString.value = null
+                                },
+                            )
+                        }
                     }
                 }
             }
@@ -188,7 +202,17 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
 
     private fun handleTestHarness(intent: Intent?) {
         if (intent == null) return
-        if (intent.getBooleanExtra("mock_trakt_auth", false)) {
+        val isMockAuth =
+            intent.getBooleanExtra("mock_trakt_auth", false) ||
+                intent.getStringExtra("mock_trakt_auth")?.toBoolean() == true
+        val isClearAuth =
+            intent.getBooleanExtra("clear_auth_state", false) ||
+                intent.getStringExtra("clear_auth_state")?.toBoolean() == true
+        val isBypassOnboarding =
+            intent.getBooleanExtra("bypass_onboarding", false) ||
+                intent.getStringExtra("bypass_onboarding")?.toBoolean() == true
+
+        if (isMockAuth) {
             lifecycleScope.launch(Dispatchers.IO) {
                 traktDao.insertAllTraktAccessData(
                     DatabaseTraktAccess(
@@ -203,12 +227,12 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
                 )
                 settingsRepository.setOnboardingCompleted(true)
             }
-        } else if (intent.getBooleanExtra("clear_auth_state", false)) {
+        } else if (isClearAuth) {
             lifecycleScope.launch(Dispatchers.IO) {
                 traktDao.deleteTraktAccessData()
                 settingsRepository.setOnboardingCompleted(false)
             }
-        } else if (intent.getBooleanExtra("bypass_onboarding", false)) {
+        } else if (isBypassOnboarding) {
             lifecycleScope.launch(Dispatchers.IO) {
                 settingsRepository.setOnboardingCompleted(true)
             }

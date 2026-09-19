@@ -26,8 +26,13 @@ appId: com.theupnextapp
 - assertVisible: "TRENDING"
 - tapOn: "POPULAR"
 - tapOn: "ANTICIPATED"
+- tapOn: "TRENDING"
 
 # 5. Open Show Detail
+- extendedWaitUntil:
+    visible:
+      id: "explore_bento_card"
+    timeout: 15000
 - tapOn:
     id: "explore_bento_card"
     index: 0
