@@ -232,6 +232,8 @@ jobs:
           disable-animations: true
           script: |
             export PATH="$HOME/.maestro/bin:$PATH"
+            mkdir -p app/build/reports/maestro
+            trap 'cp -r $HOME/.maestro/tests/* app/build/reports/maestro/ 2>/dev/null || true' EXIT
             ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.notClass=com.theupnextapp.screengrab.ScreenshotGenerationTest
             ./gradlew :baselineprofile:connectedNonMinifiedReleaseAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.theupnextapp.baselineprofile.StartupBenchmarks
             ./gradlew :app:assembleDebug
@@ -248,7 +250,7 @@ jobs:
           path: |
             **/build/reports/androidTests/
             **/build/outputs/connected_android_test_additional_output/
-            ~/.maestro/tests/
+            **/build/reports/maestro/
           
       - name: Clean up temporary files
         if: ${{ always() }}

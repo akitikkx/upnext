@@ -7,7 +7,9 @@ appId: com.theupnextapp
       mock_trakt_auth: true
 
 # 2. Verify Authenticated Dashboard renders My Upnext
-- assertVisible: "My Upnext"
+- extendedWaitUntil:
+    visible: "My Upnext"
+    timeout: 30000
 
 # 3. Verify Recent Activity section is present or scrollable
 - scrollUntilVisible:

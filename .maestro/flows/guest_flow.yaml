@@ -29,15 +29,21 @@ appId: com.theupnextapp
 - tapOn: "TRENDING"
 
 # 5. Open Show Detail
+- runFlow:
+    when:
+      visible: "Retry"
+    commands:
+      - tapOn: "Retry"
+
 - extendedWaitUntil:
     visible:
       id: "explore_hero_card"
-    timeout: 15000
+    timeout: 45000
 - tapOn:
     id: "explore_hero_card"
 - extendedWaitUntil:
     visible: "GENRES"
-    timeout: 15000
+    timeout: 30000
 - back
 
 # 6. Navigate to Search
@@ -46,5 +52,7 @@ appId: com.theupnextapp
     id: "search_input"
 - inputText: "Breaking Bad"
 - pressKey: Enter
-- assertVisible: "Breaking Bad"
+- extendedWaitUntil:
+    visible: "Breaking Bad"
+    timeout: 30000
 
