@@ -29,6 +29,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import java.io.IOException
+import java.net.SocketTimeoutException
 
 @ExperimentalCoroutinesApi
 class DashboardRepositoryTest {
@@ -266,6 +267,19 @@ class DashboardRepositoryTest {
             assertEquals(1, fakeCrashlytics.getRecordedExceptions().size)
             assertTrue(fakeCrashlytics.getRecordedExceptions().first() is IOException)
             assertEquals("Network failed", fakeCrashlytics.getRecordedExceptions().first().message)
+            assertTrue(fakeTvMazeDao.todayShowsList.isEmpty())
+        }
+
+    @Test
+    fun `refreshTodayShows - resets loading state to false on timeout exception`() =
+        runTest {
+            fakeTvMazeService.todayScheduleError = SocketTimeoutException("Request timed out")
+
+            repository.refreshTodayShows("US", "2023-01-01")
+
+            assertEquals(false, repository.isLoadingTodayShows.value)
+            assertEquals(1, fakeCrashlytics.getRecordedExceptions().size)
+            assertTrue(fakeCrashlytics.getRecordedExceptions().first() is SocketTimeoutException)
             assertTrue(fakeTvMazeDao.todayShowsList.isEmpty())
         }
 

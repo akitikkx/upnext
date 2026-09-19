@@ -18,6 +18,7 @@ import androidx.work.WorkManager
 import androidx.work.WorkRequest
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.theupnextapp.CoroutineTestRule
+import com.theupnextapp.domain.ScheduleShow
 import com.theupnextapp.domain.TraktAccessToken
 import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktRecommendationsResponse
@@ -29,6 +30,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -277,5 +279,45 @@ class DashboardViewModelTest {
 
             // Since we mocked success with emptyList(), regionalTrendingShows should not be null
             assertNotNull(viewModel.regionalTrendingShows.value)
+        }
+
+    @Test
+    fun `todayShows emits cached items immediately regardless of isLoadingTodayShows`() =
+        runTest {
+            val cachedShows =
+                listOf(
+                    ScheduleShow(
+                        id = 1,
+                        showId = 10,
+                        originalImage = "image_orig.png",
+                        mediumImage = "image_med.png",
+                        language = "English",
+                        name = "Test Show",
+                        officialSite = null,
+                        premiered = "2023-01-01",
+                        runtime = "30",
+                        status = "Running",
+                        summary = "Summary",
+                        type = "Scripted",
+                        updated = "123",
+                        url = "url",
+                    ),
+                )
+            `when`(dashboardRepository.todayShows).thenReturn(flowOf(cachedShows))
+            `when`(dashboardRepository.isLoadingTodayShows).thenReturn(MutableStateFlow(true))
+
+            val testViewModel =
+                DashboardViewModel(
+                    traktRepository = traktRepository,
+                    dashboardRepository = dashboardRepository,
+                    watchProgressRepository = watchProgressRepository,
+                    localWorkManager = localWorkManager,
+                    firebaseAnalytics = firebaseAnalytics,
+                )
+
+            advanceUntilIdle()
+
+            assertEquals(cachedShows, testViewModel.todayShows.value)
+            assertTrue(testViewModel.isLoadingTodayShows.value)
         }
 }

@@ -7,6 +7,8 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.logEvent
+import com.google.firebase.perf.FirebasePerformance
+import com.google.firebase.perf.metrics.Trace
 import com.theupnextapp.domain.ScheduleShow
 import com.theupnextapp.domain.TraktAccessToken
 import com.theupnextapp.domain.TraktMostAnticipated
@@ -26,6 +28,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -121,7 +124,7 @@ constructor(
     val isLoadingRegionalTrending: StateFlow<Boolean> = _isLoadingRegionalTrending.asStateFlow()
 
     val isLoading: StateFlow<Boolean> =
-        kotlinx.coroutines.flow.combine(
+        combine(
             isLoadingAiringSoon,
             isLoadingHistory,
             isLoadingRecommendations,
@@ -138,18 +141,25 @@ constructor(
 
     init {
         viewModelScope.launch {
-            var trace: com.google.firebase.perf.metrics.Trace? = null
-            isLoading.collect { loading ->
-                if (loading) {
-                    if (trace == null) {
-                        try {
-                            trace = com.google.firebase.perf.FirebasePerformance.getInstance().newTrace("dashboard_data_load")
-                            trace?.start()
-                        } catch (e: Exception) {
-                            // Ignored in unit tests
-                        }
-                    }
-                } else {
+            var trace: Trace? = null
+            try {
+                trace = FirebasePerformance.getInstance().newTrace("dashboard_data_load")
+                trace.start()
+            } catch (e: Exception) {
+                // Ignored in unit tests
+            }
+
+            combine(
+                isLoading,
+                todayShows,
+                mostAnticipatedShows,
+                _airingSoonShows,
+                _recentHistory
+            ) { loading, today, anticipated, airing, history ->
+                val hasContent = !today.isNullOrEmpty() || !anticipated.isNullOrEmpty() || !airing.isNullOrEmpty() || !history.isNullOrEmpty()
+                hasContent || !loading
+            }.collect { canStopTrace ->
+                if (canStopTrace && trace != null) {
                     try {
                         trace?.stop()
                     } catch (e: Exception) {

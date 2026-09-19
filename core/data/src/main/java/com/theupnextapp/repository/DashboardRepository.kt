@@ -43,6 +43,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import timber.log.Timber
 
 interface DashboardRepository {
@@ -128,11 +129,12 @@ class DashboardRepositoryImpl(
                     _isLoadingYesterdayShows.value = true
                     val shows: MutableList<DatabaseYesterdaySchedule> = arrayListOf()
                     val yesterdayShowsList =
-                        tvMazeService.getYesterdayScheduleAsync(
-                            countryCode,
-                            date,
-                        )
-                            .await()
+                        withTimeoutOrNull(10_000L) {
+                            tvMazeService.getYesterdayScheduleAsync(
+                                countryCode,
+                                date,
+                            ).await()
+                        }
                     if (!yesterdayShowsList.isNullOrEmpty()) {
                         yesterdayShowsList.forEach { yesterdayShow ->
                             // only adding shows that have an image and an imdb id
@@ -179,7 +181,9 @@ class DashboardRepositoryImpl(
                     _isLoadingTodayShows.value = true
                     val shows: MutableList<DatabaseTodaySchedule> = arrayListOf()
                     val todayShowsList =
-                        tvMazeService.getTodayScheduleAsync(countryCode, date).await()
+                        withTimeoutOrNull(10_000L) {
+                            tvMazeService.getTodayScheduleAsync(countryCode, date).await()
+                        }
                     if (!todayShowsList.isNullOrEmpty()) {
                         todayShowsList.forEach { todayShow ->
                             // only adding shows that have an image and an imdb id
@@ -225,7 +229,9 @@ class DashboardRepositoryImpl(
                 ) {
                     _isLoadingTomorrowShows.value = true
                     val tomorrowShowsList =
-                        tvMazeService.getTomorrowScheduleAsync(countryCode, date).await()
+                        withTimeoutOrNull(10_000L) {
+                            tvMazeService.getTomorrowScheduleAsync(countryCode, date).await()
+                        }
 
                     val shows: MutableList<DatabaseTomorrowSchedule> = arrayListOf()
                     if (!tomorrowShowsList.isNullOrEmpty()) {

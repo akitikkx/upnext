@@ -2,6 +2,7 @@ package com.theupnextapp.ui.dashboard
 
 import android.net.Uri
 import android.text.format.DateUtils
+import androidx.activity.compose.ReportDrawnWhen
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -109,6 +110,7 @@ fun DashboardScreen(
     val regionalTrendingShows by viewModel.regionalTrendingShows.collectAsStateWithLifecycle()
     val regionalTrendingShowsImages by viewModel.regionalTrendingShowsImages.collectAsStateWithLifecycle()
     val isLoadingRegionalTrending by viewModel.isLoadingRegionalTrending.collectAsStateWithLifecycle()
+    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
 
     LaunchedEffect(traktAccessToken) {
         traktAccessToken?.access_token?.let {
@@ -149,7 +151,7 @@ fun DashboardScreen(
                         modifier = Modifier.padding(bottom = 8.dp),
                     )
 
-                    if (isLoadingTodayShows) {
+                    if (isLoadingTodayShows && todayShows.isNullOrEmpty()) {
                         Box(modifier = Modifier.fillMaxWidth().height(400.dp), contentAlignment = Alignment.Center) {
                             CircularProgressIndicator()
                         }
@@ -305,7 +307,7 @@ fun DashboardScreen(
                         modifier = Modifier.padding(bottom = 8.dp),
                     )
 
-                    if (isLoadingMostAnticipated) {
+                    if (isLoadingMostAnticipated && mostAnticipatedShows.isNullOrEmpty()) {
                         ShimmerPosterCardRow()
                     } else if (!mostAnticipatedShows.isNullOrEmpty()) {
                         LazyRow {
@@ -345,7 +347,7 @@ fun DashboardScreen(
                         modifier = Modifier.padding(bottom = 8.dp),
                     )
 
-                    if (isLoadingAiringSoon) {
+                    if (isLoadingAiringSoon && airingSoonShows.isNullOrEmpty()) {
                         ShimmerAiringSoon()
                     } else if (airingSoonShows.isNullOrEmpty()) {
                         EmptyState(
@@ -464,7 +466,7 @@ fun DashboardScreen(
                         modifier = Modifier.padding(bottom = 8.dp),
                     )
 
-                    if (isLoadingHistory) {
+                    if (isLoadingHistory && recentHistory.isNullOrEmpty()) {
                         ShimmerPosterCardRow()
                     } else if (recentHistory.isNullOrEmpty()) {
                         EmptyState(
@@ -569,7 +571,7 @@ fun DashboardScreen(
                         modifier = Modifier.padding(bottom = 8.dp),
                     )
 
-                    if (isLoadingRecommendations) {
+                    if (isLoadingRecommendations && recommendedShows.isNullOrEmpty()) {
                         ShimmerRecommended()
                     } else if (!recommendedShows.isNullOrEmpty()) {
                         val pagerState = rememberPagerState(pageCount = { recommendedShows.orEmpty().size })
@@ -717,5 +719,16 @@ fun DashboardScreen(
                 }
             }
         }
+    }
+
+    ReportDrawnWhen {
+        (
+            !todayShows.isNullOrEmpty() ||
+                !airingSoonShows.isNullOrEmpty() ||
+                !mostAnticipatedShows.isNullOrEmpty() ||
+                !recentHistory.isNullOrEmpty() ||
+                !recommendedShows.isNullOrEmpty() ||
+                !regionalTrendingShows.isNullOrEmpty()
+        ) || !isLoading
     }
 }
