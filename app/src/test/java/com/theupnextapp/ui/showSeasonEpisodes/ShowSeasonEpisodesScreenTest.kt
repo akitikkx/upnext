@@ -5,9 +5,13 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.theupnextapp.domain.ShowSeasonEpisode
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -90,5 +94,141 @@ class ShowSeasonEpisodesScreenTest {
 
         // Checkmark for "Mark as watched" SHOULD be displayed (because isWatched is false)
         composeTestRule.onNodeWithContentDescription("Mark as watched").performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun showSeasonEpisodes_authorizedUser_clickToggleWatched_callsCallback() {
+        val episode =
+            ShowSeasonEpisode(
+                id = 1,
+                number = 1,
+                season = 1,
+                name = "Pilot",
+                isWatched = false,
+                originalImageUrl = "",
+                mediumImageUrl = "",
+                summary = "Summary",
+                airstamp = "2023-01-01T20:00:00.000Z",
+                runtime = 60,
+                type = "scripted",
+                airdate = "2023-01-01",
+                airtime = "20:00",
+                imdbID = "tt1234567",
+            )
+        var toggledEpisode: ShowSeasonEpisode? = null
+
+        composeTestRule.setContent {
+            ShowSeasonEpisodes(
+                seasonNumber = 1,
+                list = listOf(episode),
+                isAuthorizedOnTrakt = true,
+                onToggleWatched = { toggledEpisode = it },
+            )
+        }
+
+        composeTestRule.onNodeWithContentDescription("Mark as watched").performScrollTo().performClick()
+        assertEquals(episode, toggledEpisode)
+    }
+
+    @Test
+    fun showSeasonEpisodes_authorizedUser_clickWatchedEpisode_callsCallbackWithWatchedEpisode() {
+        val watchedEpisode =
+            ShowSeasonEpisode(
+                id = 1,
+                number = 1,
+                season = 1,
+                name = "Pilot",
+                isWatched = true,
+                originalImageUrl = "",
+                mediumImageUrl = "",
+                summary = "Summary",
+                airstamp = "2023-01-01T20:00:00.000Z",
+                runtime = 60,
+                type = "scripted",
+                airdate = "2023-01-01",
+                airtime = "20:00",
+                imdbID = "tt1234567",
+            )
+        var toggledEpisode: ShowSeasonEpisode? = null
+
+        composeTestRule.setContent {
+            ShowSeasonEpisodes(
+                seasonNumber = 1,
+                list = listOf(watchedEpisode),
+                isAuthorizedOnTrakt = true,
+                onToggleWatched = { toggledEpisode = it },
+            )
+        }
+
+        composeTestRule.onNodeWithContentDescription("Mark as unwatched").performScrollTo().performClick()
+        assertEquals(watchedEpisode, toggledEpisode)
+    }
+
+    @Test
+    fun showSeasonEpisodes_authorizedUser_batchMarkSeasonWatched_callsCallback() {
+        val episode =
+            ShowSeasonEpisode(
+                id = 1,
+                number = 1,
+                season = 1,
+                name = "Pilot",
+                isWatched = false,
+                originalImageUrl = "",
+                mediumImageUrl = "",
+                summary = "Summary",
+                airstamp = "2023-01-01T20:00:00.000Z",
+                runtime = 60,
+                type = "scripted",
+                airdate = "2023-01-01",
+                airtime = "20:00",
+                imdbID = "tt1234567",
+            )
+        var markSeasonWatchedCalled = false
+
+        composeTestRule.setContent {
+            ShowSeasonEpisodes(
+                seasonNumber = 1,
+                list = listOf(episode),
+                isAuthorizedOnTrakt = true,
+                onMarkSeasonWatched = { markSeasonWatchedCalled = true },
+            )
+        }
+
+        composeTestRule.onNodeWithText("Mark Season Watched").performScrollTo().performClick()
+        assertTrue(markSeasonWatchedCalled)
+    }
+
+    @Test
+    fun showSeasonEpisodes_authorizedUser_batchMarkSeasonUnwatched_callsCallback() {
+        val episode =
+            ShowSeasonEpisode(
+                id = 1,
+                number = 1,
+                season = 1,
+                name = "Pilot",
+                isWatched = true,
+                originalImageUrl = "",
+                mediumImageUrl = "",
+                summary = "Summary",
+                airstamp = "2023-01-01T20:00:00.000Z",
+                runtime = 60,
+                type = "scripted",
+                airdate = "2023-01-01",
+                airtime = "20:00",
+                imdbID = "tt1234567",
+            )
+        var markSeasonUnwatchedCalled = false
+
+        composeTestRule.setContent {
+            ShowSeasonEpisodes(
+                seasonNumber = 1,
+                list = listOf(episode),
+                isAuthorizedOnTrakt = true,
+                onMarkSeasonUnwatched = { markSeasonUnwatchedCalled = true },
+            )
+        }
+
+        composeTestRule.onNodeWithText("Mark Season Unwatched").performScrollTo().performClick()
+        assertTrue(markSeasonUnwatchedCalled)
     }
 }

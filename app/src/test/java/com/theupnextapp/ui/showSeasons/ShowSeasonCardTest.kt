@@ -6,8 +6,10 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.theupnextapp.domain.ShowSeason
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -65,5 +67,38 @@ class ShowSeasonCardTest {
 
         // Mark Season Unwatched button should be displayed inside card
         composeTestRule.onNodeWithText("Mark Season Unwatched").assertIsDisplayed()
+    }
+
+    @Test
+    fun showSeasonCard_authorizedUser_clickToggleWatched_callsCallback() {
+        var toggled = false
+        composeTestRule.setContent {
+            ShowSeasonCard(
+                item = mockSeason,
+                isAuthorizedOnTrakt = true,
+                onToggleWatched = { toggled = true },
+                onClick = {},
+            )
+        }
+
+        composeTestRule.onNodeWithText("Mark Season Unwatched").performClick()
+        assertTrue(toggled)
+    }
+
+    @Test
+    fun showSeasonCard_authorizedUser_unwatchedSeason_clickToggleWatched_callsCallback() {
+        var toggled = false
+        val unwatchedSeason = mockSeason.copy(isWatched = false)
+        composeTestRule.setContent {
+            ShowSeasonCard(
+                item = unwatchedSeason,
+                isAuthorizedOnTrakt = true,
+                onToggleWatched = { toggled = true },
+                onClick = {},
+            )
+        }
+
+        composeTestRule.onNodeWithText("Mark Season Watched").performClick()
+        assertTrue(toggled)
     }
 }

@@ -18,13 +18,19 @@ import com.theupnextapp.repository.WatchProgressRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 
 @ExperimentalCoroutinesApi
@@ -203,6 +209,118 @@ class ShowSeasonsViewModelTest {
 
             viewModel.onToggleSeasonWatched(season)
 
-            org.mockito.kotlin.verifyNoInteractions(watchProgressRepository)
+            verifyNoInteractions(watchProgressRepository)
+        }
+
+    @Test
+    fun `onToggleSeasonWatched immediately updates in-memory showSeasons to watched = true`() =
+        runTest {
+            val accessToken =
+                TraktAccessToken(
+                    access_token = "token",
+                    token_type = "bearer",
+                    expires_in = 3600,
+                    refresh_token = "refresh",
+                    scope = "public",
+                    created_at = 3000000000L,
+                )
+            whenever(traktRepository.traktAccessToken).thenReturn(MutableStateFlow(accessToken))
+
+            createViewModel()
+
+            val season =
+                ShowSeason(
+                    id = 1,
+                    seasonNumber = 1,
+                    episodeCount = 10,
+                    name = "Season 1",
+                    premiereDate = null,
+                    endDate = null,
+                    originalImageUrl = null,
+                    mediumImageUrl = null,
+                    isWatched = false,
+                )
+
+            val arg =
+                ShowDetailArg(
+                    showId = "1",
+                    showTitle = "Title",
+                    showImageUrl = null,
+                    showBackgroundUrl = null,
+                    imdbID = "tt123",
+                    isAuthorizedOnTrakt = true,
+                    showTraktId = 123,
+                )
+            whenever(showDetailRepository.getShowSeasons(1)).thenReturn(flowOf(Result.Success(listOf(season))))
+            whenever(showDetailRepository.getShowSeasonEpisodes(1, 1)).thenReturn(flowOf(Result.Success(emptyList())))
+            viewModel.setSelectedShow(arg)
+
+            backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+                viewModel.isAuthorizedOnTrakt.collect {}
+            }
+            testScheduler.advanceUntilIdle()
+
+            // When
+            viewModel.onToggleSeasonWatched(season)
+
+            // Then
+            val updatedSeason = viewModel.showSeasons.value?.firstOrNull()
+            assertTrue(updatedSeason?.isWatched == true)
+        }
+
+    @Test
+    fun `onToggleSeasonWatched immediately updates in-memory showSeasons to watched = false when already watched`() =
+        runTest {
+            val accessToken =
+                TraktAccessToken(
+                    access_token = "token",
+                    token_type = "bearer",
+                    expires_in = 3600,
+                    refresh_token = "refresh",
+                    scope = "public",
+                    created_at = 3000000000L,
+                )
+            whenever(traktRepository.traktAccessToken).thenReturn(MutableStateFlow(accessToken))
+
+            createViewModel()
+
+            val season =
+                ShowSeason(
+                    id = 1,
+                    seasonNumber = 1,
+                    episodeCount = 10,
+                    name = "Season 1",
+                    premiereDate = null,
+                    endDate = null,
+                    originalImageUrl = null,
+                    mediumImageUrl = null,
+                    isWatched = true,
+                )
+
+            val arg =
+                ShowDetailArg(
+                    showId = "1",
+                    showTitle = "Title",
+                    showImageUrl = null,
+                    showBackgroundUrl = null,
+                    imdbID = "tt123",
+                    isAuthorizedOnTrakt = true,
+                    showTraktId = 123,
+                )
+            whenever(showDetailRepository.getShowSeasons(1)).thenReturn(flowOf(Result.Success(listOf(season))))
+            whenever(showDetailRepository.getShowSeasonEpisodes(1, 1)).thenReturn(flowOf(Result.Success(emptyList())))
+            viewModel.setSelectedShow(arg)
+
+            backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+                viewModel.isAuthorizedOnTrakt.collect {}
+            }
+            testScheduler.advanceUntilIdle()
+
+            // When
+            viewModel.onToggleSeasonWatched(season)
+
+            // Then
+            val updatedSeason = viewModel.showSeasons.value?.firstOrNull()
+            assertFalse(updatedSeason?.isWatched ?: true)
         }
 }
