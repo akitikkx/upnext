@@ -8,7 +8,7 @@
   "schedule": [
     "at any time"
   ],
-  "prConcurrentLimit": 3,
+  "prConcurrentLimit": 5,
   "ignoreDeps": [
     "com.google.dagger:hilt-android",
     "com.google.dagger:hilt-android-compiler",
@@ -31,8 +31,89 @@
         "minor",
         "patch"
       ],
-      "groupName": "all non-major dependencies",
-      "groupSlug": "all-minor-patch"
+      "matchPackagePatterns": [
+        "^androidx\\.compose",
+        "^androidx\\.navigation",
+        "^androidx\\.lifecycle",
+        "^com\\.valentinilk\\.shimmer:compose-shimmer",
+        "^io\\.coil-kt:coil-compose"
+      ],
+      "groupName": "Compose and UI",
+      "groupSlug": "compose-ui"
+    },
+    {
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "matchPackagePatterns": [
+        "^androidx\\.room",
+        "^androidx\\.work",
+        "^androidx\\.datastore",
+        "^androidx\\.core",
+        "^androidx\\.appcompat",
+        "^androidx\\.browser",
+        "^androidx\\.preference",
+        "^androidx\\.paging"
+      ],
+      "groupName": "AndroidX Core and Storage",
+      "groupSlug": "androidx-core-storage"
+    },
+    {
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "matchPackagePatterns": [
+        "^com\\.squareup\\.okhttp3",
+        "^com\\.squareup\\.retrofit2",
+        "^com\\.squareup\\.moshi",
+        "^org\\.jetbrains\\.kotlinx:kotlinx-coroutines"
+      ],
+      "groupName": "Networking and Coroutines",
+      "groupSlug": "networking-coroutines"
+    },
+    {
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "matchPackagePatterns": [
+        "^androidx\\.benchmark",
+        "^androidx\\.baselineprofile",
+        "^androidx\\.profileinstaller"
+      ],
+      "groupName": "Android Performance and Benchmarks",
+      "groupSlug": "android-benchmarks"
+    },
+    {
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "matchPackagePatterns": [
+        "^org\\.mockito",
+        "^org\\.robolectric",
+        "^app\\.cash\\.turbine",
+        "^androidx\\.arch\\.core",
+        "^androidx\\.test\\.uiautomator"
+      ],
+      "groupName": "Testing Libraries",
+      "groupSlug": "testing-libs"
+    },
+    {
+      "matchManagers": [
+        "github-actions"
+      ],
+      "groupName": "GitHub Actions",
+      "groupSlug": "github-actions"
+    },
+    {
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "groupName": null,
+      "prPriority": -1
     }
   ]
 }
