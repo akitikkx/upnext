@@ -21,6 +21,7 @@
 
 package com.theupnextapp.ui.showDetail
 
+import androidx.activity.compose.ReportDrawnWhen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -129,11 +130,15 @@ fun ShowDetailScreen(
     onNavigate: (Destinations) -> Unit,
     onBack: () -> Unit,
 ) {
-    LaunchedEffect(showDetailArgs.showId) {
+    LaunchedEffect(showDetailArgs.showId, showDetailArgs.imdbID) {
         viewModel.selectedShow(showDetailArgs)
     }
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    ReportDrawnWhen {
+        uiState.showSummary?.name != null || !uiState.isLoadingSummary
+    }
     val isWatchlist by viewModel.isWatchlistShow.collectAsStateWithLifecycle()
     val isWatchlistLoading by viewModel.isWatchlistLoading.collectAsStateWithLifecycle()
     val showRating by viewModel.showRating.collectAsStateWithLifecycle()

@@ -349,4 +349,8 @@
     <string name="explore_empty_title">Unable to load shows</string>
     <string name="explore_empty_message">We couldn\'t load the shows for this category. Check your connection or tap retry.</string>
     <string name="explore_empty_retry_button">Retry</string>
+    <string name="episode_detail_previous_episode">Previous Episode</string>
+    <string name="episode_detail_next_episode">Next Episode</string>
+    <string name="episode_detail_prev">Prev</string>
+    <string name="episode_detail_next">Next</string>
 </resources>

@@ -172,6 +172,27 @@ class EpisodeDetailViewModel
         fun clearCheckInStatus() {
             _uiState.value = _uiState.value.copy(checkInStatus = null)
         }
+
+        val currentEpisodeNumber: Int
+            get() = _uiState.value.episodeDetail?.number ?: route.episodeNumber
+
+        val canNavigatePrevious: Boolean
+            get() = currentEpisodeNumber > 1
+
+        fun getPreviousEpisodeRoute(): Destinations.EpisodeDetail? {
+            if (!canNavigatePrevious) return null
+            return route.copy(
+                episodeNumber = currentEpisodeNumber - 1,
+                episodeImageUrl = null,
+            )
+        }
+
+        fun getNextEpisodeRoute(): Destinations.EpisodeDetail {
+            return route.copy(
+                episodeNumber = currentEpisodeNumber + 1,
+                episodeImageUrl = null,
+            )
+        }
     }
 
 data class EpisodeDetailState(
