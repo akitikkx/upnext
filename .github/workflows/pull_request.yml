@@ -180,7 +180,7 @@ jobs:
           
       - name: Install Maestro
         run: |
-          curl -FsSL "https://get.maestro.mobile.dev" | bash
+          curl -fsSL "https://get.maestro.mobile.dev" | bash
           echo "$HOME/.maestro/bin" >> $GITHUB_PATH
 
       - name: Run Instrumented, Performance & Maestro E2E Tests
@@ -195,13 +195,14 @@ jobs:
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
           script: |
+            export PATH="$HOME/.maestro/bin:$PATH"
             ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.notClass=com.theupnextapp.screengrab.ScreenshotGenerationTest
             ./gradlew :baselineprofile:connectedNonMinifiedReleaseAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.theupnextapp.baselineprofile.StartupBenchmarks
             ./gradlew :app:assembleDebug
             adb install -r app/build/outputs/apk/debug/*.apk
-            maestro test .maestro/flows/guest_flow.yaml
-            maestro test .maestro/flows/authenticated_flow.yaml
-            maestro test .maestro/flows/deeplink_auth_flow.yaml
+            $HOME/.maestro/bin/maestro test .maestro/flows/guest_flow.yaml
+            $HOME/.maestro/bin/maestro test .maestro/flows/authenticated_flow.yaml
+            $HOME/.maestro/bin/maestro test .maestro/flows/deeplink_auth_flow.yaml
           
       - name: Upload Test Results
         if: ${{ always() }}
