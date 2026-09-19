@@ -28,7 +28,10 @@ import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupSelf
 import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupWebChannel
 import com.theupnextapp.repository.fakes.FakeTvMazeService
 import com.theupnextapp.repository.fakes.FakeUpnextDao
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody.Companion.toResponseBody
@@ -232,6 +235,30 @@ class BaseRepositoryTest {
                 HttpException(Response.error<Any>(500, responseBody))
 
             val result = repository.getImages(imdbId)
+            assertNull(result.first)
+            assertNull(result.second)
+            assertNull(result.third)
+        }
+
+    @Test
+    fun `getImages when service times out returns null triple`() =
+        runTest {
+            val repositoryWithTestDispatcher =
+                ConcreteTestRepository(
+                    upnextDao = fakeUpnextDao,
+                    tvMazeService = fakeTvMazeService,
+                    ioDispatcher = StandardTestDispatcher(testScheduler),
+                )
+            val imdbId = "ttTimeout"
+            fakeTvMazeService.showLookupDeferred = CompletableDeferred()
+
+            val resultDeferred =
+                async {
+                    repositoryWithTestDispatcher.getImages(imdbId)
+                }
+            testScheduler.advanceTimeBy(8_001L)
+
+            val result = resultDeferred.await()
             assertNull(result.first)
             assertNull(result.second)
             assertNull(result.third)

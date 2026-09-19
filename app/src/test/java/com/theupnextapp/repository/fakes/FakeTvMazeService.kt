@@ -46,6 +46,7 @@ class FakeTvMazeService : TvMazeService {
 
     var mockShowLookupResponse: NetworkTvMazeShowLookupResponse? = null
     var showLookupError: Throwable? = null
+    var showLookupDeferred: Deferred<NetworkTvMazeShowLookupResponse>? = null
 
     var mockNextEpisodeResponse: NetworkShowNextEpisodeResponse? = null
     var nextEpisodeError: Throwable? = null
@@ -101,6 +102,7 @@ class FakeTvMazeService : TvMazeService {
     }
 
     override fun getShowLookupAsync(imdbId: String): Deferred<NetworkTvMazeShowLookupResponse> {
+        showLookupDeferred?.let { return it }
         showLookupError?.let { throw it }
         mockShowLookupResponse?.let { return CompletableDeferred(it) }
         throw NotImplementedError("mockShowLookupResponse not set for this test, or showLookupError not specified.")
@@ -234,6 +236,7 @@ class FakeTvMazeService : TvMazeService {
         showSummaryError = null
         mockShowLookupResponse = null
         showLookupError = null
+        showLookupDeferred = null
         mockNextEpisodeResponse = null
         nextEpisodeError = null
         mockPreviousEpisodeResponse = null

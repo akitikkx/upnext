@@ -42,15 +42,21 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.core.util.Consumer
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.lifecycleScope
 import com.theupnextapp.common.utils.TraktConstants
 import com.theupnextapp.common.utils.customTab.CustomTabComponent
 import com.theupnextapp.common.utils.customTab.TabConnectionCallback
 import com.theupnextapp.core.designsystem.ui.theme.UpnextTheme
+import com.theupnextapp.database.DatabaseTraktAccess
+import com.theupnextapp.database.TraktDao
+import com.theupnextapp.repository.SettingsRepository
 import com.theupnextapp.ui.main.MainScreen
 import com.theupnextapp.ui.onboarding.OnboardingScreen
 import com.theupnextapp.ui.onboarding.OnboardingViewModel
 import com.theupnextapp.ui.settings.SettingsViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @ExperimentalAnimationApi
@@ -63,20 +69,41 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
     @Inject
     lateinit var customTabComponent: CustomTabComponent
 
+    @Inject
+    lateinit var traktDao: TraktDao
+
+    @Inject
+    lateinit var settingsRepository: SettingsRepository
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (BuildConfig.DEBUG) {
+            handleTestHarness(intent)
+        }
         enableEdgeToEdge()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             window.isNavigationBarContrastEnforced = false
         }
 
+        val initialCode = intent?.data?.getQueryParameter("code")
+        if (!initialCode.isNullOrEmpty()) {
+            lifecycleScope.launch(Dispatchers.IO) {
+                settingsRepository.setOnboardingCompleted(true)
+            }
+        }
+
         setContent {
-            val dataString: MutableState<String?> = rememberSaveable { mutableStateOf("") }
+            val dataString: MutableState<String?> = rememberSaveable { mutableStateOf(initialCode ?: "") }
 
             DisposableEffect(Unit) {
                 val listener =
                     Consumer<Intent> {
                         val code = it.data?.getQueryParameter("code")
+                        if (!code.isNullOrEmpty()) {
+                            lifecycleScope.launch(Dispatchers.IO) {
+                                settingsRepository.setOnboardingCompleted(true)
+                            }
+                        }
                         dataString.value = code
                     }
                 addOnNewIntentListener(listener)
@@ -150,6 +177,42 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
 
     override fun onTabDisconnected() {
         customTabComponent.mayLaunchUrl(null, null, null)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        if (BuildConfig.DEBUG) {
+            handleTestHarness(intent)
+        }
+    }
+
+    private fun handleTestHarness(intent: Intent?) {
+        if (intent == null) return
+        if (intent.getBooleanExtra("mock_trakt_auth", false)) {
+            lifecycleScope.launch(Dispatchers.IO) {
+                traktDao.insertAllTraktAccessData(
+                    DatabaseTraktAccess(
+                        id = 1,
+                        access_token = "mock_test_token",
+                        created_at = System.currentTimeMillis() / 1000,
+                        expires_in = 7776000L,
+                        refresh_token = "mock_refresh_token",
+                        scope = "public",
+                        token_type = "bearer",
+                    ),
+                )
+                settingsRepository.setOnboardingCompleted(true)
+            }
+        } else if (intent.getBooleanExtra("clear_auth_state", false)) {
+            lifecycleScope.launch(Dispatchers.IO) {
+                traktDao.deleteTraktAccessData()
+                settingsRepository.setOnboardingCompleted(false)
+            }
+        } else if (intent.getBooleanExtra("bypass_onboarding", false)) {
+            lifecycleScope.launch(Dispatchers.IO) {
+                settingsRepository.setOnboardingCompleted(true)
+            }
+        }
     }
 
     companion object {

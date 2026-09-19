@@ -178,7 +178,12 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
           
-      - name: Run Instrumented & Performance Tests
+      - name: Install Maestro
+        run: |
+          curl -FsSL "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> $GITHUB_PATH
+
+      - name: Run Instrumented, Performance & Maestro E2E Tests
         uses: reactivecircus/android-emulator-runner@v2
         env:
           TMDB_ACCESS_TOKEN: ${{ secrets.TMDB_ACCESS_TOKEN }}
@@ -192,6 +197,11 @@ jobs:
           script: |
             ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.notClass=com.theupnextapp.screengrab.ScreenshotGenerationTest
             ./gradlew :baselineprofile:connectedNonMinifiedReleaseAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.theupnextapp.baselineprofile.StartupBenchmarks
+            ./gradlew :app:assembleDebug
+            adb install -r app/build/outputs/apk/debug/*.apk
+            maestro test .maestro/flows/guest_flow.yaml
+            maestro test .maestro/flows/authenticated_flow.yaml
+            maestro test .maestro/flows/deeplink_auth_flow.yaml
           
       - name: Upload Test Results
         if: ${{ always() }}
@@ -201,6 +211,7 @@ jobs:
           path: |
             **/build/reports/androidTests/
             **/build/outputs/connected_android_test_additional_output/
+            ~/.maestro/tests/
           
       - name: Clean up temporary files
         if: ${{ always() }}

@@ -1,0 +1,7 @@
+appId: com.theupnextapp
+---
+# 1. Fire real OS OAuth deep link
+- openLink: "theupnextapp://callback?code=maestro_test_oauth_code"
+
+# 2. Verify deep link handoff triggers app and navigates into main screen
+- assertVisible: "Tonight on TV"

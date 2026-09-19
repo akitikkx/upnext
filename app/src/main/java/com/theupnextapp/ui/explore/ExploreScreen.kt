@@ -21,6 +21,7 @@
 
 package com.theupnextapp.ui.explore
 
+import androidx.activity.compose.ReportDrawnWhen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -201,6 +202,13 @@ fun ExploreScreen(
                 }
             }
         }
+    }
+
+    ReportDrawnWhen {
+        trendingShowsList.isNotEmpty() ||
+            popularShowsList.isNotEmpty() ||
+            mostAnticipatedShowsList.isNotEmpty() ||
+            !isOverallLoading
     }
 }
 

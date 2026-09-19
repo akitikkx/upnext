@@ -1,0 +1,20 @@
+appId: com.theupnextapp
+---
+# 1. Launch with mock authenticated state
+- launchApp:
+    clearState: true
+    arguments:
+      mock_trakt_auth: true
+
+# 2. Verify Authenticated Dashboard renders My Upnext
+- assertVisible: "My Upnext"
+
+# 3. Verify Recent Activity section is present or scrollable
+- scrollUntilVisible:
+    element:
+      text: "Recent Activity"
+    direction: DOWN
+
+# 4. Navigate to Settings / Account
+- tapOn: "Settings"
+- assertVisible: "Trakt"
