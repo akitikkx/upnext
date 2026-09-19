@@ -29,8 +29,17 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         
       - name: Create local.properties
+        env:
+          TRAKT_CLIENT_ID: ${{ secrets.TRAKT_CLIENT_ID }}
+          TRAKT_CLIENT_SECRET: ${{ secrets.TRAKT_CLIENT_SECRET }}
         run: |
           cp "${GITHUB_WORKSPACE}/local.properties.example" "${GITHUB_WORKSPACE}/local.properties"
+          if [ -n "$TRAKT_CLIENT_ID" ]; then
+            sed -i "s|TraktClientID=.*|TraktClientID=\"$TRAKT_CLIENT_ID\"|g" "${GITHUB_WORKSPACE}/local.properties"
+          fi
+          if [ -n "$TRAKT_CLIENT_SECRET" ]; then
+            sed -i "s|TraktClientSecret=.*|TraktClientSecret=\"$TRAKT_CLIENT_SECRET\"|g" "${GITHUB_WORKSPACE}/local.properties"
+          fi
           chmod u+x "${GITHUB_WORKSPACE}/local.properties"
           
       - name: Create google-services.json
@@ -76,8 +85,17 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         
       - name: Create local.properties
+        env:
+          TRAKT_CLIENT_ID: ${{ secrets.TRAKT_CLIENT_ID }}
+          TRAKT_CLIENT_SECRET: ${{ secrets.TRAKT_CLIENT_SECRET }}
         run: |
           cp "${GITHUB_WORKSPACE}/local.properties.example" "${GITHUB_WORKSPACE}/local.properties"
+          if [ -n "$TRAKT_CLIENT_ID" ]; then
+            sed -i "s|TraktClientID=.*|TraktClientID=\"$TRAKT_CLIENT_ID\"|g" "${GITHUB_WORKSPACE}/local.properties"
+          fi
+          if [ -n "$TRAKT_CLIENT_SECRET" ]; then
+            sed -i "s|TraktClientSecret=.*|TraktClientSecret=\"$TRAKT_CLIENT_SECRET\"|g" "${GITHUB_WORKSPACE}/local.properties"
+          fi
           chmod u+x "${GITHUB_WORKSPACE}/local.properties"
           
       - name: Create google-services.json
@@ -116,8 +134,17 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         
       - name: Create local.properties
+        env:
+          TRAKT_CLIENT_ID: ${{ secrets.TRAKT_CLIENT_ID }}
+          TRAKT_CLIENT_SECRET: ${{ secrets.TRAKT_CLIENT_SECRET }}
         run: |
           cp "${GITHUB_WORKSPACE}/local.properties.example" "${GITHUB_WORKSPACE}/local.properties"
+          if [ -n "$TRAKT_CLIENT_ID" ]; then
+            sed -i "s|TraktClientID=.*|TraktClientID=\"$TRAKT_CLIENT_ID\"|g" "${GITHUB_WORKSPACE}/local.properties"
+          fi
+          if [ -n "$TRAKT_CLIENT_SECRET" ]; then
+            sed -i "s|TraktClientSecret=.*|TraktClientSecret=\"$TRAKT_CLIENT_SECRET\"|g" "${GITHUB_WORKSPACE}/local.properties"
+          fi
           chmod u+x "${GITHUB_WORKSPACE}/local.properties"
           
       - name: Create google-services.json
@@ -163,8 +190,17 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         
       - name: Create local.properties
+        env:
+          TRAKT_CLIENT_ID: ${{ secrets.TRAKT_CLIENT_ID }}
+          TRAKT_CLIENT_SECRET: ${{ secrets.TRAKT_CLIENT_SECRET }}
         run: |
           cp "${GITHUB_WORKSPACE}/local.properties.example" "${GITHUB_WORKSPACE}/local.properties"
+          if [ -n "$TRAKT_CLIENT_ID" ]; then
+            sed -i "s|TraktClientID=.*|TraktClientID=\"$TRAKT_CLIENT_ID\"|g" "${GITHUB_WORKSPACE}/local.properties"
+          fi
+          if [ -n "$TRAKT_CLIENT_SECRET" ]; then
+            sed -i "s|TraktClientSecret=.*|TraktClientSecret=\"$TRAKT_CLIENT_SECRET\"|g" "${GITHUB_WORKSPACE}/local.properties"
+          fi
           chmod u+x "${GITHUB_WORKSPACE}/local.properties"
           
       - name: Create google-services.json

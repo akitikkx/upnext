@@ -36,7 +36,7 @@ appId: com.theupnextapp
 - tapOn:
     id: "explore_hero_card"
 - extendedWaitUntil:
-    visible: "Seasons"
+    visible: "GENRES"
     timeout: 15000
 - back
 

@@ -17,4 +17,5 @@ appId: com.theupnextapp
 
 # 4. Navigate to Settings / Account
 - tapOn: "Settings"
-- assertVisible: "Trakt"
+- assertVisible: "Trakt.tv Connection"
+- assertVisible: "Connected"

@@ -1,7 +1,13 @@
 appId: com.theupnextapp
 ---
 # 1. Fire real OS OAuth deep link
-- openLink: "theupnextapp://callback?code=maestro_test_oauth_code"
+- openLink: "theupnextapp://callback?code=mock_oauth_code"
 
-# 2. Verify deep link handoff triggers app and navigates into main screen
-- assertVisible: "Tonight on TV"
+# 2. Verify deep link handoff triggers app and authenticates into My Upnext
+- assertVisible: "My Upnext"
+
+# 3. Clean up: Disconnect to leave app in clean guest state so test credentials never persist
+- tapOn: "Settings"
+- tapOn: "Disconnect"
+- tapOn: "Logout"
+- assertVisible: "Connect"

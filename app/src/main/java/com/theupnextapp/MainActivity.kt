@@ -35,17 +35,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
-import androidx.core.util.Consumer
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.lifecycleScope
 import com.theupnextapp.common.utils.TraktConstants
@@ -80,8 +77,17 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
     @Inject
     lateinit var settingsRepository: SettingsRepository
 
+    private val authCodeState: MutableState<String?> = mutableStateOf(null)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val initialCode = intent?.data?.getQueryParameter("code")
+        if (!initialCode.isNullOrEmpty()) {
+            authCodeState.value = initialCode
+            lifecycleScope.launch(Dispatchers.IO) {
+                settingsRepository.setOnboardingCompleted(true)
+            }
+        }
         if (BuildConfig.DEBUG) {
             handleTestHarness(intent)
         }
@@ -90,40 +96,15 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
             window.isNavigationBarContrastEnforced = false
         }
 
-        val initialCode = intent?.data?.getQueryParameter("code")
-        if (!initialCode.isNullOrEmpty()) {
-            lifecycleScope.launch(Dispatchers.IO) {
-                settingsRepository.setOnboardingCompleted(true)
-            }
-        }
-
         setContent {
-            val dataString: MutableState<String?> = rememberSaveable { mutableStateOf(initialCode ?: "") }
-
-            DisposableEffect(Unit) {
-                val listener =
-                    Consumer<Intent> {
-                        val code = it.data?.getQueryParameter("code")
-                        if (!code.isNullOrEmpty()) {
-                            lifecycleScope.launch(Dispatchers.IO) {
-                                settingsRepository.setOnboardingCompleted(true)
-                            }
-                        }
-                        dataString.value = code
-                    }
-                addOnNewIntentListener(listener)
-                onDispose {
-                    removeOnNewIntentListener(listener)
-                    dataString.value = null
-                }
-            }
-
             val settingsViewModel: SettingsViewModel = hiltViewModel()
             val themeState by settingsViewModel.themeStream.collectAsState()
 
             val onboardingViewModel: OnboardingViewModel = hiltViewModel()
             val isOnboardingCompleted by onboardingViewModel.isOnboardingCompleted.collectAsState()
             val isTraktConnected by onboardingViewModel.isTraktConnected.collectAsState()
+
+            val shouldShowMainScreen = isOnboardingCompleted == true || authCodeState.value != null
 
             UpnextTheme(themeState = themeState) {
                 Box(
@@ -134,11 +115,16 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
                                 testTagsAsResourceId = true
                             },
                 ) {
-                    when (isOnboardingCompleted) {
-                        null -> {
-                            // Loading state — show nothing while DataStore resolves
+                    when {
+                        shouldShowMainScreen -> {
+                            MainScreen(
+                                valueState = authCodeState,
+                                onTraktAuthCompleted = {
+                                    authCodeState.value = null
+                                },
+                            )
                         }
-                        false -> {
+                        isOnboardingCompleted == false -> {
                             OnboardingScreen(
                                 onComplete = {
                                     onboardingViewModel.completeOnboarding()
@@ -149,13 +135,8 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
                                 isTraktConnected = isTraktConnected,
                             )
                         }
-                        true -> {
-                            MainScreen(
-                                valueState = dataString,
-                                onTraktAuthCompleted = {
-                                    dataString.value = null
-                                },
-                            )
+                        else -> {
+                            // Loading state — show nothing while DataStore resolves
                         }
                     }
                 }
@@ -195,6 +176,14 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        setIntent(intent)
+        val code = intent.data?.getQueryParameter("code")
+        if (!code.isNullOrEmpty()) {
+            authCodeState.value = code
+            lifecycleScope.launch(Dispatchers.IO) {
+                settingsRepository.setOnboardingCompleted(true)
+            }
+        }
         if (BuildConfig.DEBUG) {
             handleTestHarness(intent)
         }
@@ -204,7 +193,8 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
         if (intent == null) return
         val isMockAuth =
             intent.getBooleanExtra("mock_trakt_auth", false) ||
-                intent.getStringExtra("mock_trakt_auth")?.toBoolean() == true
+                intent.getStringExtra("mock_trakt_auth")?.toBoolean() == true ||
+                intent.data?.getQueryParameter("code")?.startsWith("mock_") == true
         val isClearAuth =
             intent.getBooleanExtra("clear_auth_state", false) ||
                 intent.getStringExtra("clear_auth_state")?.toBoolean() == true

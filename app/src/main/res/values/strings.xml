@@ -346,4 +346,7 @@
     <string name="status_planned">Planned</string>
     <string name="status_canceled">Canceled</string>
     <string name="status_ended">Ended</string>
+    <string name="explore_empty_title">Unable to load shows</string>
+    <string name="explore_empty_message">We couldn\'t load the shows for this category. Check your connection or tap retry.</string>
+    <string name="explore_empty_retry_button">Retry</string>
 </resources>
