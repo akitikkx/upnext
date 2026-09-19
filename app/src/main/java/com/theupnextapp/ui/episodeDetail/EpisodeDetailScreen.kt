@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
@@ -37,6 +38,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Star
@@ -175,6 +177,14 @@ fun EpisodeDetailScreen(
                                 isCheckingIn = uiState.isCheckingIn,
                                 isCheckInSuccessful = uiState.isCheckInSuccessful,
                                 isAuthorizedOnTrakt = uiState.isAuthorizedOnTrakt,
+                                canNavigatePrevious = viewModel.canNavigatePrevious,
+                                canNavigateNext = true,
+                                onPreviousEpisodeClick = {
+                                    viewModel.getPreviousEpisodeRoute()?.let { onNavigate(it) }
+                                },
+                                onNextEpisodeClick = {
+                                    onNavigate(viewModel.getNextEpisodeRoute())
+                                },
                                 onCheckInClick = { viewModel.onCheckIn() },
                                 onCancelCheckInClick = { viewModel.onCancelCheckIn() },
                                 onNavigateToShowDetail = onNavigateToShowDetail,
@@ -441,6 +451,10 @@ fun EpisodeSummaryCard(
     isCheckingIn: Boolean,
     isCheckInSuccessful: Boolean,
     isAuthorizedOnTrakt: Boolean,
+    canNavigatePrevious: Boolean = false,
+    canNavigateNext: Boolean = false,
+    onPreviousEpisodeClick: () -> Unit = {},
+    onNextEpisodeClick: () -> Unit = {},
     onCheckInClick: () -> Unit,
     onCancelCheckInClick: () -> Unit,
     onNavigateToShowDetail: (EpisodeDetailArg) -> Unit = {},
@@ -512,6 +526,38 @@ fun EpisodeSummaryCard(
                             fontWeight = FontWeight.Bold,
                         )
                     }
+                }
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                OutlinedButton(
+                    onClick = onPreviousEpisodeClick,
+                    enabled = canNavigatePrevious,
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = stringResource(id = R.string.episode_detail_previous_episode),
+                        modifier = Modifier.size(16.dp),
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(text = stringResource(id = R.string.episode_detail_prev))
+                }
+
+                OutlinedButton(
+                    onClick = onNextEpisodeClick,
+                    enabled = canNavigateNext,
+                ) {
+                    Text(text = stringResource(id = R.string.episode_detail_next))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        contentDescription = stringResource(id = R.string.episode_detail_next_episode),
+                        modifier = Modifier.size(16.dp),
+                    )
                 }
             }
 

@@ -27,6 +27,10 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -169,5 +173,46 @@ class EpisodeDetailViewModelTest {
 
             val finalState = viewModel.uiState.value
             assertEquals(true, finalState.isAuthorizedOnTrakt)
+        }
+
+    @Test
+    fun `when episodeNumber is 1, canNavigatePrevious is false and getPreviousEpisodeRoute returns null`() =
+        runTest {
+            val routeEpisode1 =
+                Destinations.EpisodeDetail(
+                    showTraktId = 1234,
+                    seasonNumber = 1,
+                    episodeNumber = 1,
+                )
+            `when`(showDetailRepository.getEpisodeDetails(anyInt(), anyInt(), anyInt())).thenReturn(
+                flowOf(Result.Loading(true)),
+            )
+
+            val vm = EpisodeDetailViewModel(routeEpisode1, showDetailRepository, traktRepository)
+
+            assertFalse(vm.canNavigatePrevious)
+            assertNull(vm.getPreviousEpisodeRoute())
+        }
+
+    @Test
+    fun `when episodeNumber is greater than 1, traversal routes navigate to previous and next episodes`() =
+        runTest {
+            viewModel = EpisodeDetailViewModel(route, showDetailRepository, traktRepository)
+
+            // route has episodeNumber = 5, seasonNumber = 1, showTraktId = 1234
+            assertTrue(viewModel.canNavigatePrevious)
+
+            val prevRoute = viewModel.getPreviousEpisodeRoute()
+            assertNotNull(prevRoute)
+            assertEquals(4, prevRoute?.episodeNumber)
+            assertEquals(1, prevRoute?.seasonNumber)
+            assertEquals(1234, prevRoute?.showTraktId)
+            assertNull(prevRoute?.episodeImageUrl)
+
+            val nextRoute = viewModel.getNextEpisodeRoute()
+            assertEquals(6, nextRoute.episodeNumber)
+            assertEquals(1, nextRoute.seasonNumber)
+            assertEquals(1234, nextRoute.showTraktId)
+            assertNull(nextRoute.episodeImageUrl)
         }
 }

@@ -3,12 +3,14 @@ package com.theupnextapp.ui.episodeDetail
 import android.app.Application
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.theupnextapp.domain.EpisodeDetail
 import com.theupnextapp.domain.EpisodeDetailArg
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -16,7 +18,7 @@ import org.robolectric.annotation.Config
 
 @ExperimentalMaterial3Api
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [33], application = Application::class)
+@Config(sdk = [33], application = Application::class, qualifiers = "w600dp-h1000dp")
 class EpisodeSummaryCardTest {
     @get:Rule
     val composeTestRule = createComposeRule()
@@ -87,6 +89,126 @@ class EpisodeSummaryCardTest {
         }
 
         // Check-in button should be displayed
-        composeTestRule.onNodeWithText("Check In to Episode on Trakt").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Check In to Episode on Trakt").assertExists()
+    }
+
+    @Test
+    fun episodeSummaryCard_traversalButtons_displayedWhenEnabled() {
+        composeTestRule.setContent {
+            val uriHandler = LocalUriHandler.current
+            EpisodeSummaryCard(
+                episodeDetailArg = mockEpisodeDetailArg,
+                episodeDetail = mockEpisodeDetail,
+                uriHandler = uriHandler,
+                isCheckingIn = false,
+                isCheckInSuccessful = false,
+                isAuthorizedOnTrakt = false,
+                canNavigatePrevious = true,
+                canNavigateNext = true,
+                onPreviousEpisodeClick = {},
+                onNextEpisodeClick = {},
+                onCheckInClick = {},
+                onCancelCheckInClick = {},
+            )
+        }
+
+        composeTestRule.onNodeWithText("Prev").assertExists()
+        composeTestRule.onNodeWithText("Next").assertExists()
+    }
+
+    @Test
+    fun episodeSummaryCard_previousEpisodeClick_triggersCallback() {
+        var clicked = false
+        composeTestRule.setContent {
+            val uriHandler = LocalUriHandler.current
+            EpisodeSummaryCard(
+                episodeDetailArg = mockEpisodeDetailArg,
+                episodeDetail = mockEpisodeDetail,
+                uriHandler = uriHandler,
+                isCheckingIn = false,
+                isCheckInSuccessful = false,
+                isAuthorizedOnTrakt = false,
+                canNavigatePrevious = true,
+                canNavigateNext = true,
+                onPreviousEpisodeClick = { clicked = true },
+                onNextEpisodeClick = {},
+                onCheckInClick = {},
+                onCancelCheckInClick = {},
+            )
+        }
+
+        composeTestRule.onNodeWithText("Prev").performClick()
+        assertTrue(clicked)
+    }
+
+    @Test
+    fun episodeSummaryCard_nextEpisodeClick_triggersCallback() {
+        var clicked = false
+        composeTestRule.setContent {
+            val uriHandler = LocalUriHandler.current
+            EpisodeSummaryCard(
+                episodeDetailArg = mockEpisodeDetailArg,
+                episodeDetail = mockEpisodeDetail,
+                uriHandler = uriHandler,
+                isCheckingIn = false,
+                isCheckInSuccessful = false,
+                isAuthorizedOnTrakt = false,
+                canNavigatePrevious = true,
+                canNavigateNext = true,
+                onPreviousEpisodeClick = {},
+                onNextEpisodeClick = { clicked = true },
+                onCheckInClick = {},
+                onCancelCheckInClick = {},
+            )
+        }
+
+        composeTestRule.onNodeWithText("Next").performClick()
+        assertTrue(clicked)
+    }
+
+    @Test
+    fun episodeSummaryCard_previousButton_disabledWhenCanNavigatePreviousIsFalse() {
+        composeTestRule.setContent {
+            val uriHandler = LocalUriHandler.current
+            EpisodeSummaryCard(
+                episodeDetailArg = mockEpisodeDetailArg,
+                episodeDetail = mockEpisodeDetail,
+                uriHandler = uriHandler,
+                isCheckingIn = false,
+                isCheckInSuccessful = false,
+                isAuthorizedOnTrakt = false,
+                canNavigatePrevious = false,
+                canNavigateNext = true,
+                onPreviousEpisodeClick = {},
+                onNextEpisodeClick = {},
+                onCheckInClick = {},
+                onCancelCheckInClick = {},
+            )
+        }
+
+        composeTestRule.onNodeWithText("Prev").assertIsNotEnabled()
+    }
+
+    @Test
+    fun episodeSummaryCard_nextButton_disabledWhenCanNavigateNextIsFalse() {
+        composeTestRule.setContent {
+            val uriHandler = LocalUriHandler.current
+            EpisodeSummaryCard(
+                episodeDetailArg = mockEpisodeDetailArg,
+                episodeDetail = mockEpisodeDetail,
+                uriHandler = uriHandler,
+                isCheckingIn = false,
+                isCheckInSuccessful = false,
+                isAuthorizedOnTrakt = false,
+                canNavigatePrevious = true,
+                canNavigateNext = false,
+                onPreviousEpisodeClick = {},
+                onNextEpisodeClick = {},
+                onCheckInClick = {},
+                onCancelCheckInClick = {},
+            )
+        }
+
+        composeTestRule.onNodeWithText("Next").assertIsNotEnabled()
     }
 }

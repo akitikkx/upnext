@@ -24,6 +24,7 @@ package com.theupnextapp.ui.showDetail
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.theupnextapp.CoroutineTestRule
 import com.theupnextapp.common.utils.TraktAuthManager
@@ -64,7 +65,7 @@ class ShowDetailViewModelTest {
     val workManager: WorkManager = mock()
     val firebaseCrashlytics: FirebaseCrashlytics = mock()
     val traktAuthManager: TraktAuthManager = mock()
-    val firebaseAnalytics: com.google.firebase.analytics.FirebaseAnalytics = mock()
+    val firebaseAnalytics: FirebaseAnalytics = mock()
 
     private lateinit var showDetailRepository: FakeShowDetailRepository
     private lateinit var traktRepository: FakeTraktRepository
@@ -478,5 +479,78 @@ class ShowDetailViewModelTest {
             assertFalse("Simulated rotation should skip loading and preserve state", rotatedState.isLoadingSummary)
             assertNotNull("Rotated state summary should be preserved", rotatedState.showSummary)
             assertEquals("Test Show", rotatedState.showSummary?.name)
+        }
+
+    @Test
+    fun `selectedShow immediately seeds uiState with initial metadata for frame 1 rendering`() =
+        runTest {
+            // Given - Repository emits loading (simulating ongoing network request)
+            showDetailRepository.showSummaryResult = Result.Loading(true)
+
+            val showDetailArg =
+                ShowDetailArg(
+                    showId = "456",
+                    showTitle = "Instant Show",
+                    showImageUrl = "https://example.com/poster.jpg",
+                    showBackgroundUrl = "https://example.com/backdrop.jpg",
+                    imdbID = "tt99999",
+                    isAuthorizedOnTrakt = false,
+                    showTraktId = 99,
+                )
+
+            // When
+            viewModel.selectedShow(showDetailArg)
+
+            // Then - Immediate UI state check
+            val immediateState = viewModel.uiState.value
+            assertNotNull("UI state summary should be seeded immediately", immediateState.showSummary)
+            assertEquals("Instant Show", immediateState.showSummary?.name)
+            assertEquals("https://example.com/poster.jpg", immediateState.showSummary?.mediumImageUrl)
+            assertEquals("https://example.com/backdrop.jpg", immediateState.showSummary?.originalImageUrl)
+            assertEquals(456, immediateState.showSummary?.id)
+            assertEquals("tt99999", immediateState.showSummary?.imdbID)
+            assertTrue("Should be in loading state for background data", immediateState.isLoadingSummary)
+        }
+
+    @Test
+    fun `selectedShow with different showId replaces previous state with new show initial metadata`() =
+        runTest {
+            // Given - Repository emits loading (simulating ongoing network request)
+            showDetailRepository.showSummaryResult = Result.Loading(true)
+
+            val firstShow =
+                ShowDetailArg(
+                    showId = "101",
+                    showTitle = "First Show",
+                    showImageUrl = "https://example.com/poster1.jpg",
+                    showBackgroundUrl = "https://example.com/backdrop1.jpg",
+                    imdbID = "tt101",
+                    isAuthorizedOnTrakt = false,
+                    showTraktId = 1,
+                )
+            viewModel.selectedShow(firstShow)
+            assertEquals("First Show", viewModel.uiState.value.showSummary?.name)
+
+            // When - Navigating to a different show
+            val secondShow =
+                ShowDetailArg(
+                    showId = "202",
+                    showTitle = "Second Show",
+                    showImageUrl = "https://example.com/poster2.jpg",
+                    showBackgroundUrl = "https://example.com/backdrop2.jpg",
+                    imdbID = "tt202",
+                    isAuthorizedOnTrakt = false,
+                    showTraktId = 2,
+                )
+            viewModel.selectedShow(secondShow)
+
+            // Then - UI state should immediately reflect the second show's seeded metadata
+            val state = viewModel.uiState.value
+            assertNotNull(state.showSummary)
+            assertEquals("Second Show", state.showSummary?.name)
+            assertEquals("https://example.com/poster2.jpg", state.showSummary?.mediumImageUrl)
+            assertEquals("https://example.com/backdrop2.jpg", state.showSummary?.originalImageUrl)
+            assertEquals(202, state.showSummary?.id)
+            assertEquals("tt202", state.showSummary?.imdbID)
         }
 }

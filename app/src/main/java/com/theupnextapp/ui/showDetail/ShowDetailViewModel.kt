@@ -28,6 +28,8 @@ import androidx.work.WorkManager
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.logEvent
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.google.firebase.perf.FirebasePerformance
+import com.google.firebase.perf.metrics.Trace
 import com.theupnextapp.common.utils.TraktAuthManager
 import com.theupnextapp.domain.Result
 import com.theupnextapp.domain.ShowCast
@@ -193,12 +195,14 @@ class ShowDetailViewModel
 
         init {
             viewModelScope.launch {
-                var trace: com.google.firebase.perf.metrics.Trace? = null
-                isLoading.collect { loading ->
-                    if (loading) {
+                var trace: Trace? = null
+                combine(isLoading, uiState) { loading, state ->
+                    (state.showSummary?.summary != null) || !loading || !state.isLoadingSummary
+                }.distinctUntilChanged().collect { isDataReadyOrDone ->
+                    if (!isDataReadyOrDone) {
                         if (trace == null) {
                             try {
-                                trace = com.google.firebase.perf.FirebasePerformance.getInstance().newTrace("show_detail_data_load")
+                                trace = FirebasePerformance.getInstance().newTrace("show_detail_data_load")
                                 trace?.start()
                             } catch (e: Exception) {
                                 // Ignored in unit tests
@@ -217,8 +221,6 @@ class ShowDetailViewModel
         }
 
         fun selectedShow(show: ShowDetailArg?) {
-            _show.value = show
-
             show?.let {
                 firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW) {
                     param(FirebaseAnalytics.Param.SCREEN_NAME, "ShowDetail")
@@ -229,6 +231,7 @@ class ShowDetailViewModel
             }
 
             if (show == null) {
+                _show.value = null
                 _isLoading.value = false
                 _uiState.update { currentState ->
                     currentState.copy(
@@ -242,33 +245,50 @@ class ShowDetailViewModel
             val currentShow = _show.value
             val isSameShowId = show.showId != null && show.showId != "null" && currentShow?.showId == show.showId
             val isSameImdbId = show.imdbID != null && show.imdbID != "null" && currentShow?.imdbID == show.imdbID
-            val hasValidSummary = _uiState.value.showSummary != null
+            val hasCompleteSummary = _uiState.value.showSummary?.summary != null
             val isAlreadyLoading = _uiState.value.isLoadingSummary
 
-            if ((isSameShowId || isSameImdbId) && (hasValidSummary || isAlreadyLoading)) {
+            if ((isSameShowId || isSameImdbId) && (hasCompleteSummary || isAlreadyLoading)) {
                 return
             }
 
-            _uiState.update { ShowDetailUiState() }
-            _isLoading.value = true
+            val initialSummary = initialShowData(show)
 
             _show.value = show
             _traktId.value = show.showTraktId
-            _uiState.update { currentState ->
-                currentState.copy(
+            _isLoading.value = true
+
+            _uiState.update {
+                ShowDetailUiState(
+                    showSummary = initialSummary,
                     isLoadingSummary = true,
-                    summaryErrorMessage = null,
-                    generalErrorMessage = null,
-                    showSummary = null,
-                    showCast = null,
-                    traktCast = null,
-                    showPreviousEpisode = null,
-                    showNextEpisode = null,
-                    similarShows = null,
-                    watchProviders = null,
                 )
             }
             getShowSummary(show)
+        }
+
+        private fun initialShowData(show: ShowDetailArg): ShowDetailSummary {
+            return ShowDetailSummary(
+                airDays = null,
+                averageRating = null,
+                id = show.showId?.toIntOrNull() ?: -1,
+                imdbID = show.imdbID,
+                genres = null,
+                language = null,
+                mediumImageUrl = show.showImageUrl,
+                name = show.showTitle,
+                originalImageUrl = show.showBackgroundUrl ?: show.showImageUrl,
+                summary = null,
+                time = null,
+                status = null,
+                previousEpisodeHref = null,
+                nextEpisodeHref = null,
+                nextEpisodeLinkedId = null,
+                previousEpisodeLinkedId = null,
+                tmdbID = null,
+                network = null,
+                premiered = null,
+            )
         }
 
         private fun getShowSummary(show: ShowDetailArg) {
