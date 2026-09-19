@@ -393,6 +393,7 @@ private fun FeaturedShowHero(
             Modifier
                 .fillMaxWidth()
                 .height(280.dp)
+                .testTag("explore_hero_card")
                 .bounceClick(onClick = onClick),
     ) {
         Box(modifier = Modifier.fillMaxSize()) {

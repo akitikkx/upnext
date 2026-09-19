@@ -31,16 +31,20 @@ appId: com.theupnextapp
 # 5. Open Show Detail
 - extendedWaitUntil:
     visible:
-      id: "explore_bento_card"
+      id: "explore_hero_card"
     timeout: 15000
 - tapOn:
-    id: "explore_bento_card"
-    index: 0
-- assertVisible: "Seasons"
+    id: "explore_hero_card"
+- extendedWaitUntil:
+    visible: "Seasons"
+    timeout: 15000
 - back
 
 # 6. Navigate to Search
 - tapOn: "Search"
-- tapOn: "Search for TV shows..."
+- tapOn:
+    id: "search_input"
 - inputText: "Breaking Bad"
 - pressKey: Enter
+- assertVisible: "Breaking Bad"
+
