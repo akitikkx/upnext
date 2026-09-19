@@ -125,6 +125,8 @@ fun MainScreen(
             // When detail is cleared, navigate back to list pane
             if (listDetailNavigator.canNavigateBack()) {
                 listDetailNavigator.navigateBack(BackNavigationBehavior.PopUntilScaffoldValueChange)
+            } else {
+                listDetailNavigator.navigateTo(ListDetailPaneScaffoldRole.List)
             }
         }
     }

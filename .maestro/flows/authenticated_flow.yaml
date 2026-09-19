@@ -21,3 +21,7 @@ appId: com.theupnextapp
 - tapOn: "Settings"
 - assertVisible: "Trakt.tv Connection"
 - assertVisible: "Connected"
+
+# 5. Return to Dashboard
+- back
+- assertVisible: "My Upnext"

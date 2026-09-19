@@ -511,4 +511,46 @@ class ShowDetailViewModelTest {
             assertEquals("tt99999", immediateState.showSummary?.imdbID)
             assertTrue("Should be in loading state for background data", immediateState.isLoadingSummary)
         }
+
+    @Test
+    fun `selectedShow with different showId replaces previous state with new show initial metadata`() =
+        runTest {
+            // Given - Repository emits loading (simulating ongoing network request)
+            showDetailRepository.showSummaryResult = Result.Loading(true)
+
+            val firstShow =
+                ShowDetailArg(
+                    showId = "101",
+                    showTitle = "First Show",
+                    showImageUrl = "https://example.com/poster1.jpg",
+                    showBackgroundUrl = "https://example.com/backdrop1.jpg",
+                    imdbID = "tt101",
+                    isAuthorizedOnTrakt = false,
+                    showTraktId = 1,
+                )
+            viewModel.selectedShow(firstShow)
+            assertEquals("First Show", viewModel.uiState.value.showSummary?.name)
+
+            // When - Navigating to a different show
+            val secondShow =
+                ShowDetailArg(
+                    showId = "202",
+                    showTitle = "Second Show",
+                    showImageUrl = "https://example.com/poster2.jpg",
+                    showBackgroundUrl = "https://example.com/backdrop2.jpg",
+                    imdbID = "tt202",
+                    isAuthorizedOnTrakt = false,
+                    showTraktId = 2,
+                )
+            viewModel.selectedShow(secondShow)
+
+            // Then - UI state should immediately reflect the second show's seeded metadata
+            val state = viewModel.uiState.value
+            assertNotNull(state.showSummary)
+            assertEquals("Second Show", state.showSummary?.name)
+            assertEquals("https://example.com/poster2.jpg", state.showSummary?.mediumImageUrl)
+            assertEquals("https://example.com/backdrop2.jpg", state.showSummary?.originalImageUrl)
+            assertEquals(202, state.showSummary?.id)
+            assertEquals("tt202", state.showSummary?.imdbID)
+        }
 }
