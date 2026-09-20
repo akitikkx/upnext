@@ -286,10 +286,11 @@ class FakeTraktRepository : TraktRepository {
 
     override suspend fun getRegionalTrendingShows(countryCode: String): Result<List<TraktTrendingShows>> = regionalTrendingResult
 
+    var playbackProgressResult: Result<List<NetworkTraktPlaybackResponse>> =
+        Result.success(emptyList())
+
     override suspend fun getTraktPlaybackProgress(token: String): Result<List<NetworkTraktPlaybackResponse>> =
-        Result.success(
-            emptyList(),
-        )
+        playbackProgressResult
 
     override suspend fun getTraktWatchedShows(token: String): Result<List<NetworkTraktWatchedShowsResponse>> =
         Result.success(
@@ -304,10 +305,15 @@ class FakeTraktRepository : TraktRepository {
             NetworkTraktShowProgressResponse(aired = 1, completed = 1, lastWatchedAt = "", lastEpisode = null, nextEpisode = null),
         )
 
-    override suspend fun getTraktRecentHistory(token: String): Result<List<NetworkTraktHistoryResponse>> =
-        Result.success(
-            emptyList(),
-        )
+    var recentHistoryResult: Result<List<NetworkTraktHistoryResponse>> =
+        Result.success(emptyList())
+
+    override suspend fun getTraktRecentHistory(
+        token: String,
+        page: Int,
+        limit: Int,
+    ): Result<List<NetworkTraktHistoryResponse>> =
+        recentHistoryResult
 
     override suspend fun getTraktRecommendations(token: String): Result<NetworkTraktRecommendationsResponse> =
         Result.success(
@@ -353,5 +359,11 @@ class FakeTraktRepository : TraktRepository {
 
     fun setLoadingMostAnticipated(loading: Boolean) {
         _isLoadingTraktMostAnticipated.value = loading
+    }
+
+    val invalidatedShowProgressIds = mutableListOf<Int>()
+
+    override fun invalidateShowProgress(traktId: Int) {
+        invalidatedShowProgressIds.add(traktId)
     }
 }

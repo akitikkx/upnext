@@ -14,10 +14,14 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import org.mockito.Mockito.times
 import org.mockito.kotlin.any
+import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import com.theupnextapp.database.DatabaseWatchlistShows
 
 class TraktAccountDataSourceTest {
     private val traktDao: TraktDao = mock()
@@ -161,12 +165,226 @@ class TraktAccountDataSourceTest {
 
         assertTrue(result.isSuccess)
 
-        val captor = org.mockito.kotlin.argumentCaptor<Array<com.theupnextapp.database.DatabaseWatchlistShows>>()
-        org.mockito.kotlin.verify(traktDao).insertAllWatchlistShows(*captor.capture())
+        val captor = argumentCaptor<Array<DatabaseWatchlistShows>>()
+        verify(traktDao).insertAllWatchlistShows(*captor.capture())
         val capturedShows = captor.firstValue
         assertTrue(capturedShows.isNotEmpty())
         assertEquals("old_poster_url", capturedShows[0].originalImageUrl)
         assertEquals("old_hero_url", capturedShows[0].mediumImageUrl)
         assertEquals(null, capturedShows[0].tvMazeID)
+    }
+
+    @Test
+    fun `getTraktRecentHistory passes pagination parameters`() {
+        runBlocking {
+            val mockHistory = listOf(
+                NetworkTraktHistoryResponse(
+                    id = 101L,
+                    watchedAt = "2026-09-15T20:00:00.000Z",
+                    action = "watch",
+                    type = "episode",
+                    show = NetworkTraktWatchedShowInfo(
+                        title = "Severance",
+                        year = 2022,
+                        ids = NetworkTraktWatchedShowIds(trakt = 100, slug = "severance", tvdb = 1, imdb = "tt100", tmdb = 1)
+                    ),
+                    episode = NetworkTraktWatchedEpisode(
+                        season = 1,
+                        number = 1,
+                        title = "Good News About Hell",
+                        plays = 1,
+                        lastWatchedAt = "2026-09-15T20:00:00.000Z"
+                    )
+                )
+            )
+
+            whenever(traktService.getRecentHistoryAsync(token = "Bearer test_token", page = 2, limit = 15, extended = "full"))
+                .thenReturn(CompletableDeferred(mockHistory))
+
+            val result = dataSource.getTraktRecentHistory("test_token", page = 2, limit = 15)
+
+            assertTrue(result.isSuccess)
+            assertEquals(1, result.getOrNull()?.size)
+            assertEquals("Severance", result.getOrNull()?.first()?.show?.title)
+            verify(traktService).getRecentHistoryAsync(token = "Bearer test_token", page = 2, limit = 15, extended = "full")
+        }
+    }
+
+    @Test
+    fun `getTraktPlaybackProgress calculates progress and includes next episode`() {
+        runBlocking {
+        val paused = listOf(
+            NetworkTraktPlaybackResponse(
+                progress = 42.5f,
+                action = "pause",
+                type = "episode",
+                show = NetworkTraktWatchedShowInfo(
+                    title = "Slow Horses",
+                    year = 2022,
+                    ids = NetworkTraktWatchedShowIds(trakt = 200, slug = "slow-horses", tvdb = 2, imdb = "tt200", tmdb = 2)
+                ),
+                episode = NetworkTraktWatchedEpisode(
+                    season = 2,
+                    number = 3,
+                    title = "Drinking Games",
+                    plays = 1,
+                    lastWatchedAt = "2026-09-10T19:00:00.000Z"
+                )
+            )
+        )
+
+        val watchedShows = listOf(
+            NetworkTraktWatchedShowsResponse(
+                plays = 5,
+                lastWatchedAt = "2026-09-14T21:00:00.000Z",
+                lastUpdatedAt = "2026-09-14T21:00:00.000Z",
+                resetAt = null,
+                show = NetworkTraktWatchedShowInfo(
+                    title = "Severance",
+                    year = 2022,
+                    ids = NetworkTraktWatchedShowIds(trakt = 100, slug = "severance", tvdb = 1, imdb = "tt100", tmdb = 1)
+                ),
+                seasons = emptyList()
+            )
+        )
+
+        val showProgress = NetworkTraktShowProgressResponse(
+            aired = 10,
+            completed = 4,
+            lastWatchedAt = "2026-09-14T21:00:00.000Z",
+            lastEpisode = null,
+            nextEpisode = NetworkTraktWatchedEpisode(
+                season = 1,
+                number = 5,
+                title = "The Grim Barbarity of Optics and Design",
+                plays = 0,
+                lastWatchedAt = null
+            )
+        )
+
+        whenever(traktService.getPlaybackProgressAsync("Bearer test_token")).thenReturn(CompletableDeferred(paused))
+        whenever(traktService.getWatchedShowsAsync("Bearer test_token")).thenReturn(CompletableDeferred(watchedShows))
+        whenever(traktService.getShowProgressAsync(token = "Bearer test_token", id = "100")).thenReturn(CompletableDeferred(showProgress))
+
+        val result = dataSource.getTraktPlaybackProgress("test_token")
+
+        assertTrue(result.isSuccess)
+        val items = result.getOrNull()
+        assertEquals(2, items?.size)
+        // First is the paused item
+        assertEquals("Slow Horses", items?.get(0)?.show?.title)
+        assertEquals(42.5f, items?.get(0)?.progress)
+        // Second is the next unwatched episode
+        assertEquals("Severance", items?.get(1)?.show?.title)
+        assertEquals(1, items?.get(1)?.episode?.season)
+        assertEquals(5, items?.get(1)?.episode?.number)
+        assertEquals(40.0f, items?.get(1)?.progress) // 4 completed out of 10 aired = 40%
+        }
+    }
+
+    @Test
+    fun `getTraktPlaybackProgress caches completed shows and skips them on subsequent calls`() {
+        runBlocking {
+            val watchedShows = listOf(
+                NetworkTraktWatchedShowsResponse(
+                    plays = 10,
+                    lastWatchedAt = "2026-09-14T21:00:00.000Z",
+                    lastUpdatedAt = "2026-09-14T21:00:00.000Z",
+                    resetAt = null,
+                    show = NetworkTraktWatchedShowInfo(
+                        title = "Completed Show",
+                        year = 2020,
+                        ids = NetworkTraktWatchedShowIds(trakt = 500, slug = "completed", tvdb = 5, imdb = "tt500", tmdb = 5)
+                    ),
+                    seasons = emptyList()
+                )
+            )
+
+            val completedProgress = NetworkTraktShowProgressResponse(
+                aired = 10,
+                completed = 10,
+                lastWatchedAt = "2026-09-14T21:00:00.000Z",
+                lastEpisode = null,
+                nextEpisode = null
+            )
+
+            whenever(traktService.getPlaybackProgressAsync("Bearer test_token")).thenReturn(CompletableDeferred(emptyList()))
+            whenever(traktService.getWatchedShowsAsync("Bearer test_token")).thenReturn(CompletableDeferred(watchedShows))
+            whenever(traktService.getShowProgressAsync(token = "Bearer test_token", id = "500")).thenReturn(CompletableDeferred(completedProgress))
+
+            val firstCall = dataSource.getTraktPlaybackProgress("test_token")
+            assertTrue(firstCall.isSuccess)
+            assertEquals(0, firstCall.getOrNull()?.size)
+            verify(traktService).getShowProgressAsync(token = "Bearer test_token", id = "500")
+
+            // On second call, completed show should be skipped from cache
+            val secondCall = dataSource.getTraktPlaybackProgress("test_token")
+            assertTrue(secondCall.isSuccess)
+            assertEquals(0, secondCall.getOrNull()?.size)
+            // Still only called once because it was cached as completed
+            verify(traktService, times(1)).getShowProgressAsync(token = "Bearer test_token", id = "500")
+
+            // Invalidate cache and call again
+            dataSource.invalidateShowProgressCache(500)
+            val thirdCall = dataSource.getTraktPlaybackProgress("test_token")
+            assertTrue(thirdCall.isSuccess)
+            verify(traktService, times(2)).getShowProgressAsync(token = "Bearer test_token", id = "500")
+        }
+    }
+
+    @Test
+    fun `getTraktMySchedule with raw token passes formatted Bearer token`() {
+        runBlocking {
+            val mockSchedule = NetworkTraktMyScheduleResponse()
+            whenever(traktService.getMyCalendarAsync(eq("Bearer test_token"), any(), any()))
+                .thenReturn(CompletableDeferred(mockSchedule))
+
+            val result = dataSource.getTraktMySchedule("test_token", "2026-09-20", 14)
+
+            assertTrue(result.isSuccess)
+            verify(traktService).getMyCalendarAsync("Bearer test_token", "2026-09-20", 14)
+        }
+    }
+
+    @Test
+    fun `getTraktMySchedule with Bearer token does not duplicate Bearer prefix`() {
+        runBlocking {
+            val mockSchedule = NetworkTraktMyScheduleResponse()
+            whenever(traktService.getMyCalendarAsync(eq("Bearer test_token"), any(), any()))
+                .thenReturn(CompletableDeferred(mockSchedule))
+
+            val result = dataSource.getTraktMySchedule("Bearer test_token", "2026-09-20", 14)
+
+            assertTrue(result.isSuccess)
+            verify(traktService).getMyCalendarAsync("Bearer test_token", "2026-09-20", 14)
+        }
+    }
+
+    @Test
+    fun `getTraktRecommendations with raw token passes formatted Bearer token`() {
+        runBlocking {
+            val mockRecommendations = NetworkTraktRecommendationsResponse()
+            whenever(traktService.getRecommendationsAsync(eq("Bearer test_token"), any(), any()))
+                .thenReturn(CompletableDeferred(mockRecommendations))
+
+            val result = dataSource.getTraktRecommendations("test_token")
+
+            assertTrue(result.isSuccess)
+            verify(traktService).getRecommendationsAsync(token = "Bearer test_token", limit = 20, extended = "full")
+        }
+    }
+
+    @Test
+    fun `getTraktRecommendations with Bearer token does not duplicate Bearer prefix`() {
+        runBlocking {
+            val mockRecommendations = NetworkTraktRecommendationsResponse()
+            whenever(traktService.getRecommendationsAsync(eq("Bearer test_token"), any(), any()))
+                .thenReturn(CompletableDeferred(mockRecommendations))
+
+            val result = dataSource.getTraktRecommendations("Bearer test_token")
+
+            assertTrue(result.isSuccess)
+            verify(traktService).getRecommendationsAsync(token = "Bearer test_token", limit = 20, extended = "full")
+        }
     }
 }

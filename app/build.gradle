@@ -91,6 +91,9 @@ android {
             }
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            firebaseCrashlytics {
+                mappingFileUploadEnabled (signingConfigs.release.storeFile != null)
+            }
         }
     }
     buildTypes.each {

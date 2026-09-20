@@ -517,8 +517,12 @@ class TraktRepositoryImpl(
         return traktAccountDataSource.getTraktPlaybackProgress(token)
     }
 
-    override suspend fun getTraktRecentHistory(token: String): Result<List<NetworkTraktHistoryResponse>> {
-        return traktAccountDataSource.getTraktRecentHistory(token)
+    override suspend fun getTraktRecentHistory(
+        token: String,
+        page: Int,
+        limit: Int,
+    ): Result<List<NetworkTraktHistoryResponse>> {
+        return traktAccountDataSource.getTraktRecentHistory(token, page, limit)
     }
 
     override suspend fun getTraktShowProgress(token: String, showId: String): Result<NetworkTraktShowProgressResponse> {
@@ -531,5 +535,9 @@ class TraktRepositoryImpl(
 
     override suspend fun getTraktRecommendations(token: String): Result<NetworkTraktRecommendationsResponse> {
         return traktAccountDataSource.getTraktRecommendations(token)
+    }
+
+    override fun invalidateShowProgress(traktId: Int) {
+        traktAccountDataSource.invalidateShowProgressCache(traktId)
     }
 }

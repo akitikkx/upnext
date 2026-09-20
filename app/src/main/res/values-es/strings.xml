@@ -45,6 +45,8 @@
     <string name="episode_detail_crew">Equipo</string>
     <string name="episode_detail_aired_date">Emitido: %1$s</string>
     <string name="episode_detail_aired_relative_date">Emitido: %1$s (%2$s)</string>
+    <string name="episode_detail_airs_date">Se emite: %1$s</string>
+    <string name="episode_detail_airs_relative_date">Se emite: %1$s (%2$s)</string>
     <string name="episode_detail_show_backdrop">Fondo de la serie</string>
     <string name="episode_detail_season_episode">Temporada %1$s • Episodio %2$s</string>
     <string name="episode_detail_rating_format">%1$d%% (%2$s votos)</string>

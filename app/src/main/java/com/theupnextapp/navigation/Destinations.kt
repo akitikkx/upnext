@@ -142,5 +142,8 @@ sealed interface Destinations {
     }
 
     @Serializable
+    data object WatchHistory : Destinations
+
+    @Serializable
     data object EmptyDetail : Destinations
 }

@@ -21,7 +21,12 @@ import com.theupnextapp.CoroutineTestRule
 import com.theupnextapp.domain.ScheduleShow
 import com.theupnextapp.domain.TraktAccessToken
 import com.theupnextapp.network.models.trakt.NetworkTraktHistoryResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleEpisode
 import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponseItem
+import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleShow
+import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleShowIds
+import com.theupnextapp.network.models.trakt.NetworkTraktPlaybackResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktRecommendationsResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktWatchedEpisode
 import com.theupnextapp.network.models.trakt.NetworkTraktWatchedShowIds
@@ -32,9 +37,11 @@ import com.theupnextapp.repository.WatchProgressRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -47,6 +54,8 @@ import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.mockito.kotlin.any
 import org.mockito.kotlin.check
+import org.mockito.kotlin.eq
+import java.util.Locale
 
 @ExperimentalCoroutinesApi
 class DashboardViewModelTest {
@@ -74,8 +83,13 @@ class DashboardViewModelTest {
 
         `when`(traktRepository.traktAccessToken).thenReturn(MutableStateFlow(null))
         `when`(traktRepository.traktMostAnticipatedShows).thenReturn(flowOf(emptyList()))
-        kotlinx.coroutines.runBlocking {
+        runBlocking {
             `when`(traktRepository.getRegionalTrendingShows(any())).thenReturn(
+                Result.success(
+                    emptyList(),
+                ),
+            )
+            `when`(traktRepository.getTraktPlaybackProgress(any())).thenReturn(
                 Result.success(
                     emptyList(),
                 ),
@@ -211,8 +225,10 @@ class DashboardViewModelTest {
             // Trigger sync complete
             syncStateFlow.value = false
 
-            // Verify it asked trakt for history refresh using the token
+            assertNotNull(testViewModel)
+            // Verify it asked trakt for history and playback progress refresh using the token
             verify(traktRepository).getTraktRecentHistory("mock_token")
+            verify(traktRepository).getTraktPlaybackProgress("mock_token")
         }
 
     @Test
@@ -235,6 +251,7 @@ class DashboardViewModelTest {
                 ),
             )
             `when`(traktRepository.getTraktRecentHistory(token)).thenReturn(Result.success(listOf()))
+            `when`(traktRepository.getTraktPlaybackProgress(token)).thenReturn(Result.success(listOf()))
 
             val testViewModel = DashboardViewModel(
                 traktRepository = traktRepository,
@@ -254,8 +271,10 @@ class DashboardViewModelTest {
             verify(traktRepository, Mockito.times(1)).getTraktMySchedule(any(), any(), any())
             verify(traktRepository, Mockito.times(1)).getTraktRecommendations(token)
             verify(traktRepository, Mockito.times(1)).getTraktRecentHistory(token)
+            verify(traktRepository, Mockito.times(1)).getTraktPlaybackProgress(token)
 
             // Explicitly verify the states have values so the guard should be active
+            assertNotNull(testViewModel.upNextShows.value)
             assertNotNull(testViewModel.airingSoonShows.value)
             assertNotNull(testViewModel.recommendedShows.value)
             assertNotNull(testViewModel.recentHistory.value)
@@ -269,12 +288,13 @@ class DashboardViewModelTest {
             verify(traktRepository, Mockito.times(1)).getTraktMySchedule(any(), any(), any())
             verify(traktRepository, Mockito.times(1)).getTraktRecommendations(token)
             verify(traktRepository, Mockito.times(1)).getTraktRecentHistory(token)
+            verify(traktRepository, Mockito.times(1)).getTraktPlaybackProgress(token)
         }
 
     @Test
     fun `viewModel fetches regional trending shows on init`() =
         runTest {
-            val countryCode = java.util.Locale.getDefault().country
+            val countryCode = Locale.getDefault().country
 
             // Verify that the repository method was called with the default country code
             verify(traktRepository, Mockito.times(1)).getRegionalTrendingShows(countryCode)
@@ -383,5 +403,259 @@ class DashboardViewModelTest {
                 assertEquals("tt999", episodes[0].showImdbId)
                 assertTrue(episodes[0].isSynced)
             })
+        }
+
+    @Test
+    fun `fetchDashboardData loads both Up Next progress and Airing Soon schedule`() =
+        runTest {
+            val token = "mock_token"
+            val mockPlayback = listOf(
+                NetworkTraktPlaybackResponse(
+                    progress = 45.0f,
+                    action = "pause",
+                    type = "episode",
+                    show = NetworkTraktWatchedShowInfo(
+                        title = "Severance",
+                        year = 2022,
+                        ids = NetworkTraktWatchedShowIds(
+                            trakt = 100,
+                            tvdb = 200,
+                            imdb = "tt12345",
+                            tmdb = 300,
+                            slug = "severance",
+                        ),
+                    ),
+                    episode = NetworkTraktWatchedEpisode(
+                        season = 2,
+                        number = 1,
+                        title = "Hello Ms. Cobel",
+                        plays = 1,
+                        lastWatchedAt = "2026-09-20T00:00:00.000Z",
+                    ),
+                ),
+            )
+            `when`(traktRepository.getTraktPlaybackProgress(token)).thenReturn(Result.success(mockPlayback))
+
+            val testViewModel = DashboardViewModel(
+                traktRepository = traktRepository,
+                dashboardRepository = dashboardRepository,
+                watchProgressRepository = watchProgressRepository,
+                localWorkManager = localWorkManager,
+                firebaseAnalytics = firebaseAnalytics,
+            )
+
+            testViewModel.fetchDashboardData(token)
+            advanceUntilIdle()
+
+            verify(traktRepository).getTraktPlaybackProgress(token)
+            val upNext = testViewModel.upNextShows.value
+            assertNotNull(upNext)
+            assertEquals(1, upNext?.size)
+            assertEquals("Severance", upNext?.first()?.show?.title)
+            assertEquals(2, upNext?.first()?.episode?.season)
+            assertEquals(1, upNext?.first()?.episode?.number)
+        }
+
+    @Test
+    fun `upNextShows preserves uncompleted episodes when future calendar moves forward`() =
+        runTest {
+            val token = "mock_token"
+            val mockPlayback = listOf(
+                NetworkTraktPlaybackResponse(
+                    progress = 10.0f,
+                    action = "pause",
+                    type = "episode",
+                    show = NetworkTraktWatchedShowInfo(
+                        title = "Silo",
+                        year = 2023,
+                        ids = NetworkTraktWatchedShowIds(
+                            trakt = 500,
+                            tvdb = null,
+                            imdb = "tt55555",
+                            tmdb = null,
+                            slug = "silo",
+                        ),
+                    ),
+                    episode = NetworkTraktWatchedEpisode(
+                        season = 1,
+                        number = 3,
+                        title = "Machines",
+                        plays = 0,
+                        lastWatchedAt = null,
+                    ),
+                ),
+            )
+            `when`(traktRepository.getTraktPlaybackProgress(token)).thenReturn(Result.success(mockPlayback))
+
+            val testViewModel = DashboardViewModel(
+                traktRepository = traktRepository,
+                dashboardRepository = dashboardRepository,
+                watchProgressRepository = watchProgressRepository,
+                localWorkManager = localWorkManager,
+                firebaseAnalytics = firebaseAnalytics,
+            )
+
+            testViewModel.fetchDashboardData(token)
+            advanceUntilIdle()
+
+            // The upNextShows preserves the unwatched episode even as schedule dates progress
+            assertEquals(1, testViewModel.upNextShows.value?.size)
+            val item = testViewModel.upNextShows.value?.first()
+            assertEquals("Silo", item?.show?.title)
+            assertEquals(3, item?.episode?.number)
+        }
+
+    @Test
+    fun `onMarkEpisodeWatched on Up Next card triggers optimistic UI update and queues sync`() =
+        runTest {
+            val token = TraktAccessToken(
+                access_token = "mock_token",
+                created_at = 1234567890L,
+                expires_in = 3600L,
+                refresh_token = "mock_refresh",
+                scope = "public",
+                token_type = "bearer",
+            )
+            `when`(traktRepository.traktAccessToken).thenReturn(MutableStateFlow(token))
+
+            val mockPlayback = listOf(
+                NetworkTraktPlaybackResponse(
+                    progress = 80.0f,
+                    action = "pause",
+                    type = "episode",
+                    show = NetworkTraktWatchedShowInfo(
+                        title = "Severance",
+                        year = 2022,
+                        ids = NetworkTraktWatchedShowIds(
+                            trakt = 100,
+                            tvdb = null,
+                            imdb = "tt12345",
+                            tmdb = null,
+                            slug = "severance",
+                        ),
+                    ),
+                    episode = NetworkTraktWatchedEpisode(
+                        season = 2,
+                        number = 1,
+                        title = "Hello Ms. Cobel",
+                        plays = 1,
+                        lastWatchedAt = "2026-09-20T00:00:00.000Z",
+                    ),
+                ),
+            )
+            `when`(traktRepository.getTraktPlaybackProgress("mock_token")).thenReturn(Result.success(mockPlayback))
+
+            val mockOperation = mock(Operation::class.java)
+            `when`(localWorkManager.enqueue(any<WorkRequest>())).thenReturn(mockOperation)
+
+            val testViewModel = DashboardViewModel(
+                traktRepository = traktRepository,
+                dashboardRepository = dashboardRepository,
+                watchProgressRepository = watchProgressRepository,
+                localWorkManager = localWorkManager,
+                firebaseAnalytics = firebaseAnalytics,
+            )
+
+            testViewModel.fetchDashboardData("mock_token")
+            advanceUntilIdle()
+
+            assertEquals(1, testViewModel.upNextShows.value?.size)
+
+            // Mark watched
+            testViewModel.onMarkEpisodeWatched(
+                showTvMazeId = 999,
+                imdbId = "tt12345",
+                showTraktId = 100,
+                season = 2,
+                number = 1,
+            )
+
+            // Optimistically removed immediately from upNextShows
+            assertTrue(testViewModel.upNextShows.value.isNullOrEmpty())
+
+            advanceUntilIdle()
+
+            // Verify watchProgressRepository and WorkManager were invoked
+            verify(watchProgressRepository).markEpisodeWatched(
+                showTraktId = 100,
+                showTvMazeId = 999,
+                showImdbId = "tt12345",
+                seasonNumber = 2,
+                episodeNumber = 1,
+            )
+            verify(localWorkManager).enqueue(any<WorkRequest>())
+            verify(firebaseAnalytics).logEvent(Mockito.eq(FirebaseAnalytics.Event.SELECT_CONTENT), any())
+        }
+
+    @Test
+    fun `empty Up Next and empty Airing Soon states emit appropriate UI states`() =
+        runTest {
+            val token = "mock_token"
+            `when`(traktRepository.getTraktPlaybackProgress(token)).thenReturn(Result.success(emptyList()))
+            `when`(traktRepository.getTraktMySchedule(any(), any(), any()))
+                .thenReturn(Result.success(NetworkTraktMyScheduleResponse()))
+
+            val testViewModel = DashboardViewModel(
+                traktRepository = traktRepository,
+                dashboardRepository = dashboardRepository,
+                watchProgressRepository = watchProgressRepository,
+                localWorkManager = localWorkManager,
+                firebaseAnalytics = firebaseAnalytics,
+            )
+
+            testViewModel.fetchDashboardData(token)
+            advanceUntilIdle()
+
+            assertNotNull(testViewModel.upNextShows.value)
+            assertTrue(testViewModel.upNextShows.value?.isEmpty() == true)
+            assertFalse(testViewModel.isLoadingUpNext.value)
+        }
+
+    @Test
+    fun `fetchDashboardData passes clean tokens and populates images progressively`() =
+        runTest {
+            val token = "clean_token_123"
+            val schedule = NetworkTraktMyScheduleResponse().apply {
+                add(
+                    NetworkTraktMyScheduleResponseItem(
+                        first_aired = "2026-09-20T20:00:00.000Z",
+                        episode = NetworkTraktMyScheduleEpisode(
+                            season = 1,
+                            number = 1,
+                            title = "Pilot",
+                            ids = null,
+                        ),
+                        show = NetworkTraktMyScheduleShow(
+                            title = "Severance",
+                            year = 2022,
+                            ids = NetworkTraktMyScheduleShowIds(trakt = 100, slug = "severance", tvdb = 1, imdb = "tt100", tmdb = 1),
+                        ),
+                    ),
+                )
+            }
+            `when`(traktRepository.getTraktMySchedule(eq(token), any(), any()))
+                .thenReturn(Result.success(schedule))
+            `when`(dashboardRepository.getShowImageAndTvmazeId("tt100"))
+                .thenReturn("http://image.png" to 123)
+
+            val testViewModel = DashboardViewModel(
+                traktRepository = traktRepository,
+                dashboardRepository = dashboardRepository,
+                watchProgressRepository = watchProgressRepository,
+                localWorkManager = localWorkManager,
+                firebaseAnalytics = firebaseAnalytics,
+            )
+
+            testViewModel.fetchDashboardData(token)
+            advanceUntilIdle()
+
+            // Verify clean token was passed
+            verify(traktRepository).getTraktMySchedule(eq(token), any(), any())
+            assertEquals(schedule, testViewModel.airingSoonShows.value)
+
+            // Verify progressive image loading populated the image map
+            val uniqueKey = "100-1-1"
+            assertEquals("http://image.png", testViewModel.airingSoonImages.value[uniqueKey]?.imageUrl)
+            assertEquals(123, testViewModel.airingSoonImages.value[uniqueKey]?.tvmazeId)
         }
 }

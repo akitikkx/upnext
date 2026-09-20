@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -29,8 +30,10 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.EventNote
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Tv
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -40,6 +43,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -72,6 +76,7 @@ import com.theupnextapp.core.designsystem.ui.components.ShimmerPosterCardRow
 import com.theupnextapp.core.designsystem.ui.components.ShimmerRecommended
 import com.theupnextapp.core.designsystem.ui.widgets.ListPosterCard
 import com.theupnextapp.core.designsystem.ui.widgets.UpNextEpisodeCard
+import com.theupnextapp.core.designsystem.ui.widgets.UpNextLandscapeCard
 import com.theupnextapp.navigation.Destinations
 import com.theupnextapp.ui.components.EmptyState
 import java.time.ZonedDateTime
@@ -90,6 +95,10 @@ fun DashboardScreen(
 ) {
     val context = LocalContext.current
     val traktAccessToken by viewModel.traktAccessToken.collectAsStateWithLifecycle()
+    val upNextShows by viewModel.upNextShows.collectAsStateWithLifecycle()
+    val upNextImages by viewModel.upNextImages.collectAsStateWithLifecycle()
+    val isLoadingUpNext by viewModel.isLoadingUpNext.collectAsStateWithLifecycle()
+
     val airingSoonShows by viewModel.airingSoonShows.collectAsStateWithLifecycle()
     val airingSoonImages by viewModel.airingSoonImages.collectAsStateWithLifecycle()
     val isLoadingAiringSoon by viewModel.isLoadingAiringSoon.collectAsStateWithLifecycle()
@@ -121,6 +130,7 @@ fun DashboardScreen(
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
         val isCompactPane = maxWidth < 600.dp
         val carouselPageSize = if (isCompactPane) 260.dp else 340.dp
+        val upNextPageSize = if (isCompactPane) 280.dp else 360.dp
 
         LazyColumn(
             modifier = Modifier.fillMaxSize().testTag("dashboard_list"),
@@ -279,7 +289,7 @@ fun DashboardScreen(
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onSecondaryContainer,
                                     textAlign = TextAlign.Center,
-                                )
+                                    )
                                 Text(
                                     stringResource(id = R.string.dashboard_connect_trakt_body),
                                     style = if (isCompactPane) MaterialTheme.typography.bodySmall else MaterialTheme.typography.bodyMedium,
@@ -338,6 +348,113 @@ fun DashboardScreen(
                     Spacer(modifier = Modifier.height(24.dp))
                 }
             } else {
+                // Up Next Section (Personal Watch Progress Backlog)
+                item {
+                    Text(
+                        text = stringResource(id = R.string.dashboard_up_next_to_watch),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(bottom = 8.dp),
+                    )
+
+                    if (isLoadingUpNext && upNextShows.isNullOrEmpty()) {
+                        ShimmerAiringSoon()
+                    } else if (upNextShows.isNullOrEmpty()) {
+                        EmptyState(
+                            icon = Icons.Default.CheckCircle,
+                            title = stringResource(id = R.string.dashboard_up_next_empty),
+                            message = stringResource(id = R.string.dashboard_up_next_empty_desc),
+                            modifier = Modifier.fillMaxWidth().height(220.dp).padding(16.dp).testTag("up_next_empty_state"),
+                        )
+                    } else {
+                        val pagerState = rememberPagerState(pageCount = { upNextShows.orEmpty().size })
+                        HorizontalPager(
+                            state = pagerState,
+                            pageSize = PageSize.Fixed(upNextPageSize),
+                            pageSpacing = 16.dp,
+                            modifier = Modifier.fillMaxWidth().testTag("up_next_pager"),
+                        ) { page ->
+                            val item = upNextShows.orEmpty().getOrNull(page) ?: return@HorizontalPager
+                            val pageOffset = (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
+                            val scale =
+                                lerp(
+                                    start = 0.85f,
+                                    stop = 1f,
+                                    fraction = 1f - pageOffset.absoluteValue.coerceIn(0f, 1f),
+                                )
+                            val alphaOffset =
+                                lerp(
+                                    start = 0.5f,
+                                    stop = 1f,
+                                    fraction = 1f - pageOffset.absoluteValue.coerceIn(0f, 1f),
+                                )
+
+                            val imdbId = item.show?.ids?.imdb
+                            val traktId = item.show?.ids?.trakt
+                            val season = item.episode?.season
+                            val number = item.episode?.number
+                            val uniqueKey = "$traktId-${season ?: 0}-${number ?: 0}"
+                            val extractedInfo = traktId?.let { upNextImages[uniqueKey] }
+                            val imageUrl = extractedInfo?.imageUrl
+                            val tvmazeId = extractedInfo?.tvmazeId
+
+                            val progressRibbon =
+                                item.progress?.let { p ->
+                                    if (p > 0f) "${p.toInt()}% completed" else null
+                                }
+                            val episodeInfoText =
+                                "${stringResource(id = R.string.dashboard_season_episode, season ?: 0, number ?: 0)} • ${item.episode?.title ?: stringResource(id = R.string.dashboard_tba)}"
+
+                            Box(
+                                modifier =
+                                    Modifier
+                                        .graphicsLayer {
+                                            scaleX = scale
+                                            scaleY = scale
+                                            alpha = alphaOffset
+                                        }
+                                        .padding(horizontal = 8.dp),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                UpNextLandscapeCard(
+                                    showTitle = item.show?.title ?: "Unknown",
+                                    episodeInfo = episodeInfoText,
+                                    airDateRibbon = progressRibbon,
+                                    progressPercentage = item.progress,
+                                    imageUrl = imageUrl,
+                                    modifier = Modifier.fillMaxWidth().testTag("up_next_card_$page"),
+                                    onCardClick = {
+                                        val direction =
+                                            Destinations.EpisodeDetail(
+                                                showTraktId = traktId ?: 0,
+                                                seasonNumber = season ?: 0,
+                                                episodeNumber = number ?: 0,
+                                                showTitle = item.show?.title,
+                                                showId = tvmazeId,
+                                                imdbID = imdbId,
+                                                isAuthorizedOnTrakt = true,
+                                                showImageUrl = imageUrl,
+                                                episodeImageUrl = imageUrl,
+                                                isWatched = false,
+                                            )
+                                        onNavigate(direction)
+                                    },
+                                    onMarkAsWatchedClick = {
+                                        viewModel.onMarkEpisodeWatched(
+                                            showTvMazeId = tvmazeId,
+                                            imdbId = imdbId,
+                                            showTraktId = traktId,
+                                            season = season ?: 0,
+                                            number = number ?: 0,
+                                        )
+                                    },
+                                )
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
+
                 // Airing Soon Section
                 item {
                     Text(
@@ -422,7 +539,7 @@ fun DashboardScreen(
                                     episodeInfo = episodeInfoText,
                                     airDateRibbon = airDateTxt,
                                     imageUrl = imageUrl,
-                                    modifier = Modifier.fillMaxWidth(),
+                                    modifier = Modifier.fillMaxWidth().testTag("airing_soon_card_$page"),
                                     onCardClick = {
                                         val direction =
                                             Destinations.ShowDetail(
@@ -459,12 +576,23 @@ fun DashboardScreen(
 
                 // Recent Activity Section
                 item {
-                    Text(
-                        text = stringResource(id = R.string.dashboard_recent_activity),
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.padding(bottom = 8.dp),
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.dashboard_recent_activity),
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                        TextButton(
+                            onClick = { onNavigate(Destinations.WatchHistory) },
+                            modifier = Modifier.testTag("recent_activity_see_all_button"),
+                        ) {
+                            Text(stringResource(id = R.string.dashboard_recent_activity_see_all))
+                        }
+                    }
 
                     if (isLoadingHistory && recentHistory.isNullOrEmpty()) {
                         ShimmerPosterCardRow()
@@ -574,7 +702,14 @@ fun DashboardScreen(
 
                     if (isLoadingRecommendations && recommendedShows.isNullOrEmpty()) {
                         ShimmerRecommended()
-                    } else if (!recommendedShows.isNullOrEmpty()) {
+                    } else if (recommendedShows.isNullOrEmpty()) {
+                        EmptyState(
+                            icon = Icons.Default.Star,
+                            title = stringResource(id = R.string.dashboard_recommended_for_you),
+                            message = stringResource(id = R.string.recommendations_empty_state_text),
+                            modifier = Modifier.fillMaxWidth().height(220.dp).padding(16.dp).testTag("recommended_empty_state"),
+                        )
+                    } else {
                         val pagerState = rememberPagerState(pageCount = { recommendedShows.orEmpty().size })
                         HorizontalPager(
                             state = pagerState,
@@ -597,8 +732,8 @@ fun DashboardScreen(
                                     fraction = 1f - pageOffset.absoluteValue.coerceIn(0f, 1f),
                                 )
 
-                            val traktId = show?.ids?.trakt
-                            val imdbId = show?.ids?.imdb
+                            val traktId = show.ids?.trakt
+                            val imdbId = show.ids?.imdb
                             val extractedInfo = traktId?.let { recommendedShowsImages[it.toString()] }
                             val imageUrl = extractedInfo?.imageUrl
                             val tvmazeId = extractedInfo?.tvmazeId
@@ -620,12 +755,13 @@ fun DashboardScreen(
                                         Modifier
                                             .fillMaxWidth()
                                             .aspectRatio(2f / 3f)
+                                            .testTag("recommended_card_$page")
                                             .clickable {
                                                 val direction =
                                                     Destinations.ShowDetail(
                                                         source = "recommended",
                                                         showId = tvmazeId?.toString(),
-                                                        showTitle = show?.title,
+                                                        showTitle = show.title,
                                                         showImageUrl = imageUrl,
                                                         showBackgroundUrl = null,
                                                         imdbID = imdbId,
@@ -642,7 +778,7 @@ fun DashboardScreen(
                                                     .data(imageUrl)
                                                     .crossfade(true)
                                                     .build(),
-                                            contentDescription = show?.title ?: stringResource(id = R.string.dashboard_show_poster_desc),
+                                            contentDescription = show.title ?: stringResource(id = R.string.dashboard_show_poster_desc),
                                             contentScale = ContentScale.Crop,
                                             modifier = Modifier.fillMaxSize(),
                                         )
@@ -659,7 +795,7 @@ fun DashboardScreen(
                                                     ),
                                         )
                                         Text(
-                                            text = show?.title ?: "",
+                                            text = show.title ?: "",
                                             style = MaterialTheme.typography.headlineSmall,
                                             color = Color.White,
                                             fontWeight = FontWeight.Bold,

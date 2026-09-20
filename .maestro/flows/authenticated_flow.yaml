@@ -11,17 +11,35 @@ appId: com.theupnextapp
     visible: "My Upnext"
     timeout: 30000
 
-# 3. Verify Recent Activity section is present or scrollable
+# 3. Verify Up Next to Watch section
+- assertVisible: "Up Next to Watch"
+
+# 4. Verify Recent Activity section and tap See All
 - scrollUntilVisible:
     element:
       text: "Recent Activity"
     direction: DOWN
 
-# 4. Navigate to Settings / Account
+- tapOn:
+    id: "recent_activity_see_all_button"
+
+# 5. Verify Watch History screen renders with title and search bar
+- extendedWaitUntil:
+    visible: "Watch History"
+    timeout: 10000
+
+- assertVisible:
+    id: "watch_history_search_input"
+
+# 6. Return to Dashboard via back navigation
+- back
+- assertVisible: "My Upnext"
+
+# 7. Navigate to Settings / Account
 - tapOn: "Settings"
 - assertVisible: "Trakt.tv Connection"
 - assertVisible: "Connected"
 
-# 5. Return to Dashboard
+# 8. Return to Dashboard
 - back
 - assertVisible: "My Upnext"

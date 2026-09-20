@@ -315,6 +315,8 @@
     <string name="episode_detail_crew">Crew</string>
     <string name="episode_detail_aired_date">Aired: %1$s</string>
     <string name="episode_detail_aired_relative_date">Aired: %1$s (%2$s)</string>
+    <string name="episode_detail_airs_date">Airs: %1$s</string>
+    <string name="episode_detail_airs_relative_date">Airs: %1$s (%2$s)</string>
     <string name="episode_detail_show_backdrop">Show Backdrop</string>
     <string name="episode_detail_season_episode">Season %1$s • Episode %2$s</string>
     <string name="episode_detail_rating_format">%1$d%% (%2$s votes)</string>
@@ -353,4 +355,21 @@
     <string name="episode_detail_next_episode">Next Episode</string>
     <string name="episode_detail_prev">Prev</string>
     <string name="episode_detail_next">Next</string>
+    <string name="title_watch_history">Watch History</string>
+    <string name="watch_history_search_placeholder">Search watched shows…</string>
+    <string name="watch_history_empty_title">No Watch History</string>
+    <string name="watch_history_empty_subtitle">Episodes you mark as watched will appear here in chronological order.</string>
+    <string name="watch_history_no_search_results">No watch history matching \"%1$s\"</string>
+    <string name="dashboard_recent_activity_see_all">See All</string>
+    <string name="dashboard_up_next_empty">You\'re all caught up!</string>
+    <string name="dashboard_up_next_empty_desc">When you start watching shows, the next uncompleted episode will stay pinned here.</string>
+    <string name="watch_history_load_more">Loading more history…</string>
+    <string name="trakt_account_history_title">Watch History</string>
+    <string name="trakt_account_history_desc">View your full chronological diary of watched episodes.</string>
+    <string name="dashboard_up_next_to_watch">Up Next to Watch</string>
+    <string name="watch_history_view_episodes">Episodes</string>
+    <string name="watch_history_view_shows">Shows</string>
+    <string name="watch_history_last_watched">Last watched %1$s</string>
+    <string name="watch_history_episodes_count">%1$d episodes</string>
+    <string name="watch_history_single_episode_count">1 episode</string>
 </resources>

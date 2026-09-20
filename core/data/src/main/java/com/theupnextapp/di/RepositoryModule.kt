@@ -112,12 +112,14 @@ object RepositoryModule {
         tvMazeDao: TvMazeDao,
         tvMazeService: TvMazeService,
         crashlyticsHelper: CrashlyticsHelper,
+        traktDao: TraktDao,
     ): DashboardRepository {
         return DashboardRepositoryImpl(
             upnextDao = upnextDao,
             tvMazeDao = tvMazeDao,
             tvMazeService = tvMazeService,
             firebaseCrashlytics = crashlyticsHelper,
+            traktDao = traktDao,
         )
     }
 

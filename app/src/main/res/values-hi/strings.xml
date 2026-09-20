@@ -45,6 +45,8 @@
     <string name="episode_detail_crew">क्रू</string>
     <string name="episode_detail_aired_date">प्रसारित: %1$s</string>
     <string name="episode_detail_aired_relative_date">प्रसारित: %1$s (%2$s)</string>
+    <string name="episode_detail_airs_date">प्रसारण: %1$s</string>
+    <string name="episode_detail_airs_relative_date">प्रसारण: %1$s (%2$s)</string>
     <string name="episode_detail_show_backdrop">शो पृष्ठभूमि</string>
     <string name="episode_detail_season_episode">सीज़न %1$s • एपिसोड %2$s</string>
     <string name="episode_detail_rating_format">%1$d%% (%2$s वोट)</string>
