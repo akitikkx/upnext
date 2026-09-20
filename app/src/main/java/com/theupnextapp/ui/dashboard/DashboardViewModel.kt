@@ -523,6 +523,7 @@ constructor(
         }
 
         viewModelScope.launch {
+            traktRepository.invalidateShowProgress(validTraktId)
             watchProgressRepository.markEpisodeWatched(
                 showTraktId = validTraktId,
                 showTvMazeId = showTvMazeId,

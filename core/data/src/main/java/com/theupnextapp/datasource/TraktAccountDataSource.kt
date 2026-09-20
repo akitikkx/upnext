@@ -71,6 +71,7 @@ import kotlinx.coroutines.withContext
 import okhttp3.ResponseBody
 import retrofit2.HttpException
 import java.nio.charset.Charset
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 
 open class TraktAccountDataSource
@@ -84,6 +85,11 @@ constructor(
     firebaseCrashlytics: FirebaseCrashlytics,
 ) : BaseTraktDataSource(upnextDao, tvMazeService, firebaseCrashlytics) {
     private val traktConflictErrorAdapter = moshi.adapter(TraktConflictErrorResponse::class.java)
+    private val completedShowsCache = ConcurrentHashMap.newKeySet<Int>()
+
+    fun invalidateShowProgressCache(traktId: Int) {
+        completedShowsCache.remove(traktId)
+    }
 
     suspend fun refreshWatchlistShows(token: String): Result<Unit> {
         if (token.isEmpty()) {
@@ -465,18 +471,25 @@ constructor(
                     emptyList<NetworkTraktWatchedShowsResponse>()
                 }
 
-                val topWatched = watchedShowsResponse
+                val candidateShows = watchedShowsResponse
                     .sortedByDescending { it.lastUpdatedAt ?: it.lastWatchedAt ?: "" }
-                    .take(5)
+                    .filter { showItem ->
+                        val traktId = showItem.show?.ids?.trakt
+                        traktId != null && !completedShowsCache.contains(traktId)
+                    }
+                    .take(25)
 
-                val progressDeferreds = topWatched.mapNotNull { showItem ->
+                val progressDeferreds = candidateShows.mapNotNull { showItem ->
                     showItem.show?.ids?.trakt?.let { traktId ->
-                        async(Dispatchers.IO.limitedParallelism(3)) {
+                        async(Dispatchers.IO.limitedParallelism(8)) {
                             try {
                                 val progress = traktService.getShowProgressAsync(
                                     token = bearerToken,
                                     id = traktId.toString(),
                                 ).await()
+                                if (progress.nextEpisode == null && (progress.completed ?: 0) >= (progress.aired ?: 0) && (progress.aired ?: 0) > 0) {
+                                    completedShowsCache.add(traktId)
+                                }
                                 Pair<NetworkTraktWatchedShowsResponse, NetworkTraktShowProgressResponse>(showItem, progress)
                             } catch (e: Exception) {
                                 null

@@ -536,4 +536,8 @@ class TraktRepositoryImpl(
     override suspend fun getTraktRecommendations(token: String): Result<NetworkTraktRecommendationsResponse> {
         return traktAccountDataSource.getTraktRecommendations(token)
     }
+
+    override fun invalidateShowProgress(traktId: Int) {
+        traktAccountDataSource.invalidateShowProgressCache(traktId)
+    }
 }

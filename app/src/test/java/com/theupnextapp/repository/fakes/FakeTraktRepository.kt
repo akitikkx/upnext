@@ -360,4 +360,10 @@ class FakeTraktRepository : TraktRepository {
     fun setLoadingMostAnticipated(loading: Boolean) {
         _isLoadingTraktMostAnticipated.value = loading
     }
+
+    val invalidatedShowProgressIds = mutableListOf<Int>()
+
+    override fun invalidateShowProgress(traktId: Int) {
+        invalidatedShowProgressIds.add(traktId)
+    }
 }

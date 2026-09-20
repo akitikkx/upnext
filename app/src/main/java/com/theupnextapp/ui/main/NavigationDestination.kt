@@ -18,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Explore
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,6 +38,7 @@ enum class NavigationDestination(
     val route: Destinations,
 ) {
     Dashboard(Icons.Default.Home, R.string.nav_title_dashboard, Destinations.Dashboard),
+    WatchHistory(Icons.Default.History, R.string.nav_title_history, Destinations.WatchHistory),
     Schedule(Icons.Default.DateRange, R.string.nav_title_schedule, Destinations.Schedule),
     SearchScreen(Icons.Default.Search, R.string.nav_title_search, Destinations.Search),
     Explore(Icons.Filled.Explore, R.string.nav_title_explore, Destinations.Explore),

@@ -14,6 +14,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import org.mockito.Mockito.times
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.eq
@@ -278,6 +279,56 @@ class TraktAccountDataSourceTest {
         assertEquals(1, items?.get(1)?.episode?.season)
         assertEquals(5, items?.get(1)?.episode?.number)
         assertEquals(40.0f, items?.get(1)?.progress) // 4 completed out of 10 aired = 40%
+        }
+    }
+
+    @Test
+    fun `getTraktPlaybackProgress caches completed shows and skips them on subsequent calls`() {
+        runBlocking {
+            val watchedShows = listOf(
+                NetworkTraktWatchedShowsResponse(
+                    plays = 10,
+                    lastWatchedAt = "2026-09-14T21:00:00.000Z",
+                    lastUpdatedAt = "2026-09-14T21:00:00.000Z",
+                    resetAt = null,
+                    show = NetworkTraktWatchedShowInfo(
+                        title = "Completed Show",
+                        year = 2020,
+                        ids = NetworkTraktWatchedShowIds(trakt = 500, slug = "completed", tvdb = 5, imdb = "tt500", tmdb = 5)
+                    ),
+                    seasons = emptyList()
+                )
+            )
+
+            val completedProgress = NetworkTraktShowProgressResponse(
+                aired = 10,
+                completed = 10,
+                lastWatchedAt = "2026-09-14T21:00:00.000Z",
+                lastEpisode = null,
+                nextEpisode = null
+            )
+
+            whenever(traktService.getPlaybackProgressAsync("Bearer test_token")).thenReturn(CompletableDeferred(emptyList()))
+            whenever(traktService.getWatchedShowsAsync("Bearer test_token")).thenReturn(CompletableDeferred(watchedShows))
+            whenever(traktService.getShowProgressAsync(token = "Bearer test_token", id = "500")).thenReturn(CompletableDeferred(completedProgress))
+
+            val firstCall = dataSource.getTraktPlaybackProgress("test_token")
+            assertTrue(firstCall.isSuccess)
+            assertEquals(0, firstCall.getOrNull()?.size)
+            verify(traktService).getShowProgressAsync(token = "Bearer test_token", id = "500")
+
+            // On second call, completed show should be skipped from cache
+            val secondCall = dataSource.getTraktPlaybackProgress("test_token")
+            assertTrue(secondCall.isSuccess)
+            assertEquals(0, secondCall.getOrNull()?.size)
+            // Still only called once because it was cached as completed
+            verify(traktService, times(1)).getShowProgressAsync(token = "Bearer test_token", id = "500")
+
+            // Invalidate cache and call again
+            dataSource.invalidateShowProgressCache(500)
+            val thirdCall = dataSource.getTraktPlaybackProgress("test_token")
+            assertTrue(thirdCall.isSuccess)
+            verify(traktService, times(2)).getShowProgressAsync(token = "Bearer test_token", id = "500")
         }
     }
 

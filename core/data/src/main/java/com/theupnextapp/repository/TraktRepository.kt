@@ -22,6 +22,7 @@ import com.theupnextapp.domain.TraktMostAnticipated
 import com.theupnextapp.domain.TraktPopularShows
 import com.theupnextapp.domain.TraktRelatedShows
 import com.theupnextapp.domain.TraktShowRating
+import com.theupnextapp.domain.TrackingProvider
 import com.theupnextapp.domain.TraktShowStats
 import com.theupnextapp.domain.TraktTrendingShows
 import com.theupnextapp.domain.TraktUserList
@@ -38,7 +39,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 
-interface TraktRepository : com.theupnextapp.domain.TrackingProvider {
+interface TraktRepository : TrackingProvider {
     fun tableUpdate(tableName: String): Flow<TableUpdate?>
 
     val traktPopularShows: Flow<List<TraktPopularShows>>
@@ -209,4 +210,5 @@ interface TraktRepository : com.theupnextapp.domain.TrackingProvider {
     ): Result<List<NetworkTraktHistoryResponse>>
 
     suspend fun getTraktRecommendations(token: String): Result<NetworkTraktRecommendationsResponse>
+    fun invalidateShowProgress(traktId: Int)
 }

@@ -278,4 +278,111 @@ class WatchHistoryViewModelTest {
         assertEquals(null, successState.errorMessage)
         assertEquals(1, successState.items.size)
     }
+
+    @Test
+    fun `onViewModeChange updates viewMode in state and logs analytics`() = runTest {
+        val viewModel = createViewModel()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiState.collect {}
+        }
+        advanceUntilIdle()
+
+        assertEquals(WatchHistoryViewMode.EPISODES, viewModel.uiState.value.viewMode)
+
+        viewModel.onViewModeChange(WatchHistoryViewMode.SHOWS)
+        advanceUntilIdle()
+
+        assertEquals(WatchHistoryViewMode.SHOWS, viewModel.uiState.value.viewMode)
+        verify(firebaseAnalytics).logEvent(eq("watch_history_view_mode_changed"), any())
+    }
+
+    @Test
+    fun `groupedShows derives unique shows with watched count and latest watched timestamp`() = runTest {
+        // Two episodes of Severance and one of Slow Horses
+        val severanceEp2 = sampleHistoryItem1.copy(
+            id = 3L,
+            watchedAt = "2026-09-18T21:00:00.000Z",
+            episode = sampleHistoryItem1.episode?.copy(
+                season = 1,
+                number = 2,
+                title = "Half Loop",
+            ),
+        )
+        traktRepository.recentHistoryResult = Result.success(listOf(severanceEp2, sampleHistoryItem1, sampleHistoryItem2))
+
+        val viewModel = createViewModel()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiState.collect {}
+        }
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertEquals(2, state.groupedShows.size)
+
+        val severanceShow = state.groupedShows.find { it.showTitle == "Severance" }
+        assertNotNull(severanceShow)
+        assertEquals(2, severanceShow?.episodesWatchedCount)
+        assertEquals(100, severanceShow?.showTraktId)
+        assertEquals("2026-09-18T21:00:00.000Z", severanceShow?.lastWatchedAt)
+
+        val slowHorsesShow = state.groupedShows.find { it.showTitle == "Slow Horses" }
+        assertNotNull(slowHorsesShow)
+        assertEquals(1, slowHorsesShow?.episodesWatchedCount)
+        assertEquals(200, slowHorsesShow?.showTraktId)
+    }
+
+    @Test
+    fun `month filter filters episodes and shows by selected month`() = runTest {
+        traktRepository.recentHistoryResult = Result.success(listOf(sampleHistoryItem1, sampleHistoryItem2))
+
+        val viewModel = createViewModel()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiState.collect {}
+        }
+        advanceUntilIdle()
+
+        val initialState = viewModel.uiState.value
+        assertEquals(2, initialState.items.size)
+        assertEquals(listOf("September 2026", "August 2026"), initialState.availableMonthYears)
+
+        // Filter to August 2026
+        viewModel.onMonthFilterChange("August 2026")
+        advanceUntilIdle()
+
+        val augustState = viewModel.uiState.value
+        assertEquals("August 2026", augustState.selectedMonthFilter)
+        assertEquals(1, augustState.items.size)
+        assertEquals("Slow Horses", augustState.items.first().showTitle)
+        assertEquals(1, augustState.groupedShows.size)
+        assertEquals("Slow Horses", augustState.groupedShows.first().showTitle)
+        verify(firebaseAnalytics).logEvent(eq("watch_history_month_filter_selected"), any())
+
+        // Reset filter to null (All)
+        viewModel.onMonthFilterChange(null)
+        advanceUntilIdle()
+
+        val allState = viewModel.uiState.value
+        assertEquals(null, allState.selectedMonthFilter)
+        assertEquals(2, allState.items.size)
+        assertEquals(2, allState.groupedShows.size)
+    }
+
+    @Test
+    fun `onToggleMonthCollapse toggles month collapsed state`() = runTest {
+        val viewModel = createViewModel()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiState.collect {}
+        }
+        advanceUntilIdle()
+
+        assertTrue(viewModel.uiState.value.collapsedMonths.isEmpty())
+
+        viewModel.onToggleMonthCollapse("September 2026")
+        advanceUntilIdle()
+        assertTrue(viewModel.uiState.value.collapsedMonths.contains("September 2026"))
+
+        viewModel.onToggleMonthCollapse("September 2026")
+        advanceUntilIdle()
+        assertFalse(viewModel.uiState.value.collapsedMonths.contains("September 2026"))
+    }
 }

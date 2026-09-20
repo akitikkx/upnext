@@ -365,4 +365,9 @@
     <string name="trakt_account_history_title">Watch History</string>
     <string name="trakt_account_history_desc">View your full chronological diary of watched episodes.</string>
     <string name="dashboard_up_next_to_watch">Up Next to Watch</string>
+    <string name="watch_history_view_episodes">Episodes</string>
+    <string name="watch_history_view_shows">Shows</string>
+    <string name="watch_history_last_watched">Last watched %1$s</string>
+    <string name="watch_history_episodes_count">%1$d episodes</string>
+    <string name="watch_history_single_episode_count">1 episode</string>
 </resources>

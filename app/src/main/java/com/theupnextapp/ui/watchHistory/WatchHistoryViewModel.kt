@@ -12,6 +12,7 @@ import com.theupnextapp.repository.DashboardRepository
 import com.theupnextapp.repository.TraktRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,6 +23,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -40,11 +42,21 @@ constructor(
 ) : ViewModel() {
 
     private var currentPage = 1
+    private var fetchImagesJob: Job? = null
 
     private val _historyRawItems = MutableStateFlow<List<NetworkTraktHistoryResponse>>(emptyList())
     private val _historyImages = MutableStateFlow<Map<String, ExtractedTraktInfo>>(emptyMap())
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
+
+    private val _viewMode = MutableStateFlow(WatchHistoryViewMode.EPISODES)
+    val viewMode: StateFlow<WatchHistoryViewMode> = _viewMode.asStateFlow()
+
+    private val _selectedMonthFilter = MutableStateFlow<String?>(null)
+    val selectedMonthFilter: StateFlow<String?> = _selectedMonthFilter.asStateFlow()
+
+    private val _collapsedMonths = MutableStateFlow<Set<String>>(emptySet())
+    val collapsedMonths: StateFlow<Set<String>> = _collapsedMonths.asStateFlow()
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
@@ -95,13 +107,35 @@ constructor(
             )
         }
 
+    private data class FilterState(
+        val query: String,
+        val viewMode: WatchHistoryViewMode,
+        val selectedMonth: String?,
+        val collapsedMonths: Set<String>,
+    )
+
+    private val filterStateFlow =
+        combine(
+            _searchQuery,
+            _viewMode,
+            _selectedMonthFilter,
+            _collapsedMonths,
+        ) { query, viewMode, selectedMonth, collapsed ->
+            FilterState(
+                query = query,
+                viewMode = viewMode,
+                selectedMonth = selectedMonth,
+                collapsedMonths = collapsed,
+            )
+        }
+
     val uiState: StateFlow<WatchHistoryUiState> =
         combine(
             _historyRawItems,
             _historyImages,
-            _searchQuery,
+            filterStateFlow,
             statusStateFlow,
-        ) { rawItems, images, query, status ->
+        ) { rawItems, images, filter, status ->
             val allUiItems = rawItems.mapNotNull { item ->
                 val traktId = item.show?.ids?.trakt ?: return@mapNotNull null
                 val season = item.episode?.season ?: 0
@@ -126,24 +160,71 @@ constructor(
                 )
             }
 
-            val filteredItems = if (query.isNotBlank()) {
-                allUiItems.filter {
-                    it.showTitle.contains(query, ignoreCase = true) ||
-                        it.episodeTitle.contains(query, ignoreCase = true)
-                }
+            val availableMonths = allUiItems.map { it.monthYearHeader }.distinct()
+
+            val monthFilteredEpisodes = if (filter.selectedMonth != null) {
+                allUiItems.filter { it.monthYearHeader == filter.selectedMonth }
             } else {
                 allUiItems
             }
 
-            val grouped = filteredItems.groupBy { it.monthYearHeader }
+            val searchFilteredEpisodes = if (filter.query.isNotBlank()) {
+                monthFilteredEpisodes.filter {
+                    it.showTitle.contains(filter.query, ignoreCase = true) ||
+                        it.episodeTitle.contains(filter.query, ignoreCase = true)
+                }
+            } else {
+                monthFilteredEpisodes
+            }
+
+            val groupedEpisodes = searchFilteredEpisodes.groupBy { it.monthYearHeader }
+
+            val showsBaseEpisodes = if (filter.selectedMonth != null) {
+                allUiItems.filter { it.monthYearHeader == filter.selectedMonth }
+            } else {
+                allUiItems
+            }
+
+            val groupedShowsList = showsBaseEpisodes
+                .groupBy { it.showTraktId }
+                .mapNotNull { (showTraktId, episodes) ->
+                    val latest = episodes.maxByOrNull { it.watchedAt } ?: return@mapNotNull null
+                    val showPoster = images["$showTraktId-show"]?.imageUrl ?: latest.imageUrl
+                    WatchHistoryShowItem(
+                        showTraktId = showTraktId,
+                        showTvmazeId = latest.showTvmazeId,
+                        showImdbId = latest.showImdbId,
+                        showTitle = latest.showTitle,
+                        imageUrl = showPoster,
+                        lastWatchedAt = latest.watchedAt,
+                        formattedLastWatchedAt = latest.formattedWatchedAt,
+                        episodesWatchedCount = episodes.size,
+                        latestSeasonNumber = latest.seasonNumber,
+                        latestEpisodeNumber = latest.episodeNumber,
+                    )
+                }
+                .sortedByDescending { it.lastWatchedAt }
+
+            val searchFilteredShows = if (filter.query.isNotBlank()) {
+                groupedShowsList.filter {
+                    it.showTitle.contains(filter.query, ignoreCase = true)
+                }
+            } else {
+                groupedShowsList
+            }
 
             WatchHistoryUiState(
                 isLoading = status.isLoading,
                 isLoadingNextPage = status.isLoadingNextPage,
                 isAuthorized = status.isAuthorized,
-                items = filteredItems,
-                groupedItems = grouped,
-                searchQuery = query,
+                items = searchFilteredEpisodes,
+                groupedItems = groupedEpisodes,
+                groupedShows = searchFilteredShows,
+                availableMonthYears = availableMonths,
+                selectedMonthFilter = filter.selectedMonth,
+                collapsedMonths = filter.collapsedMonths,
+                viewMode = filter.viewMode,
+                searchQuery = filter.query,
                 endOfListReached = status.endOfListReached,
                 errorMessage = status.errorMessage,
             )
@@ -182,6 +263,32 @@ constructor(
         if (query.isNotBlank()) {
             firebaseAnalytics.logEvent("watch_history_search") {
                 param(FirebaseAnalytics.Param.SEARCH_TERM, query)
+            }
+        }
+    }
+
+    fun onViewModeChange(mode: WatchHistoryViewMode) {
+        _viewMode.value = mode
+        firebaseAnalytics.logEvent("watch_history_view_mode_changed") {
+            param("view_mode", mode.name)
+        }
+    }
+
+    fun onMonthFilterChange(month: String?) {
+        _selectedMonthFilter.value = month
+        if (month != null) {
+            firebaseAnalytics.logEvent("watch_history_month_filter_selected") {
+                param("month", month)
+            }
+        }
+    }
+
+    fun onToggleMonthCollapse(month: String) {
+        _collapsedMonths.update { current ->
+            if (current.contains(month)) {
+                current - month
+            } else {
+                current + month
             }
         }
     }
@@ -237,8 +344,9 @@ constructor(
     }
 
     private fun fetchImages(items: List<NetworkTraktHistoryResponse>) {
-        viewModelScope.launch {
-            val deferredImages =
+        fetchImagesJob?.cancel()
+        fetchImagesJob = viewModelScope.launch(Dispatchers.IO) {
+            val deferredEpisodeImages =
                 items.mapNotNull { item ->
                     val traktId = item.show?.ids?.trakt
                     val imdbId = item.show?.ids?.imdb
@@ -272,7 +380,30 @@ constructor(
                         null
                     }
                 }
-            val newImages = deferredImages.awaitAll().filterNotNull().toMap()
+
+            val distinctShows =
+                items.mapNotNull { item ->
+                    val traktId = item.show?.ids?.trakt
+                    val imdbId = item.show?.ids?.imdb
+                    if (traktId != null && imdbId != null) traktId to imdbId else null
+                }.distinctBy { it.first }
+
+            val deferredShowImages =
+                distinctShows.map { (traktId, imdbId) ->
+                    async(Dispatchers.IO.limitedParallelism(5)) {
+                        try {
+                            val (url, tvmazeId) = dashboardRepository.getShowImageAndTvmazeId(imdbId)
+                            "$traktId-show" to ExtractedTraktInfo(
+                                imageUrl = url,
+                                tvmazeId = tvmazeId,
+                            )
+                        } catch (e: Exception) {
+                            null
+                        }
+                    }
+                }
+
+            val newImages = (deferredEpisodeImages + deferredShowImages).awaitAll().filterNotNull().toMap()
             _historyImages.value = _historyImages.value + newImages
         }
     }
@@ -289,6 +420,11 @@ constructor(
         } catch (e: Exception) {
             Pair("Unknown Date", dateString)
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        fetchImagesJob?.cancel()
     }
 
     companion object {

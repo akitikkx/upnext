@@ -210,4 +210,121 @@ class WatchHistoryScreenTest {
         composeTestRule.onNodeWithTag("clear_search_button").performClick()
         assertEquals("", updatedQuery)
     }
+
+    @Test
+    fun watchHistory_viewModeToggle_displaysToggleButtonsAndTriggersCallback() {
+        var selectedMode: WatchHistoryViewMode? = null
+
+        composeTestRule.setContent {
+            WatchHistoryContent(
+                uiState = WatchHistoryUiState(isAuthorized = true),
+                onSearchQueryChange = {},
+                onViewModeChange = { selectedMode = it },
+                onItemClick = {},
+                onLoadNextPage = {},
+                onRetry = {},
+            )
+        }
+
+        composeTestRule.onNodeWithTag("watch_history_view_mode_toggle").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("view_mode_shows").performClick()
+        assertEquals(WatchHistoryViewMode.SHOWS, selectedMode)
+    }
+
+    @Test
+    fun watchHistory_showsView_displaysShowsListAndInvokesCallback() {
+        var clickedShow: WatchHistoryShowItem? = null
+        val sampleShow =
+            WatchHistoryShowItem(
+                showTraktId = 100,
+                showTvmazeId = 1234,
+                showImdbId = "tt12345",
+                showTitle = "Severance",
+                imageUrl = "https://image.tmdb/severance.jpg",
+                lastWatchedAt = "2026-09-20T20:00:00.000Z",
+                formattedLastWatchedAt = "Sep 20, 2026 • 10:00 PM",
+                episodesWatchedCount = 5,
+                latestSeasonNumber = 2,
+                latestEpisodeNumber = 1,
+            )
+
+        composeTestRule.setContent {
+            WatchHistoryContent(
+                uiState =
+                    WatchHistoryUiState(
+                        isAuthorized = true,
+                        viewMode = WatchHistoryViewMode.SHOWS,
+                        groupedShows = listOf(sampleShow),
+                    ),
+                onSearchQueryChange = {},
+                onItemClick = {},
+                onShowClick = { clickedShow = it },
+                onLoadNextPage = {},
+                onRetry = {},
+            )
+        }
+
+        composeTestRule.onNodeWithTag("watch_history_shows_list").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Severance").assertIsDisplayed()
+        composeTestRule.onNodeWithText("5 episodes").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("watch_history_show_100").performClick()
+
+        assertNotNull(clickedShow)
+        assertEquals(100, clickedShow?.showTraktId)
+        assertEquals("Severance", clickedShow?.showTitle)
+        assertEquals(5, clickedShow?.episodesWatchedCount)
+    }
+
+    @Test
+    fun watchHistory_monthChips_displayedAndClickTriggersCallback() {
+        var selectedMonth: String? = "initial"
+
+        composeTestRule.setContent {
+            WatchHistoryContent(
+                uiState =
+                    WatchHistoryUiState(
+                        isAuthorized = true,
+                        availableMonthYears = listOf("September 2026", "August 2026"),
+                        selectedMonthFilter = null,
+                    ),
+                onSearchQueryChange = {},
+                onMonthFilterChange = { selectedMonth = it },
+                onItemClick = {},
+                onLoadNextPage = {},
+                onRetry = {},
+            )
+        }
+
+        composeTestRule.onNodeWithTag("watch_history_month_chips").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("month_chip_all").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("month_chip_September 2026").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("month_chip_September 2026").performClick()
+
+        assertEquals("September 2026", selectedMonth)
+    }
+
+    @Test
+    fun watchHistory_collapsedMonthHeader_hidesEpisodesUnderHeader() {
+        val items = listOf(sampleItem1)
+        val grouped = items.groupBy { it.monthYearHeader }
+
+        composeTestRule.setContent {
+            WatchHistoryContent(
+                uiState =
+                    WatchHistoryUiState(
+                        isAuthorized = true,
+                        items = items,
+                        groupedItems = grouped,
+                        collapsedMonths = setOf("September 2026"),
+                    ),
+                onSearchQueryChange = {},
+                onItemClick = {},
+                onLoadNextPage = {},
+                onRetry = {},
+            )
+        }
+
+        composeTestRule.onNodeWithTag("month_header_September 2026").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("watch_history_item_101").assertDoesNotExist()
+    }
 }

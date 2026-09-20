@@ -17,7 +17,6 @@ import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
@@ -53,6 +52,8 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.theupnextapp.R
 import com.theupnextapp.navigation.Destinations
 import com.theupnextapp.ui.dashboard.DashboardScreen
@@ -62,6 +63,7 @@ import com.theupnextapp.ui.schedule.ScheduleScreen
 import com.theupnextapp.ui.search.SearchScreen
 import com.theupnextapp.ui.traktAccount.TraktAccountScreen
 import com.theupnextapp.ui.traktAccount.TraktAccountViewModel
+import com.theupnextapp.ui.watchHistory.WatchHistoryScreen
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @OptIn(
@@ -77,9 +79,11 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 fun MainScreen(
     valueState: MutableState<String?>,
     onTraktAuthCompleted: () -> Unit,
-    traktAccountViewModel: TraktAccountViewModel = androidx.hilt.navigation.compose.hiltViewModel(),
+    traktAccountViewModel: TraktAccountViewModel = hiltViewModel(),
 ) {
     // val scope = rememberCoroutineScope() // Removed unused scope
+
+    val isAuthorizedOnTrakt by traktAccountViewModel.isAuthorizedOnTrakt.collectAsStateWithLifecycle(initialValue = false)
 
     val activity = LocalActivity.current
     val windowSizeClass = activity?.let { calculateWindowSizeClass(it) }
@@ -88,6 +92,34 @@ fun MainScreen(
 
     // State to track the currently active top-level list section
     var currentListSection by rememberSaveable { mutableStateOf(NavigationDestination.Dashboard) }
+
+    val visibleDestinations =
+        remember(isAuthorizedOnTrakt) {
+            if (isAuthorizedOnTrakt) {
+                listOf(
+                    NavigationDestination.Dashboard,
+                    NavigationDestination.WatchHistory,
+                    NavigationDestination.Schedule,
+                    NavigationDestination.SearchScreen,
+                    NavigationDestination.Explore,
+                    NavigationDestination.TraktAccount,
+                )
+            } else {
+                listOf(
+                    NavigationDestination.Dashboard,
+                    NavigationDestination.Schedule,
+                    NavigationDestination.SearchScreen,
+                    NavigationDestination.Explore,
+                    NavigationDestination.TraktAccount,
+                )
+            }
+        }
+
+    LaunchedEffect(isAuthorizedOnTrakt) {
+        if (!isAuthorizedOnTrakt && currentListSection == NavigationDestination.WatchHistory) {
+            currentListSection = NavigationDestination.Dashboard
+        }
+    }
 
     val isDetailFlowActive =
         remember {
@@ -151,7 +183,7 @@ fun MainScreen(
     NavigationSuiteScaffold(
         modifier = Modifier.testTag("navigation_suite_scaffold"),
         navigationSuiteItems = {
-            NavigationDestination.entries.forEach { item ->
+            visibleDestinations.forEach { item ->
                 val isSelected = item == currentListSection
                 item(
                     modifier = Modifier.testTag(item.name),
@@ -202,6 +234,12 @@ fun MainScreen(
                 ) { innerPadding ->
                     when (currentListSection) {
                         NavigationDestination.Dashboard -> DashboardScreen(onNavigate = { backStack.add(it) }, contentPadding = innerPadding)
+                        NavigationDestination.WatchHistory ->
+                            WatchHistoryScreen(
+                                onNavigate = { backStack.add(it) },
+                                onBack = { currentListSection = NavigationDestination.Dashboard },
+                                contentPadding = innerPadding,
+                            )
                         NavigationDestination.Schedule -> ScheduleScreen(onNavigate = { backStack.add(it) }, contentPadding = innerPadding)
                         NavigationDestination.SearchScreen -> SearchScreen(onNavigate = { backStack.add(it) }, contentPadding = innerPadding)
                         NavigationDestination.Explore -> ExploreScreen(onNavigate = { backStack.add(it) }, contentPadding = innerPadding)
