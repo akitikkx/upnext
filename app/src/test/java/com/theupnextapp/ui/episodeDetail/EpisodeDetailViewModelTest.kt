@@ -13,8 +13,9 @@
 package com.theupnextapp.ui.episodeDetail
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
-import androidx.work.WorkRequest
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.theupnextapp.CoroutineTestRule
 import com.theupnextapp.domain.EpisodeDetail
@@ -229,7 +230,7 @@ class EpisodeDetailViewModelTest {
 
             verify(watchProgressRepository, never()).markEpisodeWatched(anyInt(), any(), any(), anyInt(), anyInt())
             verify(watchProgressRepository, never()).markEpisodeUnwatched(anyInt(), anyInt(), anyInt())
-            verify(workManager, never()).enqueue(any<WorkRequest>())
+            verify(workManager, never()).enqueueUniqueWork(any(), any(), any<OneTimeWorkRequest>())
         }
 
     @Test
@@ -264,7 +265,11 @@ class EpisodeDetailViewModelTest {
                 seasonNumber = 1,
                 episodeNumber = 5,
             )
-            verify(workManager).enqueue(any<WorkRequest>())
+            verify(workManager).enqueueUniqueWork(
+                eq(EpisodeDetailViewModel.SYNC_WORK_NAME),
+                eq(ExistingWorkPolicy.REPLACE),
+                any<OneTimeWorkRequest>(),
+            )
             verify(firebaseAnalytics).logEvent(eq("episode_toggle_watched"), any())
         }
 
@@ -311,7 +316,11 @@ class EpisodeDetailViewModelTest {
                 seasonNumber = 1,
                 episodeNumber = 5,
             )
-            verify(workManager).enqueue(any<WorkRequest>())
+            verify(workManager).enqueueUniqueWork(
+                eq(EpisodeDetailViewModel.SYNC_WORK_NAME),
+                eq(ExistingWorkPolicy.REPLACE),
+                any<OneTimeWorkRequest>(),
+            )
             verify(firebaseAnalytics).logEvent(eq("episode_toggle_watched"), any())
         }
 

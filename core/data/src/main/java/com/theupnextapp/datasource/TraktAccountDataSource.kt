@@ -86,9 +86,11 @@ constructor(
 ) : BaseTraktDataSource(upnextDao, tvMazeService, firebaseCrashlytics) {
     private val traktConflictErrorAdapter = moshi.adapter(TraktConflictErrorResponse::class.java)
     private val completedShowsCache = ConcurrentHashMap.newKeySet<Int>()
+    private val showProgressCache = ConcurrentHashMap<Int, Pair<Long, NetworkTraktShowProgressResponse>>()
 
     fun invalidateShowProgressCache(traktId: Int) {
         completedShowsCache.remove(traktId)
+        showProgressCache.remove(traktId)
     }
 
     suspend fun refreshWatchlistShows(token: String): Result<Unit> {
@@ -477,22 +479,32 @@ constructor(
                         val traktId = showItem.show?.ids?.trakt
                         traktId != null && !completedShowsCache.contains(traktId)
                     }
-                    .take(25)
+                    .take(MAX_CANDIDATE_SHOWS)
 
+                val now = System.currentTimeMillis()
                 val progressDeferreds = candidateShows.mapNotNull { showItem ->
                     showItem.show?.ids?.trakt?.let { traktId ->
-                        async(Dispatchers.IO.limitedParallelism(8)) {
-                            try {
-                                val progress = traktService.getShowProgressAsync(
-                                    token = bearerToken,
-                                    id = traktId.toString(),
-                                ).await()
-                                if (progress.nextEpisode == null && (progress.completed ?: 0) >= (progress.aired ?: 0) && (progress.aired ?: 0) > 0) {
-                                    completedShowsCache.add(traktId)
+                        async(Dispatchers.IO.limitedParallelism(3)) {
+                            val cached = showProgressCache[traktId]
+                            if (cached != null && (now - cached.first) < SHOW_PROGRESS_CACHE_TTL_MS) {
+                                Pair(showItem, cached.second)
+                            } else {
+                                try {
+                                    val progress = traktService.getShowProgressAsync(
+                                        token = bearerToken,
+                                        id = traktId.toString(),
+                                    ).await()
+                                    showProgressCache[traktId] = Pair(System.currentTimeMillis(), progress)
+                                    if (progress.nextEpisode == null &&
+                                        (progress.completed ?: 0) >= (progress.aired ?: 0) &&
+                                        (progress.aired ?: 0) > 0
+                                    ) {
+                                        completedShowsCache.add(traktId)
+                                    }
+                                    Pair(showItem, progress)
+                                } catch (e: Exception) {
+                                    null
                                 }
-                                Pair<NetworkTraktWatchedShowsResponse, NetworkTraktShowProgressResponse>(showItem, progress)
-                            } catch (e: Exception) {
-                                null
                             }
                         }
                     }
@@ -632,6 +644,8 @@ constructor(
 
     companion object {
         const val FAVORITES_LIST_NAME = "Upnext Favorites"
+        const val MAX_CANDIDATE_SHOWS = 12
+        const val SHOW_PROGRESS_CACHE_TTL_MS = 5 * 60 * 1000L
         private const val HTTP_CONFLICT = 409
     }
 }

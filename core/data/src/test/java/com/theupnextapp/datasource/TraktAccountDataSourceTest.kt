@@ -333,6 +333,61 @@ class TraktAccountDataSourceTest {
     }
 
     @Test
+    fun `getTraktPlaybackProgress caches active show progress and invalidates on invalidateShowProgressCache`() {
+        runBlocking {
+            val watchedShows = listOf(
+                NetworkTraktWatchedShowsResponse(
+                    plays = 4,
+                    lastWatchedAt = "2026-09-14T21:00:00.000Z",
+                    lastUpdatedAt = "2026-09-14T21:00:00.000Z",
+                    resetAt = null,
+                    show = NetworkTraktWatchedShowInfo(
+                        title = "In Progress Show",
+                        year = 2022,
+                        ids = NetworkTraktWatchedShowIds(trakt = 600, slug = "in-progress", tvdb = 6, imdb = "tt600", tmdb = 6)
+                    ),
+                    seasons = emptyList()
+                )
+            )
+
+            val inProgress = NetworkTraktShowProgressResponse(
+                aired = 10,
+                completed = 4,
+                lastWatchedAt = "2026-09-14T21:00:00.000Z",
+                lastEpisode = null,
+                nextEpisode = NetworkTraktWatchedEpisode(
+                    season = 1,
+                    number = 5,
+                    title = "Episode 5",
+                    plays = 0,
+                    lastWatchedAt = null
+                )
+            )
+
+            whenever(traktService.getPlaybackProgressAsync("Bearer test_token")).thenReturn(CompletableDeferred(emptyList()))
+            whenever(traktService.getWatchedShowsAsync("Bearer test_token")).thenReturn(CompletableDeferred(watchedShows))
+            whenever(traktService.getShowProgressAsync(token = "Bearer test_token", id = "600")).thenReturn(CompletableDeferred(inProgress))
+
+            val firstCall = dataSource.getTraktPlaybackProgress("test_token")
+            assertTrue(firstCall.isSuccess)
+            assertEquals(1, firstCall.getOrNull()?.size)
+            verify(traktService, times(1)).getShowProgressAsync(token = "Bearer test_token", id = "600")
+
+            // Second call within TTL should return from cache without re-fetching
+            val secondCall = dataSource.getTraktPlaybackProgress("test_token")
+            assertTrue(secondCall.isSuccess)
+            assertEquals(1, secondCall.getOrNull()?.size)
+            verify(traktService, times(1)).getShowProgressAsync(token = "Bearer test_token", id = "600")
+
+            // Invalidate cache and call again
+            dataSource.invalidateShowProgressCache(600)
+            val thirdCall = dataSource.getTraktPlaybackProgress("test_token")
+            assertTrue(thirdCall.isSuccess)
+            verify(traktService, times(2)).getShowProgressAsync(token = "Bearer test_token", id = "600")
+        }
+    }
+
+    @Test
     fun `getTraktMySchedule with raw token passes formatted Bearer token`() {
         runBlocking {
             val mockSchedule = NetworkTraktMyScheduleResponse()

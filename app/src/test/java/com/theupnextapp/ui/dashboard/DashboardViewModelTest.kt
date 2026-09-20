@@ -13,9 +13,10 @@
 package com.theupnextapp.ui.dashboard
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequest
 import androidx.work.Operation
 import androidx.work.WorkManager
-import androidx.work.WorkRequest
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.theupnextapp.CoroutineTestRule
 import com.theupnextapp.domain.ScheduleShow
@@ -177,9 +178,14 @@ class DashboardViewModelTest {
                 )
 
             // Use a specific non-null invocation since workManager.enqueue expects a non-null WorkRequest
-            // Because WorkManager enqueue returns an Operation, we must mock it so it doesn't crash on execution via lazy eval
             val mockOperation = mock(Operation::class.java)
-            `when`(localWorkManager.enqueue(any<WorkRequest>())).thenReturn(mockOperation)
+            `when`(
+                localWorkManager.enqueueUniqueWork(
+                    eq(DashboardViewModel.SYNC_WORK_NAME),
+                    eq(ExistingWorkPolicy.REPLACE),
+                    any<OneTimeWorkRequest>(),
+                ),
+            ).thenReturn(mockOperation)
 
             testViewModel.onMarkEpisodeWatched(
                 showTvMazeId = 1,
@@ -190,7 +196,11 @@ class DashboardViewModelTest {
             )
 
             // Verify work manager was told to enqueue the sync
-            verify(localWorkManager).enqueue(any<WorkRequest>())
+            verify(localWorkManager).enqueueUniqueWork(
+                eq(DashboardViewModel.SYNC_WORK_NAME),
+                eq(ExistingWorkPolicy.REPLACE),
+                any<OneTimeWorkRequest>(),
+            )
         }
 
     @Test
@@ -546,7 +556,13 @@ class DashboardViewModelTest {
             `when`(traktRepository.getTraktPlaybackProgress("mock_token")).thenReturn(Result.success(mockPlayback))
 
             val mockOperation = mock(Operation::class.java)
-            `when`(localWorkManager.enqueue(any<WorkRequest>())).thenReturn(mockOperation)
+            `when`(
+                localWorkManager.enqueueUniqueWork(
+                    eq(DashboardViewModel.SYNC_WORK_NAME),
+                    eq(ExistingWorkPolicy.REPLACE),
+                    any<OneTimeWorkRequest>(),
+                ),
+            ).thenReturn(mockOperation)
 
             val testViewModel = DashboardViewModel(
                 traktRepository = traktRepository,
@@ -583,7 +599,11 @@ class DashboardViewModelTest {
                 seasonNumber = 2,
                 episodeNumber = 1,
             )
-            verify(localWorkManager).enqueue(any<WorkRequest>())
+            verify(localWorkManager).enqueueUniqueWork(
+                eq(DashboardViewModel.SYNC_WORK_NAME),
+                eq(ExistingWorkPolicy.REPLACE),
+                any<OneTimeWorkRequest>(),
+            )
             verify(firebaseAnalytics).logEvent(Mockito.eq(FirebaseAnalytics.Event.SELECT_CONTENT), any())
         }
 

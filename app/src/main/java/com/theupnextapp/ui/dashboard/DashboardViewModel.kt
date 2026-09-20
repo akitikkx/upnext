@@ -3,6 +3,7 @@ package com.theupnextapp.ui.dashboard
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.Data
+import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -266,10 +267,14 @@ constructor(
                         }
                     }
                 } else {
-                    _upNextShows.value = null
+                    if (_upNextShows.value == null) {
+                        _upNextShows.value = emptyList()
+                    }
                 }
             } catch (e: Exception) {
-                _upNextShows.value = null
+                if (_upNextShows.value == null) {
+                    _upNextShows.value = emptyList()
+                }
             } finally {
                 _isLoadingUpNext.value = false
             }
@@ -321,10 +326,14 @@ constructor(
                         }
                     }
                 } else {
-                    _airingSoonShows.value = null
+                    if (_airingSoonShows.value == null) {
+                        _airingSoonShows.value = NetworkTraktMyScheduleResponse()
+                    }
                 }
             } catch (e: Exception) {
-                _airingSoonShows.value = null
+                if (_airingSoonShows.value == null) {
+                    _airingSoonShows.value = NetworkTraktMyScheduleResponse()
+                }
             } finally {
                 _isLoadingAiringSoon.value = false
             }
@@ -367,10 +376,14 @@ constructor(
                         }
                     }
                 } else {
-                    _recommendedShows.value = null
+                    if (_recommendedShows.value == null) {
+                        _recommendedShows.value = NetworkTraktRecommendationsResponse()
+                    }
                 }
             } catch (e: Exception) {
-                _recommendedShows.value = null
+                if (_recommendedShows.value == null) {
+                    _recommendedShows.value = NetworkTraktRecommendationsResponse()
+                }
             } finally {
                 _isLoadingRecommendations.value = false
             }
@@ -447,10 +460,14 @@ constructor(
                         }
                     }
                 } else {
-                    _recentHistory.value = null
+                    if (_recentHistory.value == null) {
+                        _recentHistory.value = emptyList()
+                    }
                 }
             } catch (e: Exception) {
-                _recentHistory.value = null
+                if (_recentHistory.value == null) {
+                    _recentHistory.value = emptyList()
+                }
             } finally {
                 _isLoadingHistory.value = false
             }
@@ -546,8 +563,16 @@ constructor(
                                 .putString(SyncWatchProgressWorker.ARG_TOKEN, token)
                                 .build(),
                         ).build()
-                localWorkManager.enqueue(syncWork)
+                localWorkManager.enqueueUniqueWork(
+                    SYNC_WORK_NAME,
+                    ExistingWorkPolicy.REPLACE,
+                    syncWork,
+                )
             }
         }
+    }
+
+    companion object {
+        const val SYNC_WORK_NAME = "sync_watch_progress"
     }
 }

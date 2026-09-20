@@ -15,6 +15,7 @@ package com.theupnextapp.ui.episodeDetail
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.Data
+import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -37,7 +38,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @HiltViewModel(assistedFactory = EpisodeDetailViewModel.Factory::class)
 class EpisodeDetailViewModel
@@ -87,7 +87,6 @@ class EpisodeDetailViewModel
             observeCheckInStatus()
             observeTraktAuthorization()
             observeWatchedEpisodes()
-            refreshWatchedFromTrakt()
         }
 
         private fun getEpisodeDetails() {
@@ -235,21 +234,6 @@ class EpisodeDetailViewModel
             }
         }
 
-        private fun refreshWatchedFromTrakt() {
-            viewModelScope.launch {
-                traktRepository.traktAccessToken.firstOrNull()?.access_token?.let { token ->
-                    try {
-                        watchProgressRepository.refreshWatchedFromTrakt(
-                            token = token,
-                            showTraktId = route.showTraktId,
-                        )
-                    } catch (e: Exception) {
-                        Timber.w(e, "Failed to refresh watched state from Trakt, using local cache")
-                    }
-                }
-            }
-        }
-
         fun onToggleWatched() {
             if (!_uiState.value.isAuthorizedOnTrakt) return
             val targetWatchedState = !_uiState.value.isWatched
@@ -294,7 +278,11 @@ class EpisodeDetailViewModel
                                     .putString(SyncWatchProgressWorker.ARG_TOKEN, token)
                                     .build(),
                             ).build()
-                    workManager.enqueue(syncWork)
+                    workManager.enqueueUniqueWork(
+                        SYNC_WORK_NAME,
+                        ExistingWorkPolicy.REPLACE,
+                        syncWork,
+                    )
                 }
             }
         }
@@ -318,6 +306,10 @@ class EpisodeDetailViewModel
                 episodeNumber = currentEpisodeNumber + 1,
                 episodeImageUrl = null,
             )
+        }
+
+        companion object {
+            const val SYNC_WORK_NAME = "sync_watch_progress"
         }
     }
 
