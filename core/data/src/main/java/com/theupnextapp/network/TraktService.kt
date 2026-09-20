@@ -255,7 +255,7 @@ interface TraktService {
         @Query("page") page: Int = 1,
         @Query("limit") limit: Int = 20,
         @Query("extended") extended: String = "full",
-    ): Deferred<List<NetworkTraktHistoryResponse>>
+    ): Deferred<Response<List<NetworkTraktHistoryResponse>>>
 
     @GET("people/{id}?extended=full")
     fun getPersonSummaryAsync(

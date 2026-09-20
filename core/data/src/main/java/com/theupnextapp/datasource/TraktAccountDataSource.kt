@@ -62,6 +62,7 @@ import com.theupnextapp.network.models.trakt.NetworkTraktWatchlistRequestShowIds
 import com.theupnextapp.network.models.trakt.NetworkTraktWatchlistResponse
 import com.theupnextapp.network.models.trakt.TraktConflictErrorResponse
 import com.theupnextapp.network.models.trakt.TraktErrorResponse
+import com.theupnextapp.network.models.trakt.TraktHistoryPage
 import com.theupnextapp.network.models.trakt.asDatabaseModel
 import com.theupnextapp.network.models.trakt.asDomainModel
 import kotlinx.coroutines.Dispatchers
@@ -565,7 +566,7 @@ constructor(
         token: String,
         page: Int = 1,
         limit: Int = 20,
-    ): Result<List<NetworkTraktHistoryResponse>> {
+    ): Result<TraktHistoryPage> {
         if (token.isEmpty()) return Result.failure(IllegalArgumentException("Token is empty"))
         return withContext(Dispatchers.IO) {
             try {
@@ -575,7 +576,22 @@ constructor(
                     page = page,
                     limit = limit,
                 ).await()
-                Result.success(response)
+                if (response.isSuccessful) {
+                    val body = response.body().orEmpty()
+                    val totalItemCount = response.headers()["x-pagination-item-count"]?.toIntOrNull()
+                    val totalPageCount = response.headers()["x-pagination-page-count"]?.toIntOrNull()
+                    Result.success(
+                        TraktHistoryPage(
+                            items = body,
+                            totalItemCount = totalItemCount,
+                            totalPageCount = totalPageCount,
+                        ),
+                    )
+                } else {
+                    val error = Exception("Failed to fetch recent history (Code ${response.code()})")
+                    logTraktException("Error fetching recent history", error)
+                    Result.failure(error)
+                }
             } catch (e: Exception) {
                 logTraktException("Error fetching recent history", e)
                 Result.failure(e)

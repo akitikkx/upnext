@@ -372,4 +372,12 @@
     <string name="watch_history_last_watched">Last watched %1$s</string>
     <string name="watch_history_episodes_count">%1$d episodes</string>
     <string name="watch_history_single_episode_count">1 episode</string>
+    <string name="watch_history_subtitle_paginated">Showing %1$d of %2$d watched episodes</string>
+    <string name="watch_history_subtitle_all">Showing all %1$d watched episodes</string>
+    <string name="watch_history_subtitle_loaded">Showing %1$d watched episodes</string>
+    <string name="watch_history_subtitle_filtered_paginated">Showing %1$d episodes (%2$d of %3$d loaded)</string>
+    <string name="watch_history_subtitle_filtered_all">Showing %1$d of %2$d watched episodes</string>
+    <string name="watch_history_shows_subtitle_paginated">Showing %1$d shows (%2$d of %3$d episodes loaded)</string>
+    <string name="watch_history_shows_subtitle_all">Showing %1$d shows (all %2$d episodes)</string>
+    <string name="watch_history_shows_subtitle_loaded">Showing %1$d shows (%2$d episodes loaded)</string>
 </resources>

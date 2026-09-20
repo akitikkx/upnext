@@ -67,6 +67,9 @@ constructor(
     private val _endOfListReached = MutableStateFlow(false)
     val endOfListReached: StateFlow<Boolean> = _endOfListReached.asStateFlow()
 
+    private val _totalItemCount = MutableStateFlow<Int?>(null)
+    val totalItemCount: StateFlow<Int?> = _totalItemCount.asStateFlow()
+
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
@@ -135,7 +138,8 @@ constructor(
             _historyImages,
             filterStateFlow,
             statusStateFlow,
-        ) { rawItems, images, filter, status ->
+            _totalItemCount,
+        ) { rawItems, images, filter, status, totalCount ->
             val allUiItems = rawItems.mapNotNull { item ->
                 val traktId = item.show?.ids?.trakt ?: return@mapNotNull null
                 val season = item.episode?.season ?: 0
@@ -227,6 +231,8 @@ constructor(
                 searchQuery = filter.query,
                 endOfListReached = status.endOfListReached,
                 errorMessage = status.errorMessage,
+                totalItemCount = totalCount,
+                loadedEpisodesCount = rawItems.size,
             )
         }.stateIn(
             scope = viewModelScope,
@@ -312,7 +318,9 @@ constructor(
                     limit = PAGE_LIMIT,
                 )
                 if (response.isSuccess) {
-                    val newItems = response.getOrNull().orEmpty()
+                    val historyPage = response.getOrNull()
+                    val newItems = historyPage?.items.orEmpty()
+                    historyPage?.totalItemCount?.let { _totalItemCount.value = it }
                     if (newItems.isEmpty() || newItems.size < PAGE_LIMIT) {
                         _endOfListReached.value = true
                     }

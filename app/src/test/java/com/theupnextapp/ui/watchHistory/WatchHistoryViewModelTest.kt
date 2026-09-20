@@ -9,6 +9,7 @@ import com.theupnextapp.network.models.trakt.NetworkTraktHistoryResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktWatchedEpisode
 import com.theupnextapp.network.models.trakt.NetworkTraktWatchedShowIds
 import com.theupnextapp.network.models.trakt.NetworkTraktWatchedShowInfo
+import com.theupnextapp.network.models.trakt.TraktHistoryPage
 import com.theupnextapp.repository.fakes.FakeDashboardRepository
 import com.theupnextapp.repository.fakes.FakeTraktRepository
 import kotlinx.coroutines.Dispatchers
@@ -139,7 +140,14 @@ class WatchHistoryViewModelTest {
 
     @Test
     fun `initial state loads first page and groups items by Month and Year`() = runTest {
-        traktRepository.recentHistoryResult = Result.success(listOf(sampleHistoryItem1, sampleHistoryItem2))
+        traktRepository.recentHistoryResult =
+            Result.success(
+                TraktHistoryPage(
+                    items = listOf(sampleHistoryItem1, sampleHistoryItem2),
+                    totalItemCount = 1250,
+                    totalPageCount = 42,
+                ),
+            )
 
         val viewModel = createViewModel()
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
@@ -149,6 +157,8 @@ class WatchHistoryViewModelTest {
 
         val state = viewModel.uiState.value
         assertEquals(2, state.items.size)
+        assertEquals(1250, state.totalItemCount)
+        assertEquals(2, state.loadedEpisodesCount)
         assertTrue(state.groupedItems.containsKey("September 2026"))
         assertTrue(state.groupedItems.containsKey("August 2026"))
         assertEquals("Severance", state.groupedItems["September 2026"]?.first()?.showTitle)
@@ -179,7 +189,13 @@ class WatchHistoryViewModelTest {
                 ),
             )
         }
-        traktRepository.recentHistoryResult = Result.success(firstPageList)
+        traktRepository.recentHistoryResult =
+            Result.success(
+                TraktHistoryPage(
+                    items = firstPageList,
+                    totalItemCount = 1250,
+                ),
+            )
 
         val viewModel = createViewModel()
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
@@ -188,22 +204,36 @@ class WatchHistoryViewModelTest {
         advanceUntilIdle()
 
         assertEquals(30, viewModel.uiState.value.items.size)
+        assertEquals(30, viewModel.uiState.value.loadedEpisodesCount)
 
         // Load next page
         val secondPageList = listOf(sampleHistoryItem2)
-        traktRepository.recentHistoryResult = Result.success(secondPageList)
+        traktRepository.recentHistoryResult =
+            Result.success(
+                TraktHistoryPage(
+                    items = secondPageList,
+                    totalItemCount = 1250,
+                ),
+            )
 
         viewModel.loadNextPage()
         advanceUntilIdle()
 
         val state = viewModel.uiState.value
         assertEquals(31, state.items.size)
+        assertEquals(31, state.loadedEpisodesCount)
+        assertEquals(1250, state.totalItemCount)
         assertTrue(state.endOfListReached)
     }
 
     @Test
     fun `searchQuery filters history items by show title in real time`() = runTest {
-        traktRepository.recentHistoryResult = Result.success(listOf(sampleHistoryItem1, sampleHistoryItem2))
+        traktRepository.recentHistoryResult =
+            Result.success(
+                TraktHistoryPage(
+                    items = listOf(sampleHistoryItem1, sampleHistoryItem2),
+                ),
+            )
 
         val viewModel = createViewModel()
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
@@ -222,7 +252,12 @@ class WatchHistoryViewModelTest {
 
     @Test
     fun `searchQuery cleared restores full chronological history list`() = runTest {
-        traktRepository.recentHistoryResult = Result.success(listOf(sampleHistoryItem1, sampleHistoryItem2))
+        traktRepository.recentHistoryResult =
+            Result.success(
+                TraktHistoryPage(
+                    items = listOf(sampleHistoryItem1, sampleHistoryItem2),
+                ),
+            )
 
         val viewModel = createViewModel()
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
@@ -270,7 +305,12 @@ class WatchHistoryViewModelTest {
         assertEquals("Network Timeout", errorState.errorMessage)
 
         // Retry succeeds
-        traktRepository.recentHistoryResult = Result.success(listOf(sampleHistoryItem1))
+        traktRepository.recentHistoryResult =
+            Result.success(
+                TraktHistoryPage(
+                    items = listOf(sampleHistoryItem1),
+                ),
+            )
         viewModel.loadFirstPage()
         advanceUntilIdle()
 
@@ -308,7 +348,12 @@ class WatchHistoryViewModelTest {
                 title = "Half Loop",
             ),
         )
-        traktRepository.recentHistoryResult = Result.success(listOf(severanceEp2, sampleHistoryItem1, sampleHistoryItem2))
+        traktRepository.recentHistoryResult =
+            Result.success(
+                TraktHistoryPage(
+                    items = listOf(severanceEp2, sampleHistoryItem1, sampleHistoryItem2),
+                ),
+            )
 
         val viewModel = createViewModel()
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
@@ -333,7 +378,12 @@ class WatchHistoryViewModelTest {
 
     @Test
     fun `month filter filters episodes and shows by selected month`() = runTest {
-        traktRepository.recentHistoryResult = Result.success(listOf(sampleHistoryItem1, sampleHistoryItem2))
+        traktRepository.recentHistoryResult =
+            Result.success(
+                TraktHistoryPage(
+                    items = listOf(sampleHistoryItem1, sampleHistoryItem2),
+                ),
+            )
 
         val viewModel = createViewModel()
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {

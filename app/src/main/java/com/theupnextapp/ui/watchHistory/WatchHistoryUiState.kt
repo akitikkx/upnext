@@ -48,4 +48,6 @@ data class WatchHistoryUiState(
     val searchQuery: String = "",
     val endOfListReached: Boolean = false,
     val errorMessage: String? = null,
+    val totalItemCount: Int? = null,
+    val loadedEpisodesCount: Int = 0,
 )

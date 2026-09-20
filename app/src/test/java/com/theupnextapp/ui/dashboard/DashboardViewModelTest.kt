@@ -32,6 +32,7 @@ import com.theupnextapp.network.models.trakt.NetworkTraktRecommendationsResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktWatchedEpisode
 import com.theupnextapp.network.models.trakt.NetworkTraktWatchedShowIds
 import com.theupnextapp.network.models.trakt.NetworkTraktWatchedShowInfo
+import com.theupnextapp.network.models.trakt.TraktHistoryPage
 import com.theupnextapp.repository.DashboardRepository
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.WatchProgressRepository
@@ -260,7 +261,7 @@ class DashboardViewModelTest {
                     NetworkTraktRecommendationsResponse(),
                 ),
             )
-            `when`(traktRepository.getTraktRecentHistory(token)).thenReturn(Result.success(listOf()))
+            `when`(traktRepository.getTraktRecentHistory(token)).thenReturn(Result.success(TraktHistoryPage(items = listOf())))
             `when`(traktRepository.getTraktPlaybackProgress(token)).thenReturn(Result.success(listOf()))
 
             val testViewModel = DashboardViewModel(
@@ -391,7 +392,7 @@ class DashboardViewModelTest {
                     ),
                 )
 
-            `when`(traktRepository.getTraktRecentHistory(token)).thenReturn(Result.success(historyResponse))
+            `when`(traktRepository.getTraktRecentHistory(token)).thenReturn(Result.success(TraktHistoryPage(items = historyResponse)))
 
             val testViewModel =
                 DashboardViewModel(

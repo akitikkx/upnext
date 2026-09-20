@@ -35,6 +35,7 @@ import com.theupnextapp.network.models.trakt.NetworkTraktPlaybackResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktRecommendationsResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktShowProgressResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktWatchedShowsResponse
+import com.theupnextapp.network.models.trakt.TraktHistoryPage
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -207,7 +208,7 @@ interface TraktRepository : TrackingProvider {
         token: String,
         page: Int = 1,
         limit: Int = 20,
-    ): Result<List<NetworkTraktHistoryResponse>>
+    ): Result<TraktHistoryPage>
 
     suspend fun getTraktRecommendations(token: String): Result<NetworkTraktRecommendationsResponse>
     fun invalidateShowProgress(traktId: Int)

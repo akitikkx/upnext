@@ -10,10 +10,13 @@ import com.theupnextapp.network.TvMazeService
 import com.theupnextapp.network.models.trakt.*
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.runBlocking
+import okhttp3.Headers
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import retrofit2.Response
 import org.mockito.Mockito.times
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
@@ -198,14 +201,24 @@ class TraktAccountDataSourceTest {
                 )
             )
 
+            val headers = Headers.Builder()
+                .add("x-pagination-item-count", "1250")
+                .add("x-pagination-page-count", "42")
+                .build()
+            val mockResponse = Response.success(mockHistory, headers)
+
             whenever(traktService.getRecentHistoryAsync(token = "Bearer test_token", page = 2, limit = 15, extended = "full"))
-                .thenReturn(CompletableDeferred(mockHistory))
+                .thenReturn(CompletableDeferred(mockResponse))
 
             val result = dataSource.getTraktRecentHistory("test_token", page = 2, limit = 15)
 
             assertTrue(result.isSuccess)
-            assertEquals(1, result.getOrNull()?.size)
-            assertEquals("Severance", result.getOrNull()?.first()?.show?.title)
+            val historyPage = result.getOrNull()
+            assertNotNull(historyPage)
+            assertEquals(1, historyPage?.items?.size)
+            assertEquals("Severance", historyPage?.items?.first()?.show?.title)
+            assertEquals(1250, historyPage?.totalItemCount)
+            assertEquals(42, historyPage?.totalPageCount)
             verify(traktService).getRecentHistoryAsync(token = "Bearer test_token", page = 2, limit = 15, extended = "full")
         }
     }
