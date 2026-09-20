@@ -24,6 +24,7 @@ import com.theupnextapp.domain.EpisodeDetail
 import com.theupnextapp.domain.EpisodePeople
 import com.theupnextapp.domain.Result
 import com.theupnextapp.domain.TraktCheckInStatus
+import com.theupnextapp.domain.TraktSeason
 import com.theupnextapp.navigation.Destinations
 import com.theupnextapp.repository.ShowDetailRepository
 import com.theupnextapp.repository.TraktRepository
@@ -56,6 +57,8 @@ class EpisodeDetailViewModel
             fun create(route: Destinations.EpisodeDetail): EpisodeDetailViewModel
         }
 
+        private var showSeasons: List<TraktSeason> = emptyList()
+
         private val _uiState =
             MutableStateFlow(
                 EpisodeDetailState(
@@ -63,6 +66,8 @@ class EpisodeDetailViewModel
                     isPeopleLoading = true,
                     isAuthorizedOnTrakt = route.isAuthorizedOnTrakt ?: false,
                     isWatched = route.isWatched ?: false,
+                    canNavigatePrevious = route.episodeNumber > 1,
+                    canNavigateNext = false,
                     episodeDetail =
                         EpisodeDetail(
                             title = null,
@@ -84,6 +89,7 @@ class EpisodeDetailViewModel
         init {
             getEpisodeDetails()
             getEpisodePeople()
+            getShowSeasons()
             observeCheckInStatus()
             observeTraktAuthorization()
             observeWatchedEpisodes()
@@ -106,6 +112,7 @@ class EpisodeDetailViewModel
                                     isLoading = false,
                                     episodeDetail = result.data,
                                 )
+                            updateNavigationBounds()
                         }
                         is Result.GenericError -> {
                             _uiState.value =
@@ -163,6 +170,48 @@ class EpisodeDetailViewModel
                     }
                 }
             }
+        }
+
+        private fun getShowSeasons() {
+            viewModelScope.launch {
+                showDetailRepository.getTraktShowSeasons(route.showTraktId).collect { result ->
+                    if (result is Result.Success) {
+                        showSeasons = result.data
+                        updateNavigationBounds()
+                    }
+                }
+            }
+        }
+
+        private fun updateNavigationBounds() {
+            val currentSeasonNumber = _uiState.value.episodeDetail?.season ?: route.seasonNumber
+            val currentEpNum = _uiState.value.episodeDetail?.number ?: route.episodeNumber
+
+            if (showSeasons.isEmpty()) {
+                _uiState.value =
+                    _uiState.value.copy(
+                        canNavigatePrevious = currentEpNum > 1,
+                        canNavigateNext = false,
+                    )
+                return
+            }
+
+            val currentSeason = showSeasons.firstOrNull { it.number == currentSeasonNumber }
+            val currentSeasonEpisodeCount = currentSeason?.episodeCount ?: 0
+
+            val hasNextInCurrentSeason = currentSeasonEpisodeCount > 0 && currentEpNum < currentSeasonEpisodeCount
+            val hasNextSeason = showSeasons.any { it.number > currentSeasonNumber && (it.episodeCount ?: 0) > 0 }
+            val canNext = hasNextInCurrentSeason || hasNextSeason
+
+            val hasPrevInCurrentSeason = currentEpNum > 1
+            val hasPrevSeason = showSeasons.any { it.number in 1 until currentSeasonNumber && (it.episodeCount ?: 0) > 0 }
+            val canPrev = hasPrevInCurrentSeason || hasPrevSeason
+
+            _uiState.value =
+                _uiState.value.copy(
+                    canNavigatePrevious = canPrev,
+                    canNavigateNext = canNext,
+                )
         }
 
         fun onCheckIn() {
@@ -291,21 +340,80 @@ class EpisodeDetailViewModel
             get() = _uiState.value.episodeDetail?.number ?: route.episodeNumber
 
         val canNavigatePrevious: Boolean
-            get() = currentEpisodeNumber > 1
+            get() = _uiState.value.canNavigatePrevious
+
+        val canNavigateNext: Boolean
+            get() = _uiState.value.canNavigateNext
 
         fun getPreviousEpisodeRoute(): Destinations.EpisodeDetail? {
             if (!canNavigatePrevious) return null
-            return route.copy(
-                episodeNumber = currentEpisodeNumber - 1,
-                episodeImageUrl = null,
-            )
+            val currentSeasonNumber = _uiState.value.episodeDetail?.season ?: route.seasonNumber
+            val currentEpNum = currentEpisodeNumber
+
+            return when {
+                currentEpNum > 1 -> {
+                    route.copy(
+                        seasonNumber = currentSeasonNumber,
+                        episodeNumber = currentEpNum - 1,
+                        episodeImageUrl = null,
+                        isWatched = null,
+                    )
+                }
+                else -> {
+                    val prevSeason =
+                        showSeasons
+                            .filter { it.number in 1 until currentSeasonNumber && (it.episodeCount ?: 0) > 0 }
+                            .maxByOrNull { it.number }
+
+                    if (prevSeason != null) {
+                        route.copy(
+                            seasonNumber = prevSeason.number,
+                            episodeNumber = prevSeason.episodeCount ?: 1,
+                            episodeImageUrl = null,
+                            isWatched = null,
+                        )
+                    } else {
+                        null
+                    }
+                }
+            }
         }
 
-        fun getNextEpisodeRoute(): Destinations.EpisodeDetail {
-            return route.copy(
-                episodeNumber = currentEpisodeNumber + 1,
-                episodeImageUrl = null,
-            )
+        fun getNextEpisodeRoute(): Destinations.EpisodeDetail? {
+            if (!canNavigateNext) return null
+            val currentSeasonNumber = _uiState.value.episodeDetail?.season ?: route.seasonNumber
+            val currentEpNum = currentEpisodeNumber
+
+            val currentSeason = showSeasons.firstOrNull { it.number == currentSeasonNumber }
+            val currentSeasonEpisodeCount = currentSeason?.episodeCount ?: 0
+
+            return when {
+                currentSeasonEpisodeCount > 0 && currentEpNum < currentSeasonEpisodeCount -> {
+                    route.copy(
+                        seasonNumber = currentSeasonNumber,
+                        episodeNumber = currentEpNum + 1,
+                        episodeImageUrl = null,
+                        isWatched = null,
+                    )
+                }
+                else -> {
+                    val nextSeason =
+                        showSeasons
+                            .filter { it.number > currentSeasonNumber && (it.episodeCount ?: 0) > 0 }
+                            .minByOrNull { it.number }
+
+                    if (nextSeason != null) {
+                        route.copy(
+                            seasonNumber = nextSeason.number,
+                            episodeNumber = 1,
+                            episodeImageUrl = null,
+                            isWatched = null,
+                        )
+                    } else {
+                        null
+                    }
+                }
+            }
         }
 
         companion object {
@@ -321,6 +429,8 @@ data class EpisodeDetailState(
     val isAuthorizedOnTrakt: Boolean = false,
     val isWatched: Boolean = false,
     val isWatchedLoading: Boolean = false,
+    val canNavigatePrevious: Boolean = false,
+    val canNavigateNext: Boolean = false,
     val episodeDetail: EpisodeDetail? = null,
     val episodePeople: EpisodePeople? = null,
     val checkInStatus: TraktCheckInStatus? = null,

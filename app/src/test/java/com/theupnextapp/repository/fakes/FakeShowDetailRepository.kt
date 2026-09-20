@@ -10,6 +10,7 @@ import com.theupnextapp.domain.ShowPreviousEpisode
 import com.theupnextapp.domain.ShowSeason
 import com.theupnextapp.domain.ShowSeasonEpisode
 import com.theupnextapp.domain.TmdbWatchProviders
+import com.theupnextapp.domain.TraktSeason
 import com.theupnextapp.network.models.tmdb.NetworkTmdbPersonImagesResponse
 import com.theupnextapp.network.models.tmdb.NetworkTmdbPersonTvCreditsResponse
 import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupResponse
@@ -40,6 +41,8 @@ class FakeShowDetailRepository : ShowDetailRepository {
 
     var showSeasonsResult: Result<List<ShowSeason>> = Result.Success(emptyList())
 
+    var traktShowSeasonsResult: Result<List<TraktSeason>> = Result.Success(emptyList())
+
     var showSeasonEpisodesResult: Result<List<ShowSeasonEpisode>> = Result.Success(emptyList())
 
     var showWatchProvidersResult: Result<TmdbWatchProviders> =
@@ -68,6 +71,8 @@ class FakeShowDetailRepository : ShowDetailRepository {
     override fun getShowCast(showId: Int): Flow<Result<List<ShowCast>>> = flowOf(showCastResult)
 
     override fun getShowSeasons(showId: Int): Flow<Result<List<ShowSeason>>> = flowOf(showSeasonsResult)
+
+    override fun getTraktShowSeasons(traktId: Int): Flow<Result<List<TraktSeason>>> = flowOf(traktShowSeasonsResult)
 
     override fun getShowSeasonEpisodes(
         showId: Int,

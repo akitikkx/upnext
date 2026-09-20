@@ -48,6 +48,7 @@ import com.theupnextapp.network.models.trakt.NetworkTraktRemoveShowFromListReque
 import com.theupnextapp.network.models.trakt.NetworkTraktRemoveShowFromListResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktRevokeAccessTokenRequest
 import com.theupnextapp.network.models.trakt.NetworkTraktRevokeAccessTokenResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktSeasonResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktShowInfoResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktShowPeopleResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktShowProgressResponse
@@ -290,6 +291,11 @@ interface TraktService {
         @Query("extended") extended: String = "full",
     ): Deferred<NetworkTraktRecommendationsResponse>
 
+
+    @GET("shows/{id}/seasons?extended=full")
+    fun getShowSeasonsAsync(
+        @Path("id") id: String,
+    ): Deferred<List<NetworkTraktSeasonResponse>>
 
     @GET("shows/{id}/seasons/{season}/episodes/{episode}?extended=full")
     fun getEpisodeAsync(

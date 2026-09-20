@@ -36,6 +36,7 @@ import com.theupnextapp.domain.TmdbWatchProvider
 import com.theupnextapp.domain.TmdbWatchProviders
 import com.theupnextapp.domain.TraktCast
 import com.theupnextapp.domain.TraktCrew
+import com.theupnextapp.domain.TraktSeason
 import com.theupnextapp.domain.safeApiCall
 import com.theupnextapp.network.TmdbService
 import com.theupnextapp.network.TraktService
@@ -65,6 +66,7 @@ class ShowDetailRepositoryImpl(
 ) : BaseRepository(upnextDao = upnextDao, tvMazeService = tvMazeService), ShowDetailRepository {
     private val episodeDetailsCache = ConcurrentHashMap<String, EpisodeDetail>()
     private val episodePeopleCache = ConcurrentHashMap<String, EpisodePeople>()
+    private val traktSeasonsCache = ConcurrentHashMap<Int, List<TraktSeason>>()
     override fun getShowSummary(showId: Int): Flow<Result<ShowDetailSummary>> {
         return flow {
             emit(Result.Loading(true))
@@ -241,6 +243,39 @@ class ShowDetailRepositoryImpl(
                 crashlytics.recordException(it)
                 emit(Result.Loading(false))
                 emit(Result.Error(it, "An unexpected error occurred in the repository flow."))
+            }
+            .flowOn(Dispatchers.IO)
+    }
+
+    override fun getTraktShowSeasons(traktId: Int): Flow<Result<List<TraktSeason>>> {
+        return flow {
+            val cached = traktSeasonsCache[traktId]
+            if (cached != null) {
+                emit(Result.Success(cached))
+                return@flow
+            }
+
+            emit(Result.Loading(true))
+            val response =
+                safeApiCall(Dispatchers.IO) {
+                    traktService.getShowSeasonsAsync(traktId.toString()).await().map { it.asDomainModel() }
+                }
+
+            when (response) {
+                is Result.Success -> traktSeasonsCache[traktId] = response.data
+                is Result.NetworkError -> crashlytics.recordException(response.exception)
+                is Result.GenericError -> crashlytics.recordException(response.exception)
+                is Result.Error -> response.exception?.let { crashlytics.recordException(it) }
+                else -> { /* No action for Loading */ }
+            }
+
+            emit(Result.Loading(false))
+            emit(response)
+        }
+            .catch {
+                crashlytics.recordException(it)
+                emit(Result.Loading(false))
+                emit(Result.Error(it, "An unexpected error occurred in the trakt seasons repository flow."))
             }
             .flowOn(Dispatchers.IO)
     }

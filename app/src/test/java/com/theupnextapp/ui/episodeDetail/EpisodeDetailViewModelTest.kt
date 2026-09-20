@@ -21,6 +21,7 @@ import com.theupnextapp.CoroutineTestRule
 import com.theupnextapp.domain.EpisodeDetail
 import com.theupnextapp.domain.Result
 import com.theupnextapp.domain.TraktAccessToken
+import com.theupnextapp.domain.TraktSeason
 import com.theupnextapp.domain.WatchedEpisode
 import com.theupnextapp.navigation.Destinations
 import com.theupnextapp.repository.ShowDetailRepository
@@ -93,6 +94,14 @@ class EpisodeDetailViewModelTest {
         )
         whenever(showDetailRepository.getEpisodePeople(anyInt(), anyInt(), anyInt())).thenReturn(
             emptyFlow(),
+        )
+        val defaultSeasons =
+            listOf(
+                TraktSeason(number = 1, episodeCount = 10, airedEpisodes = 10),
+                TraktSeason(number = 2, episodeCount = 10, airedEpisodes = 10),
+            )
+        whenever(showDetailRepository.getTraktShowSeasons(anyInt())).thenReturn(
+            flowOf(Result.Success(defaultSeasons)),
         )
         whenever(traktRepository.traktCheckInEvent).thenReturn(MutableSharedFlow())
         whenever(traktRepository.isAuthorizedOnTrakt()).thenReturn(MutableStateFlow(false))
@@ -344,9 +353,11 @@ class EpisodeDetailViewModelTest {
     fun `when episodeNumber is greater than 1, traversal routes navigate to previous and next episodes`() =
         runTest {
             viewModel = createViewModel()
+            advanceUntilIdle()
 
             // route has episodeNumber = 5, seasonNumber = 1, showTraktId = 1234
             assertTrue(viewModel.canNavigatePrevious)
+            assertTrue(viewModel.canNavigateNext)
 
             val prevRoute = viewModel.getPreviousEpisodeRoute()
             assertNotNull(prevRoute)
@@ -354,12 +365,96 @@ class EpisodeDetailViewModelTest {
             assertEquals(1, prevRoute?.seasonNumber)
             assertEquals(1234, prevRoute?.showTraktId)
             assertNull(prevRoute?.episodeImageUrl)
+            assertNull(prevRoute?.isWatched)
 
             val nextRoute = viewModel.getNextEpisodeRoute()
-            assertEquals(6, nextRoute.episodeNumber)
-            assertEquals(1, nextRoute.seasonNumber)
-            assertEquals(1234, nextRoute.showTraktId)
-            assertNull(nextRoute.episodeImageUrl)
+            assertNotNull(nextRoute)
+            assertEquals(6, nextRoute?.episodeNumber)
+            assertEquals(1, nextRoute?.seasonNumber)
+            assertEquals(1234, nextRoute?.showTraktId)
+            assertNull(nextRoute?.episodeImageUrl)
+            assertNull(nextRoute?.isWatched)
+        }
+
+    @Test
+    fun `when on last episode of season and next season exists, next route transitions to season 2 episode 1`() =
+        runTest {
+            val routeS1Finale =
+                Destinations.EpisodeDetail(
+                    showTraktId = 1234,
+                    seasonNumber = 1,
+                    episodeNumber = 10,
+                )
+            val vm = createViewModel(routeS1Finale)
+            advanceUntilIdle()
+
+            assertTrue(vm.canNavigateNext)
+            val nextRoute = vm.getNextEpisodeRoute()
+            assertNotNull(nextRoute)
+            assertEquals(2, nextRoute?.seasonNumber)
+            assertEquals(1, nextRoute?.episodeNumber)
+            assertEquals(1234, nextRoute?.showTraktId)
+            assertNull(nextRoute?.isWatched)
+        }
+
+    @Test
+    fun `when on first episode of season 2 and season 1 exists, previous route transitions to season 1 finale`() =
+        runTest {
+            val routeS2Premiere =
+                Destinations.EpisodeDetail(
+                    showTraktId = 1234,
+                    seasonNumber = 2,
+                    episodeNumber = 1,
+                )
+            val vm = createViewModel(routeS2Premiere)
+            advanceUntilIdle()
+
+            assertTrue(vm.canNavigatePrevious)
+            val prevRoute = vm.getPreviousEpisodeRoute()
+            assertNotNull(prevRoute)
+            assertEquals(1, prevRoute?.seasonNumber)
+            assertEquals(10, prevRoute?.episodeNumber)
+            assertEquals(1234, prevRoute?.showTraktId)
+            assertNull(prevRoute?.isWatched)
+        }
+
+    @Test
+    fun `when on series finale, canNavigateNext is false and getNextEpisodeRoute returns null`() =
+        runTest {
+            val routeSeriesFinale =
+                Destinations.EpisodeDetail(
+                    showTraktId = 1234,
+                    seasonNumber = 2,
+                    episodeNumber = 10,
+                )
+            val vm = createViewModel(routeSeriesFinale)
+            advanceUntilIdle()
+
+            assertFalse(vm.canNavigateNext)
+            assertNull(vm.getNextEpisodeRoute())
+        }
+
+    @Test
+    fun `when on single episode series, both previous and next navigation are disabled`() =
+        runTest {
+            val singleSeason = listOf(TraktSeason(number = 1, episodeCount = 1, airedEpisodes = 1))
+            whenever(showDetailRepository.getTraktShowSeasons(anyInt())).thenReturn(
+                flowOf(Result.Success(singleSeason)),
+            )
+
+            val singleEpisodeRoute =
+                Destinations.EpisodeDetail(
+                    showTraktId = 1234,
+                    seasonNumber = 1,
+                    episodeNumber = 1,
+                )
+            val vm = createViewModel(singleEpisodeRoute)
+            advanceUntilIdle()
+
+            assertFalse(vm.canNavigatePrevious)
+            assertFalse(vm.canNavigateNext)
+            assertNull(vm.getPreviousEpisodeRoute())
+            assertNull(vm.getNextEpisodeRoute())
         }
 
     @Test
