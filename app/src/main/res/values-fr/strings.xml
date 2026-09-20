@@ -45,6 +45,8 @@
     <string name="episode_detail_crew">Équipe</string>
     <string name="episode_detail_aired_date">Diffusé : %1$s</string>
     <string name="episode_detail_aired_relative_date">Diffusé : %1$s (%2$s)</string>
+    <string name="episode_detail_airs_date">Diffusion : %1$s</string>
+    <string name="episode_detail_airs_relative_date">Diffusion : %1$s (%2$s)</string>
     <string name="episode_detail_show_backdrop">Affiche de la série</string>
     <string name="episode_detail_season_episode">Saison %1$s • Épisode %2$s</string>
     <string name="episode_detail_rating_format">%1$d%% (%2$s avis)</string>

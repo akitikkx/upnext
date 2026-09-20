@@ -42,10 +42,11 @@ import com.theupnextapp.repository.SettingsRepository
 import com.theupnextapp.repository.TraktRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import kotlinx.coroutines.flow.first
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 @HiltWorker
 class NotificationWorker @AssistedInject constructor(
@@ -66,19 +67,27 @@ class NotificationWorker @AssistedInject constructor(
             return Result.success()
         }
 
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-        val todayDate = dateFormat.format(Date())
+        val userZone = ZoneId.systemDefault()
+        val userToday = LocalDate.now(userZone)
+        val startDate = userToday.minusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE)
 
         val scheduleResult = traktRepository.getTraktMySchedule(
             token = accessToken!!.access_token!!,
-            startDate = todayDate,
-            days = 1
+            startDate = startDate,
+            days = 3
         )
 
         if (scheduleResult.isSuccess) {
             val schedule = scheduleResult.getOrNull()
             if (!schedule.isNullOrEmpty()) {
-                sendConsolidatedNotification(schedule)
+                val todayEpisodes = filterEpisodesAiringToday(
+                    schedule = schedule,
+                    userToday = userToday,
+                    userZone = userZone,
+                )
+                if (todayEpisodes.isNotEmpty()) {
+                    sendConsolidatedNotification(todayEpisodes)
+                }
             }
         } else {
             val exception = scheduleResult.exceptionOrNull() ?: Exception("Unknown error fetching Trakt schedule")
@@ -210,5 +219,26 @@ class NotificationWorker @AssistedInject constructor(
     companion object {
         const val CHANNEL_ID = "new_episodes_channel"
         const val WORK_NAME = "NotificationWorker"
+
+        fun filterEpisodesAiringToday(
+            schedule: List<NetworkTraktMyScheduleResponseItem>,
+            userToday: LocalDate = LocalDate.now(ZoneId.systemDefault()),
+            userZone: ZoneId = ZoneId.systemDefault(),
+        ): List<NetworkTraktMyScheduleResponseItem> {
+            return schedule.filter { item ->
+                val firstAired = item.first_aired ?: return@filter false
+                try {
+                    val airDateTime = ZonedDateTime.parse(firstAired, DateTimeFormatter.ISO_DATE_TIME)
+                    val localAirDate = airDateTime.withZoneSameInstant(userZone).toLocalDate()
+                    localAirDate == userToday
+                } catch (_: Exception) {
+                    false
+                }
+            }.distinctBy { item ->
+                item.episode?.ids?.trakt
+                    ?: item.episode?.ids?.tmdb
+                    ?: "${item.show?.ids?.trakt}_${item.episode?.season}_${item.episode?.number}"
+            }
+        }
     }
 }

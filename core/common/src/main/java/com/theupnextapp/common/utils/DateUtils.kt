@@ -152,10 +152,13 @@ object DateUtils {
         }
     }
 
-    fun getRelativeTimeSpanString(timeMillis: Long): CharSequence {
+    fun getRelativeTimeSpanString(
+        timeMillis: Long,
+        currentTimeMillis: Long = System.currentTimeMillis(),
+    ): CharSequence {
         return DateUtils.getRelativeTimeSpanString(
             timeMillis,
-            System.currentTimeMillis(),
+            currentTimeMillis,
             DateUtils.DAY_IN_MILLIS,
         )
     }

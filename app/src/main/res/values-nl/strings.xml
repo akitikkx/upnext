@@ -45,6 +45,8 @@
     <string name="episode_detail_crew">Crew</string>
     <string name="episode_detail_aired_date">Uitgezonden: %1$s</string>
     <string name="episode_detail_aired_relative_date">Uitgezonden: %1$s (%2$s)</string>
+    <string name="episode_detail_airs_date">Wordt uitgezonden: %1$s</string>
+    <string name="episode_detail_airs_relative_date">Wordt uitgezonden: %1$s (%2$s)</string>
     <string name="episode_detail_show_backdrop">Achtergrond van de serie</string>
     <string name="episode_detail_season_episode">Seizoen %1$s • Aflevering %2$s</string>
     <string name="episode_detail_rating_format">%1$d%% (%2$s stemmen)</string>

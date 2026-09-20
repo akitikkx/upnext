@@ -12,7 +12,6 @@
 
 package com.theupnextapp.ui.episodeDetail
 
-import android.content.Context
 import androidx.activity.compose.ReportDrawnWhen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -82,7 +81,6 @@ import coil.compose.AsyncImage
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import com.theupnextapp.R
-import com.theupnextapp.common.utils.DateUtils
 import com.theupnextapp.core.designsystem.ui.components.CastMember
 import com.theupnextapp.domain.EpisodeDetail
 import com.theupnextapp.domain.EpisodeDetailArg
@@ -91,9 +89,6 @@ import com.theupnextapp.domain.TraktCrew
 import com.theupnextapp.navigation.Destinations
 import com.valentinilk.shimmer.shimmer
 import java.text.NumberFormat
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -263,23 +258,6 @@ fun EpisodeDetailScreen(
                 )
             }
         }
-    }
-}
-
-private fun formatRelativeDate(context: Context, dateString: String): String {
-    return try {
-        val zonedDateTime = ZonedDateTime.parse(dateString, DateTimeFormatter.ISO_ZONED_DATE_TIME)
-        val timeMillis = zonedDateTime.toInstant().toEpochMilli()
-        val formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
-        val formattedDate = zonedDateTime.format(formatter)
-        val relativeTime = DateUtils.getRelativeTimeSpanString(timeMillis).toString()
-        if (relativeTime == formattedDate) {
-            context.getString(R.string.episode_detail_aired_date, formattedDate)
-        } else {
-            context.getString(R.string.episode_detail_aired_relative_date, relativeTime, formattedDate)
-        }
-    } catch (e: Exception) {
-        context.getString(R.string.episode_detail_aired_date, dateString)
     }
 }
 
