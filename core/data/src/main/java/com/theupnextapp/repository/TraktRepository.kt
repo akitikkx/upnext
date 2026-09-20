@@ -202,7 +202,11 @@ interface TraktRepository : com.theupnextapp.domain.TrackingProvider {
 
     suspend fun getTraktShowProgress(token: String, showId: String): Result<NetworkTraktShowProgressResponse>
 
-    suspend fun getTraktRecentHistory(token: String): Result<List<NetworkTraktHistoryResponse>>
+    suspend fun getTraktRecentHistory(
+        token: String,
+        page: Int = 1,
+        limit: Int = 20,
+    ): Result<List<NetworkTraktHistoryResponse>>
 
     suspend fun getTraktRecommendations(token: String): Result<NetworkTraktRecommendationsResponse>
 }

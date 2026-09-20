@@ -535,11 +535,19 @@ constructor(
         }
     }
 
-    suspend fun getTraktRecentHistory(token: String): Result<List<NetworkTraktHistoryResponse>> {
+    suspend fun getTraktRecentHistory(
+        token: String,
+        page: Int = 1,
+        limit: Int = 20,
+    ): Result<List<NetworkTraktHistoryResponse>> {
         if (token.isEmpty()) return Result.failure(IllegalArgumentException("Token is empty"))
         return withContext(Dispatchers.IO) {
             try {
-                val response = traktService.getRecentHistoryAsync("Bearer $token").await()
+                val response = traktService.getRecentHistoryAsync(
+                    token = "Bearer $token",
+                    page = page,
+                    limit = limit,
+                ).await()
                 Result.success(response)
             } catch (e: Exception) {
                 logTraktException("Error fetching recent history", e)

@@ -45,6 +45,7 @@ import com.theupnextapp.ui.showDetail.ShowDetailScreen
 import com.theupnextapp.ui.showSeasonEpisodes.ShowSeasonEpisodesScreen
 import com.theupnextapp.ui.showSeasons.ShowSeasonsScreen
 import com.theupnextapp.ui.traktAccount.TraktAccountScreen
+import com.theupnextapp.ui.watchHistory.WatchHistoryScreen
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @Suppress("MagicNumber")
@@ -193,6 +194,13 @@ fun AppNavigation(
                         TraktAccountScreen(
                             code = key.code,
                             onNavigate = { backStack.add(it) },
+                        )
+                    }
+
+                    entry<Destinations.WatchHistory> {
+                        WatchHistoryScreen(
+                            onNavigate = { backStack.add(it) },
+                            onBack = onBack,
                         )
                     }
                 },

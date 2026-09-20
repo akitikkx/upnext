@@ -9,6 +9,7 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.logEvent
 import com.google.firebase.perf.FirebasePerformance
 import com.google.firebase.perf.metrics.Trace
+import com.theupnextapp.domain.ExtractedTraktInfo
 import com.theupnextapp.domain.ScheduleShow
 import com.theupnextapp.domain.TraktAccessToken
 import com.theupnextapp.domain.TraktMostAnticipated
@@ -16,6 +17,7 @@ import com.theupnextapp.domain.TraktTrendingShows
 import com.theupnextapp.domain.WatchedEpisode
 import com.theupnextapp.network.models.trakt.NetworkTraktHistoryResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktPlaybackResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktRecommendationsResponse
 import com.theupnextapp.repository.DashboardRepository
 import com.theupnextapp.repository.TraktRepository
@@ -35,12 +37,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 import javax.inject.Inject
-
-data class ExtractedTraktInfo(
-    val imageUrl: String?,
-    val tvmazeId: Int?,
-)
 
 @HiltViewModel
 class DashboardViewModel
@@ -59,6 +57,15 @@ constructor(
                 started = SharingStarted.WhileSubscribed(5000),
                 initialValue = null,
             )
+
+    private val _upNextShows = MutableStateFlow<List<NetworkTraktPlaybackResponse>?>(null)
+    val upNextShows: StateFlow<List<NetworkTraktPlaybackResponse>?> = _upNextShows.asStateFlow()
+
+    private val _upNextImages = MutableStateFlow<Map<String, ExtractedTraktInfo>>(emptyMap())
+    val upNextImages: StateFlow<Map<String, ExtractedTraktInfo>> = _upNextImages.asStateFlow()
+
+    private val _isLoadingUpNext = MutableStateFlow(false)
+    val isLoadingUpNext: StateFlow<Boolean> = _isLoadingUpNext.asStateFlow()
 
     private val _airingSoonShows = MutableStateFlow<NetworkTraktMyScheduleResponse?>(null)
     val airingSoonShows: StateFlow<NetworkTraktMyScheduleResponse?> = _airingSoonShows.asStateFlow()
@@ -126,6 +133,7 @@ constructor(
 
     val isLoading: StateFlow<Boolean> =
         combine(
+            isLoadingUpNext,
             isLoadingAiringSoon,
             isLoadingHistory,
             isLoadingRecommendations,
@@ -191,6 +199,7 @@ constructor(
                 if (wasSyncing && !isSyncing) {
                     traktRepository.traktAccessToken.firstOrNull()?.access_token?.let { token ->
                         fetchRecentHistory(token)
+                        fetchUpNextShows(token)
                     }
                 }
                 wasSyncing = isSyncing
@@ -200,6 +209,9 @@ constructor(
 
     fun fetchDashboardData(token: String) {
         val bearerToken = token
+        if (_upNextShows.value == null && !_isLoadingUpNext.value) {
+            fetchUpNextShows(bearerToken)
+        }
         if (_airingSoonShows.value == null && !_isLoadingAiringSoon.value) {
             fetchAiringSoonShows(bearerToken)
         }
@@ -208,6 +220,63 @@ constructor(
         }
         if (_recentHistory.value == null && !_isLoadingHistory.value) {
             fetchRecentHistory(bearerToken)
+        }
+    }
+
+    private fun fetchUpNextShows(bearerToken: String) {
+        viewModelScope.launch {
+            _isLoadingUpNext.value = true
+            try {
+                val response = traktRepository.getTraktPlaybackProgress(bearerToken)
+                if (response.isSuccess) {
+                    val shows = response.getOrNull()
+                    _upNextShows.value = shows
+                    shows?.let { upNextList ->
+                        val deferredImages =
+                            upNextList.mapNotNull { upNextItem ->
+                                val traktId = upNextItem.show?.ids?.trakt
+                                val imdbId = upNextItem.show?.ids?.imdb
+                                val season = upNextItem.episode?.season
+                                val number = upNextItem.episode?.number
+                                if (traktId != null && imdbId != null) {
+                                    async(Dispatchers.IO.limitedParallelism(5)) {
+                                        try {
+                                            val (url, tvmazeId) =
+                                                if (season != null && number != null) {
+                                                    dashboardRepository.getEpisodeImageAndTvmazeId(
+                                                        imdbId,
+                                                        season,
+                                                        number,
+                                                    )
+                                                } else {
+                                                    dashboardRepository.getShowImageAndTvmazeId(
+                                                        imdbId,
+                                                    )
+                                                }
+                                            val uniqueKey = "$traktId-${season ?: 0}-${number ?: 0}"
+                                            uniqueKey to ExtractedTraktInfo(
+                                                imageUrl = url,
+                                                tvmazeId = tvmazeId,
+                                            )
+                                        } catch (e: Exception) {
+                                            null
+                                        }
+                                    }
+                                } else {
+                                    null
+                                }
+                            }
+                        val newImages = deferredImages.awaitAll().filterNotNull().toMap()
+                        _upNextImages.value = newImages
+                    }
+                } else {
+                    _upNextShows.value = null
+                }
+            } catch (e: Exception) {
+                _upNextShows.value = null
+            } finally {
+                _isLoadingUpNext.value = false
+            }
         }
     }
 
@@ -397,7 +466,7 @@ constructor(
     private fun fetchRegionalTrendingShows() {
         viewModelScope.launch {
             _isLoadingRegionalTrending.value = true
-            val countryCode = java.util.Locale.getDefault().country
+            val countryCode = Locale.getDefault().country
             traktRepository.getRegionalTrendingShows(countryCode)
                 .onSuccess { response ->
                     _regionalTrendingShows.value = response
@@ -449,6 +518,13 @@ constructor(
             param(FirebaseAnalytics.Param.ITEM_ID, validTraktId.toString())
             param("season", season.toLong())
             param("episode", number.toLong())
+        }
+
+        // Optimistically update Up Next if present
+        _upNextShows.value = _upNextShows.value?.filterNot {
+            it.show?.ids?.trakt == validTraktId &&
+                it.episode?.season == season &&
+                it.episode?.number == number
         }
 
         viewModelScope.launch {

@@ -353,4 +353,16 @@
     <string name="episode_detail_next_episode">Next Episode</string>
     <string name="episode_detail_prev">Prev</string>
     <string name="episode_detail_next">Next</string>
+    <string name="title_watch_history">Watch History</string>
+    <string name="watch_history_search_placeholder">Search watched shows…</string>
+    <string name="watch_history_empty_title">No Watch History</string>
+    <string name="watch_history_empty_subtitle">Episodes you mark as watched will appear here in chronological order.</string>
+    <string name="watch_history_no_search_results">No watch history matching \"%1$s\"</string>
+    <string name="dashboard_recent_activity_see_all">See All</string>
+    <string name="dashboard_up_next_empty">You\'re all caught up!</string>
+    <string name="dashboard_up_next_empty_desc">When you start watching shows, the next uncompleted episode will stay pinned here.</string>
+    <string name="watch_history_load_more">Loading more history…</string>
+    <string name="trakt_account_history_title">Watch History</string>
+    <string name="trakt_account_history_desc">View your full chronological diary of watched episodes.</string>
+    <string name="dashboard_up_next_to_watch">Up Next to Watch</string>
 </resources>

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -29,6 +30,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.EventNote
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Tv
@@ -40,6 +42,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -90,6 +93,10 @@ fun DashboardScreen(
 ) {
     val context = LocalContext.current
     val traktAccessToken by viewModel.traktAccessToken.collectAsStateWithLifecycle()
+    val upNextShows by viewModel.upNextShows.collectAsStateWithLifecycle()
+    val upNextImages by viewModel.upNextImages.collectAsStateWithLifecycle()
+    val isLoadingUpNext by viewModel.isLoadingUpNext.collectAsStateWithLifecycle()
+
     val airingSoonShows by viewModel.airingSoonShows.collectAsStateWithLifecycle()
     val airingSoonImages by viewModel.airingSoonImages.collectAsStateWithLifecycle()
     val isLoadingAiringSoon by viewModel.isLoadingAiringSoon.collectAsStateWithLifecycle()
@@ -338,6 +345,112 @@ fun DashboardScreen(
                     Spacer(modifier = Modifier.height(24.dp))
                 }
             } else {
+                // Up Next Section (Personal Watch Progress Backlog)
+                item {
+                    Text(
+                        text = stringResource(id = R.string.dashboard_up_next_to_watch),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(bottom = 8.dp),
+                    )
+
+                    if (isLoadingUpNext && upNextShows.isNullOrEmpty()) {
+                        ShimmerAiringSoon()
+                    } else if (upNextShows.isNullOrEmpty()) {
+                        EmptyState(
+                            icon = Icons.Default.CheckCircle,
+                            title = stringResource(id = R.string.dashboard_up_next_empty),
+                            message = stringResource(id = R.string.dashboard_up_next_empty_desc),
+                            modifier = Modifier.fillMaxWidth().height(220.dp).padding(16.dp).testTag("up_next_empty_state"),
+                        )
+                    } else {
+                        val pagerState = rememberPagerState(pageCount = { upNextShows.orEmpty().size })
+                        HorizontalPager(
+                            state = pagerState,
+                            pageSize = PageSize.Fixed(carouselPageSize),
+                            pageSpacing = 16.dp,
+                            modifier = Modifier.fillMaxWidth().testTag("up_next_pager"),
+                        ) { page ->
+                            val item = upNextShows.orEmpty().getOrNull(page) ?: return@HorizontalPager
+                            val pageOffset = (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
+                            val scale =
+                                lerp(
+                                    start = 0.85f,
+                                    stop = 1f,
+                                    fraction = 1f - pageOffset.absoluteValue.coerceIn(0f, 1f),
+                                )
+                            val alphaOffset =
+                                lerp(
+                                    start = 0.5f,
+                                    stop = 1f,
+                                    fraction = 1f - pageOffset.absoluteValue.coerceIn(0f, 1f),
+                                )
+
+                            val imdbId = item.show?.ids?.imdb
+                            val traktId = item.show?.ids?.trakt
+                            val season = item.episode?.season
+                            val number = item.episode?.number
+                            val uniqueKey = "$traktId-${season ?: 0}-${number ?: 0}"
+                            val extractedInfo = traktId?.let { upNextImages[uniqueKey] }
+                            val imageUrl = extractedInfo?.imageUrl
+                            val tvmazeId = extractedInfo?.tvmazeId
+
+                            val progressRibbon =
+                                item.progress?.let { p ->
+                                    if (p > 0f) "${p.toInt()}% completed" else null
+                                }
+                            val episodeInfoText =
+                                "${stringResource(id = R.string.dashboard_season_episode, season ?: 0, number ?: 0)} • ${item.episode?.title ?: stringResource(id = R.string.dashboard_tba)}"
+
+                            Box(
+                                modifier =
+                                    Modifier
+                                        .graphicsLayer {
+                                            scaleX = scale
+                                            scaleY = scale
+                                            alpha = alphaOffset
+                                        }
+                                        .padding(horizontal = 8.dp),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                UpNextEpisodeCard(
+                                    showTitle = item.show?.title ?: "Unknown",
+                                    episodeInfo = episodeInfoText,
+                                    airDateRibbon = progressRibbon,
+                                    imageUrl = imageUrl,
+                                    modifier = Modifier.fillMaxWidth().testTag("up_next_card_$page"),
+                                    onCardClick = {
+                                        val direction =
+                                            Destinations.EpisodeDetail(
+                                                showTraktId = traktId ?: 0,
+                                                seasonNumber = season ?: 0,
+                                                episodeNumber = number ?: 0,
+                                                showTitle = item.show?.title,
+                                                showId = tvmazeId,
+                                                imdbID = imdbId,
+                                                isAuthorizedOnTrakt = true,
+                                                showImageUrl = imageUrl,
+                                                episodeImageUrl = imageUrl,
+                                                isWatched = false,
+                                            )
+                                        onNavigate(direction)
+                                    },
+                                    onMarkAsWatchedClick = {
+                                        viewModel.onMarkEpisodeWatched(
+                                            showTvMazeId = tvmazeId,
+                                            imdbId = imdbId,
+                                            showTraktId = traktId,
+                                            season = season ?: 0,
+                                            number = number ?: 0,
+                                        )
+                                    },
+                                )
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
+
                 // Airing Soon Section
                 item {
                     Text(
@@ -459,12 +572,23 @@ fun DashboardScreen(
 
                 // Recent Activity Section
                 item {
-                    Text(
-                        text = stringResource(id = R.string.dashboard_recent_activity),
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.padding(bottom = 8.dp),
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.dashboard_recent_activity),
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                        TextButton(
+                            onClick = { onNavigate(Destinations.WatchHistory) },
+                            modifier = Modifier.testTag("recent_activity_see_all_button"),
+                        ) {
+                            Text(stringResource(id = R.string.dashboard_recent_activity_see_all))
+                        }
+                    }
 
                     if (isLoadingHistory && recentHistory.isNullOrEmpty()) {
                         ShimmerPosterCardRow()

@@ -251,7 +251,9 @@ interface TraktService {
     @GET("sync/history/episodes")
     fun getRecentHistoryAsync(
         @Header("Authorization") token: String,
+        @Query("page") page: Int = 1,
         @Query("limit") limit: Int = 20,
+        @Query("extended") extended: String = "full",
     ): Deferred<List<NetworkTraktHistoryResponse>>
 
     @GET("people/{id}?extended=full")

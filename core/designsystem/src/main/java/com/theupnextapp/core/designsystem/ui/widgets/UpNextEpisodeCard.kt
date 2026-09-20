@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -92,7 +93,10 @@ fun UpNextEpisodeCard(
                         color = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
                         modifier = Modifier.size(36.dp).align(Alignment.BottomEnd),
                     ) {
-                        IconButton(onClick = onMarkAsWatchedClick) {
+                        IconButton(
+                            onClick = onMarkAsWatchedClick,
+                            modifier = Modifier.testTag("mark_watched_card_button"),
+                        ) {
                             Icon(
                                 imageVector = Icons.Default.CheckCircle,
                                 contentDescription = "Mark as Watched",

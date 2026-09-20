@@ -91,6 +91,7 @@ fun TopBar(
     val showBackArrow =
         when (currentKey) {
             is Destinations.Settings -> true
+            is Destinations.WatchHistory -> true
             is Destinations.ShowDetail -> true
             is Destinations.ShowSeasons -> true
             is Destinations.ShowSeasonEpisodes -> true
@@ -102,6 +103,7 @@ fun TopBar(
     val currentTitle: String =
         title ?: when (currentKey) {
             is Destinations.Settings -> stringResource(R.string.title_settings)
+            is Destinations.WatchHistory -> stringResource(R.string.title_watch_history)
             is Destinations.ShowSeasons -> ""
             is Destinations.ShowSeasonEpisodes -> ""
             is Destinations.ShowDetail -> stringResource(id = R.string.title_unknown)

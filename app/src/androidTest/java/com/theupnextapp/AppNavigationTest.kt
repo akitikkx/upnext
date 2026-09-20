@@ -198,4 +198,19 @@ class AppNavigationTest {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         composeTestRule.onNodeWithContentDescription(context.getString(R.string.person_detail_navigate_back)).assertIsDisplayed()
     }
+
+    @Test
+    fun appNavigation_watchHistoryScreen_isDisplayed() {
+        composeTestRule.activity.setContent {
+            val backStack = remember { mutableStateListOf<Any>(Destinations.WatchHistory) }
+            AppNavigation(
+                backStack = backStack,
+                onBack = {},
+            )
+        }
+
+        composeTestRule.waitForIdle()
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        composeTestRule.onNodeWithText(context.getString(R.string.title_watch_history)).assertIsDisplayed()
+    }
 }

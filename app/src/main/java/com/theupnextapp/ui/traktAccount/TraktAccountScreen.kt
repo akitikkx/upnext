@@ -31,23 +31,30 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator // Changed from Linear
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
@@ -78,6 +85,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.theupnextapp.R
+import com.theupnextapp.core.designsystem.ui.components.ShimmerSeasonEpisodes
 import com.theupnextapp.domain.TraktAuthState
 import com.theupnextapp.domain.TraktUserListItem
 import com.theupnextapp.navigation.Destinations
@@ -234,6 +242,7 @@ fun TraktAccountScreen(
                         ),
                     )
                 },
+                onWatchHistoryClick = { onNavigate(Destinations.WatchHistory) },
                 onRemoveItem = { item ->
                     item.traktID?.let { traktId ->
                         viewModel.onRemoveFromWatchlistClick(traktId)
@@ -276,6 +285,7 @@ internal fun AccountContent(
     onRefreshWatchlist: () -> Unit,
     onConnectToTraktClick: () -> Unit,
     onWatchlistClick: (item: TraktUserListItem) -> Unit,
+    onWatchHistoryClick: () -> Unit = {},
     onRemoveItem: (item: TraktUserListItem) -> Unit,
     onLogoutClick: () -> Unit,
     contentPadding: PaddingValues = PaddingValues(0.dp),
@@ -324,6 +334,40 @@ internal fun AccountContent(
                                     ) {
                                         TraktProfileHeader(onLogoutClick = onLogoutClick)
                                         Spacer(modifier = Modifier.height(16.dp))
+                                        OutlinedCard(
+                                            onClick = onWatchHistoryClick,
+                                            modifier = Modifier.fillMaxWidth(),
+                                        ) {
+                                            Row(
+                                                modifier = Modifier.padding(16.dp),
+                                                verticalAlignment = Alignment.CenterVertically,
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.Default.History,
+                                                    contentDescription = null,
+                                                    tint = MaterialTheme.colorScheme.primary,
+                                                )
+                                                Spacer(modifier = Modifier.width(16.dp))
+                                                Column(modifier = Modifier.weight(1f)) {
+                                                    Text(
+                                                        text = stringResource(R.string.trakt_account_history_title),
+                                                        style = MaterialTheme.typography.titleMedium,
+                                                        fontWeight = FontWeight.Bold,
+                                                    )
+                                                    Text(
+                                                        text = stringResource(R.string.trakt_account_history_desc),
+                                                        style = MaterialTheme.typography.bodySmall,
+                                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                    )
+                                                }
+                                                Icon(
+                                                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                                    contentDescription = null,
+                                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                )
+                                            }
+                                        }
+                                        Spacer(modifier = Modifier.height(16.dp))
                                     }
                                 },
                                 onItemClick = onWatchlistClick,
@@ -345,10 +389,44 @@ internal fun AccountContent(
                                     ) {
                                         TraktProfileHeader(onLogoutClick = onLogoutClick)
                                         Spacer(modifier = Modifier.height(16.dp))
+                                        OutlinedCard(
+                                            onClick = onWatchHistoryClick,
+                                            modifier = Modifier.fillMaxWidth(),
+                                        ) {
+                                            Row(
+                                                modifier = Modifier.padding(16.dp),
+                                                verticalAlignment = Alignment.CenterVertically,
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.Default.History,
+                                                    contentDescription = null,
+                                                    tint = MaterialTheme.colorScheme.primary,
+                                                )
+                                                Spacer(modifier = Modifier.width(16.dp))
+                                                Column(modifier = Modifier.weight(1f)) {
+                                                    Text(
+                                                        text = stringResource(R.string.trakt_account_history_title),
+                                                        style = MaterialTheme.typography.titleMedium,
+                                                        fontWeight = FontWeight.Bold,
+                                                    )
+                                                    Text(
+                                                        text = stringResource(R.string.trakt_account_history_desc),
+                                                        style = MaterialTheme.typography.bodySmall,
+                                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                    )
+                                                }
+                                                Icon(
+                                                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                                    contentDescription = null,
+                                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                )
+                                            }
+                                        }
+                                        Spacer(modifier = Modifier.height(16.dp))
                                     }
 
                                     if (isLoadingWatchlists && !isPullRefreshing) {
-                                        com.theupnextapp.core.designsystem.ui.components.ShimmerSeasonEpisodes(modifier = Modifier.padding(top = 32.dp))
+                                        ShimmerSeasonEpisodes(modifier = Modifier.padding(top = 32.dp))
                                     } else {
                                         EmptyWatchlistContent()
                                     }
