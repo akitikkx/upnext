@@ -15,6 +15,7 @@ package com.theupnextapp.ui.episodeDetail
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.work.WorkManager
 import androidx.work.WorkRequest
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.theupnextapp.CoroutineTestRule
 import com.theupnextapp.domain.EpisodeDetail
 import com.theupnextapp.domain.Result
@@ -44,6 +45,7 @@ import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.Mock
 import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.any
+import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
@@ -70,6 +72,9 @@ class EpisodeDetailViewModelTest {
 
     @Mock
     private lateinit var workManager: WorkManager
+
+    @Mock
+    private lateinit var firebaseAnalytics: FirebaseAnalytics
 
     private lateinit var route: Destinations.EpisodeDetail
     private lateinit var viewModel: EpisodeDetailViewModel
@@ -101,6 +106,7 @@ class EpisodeDetailViewModelTest {
             traktRepository = traktRepository,
             watchProgressRepository = watchProgressRepository,
             workManager = workManager,
+            firebaseAnalytics = firebaseAnalytics,
         )
     }
 
@@ -195,6 +201,7 @@ class EpisodeDetailViewModelTest {
             advanceUntilIdle()
 
             verify(traktRepository).checkInToShow(1234, 1, 5)
+            verify(firebaseAnalytics).logEvent(eq("episode_check_in"), any())
         }
 
     @Test
@@ -258,6 +265,7 @@ class EpisodeDetailViewModelTest {
                 episodeNumber = 5,
             )
             verify(workManager).enqueue(any<WorkRequest>())
+            verify(firebaseAnalytics).logEvent(eq("episode_toggle_watched"), any())
         }
 
     @Test
@@ -304,6 +312,7 @@ class EpisodeDetailViewModelTest {
                 episodeNumber = 5,
             )
             verify(workManager).enqueue(any<WorkRequest>())
+            verify(firebaseAnalytics).logEvent(eq("episode_toggle_watched"), any())
         }
 
     @Test
@@ -342,5 +351,83 @@ class EpisodeDetailViewModelTest {
             assertEquals(1, nextRoute.seasonNumber)
             assertEquals(1234, nextRoute.showTraktId)
             assertNull(nextRoute.episodeImageUrl)
+        }
+
+    @Test
+    fun `initial state seeds isWatched = true when route specifies isWatched = true`() {
+        val watchedRoute =
+            Destinations.EpisodeDetail(
+                showTraktId = 1234,
+                seasonNumber = 1,
+                episodeNumber = 5,
+                isWatched = true,
+            )
+        viewModel = createViewModel(watchedRoute)
+
+        val initialState = viewModel.uiState.value
+        assertTrue(initialState.isWatched)
+    }
+
+    @Test
+    fun `initial state seeds isWatched = false when route specifies isWatched = false`() {
+        val unwatchedRoute =
+            Destinations.EpisodeDetail(
+                showTraktId = 1234,
+                seasonNumber = 1,
+                episodeNumber = 5,
+                isWatched = false,
+            )
+        viewModel = createViewModel(unwatchedRoute)
+
+        val initialState = viewModel.uiState.value
+        assertFalse(initialState.isWatched)
+    }
+
+    @Test
+    fun `observeWatchedEpisodes preserves route isWatched when Room returns empty list`() =
+        runTest {
+            val watchedRoute =
+                Destinations.EpisodeDetail(
+                    showTraktId = 1234,
+                    seasonNumber = 1,
+                    episodeNumber = 5,
+                    isWatched = true,
+                )
+            whenever(watchProgressRepository.getWatchedEpisodesForShow(1234)).thenReturn(flowOf(emptyList()))
+
+            viewModel = createViewModel(watchedRoute)
+            advanceUntilIdle()
+
+            assertTrue(viewModel.uiState.value.isWatched)
+        }
+
+    @Test
+    fun `observeWatchedEpisodes updates isWatched when Room emits matching episode`() =
+        runTest {
+            val unwatchedRoute =
+                Destinations.EpisodeDetail(
+                    showTraktId = 1234,
+                    seasonNumber = 1,
+                    episodeNumber = 5,
+                    isWatched = false,
+                )
+            val watchedEpisodes =
+                listOf(
+                    WatchedEpisode(
+                        showTraktId = 1234,
+                        showTvMazeId = null,
+                        showImdbId = null,
+                        seasonNumber = 1,
+                        episodeNumber = 5,
+                        watchedAt = 1000L,
+                        isSynced = true,
+                    ),
+                )
+            whenever(watchProgressRepository.getWatchedEpisodesForShow(1234)).thenReturn(flowOf(watchedEpisodes))
+
+            viewModel = createViewModel(unwatchedRoute)
+            advanceUntilIdle()
+
+            assertTrue(viewModel.uiState.value.isWatched)
         }
 }

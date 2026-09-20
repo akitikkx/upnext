@@ -3,6 +3,7 @@ package com.theupnextapp.ui.showSeasonEpisodes
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.work.WorkManager
 import androidx.work.WorkRequest
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.theupnextapp.CoroutineTestRule
 import com.theupnextapp.common.utils.TraktAuthManager
 import com.theupnextapp.domain.Result
@@ -26,6 +27,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.kotlin.any
+import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
@@ -48,6 +50,7 @@ class ShowSeasonEpisodesViewModelTest {
     private val watchProgressRepository: WatchProgressRepository = mock()
     private val workManager: WorkManager = mock()
     private val traktAuthManager: TraktAuthManager = mock()
+    private val firebaseAnalytics: FirebaseAnalytics = mock()
 
     @Before
     fun setup() {
@@ -131,6 +134,7 @@ class ShowSeasonEpisodesViewModelTest {
             )
 
             verify(workManager).enqueue(any<WorkRequest>())
+            verify(firebaseAnalytics).logEvent(eq("episode_toggle_watched"), any())
         }
 
     @Test
@@ -155,6 +159,7 @@ class ShowSeasonEpisodesViewModelTest {
                     workManager,
                     traktRepository,
                     traktAuthManager,
+                    firebaseAnalytics,
                 )
 
             val showTraktId = 123
@@ -212,6 +217,7 @@ class ShowSeasonEpisodesViewModelTest {
             )
 
             verify(workManager).enqueue(any<WorkRequest>())
+            verify(firebaseAnalytics).logEvent(eq("episode_toggle_watched"), any())
         }
 
     @Test
@@ -282,6 +288,7 @@ class ShowSeasonEpisodesViewModelTest {
                 workManager,
                 traktRepository,
                 traktAuthManager,
+                firebaseAnalytics,
             )
     }
 
@@ -676,6 +683,7 @@ class ShowSeasonEpisodesViewModelTest {
             val result = viewModel.episodes.value
             assertEquals(2, result?.size)
             assertTrue(result?.all { it.isWatched } == true)
+            verify(firebaseAnalytics).logEvent(eq("season_batch_toggle_watched"), any())
         }
 
     @Test
@@ -757,5 +765,6 @@ class ShowSeasonEpisodesViewModelTest {
             val result = viewModel.episodes.value
             assertEquals(2, result?.size)
             assertTrue(result?.none { it.isWatched } == true)
+            verify(firebaseAnalytics).logEvent(eq("season_batch_toggle_watched"), any())
         }
 }

@@ -512,6 +512,7 @@ fun DashboardScreen(
                                                         isAuthorizedOnTrakt = true,
                                                         showImageUrl = imageUrl,
                                                         episodeImageUrl = imageUrl,
+                                                        isWatched = true,
                                                     )
                                                 onNavigate(direction)
                                             },

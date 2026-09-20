@@ -351,6 +351,33 @@ class WatchProgressRepositoryImpl(
             }
         }
 
+    override suspend fun saveWatchedEpisodes(episodes: List<WatchedEpisode>): Result<Unit> =
+        withContext(Dispatchers.IO) {
+            try {
+                val dbEpisodes =
+                    episodes.map {
+                        DatabaseWatchedEpisode(
+                            showTraktId = it.showTraktId,
+                            showTvMazeId = it.showTvMazeId,
+                            showImdbId = it.showImdbId,
+                            seasonNumber = it.seasonNumber,
+                            episodeNumber = it.episodeNumber,
+                            episodeTraktId = null,
+                            watchedAt = it.watchedAt,
+                            syncStatus = if (it.isSynced) SyncStatus.SYNCED.ordinal else SyncStatus.PENDING_ADD.ordinal,
+                            lastModified = System.currentTimeMillis(),
+                        )
+                    }
+                if (dbEpisodes.isNotEmpty()) {
+                    traktDao.insertWatchedEpisodes(dbEpisodes)
+                }
+                Result.success(Unit)
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to save watched episodes")
+                Result.failure(e)
+            }
+        }
+
     private fun buildSyncRequest(episodes: List<DatabaseWatchedEpisode>): NetworkTraktSyncHistoryRequest {
         val showsMap = episodes.groupBy { it.showTraktId }
 

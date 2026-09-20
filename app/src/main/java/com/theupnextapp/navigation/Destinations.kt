@@ -109,6 +109,7 @@ sealed interface Destinations {
         val showImageUrl: String? = null,
         val showBackgroundUrl: String? = null,
         val episodeImageUrl: String? = null,
+        val isWatched: Boolean? = null,
     ) : Destinations {
         fun toArg() =
             EpisodeDetailArg(
@@ -122,6 +123,7 @@ sealed interface Destinations {
                 showImageUrl = showImageUrl,
                 showBackgroundUrl = showBackgroundUrl,
                 episodeImageUrl = episodeImageUrl,
+                isWatched = isWatched,
             )
     }
 

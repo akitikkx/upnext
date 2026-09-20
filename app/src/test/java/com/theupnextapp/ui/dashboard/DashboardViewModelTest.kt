@@ -20,8 +20,12 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.theupnextapp.CoroutineTestRule
 import com.theupnextapp.domain.ScheduleShow
 import com.theupnextapp.domain.TraktAccessToken
+import com.theupnextapp.network.models.trakt.NetworkTraktHistoryResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktRecommendationsResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktWatchedEpisode
+import com.theupnextapp.network.models.trakt.NetworkTraktWatchedShowIds
+import com.theupnextapp.network.models.trakt.NetworkTraktWatchedShowInfo
 import com.theupnextapp.repository.DashboardRepository
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.WatchProgressRepository
@@ -42,6 +46,7 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.mockito.kotlin.any
+import org.mockito.kotlin.check
 
 @ExperimentalCoroutinesApi
 class DashboardViewModelTest {
@@ -319,5 +324,64 @@ class DashboardViewModelTest {
 
             assertEquals(cachedShows, testViewModel.todayShows.value)
             assertTrue(testViewModel.isLoadingTodayShows.value)
+        }
+
+    @Test
+    fun `fetchRecentHistory maps and persists watched episodes to watchProgressRepository`() =
+        runTest {
+            val token = "mock_token"
+            val historyResponse =
+                listOf(
+                    NetworkTraktHistoryResponse(
+                        id = 1,
+                        watchedAt = "2026-09-20T00:00:00.000Z",
+                        action = "watch",
+                        type = "episode",
+                        episode =
+                            NetworkTraktWatchedEpisode(
+                                season = 1,
+                                number = 5,
+                                title = "Episode 5",
+                                plays = 1,
+                                lastWatchedAt = "2026-09-20T00:00:00.000Z",
+                            ),
+                        show =
+                            NetworkTraktWatchedShowInfo(
+                                title = "Test Show",
+                                year = 2026,
+                                ids =
+                                    NetworkTraktWatchedShowIds(
+                                        trakt = 999,
+                                        tvdb = null,
+                                        imdb = "tt999",
+                                        tmdb = null,
+                                        slug = "test-show",
+                                    ),
+                            ),
+                    ),
+                )
+
+            `when`(traktRepository.getTraktRecentHistory(token)).thenReturn(Result.success(historyResponse))
+
+            val testViewModel =
+                DashboardViewModel(
+                    traktRepository = traktRepository,
+                    dashboardRepository = dashboardRepository,
+                    watchProgressRepository = watchProgressRepository,
+                    localWorkManager = localWorkManager,
+                    firebaseAnalytics = firebaseAnalytics,
+                )
+
+            testViewModel.fetchDashboardData(token)
+            advanceUntilIdle()
+
+            verify(watchProgressRepository).saveWatchedEpisodes(check { episodes ->
+                assertEquals(1, episodes.size)
+                assertEquals(999, episodes[0].showTraktId)
+                assertEquals(1, episodes[0].seasonNumber)
+                assertEquals(5, episodes[0].episodeNumber)
+                assertEquals("tt999", episodes[0].showImdbId)
+                assertTrue(episodes[0].isSynced)
+            })
         }
 }

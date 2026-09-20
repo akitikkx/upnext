@@ -17,6 +17,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.logEvent
 import com.theupnextapp.domain.EpisodeDetail
 import com.theupnextapp.domain.EpisodePeople
 import com.theupnextapp.domain.Result
@@ -46,6 +48,7 @@ class EpisodeDetailViewModel
         private val traktRepository: TraktRepository,
         private val watchProgressRepository: WatchProgressRepository,
         private val workManager: WorkManager,
+        private val firebaseAnalytics: FirebaseAnalytics,
     ) : ViewModel() {
 
         @AssistedFactory
@@ -59,6 +62,7 @@ class EpisodeDetailViewModel
                     isLoading = true,
                     isPeopleLoading = true,
                     isAuthorizedOnTrakt = route.isAuthorizedOnTrakt ?: false,
+                    isWatched = route.isWatched ?: false,
                     episodeDetail =
                         EpisodeDetail(
                             title = null,
@@ -165,6 +169,12 @@ class EpisodeDetailViewModel
         fun onCheckIn() {
             viewModelScope.launch {
                 _uiState.value = _uiState.value.copy(isCheckingIn = true)
+                firebaseAnalytics.logEvent("episode_check_in") {
+                    param("show_trakt_id", route.showTraktId.toLong())
+                    param("season_number", route.seasonNumber.toLong())
+                    param("episode_number", route.episodeNumber.toLong())
+                    param("action", "check_in")
+                }
                 traktRepository.checkInToShow(
                     showTraktId = route.showTraktId,
                     seasonNumber = route.seasonNumber,
@@ -176,6 +186,12 @@ class EpisodeDetailViewModel
         fun onCancelCheckIn() {
             viewModelScope.launch {
                 _uiState.value = _uiState.value.copy(isCheckingIn = true)
+                firebaseAnalytics.logEvent("episode_check_in") {
+                    param("show_trakt_id", route.showTraktId.toLong())
+                    param("season_number", route.seasonNumber.toLong())
+                    param("episode_number", route.episodeNumber.toLong())
+                    param("action", "cancel")
+                }
                 traktRepository.cancelCheckIn()
             }
         }
@@ -208,11 +224,13 @@ class EpisodeDetailViewModel
         private fun observeWatchedEpisodes() {
             viewModelScope.launch {
                 watchProgressRepository.getWatchedEpisodesForShow(route.showTraktId).collect { watchedList ->
-                    val isWatched =
-                        watchedList.any {
-                            it.seasonNumber == route.seasonNumber && it.episodeNumber == currentEpisodeNumber
-                        }
-                    _uiState.value = _uiState.value.copy(isWatched = isWatched)
+                    if (watchedList.isNotEmpty() || route.isWatched == null) {
+                        val isWatched =
+                            watchedList.any {
+                                it.seasonNumber == route.seasonNumber && it.episodeNumber == currentEpisodeNumber
+                            }
+                        _uiState.value = _uiState.value.copy(isWatched = isWatched)
+                    }
                 }
             }
         }
@@ -236,6 +254,14 @@ class EpisodeDetailViewModel
             if (!_uiState.value.isAuthorizedOnTrakt) return
             val targetWatchedState = !_uiState.value.isWatched
             _uiState.value = _uiState.value.copy(isWatched = targetWatchedState)
+
+            firebaseAnalytics.logEvent("episode_toggle_watched") {
+                param("show_trakt_id", route.showTraktId.toLong())
+                param("season_number", route.seasonNumber.toLong())
+                param("episode_number", currentEpisodeNumber.toLong())
+                param("is_watched", targetWatchedState.toString())
+                param("source", "episode_detail")
+            }
 
             viewModelScope.launch {
                 if (!targetWatchedState) {

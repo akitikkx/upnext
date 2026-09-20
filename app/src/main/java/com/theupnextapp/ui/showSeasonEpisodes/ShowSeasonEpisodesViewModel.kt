@@ -25,6 +25,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.logEvent
 import com.theupnextapp.common.utils.TraktAuthManager
 import com.theupnextapp.domain.Result
 import com.theupnextapp.domain.ShowSeasonEpisode
@@ -54,6 +56,7 @@ class ShowSeasonEpisodesViewModel
         private val localWorkManager: WorkManager,
         private val traktRepository: TraktRepository,
         val traktAuthManager: TraktAuthManager,
+        private val firebaseAnalytics: FirebaseAnalytics,
     ) : BaseTraktViewModel(
             traktRepository,
             localWorkManager,
@@ -166,6 +169,14 @@ class ShowSeasonEpisodesViewModel
                     }
                 }
 
+            firebaseAnalytics.logEvent("episode_toggle_watched") {
+                param("show_trakt_id", showTraktId.toLong())
+                param("season_number", season.toLong())
+                param("episode_number", episodeNum.toLong())
+                param("is_watched", targetWatchedState.toString())
+                param("source", "season_episodes")
+            }
+
             viewModelScope.launch {
                 if (!targetWatchedState) {
                     watchProgressRepository.markEpisodeUnwatched(
@@ -195,6 +206,12 @@ class ShowSeasonEpisodesViewModel
 
             _episodes.value = _episodes.value?.map { it.copy(isWatched = true) }
 
+            firebaseAnalytics.logEvent("season_batch_toggle_watched") {
+                param("show_trakt_id", showTraktId.toLong())
+                param("season_number", season.toLong())
+                param("is_watched", "true")
+            }
+
             viewModelScope.launch {
                 watchProgressRepository.markSeasonWatched(
                     showTraktId = showTraktId,
@@ -213,6 +230,12 @@ class ShowSeasonEpisodesViewModel
             val season = currentSeasonNumber ?: return
 
             _episodes.value = _episodes.value?.map { it.copy(isWatched = false) }
+
+            firebaseAnalytics.logEvent("season_batch_toggle_watched") {
+                param("show_trakt_id", showTraktId.toLong())
+                param("season_number", season.toLong())
+                param("is_watched", "false")
+            }
 
             viewModelScope.launch {
                 watchProgressRepository.markSeasonUnwatched(

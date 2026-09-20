@@ -829,6 +829,13 @@ class ShowDetailViewModel
                     val wasOnWatchlist = currentWatchlistShow != null
                     _watchlistOverride.value = !wasOnWatchlist
 
+                    firebaseAnalytics.logEvent("watchlist_toggle") {
+                        param("show_id", currentShowSummary.id.toString())
+                        param("imdb_id", imdbID)
+                        param("action", if (wasOnWatchlist) "remove" else "add")
+                        param("source", "show_detail")
+                    }
+
                     if (currentWatchlistShow != null) {
                         val workerDataBuilder = Data.Builder()
                         currentWatchlistShow.traktID?.let {
