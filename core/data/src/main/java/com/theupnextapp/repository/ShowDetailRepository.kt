@@ -10,6 +10,7 @@ import com.theupnextapp.domain.ShowPreviousEpisode
 import com.theupnextapp.domain.ShowSeason
 import com.theupnextapp.domain.ShowSeasonEpisode
 import com.theupnextapp.domain.TmdbWatchProviders
+import com.theupnextapp.domain.TraktSeason
 import com.theupnextapp.network.models.tmdb.NetworkTmdbPersonImagesResponse
 import com.theupnextapp.network.models.tmdb.NetworkTmdbPersonTvCreditsResponse
 import com.theupnextapp.network.models.tvmaze.NetworkTvMazeShowLookupResponse
@@ -22,6 +23,7 @@ interface ShowDetailRepository {
     fun getNextEpisode(episodeRef: String?): Flow<Result<ShowNextEpisode>>
     fun getShowCast(showId: Int): Flow<Result<List<ShowCast>>>
     fun getShowSeasons(showId: Int): Flow<Result<List<ShowSeason>>>
+    fun getTraktShowSeasons(traktId: Int): Flow<Result<List<TraktSeason>>>
     fun getShowSeasonEpisodes(showId: Int, seasonNumber: Int): Flow<Result<List<ShowSeasonEpisode>>>
     fun getShowWatchProviders(imdbID: String?, countryCode: String = java.util.Locale.getDefault().country): Flow<Result<TmdbWatchProviders>>
     fun getEpisodeDetails(traktId: Int, seasonNumber: Int, episodeNumber: Int): Flow<Result<EpisodeDetail>>

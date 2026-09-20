@@ -179,13 +179,13 @@ fun EpisodeDetailScreen(
                                 isCheckInSuccessful = uiState.isCheckInSuccessful,
                                 isAuthorizedOnTrakt = uiState.isAuthorizedOnTrakt,
                                 isWatched = uiState.isWatched,
-                                canNavigatePrevious = viewModel.canNavigatePrevious,
-                                canNavigateNext = true,
+                                canNavigatePrevious = uiState.canNavigatePrevious,
+                                canNavigateNext = uiState.canNavigateNext,
                                 onPreviousEpisodeClick = {
                                     viewModel.getPreviousEpisodeRoute()?.let { onNavigate(it) }
                                 },
                                 onNextEpisodeClick = {
-                                    onNavigate(viewModel.getNextEpisodeRoute())
+                                    viewModel.getNextEpisodeRoute()?.let { onNavigate(it) }
                                 },
                                 onCheckInClick = { viewModel.onCheckIn() },
                                 onCancelCheckInClick = { viewModel.onCancelCheckIn() },

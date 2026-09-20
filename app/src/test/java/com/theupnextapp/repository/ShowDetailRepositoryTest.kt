@@ -16,6 +16,7 @@ import com.theupnextapp.domain.EpisodePeople
 import com.theupnextapp.domain.Result
 import com.theupnextapp.domain.ShowDetailSummary
 import com.theupnextapp.domain.ShowPreviousEpisode
+import com.theupnextapp.domain.TraktSeason
 import com.theupnextapp.network.TmdbService
 import com.theupnextapp.network.TraktService
 import com.theupnextapp.network.models.tmdb.NetworkTmdbPersonImagesResponse
@@ -24,6 +25,7 @@ import com.theupnextapp.network.models.trakt.NetworkTraktCast
 import com.theupnextapp.network.models.trakt.NetworkTraktEpisodePeopleResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktPerson
 import com.theupnextapp.network.models.trakt.NetworkTraktPersonIds
+import com.theupnextapp.network.models.trakt.NetworkTraktSeasonResponse
 import com.theupnextapp.network.models.tvmaze.NetworkShowInfoCountry
 import com.theupnextapp.network.models.tvmaze.NetworkShowInfoExternals
 import com.theupnextapp.network.models.tvmaze.NetworkShowInfoImage
@@ -541,4 +543,55 @@ class ShowDetailRepositoryTest {
             assertEquals(1, cast?.size)
             assertEquals("Actor No TMDB ID", cast?.get(0)?.name)
             assertEquals(null, cast?.get(0)?.originalImageUrl)
-        } }
+        }
+
+    @Test
+    fun `getTraktShowSeasons emits Loading then Success and caches the response`() =
+        runTest {
+            val traktId = 123
+            val fakeSeasons =
+                listOf(
+                    NetworkTraktSeasonResponse(
+                        number = 1,
+                        title = "Season 1",
+                        episodeCount = 10,
+                        airedEpisodes = 10,
+                    ),
+                    NetworkTraktSeasonResponse(
+                        number = 2,
+                        title = "Season 2",
+                        episodeCount = 8,
+                        airedEpisodes = 8,
+                    ),
+                )
+
+            whenever(traktService.getShowSeasonsAsync(traktId.toString()))
+                .thenReturn(CompletableDeferred(fakeSeasons))
+
+            val results = showDetailRepository.getTraktShowSeasons(traktId).toList()
+            assertTrue(results.first() is Result.Loading)
+            val successResult = results.last() as Result.Success<List<TraktSeason>>
+            assertEquals(2, successResult.data.size)
+            assertEquals(1, successResult.data[0].number)
+            assertEquals(10, successResult.data[0].episodeCount)
+
+            // Verify second call hits in-memory cache without repeating network request
+            val cachedResults = showDetailRepository.getTraktShowSeasons(traktId).toList()
+            assertEquals(1, cachedResults.size)
+            val cachedSuccess = cachedResults.first() as Result.Success<List<TraktSeason>>
+            assertEquals(2, cachedSuccess.data.size)
+        }
+
+    @Test
+    fun `getTraktShowSeasons emits GenericError and records exception on network failure`() =
+        runTest {
+            val traktId = 999
+            whenever(traktService.getShowSeasonsAsync(traktId.toString()))
+                .thenThrow(RuntimeException("Network failure"))
+
+            val results = showDetailRepository.getTraktShowSeasons(traktId).toList()
+            val errorResult = results.last()
+            assertTrue(errorResult is Result.Error || errorResult is Result.GenericError)
+            assertTrue(fakeCrashlytics.getRecordedExceptions().isNotEmpty())
+        }
+}
