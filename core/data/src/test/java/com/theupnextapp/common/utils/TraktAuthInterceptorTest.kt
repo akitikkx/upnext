@@ -177,4 +177,43 @@ class TraktAuthInterceptorTest {
         assertNull(response.request.header("Authorization"))
         verify(chain).proceed(request)
     }
+
+    @Test
+    fun `intercept when mock token in header but null in DB and private endpoint returns mock response without calling network`() {
+        whenever(traktDao.getTraktAccessDataRaw()).thenReturn(null)
+        val request =
+            Request.Builder()
+                .url("https://api.trakt.tv/users/me/watchlist/shows")
+                .header("Authorization", "Bearer mock_test_token")
+                .build()
+        whenever(chain.request()).thenReturn(request)
+
+        val response = interceptor.intercept(chain)
+
+        assertEquals(200, response.code)
+        assertEquals("[]", response.body?.string())
+        verify(chain, never()).proceed(any())
+    }
+
+    @Test
+    fun `intercept when mock token in header but null in DB and public endpoint proceeds with header stripped`() {
+        whenever(traktDao.getTraktAccessDataRaw()).thenReturn(null)
+        val request =
+            Request.Builder()
+                .url("https://api.trakt.tv/shows/trending")
+                .header("Authorization", "Bearer mock_test_token")
+                .build()
+        val strippedRequest =
+            Request.Builder()
+                .url("https://api.trakt.tv/shows/trending")
+                .build()
+        mockChainResponse(strippedRequest)
+        whenever(chain.request()).thenReturn(request)
+
+        val response = interceptor.intercept(chain)
+
+        assertEquals(200, response.code)
+        assertNull(response.request.header("Authorization"))
+    }
 }
+

@@ -20,6 +20,8 @@
  */
 
 package com.theupnextapp.ui.personDetail
+
+import androidx.activity.compose.ReportDrawnWhen
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.fadeIn
@@ -116,6 +118,10 @@ fun PersonDetailScreen(
     val listState = rememberLazyListState()
     var selectedImageIndex by remember { mutableStateOf<Int?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
+
+    ReportDrawnWhen {
+        uiState.personSummary != null || uiState.isLoading == false
+    }
 
     LaunchedEffect(uiState.errorMessage) {
         uiState.errorMessage?.let { errorMsg ->

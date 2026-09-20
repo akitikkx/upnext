@@ -152,6 +152,14 @@ object DateUtils {
         }
     }
 
+    fun getRelativeTimeSpanString(timeMillis: Long): CharSequence {
+        return DateUtils.getRelativeTimeSpanString(
+            timeMillis,
+            System.currentTimeMillis(),
+            DateUtils.DAY_IN_MILLIS,
+        )
+    }
+
     const val DAYS = "days"
     const val HOURS = "hours"
     const val MINUTES = "minutes"

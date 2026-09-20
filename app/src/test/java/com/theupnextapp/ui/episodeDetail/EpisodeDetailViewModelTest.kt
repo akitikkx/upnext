@@ -13,16 +13,21 @@
 package com.theupnextapp.ui.episodeDetail
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.lifecycle.SavedStateHandle
+import androidx.work.WorkManager
+import androidx.work.WorkRequest
 import com.theupnextapp.CoroutineTestRule
 import com.theupnextapp.domain.EpisodeDetail
 import com.theupnextapp.domain.Result
+import com.theupnextapp.domain.TraktAccessToken
+import com.theupnextapp.domain.WatchedEpisode
 import com.theupnextapp.navigation.Destinations
 import com.theupnextapp.repository.ShowDetailRepository
 import com.theupnextapp.repository.TraktRepository
+import com.theupnextapp.repository.WatchProgressRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -37,9 +42,12 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.Mock
-import org.mockito.Mockito
-import org.mockito.Mockito.`when`
 import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.kotlin.any
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import retrofit2.HttpException
 
 @ExperimentalCoroutinesApi
@@ -54,27 +62,57 @@ class EpisodeDetailViewModelTest {
     @Mock
     private lateinit var showDetailRepository: ShowDetailRepository
 
-    private lateinit var route: Destinations.EpisodeDetail
-    private lateinit var viewModel: EpisodeDetailViewModel
-
     @Mock
     private lateinit var traktRepository: TraktRepository
 
+    @Mock
+    private lateinit var watchProgressRepository: WatchProgressRepository
+
+    @Mock
+    private lateinit var workManager: WorkManager
+
+    private lateinit var route: Destinations.EpisodeDetail
+    private lateinit var viewModel: EpisodeDetailViewModel
+
     @Before
     fun setUp() {
-        route = Destinations.EpisodeDetail(
-            showTraktId = 1234,
-            seasonNumber = 1,
-            episodeNumber = 5,
-        )
-        `when`(showDetailRepository.getEpisodeDetails(anyInt(), anyInt(), anyInt())).thenReturn(
+        route =
+            Destinations.EpisodeDetail(
+                showTraktId = 1234,
+                seasonNumber = 1,
+                episodeNumber = 5,
+            )
+        whenever(showDetailRepository.getEpisodeDetails(anyInt(), anyInt(), anyInt())).thenReturn(
             flowOf(Result.Loading(true)),
         )
-        `when`(showDetailRepository.getEpisodePeople(anyInt(), anyInt(), anyInt())).thenReturn(
-            kotlinx.coroutines.flow.emptyFlow(),
+        whenever(showDetailRepository.getEpisodePeople(anyInt(), anyInt(), anyInt())).thenReturn(
+            emptyFlow(),
         )
-        `when`(traktRepository.traktCheckInEvent).thenReturn(MutableSharedFlow())
-        `when`(traktRepository.isAuthorizedOnTrakt()).thenReturn(MutableStateFlow(false))
+        whenever(traktRepository.traktCheckInEvent).thenReturn(MutableSharedFlow())
+        whenever(traktRepository.isAuthorizedOnTrakt()).thenReturn(MutableStateFlow(false))
+        whenever(traktRepository.traktAccessToken).thenReturn(MutableStateFlow(null))
+        whenever(watchProgressRepository.getWatchedEpisodesForShow(anyInt())).thenReturn(emptyFlow())
+    }
+
+    private fun createViewModel(customRoute: Destinations.EpisodeDetail = route): EpisodeDetailViewModel {
+        return EpisodeDetailViewModel(
+            route = customRoute,
+            showDetailRepository = showDetailRepository,
+            traktRepository = traktRepository,
+            watchProgressRepository = watchProgressRepository,
+            workManager = workManager,
+        )
+    }
+
+    @Test
+    fun `when viewmodel is initialized, initial episode metadata is seeded synchronously`() {
+        viewModel = createViewModel()
+
+        val initialState = viewModel.uiState.value
+        assertEquals(true, initialState.isLoading)
+        assertEquals(5, initialState.episodeDetail?.number)
+        assertEquals(1, initialState.episodeDetail?.season)
+        assertNull(initialState.episodeDetail?.title)
     }
 
     @Test
@@ -95,11 +133,11 @@ class EpisodeDetailViewModelTest {
                     votes = 100,
                 )
 
-            `when`(showDetailRepository.getEpisodeDetails(anyInt(), anyInt(), anyInt())).thenReturn(
+            whenever(showDetailRepository.getEpisodeDetails(anyInt(), anyInt(), anyInt())).thenReturn(
                 flowOf(Result.Loading(true), Result.Success(mockEpisode)),
             )
 
-            viewModel = EpisodeDetailViewModel(route, showDetailRepository, traktRepository)
+            viewModel = createViewModel()
             advanceUntilIdle()
 
             val finalState = viewModel.uiState.value
@@ -112,19 +150,19 @@ class EpisodeDetailViewModelTest {
     @Test
     fun `when repository returns GenericError, uiState exposes error message`() =
         runTest {
-            val mockException = Mockito.mock(HttpException::class.java)
-            `when`(mockException.message).thenReturn("Test Error")
+            val mockException = mock<HttpException>()
+            whenever(mockException.message).thenReturn("Test Error")
 
-            `when`(showDetailRepository.getEpisodeDetails(anyInt(), anyInt(), anyInt())).thenReturn(
+            whenever(showDetailRepository.getEpisodeDetails(anyInt(), anyInt(), anyInt())).thenReturn(
                 flowOf(Result.Loading(true), Result.GenericError(404, null, mockException)),
             )
 
-            viewModel = EpisodeDetailViewModel(route, showDetailRepository, traktRepository)
+            viewModel = createViewModel()
             advanceUntilIdle()
 
             val finalState = viewModel.uiState.value
             assertEquals(false, finalState.isLoading)
-            assertEquals(null, finalState.episodeDetail)
+            assertNull(finalState.episodeDetail?.title)
             assertEquals("Test Error", finalState.error)
         }
 
@@ -146,33 +184,126 @@ class EpisodeDetailViewModelTest {
                     votes = 100,
                 )
 
-            `when`(showDetailRepository.getEpisodeDetails(anyInt(), anyInt(), anyInt())).thenReturn(
+            whenever(showDetailRepository.getEpisodeDetails(anyInt(), anyInt(), anyInt())).thenReturn(
                 flowOf(Result.Loading(true), Result.Success(mockEpisode)),
             )
 
-            viewModel = EpisodeDetailViewModel(route, showDetailRepository, traktRepository)
-
+            viewModel = createViewModel()
             advanceUntilIdle()
 
             viewModel.onCheckIn()
             advanceUntilIdle()
 
-            Mockito.verify(traktRepository).checkInToShow(1234, 1, 5)
+            verify(traktRepository).checkInToShow(1234, 1, 5)
         }
 
     @Test
     fun `when repository emits authorized state, uiState updates isAuthorizedOnTrakt`() =
         runTest {
-            `when`(showDetailRepository.getEpisodeDetails(anyInt(), anyInt(), anyInt())).thenReturn(
-                flowOf(Result.Loading(true)),
-            )
-            `when`(traktRepository.isAuthorizedOnTrakt()).thenReturn(MutableStateFlow(true))
+            whenever(traktRepository.isAuthorizedOnTrakt()).thenReturn(MutableStateFlow(true))
 
-            viewModel = EpisodeDetailViewModel(route, showDetailRepository, traktRepository)
+            viewModel = createViewModel()
             advanceUntilIdle()
 
             val finalState = viewModel.uiState.value
             assertEquals(true, finalState.isAuthorizedOnTrakt)
+        }
+
+    @Test
+    fun `when onToggleWatched is called without Trakt auth, repository is not called`() =
+        runTest {
+            whenever(traktRepository.isAuthorizedOnTrakt()).thenReturn(MutableStateFlow(false))
+
+            viewModel = createViewModel()
+            advanceUntilIdle()
+
+            viewModel.onToggleWatched()
+            advanceUntilIdle()
+
+            verify(watchProgressRepository, never()).markEpisodeWatched(anyInt(), any(), any(), anyInt(), anyInt())
+            verify(watchProgressRepository, never()).markEpisodeUnwatched(anyInt(), anyInt(), anyInt())
+            verify(workManager, never()).enqueue(any<WorkRequest>())
+        }
+
+    @Test
+    fun `when onToggleWatched is called and episode is unwatched, marks episode watched and triggers sync`() =
+        runTest {
+            whenever(traktRepository.isAuthorizedOnTrakt()).thenReturn(MutableStateFlow(true))
+            val mockToken =
+                TraktAccessToken(
+                    access_token = "valid_token",
+                    token_type = "bearer",
+                    expires_in = 3600,
+                    refresh_token = "refresh",
+                    scope = "public",
+                    created_at = 3000000000L,
+                )
+            whenever(traktRepository.traktAccessToken).thenReturn(MutableStateFlow(mockToken))
+
+            viewModel = createViewModel()
+            advanceUntilIdle()
+
+            assertFalse(viewModel.uiState.value.isWatched)
+
+            viewModel.onToggleWatched()
+
+            assertTrue(viewModel.uiState.value.isWatched)
+            advanceUntilIdle()
+
+            verify(watchProgressRepository).markEpisodeWatched(
+                showTraktId = 1234,
+                showTvMazeId = null,
+                showImdbId = null,
+                seasonNumber = 1,
+                episodeNumber = 5,
+            )
+            verify(workManager).enqueue(any<WorkRequest>())
+        }
+
+    @Test
+    fun `when onToggleWatched is called and episode is watched, marks episode unwatched and triggers sync`() =
+        runTest {
+            whenever(traktRepository.isAuthorizedOnTrakt()).thenReturn(MutableStateFlow(true))
+            val mockToken =
+                TraktAccessToken(
+                    access_token = "valid_token",
+                    token_type = "bearer",
+                    expires_in = 3600,
+                    refresh_token = "refresh",
+                    scope = "public",
+                    created_at = 3000000000L,
+                )
+            whenever(traktRepository.traktAccessToken).thenReturn(MutableStateFlow(mockToken))
+            val watchedEpisodes =
+                listOf(
+                    WatchedEpisode(
+                        showTraktId = 1234,
+                        showTvMazeId = null,
+                        showImdbId = null,
+                        seasonNumber = 1,
+                        episodeNumber = 5,
+                        watchedAt = 1000L,
+                        isSynced = true,
+                    ),
+                )
+            whenever(watchProgressRepository.getWatchedEpisodesForShow(1234)).thenReturn(flowOf(watchedEpisodes))
+
+            viewModel = createViewModel()
+            advanceUntilIdle()
+
+            assertTrue(viewModel.uiState.value.isWatched)
+
+            viewModel.onToggleWatched()
+
+            assertFalse(viewModel.uiState.value.isWatched)
+            advanceUntilIdle()
+
+            verify(watchProgressRepository).markEpisodeUnwatched(
+                showTraktId = 1234,
+                seasonNumber = 1,
+                episodeNumber = 5,
+            )
+            verify(workManager).enqueue(any<WorkRequest>())
         }
 
     @Test
@@ -184,11 +315,8 @@ class EpisodeDetailViewModelTest {
                     seasonNumber = 1,
                     episodeNumber = 1,
                 )
-            `when`(showDetailRepository.getEpisodeDetails(anyInt(), anyInt(), anyInt())).thenReturn(
-                flowOf(Result.Loading(true)),
-            )
 
-            val vm = EpisodeDetailViewModel(routeEpisode1, showDetailRepository, traktRepository)
+            val vm = createViewModel(routeEpisode1)
 
             assertFalse(vm.canNavigatePrevious)
             assertNull(vm.getPreviousEpisodeRoute())
@@ -197,7 +325,7 @@ class EpisodeDetailViewModelTest {
     @Test
     fun `when episodeNumber is greater than 1, traversal routes navigate to previous and next episodes`() =
         runTest {
-            viewModel = EpisodeDetailViewModel(route, showDetailRepository, traktRepository)
+            viewModel = createViewModel()
 
             // route has episodeNumber = 5, seasonNumber = 1, showTraktId = 1234
             assertTrue(viewModel.canNavigatePrevious)
