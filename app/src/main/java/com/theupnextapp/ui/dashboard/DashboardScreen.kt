@@ -33,6 +33,7 @@ import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.EventNote
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Tv
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -75,6 +76,7 @@ import com.theupnextapp.core.designsystem.ui.components.ShimmerPosterCardRow
 import com.theupnextapp.core.designsystem.ui.components.ShimmerRecommended
 import com.theupnextapp.core.designsystem.ui.widgets.ListPosterCard
 import com.theupnextapp.core.designsystem.ui.widgets.UpNextEpisodeCard
+import com.theupnextapp.core.designsystem.ui.widgets.UpNextLandscapeCard
 import com.theupnextapp.navigation.Destinations
 import com.theupnextapp.ui.components.EmptyState
 import java.time.ZonedDateTime
@@ -128,6 +130,7 @@ fun DashboardScreen(
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
         val isCompactPane = maxWidth < 600.dp
         val carouselPageSize = if (isCompactPane) 260.dp else 340.dp
+        val upNextPageSize = if (isCompactPane) 280.dp else 360.dp
 
         LazyColumn(
             modifier = Modifier.fillMaxSize().testTag("dashboard_list"),
@@ -286,7 +289,7 @@ fun DashboardScreen(
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onSecondaryContainer,
                                     textAlign = TextAlign.Center,
-                                )
+                                    )
                                 Text(
                                     stringResource(id = R.string.dashboard_connect_trakt_body),
                                     style = if (isCompactPane) MaterialTheme.typography.bodySmall else MaterialTheme.typography.bodyMedium,
@@ -367,7 +370,7 @@ fun DashboardScreen(
                         val pagerState = rememberPagerState(pageCount = { upNextShows.orEmpty().size })
                         HorizontalPager(
                             state = pagerState,
-                            pageSize = PageSize.Fixed(carouselPageSize),
+                            pageSize = PageSize.Fixed(upNextPageSize),
                             pageSpacing = 16.dp,
                             modifier = Modifier.fillMaxWidth().testTag("up_next_pager"),
                         ) { page ->
@@ -413,10 +416,11 @@ fun DashboardScreen(
                                         .padding(horizontal = 8.dp),
                                 contentAlignment = Alignment.Center,
                             ) {
-                                UpNextEpisodeCard(
+                                UpNextLandscapeCard(
                                     showTitle = item.show?.title ?: "Unknown",
                                     episodeInfo = episodeInfoText,
                                     airDateRibbon = progressRibbon,
+                                    progressPercentage = item.progress,
                                     imageUrl = imageUrl,
                                     modifier = Modifier.fillMaxWidth().testTag("up_next_card_$page"),
                                     onCardClick = {
@@ -535,7 +539,7 @@ fun DashboardScreen(
                                     episodeInfo = episodeInfoText,
                                     airDateRibbon = airDateTxt,
                                     imageUrl = imageUrl,
-                                    modifier = Modifier.fillMaxWidth(),
+                                    modifier = Modifier.fillMaxWidth().testTag("airing_soon_card_$page"),
                                     onCardClick = {
                                         val direction =
                                             Destinations.ShowDetail(
@@ -698,7 +702,14 @@ fun DashboardScreen(
 
                     if (isLoadingRecommendations && recommendedShows.isNullOrEmpty()) {
                         ShimmerRecommended()
-                    } else if (!recommendedShows.isNullOrEmpty()) {
+                    } else if (recommendedShows.isNullOrEmpty()) {
+                        EmptyState(
+                            icon = Icons.Default.Star,
+                            title = stringResource(id = R.string.dashboard_recommended_for_you),
+                            message = stringResource(id = R.string.recommendations_empty_state_text),
+                            modifier = Modifier.fillMaxWidth().height(220.dp).padding(16.dp).testTag("recommended_empty_state"),
+                        )
+                    } else {
                         val pagerState = rememberPagerState(pageCount = { recommendedShows.orEmpty().size })
                         HorizontalPager(
                             state = pagerState,
@@ -721,8 +732,8 @@ fun DashboardScreen(
                                     fraction = 1f - pageOffset.absoluteValue.coerceIn(0f, 1f),
                                 )
 
-                            val traktId = show?.ids?.trakt
-                            val imdbId = show?.ids?.imdb
+                            val traktId = show.ids?.trakt
+                            val imdbId = show.ids?.imdb
                             val extractedInfo = traktId?.let { recommendedShowsImages[it.toString()] }
                             val imageUrl = extractedInfo?.imageUrl
                             val tvmazeId = extractedInfo?.tvmazeId
@@ -744,12 +755,13 @@ fun DashboardScreen(
                                         Modifier
                                             .fillMaxWidth()
                                             .aspectRatio(2f / 3f)
+                                            .testTag("recommended_card_$page")
                                             .clickable {
                                                 val direction =
                                                     Destinations.ShowDetail(
                                                         source = "recommended",
                                                         showId = tvmazeId?.toString(),
-                                                        showTitle = show?.title,
+                                                        showTitle = show.title,
                                                         showImageUrl = imageUrl,
                                                         showBackgroundUrl = null,
                                                         imdbID = imdbId,
@@ -766,7 +778,7 @@ fun DashboardScreen(
                                                     .data(imageUrl)
                                                     .crossfade(true)
                                                     .build(),
-                                            contentDescription = show?.title ?: stringResource(id = R.string.dashboard_show_poster_desc),
+                                            contentDescription = show.title ?: stringResource(id = R.string.dashboard_show_poster_desc),
                                             contentScale = ContentScale.Crop,
                                             modifier = Modifier.fillMaxSize(),
                                         )
@@ -783,7 +795,7 @@ fun DashboardScreen(
                                                     ),
                                         )
                                         Text(
-                                            text = show?.title ?: "",
+                                            text = show.title ?: "",
                                             style = MaterialTheme.typography.headlineSmall,
                                             color = Color.White,
                                             fontWeight = FontWeight.Bold,

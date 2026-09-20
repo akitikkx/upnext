@@ -94,7 +94,7 @@ constructor(
 
         return withContext(Dispatchers.IO) {
             try {
-                val bearerToken = "Bearer $token"
+                val bearerToken = formatBearerToken(token)
                 val fetchResult = fetchAndStoreWatchlistShows(token)
                 if (fetchResult.isSuccess) {
                     // 4. Update table timestamp
@@ -116,7 +116,7 @@ constructor(
     private suspend fun fetchAndStoreWatchlistShows(
         token: String,
     ): Result<Unit> {
-        val bearerToken = "Bearer $token"
+        val bearerToken = formatBearerToken(token)
 
         return try {
             val watchlistItemsResponse =
@@ -203,7 +203,7 @@ constructor(
         if (token.isEmpty()) return Result.failure(IllegalArgumentException("Token is empty"))
         return withContext(Dispatchers.IO) {
             try {
-                val bearerToken = "Bearer $token"
+                val bearerToken = formatBearerToken(token)
                 val response = traktService.getWatchlistAsync(bearerToken).await()
                 Result.success(response)
             } catch (e: HttpException) {
@@ -224,7 +224,7 @@ constructor(
         if (token.isEmpty()) return Result.failure(IllegalArgumentException("Token is empty"))
         return withContext(Dispatchers.IO) {
             try {
-                val bearerToken = "Bearer $token"
+                val bearerToken = formatBearerToken(token)
                 val request = NetworkTraktWatchlistRequest(
                     shows = listOf(
                         NetworkTraktWatchlistRequestShow(
@@ -257,7 +257,7 @@ constructor(
         if (token.isEmpty()) return Result.failure(IllegalArgumentException("Token is empty"))
         return withContext(Dispatchers.IO) {
             try {
-                val bearerToken = "Bearer $token"
+                val bearerToken = formatBearerToken(token)
                 val request = NetworkTraktWatchlistRequest(
                     shows = listOf(
                         NetworkTraktWatchlistRequestShow(
@@ -295,7 +295,7 @@ constructor(
 
         return withContext(Dispatchers.IO) {
             try {
-                val bearerToken = "Bearer $token"
+                val bearerToken = formatBearerToken(token)
                 val request =
                     NetworkTraktCheckInRequest(
                         show =
@@ -350,7 +350,7 @@ constructor(
 
         return withContext(Dispatchers.IO) {
             try {
-                val bearerToken = "Bearer $token"
+                val bearerToken = formatBearerToken(token)
                 val response = traktService.cancelCheckInAsync(bearerToken).await()
                 if (response.isSuccessful) {
                     Result.success(Unit)
@@ -377,7 +377,7 @@ constructor(
 
         return withContext(Dispatchers.IO) {
             try {
-                val bearerToken = "Bearer $token"
+                val bearerToken = formatBearerToken(token)
                 val request =
                     NetworkTraktRatingRequest(
                         shows =
@@ -411,7 +411,7 @@ constructor(
 
         return withContext(Dispatchers.IO) {
             try {
-                val bearerToken = "Bearer $token"
+                val bearerToken = formatBearerToken(token)
                 val ratings = traktService.getUserShowRatingsAsync(bearerToken).await()
                 ratings.firstOrNull { it.show?.ids?.imdb == imdbId }?.rating
             } catch (e: Exception) {
@@ -432,7 +432,7 @@ constructor(
 
         return withContext(Dispatchers.IO) {
             try {
-                val bearerToken = "Bearer $token"
+                val bearerToken = formatBearerToken(token)
                 val response = traktService.getMyCalendarAsync(bearerToken, startDate, days).await()
                 Result.success(response)
             } catch (e: HttpException) {
@@ -450,7 +450,7 @@ constructor(
         if (token.isEmpty()) return Result.failure(IllegalArgumentException("Token is empty"))
         return withContext(Dispatchers.IO) {
             try {
-                val bearerToken = "Bearer $token"
+                val bearerToken = formatBearerToken(token)
                 val pausedDeferred = traktService.getPlaybackProgressAsync(bearerToken)
                 val watchedDeferred = traktService.getWatchedShowsAsync(bearerToken)
 
@@ -467,11 +467,11 @@ constructor(
 
                 val topWatched = watchedShowsResponse
                     .sortedByDescending { it.lastUpdatedAt ?: it.lastWatchedAt ?: "" }
-                    .take(15)
+                    .take(5)
 
                 val progressDeferreds = topWatched.mapNotNull { showItem ->
                     showItem.show?.ids?.trakt?.let { traktId ->
-                        async {
+                        async(Dispatchers.IO.limitedParallelism(3)) {
                             try {
                                 val progress = traktService.getShowProgressAsync(
                                     token = bearerToken,
@@ -526,7 +526,8 @@ constructor(
         if (token.isEmpty()) return Result.failure(IllegalArgumentException("Token is empty"))
         return withContext(Dispatchers.IO) {
             try {
-                val response = traktService.getWatchedShowsAsync("Bearer $token").await()
+                val bearerToken = formatBearerToken(token)
+                val response = traktService.getWatchedShowsAsync(bearerToken).await()
                 Result.success(response)
             } catch (e: Exception) {
                 logTraktException("Error fetching watched shows", e)
@@ -543,8 +544,9 @@ constructor(
         if (token.isEmpty()) return Result.failure(IllegalArgumentException("Token is empty"))
         return withContext(Dispatchers.IO) {
             try {
+                val bearerToken = formatBearerToken(token)
                 val response = traktService.getRecentHistoryAsync(
-                    token = "Bearer $token",
+                    token = bearerToken,
                     page = page,
                     limit = limit,
                 ).await()
@@ -560,7 +562,8 @@ constructor(
         if (token.isEmpty()) return Result.failure(IllegalArgumentException("Token is empty"))
         return withContext(Dispatchers.IO) {
             try {
-                val response = traktService.getShowProgressAsync("Bearer $token", showId).await()
+                val bearerToken = formatBearerToken(token)
+                val response = traktService.getShowProgressAsync(bearerToken, showId).await()
                 Result.success(response)
             } catch (e: Exception) {
                 logTraktException("Error fetching show progress", e)
@@ -572,12 +575,21 @@ constructor(
     suspend fun getTraktRecommendations(token: String): Result<NetworkTraktRecommendationsResponse> {
         return withContext(Dispatchers.IO) {
             try {
-                val response = traktService.getRecommendationsAsync(token = token).await()
+                val bearerToken = formatBearerToken(token)
+                val response = traktService.getRecommendationsAsync(token = bearerToken).await()
                 Result.success(response)
             } catch (e: Exception) {
                 logTraktException("Error fetching recommendations", e)
                 Result.failure(e)
             }
+        }
+    }
+
+    private fun formatBearerToken(token: String): String {
+        return if (token.startsWith("Bearer ", ignoreCase = true)) {
+            token
+        } else {
+            "Bearer $token"
         }
     }
 

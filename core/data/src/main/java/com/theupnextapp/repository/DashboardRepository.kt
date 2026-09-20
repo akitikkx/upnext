@@ -28,6 +28,7 @@ import com.theupnextapp.database.DatabaseTableUpdate
 import com.theupnextapp.database.DatabaseTodaySchedule
 import com.theupnextapp.database.DatabaseTomorrowSchedule
 import com.theupnextapp.database.DatabaseYesterdaySchedule
+import com.theupnextapp.database.TraktDao
 import com.theupnextapp.database.TvMazeDao
 import com.theupnextapp.database.UpnextDao
 import com.theupnextapp.database.asDomainModel
@@ -45,6 +46,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import timber.log.Timber
+import java.util.concurrent.ConcurrentHashMap
 
 interface DashboardRepository {
     val isLoadingYesterdayShows: StateFlow<Boolean>
@@ -82,7 +84,11 @@ class DashboardRepositoryImpl(
     tvMazeService: TvMazeService,
     private val tvMazeDao: TvMazeDao,
     private val firebaseCrashlytics: CrashlyticsHelper,
+    private val traktDao: TraktDao? = null,
 ) : BaseRepository(upnextDao = upnextDao, tvMazeService = tvMazeService), DashboardRepository {
+    private val showImageCache = ConcurrentHashMap<String, Pair<String?, Int?>>()
+    private val episodeImageCache = ConcurrentHashMap<String, Pair<String?, Int?>>()
+
     private val _isLoadingYesterdayShows = MutableStateFlow<Boolean>(false)
     override val isLoadingYesterdayShows: StateFlow<Boolean> = _isLoadingYesterdayShows.asStateFlow()
 
@@ -267,8 +273,25 @@ class DashboardRepositoryImpl(
     }
 
     override suspend fun getShowImageAndTvmazeId(imdbId: String?): Pair<String?, Int?> {
+        if (imdbId.isNullOrBlank()) return Pair(null, null)
+
+        showImageCache[imdbId]?.let { return it }
+
+        if (traktDao != null) {
+            val localWatchlist = traktDao.getWatchlistShow(imdbId)
+            if (localWatchlist != null && (!localWatchlist.originalImageUrl.isNullOrEmpty() || !localWatchlist.mediumImageUrl.isNullOrEmpty())) {
+                val result = Pair(localWatchlist.originalImageUrl ?: localWatchlist.mediumImageUrl, localWatchlist.tvMazeID)
+                showImageCache[imdbId] = result
+                return result
+            }
+        }
+
         val (tvmazeId, original, medium) = super.getImages(imdbId)
-        return Pair(original ?: medium, tvmazeId)
+        val result = Pair(original ?: medium, tvmazeId)
+        if (result.first != null || result.second != null) {
+            showImageCache[imdbId] = result
+        }
+        return result
     }
 
     override suspend fun getEpisodeImageAndTvmazeId(
@@ -276,27 +299,34 @@ class DashboardRepositoryImpl(
         season: Int,
         number: Int,
     ): Pair<String?, Int?> {
+        if (imdbId.isNullOrBlank()) return Pair(null, null)
+
+        val cacheKey = "$imdbId-$season-$number"
+        episodeImageCache[cacheKey]?.let { return it }
+
         var tvmazeId: Int? = null
         var originalImage: String? = null
         var mediumImage: String? = null
 
-        if (imdbId != null) {
-            try {
-                // Lookup TVMaze ID from IMDB ID
-                val showLookup = tvMazeService.getShowLookupAsync(imdbId).await()
-                tvmazeId = showLookup.id
-                
-                val episode =
-                    tvMazeService.getEpisodeByNumberAsync(tvmazeId.toString(), season, number).await()
-                
-                originalImage = episode.image?.original ?: showLookup.image?.original
-                mediumImage = episode.image?.medium ?: showLookup.image?.medium
-            } catch (e: Exception) {
-                Timber.d(e)
-                firebaseCrashlytics.recordException(e)
-            }
+        try {
+            // Lookup TVMaze ID from IMDB ID
+            val showLookup = tvMazeService.getShowLookupAsync(imdbId).await()
+            tvmazeId = showLookup.id
+
+            val episode =
+                tvMazeService.getEpisodeByNumberAsync(tvmazeId.toString(), season, number).await()
+
+            originalImage = episode.image?.original ?: showLookup.image?.original
+            mediumImage = episode.image?.medium ?: showLookup.image?.medium
+        } catch (e: Exception) {
+            Timber.d(e)
+            firebaseCrashlytics.recordException(e)
         }
-        return Pair(originalImage ?: mediumImage, tvmazeId)
+        val result = Pair(originalImage ?: mediumImage, tvmazeId)
+        if (result.first != null || result.second != null) {
+            episodeImageCache[cacheKey] = result
+        }
+        return result
     }
 
     /**

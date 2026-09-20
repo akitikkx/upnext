@@ -280,4 +280,60 @@ class TraktAccountDataSourceTest {
         assertEquals(40.0f, items?.get(1)?.progress) // 4 completed out of 10 aired = 40%
         }
     }
+
+    @Test
+    fun `getTraktMySchedule with raw token passes formatted Bearer token`() {
+        runBlocking {
+            val mockSchedule = NetworkTraktMyScheduleResponse()
+            whenever(traktService.getMyCalendarAsync(eq("Bearer test_token"), any(), any()))
+                .thenReturn(CompletableDeferred(mockSchedule))
+
+            val result = dataSource.getTraktMySchedule("test_token", "2026-09-20", 14)
+
+            assertTrue(result.isSuccess)
+            verify(traktService).getMyCalendarAsync("Bearer test_token", "2026-09-20", 14)
+        }
+    }
+
+    @Test
+    fun `getTraktMySchedule with Bearer token does not duplicate Bearer prefix`() {
+        runBlocking {
+            val mockSchedule = NetworkTraktMyScheduleResponse()
+            whenever(traktService.getMyCalendarAsync(eq("Bearer test_token"), any(), any()))
+                .thenReturn(CompletableDeferred(mockSchedule))
+
+            val result = dataSource.getTraktMySchedule("Bearer test_token", "2026-09-20", 14)
+
+            assertTrue(result.isSuccess)
+            verify(traktService).getMyCalendarAsync("Bearer test_token", "2026-09-20", 14)
+        }
+    }
+
+    @Test
+    fun `getTraktRecommendations with raw token passes formatted Bearer token`() {
+        runBlocking {
+            val mockRecommendations = NetworkTraktRecommendationsResponse()
+            whenever(traktService.getRecommendationsAsync(eq("Bearer test_token"), any(), any()))
+                .thenReturn(CompletableDeferred(mockRecommendations))
+
+            val result = dataSource.getTraktRecommendations("test_token")
+
+            assertTrue(result.isSuccess)
+            verify(traktService).getRecommendationsAsync(token = "Bearer test_token", limit = 20, extended = "full")
+        }
+    }
+
+    @Test
+    fun `getTraktRecommendations with Bearer token does not duplicate Bearer prefix`() {
+        runBlocking {
+            val mockRecommendations = NetworkTraktRecommendationsResponse()
+            whenever(traktService.getRecommendationsAsync(eq("Bearer test_token"), any(), any()))
+                .thenReturn(CompletableDeferred(mockRecommendations))
+
+            val result = dataSource.getTraktRecommendations("Bearer test_token")
+
+            assertTrue(result.isSuccess)
+            verify(traktService).getRecommendationsAsync(token = "Bearer test_token", limit = 20, extended = "full")
+        }
+    }
 }

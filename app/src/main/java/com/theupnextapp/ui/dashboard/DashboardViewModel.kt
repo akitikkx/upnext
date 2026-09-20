@@ -24,9 +24,6 @@ import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.repository.WatchProgressRepository
 import com.theupnextapp.work.SyncWatchProgressWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -34,6 +31,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -209,9 +207,6 @@ constructor(
 
     fun fetchDashboardData(token: String) {
         val bearerToken = token
-        if (_upNextShows.value == null && !_isLoadingUpNext.value) {
-            fetchUpNextShows(bearerToken)
-        }
         if (_airingSoonShows.value == null && !_isLoadingAiringSoon.value) {
             fetchAiringSoonShows(bearerToken)
         }
@@ -220,6 +215,9 @@ constructor(
         }
         if (_recentHistory.value == null && !_isLoadingHistory.value) {
             fetchRecentHistory(bearerToken)
+        }
+        if (_upNextShows.value == null && !_isLoadingUpNext.value) {
+            fetchUpNextShows(bearerToken)
         }
     }
 
@@ -231,43 +229,41 @@ constructor(
                 if (response.isSuccess) {
                     val shows = response.getOrNull()
                     _upNextShows.value = shows
-                    shows?.let { upNextList ->
-                        val deferredImages =
-                            upNextList.mapNotNull { upNextItem ->
-                                val traktId = upNextItem.show?.ids?.trakt
-                                val imdbId = upNextItem.show?.ids?.imdb
-                                val season = upNextItem.episode?.season
-                                val number = upNextItem.episode?.number
-                                if (traktId != null && imdbId != null) {
-                                    async(Dispatchers.IO.limitedParallelism(5)) {
-                                        try {
-                                            val (url, tvmazeId) =
-                                                if (season != null && number != null) {
-                                                    dashboardRepository.getEpisodeImageAndTvmazeId(
-                                                        imdbId,
-                                                        season,
-                                                        number,
-                                                    )
-                                                } else {
-                                                    dashboardRepository.getShowImageAndTvmazeId(
-                                                        imdbId,
-                                                    )
-                                                }
-                                            val uniqueKey = "$traktId-${season ?: 0}-${number ?: 0}"
-                                            uniqueKey to ExtractedTraktInfo(
-                                                imageUrl = url,
-                                                tvmazeId = tvmazeId,
+                    shows?.forEach { upNextItem ->
+                        val traktId = upNextItem.show?.ids?.trakt
+                        val imdbId = upNextItem.show?.ids?.imdb
+                        val season = upNextItem.episode?.season
+                        val number = upNextItem.episode?.number
+                        if (traktId != null && imdbId != null) {
+                            launch {
+                                try {
+                                    val (url, tvmazeId) =
+                                        if (season != null && number != null) {
+                                            dashboardRepository.getEpisodeImageAndTvmazeId(
+                                                imdbId,
+                                                season,
+                                                number,
                                             )
-                                        } catch (e: Exception) {
-                                            null
+                                        } else {
+                                            dashboardRepository.getShowImageAndTvmazeId(
+                                                imdbId,
+                                            )
                                         }
+                                    val uniqueKey = "$traktId-${season ?: 0}-${number ?: 0}"
+                                    _upNextImages.update { current ->
+                                        current + (
+                                            uniqueKey to
+                                                ExtractedTraktInfo(
+                                                    imageUrl = url,
+                                                    tvmazeId = tvmazeId,
+                                                )
+                                        )
                                     }
-                                } else {
-                                    null
+                                } catch (e: Exception) {
+                                    // Ignored
                                 }
                             }
-                        val newImages = deferredImages.awaitAll().filterNotNull().toMap()
-                        _upNextImages.value = newImages
+                        }
                     }
                 } else {
                     _upNextShows.value = null
@@ -286,7 +282,7 @@ constructor(
             try {
                 val today = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
 
-                val response = traktRepository.getTraktMySchedule("Bearer $bearerToken", today, 14)
+                val response = traktRepository.getTraktMySchedule(bearerToken, today, 14)
                 if (response.isSuccess) {
                     val shows =
                         response.getOrNull()?.let { responseList ->
@@ -296,34 +292,33 @@ constructor(
                             }
                         }
                     _airingSoonShows.value = shows
-                    shows?.let { scheduleList ->
-                        val deferredImages =
-                            scheduleList.mapNotNull { scheduleItem ->
-                                val traktId = scheduleItem.show?.ids?.trakt
-                                val imdbId = scheduleItem.show?.ids?.imdb
-                                val season = scheduleItem.episode?.season
-                                val number = scheduleItem.episode?.number
-                                if (traktId != null && imdbId != null) {
-                                    async(Dispatchers.IO.limitedParallelism(5)) {
-                                        try {
-                                            val (url, tvmazeId) = dashboardRepository.getShowImageAndTvmazeId(
-                                                imdbId,
-                                            )
-                                            val uniqueKey = "$traktId-${season ?: 0}-${number ?: 0}"
-                                            uniqueKey to ExtractedTraktInfo(
-                                                imageUrl = url,
-                                                tvmazeId = tvmazeId,
-                                            )
-                                        } catch (e: Exception) {
-                                            null
-                                        }
+                    shows?.forEach { scheduleItem ->
+                        val traktId = scheduleItem.show?.ids?.trakt
+                        val imdbId = scheduleItem.show?.ids?.imdb
+                        val season = scheduleItem.episode?.season
+                        val number = scheduleItem.episode?.number
+                        if (traktId != null && imdbId != null) {
+                            launch {
+                                try {
+                                    val (url, tvmazeId) =
+                                        dashboardRepository.getShowImageAndTvmazeId(
+                                            imdbId,
+                                        )
+                                    val uniqueKey = "$traktId-${season ?: 0}-${number ?: 0}"
+                                    _airingSoonImages.update { current ->
+                                        current + (
+                                            uniqueKey to
+                                                ExtractedTraktInfo(
+                                                    imageUrl = url,
+                                                    tvmazeId = tvmazeId,
+                                                )
+                                        )
                                     }
-                                } else {
-                                    null
+                                } catch (e: Exception) {
+                                    // Ignored
                                 }
                             }
-                        val newImages = deferredImages.awaitAll().filterNotNull().toMap()
-                        _airingSoonImages.value = newImages
+                        }
                     }
                 } else {
                     _airingSoonShows.value = null
@@ -345,32 +340,31 @@ constructor(
                     val shows = response.getOrNull()
                     _recommendedShows.value = shows
 
-                    shows?.let { recommendedList ->
-                        val deferredImages =
-                            recommendedList.mapNotNull { item ->
-                                val traktId = item.ids?.trakt
-                                val imdbId = item.ids?.imdb
-                                if (traktId != null && imdbId != null) {
-                                    async(Dispatchers.IO.limitedParallelism(5)) {
-                                        try {
-                                            val (url, tvmazeId) = dashboardRepository.getShowImageAndTvmazeId(
-                                                imdbId,
-                                            )
-                                            val uniqueKey = traktId.toString()
-                                            uniqueKey to ExtractedTraktInfo(
-                                                imageUrl = url,
-                                                tvmazeId = tvmazeId,
-                                            )
-                                        } catch (e: Exception) {
-                                            null
-                                        }
+                    shows?.forEach { item ->
+                        val traktId = item.ids?.trakt
+                        val imdbId = item.ids?.imdb
+                        if (traktId != null && imdbId != null) {
+                            launch {
+                                try {
+                                    val (url, tvmazeId) =
+                                        dashboardRepository.getShowImageAndTvmazeId(
+                                            imdbId,
+                                        )
+                                    val uniqueKey = traktId.toString()
+                                    _recommendedShowsImages.update { current ->
+                                        current + (
+                                            uniqueKey to
+                                                ExtractedTraktInfo(
+                                                    imageUrl = url,
+                                                    tvmazeId = tvmazeId,
+                                                )
+                                        )
                                     }
-                                } else {
-                                    null
+                                } catch (e: Exception) {
+                                    // Ignored
                                 }
                             }
-                        val newImages = deferredImages.awaitAll().filterNotNull().toMap()
-                        _recommendedShowsImages.value = newImages
+                        }
                     }
                 } else {
                     _recommendedShows.value = null
@@ -415,42 +409,42 @@ constructor(
                             watchProgressRepository.saveWatchedEpisodes(watchedEpisodes)
                         }
 
-                        val deferredImages =
-                            historyList.mapNotNull { item ->
-                                val traktId = item.show?.ids?.trakt
-                                val imdbId = item.show?.ids?.imdb
-                                if (traktId != null && imdbId != null) {
-                                    async(Dispatchers.IO.limitedParallelism(5)) {
-                                        try {
-                                            val season = item.episode?.season
-                                            val number = item.episode?.number
-                                            val (url, tvmazeId) =
-                                                if (season != null && number != null) {
-                                                    dashboardRepository.getEpisodeImageAndTvmazeId(
-                                                        imdbId,
-                                                        season,
-                                                        number,
+                        historyList.forEach { item ->
+                            val traktId = item.show?.ids?.trakt
+                            val imdbId = item.show?.ids?.imdb
+                            if (traktId != null && imdbId != null) {
+                                launch {
+                                    try {
+                                        val season = item.episode?.season
+                                        val number = item.episode?.number
+                                        val (url, tvmazeId) =
+                                            if (season != null && number != null) {
+                                                dashboardRepository.getEpisodeImageAndTvmazeId(
+                                                    imdbId,
+                                                    season,
+                                                    number,
+                                                )
+                                            } else {
+                                                dashboardRepository.getShowImageAndTvmazeId(
+                                                    imdbId,
+                                                )
+                                            }
+                                        val uniqueKey = "$traktId-${season ?: 0}-${number ?: 0}"
+                                        _historyImages.update { current ->
+                                            current + (
+                                                uniqueKey to
+                                                    ExtractedTraktInfo(
+                                                        imageUrl = url,
+                                                        tvmazeId = tvmazeId,
                                                     )
-                                                } else {
-                                                    dashboardRepository.getShowImageAndTvmazeId(
-                                                        imdbId,
-                                                    )
-                                                }
-                                            val uniqueKey = "$traktId-${season ?: 0}-${number ?: 0}"
-                                            uniqueKey to ExtractedTraktInfo(
-                                                imageUrl = url,
-                                                tvmazeId = tvmazeId,
                                             )
-                                        } catch (e: Exception) {
-                                            null
                                         }
+                                    } catch (e: Exception) {
+                                        // Ignored
                                     }
-                                } else {
-                                    null
                                 }
                             }
-                        val newImages = deferredImages.awaitAll().filterNotNull().toMap()
-                        _historyImages.value = newImages
+                        }
                     }
                 } else {
                     _recentHistory.value = null
@@ -471,31 +465,32 @@ constructor(
                 .onSuccess { response ->
                     _regionalTrendingShows.value = response
 
-                    val deferredImages =
-                        response.mapNotNull { item ->
-                            val traktId = item.traktID
-                            val imdbId = item.imdbID
-                            if (traktId != null && imdbId != null) {
-                                async(Dispatchers.IO.limitedParallelism(5)) {
-                                    try {
-                                        val (url, tvmazeId) = dashboardRepository.getShowImageAndTvmazeId(
+                    response.forEach { item ->
+                        val traktId = item.traktID
+                        val imdbId = item.imdbID
+                        if (traktId != null && imdbId != null) {
+                            launch {
+                                try {
+                                    val (url, tvmazeId) =
+                                        dashboardRepository.getShowImageAndTvmazeId(
                                             imdbId,
                                         )
-                                        val uniqueKey = traktId.toString()
-                                        uniqueKey to ExtractedTraktInfo(
-                                            imageUrl = url,
-                                            tvmazeId = tvmazeId,
+                                    val uniqueKey = traktId.toString()
+                                    _regionalTrendingShowsImages.update { current ->
+                                        current + (
+                                            uniqueKey to
+                                                ExtractedTraktInfo(
+                                                    imageUrl = url,
+                                                    tvmazeId = tvmazeId,
+                                                )
                                         )
-                                    } catch (e: Exception) {
-                                        null
                                     }
+                                } catch (e: Exception) {
+                                    // Ignored
                                 }
-                            } else {
-                                null
                             }
                         }
-                    val newImages = deferredImages.awaitAll().filterNotNull().toMap()
-                    _regionalTrendingShowsImages.value = newImages
+                    }
                 }
                 .onFailure {
                     _regionalTrendingShows.value = emptyList()

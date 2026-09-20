@@ -29,9 +29,15 @@ import com.theupnextapp.domain.TraktMostAnticipated
 import com.theupnextapp.domain.TraktTrendingShows
 import com.theupnextapp.navigation.Destinations
 import com.theupnextapp.network.models.trakt.NetworkTraktHistoryResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleEpisode
 import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponseItem
+import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleShow
+import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleShowIds
 import com.theupnextapp.network.models.trakt.NetworkTraktPlaybackResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktRecommendationsResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktRecommendationsResponseItem
+import com.theupnextapp.network.models.trakt.NetworkTraktRecommendationsResponseItemIds
 import com.theupnextapp.network.models.trakt.NetworkTraktWatchedEpisode
 import com.theupnextapp.network.models.trakt.NetworkTraktWatchedShowIds
 import com.theupnextapp.network.models.trakt.NetworkTraktWatchedShowInfo
@@ -264,5 +270,123 @@ class DashboardScreenTest {
             season = 1,
             number = 2,
         )
+    }
+
+    @Test
+    fun dashboardScreen_whenAiringSoonPopulated_rendersAiringSoonCards() {
+        tokenFlow.value =
+            TraktAccessToken(
+                access_token = "valid_token",
+                created_at = 123456L,
+                expires_in = 3600L,
+                refresh_token = "refresh",
+                scope = "public",
+                token_type = "bearer",
+            )
+        val scheduleItem =
+            NetworkTraktMyScheduleResponseItem(
+                first_aired = "2026-09-21T00:00:00.000Z",
+                episode =
+                    NetworkTraktMyScheduleEpisode(
+                        season = 1,
+                        number = 5,
+                        title = "The Next Episode",
+                        ids = null,
+                    ),
+                show =
+                    NetworkTraktMyScheduleShow(
+                        title = "Slow Horses",
+                        year = 2022,
+                        ids =
+                            NetworkTraktMyScheduleShowIds(
+                                trakt = 300,
+                                slug = "slow-horses",
+                                tvdb = null,
+                                imdb = "tt789",
+                                tmdb = null,
+                            ),
+                    ),
+            )
+        airingSoonShowsFlow.value =
+            NetworkTraktMyScheduleResponse().apply {
+                add(scheduleItem)
+            }
+
+        composeTestRule.setContent {
+            DashboardScreen(
+                onNavigate = {},
+                viewModel = viewModel,
+            )
+        }
+
+        composeTestRule.onNodeWithTag("dashboard_list").performScrollToNode(hasTestTag("airing_soon_card_0"))
+        composeTestRule.onNodeWithTag("airing_soon_card_0").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Slow Horses").assertIsDisplayed()
+    }
+
+    @Test
+    fun dashboardScreen_whenRecommendedPopulated_rendersRecommendedCards() {
+        tokenFlow.value =
+            TraktAccessToken(
+                access_token = "valid_token",
+                created_at = 123456L,
+                expires_in = 3600L,
+                refresh_token = "refresh",
+                scope = "public",
+                token_type = "bearer",
+            )
+        val recommendationItem =
+            NetworkTraktRecommendationsResponseItem(
+                title = "Severance",
+                year = 2022,
+                ids =
+                    NetworkTraktRecommendationsResponseItemIds(
+                        trakt = 100,
+                        slug = "severance",
+                        tvdb = null,
+                        imdb = "tt123",
+                        tmdb = null,
+                        tvmaze = null,
+                    ),
+            )
+        recommendedShowsFlow.value =
+            NetworkTraktRecommendationsResponse().apply {
+                add(recommendationItem)
+            }
+
+        composeTestRule.setContent {
+            DashboardScreen(
+                onNavigate = {},
+                viewModel = viewModel,
+            )
+        }
+
+        composeTestRule.onNodeWithTag("dashboard_list").performScrollToNode(hasTestTag("recommended_card_0"))
+        composeTestRule.onNodeWithTag("recommended_card_0").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Severance").assertIsDisplayed()
+    }
+
+    @Test
+    fun dashboardScreen_whenRecommendedEmpty_rendersEmptyState() {
+        tokenFlow.value =
+            TraktAccessToken(
+                access_token = "valid_token",
+                created_at = 123456L,
+                expires_in = 3600L,
+                refresh_token = "refresh",
+                scope = "public",
+                token_type = "bearer",
+            )
+        recommendedShowsFlow.value = NetworkTraktRecommendationsResponse()
+
+        composeTestRule.setContent {
+            DashboardScreen(
+                onNavigate = {},
+                viewModel = viewModel,
+            )
+        }
+
+        composeTestRule.onNodeWithTag("dashboard_list").performScrollToNode(hasTestTag("recommended_empty_state"))
+        composeTestRule.onNodeWithTag("recommended_empty_state").assertIsDisplayed()
     }
 }

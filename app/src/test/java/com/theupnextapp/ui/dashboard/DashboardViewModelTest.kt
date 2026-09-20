@@ -21,7 +21,11 @@ import com.theupnextapp.CoroutineTestRule
 import com.theupnextapp.domain.ScheduleShow
 import com.theupnextapp.domain.TraktAccessToken
 import com.theupnextapp.network.models.trakt.NetworkTraktHistoryResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleEpisode
 import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponseItem
+import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleShow
+import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleShowIds
 import com.theupnextapp.network.models.trakt.NetworkTraktPlaybackResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktRecommendationsResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktWatchedEpisode
@@ -50,6 +54,7 @@ import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.mockito.kotlin.any
 import org.mockito.kotlin.check
+import org.mockito.kotlin.eq
 import java.util.Locale
 
 @ExperimentalCoroutinesApi
@@ -604,5 +609,53 @@ class DashboardViewModelTest {
             assertNotNull(testViewModel.upNextShows.value)
             assertTrue(testViewModel.upNextShows.value?.isEmpty() == true)
             assertFalse(testViewModel.isLoadingUpNext.value)
+        }
+
+    @Test
+    fun `fetchDashboardData passes clean tokens and populates images progressively`() =
+        runTest {
+            val token = "clean_token_123"
+            val schedule = NetworkTraktMyScheduleResponse().apply {
+                add(
+                    NetworkTraktMyScheduleResponseItem(
+                        first_aired = "2026-09-20T20:00:00.000Z",
+                        episode = NetworkTraktMyScheduleEpisode(
+                            season = 1,
+                            number = 1,
+                            title = "Pilot",
+                            ids = null,
+                        ),
+                        show = NetworkTraktMyScheduleShow(
+                            title = "Severance",
+                            year = 2022,
+                            ids = NetworkTraktMyScheduleShowIds(trakt = 100, slug = "severance", tvdb = 1, imdb = "tt100", tmdb = 1),
+                        ),
+                    ),
+                )
+            }
+            `when`(traktRepository.getTraktMySchedule(eq(token), any(), any()))
+                .thenReturn(Result.success(schedule))
+            `when`(dashboardRepository.getShowImageAndTvmazeId("tt100"))
+                .thenReturn("http://image.png" to 123)
+
+            val testViewModel = DashboardViewModel(
+                traktRepository = traktRepository,
+                dashboardRepository = dashboardRepository,
+                watchProgressRepository = watchProgressRepository,
+                localWorkManager = localWorkManager,
+                firebaseAnalytics = firebaseAnalytics,
+            )
+
+            testViewModel.fetchDashboardData(token)
+            advanceUntilIdle()
+
+            // Verify clean token was passed
+            verify(traktRepository).getTraktMySchedule(eq(token), any(), any())
+            assertEquals(schedule, testViewModel.airingSoonShows.value)
+
+            // Verify progressive image loading populated the image map
+            val uniqueKey = "100-1-1"
+            assertEquals("http://image.png", testViewModel.airingSoonImages.value[uniqueKey]?.imageUrl)
+            assertEquals(123, testViewModel.airingSoonImages.value[uniqueKey]?.tvmazeId)
         }
 }
