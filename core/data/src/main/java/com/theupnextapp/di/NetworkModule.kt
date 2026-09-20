@@ -32,6 +32,7 @@ import com.theupnextapp.common.utils.TmdbLanguageInterceptor
 import com.theupnextapp.common.utils.TraktAuthInterceptor
 import com.theupnextapp.common.utils.TraktAuthenticator
 import com.theupnextapp.common.utils.TraktConnectionInterceptor
+import com.theupnextapp.common.utils.TraktRateLimitInterceptor
 import com.theupnextapp.network.TmdbService
 import com.theupnextapp.network.TraktAuthApi
 import com.theupnextapp.network.TraktNetwork
@@ -147,11 +148,13 @@ object NetworkModule {
         networkClient: OkHttpClient,
         traktAuthInterceptor: TraktAuthInterceptor,
         traktAuthenticator: TraktAuthenticator,
+        traktRateLimitInterceptor: TraktRateLimitInterceptor,
     ): TraktService {
         return Retrofit.Builder()
             .client(
                 networkClient.newBuilder()
                     .authenticator(traktAuthenticator)
+                    .addInterceptor(traktRateLimitInterceptor)
                     .addInterceptor(traktAuthInterceptor)
                     .addInterceptor(TraktConnectionInterceptor())
                     .build(),

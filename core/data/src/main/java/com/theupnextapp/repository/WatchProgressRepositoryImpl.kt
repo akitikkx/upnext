@@ -36,6 +36,7 @@ import com.theupnextapp.network.models.trakt.NetworkTraktSyncHistorySeason
 import com.theupnextapp.network.models.trakt.NetworkTraktSyncHistoryShow
 import com.theupnextapp.network.models.trakt.NetworkTraktSyncHistoryShowIds
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -258,6 +259,10 @@ class WatchProgressRepositoryImpl(
                             SyncStatus.SYNCED.ordinal,
                         )
                     }
+                }
+
+                if (pendingAdd.isNotEmpty() && pendingRemove.isNotEmpty()) {
+                    delay(1000L)
                 }
 
                 if (pendingRemove.isNotEmpty()) {

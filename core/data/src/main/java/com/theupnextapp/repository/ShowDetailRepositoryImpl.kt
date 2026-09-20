@@ -54,6 +54,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import timber.log.Timber
+import java.util.concurrent.ConcurrentHashMap
 
 class ShowDetailRepositoryImpl(
     upnextDao: UpnextDao,
@@ -62,6 +63,8 @@ class ShowDetailRepositoryImpl(
     private val tmdbService: TmdbService,
     private val crashlytics: CrashlyticsHelper,
 ) : BaseRepository(upnextDao = upnextDao, tvMazeService = tvMazeService), ShowDetailRepository {
+    private val episodeDetailsCache = ConcurrentHashMap<String, EpisodeDetail>()
+    private val episodePeopleCache = ConcurrentHashMap<String, EpisodePeople>()
     override fun getShowSummary(showId: Int): Flow<Result<ShowDetailSummary>> {
         return flow {
             emit(Result.Loading(true))
@@ -367,6 +370,13 @@ class ShowDetailRepositoryImpl(
         episodeNumber: Int,
     ): Flow<Result<EpisodeDetail>> {
         return flow {
+            val cacheKey = "$traktId-$seasonNumber-$episodeNumber"
+            val cached = episodeDetailsCache[cacheKey]
+            if (cached != null) {
+                emit(Result.Success(cached))
+                return@flow
+            }
+
             emit(Result.Loading(true))
             val response =
                 safeApiCall(Dispatchers.IO) {
@@ -378,10 +388,11 @@ class ShowDetailRepositoryImpl(
                 }
 
             when (response) {
+                is Result.Success -> episodeDetailsCache[cacheKey] = response.data
                 is Result.NetworkError -> crashlytics.recordException(response.exception)
                 is Result.GenericError -> crashlytics.recordException(response.exception)
                 is Result.Error -> response.exception?.let { crashlytics.recordException(it) }
-                else -> { /* No action for Success or Loading */ }
+                else -> { /* No action for Loading */ }
             }
 
             emit(Result.Loading(false))
@@ -399,6 +410,13 @@ class ShowDetailRepositoryImpl(
         episodeNumber: Int,
     ): Flow<Result<EpisodePeople>> {
         return flow<Result<EpisodePeople>> {
+            val cacheKey = "$traktId-$seasonNumber-$episodeNumber"
+            val cached = episodePeopleCache[cacheKey]
+            if (cached != null) {
+                emit(Result.Success(cached))
+                return@flow
+            }
+
             try {
                 emit(Result.Loading(true))
                 val episodePeople = traktService.getEpisodePeopleAsync(
@@ -465,10 +483,11 @@ class ShowDetailRepositoryImpl(
                     EpisodePeople(
                         cast = updatedCastDeferred?.awaitAll(),
                         guestStars = updatedGuestStarsDeferred?.awaitAll(),
-                        crew = updatedCrewDeferred?.awaitAll()
+                        crew = updatedCrewDeferred?.awaitAll(),
                     )
                 }
-                
+
+                episodePeopleCache[cacheKey] = result
                 emit(Result.Success(result))
                 emit(Result.Loading(false))
             } catch (e: Exception) {
