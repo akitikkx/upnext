@@ -4,6 +4,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.SavedStateHandle
 import androidx.work.WorkManager
 import androidx.work.WorkRequest
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.theupnextapp.CoroutineTestRule
 import com.theupnextapp.common.utils.TraktAuthManager
 import com.theupnextapp.domain.Result
@@ -28,6 +29,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.kotlin.any
+import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
@@ -47,6 +49,7 @@ class ShowSeasonsViewModelTest {
     private val traktRepository: TraktRepository = mock()
     private val traktAuthManager: TraktAuthManager = mock()
     private val savedStateHandle: SavedStateHandle = mock()
+    private val firebaseAnalytics: FirebaseAnalytics = mock()
 
     private lateinit var viewModel: ShowSeasonsViewModel
 
@@ -66,6 +69,7 @@ class ShowSeasonsViewModelTest {
                 localWorkManager = workManager,
                 traktRepository = traktRepository,
                 traktAuthManager = traktAuthManager,
+                firebaseAnalytics = firebaseAnalytics,
             )
     }
 
@@ -119,6 +123,7 @@ class ShowSeasonsViewModelTest {
             )
 
             verify(workManager).enqueue(any<WorkRequest>())
+            verify(firebaseAnalytics).logEvent(eq("season_batch_toggle_watched"), any())
         }
 
     @Test
@@ -186,6 +191,7 @@ class ShowSeasonsViewModelTest {
             )
 
             verify(workManager).enqueue(any<WorkRequest>())
+            verify(firebaseAnalytics).logEvent(eq("season_batch_toggle_watched"), any())
         }
 
     @Test

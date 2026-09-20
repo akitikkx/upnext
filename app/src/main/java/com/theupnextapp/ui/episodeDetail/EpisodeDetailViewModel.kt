@@ -14,6 +14,11 @@ package com.theupnextapp.ui.episodeDetail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.Data
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.logEvent
 import com.theupnextapp.domain.EpisodeDetail
 import com.theupnextapp.domain.EpisodePeople
 import com.theupnextapp.domain.Result
@@ -21,6 +26,8 @@ import com.theupnextapp.domain.TraktCheckInStatus
 import com.theupnextapp.navigation.Destinations
 import com.theupnextapp.repository.ShowDetailRepository
 import com.theupnextapp.repository.TraktRepository
+import com.theupnextapp.repository.WatchProgressRepository
+import com.theupnextapp.work.SyncWatchProgressWorker
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -28,7 +35,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @HiltViewModel(assistedFactory = EpisodeDetailViewModel.Factory::class)
 class EpisodeDetailViewModel
@@ -37,6 +46,9 @@ class EpisodeDetailViewModel
         @Assisted val route: Destinations.EpisodeDetail,
         private val showDetailRepository: ShowDetailRepository,
         private val traktRepository: TraktRepository,
+        private val watchProgressRepository: WatchProgressRepository,
+        private val workManager: WorkManager,
+        private val firebaseAnalytics: FirebaseAnalytics,
     ) : ViewModel() {
 
         @AssistedFactory
@@ -44,7 +56,29 @@ class EpisodeDetailViewModel
             fun create(route: Destinations.EpisodeDetail): EpisodeDetailViewModel
         }
 
-        private val _uiState = MutableStateFlow(EpisodeDetailState())
+        private val _uiState =
+            MutableStateFlow(
+                EpisodeDetailState(
+                    isLoading = true,
+                    isPeopleLoading = true,
+                    isAuthorizedOnTrakt = route.isAuthorizedOnTrakt ?: false,
+                    isWatched = route.isWatched ?: false,
+                    episodeDetail =
+                        EpisodeDetail(
+                            title = null,
+                            overview = null,
+                            season = route.seasonNumber,
+                            number = route.episodeNumber,
+                            firstAired = null,
+                            runtime = null,
+                            rating = null,
+                            tvdbId = null,
+                            imdbId = route.imdbID,
+                            tmdbId = null,
+                            votes = null,
+                        ),
+                ),
+            )
         val uiState: StateFlow<EpisodeDetailState> = _uiState.asStateFlow()
 
         init {
@@ -52,6 +86,8 @@ class EpisodeDetailViewModel
             getEpisodePeople()
             observeCheckInStatus()
             observeTraktAuthorization()
+            observeWatchedEpisodes()
+            refreshWatchedFromTrakt()
         }
 
         private fun getEpisodeDetails() {
@@ -133,6 +169,12 @@ class EpisodeDetailViewModel
         fun onCheckIn() {
             viewModelScope.launch {
                 _uiState.value = _uiState.value.copy(isCheckingIn = true)
+                firebaseAnalytics.logEvent("episode_check_in") {
+                    param("show_trakt_id", route.showTraktId.toLong())
+                    param("season_number", route.seasonNumber.toLong())
+                    param("episode_number", route.episodeNumber.toLong())
+                    param("action", "check_in")
+                }
                 traktRepository.checkInToShow(
                     showTraktId = route.showTraktId,
                     seasonNumber = route.seasonNumber,
@@ -144,6 +186,12 @@ class EpisodeDetailViewModel
         fun onCancelCheckIn() {
             viewModelScope.launch {
                 _uiState.value = _uiState.value.copy(isCheckingIn = true)
+                firebaseAnalytics.logEvent("episode_check_in") {
+                    param("show_trakt_id", route.showTraktId.toLong())
+                    param("season_number", route.seasonNumber.toLong())
+                    param("episode_number", route.episodeNumber.toLong())
+                    param("action", "cancel")
+                }
                 traktRepository.cancelCheckIn()
             }
         }
@@ -171,6 +219,84 @@ class EpisodeDetailViewModel
 
         fun clearCheckInStatus() {
             _uiState.value = _uiState.value.copy(checkInStatus = null)
+        }
+
+        private fun observeWatchedEpisodes() {
+            viewModelScope.launch {
+                watchProgressRepository.getWatchedEpisodesForShow(route.showTraktId).collect { watchedList ->
+                    if (watchedList.isNotEmpty() || route.isWatched == null) {
+                        val isWatched =
+                            watchedList.any {
+                                it.seasonNumber == route.seasonNumber && it.episodeNumber == currentEpisodeNumber
+                            }
+                        _uiState.value = _uiState.value.copy(isWatched = isWatched)
+                    }
+                }
+            }
+        }
+
+        private fun refreshWatchedFromTrakt() {
+            viewModelScope.launch {
+                traktRepository.traktAccessToken.firstOrNull()?.access_token?.let { token ->
+                    try {
+                        watchProgressRepository.refreshWatchedFromTrakt(
+                            token = token,
+                            showTraktId = route.showTraktId,
+                        )
+                    } catch (e: Exception) {
+                        Timber.w(e, "Failed to refresh watched state from Trakt, using local cache")
+                    }
+                }
+            }
+        }
+
+        fun onToggleWatched() {
+            if (!_uiState.value.isAuthorizedOnTrakt) return
+            val targetWatchedState = !_uiState.value.isWatched
+            _uiState.value = _uiState.value.copy(isWatched = targetWatchedState)
+
+            firebaseAnalytics.logEvent("episode_toggle_watched") {
+                param("show_trakt_id", route.showTraktId.toLong())
+                param("season_number", route.seasonNumber.toLong())
+                param("episode_number", currentEpisodeNumber.toLong())
+                param("is_watched", targetWatchedState.toString())
+                param("source", "episode_detail")
+            }
+
+            viewModelScope.launch {
+                if (!targetWatchedState) {
+                    watchProgressRepository.markEpisodeUnwatched(
+                        showTraktId = route.showTraktId,
+                        seasonNumber = route.seasonNumber,
+                        episodeNumber = currentEpisodeNumber,
+                    )
+                } else {
+                    watchProgressRepository.markEpisodeWatched(
+                        showTraktId = route.showTraktId,
+                        showTvMazeId = route.showId,
+                        showImdbId = route.imdbID,
+                        seasonNumber = route.seasonNumber,
+                        episodeNumber = currentEpisodeNumber,
+                    )
+                }
+
+                triggerSyncIfAuthenticated()
+            }
+        }
+
+        private fun triggerSyncIfAuthenticated() {
+            viewModelScope.launch {
+                traktRepository.traktAccessToken.firstOrNull()?.access_token?.let { token ->
+                    val syncWork =
+                        OneTimeWorkRequestBuilder<SyncWatchProgressWorker>()
+                            .setInputData(
+                                Data.Builder()
+                                    .putString(SyncWatchProgressWorker.ARG_TOKEN, token)
+                                    .build(),
+                            ).build()
+                    workManager.enqueue(syncWork)
+                }
+            }
         }
 
         val currentEpisodeNumber: Int
@@ -201,6 +327,8 @@ data class EpisodeDetailState(
     val isCheckingIn: Boolean = false,
     val isCheckInSuccessful: Boolean = false,
     val isAuthorizedOnTrakt: Boolean = false,
+    val isWatched: Boolean = false,
+    val isWatchedLoading: Boolean = false,
     val episodeDetail: EpisodeDetail? = null,
     val episodePeople: EpisodePeople? = null,
     val checkInStatus: TraktCheckInStatus? = null,

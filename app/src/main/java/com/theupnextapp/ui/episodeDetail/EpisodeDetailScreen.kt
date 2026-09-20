@@ -12,7 +12,8 @@
 
 package com.theupnextapp.ui.episodeDetail
 
-import android.text.format.DateUtils
+import android.content.Context
+import androidx.activity.compose.ReportDrawnWhen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -40,8 +41,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -79,6 +82,7 @@ import coil.compose.AsyncImage
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import com.theupnextapp.R
+import com.theupnextapp.common.utils.DateUtils
 import com.theupnextapp.core.designsystem.ui.components.CastMember
 import com.theupnextapp.domain.EpisodeDetail
 import com.theupnextapp.domain.EpisodeDetailArg
@@ -124,6 +128,10 @@ fun EpisodeDetailScreen(
     val uriHandler = LocalUriHandler.current
     val snackbarHostState = remember { SnackbarHostState() }
 
+    ReportDrawnWhen {
+        uiState.episodeDetail?.title != null || uiState.isLoading == false
+    }
+
     LaunchedEffect(uiState.checkInStatus) {
         uiState.checkInStatus?.message?.let { message ->
             snackbarHostState.showSnackbar(message)
@@ -150,10 +158,7 @@ fun EpisodeDetailScreen(
                         .padding(top = paddingValues.calculateTopPadding()),
             ) {
                 when {
-                    uiState.isLoading -> {
-                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                    }
-                    uiState.error != null -> {
+                    uiState.error != null && uiState.episodeDetail?.title == null -> {
                         Text(
                             text = stringResource(R.string.error_fetching_episode_details),
                             color = MaterialTheme.colorScheme.error,
@@ -174,9 +179,11 @@ fun EpisodeDetailScreen(
                                 episodeDetailArg = episodeDetailArg,
                                 episodeDetail = uiState.episodeDetail,
                                 uriHandler = uriHandler,
+                                isLoading = uiState.isLoading,
                                 isCheckingIn = uiState.isCheckingIn,
                                 isCheckInSuccessful = uiState.isCheckInSuccessful,
                                 isAuthorizedOnTrakt = uiState.isAuthorizedOnTrakt,
+                                isWatched = uiState.isWatched,
                                 canNavigatePrevious = viewModel.canNavigatePrevious,
                                 canNavigateNext = true,
                                 onPreviousEpisodeClick = {
@@ -187,6 +194,7 @@ fun EpisodeDetailScreen(
                                 },
                                 onCheckInClick = { viewModel.onCheckIn() },
                                 onCancelCheckInClick = { viewModel.onCancelCheckIn() },
+                                onToggleWatchedClick = { viewModel.onToggleWatched() },
                                 onNavigateToShowDetail = onNavigateToShowDetail,
                             )
 
@@ -258,18 +266,13 @@ fun EpisodeDetailScreen(
     }
 }
 
-private fun formatRelativeDate(context: android.content.Context, dateString: String): String {
+private fun formatRelativeDate(context: Context, dateString: String): String {
     return try {
         val zonedDateTime = ZonedDateTime.parse(dateString, DateTimeFormatter.ISO_ZONED_DATE_TIME)
         val timeMillis = zonedDateTime.toInstant().toEpochMilli()
         val formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
         val formattedDate = zonedDateTime.format(formatter)
-        val relativeTime =
-            DateUtils.getRelativeTimeSpanString(
-                timeMillis,
-                System.currentTimeMillis(),
-                DateUtils.DAY_IN_MILLIS,
-            ).toString()
+        val relativeTime = DateUtils.getRelativeTimeSpanString(timeMillis).toString()
         if (relativeTime == formattedDate) {
             context.getString(R.string.episode_detail_aired_date, formattedDate)
         } else {
@@ -448,15 +451,18 @@ fun EpisodeSummaryCard(
     episodeDetailArg: EpisodeDetailArg?,
     episodeDetail: EpisodeDetail?,
     uriHandler: UriHandler,
+    isLoading: Boolean = false,
     isCheckingIn: Boolean,
     isCheckInSuccessful: Boolean,
     isAuthorizedOnTrakt: Boolean,
+    isWatched: Boolean = false,
     canNavigatePrevious: Boolean = false,
     canNavigateNext: Boolean = false,
     onPreviousEpisodeClick: () -> Unit = {},
     onNextEpisodeClick: () -> Unit = {},
     onCheckInClick: () -> Unit,
     onCancelCheckInClick: () -> Unit,
+    onToggleWatchedClick: () -> Unit = {},
     onNavigateToShowDetail: (EpisodeDetailArg) -> Unit = {},
 ) {
     ElevatedCard(
@@ -484,11 +490,25 @@ fun EpisodeSummaryCard(
                 )
             }
 
-            Text(
-                text = episodeDetail?.title ?: stringResource(id = R.string.title_unknown),
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-            )
+            if (isLoading && episodeDetail?.title.isNullOrEmpty()) {
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth(0.7f)
+                            .height(28.dp)
+                            .shimmer()
+                            .background(
+                                color = MaterialTheme.colorScheme.surfaceVariant,
+                                shape = MaterialTheme.shapes.small,
+                            ),
+                )
+            } else {
+                Text(
+                    text = episodeDetail?.title ?: stringResource(id = R.string.title_unknown),
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -496,10 +516,15 @@ fun EpisodeSummaryCard(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = stringResource(id = R.string.episode_detail_season_episode, episodeDetail?.season?.toString() ?: "", episodeDetail?.number?.toString() ?: ""),
+                    text =
+                        stringResource(
+                            id = R.string.episode_detail_season_episode,
+                            episodeDetail?.season?.toString() ?: episodeDetailArg?.seasonNumber?.toString() ?: "",
+                            episodeDetail?.number?.toString() ?: episodeDetailArg?.episodeNumber?.toString() ?: "",
+                        ),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.secondary,
-                    modifier = Modifier.weight(1f).padding(end = 8.dp)
+                    modifier = Modifier.weight(1f).padding(end = 8.dp),
                 )
 
                 if (episodeDetail?.rating != null && episodeDetail.rating!! > 0.0) {
@@ -587,57 +612,173 @@ fun EpisodeSummaryCard(
             Spacer(modifier = Modifier.height(16.dp))
 
             if (isAuthorizedOnTrakt) {
-                if (isCheckInSuccessful) {
-                    OutlinedButton(
-                        onClick = onCancelCheckInClick,
-                        modifier = Modifier.fillMaxWidth().height(48.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
-                    ) {
-                        if (isCheckingIn) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.height(24.dp).width(24.dp),
-                                color = MaterialTheme.colorScheme.error,
-                                strokeWidth = 2.dp,
-                            )
-                        } else {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    imageVector = Icons.Default.Check,
-                                    contentDescription = stringResource(id = R.string.show_detail_show_season_episode_trakt_check_in),
-                                    modifier = Modifier.padding(end = 8.dp),
-                                )
-                                Text(stringResource(id = R.string.episode_detail_cancel_checkin))
-                            }
-                        }
-                    }
-                } else {
-                    Button(
-                        onClick = onCheckInClick,
-                        modifier = Modifier.fillMaxWidth().height(48.dp),
-                        enabled = !isCheckingIn,
-                    ) {
-                        if (isCheckingIn) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.height(24.dp).width(24.dp),
-                                color = MaterialTheme.colorScheme.onPrimary,
-                                strokeWidth = 2.dp,
-                            )
-                        } else {
-                            Text(stringResource(id = R.string.episode_detail_checkin))
-                        }
-                    }
-                }
+                EpisodeTraktActions(
+                    isWatched = isWatched,
+                    isCheckingIn = isCheckingIn,
+                    isCheckInSuccessful = isCheckInSuccessful,
+                    onToggleWatchedClick = onToggleWatchedClick,
+                    onCheckInClick = onCheckInClick,
+                    onCancelCheckInClick = onCancelCheckInClick,
+                )
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
-            Text(
-                text = stringResource(id = R.string.episode_detail_overview),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
+            EpisodeOverviewSection(
+                overview = episodeDetail?.overview,
+                isLoading = isLoading,
             )
+        }
+    }
+}
 
+@Composable
+fun EpisodeTraktActions(
+    isWatched: Boolean,
+    isCheckingIn: Boolean,
+    isCheckInSuccessful: Boolean,
+    onToggleWatchedClick: () -> Unit,
+    onCheckInClick: () -> Unit,
+    onCancelCheckInClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        if (isWatched) {
+            Button(
+                onClick = onToggleWatchedClick,
+                modifier = Modifier.fillMaxWidth().height(48.dp),
+                colors =
+                    ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    ),
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Filled.CheckCircle,
+                        contentDescription = stringResource(id = R.string.episode_mark_unwatched),
+                        modifier = Modifier.size(20.dp),
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(stringResource(id = R.string.episode_watched))
+                }
+            }
+        } else {
+            OutlinedButton(
+                onClick = onToggleWatchedClick,
+                modifier = Modifier.fillMaxWidth().height(48.dp),
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Outlined.CheckCircle,
+                        contentDescription = stringResource(id = R.string.episode_mark_watched),
+                        modifier = Modifier.size(20.dp),
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(stringResource(id = R.string.episode_mark_watched))
+                }
+            }
+        }
+
+        if (isCheckInSuccessful) {
+            OutlinedButton(
+                onClick = onCancelCheckInClick,
+                modifier = Modifier.fillMaxWidth().height(48.dp),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
+            ) {
+                if (isCheckingIn) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.height(24.dp).width(24.dp),
+                        color = MaterialTheme.colorScheme.error,
+                        strokeWidth = 2.dp,
+                    )
+                } else {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = stringResource(id = R.string.show_detail_show_season_episode_trakt_check_in),
+                            modifier = Modifier.padding(end = 8.dp),
+                        )
+                        Text(stringResource(id = R.string.episode_detail_cancel_checkin))
+                    }
+                }
+            }
+        } else {
+            Button(
+                onClick = onCheckInClick,
+                modifier = Modifier.fillMaxWidth().height(48.dp),
+                enabled = !isCheckingIn,
+            ) {
+                if (isCheckingIn) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.height(24.dp).width(24.dp),
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        strokeWidth = 2.dp,
+                    )
+                } else {
+                    Text(stringResource(id = R.string.episode_detail_checkin))
+                }
+            }
+        }
+    }
+}
+
+@Suppress("MagicNumber")
+@Composable
+fun EpisodeOverviewSection(
+    overview: String?,
+    isLoading: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Text(
+            text = stringResource(id = R.string.episode_detail_overview),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold,
+        )
+
+        if (isLoading && overview.isNullOrEmpty()) {
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(16.dp)
+                        .shimmer()
+                        .background(
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            shape = MaterialTheme.shapes.small,
+                        ),
+            )
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxWidth(0.9f)
+                        .height(16.dp)
+                        .shimmer()
+                        .background(
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            shape = MaterialTheme.shapes.small,
+                        ),
+            )
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxWidth(0.6f)
+                        .height(16.dp)
+                        .shimmer()
+                        .background(
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            shape = MaterialTheme.shapes.small,
+                        ),
+            )
+        } else {
             Text(
-                text = episodeDetail?.overview ?: stringResource(id = R.string.no_overview_available),
+                text = overview ?: stringResource(id = R.string.no_overview_available),
                 style = MaterialTheme.typography.bodyLarge,
                 lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * 1.5f,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,

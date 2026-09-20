@@ -211,4 +211,90 @@ class EpisodeSummaryCardTest {
 
         composeTestRule.onNodeWithText("Next").assertIsNotEnabled()
     }
+
+    @Test
+    fun episodeSummaryCard_unauthorizedUser_watchedButtonHidden() {
+        composeTestRule.setContent {
+            val uriHandler = LocalUriHandler.current
+            EpisodeSummaryCard(
+                episodeDetailArg = mockEpisodeDetailArg,
+                episodeDetail = mockEpisodeDetail,
+                uriHandler = uriHandler,
+                isCheckingIn = false,
+                isCheckInSuccessful = false,
+                isAuthorizedOnTrakt = false,
+                isWatched = false,
+                onCheckInClick = {},
+                onCancelCheckInClick = {},
+            )
+        }
+
+        composeTestRule.onNodeWithText("Mark as watched").assertDoesNotExist()
+        composeTestRule.onNodeWithText("Watched").assertDoesNotExist()
+    }
+
+    @Test
+    fun episodeSummaryCard_authorizedUser_unwatchedState_markAsWatchedButtonVisible() {
+        composeTestRule.setContent {
+            val uriHandler = LocalUriHandler.current
+            EpisodeSummaryCard(
+                episodeDetailArg = mockEpisodeDetailArg,
+                episodeDetail = mockEpisodeDetail,
+                uriHandler = uriHandler,
+                isCheckingIn = false,
+                isCheckInSuccessful = false,
+                isAuthorizedOnTrakt = true,
+                isWatched = false,
+                onCheckInClick = {},
+                onCancelCheckInClick = {},
+            )
+        }
+
+        composeTestRule.onNodeWithText("Mark as watched").assertExists()
+        composeTestRule.onNodeWithText("Watched").assertDoesNotExist()
+    }
+
+    @Test
+    fun episodeSummaryCard_authorizedUser_watchedState_watchedButtonVisible() {
+        composeTestRule.setContent {
+            val uriHandler = LocalUriHandler.current
+            EpisodeSummaryCard(
+                episodeDetailArg = mockEpisodeDetailArg,
+                episodeDetail = mockEpisodeDetail,
+                uriHandler = uriHandler,
+                isCheckingIn = false,
+                isCheckInSuccessful = false,
+                isAuthorizedOnTrakt = true,
+                isWatched = true,
+                onCheckInClick = {},
+                onCancelCheckInClick = {},
+            )
+        }
+
+        composeTestRule.onNodeWithText("Watched").assertExists()
+        composeTestRule.onNodeWithText("Mark as watched").assertDoesNotExist()
+    }
+
+    @Test
+    fun episodeSummaryCard_clickToggleWatched_triggersCallback() {
+        var clicked = false
+        composeTestRule.setContent {
+            val uriHandler = LocalUriHandler.current
+            EpisodeSummaryCard(
+                episodeDetailArg = mockEpisodeDetailArg,
+                episodeDetail = mockEpisodeDetail,
+                uriHandler = uriHandler,
+                isCheckingIn = false,
+                isCheckInSuccessful = false,
+                isAuthorizedOnTrakt = true,
+                isWatched = false,
+                onCheckInClick = {},
+                onCancelCheckInClick = {},
+                onToggleWatchedClick = { clicked = true },
+            )
+        }
+
+        composeTestRule.onNodeWithText("Mark as watched").performClick()
+        assertTrue(clicked)
+    }
 }

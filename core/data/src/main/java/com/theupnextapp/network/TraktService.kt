@@ -230,6 +230,7 @@ interface TraktService {
     @GET("sync/watched/shows")
     fun getWatchedShowsAsync(
         @Header("Authorization") token: String,
+        @Query("extended") extended: String = "full,progress",
     ): Deferred<List<NetworkTraktWatchedShowsResponse>>
 
     @GET("sync/playback/episodes")

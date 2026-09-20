@@ -34,12 +34,14 @@ import com.theupnextapp.domain.ShowDetailSummary
 import com.theupnextapp.domain.TraktAccessToken
 import com.theupnextapp.domain.TraktAuthState
 import com.theupnextapp.domain.TraktRelatedShows
+import com.theupnextapp.domain.TraktUserListItem
 import com.theupnextapp.repository.fakes.FakeShowDetailRepository
 import com.theupnextapp.repository.fakes.FakeTraktRepository
 import com.theupnextapp.work.AddToWatchlistWorker
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -48,6 +50,8 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.mockito.kotlin.any
+import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.timeout
 import org.mockito.kotlin.verify
@@ -248,6 +252,7 @@ class ShowDetailViewModelTest {
             assertEquals("TMDB ID should match", 123, inputData.getInt(AddToWatchlistWorker.ARG_TMDB_ID, -1))
             assertEquals("Year should match", "2024", inputData.getString(AddToWatchlistWorker.ARG_YEAR))
             assertEquals("Network should match", "ABC", inputData.getString(AddToWatchlistWorker.ARG_NETWORK))
+            verify(firebaseAnalytics).logEvent(eq("watchlist_toggle"), any())
         }
 
     @Test
@@ -552,5 +557,57 @@ class ShowDetailViewModelTest {
             assertEquals("https://example.com/backdrop2.jpg", state.showSummary?.originalImageUrl)
             assertEquals(202, state.showSummary?.id)
             assertEquals("tt202", state.showSummary?.imdbID)
+        }
+
+    @Test
+    fun `isWatchlistShow emits true when show is in watchlist and false when not`() =
+        runTest {
+            val imdbId = "tt12345"
+            val showDetailArg =
+                ShowDetailArg(
+                    showId = "123",
+                    showTitle = "Test Show",
+                    showImageUrl = null,
+                    showBackgroundUrl = null,
+                    imdbID = imdbId,
+                    isAuthorizedOnTrakt = true,
+                    showTraktId = 1,
+                )
+
+            val currentSummary = (showDetailRepository.showSummaryResult as Result.Success).data
+            showDetailRepository.showSummaryResult = Result.Success(currentSummary.copy(imdbID = imdbId))
+
+            viewModel.selectedShow(showDetailArg)
+
+            val job = launch { viewModel.isWatchlistShow.collect {} }
+            kotlinx.coroutines.delay(100)
+
+            // Initially not in watchlist
+            assertFalse(viewModel.isWatchlistShow.value)
+
+            // When watchlist emitted
+            val mockWatchlistShow =
+                TraktUserListItem(
+                    id = 1,
+                    traktID = 1,
+                    imdbID = imdbId,
+                    title = "Test Show",
+                    slug = "test-show",
+                    originalImageUrl = null,
+                    mediumImageUrl = null,
+                    tmdbID = 1,
+                    tvdbID = 1,
+                    tvMazeID = 123,
+                    year = "2024",
+                    rating = null,
+                    network = null,
+                    status = null,
+                )
+            traktRepository.watchlistShowFlowMap.getOrPut(imdbId) { MutableStateFlow(null) }.value = mockWatchlistShow
+            kotlinx.coroutines.delay(100)
+
+            assertTrue(viewModel.isWatchlistShow.value)
+
+            job.cancel()
         }
 }

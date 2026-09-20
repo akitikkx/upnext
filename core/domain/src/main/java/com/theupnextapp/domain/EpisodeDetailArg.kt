@@ -35,6 +35,7 @@ data class EpisodeDetailArg(
     val showImageUrl: String? = null,
     val showBackgroundUrl: String? = null,
     val episodeImageUrl: String? = null,
+    val isWatched: Boolean? = null,
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readInt(),
@@ -46,7 +47,8 @@ data class EpisodeDetailArg(
         parcel.readValue(Boolean::class.java.classLoader) as? Boolean,
         parcel.readString(),
         parcel.readString(),
-        parcel.readString()
+        parcel.readString(),
+        parcel.readValue(Boolean::class.java.classLoader) as? Boolean,
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -60,6 +62,7 @@ data class EpisodeDetailArg(
         parcel.writeString(showImageUrl)
         parcel.writeString(showBackgroundUrl)
         parcel.writeString(episodeImageUrl)
+        parcel.writeValue(isWatched)
     }
 
     override fun describeContents(): Int = 0

@@ -193,7 +193,9 @@ class FakeTraktRepository : TraktRepository {
 
     override suspend fun checkIfShowIsOnWatchlist(imdbID: String?) {}
 
-    override fun getWatchlistShowFlow(imdbID: String): Flow<TraktUserListItem?> = flowOf(null)
+    val watchlistShowFlowMap = mutableMapOf<String, MutableStateFlow<TraktUserListItem?>>()
+    override fun getWatchlistShowFlow(imdbID: String): Flow<TraktUserListItem?> =
+        watchlistShowFlowMap.getOrPut(imdbID) { MutableStateFlow(null) }
 
     override suspend fun removeShowFromFavorites(
         traktId: Int,

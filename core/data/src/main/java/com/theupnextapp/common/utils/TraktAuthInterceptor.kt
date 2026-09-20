@@ -41,16 +41,27 @@ constructor(
         val path = originalRequest.url.encodedPath
         val token = traktDao.getTraktAccessDataRaw()
         val accessToken = token?.access_token
+        val authHeader = originalRequest.header("Authorization")
 
         // In DEBUG mode with a test harness mock token, short-circuit private Trakt endpoints
         // with mock 200 JSON responses so automated E2E tests do not transmit invalid fake tokens
         // to live Trakt servers (which would trigger 401 and purge the test session).
-        if (BuildConfig.DEBUG && accessToken?.startsWith("mock_") == true) {
+        val isMock =
+            BuildConfig.DEBUG &&
+                (accessToken?.startsWith("mock_") == true || authHeader?.contains("mock_") == true)
+
+        if (isMock) {
             if (isPrivateEndpoint(path)) {
                 return createMockResponse(originalRequest, path)
             }
             // For public endpoints during mock tests, do not attach the fake token.
-            return chain.proceed(originalRequest)
+            return chain.proceed(
+                if (authHeader != null) {
+                    originalRequest.newBuilder().removeHeader("Authorization").build()
+                } else {
+                    originalRequest
+                },
+            )
         }
 
         val builder = originalRequest.newBuilder()

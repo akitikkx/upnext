@@ -13,6 +13,7 @@ import com.theupnextapp.domain.ScheduleShow
 import com.theupnextapp.domain.TraktAccessToken
 import com.theupnextapp.domain.TraktMostAnticipated
 import com.theupnextapp.domain.TraktTrendingShows
+import com.theupnextapp.domain.WatchedEpisode
 import com.theupnextapp.network.models.trakt.NetworkTraktHistoryResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktRecommendationsResponse
@@ -322,6 +323,29 @@ constructor(
                     val items = response.getOrNull()
                     _recentHistory.value = items
                     items?.let { historyList ->
+                        val watchedEpisodes =
+                            historyList.mapNotNull { item ->
+                                val traktId = item.show?.ids?.trakt
+                                val season = item.episode?.season
+                                val number = item.episode?.number
+                                if (traktId != null && season != null && number != null) {
+                                    WatchedEpisode(
+                                        showTraktId = traktId,
+                                        showTvMazeId = null,
+                                        showImdbId = item.show?.ids?.imdb,
+                                        seasonNumber = season,
+                                        episodeNumber = number,
+                                        watchedAt = System.currentTimeMillis(),
+                                        isSynced = true,
+                                    )
+                                } else {
+                                    null
+                                }
+                            }
+                        if (watchedEpisodes.isNotEmpty()) {
+                            watchProgressRepository.saveWatchedEpisodes(watchedEpisodes)
+                        }
+
                         val deferredImages =
                             historyList.mapNotNull { item ->
                                 val traktId = item.show?.ids?.trakt

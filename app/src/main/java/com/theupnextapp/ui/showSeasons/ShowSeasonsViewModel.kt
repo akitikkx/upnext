@@ -26,6 +26,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.logEvent
 import com.theupnextapp.common.utils.TraktAuthManager
 import com.theupnextapp.domain.Result
 import com.theupnextapp.domain.ShowDetailArg
@@ -55,6 +57,7 @@ class ShowSeasonsViewModel
         private val localWorkManager: WorkManager,
         private val traktRepository: TraktRepository,
         val traktAuthManager: TraktAuthManager,
+        private val firebaseAnalytics: FirebaseAnalytics,
     ) : BaseTraktViewModel(
             traktRepository,
             localWorkManager,
@@ -120,14 +123,21 @@ class ShowSeasonsViewModel
             val seasonNum = season.seasonNumber ?: return
 
             val isCurrentlyWatched = season.isWatched == true
+            val targetWatchedState = !isCurrentlyWatched
             _showSeasons.value =
                 _showSeasons.value?.map {
                     if (it.seasonNumber == seasonNum) {
-                        it.copy(isWatched = !isCurrentlyWatched)
+                        it.copy(isWatched = targetWatchedState)
                     } else {
                         it
                     }
                 }
+
+            firebaseAnalytics.logEvent("season_batch_toggle_watched") {
+                param("show_trakt_id", showTraktId.toLong())
+                param("season_number", seasonNum.toLong())
+                param("is_watched", targetWatchedState.toString())
+            }
 
             viewModelScope.launch {
                 if (isCurrentlyWatched) {

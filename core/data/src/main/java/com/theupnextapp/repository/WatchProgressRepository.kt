@@ -77,4 +77,6 @@ interface WatchProgressRepository {
         token: String,
         showTraktId: Int? = null,
     ): Result<Unit>
+
+    suspend fun saveWatchedEpisodes(episodes: List<WatchedEpisode>): Result<Unit>
 }

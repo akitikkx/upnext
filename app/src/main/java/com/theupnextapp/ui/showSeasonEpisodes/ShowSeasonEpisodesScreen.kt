@@ -148,6 +148,7 @@ fun ShowSeasonEpisodesScreen(
                                             showImageUrl = showSeasonEpisodesArg.showImageUrl,
                                             showBackgroundUrl = showSeasonEpisodesArg.showBackgroundUrl,
                                             episodeImageUrl = episode.originalImageUrl, // Inject specific episode image
+                                            isWatched = episode.isWatched,
                                         ),
                                     )
                                 }

@@ -21,6 +21,7 @@
 
 package com.theupnextapp.ui.search
 
+import androidx.activity.compose.ReportDrawnWhen
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -86,6 +87,12 @@ fun SearchScreen(
     val recentSearches = viewModel.recentSearches.collectAsStateWithLifecycle()
 
     val keyboardController = LocalSoftwareKeyboardController.current
+
+    ReportDrawnWhen {
+        !searchResultsList.value.isNullOrEmpty() ||
+            !recentSearches.value.isNullOrEmpty() ||
+            isLoading.value == false
+    }
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Box(
