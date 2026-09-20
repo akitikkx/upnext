@@ -327,4 +327,63 @@ class WatchHistoryScreenTest {
         composeTestRule.onNodeWithTag("month_header_September 2026").assertIsDisplayed()
         composeTestRule.onNodeWithTag("watch_history_item_101").assertDoesNotExist()
     }
+
+    @Test
+    fun watchHistory_episodesMode_displaysSubtitleWithPaginationCounts() {
+        composeTestRule.setContent {
+            WatchHistoryContent(
+                uiState =
+                    WatchHistoryUiState(
+                        isAuthorized = true,
+                        items = listOf(sampleItem1),
+                        loadedEpisodesCount = 30,
+                        totalItemCount = 1250,
+                    ),
+                onSearchQueryChange = {},
+                onItemClick = {},
+                onLoadNextPage = {},
+                onRetry = {},
+            )
+        }
+
+        composeTestRule.onNodeWithTag("watch_history_subtitle").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Showing 30 of 1250 watched episodes").assertIsDisplayed()
+    }
+
+    @Test
+    fun watchHistory_showsMode_displaysSubtitleWithShowsAndEpisodeCounts() {
+        val sampleShow =
+            WatchHistoryShowItem(
+                showTraktId = 100,
+                showTvmazeId = 1234,
+                showImdbId = "tt12345",
+                showTitle = "Severance",
+                imageUrl = "https://image.tmdb/severance.jpg",
+                lastWatchedAt = "2026-09-20T20:00:00.000Z",
+                formattedLastWatchedAt = "Sep 20, 2026 • 10:00 PM",
+                episodesWatchedCount = 5,
+                latestSeasonNumber = 2,
+                latestEpisodeNumber = 1,
+            )
+
+        composeTestRule.setContent {
+            WatchHistoryContent(
+                uiState =
+                    WatchHistoryUiState(
+                        isAuthorized = true,
+                        viewMode = WatchHistoryViewMode.SHOWS,
+                        groupedShows = listOf(sampleShow),
+                        loadedEpisodesCount = 30,
+                        totalItemCount = 1250,
+                    ),
+                onSearchQueryChange = {},
+                onItemClick = {},
+                onLoadNextPage = {},
+                onRetry = {},
+            )
+        }
+
+        composeTestRule.onNodeWithTag("watch_history_subtitle").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Showing 1 shows (30 of 1250 episodes loaded)").assertIsDisplayed()
+    }
 }

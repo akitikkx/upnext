@@ -52,6 +52,7 @@ import com.theupnextapp.network.models.trakt.NetworkTraktPlaybackResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktRecommendationsResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktShowProgressResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktWatchedShowsResponse
+import com.theupnextapp.network.models.trakt.TraktHistoryPage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -521,7 +522,7 @@ class TraktRepositoryImpl(
         token: String,
         page: Int,
         limit: Int,
-    ): Result<List<NetworkTraktHistoryResponse>> {
+    ): Result<TraktHistoryPage> {
         return traktAccountDataSource.getTraktRecentHistory(token, page, limit)
     }
 

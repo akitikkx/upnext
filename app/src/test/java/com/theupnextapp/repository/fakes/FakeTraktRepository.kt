@@ -21,6 +21,7 @@ import com.theupnextapp.network.models.trakt.NetworkTraktPlaybackResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktRecommendationsResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktShowProgressResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktWatchedShowsResponse
+import com.theupnextapp.network.models.trakt.TraktHistoryPage
 import com.theupnextapp.repository.TraktRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -305,14 +306,14 @@ class FakeTraktRepository : TraktRepository {
             NetworkTraktShowProgressResponse(aired = 1, completed = 1, lastWatchedAt = "", lastEpisode = null, nextEpisode = null),
         )
 
-    var recentHistoryResult: Result<List<NetworkTraktHistoryResponse>> =
-        Result.success(emptyList())
+    var recentHistoryResult: Result<TraktHistoryPage> =
+        Result.success(TraktHistoryPage(items = emptyList()))
 
     override suspend fun getTraktRecentHistory(
         token: String,
         page: Int,
         limit: Int,
-    ): Result<List<NetworkTraktHistoryResponse>> =
+    ): Result<TraktHistoryPage> =
         recentHistoryResult
 
     override suspend fun getTraktRecommendations(token: String): Result<NetworkTraktRecommendationsResponse> =

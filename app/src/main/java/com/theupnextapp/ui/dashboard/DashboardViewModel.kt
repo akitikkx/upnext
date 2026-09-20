@@ -396,7 +396,7 @@ constructor(
             try {
                 val response = traktRepository.getTraktRecentHistory(bearerToken)
                 if (response.isSuccess) {
-                    val items = response.getOrNull()
+                    val items = response.getOrNull()?.items
                     _recentHistory.value = items
                     items?.let { historyList ->
                         val watchedEpisodes =

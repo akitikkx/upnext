@@ -331,6 +331,11 @@ private fun WatchHistoryTopControls(
         )
     }
 
+    WatchHistorySubtitle(
+        uiState = uiState,
+        modifier = Modifier.padding(horizontal = 4.dp, vertical = 4.dp),
+    )
+
     if (uiState.availableMonthYears.isNotEmpty()) {
         Row(
             modifier =
