@@ -33,6 +33,7 @@ import com.theupnextapp.common.utils.TraktAuthInterceptor
 import com.theupnextapp.common.utils.TraktAuthenticator
 import com.theupnextapp.common.utils.TraktConnectionInterceptor
 import com.theupnextapp.common.utils.TraktRateLimitInterceptor
+import com.theupnextapp.common.utils.TvMazeRateLimitInterceptor
 import com.theupnextapp.network.TmdbService
 import com.theupnextapp.network.TraktAuthApi
 import com.theupnextapp.network.TraktNetwork
@@ -116,9 +117,16 @@ object NetworkModule {
 
     @Singleton
     @Provides
-    fun provideTvMazeService(networkClient: OkHttpClient): TvMazeService {
+    fun provideTvMazeService(
+        networkClient: OkHttpClient,
+        tvMazeRateLimitInterceptor: TvMazeRateLimitInterceptor,
+    ): TvMazeService {
         return Retrofit.Builder()
-            .client(networkClient)
+            .client(
+                networkClient.newBuilder()
+                    .addInterceptor(tvMazeRateLimitInterceptor)
+                    .build(),
+            )
             .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .addCallAdapterFactory(CoroutineCallAdapterFactory())

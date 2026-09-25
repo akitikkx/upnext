@@ -88,6 +88,7 @@ class DashboardRepositoryImpl(
 ) : BaseRepository(upnextDao = upnextDao, tvMazeService = tvMazeService), DashboardRepository {
     private val showImageCache = ConcurrentHashMap<String, Pair<String?, Int?>>()
     private val episodeImageCache = ConcurrentHashMap<String, Pair<String?, Int?>>()
+    private val imdbToTvmazeIdCache = ConcurrentHashMap<String, Int>()
 
     private val _isLoadingYesterdayShows = MutableStateFlow<Boolean>(false)
     override val isLoadingYesterdayShows: StateFlow<Boolean> = _isLoadingYesterdayShows.asStateFlow()
@@ -279,14 +280,18 @@ class DashboardRepositoryImpl(
 
         if (traktDao != null) {
             val localWatchlist = traktDao.getWatchlistShow(imdbId)
-            if (localWatchlist != null && (!localWatchlist.originalImageUrl.isNullOrEmpty() || !localWatchlist.mediumImageUrl.isNullOrEmpty())) {
-                val result = Pair(localWatchlist.originalImageUrl ?: localWatchlist.mediumImageUrl, localWatchlist.tvMazeID)
-                showImageCache[imdbId] = result
-                return result
+            if (localWatchlist != null) {
+                localWatchlist.tvMazeID?.let { imdbToTvmazeIdCache[imdbId] = it }
+                if (!localWatchlist.originalImageUrl.isNullOrEmpty() || !localWatchlist.mediumImageUrl.isNullOrEmpty()) {
+                    val result = Pair(localWatchlist.originalImageUrl ?: localWatchlist.mediumImageUrl, localWatchlist.tvMazeID)
+                    showImageCache[imdbId] = result
+                    return result
+                }
             }
         }
 
         val (tvmazeId, original, medium) = super.getImages(imdbId)
+        tvmazeId?.let { imdbToTvmazeIdCache[imdbId] = it }
         val result = Pair(original ?: medium, tvmazeId)
         if (result.first != null || result.second != null) {
             showImageCache[imdbId] = result
@@ -304,20 +309,42 @@ class DashboardRepositoryImpl(
         val cacheKey = "$imdbId-$season-$number"
         episodeImageCache[cacheKey]?.let { return it }
 
-        var tvmazeId: Int? = null
+        var tvmazeId: Int? = imdbToTvmazeIdCache[imdbId]
+            ?: showImageCache[imdbId]?.second
+
+        if (tvmazeId == null && traktDao != null) {
+            tvmazeId = traktDao.getWatchlistShow(imdbId)?.tvMazeID
+            tvmazeId?.let { imdbToTvmazeIdCache[imdbId] = it }
+        }
+
         var originalImage: String? = null
         var mediumImage: String? = null
 
         try {
-            // Lookup TVMaze ID from IMDB ID
-            val showLookup = tvMazeService.getShowLookupAsync(imdbId).await()
-            tvmazeId = showLookup.id
+            // Only lookup TVMaze ID from IMDB ID if not already cached
+            if (tvmazeId == null) {
+                val showLookup = withTimeoutOrNull(LOOKUP_TIMEOUT_MS) {
+                    tvMazeService.getShowLookupAsync(imdbId).await()
+                }
+                tvmazeId = showLookup?.id
+                tvmazeId?.let {
+                    imdbToTvmazeIdCache[imdbId] = it
+                    val showImg = showLookup.image.original.ifEmpty { showLookup.image.medium }
+                    showImageCache.putIfAbsent(imdbId, Pair(showImg, it))
+                }
+                originalImage = showLookup?.image?.original
+                mediumImage = showLookup?.image?.medium
+            }
 
-            val episode =
-                tvMazeService.getEpisodeByNumberAsync(tvmazeId.toString(), season, number).await()
-
-            originalImage = episode.image?.original ?: showLookup.image?.original
-            mediumImage = episode.image?.medium ?: showLookup.image?.medium
+            if (tvmazeId != null) {
+                val episode = withTimeoutOrNull(LOOKUP_TIMEOUT_MS) {
+                    tvMazeService.getEpisodeByNumberAsync(tvmazeId.toString(), season, number).await()
+                }
+                if (episode != null) {
+                    originalImage = episode.image?.original ?: originalImage
+                    mediumImage = episode.image?.medium ?: mediumImage
+                }
+            }
         } catch (e: Exception) {
             Timber.d(e)
             firebaseCrashlytics.recordException(e)
@@ -370,4 +397,9 @@ class DashboardRepositoryImpl(
 
         return Pair(finalPosterUrl ?: fallbackPoster, chosenHeroUrl ?: fallbackMedium)
     }
+
+    companion object {
+        private const val LOOKUP_TIMEOUT_MS = 8_000L
+    }
 }
+

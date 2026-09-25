@@ -354,6 +354,31 @@ constructor(
     private fun fetchImages(items: List<NetworkTraktHistoryResponse>) {
         fetchImagesJob?.cancel()
         fetchImagesJob = viewModelScope.launch(Dispatchers.IO) {
+            val distinctShows =
+                items.mapNotNull { item ->
+                    val traktId = item.show?.ids?.trakt
+                    val imdbId = item.show?.ids?.imdb
+                    if (traktId != null && imdbId != null) traktId to imdbId else null
+                }.distinctBy { it.first }
+
+            val deferredShowImages =
+                distinctShows.map { (traktId, imdbId) ->
+                    async(Dispatchers.IO.limitedParallelism(2)) {
+                        try {
+                            val (url, tvmazeId) = dashboardRepository.getShowImageAndTvmazeId(imdbId)
+                            "$traktId-show" to ExtractedTraktInfo(
+                                imageUrl = url,
+                                tvmazeId = tvmazeId,
+                            )
+                        } catch (e: Exception) {
+                            null
+                        }
+                    }
+                }
+
+            val showImages = deferredShowImages.awaitAll().filterNotNull().toMap()
+            _historyImages.value = _historyImages.value + showImages
+
             val deferredEpisodeImages =
                 items.mapNotNull { item ->
                     val traktId = item.show?.ids?.trakt
@@ -361,7 +386,7 @@ constructor(
                     val season = item.episode?.season
                     val number = item.episode?.number
                     if (traktId != null && imdbId != null) {
-                        async(Dispatchers.IO.limitedParallelism(5)) {
+                        async(Dispatchers.IO.limitedParallelism(2)) {
                             try {
                                 val (url, tvmazeId) =
                                     if (season != null && number != null) {
@@ -389,30 +414,8 @@ constructor(
                     }
                 }
 
-            val distinctShows =
-                items.mapNotNull { item ->
-                    val traktId = item.show?.ids?.trakt
-                    val imdbId = item.show?.ids?.imdb
-                    if (traktId != null && imdbId != null) traktId to imdbId else null
-                }.distinctBy { it.first }
-
-            val deferredShowImages =
-                distinctShows.map { (traktId, imdbId) ->
-                    async(Dispatchers.IO.limitedParallelism(5)) {
-                        try {
-                            val (url, tvmazeId) = dashboardRepository.getShowImageAndTvmazeId(imdbId)
-                            "$traktId-show" to ExtractedTraktInfo(
-                                imageUrl = url,
-                                tvmazeId = tvmazeId,
-                            )
-                        } catch (e: Exception) {
-                            null
-                        }
-                    }
-                }
-
-            val newImages = (deferredEpisodeImages + deferredShowImages).awaitAll().filterNotNull().toMap()
-            _historyImages.value = _historyImages.value + newImages
+            val episodeImages = deferredEpisodeImages.awaitAll().filterNotNull().toMap()
+            _historyImages.value = _historyImages.value + episodeImages
         }
     }
 
