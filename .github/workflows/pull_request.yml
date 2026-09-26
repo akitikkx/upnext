@@ -53,7 +53,7 @@ jobs:
       - name: Run Code Style and Unit Tests
         env:
           TMDB_ACCESS_TOKEN: ${{ secrets.TMDB_ACCESS_TOKEN }}
-        run: ./gradlew ktlintCheck detekt testDebugUnitTest --build-cache --continue
+        run: ./gradlew ktlintCheck detekt testDebugUnitTest verifyRoborazziDebug --build-cache --continue
         
       - name: Upload Test Results
         if: ${{ always() }}
@@ -61,6 +61,13 @@ jobs:
         with:
           name: unit-test-report
           path: '**/build/reports/tests/'
+
+      - name: Upload Roborazzi Verification Reports
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: roborazzi-report
+          path: '**/build/outputs/roborazzi/'
           
       - name: Clean up temporary files
         if: ${{ always() }}

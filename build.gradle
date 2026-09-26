@@ -31,6 +31,7 @@ plugins {
     alias(libs.plugins.hilt.gradle) apply false
     alias(libs.plugins.baseline.profiles) apply false
     alias(libs.plugins.android.test) apply false
+    alias(libs.plugins.roborazzi) apply false
 }
 
 tasks.register('clean', Delete) {

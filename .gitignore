@@ -46,6 +46,7 @@ detekt_progress.txt
 detekt_report.txt
 detekt_report_v2.txt
 vendor/
-screenshots/
+/screenshots/
+*.pptx
 playstore_generated/
 .agent/scripts/playstore_gen/

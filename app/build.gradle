@@ -33,6 +33,7 @@ plugins {
     alias(libs.plugins.hilt.gradle)
     alias(libs.plugins.baseline.profiles)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.roborazzi)
 }
 
 def localProperties = new Properties()
@@ -138,6 +139,9 @@ android {
     testOptions {
         unitTests.returnDefaultValues = true
         unitTests.includeAndroidResources = true
+        unitTests.all {
+            systemProperty 'robolectric.graphicsMode', 'NATIVE'
+        }
     }
 
     lint {
@@ -148,6 +152,10 @@ android {
 detekt {
     config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
     buildUponDefaultConfig = true
+}
+
+roborazzi {
+    outputDir = file("src/test/screenshots")
 }
 
 dependencies {
@@ -298,6 +306,14 @@ dependencies {
     // Robolectric
     testImplementation libs.robolectric
     testImplementation libs.androidx.ui.test.junit4
+
+    // 16 KB Page Alignment support
+    implementation libs.graphics.path
+
+    // Roborazzi screenshot testing
+    testImplementation libs.roborazzi
+    testImplementation libs.roborazzi.compose
+    testImplementation libs.roborazzi.junit.rule
 }
 
 configurations.all {
