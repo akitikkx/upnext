@@ -12,6 +12,7 @@
 
 package com.theupnextapp.ui.main
 
+import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -50,6 +51,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -133,11 +135,14 @@ fun MainScreen(
     // preferred widths for every form factor (compact, medium, expanded, expanded+).
     val defaultDirective = calculatePaneScaffoldDirective(currentWindowAdaptiveInfo())
 
-    // Only override for compact height (phone in landscape): force single-pane to prevent
-    // the cramped split layout. All other form factors use the library's calculated values.
+    // Enforce single-pane mode when in portrait orientation (phones and tablets) or compact height
+    // (phone in landscape). This ensures lists and detail screens have full, comfortable width
+    // on portrait screens, while reserving dual-pane side-by-side layouts for landscape tablets.
+    val configuration = LocalConfiguration.current
+    val isPortrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
     val isCompactHeight = windowSizeClass?.heightSizeClass == WindowHeightSizeClass.Compact
     val scaffoldDirective =
-        if (isCompactHeight) {
+        if (isPortrait || isCompactHeight) {
             defaultDirective.copy(maxHorizontalPartitions = 1)
         } else {
             defaultDirective

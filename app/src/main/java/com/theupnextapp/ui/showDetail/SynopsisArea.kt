@@ -95,48 +95,25 @@ private fun SynopsisAreaCompact(
     }
 }
 
-@ExperimentalMaterial3WindowSizeClassApi
 @Composable
 private fun SynopsisAreaTextOnly(
     showSummary: ShowDetailSummary?,
     modifier: Modifier = Modifier,
 ) {
-    val widthSizeClass = getWindowSizeClass()?.widthSizeClass
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(bottom = 16.dp),
+    ) {
+        ShowMetadata(
+            showSummary = showSummary,
+            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+        )
 
-    if (widthSizeClass == WindowWidthSizeClass.Expanded) {
-        Row(
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-        ) {
-            ShowMetadata(
-                showSummary = showSummary,
-                modifier = Modifier.width(150.dp),
-            )
-
-            ShowSynopsis(
-                showSummary = showSummary,
-                modifier = Modifier.padding(
-                    start = 16.dp,
-                ),
-            )
-        }
-    } else {
-        Column(
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp)
-        ) {
-            ShowMetadata(
-                showSummary = showSummary,
-                modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
-            )
-
-            ShowSynopsis(
-                showSummary = showSummary,
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
+        ShowSynopsis(
+            showSummary = showSummary,
+            modifier = Modifier.fillMaxWidth(),
+        )
     }
 }
 
