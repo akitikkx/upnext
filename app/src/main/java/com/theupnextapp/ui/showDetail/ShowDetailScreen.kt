@@ -27,6 +27,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
@@ -90,6 +91,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -101,7 +103,6 @@ import com.theupnextapp.common.utils.DateUtils
 import com.theupnextapp.core.designsystem.ui.components.CastMember
 import com.theupnextapp.core.designsystem.ui.components.PosterImage
 import com.theupnextapp.core.designsystem.ui.components.SectionHeadingText
-import com.theupnextapp.core.designsystem.ui.getWindowSizeClass
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.ShowNextEpisode
 import com.theupnextapp.domain.ShowPreviousEpisode
@@ -280,46 +281,50 @@ fun DetailArea(
     onBack: () -> Unit,
     contentPadding: PaddingValues,
 ) {
-    val windowSizeClass = getWindowSizeClass()?.widthSizeClass ?: WindowWidthSizeClass.Compact
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        // Adapt based on the actual available width of this container/pane,
+        // rather than the global Activity window size.
+        val isExpandedPane = maxWidth >= 650.dp
 
-    if (windowSizeClass == WindowWidthSizeClass.Expanded) {
-        ExpandedDetailArea(
-            uiState = uiState,
-            showDetailArgs = showDetailArgs,
-            isAuthorizedOnTrakt = isAuthorizedOnTrakt,
-            isWatchlist = isWatchlist,
-            isWatchlistLoading = isWatchlistLoading,
-            showRating = showRating,
-            showStats = showStats,
-            onSeasonsClick = onSeasonsClick,
-            onWatchlistClick = onWatchlistClick,
-            onRateClick = onRateClick,
-            onCastItemClick = onCastItemClick,
-            onSimilarShowClick = onSimilarShowClick,
-            onRetry = onRetry,
-            onBack = onBack,
-            contentPadding = contentPadding,
-            windowSizeClass = windowSizeClass,
-        )
-    } else {
-        CompactDetailArea(
-            uiState = uiState,
-            showDetailArgs = showDetailArgs,
-            isAuthorizedOnTrakt = isAuthorizedOnTrakt,
-            isWatchlist = isWatchlist,
-            isWatchlistLoading = isWatchlistLoading,
-            showRating = showRating,
-            showStats = showStats,
-            onSeasonsClick = onSeasonsClick,
-            onWatchlistClick = onWatchlistClick,
-            onRateClick = onRateClick,
-            onCastItemClick = onCastItemClick,
-            onSimilarShowClick = onSimilarShowClick,
-            onRetry = onRetry,
-            onBack = onBack,
-            contentPadding = contentPadding,
-            windowSizeClass = windowSizeClass,
-        )
+        if (isExpandedPane) {
+            ExpandedDetailArea(
+                uiState = uiState,
+                showDetailArgs = showDetailArgs,
+                isAuthorizedOnTrakt = isAuthorizedOnTrakt,
+                isWatchlist = isWatchlist,
+                isWatchlistLoading = isWatchlistLoading,
+                showRating = showRating,
+                showStats = showStats,
+                onSeasonsClick = onSeasonsClick,
+                onWatchlistClick = onWatchlistClick,
+                onRateClick = onRateClick,
+                onCastItemClick = onCastItemClick,
+                onSimilarShowClick = onSimilarShowClick,
+                onRetry = onRetry,
+                onBack = onBack,
+                contentPadding = contentPadding,
+                windowSizeClass = WindowWidthSizeClass.Expanded,
+            )
+        } else {
+            CompactDetailArea(
+                uiState = uiState,
+                showDetailArgs = showDetailArgs,
+                isAuthorizedOnTrakt = isAuthorizedOnTrakt,
+                isWatchlist = isWatchlist,
+                isWatchlistLoading = isWatchlistLoading,
+                showRating = showRating,
+                showStats = showStats,
+                onSeasonsClick = onSeasonsClick,
+                onWatchlistClick = onWatchlistClick,
+                onRateClick = onRateClick,
+                onCastItemClick = onCastItemClick,
+                onSimilarShowClick = onSimilarShowClick,
+                onRetry = onRetry,
+                onBack = onBack,
+                contentPadding = contentPadding,
+                windowSizeClass = WindowWidthSizeClass.Compact,
+            )
+        }
     }
 }
 
@@ -745,7 +750,7 @@ private fun ShowDetailButtonsExpanded(
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                horizontal = dimensionResource(id = R.dimen.padding_standard_double),
+                horizontal = dimensionResource(id = R.dimen.padding_standard),
                 vertical = dimensionResource(id = R.dimen.padding_standard),
             ),
         verticalArrangement = Arrangement.spacedBy(buttonSpacing),
@@ -755,7 +760,10 @@ private fun ShowDetailButtonsExpanded(
             onClick = onSeasonsClick,
             modifier = Modifier.fillMaxWidth().height(48.dp),
         ) {
-            Text(text = stringResource(id = R.string.btn_show_detail_seasons))
+            Text(
+                text = stringResource(id = R.string.btn_show_detail_seasons),
+                maxLines = 1,
+            )
         }
         if (isAuthorizedOnTrakt == true) {
             if (isLoading) {
@@ -830,6 +838,7 @@ private fun ShowDetailButtonsExpanded(
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = if (userRating != null) "$userRating★" else stringResource(id = R.string.show_detail_rating_heading),
+                        maxLines = 1,
                     )
                 }
             }
@@ -1225,14 +1234,14 @@ fun TraktRatingSummary(
     rating: TraktShowRating,
     userRating: Int? = null,
 ) {
-    val paddingStandardDouble = dimensionResource(id = R.dimen.padding_standard_double)
+    val paddingStandard = dimensionResource(id = R.dimen.padding_standard)
     val paddingExtraSmall = dimensionResource(id = R.dimen.padding_extra_small)
 
     Column(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .padding(horizontal = paddingStandardDouble),
+                .padding(horizontal = paddingStandard),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Surface(
@@ -1242,7 +1251,9 @@ fun TraktRatingSummary(
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                modifier = Modifier
+                    .horizontalScroll(rememberScrollState())
+                    .padding(horizontal = 12.dp, vertical = 6.dp),
             ) {
                 Icon(
                     imageVector = Icons.Filled.Star,
@@ -1260,22 +1271,29 @@ fun TraktRatingSummary(
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
                 )
 
                 Spacer(modifier = Modifier.width(8.dp))
 
-                Text(
-                    text = "User Score",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
-                )
+                if (userRating == null) {
+                    Text(
+                        text = "User Score",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
 
-                Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
 
                 Text(
                     text = "(${rating.votes} votes)",
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
 
                 if (userRating != null) {
@@ -1291,6 +1309,7 @@ fun TraktRatingSummary(
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Bold,
                         color = RatingStarColor,
+                        maxLines = 1,
                     )
                 }
             }

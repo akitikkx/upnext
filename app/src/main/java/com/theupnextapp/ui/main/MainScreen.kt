@@ -12,6 +12,7 @@
 
 package com.theupnextapp.ui.main
 
+import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -50,12 +51,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.theupnextapp.R
 import com.theupnextapp.navigation.Destinations
+import com.theupnextapp.navigation.DestinationsNavSaver
 import com.theupnextapp.ui.dashboard.DashboardScreen
 import com.theupnextapp.ui.explore.ExploreScreen
 import com.theupnextapp.ui.navigation.AppNavigation
@@ -88,7 +91,10 @@ fun MainScreen(
     val activity = LocalActivity.current
     val windowSizeClass = activity?.let { calculateWindowSizeClass(it) }
 
-    val backStack = remember { mutableStateListOf<Any>(Destinations.EmptyDetail) }
+    val backStack =
+        rememberSaveable(saver = DestinationsNavSaver) {
+            mutableStateListOf<Any>(Destinations.EmptyDetail)
+        }
 
     // State to track the currently active top-level list section
     var currentListSection by rememberSaveable { mutableStateOf(NavigationDestination.Dashboard) }
@@ -133,11 +139,14 @@ fun MainScreen(
     // preferred widths for every form factor (compact, medium, expanded, expanded+).
     val defaultDirective = calculatePaneScaffoldDirective(currentWindowAdaptiveInfo())
 
-    // Only override for compact height (phone in landscape): force single-pane to prevent
-    // the cramped split layout. All other form factors use the library's calculated values.
+    // Enforce single-pane mode when in portrait orientation (phones and tablets) or compact height
+    // (phone in landscape). This ensures lists and detail screens have full, comfortable width
+    // on portrait screens, while reserving dual-pane side-by-side layouts for landscape tablets.
+    val configuration = LocalConfiguration.current
+    val isPortrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
     val isCompactHeight = windowSizeClass?.heightSizeClass == WindowHeightSizeClass.Compact
     val scaffoldDirective =
-        if (isCompactHeight) {
+        if (isPortrait || isCompactHeight) {
             defaultDirective.copy(maxHorizontalPartitions = 1)
         } else {
             defaultDirective
@@ -149,13 +158,15 @@ fun MainScreen(
             scaffoldDirective = scaffoldDirective,
         )
 
-    // Sync scaffold pane state with isDetailFlowActive
-    LaunchedEffect(isDetailFlowActive) {
+    // Sync scaffold pane state with isDetailFlowActive and orientation
+    LaunchedEffect(isDetailFlowActive, isPortrait, isCompactHeight) {
         if (isDetailFlowActive) {
             listDetailNavigator.navigateTo(ListDetailPaneScaffoldRole.Detail)
         } else {
-            // When detail is cleared, navigate back to list pane
-            if (listDetailNavigator.canNavigateBack()) {
+            // In single-pane mode, if detail is inactive, guarantee we are at the List pane
+            if (isPortrait || isCompactHeight) {
+                listDetailNavigator.navigateTo(ListDetailPaneScaffoldRole.List)
+            } else if (listDetailNavigator.canNavigateBack()) {
                 listDetailNavigator.navigateBack(BackNavigationBehavior.PopUntilScaffoldValueChange)
             } else {
                 listDetailNavigator.navigateTo(ListDetailPaneScaffoldRole.List)

@@ -12,6 +12,7 @@
 
 package com.theupnextapp.ui.showDetail
 
+import android.content.res.Configuration
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -32,6 +33,7 @@ import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass // Re
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -44,7 +46,10 @@ fun EmptyDetailScreen() {
     val activity = LocalActivity.current // Use LocalActivity
     val windowSizeClass = activity?.let { calculateWindowSizeClass(it) }
 
-    if (windowSizeClass != null && windowSizeClass.widthSizeClass != WindowWidthSizeClass.Compact) {
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+
+    if (isLandscape && windowSizeClass != null && windowSizeClass.widthSizeClass != WindowWidthSizeClass.Compact) {
         // Content for Medium and Expanded screens
         Box(
             modifier =

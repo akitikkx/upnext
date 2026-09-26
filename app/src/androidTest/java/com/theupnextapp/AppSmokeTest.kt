@@ -92,7 +92,7 @@ class AppSmokeTest {
         }
 
         // 2. Verify that the Main Navigation Scaffold is loaded
-        composeTestRule.onNodeWithTag("navigation_suite_scaffold").assertExists()
+        composeTestRule.onNodeWithTag("navigation_suite_scaffold", useUnmergedTree = true).assertExists()
 
         // 3. Navigate through each tab and verify it loads correctly (header displays title)
         val destinations = listOf(
