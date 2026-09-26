@@ -58,6 +58,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.theupnextapp.R
 import com.theupnextapp.navigation.Destinations
+import com.theupnextapp.navigation.DestinationsNavSaver
 import com.theupnextapp.ui.dashboard.DashboardScreen
 import com.theupnextapp.ui.explore.ExploreScreen
 import com.theupnextapp.ui.navigation.AppNavigation
@@ -90,7 +91,10 @@ fun MainScreen(
     val activity = LocalActivity.current
     val windowSizeClass = activity?.let { calculateWindowSizeClass(it) }
 
-    val backStack = remember { mutableStateListOf<Any>(Destinations.EmptyDetail) }
+    val backStack =
+        rememberSaveable(saver = DestinationsNavSaver) {
+            mutableStateListOf<Any>(Destinations.EmptyDetail)
+        }
 
     // State to track the currently active top-level list section
     var currentListSection by rememberSaveable { mutableStateOf(NavigationDestination.Dashboard) }
@@ -154,13 +158,15 @@ fun MainScreen(
             scaffoldDirective = scaffoldDirective,
         )
 
-    // Sync scaffold pane state with isDetailFlowActive
-    LaunchedEffect(isDetailFlowActive) {
+    // Sync scaffold pane state with isDetailFlowActive and orientation
+    LaunchedEffect(isDetailFlowActive, isPortrait, isCompactHeight) {
         if (isDetailFlowActive) {
             listDetailNavigator.navigateTo(ListDetailPaneScaffoldRole.Detail)
         } else {
-            // When detail is cleared, navigate back to list pane
-            if (listDetailNavigator.canNavigateBack()) {
+            // In single-pane mode, if detail is inactive, guarantee we are at the List pane
+            if (isPortrait || isCompactHeight) {
+                listDetailNavigator.navigateTo(ListDetailPaneScaffoldRole.List)
+            } else if (listDetailNavigator.canNavigateBack()) {
                 listDetailNavigator.navigateBack(BackNavigationBehavior.PopUntilScaffoldValueChange)
             } else {
                 listDetailNavigator.navigateTo(ListDetailPaneScaffoldRole.List)

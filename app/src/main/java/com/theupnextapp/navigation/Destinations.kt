@@ -6,6 +6,7 @@ import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.ShowSeasonEpisodesArg
 import kotlinx.serialization.Serializable
 
+@Serializable
 sealed interface Destinations {
     @Serializable
     data object Dashboard : Destinations
