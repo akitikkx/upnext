@@ -12,6 +12,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.github.takahirom.roborazzi.RoborazziOptions
 import com.github.takahirom.roborazzi.captureRoboImage
 import com.theupnextapp.core.designsystem.ui.theme.UpnextBackgroundDark
 import com.theupnextapp.core.designsystem.ui.theme.UpnextTheme
@@ -52,6 +53,16 @@ class ShowDetailScreenshotTest {
         userRating = null,
     )
 
+    private val roborazziOptions = RoborazziOptions(
+        compareOptions = RoborazziOptions.CompareOptions(
+            resultValidator = { result ->
+                // Allow up to 1.5% difference to account for cross-platform (macOS vs Linux) anti-aliasing
+                val diffRate = result.pixelDifferences.toDouble() / result.pixelCount.toDouble()
+                diffRate <= 0.015
+            },
+        ),
+    )
+
     @Test
     @Config(qualifiers = "w411dp-h891dp-port")
     fun detailArea_phonePortrait() {
@@ -78,7 +89,7 @@ class ShowDetailScreenshotTest {
                 }
             }
         }
-        composeTestRule.onRoot().captureRoboImage()
+        composeTestRule.onRoot().captureRoboImage(roborazziOptions = roborazziOptions)
     }
 
     @Test
@@ -107,7 +118,7 @@ class ShowDetailScreenshotTest {
                 }
             }
         }
-        composeTestRule.onRoot().captureRoboImage()
+        composeTestRule.onRoot().captureRoboImage(roborazziOptions = roborazziOptions)
     }
 
     @Test
@@ -136,7 +147,7 @@ class ShowDetailScreenshotTest {
                 }
             }
         }
-        composeTestRule.onRoot().captureRoboImage()
+        composeTestRule.onRoot().captureRoboImage(roborazziOptions = roborazziOptions)
     }
 
     @Test
@@ -156,7 +167,7 @@ class ShowDetailScreenshotTest {
                 }
             }
         }
-        composeTestRule.onRoot().captureRoboImage()
+        composeTestRule.onRoot().captureRoboImage(roborazziOptions = roborazziOptions)
     }
 
     @Test
@@ -181,6 +192,6 @@ class ShowDetailScreenshotTest {
                 }
             }
         }
-        composeTestRule.onRoot().captureRoboImage()
+        composeTestRule.onRoot().captureRoboImage(roborazziOptions = roborazziOptions)
     }
 }
