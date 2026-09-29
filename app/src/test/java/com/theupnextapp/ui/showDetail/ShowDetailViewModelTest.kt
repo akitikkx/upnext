@@ -31,6 +31,8 @@ import com.theupnextapp.common.utils.TraktAuthManager
 import com.theupnextapp.domain.Result
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.ShowDetailSummary
+import com.theupnextapp.domain.TmdbWatchProvider
+import com.theupnextapp.domain.TmdbWatchProviders
 import com.theupnextapp.domain.TraktAccessToken
 import com.theupnextapp.domain.TraktAuthState
 import com.theupnextapp.domain.TraktRelatedShows
@@ -609,5 +611,86 @@ class ShowDetailViewModelTest {
             assertTrue(viewModel.isWatchlistShow.value)
 
             job.cancel()
+        }
+
+    @Test
+    fun `watchProviders updates in uiState when show is selected and watch providers are loaded`() =
+        runTest {
+            val fakeProviders =
+                TmdbWatchProviders(
+                    id = 1399,
+                    link = "https://justwatch.com/example",
+                    countryCode = "US",
+                    providers =
+                        listOf(
+                            TmdbWatchProvider(
+                                id = 8,
+                                name = "Netflix",
+                                logoUrl = "/netflix.jpg",
+                                tier = "Stream",
+                            ),
+                        ),
+                )
+            showDetailRepository.showWatchProvidersResult = Result.Success(fakeProviders)
+
+            val showArg =
+                ShowDetailArg(
+                    showId = "123",
+                    showTitle = "Test Show",
+                    showImageUrl = null,
+                    showBackgroundUrl = null,
+                    imdbID = "tt12345",
+                    isAuthorizedOnTrakt = true,
+                    showTraktId = 1,
+                )
+
+            viewModel.selectedShow(showArg)
+
+            val state = viewModel.uiState.value
+            assertEquals(fakeProviders, state.watchProviders)
+            assertEquals(1, state.watchProviders?.providers?.size)
+            assertEquals("Netflix", state.watchProviders?.providers?.first()?.name)
+        }
+
+    @Test
+    fun `onSelectWatchProviderCountry reloads watch providers with specified country`() =
+        runTest {
+            val ukProviders =
+                TmdbWatchProviders(
+                    id = 1399,
+                    link = "https://justwatch.com/uk/example",
+                    countryCode = "GB",
+                    providers =
+                        listOf(
+                            TmdbWatchProvider(
+                                id = 39,
+                                name = "Now TV",
+                                logoUrl = "/nowtv.jpg",
+                                tier = "Stream",
+                            ),
+                        ),
+                )
+            showDetailRepository.showWatchProvidersResult = Result.Success(ukProviders)
+
+            val currentSummary = (showDetailRepository.showSummaryResult as Result.Success).data
+            showDetailRepository.showSummaryResult = Result.Success(currentSummary.copy(imdbID = "tt12345", tmdbID = 1399))
+
+            viewModel.selectedShow(
+                ShowDetailArg(
+                    showId = "123",
+                    showTitle = "Test Show",
+                    showImageUrl = null,
+                    showBackgroundUrl = null,
+                    imdbID = "tt12345",
+                    isAuthorizedOnTrakt = true,
+                    showTraktId = 1,
+                ),
+            )
+
+            viewModel.onSelectWatchProviderCountry("GB")
+
+            val state = viewModel.uiState.value
+            assertEquals("GB", state.watchProviders?.countryCode)
+            assertEquals("Now TV", state.watchProviders?.providers?.first()?.name)
         }
 }

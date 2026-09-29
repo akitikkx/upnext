@@ -84,6 +84,7 @@ class FakeShowDetailRepository : ShowDetailRepository {
 
     override fun getShowWatchProviders(
         imdbID: String?,
+        tmdbID: Int?,
         countryCode: String,
     ): Flow<Result<TmdbWatchProviders>> =
         flowOf(

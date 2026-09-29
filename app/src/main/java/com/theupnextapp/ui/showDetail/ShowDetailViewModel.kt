@@ -70,6 +70,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 @OptIn(ExperimentalCoroutinesApi::class)
+@Suppress("LargeClass")
 class ShowDetailViewModel
     @Inject
     constructor(
@@ -318,7 +319,7 @@ class ShowDetailViewModel
                                 getTraktId(summary.imdbID)
                                 getShowCast(summary.imdbID)
                                 getSimilarShows(summary.imdbID)
-                                getShowWatchProviders(summary.imdbID)
+                                getShowWatchProviders(imdbID = summary.imdbID, tmdbID = summary.tmdbID)
                             }
 
                             is Result.GenericError -> {
@@ -546,13 +547,31 @@ class ShowDetailViewModel
             }
         }
 
-        private fun getShowWatchProviders(imdbID: String?) {
+        fun getShowWatchProviders(
+            imdbID: String?,
+            tmdbID: Int? = null,
+            countryCode: String? = null,
+        ) {
             viewModelScope.launch {
                 _uiState.update {
                     it.copy(isWatchProvidersLoading = true)
                 }
-                imdbID?.takeIf { it.isNotEmpty() }?.let { id ->
-                    showDetailRepository.getShowWatchProviders(id).collect { result ->
+                val targetImdb = imdbID?.takeIf { it.isNotEmpty() }
+                if (targetImdb != null || tmdbID != null) {
+                    val flow =
+                        if (countryCode != null) {
+                            showDetailRepository.getShowWatchProviders(
+                                imdbID = targetImdb,
+                                tmdbID = tmdbID,
+                                countryCode = countryCode,
+                            )
+                        } else {
+                            showDetailRepository.getShowWatchProviders(
+                                imdbID = targetImdb,
+                                tmdbID = tmdbID,
+                            )
+                        }
+                    flow.collect { result ->
                         when (result) {
                             is Result.Success -> {
                                 _uiState.update { currentState ->
@@ -563,11 +582,10 @@ class ShowDetailViewModel
                                 }
                             }
                             is Result.Error, is Result.GenericError, is Result.NetworkError -> {
-                                // Gracefully fail and show empty providers if lookup fails
                                 _uiState.update {
                                     it.copy(
                                         isWatchProvidersLoading = false,
-                                        watchProviders = TmdbWatchProviders(id = null, providers = emptyList()),
+                                        watchProviders = TmdbWatchProviders(id = tmdbID, providers = emptyList()),
                                     )
                                 }
                             }
@@ -576,13 +594,24 @@ class ShowDetailViewModel
                             }
                         }
                     }
-                } ?: _uiState.update {
-                    it.copy(
-                        watchProviders = null,
-                        isWatchProvidersLoading = false,
-                    )
+                } else {
+                    _uiState.update {
+                        it.copy(
+                            watchProviders = null,
+                            isWatchProvidersLoading = false,
+                        )
+                    }
                 }
             }
+        }
+
+        fun onSelectWatchProviderCountry(countryCode: String) {
+            val summary = _uiState.value.showSummary
+            getShowWatchProviders(
+                imdbID = summary?.imdbID,
+                tmdbID = summary?.tmdbID,
+                countryCode = countryCode,
+            )
         }
 
         private fun getShowNextEpisode(nextEpisodeHref: String?) {
@@ -859,7 +888,7 @@ class ShowDetailViewModel
                     } else {
                         val workerDataBuilder = Data.Builder()
                         traktId.value?.let { workerDataBuilder.putInt(AddToWatchlistWorker.ARG_TRAKT_ID, it) }
-                        imdbID?.let { workerDataBuilder.putString(AddToWatchlistWorker.ARG_IMDB_ID, it) }
+                        workerDataBuilder.putString(AddToWatchlistWorker.ARG_IMDB_ID, imdbID)
                         workerDataBuilder.putString(
                             AddToWatchlistWorker.ARG_TOKEN,
                             currentAccessToken.access_token,

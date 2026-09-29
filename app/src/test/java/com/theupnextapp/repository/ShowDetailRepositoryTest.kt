@@ -16,13 +16,21 @@ import com.theupnextapp.domain.EpisodePeople
 import com.theupnextapp.domain.Result
 import com.theupnextapp.domain.ShowDetailSummary
 import com.theupnextapp.domain.ShowPreviousEpisode
+import com.theupnextapp.domain.TmdbWatchProviders
 import com.theupnextapp.domain.TraktSeason
 import com.theupnextapp.network.TmdbService
 import com.theupnextapp.network.TraktService
 import com.theupnextapp.network.models.tmdb.NetworkTmdbPersonImagesResponse
 import com.theupnextapp.network.models.tmdb.NetworkTmdbPersonProfile
+import com.theupnextapp.network.models.tmdb.NetworkTmdbWatchProvider
+import com.theupnextapp.network.models.tmdb.NetworkTmdbWatchProviderRegion
+import com.theupnextapp.network.models.tmdb.NetworkTmdbWatchProvidersResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktCast
 import com.theupnextapp.network.models.trakt.NetworkTraktEpisodePeopleResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktIdLookupResponse
+import com.theupnextapp.network.models.trakt.NetworkTraktIdLookupResponseItem
+import com.theupnextapp.network.models.trakt.NetworkTraktIdLookupResponseItemShow
+import com.theupnextapp.network.models.trakt.NetworkTraktIdLookupResponseItemShowIds
 import com.theupnextapp.network.models.trakt.NetworkTraktPerson
 import com.theupnextapp.network.models.trakt.NetworkTraktPersonIds
 import com.theupnextapp.network.models.trakt.NetworkTraktSeasonResponse
@@ -593,5 +601,192 @@ class ShowDetailRepositoryTest {
             val errorResult = results.last()
             assertTrue(errorResult is Result.Error || errorResult is Result.GenericError)
             assertTrue(fakeCrashlytics.getRecordedExceptions().isNotEmpty())
+        }
+
+    @Test
+    fun `getShowWatchProviders parses all tiers and caches response`() =
+        runTest {
+            val tmdbId = 1399
+            val countryCode = "US"
+            val region =
+                NetworkTmdbWatchProviderRegion(
+                    link = "https://www.justwatch.com/us/tv-show/game-of-thrones",
+                    flatrate =
+                        listOf(
+                            NetworkTmdbWatchProvider(
+                                provider_id = 8,
+                                provider_name = "Netflix",
+                                logo_path = "/netflix.jpg",
+                                display_priority = 2,
+                            ),
+                            NetworkTmdbWatchProvider(
+                                provider_id = 9,
+                                provider_name = "Amazon Prime Video",
+                                logo_path = "/prime.jpg",
+                                display_priority = 1,
+                            ),
+                        ),
+                    rent = null,
+                    buy =
+                        listOf(
+                            NetworkTmdbWatchProvider(
+                                provider_id = 2,
+                                provider_name = "Apple TV",
+                                logo_path = "/apple.jpg",
+                                display_priority = 3,
+                            ),
+                        ),
+                    free =
+                        listOf(
+                            NetworkTmdbWatchProvider(
+                                provider_id = 73,
+                                provider_name = "Tubi TV",
+                                logo_path = "/tubi.jpg",
+                                display_priority = 4,
+                            ),
+                        ),
+                    ads =
+                        listOf(
+                            NetworkTmdbWatchProvider(
+                                provider_id = 300,
+                                provider_name = "Pluto TV",
+                                logo_path = "/pluto.jpg",
+                                display_priority = 5,
+                            ),
+                        ),
+                )
+            val fakeResponse =
+                NetworkTmdbWatchProvidersResponse(
+                    id = tmdbId,
+                    results = mapOf("US" to region),
+                )
+
+            whenever(tmdbService.getShowWatchProvidersAsync(tmdbId))
+                .thenReturn(CompletableDeferred(fakeResponse))
+
+            val results =
+                showDetailRepository.getShowWatchProviders(
+                    imdbID = null,
+                    tmdbID = tmdbId,
+                    countryCode = countryCode,
+                ).toList()
+
+            val successResult = results.last() as Result.Success<TmdbWatchProviders>
+            val watchProviders = successResult.data
+            assertEquals(tmdbId, watchProviders.id)
+            assertEquals("https://www.justwatch.com/us/tv-show/game-of-thrones", watchProviders.link)
+            assertEquals("US", watchProviders.countryCode)
+            assertEquals(5, watchProviders.providers?.size)
+
+            // Verify displayPriority ordering: Amazon (1) before Netflix (2)
+            assertEquals("Amazon Prime Video", watchProviders.flatrateProviders[0].name)
+            assertEquals("Netflix", watchProviders.flatrateProviders[1].name)
+            assertEquals("Stream", watchProviders.flatrateProviders[0].tier)
+
+            // Verify free and ads tiers
+            assertEquals(2, watchProviders.freeProviders.size)
+            assertEquals("Tubi TV", watchProviders.freeProviders[0].name)
+            assertEquals("Free", watchProviders.freeProviders[0].tier)
+            assertEquals("Pluto TV", watchProviders.freeProviders[1].name)
+            assertEquals("Free with Ads", watchProviders.freeProviders[1].tier)
+
+            // Verify buy tier
+            assertEquals(1, watchProviders.buyRentProviders.size)
+            assertEquals("Apple TV", watchProviders.buyRentProviders[0].name)
+            assertEquals("Buy", watchProviders.buyRentProviders[0].tier)
+
+            // Second call with same ID and country should hit cache without network call
+            val cachedResults =
+                showDetailRepository.getShowWatchProviders(
+                    imdbID = null,
+                    tmdbID = tmdbId,
+                    countryCode = countryCode,
+                ).toList()
+            val cachedSuccess = cachedResults.last() as Result.Success<TmdbWatchProviders>
+            assertEquals(5, cachedSuccess.data.providers?.size)
+        }
+
+    @Test
+    fun `getShowWatchProviders resolves tmdbId from imdbId via Trakt when tmdbId is not provided`() =
+        runTest {
+            val imdbId = "tt0944947"
+            val resolvedTmdbId = 1399
+            val countryCode = "US"
+
+            val lookupItem =
+                NetworkTraktIdLookupResponseItem(
+                    show =
+                        NetworkTraktIdLookupResponseItemShow(
+                            ids =
+                                NetworkTraktIdLookupResponseItemShowIds(
+                                    trakt = 1,
+                                    slug = "got",
+                                    tvdb = 1,
+                                    imdb = imdbId,
+                                    tmdb = resolvedTmdbId,
+                                ),
+                            title = "Game of Thrones",
+                            year = 2011,
+                        ),
+                    person = null,
+                    score = 1000,
+                    type = "show",
+                )
+            val lookupResponse = NetworkTraktIdLookupResponse().apply { add(lookupItem) }
+
+            whenever(traktService.idLookupAsync(idType = "imdb", id = imdbId))
+                .thenReturn(CompletableDeferred(lookupResponse))
+
+            val region =
+                NetworkTmdbWatchProviderRegion(
+                    link = "https://www.justwatch.com/us/tv-show/game-of-thrones",
+                    flatrate =
+                        listOf(
+                            NetworkTmdbWatchProvider(
+                                provider_id = 8,
+                                provider_name = "Netflix",
+                                logo_path = "/netflix.jpg",
+                                display_priority = 1,
+                            ),
+                        ),
+                    rent = null,
+                    buy = null,
+                    free = null,
+                    ads = null,
+                )
+            val fakeResponse =
+                NetworkTmdbWatchProvidersResponse(
+                    id = resolvedTmdbId,
+                    results = mapOf("US" to region),
+                )
+            whenever(tmdbService.getShowWatchProvidersAsync(resolvedTmdbId))
+                .thenReturn(CompletableDeferred(fakeResponse))
+
+            val results =
+                showDetailRepository.getShowWatchProviders(
+                    imdbID = imdbId,
+                    tmdbID = null,
+                    countryCode = countryCode,
+                ).toList()
+
+            val successResult = results.last() as Result.Success<TmdbWatchProviders>
+            assertEquals(resolvedTmdbId, successResult.data.id)
+            assertEquals(1, successResult.data.providers?.size)
+            assertEquals("Netflix", successResult.data.providers?.get(0)?.name)
+        }
+
+    @Test
+    fun `getShowWatchProviders returns empty providers when both imdbId and tmdbId are missing`() =
+        runTest {
+            val results =
+                showDetailRepository.getShowWatchProviders(
+                    imdbID = null,
+                    tmdbID = null,
+                    countryCode = "US",
+                ).toList()
+
+            val successResult = results.last() as Result.Success<TmdbWatchProviders>
+            assertEquals(null, successResult.data.id)
+            assertTrue(successResult.data.providers.isNullOrEmpty())
         }
 }
