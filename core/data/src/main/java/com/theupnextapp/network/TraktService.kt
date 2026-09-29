@@ -255,6 +255,8 @@ interface TraktService {
         @Query("page") page: Int = 1,
         @Query("limit") limit: Int = 20,
         @Query("extended") extended: String = "full",
+        @Query("start_at") startAt: String? = null,
+        @Query("end_at") endAt: String? = null,
     ): Deferred<Response<List<NetworkTraktHistoryResponse>>>
 
     @GET("people/{id}?extended=full")

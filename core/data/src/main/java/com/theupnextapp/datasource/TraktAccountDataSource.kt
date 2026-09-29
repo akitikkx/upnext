@@ -566,6 +566,8 @@ constructor(
         token: String,
         page: Int = 1,
         limit: Int = 20,
+        startAt: String? = null,
+        endAt: String? = null,
     ): Result<TraktHistoryPage> {
         if (token.isEmpty()) return Result.failure(IllegalArgumentException("Token is empty"))
         return withContext(Dispatchers.IO) {
@@ -575,6 +577,8 @@ constructor(
                     token = bearerToken,
                     page = page,
                     limit = limit,
+                    startAt = startAt,
+                    endAt = endAt,
                 ).await()
                 if (response.isSuccessful) {
                     val body = response.body().orEmpty()

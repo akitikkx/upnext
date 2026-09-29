@@ -5,22 +5,17 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.logEvent
 import com.theupnextapp.common.utils.TraktAuthManager
-import com.theupnextapp.domain.ExtractedTraktInfo
 import com.theupnextapp.domain.TraktAuthState
-import com.theupnextapp.network.models.trakt.NetworkTraktHistoryResponse
+import com.theupnextapp.domain.WatchHistoryItem
+import com.theupnextapp.domain.WatchHistorySyncResult
 import com.theupnextapp.repository.DashboardRepository
 import com.theupnextapp.repository.TraktRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -41,11 +36,6 @@ constructor(
     private val firebaseAnalytics: FirebaseAnalytics,
 ) : ViewModel() {
 
-    private var currentPage = 1
-    private var fetchImagesJob: Job? = null
-
-    private val _historyRawItems = MutableStateFlow<List<NetworkTraktHistoryResponse>>(emptyList())
-    private val _historyImages = MutableStateFlow<Map<String, ExtractedTraktInfo>>(emptyMap())
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
@@ -134,32 +124,26 @@ constructor(
 
     val uiState: StateFlow<WatchHistoryUiState> =
         combine(
-            _historyRawItems,
-            _historyImages,
+            traktRepository.watchHistory,
             filterStateFlow,
             statusStateFlow,
             _totalItemCount,
-        ) { rawItems, images, filter, status, totalCount ->
-            val allUiItems = rawItems.mapNotNull { item ->
-                val traktId = item.show?.ids?.trakt ?: return@mapNotNull null
-                val season = item.episode?.season ?: 0
-                val number = item.episode?.number ?: 0
-                val uniqueKey = "$traktId-$season-$number"
-                val extractedInfo = images[uniqueKey]
+        ) { historyItems, filter, status, totalCount ->
+            val allUiItems = historyItems.map { item ->
                 val (monthYearHeader, formattedDate) = formatWatchedDate(item.watchedAt)
                 WatchHistoryUiItem(
-                    historyId = item.id ?: 0L,
-                    watchedAt = item.watchedAt.orEmpty(),
+                    historyId = item.historyId,
+                    watchedAt = item.watchedAt,
                     formattedWatchedAt = formattedDate,
                     monthYearHeader = monthYearHeader,
-                    showTraktId = traktId,
-                    showTvmazeId = extractedInfo?.tvmazeId,
-                    showImdbId = item.show?.ids?.imdb,
-                    showTitle = item.show?.title.orEmpty(),
-                    seasonNumber = season,
-                    episodeNumber = number,
-                    episodeTitle = item.episode?.title.orEmpty(),
-                    imageUrl = extractedInfo?.imageUrl,
+                    showTraktId = item.showTraktId,
+                    showTvmazeId = item.showTvmazeId,
+                    showImdbId = item.showImdbId,
+                    showTitle = item.showTitle,
+                    seasonNumber = item.seasonNumber,
+                    episodeNumber = item.episodeNumber,
+                    episodeTitle = item.episodeTitle,
+                    imageUrl = item.episodeImageUrl ?: item.showPosterUrl,
                     isWatched = true,
                 )
             }
@@ -193,7 +177,7 @@ constructor(
                 .groupBy { it.showTraktId }
                 .mapNotNull { (showTraktId, episodes) ->
                     val latest = episodes.maxByOrNull { it.watchedAt } ?: return@mapNotNull null
-                    val showPoster = images["$showTraktId-show"]?.imageUrl ?: latest.imageUrl
+                    val showPoster = latest.imageUrl
                     WatchHistoryShowItem(
                         showTraktId = showTraktId,
                         showTvmazeId = latest.showTvmazeId,
@@ -231,8 +215,8 @@ constructor(
                 searchQuery = filter.query,
                 endOfListReached = status.endOfListReached,
                 errorMessage = status.errorMessage,
-                totalItemCount = totalCount,
-                loadedEpisodesCount = rawItems.size,
+                totalItemCount = totalCount ?: historyItems.size,
+                loadedEpisodesCount = historyItems.size,
             )
         }.stateIn(
             scope = viewModelScope,
@@ -252,16 +236,56 @@ constructor(
 
     fun loadFirstPage() {
         if (_isLoading.value) return
-        currentPage = 1
         _endOfListReached.value = false
         _errorMessage.value = null
-        fetchHistory(page = 1, isNextPage = false)
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val result = traktRepository.syncWatchHistory(forceFull = false)
+                if (result.isSuccess) {
+                    val syncResult = result.getOrNull()
+                    syncResult?.totalItemCount?.let { _totalItemCount.value = it }
+                    if (syncResult != null && syncResult.itemsFetchedCount < PAGE_LIMIT) {
+                        _endOfListReached.value = true
+                    }
+                    firebaseAnalytics.logEvent("watch_history_page_loaded") {
+                        param("page", 1L)
+                        param("item_count", (syncResult?.itemsFetchedCount ?: 0).toLong())
+                    }
+                } else {
+                    _errorMessage.value =
+                        result.exceptionOrNull()?.message ?: "Failed to load watch history"
+                }
+            } catch (e: Exception) {
+                _errorMessage.value = e.message ?: "Failed to load watch history"
+            } finally {
+                _isLoading.value = false
+            }
+        }
     }
 
     fun loadNextPage() {
         if (_isLoading.value || _isLoadingNextPage.value || _endOfListReached.value) return
-        val nextPage = currentPage + 1
-        fetchHistory(page = nextPage, isNextPage = true)
+        viewModelScope.launch {
+            _isLoadingNextPage.value = true
+            try {
+                val result = traktRepository.loadOlderWatchHistory()
+                if (result.isSuccess) {
+                    val syncResult = result.getOrNull()
+                    syncResult?.totalItemCount?.let { _totalItemCount.value = it }
+                    if (syncResult != null && (syncResult.itemsFetchedCount == 0 || syncResult.itemsFetchedCount < PAGE_LIMIT)) {
+                        _endOfListReached.value = true
+                    }
+                } else {
+                    _errorMessage.value =
+                        result.exceptionOrNull()?.message ?: "Failed to load older watch history"
+                }
+            } catch (e: Exception) {
+                _errorMessage.value = e.message ?: "Failed to load older watch history"
+            } finally {
+                _isLoadingNextPage.value = false
+            }
+        }
     }
 
     fun onSearchQueryChange(query: String) {
@@ -299,126 +323,6 @@ constructor(
         }
     }
 
-    private fun fetchHistory(page: Int, isNextPage: Boolean) {
-        viewModelScope.launch {
-            if (isNextPage) {
-                _isLoadingNextPage.value = true
-            } else {
-                _isLoading.value = true
-            }
-            try {
-                val token = traktRepository.traktAccessToken.firstOrNull()?.access_token
-                if (token.isNullOrEmpty()) {
-                    _errorMessage.value = "Not authorized with Trakt"
-                    return@launch
-                }
-                val response = traktRepository.getTraktRecentHistory(
-                    token = token,
-                    page = page,
-                    limit = PAGE_LIMIT,
-                )
-                if (response.isSuccess) {
-                    val historyPage = response.getOrNull()
-                    val newItems = historyPage?.items.orEmpty()
-                    historyPage?.totalItemCount?.let { _totalItemCount.value = it }
-                    if (newItems.isEmpty() || newItems.size < PAGE_LIMIT) {
-                        _endOfListReached.value = true
-                    }
-                    if (isNextPage) {
-                        _historyRawItems.value = _historyRawItems.value + newItems
-                    } else {
-                        _historyRawItems.value = newItems
-                    }
-                    currentPage = page
-                    firebaseAnalytics.logEvent("watch_history_page_loaded") {
-                        param("page", page.toLong())
-                        param("item_count", newItems.size.toLong())
-                    }
-                    fetchImages(newItems)
-                } else {
-                    _errorMessage.value =
-                        response.exceptionOrNull()?.message ?: "Failed to load watch history"
-                }
-            } catch (e: Exception) {
-                _errorMessage.value = e.message ?: "Failed to load watch history"
-            } finally {
-                if (isNextPage) {
-                    _isLoadingNextPage.value = false
-                } else {
-                    _isLoading.value = false
-                }
-            }
-        }
-    }
-
-    private fun fetchImages(items: List<NetworkTraktHistoryResponse>) {
-        fetchImagesJob?.cancel()
-        fetchImagesJob = viewModelScope.launch(Dispatchers.IO) {
-            val distinctShows =
-                items.mapNotNull { item ->
-                    val traktId = item.show?.ids?.trakt
-                    val imdbId = item.show?.ids?.imdb
-                    if (traktId != null && imdbId != null) traktId to imdbId else null
-                }.distinctBy { it.first }
-
-            val deferredShowImages =
-                distinctShows.map { (traktId, imdbId) ->
-                    async(Dispatchers.IO.limitedParallelism(2)) {
-                        try {
-                            val (url, tvmazeId) = dashboardRepository.getShowImageAndTvmazeId(imdbId)
-                            "$traktId-show" to ExtractedTraktInfo(
-                                imageUrl = url,
-                                tvmazeId = tvmazeId,
-                            )
-                        } catch (e: Exception) {
-                            null
-                        }
-                    }
-                }
-
-            val showImages = deferredShowImages.awaitAll().filterNotNull().toMap()
-            _historyImages.value = _historyImages.value + showImages
-
-            val deferredEpisodeImages =
-                items.mapNotNull { item ->
-                    val traktId = item.show?.ids?.trakt
-                    val imdbId = item.show?.ids?.imdb
-                    val season = item.episode?.season
-                    val number = item.episode?.number
-                    if (traktId != null && imdbId != null) {
-                        async(Dispatchers.IO.limitedParallelism(2)) {
-                            try {
-                                val (url, tvmazeId) =
-                                    if (season != null && number != null) {
-                                        dashboardRepository.getEpisodeImageAndTvmazeId(
-                                            imdbId,
-                                            season,
-                                            number,
-                                        )
-                                    } else {
-                                        dashboardRepository.getShowImageAndTvmazeId(
-                                            imdbId,
-                                        )
-                                    }
-                                val uniqueKey = "$traktId-${season ?: 0}-${number ?: 0}"
-                                uniqueKey to ExtractedTraktInfo(
-                                    imageUrl = url,
-                                    tvmazeId = tvmazeId,
-                                )
-                            } catch (e: Exception) {
-                                null
-                            }
-                        }
-                    } else {
-                        null
-                    }
-                }
-
-            val episodeImages = deferredEpisodeImages.awaitAll().filterNotNull().toMap()
-            _historyImages.value = _historyImages.value + episodeImages
-        }
-    }
-
     private fun formatWatchedDate(dateString: String?): Pair<String, String> {
         if (dateString.isNullOrEmpty()) {
             return Pair("Unknown Date", "")
@@ -431,11 +335,6 @@ constructor(
         } catch (e: Exception) {
             Pair("Unknown Date", dateString)
         }
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        fetchImagesJob?.cancel()
     }
 
     companion object {

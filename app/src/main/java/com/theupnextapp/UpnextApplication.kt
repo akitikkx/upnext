@@ -48,6 +48,7 @@ import com.theupnextapp.work.BaseWorker
 import com.theupnextapp.work.NotificationWorker
 import com.theupnextapp.work.RefreshDashboardShowsWorker
 import com.theupnextapp.work.RefreshWatchlistWorker
+import com.theupnextapp.work.SyncWatchHistoryWorker
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -140,6 +141,7 @@ class UpnextApplication : Application(), Configuration.Provider {
         applicationScope.launch {
             val workManager = WorkManager.getInstance(applicationContext)
             setupWatchlistWorker(workManager)
+            setupWatchHistoryWorker(workManager)
             setupDashboardWorker(workManager)
             setupNotificationWorker(workManager)
         }
@@ -234,6 +236,45 @@ class UpnextApplication : Application(), Configuration.Provider {
             workManager.cancelUniqueWork(RefreshWatchlistWorker.WORK_NAME)
             Timber.tag("UpnextApplication")
                 .d("Cancelled ${RefreshWatchlistWorker.WORK_NAME} due to invalid/missing token.")
+        }
+    }
+
+    private fun setupWatchHistoryWorker(workManager: WorkManager) {
+        val traktAccessTokenDomain =
+            try {
+                val rawTokenEntity = traktRepository.getTraktAccessTokenRaw()
+                if (rawTokenEntity is DatabaseTraktAccess) {
+                    rawTokenEntity.asDomainModel()
+                } else {
+                    null
+                }
+            } catch (e: Exception) {
+                Timber.tag("UpnextApplication")
+                    .e(t = e, message = "Error fetching Trakt token for watch history worker setup")
+                null
+            }
+
+        if (traktAccessTokenDomain?.access_token?.isNotEmpty() == true && traktAccessTokenDomain.isTraktAccessTokenValid()) {
+            val syncHistoryRequest =
+                PeriodicWorkRequestBuilder<SyncWatchHistoryWorker>(
+                    TableUpdateInterval.TRAKT_WATCH_HISTORY.intervalMins,
+                    TimeUnit.MINUTES,
+                )
+                    .setConstraints(
+                        Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build(),
+                    )
+                    .build()
+
+            workManager.enqueueUniquePeriodicWork(
+                SyncWatchHistoryWorker.WORK_NAME,
+                ExistingPeriodicWorkPolicy.KEEP,
+                syncHistoryRequest,
+            )
+            Timber.tag("UpnextApplication").d("Enqueued ${SyncWatchHistoryWorker.WORK_NAME}")
+        } else {
+            workManager.cancelUniqueWork(SyncWatchHistoryWorker.WORK_NAME)
+            Timber.tag("UpnextApplication")
+                .d("Cancelled ${SyncWatchHistoryWorker.WORK_NAME} due to invalid/missing token.")
         }
     }
 

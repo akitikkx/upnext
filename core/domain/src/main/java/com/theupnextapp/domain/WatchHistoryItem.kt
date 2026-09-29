@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Ahmed Tikiwa
+ * Copyright (c) 2026 Ahmed Tikiwa
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
  * associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -19,14 +19,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.theupnextapp.common.utils.models
+package com.theupnextapp.domain
 
-@Suppress("MagicNumber")
-enum class TableUpdateInterval(val intervalMins: Long, val intervalHours: Long) {
-    DASHBOARD_ITEMS(240L, 4L),
-    TRAKT_POPULAR_ITEMS(120L, 0L),
-    TRAKT_TRENDING_ITEMS(120L, 2L),
-    TRAKT_MOST_ANTICIPATED_ITEMS(120L, 2L),
-    TRAKT_FAVORITE_SHOWS(30L, 0L),
-    TRAKT_WATCH_HISTORY(60L, 1L),
-}
+data class WatchHistoryItem(
+    val historyId: Long,
+    val watchedAt: String,
+    val watchedAtEpochMillis: Long,
+    val showTraktId: Int,
+    val episodeTraktId: Int?,
+    val showTvmazeId: Int?,
+    val showImdbId: String?,
+    val showTitle: String,
+    val seasonNumber: Int,
+    val episodeNumber: Int,
+    val episodeTitle: String,
+    val episodeImageUrl: String?,
+    val showPosterUrl: String?,
+)

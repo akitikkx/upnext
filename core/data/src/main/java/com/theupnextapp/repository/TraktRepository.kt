@@ -27,6 +27,8 @@ import com.theupnextapp.domain.TraktShowStats
 import com.theupnextapp.domain.TraktTrendingShows
 import com.theupnextapp.domain.TraktUserList
 import com.theupnextapp.domain.TraktUserListItem
+import com.theupnextapp.domain.WatchHistoryItem
+import com.theupnextapp.domain.WatchHistorySyncResult
 import com.theupnextapp.network.models.trakt.NetworkTraktHistoryResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktPersonResponse
@@ -47,6 +49,7 @@ interface TraktRepository : TrackingProvider {
     val traktTrendingShows: Flow<List<TraktTrendingShows>>
     val traktMostAnticipatedShows: Flow<List<TraktMostAnticipated>>
     val traktWatchlistShows: Flow<List<TraktUserListItem>>
+    val watchHistory: Flow<List<WatchHistoryItem>>
     val traktAccessToken: StateFlow<TraktAccessToken?>
     suspend fun getTraktAccessTokenSync(): TraktAccessToken?
 
@@ -55,6 +58,8 @@ interface TraktRepository : TrackingProvider {
     val isLoadingTraktTrending: StateFlow<Boolean>
     val isLoadingTraktPopular: StateFlow<Boolean>
     val isLoadingTraktMostAnticipated: StateFlow<Boolean>
+    val isLoadingWatchHistory: StateFlow<Boolean>
+    val watchHistoryError: StateFlow<String?>
 
     val traktShowRating: StateFlow<TraktShowRating?>
     val traktShowStats: StateFlow<TraktShowStats?>
@@ -208,7 +213,15 @@ interface TraktRepository : TrackingProvider {
         token: String,
         page: Int = 1,
         limit: Int = 20,
+        startAt: String? = null,
+        endAt: String? = null,
     ): Result<TraktHistoryPage>
+
+    suspend fun syncWatchHistory(forceFull: Boolean = false): Result<WatchHistorySyncResult>
+
+    suspend fun loadOlderWatchHistory(): Result<WatchHistorySyncResult>
+
+    suspend fun clearWatchHistory()
 
     suspend fun getTraktRecommendations(token: String): Result<NetworkTraktRecommendationsResponse>
     fun invalidateShowProgress(traktId: Int)

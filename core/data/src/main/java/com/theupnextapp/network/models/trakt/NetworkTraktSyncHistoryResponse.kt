@@ -86,4 +86,14 @@ data class NetworkTraktWatchedEpisode(
     val plays: Int?,
     @SerializedName("last_watched_at")
     val lastWatchedAt: String?,
+    val ids: NetworkTraktWatchedEpisodeIds? = null,
 )
+
+@Keep
+data class NetworkTraktWatchedEpisodeIds(
+    val trakt: Int?,
+    val tvdb: Int?,
+    val imdb: String?,
+    val tmdb: Int?,
+)
+

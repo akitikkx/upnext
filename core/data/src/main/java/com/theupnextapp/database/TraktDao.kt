@@ -196,4 +196,45 @@ interface TraktDao {
 
     @Query("DELETE FROM watched_episodes")
     suspend fun clearAllWatchedEpisodes()
+
+    // WATCH HISTORY
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertWatchHistory(history: List<DatabaseWatchHistory>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertWatchHistoryItem(item: DatabaseWatchHistory)
+
+    @Query("SELECT * FROM watch_history ORDER BY watchedAtEpochMillis DESC")
+    fun getWatchHistoryFlow(): Flow<List<DatabaseWatchHistory>>
+
+    @Query("SELECT * FROM watch_history ORDER BY watchedAtEpochMillis DESC")
+    suspend fun getWatchHistoryRaw(): List<DatabaseWatchHistory>
+
+    @Query("SELECT watchedAt FROM watch_history ORDER BY watchedAtEpochMillis DESC LIMIT 1")
+    suspend fun getLatestWatchedTimestamp(): String?
+
+    @Query("SELECT watchedAt FROM watch_history ORDER BY watchedAtEpochMillis ASC LIMIT 1")
+    suspend fun getOldestWatchedTimestamp(): String?
+
+    @Query(
+        "UPDATE watch_history SET episodeImageUrl = :episodeImageUrl, showPosterUrl = :showPosterUrl WHERE historyId = :historyId"
+    )
+    suspend fun updateWatchHistoryImages(historyId: Long, episodeImageUrl: String?, showPosterUrl: String?)
+
+    @Query(
+        "UPDATE watch_history SET showPosterUrl = :showPosterUrl WHERE showTraktId = :showTraktId AND showPosterUrl IS NULL"
+    )
+    suspend fun updateShowPosterForShow(showTraktId: Int, showPosterUrl: String)
+
+    @Query("SELECT COUNT(*) FROM watch_history")
+    suspend fun getWatchHistoryCount(): Int
+
+    @Query("SELECT * FROM watch_history WHERE episodeImageUrl IS NULL OR showPosterUrl IS NULL LIMIT :limit")
+    suspend fun getWatchHistoryItemsMissingImages(limit: Int = 50): List<DatabaseWatchHistory>
+
+    @Query("DELETE FROM watch_history WHERE historyId = :historyId")
+    suspend fun deleteWatchHistoryItem(historyId: Long)
+
+    @Query("DELETE FROM watch_history")
+    suspend fun clearWatchHistory()
 }
