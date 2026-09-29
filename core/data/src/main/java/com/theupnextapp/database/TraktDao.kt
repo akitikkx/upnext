@@ -237,4 +237,48 @@ interface TraktDao {
 
     @Query("DELETE FROM watch_history")
     suspend fun clearWatchHistory()
+
+    // TRAKT CUSTOM LISTS
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertCustomLists(lists: List<DatabaseCustomList>)
+
+    @Query("SELECT * FROM trakt_custom_lists ORDER BY name ASC")
+    fun getCustomListsFlow(): Flow<List<DatabaseCustomList>>
+
+    @Query("SELECT * FROM trakt_custom_lists ORDER BY name ASC")
+    suspend fun getCustomListsRaw(): List<DatabaseCustomList>
+
+    @Query("SELECT * FROM trakt_custom_lists WHERE traktId = :traktId LIMIT 1")
+    suspend fun getCustomListByTraktId(traktId: Int): DatabaseCustomList?
+
+    @Query("DELETE FROM trakt_custom_lists WHERE traktId NOT IN (:activeTraktIds)")
+    suspend fun deleteMissingCustomLists(activeTraktIds: List<Int>)
+
+    @Query("DELETE FROM trakt_custom_lists WHERE traktId = :traktId")
+    suspend fun deleteCustomList(traktId: Int)
+
+    @Query("DELETE FROM trakt_custom_lists")
+    suspend fun clearCustomLists()
+
+    // TRAKT CUSTOM LIST ITEMS
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertCustomListItems(items: List<DatabaseCustomListItem>)
+
+    @Query("SELECT * FROM trakt_custom_list_items WHERE listTraktId = :listTraktId ORDER BY rank ASC, title ASC")
+    fun getCustomListItemsFlow(listTraktId: Int): Flow<List<DatabaseCustomListItem>>
+
+    @Query("SELECT * FROM trakt_custom_list_items WHERE listTraktId = :listTraktId ORDER BY rank ASC, title ASC")
+    suspend fun getCustomListItemsRaw(listTraktId: Int): List<DatabaseCustomListItem>
+
+    @Query("DELETE FROM trakt_custom_list_items WHERE listTraktId = :listTraktId")
+    suspend fun clearCustomListItems(listTraktId: Int)
+
+    @Query("DELETE FROM trakt_custom_list_items WHERE listTraktId = :listTraktId AND traktID NOT IN (:activeTraktIds)")
+    suspend fun deleteMissingCustomListItems(listTraktId: Int, activeTraktIds: List<Int>)
+
+    @Query("UPDATE trakt_custom_list_items SET originalImageUrl = :posterUrl, mediumImageUrl = :heroImageUrl, tvMazeID = :tvMazeId WHERE traktID = :showTraktId")
+    suspend fun updateCustomListItemImages(showTraktId: Int, posterUrl: String?, heroImageUrl: String?, tvMazeId: Int?)
+
+    @Query("DELETE FROM trakt_custom_list_items")
+    suspend fun clearAllCustomListItems()
 }

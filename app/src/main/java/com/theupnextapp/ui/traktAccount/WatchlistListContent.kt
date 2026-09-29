@@ -13,6 +13,8 @@
 package com.theupnextapp.ui.traktAccount
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
@@ -41,6 +43,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowUpward
@@ -69,6 +72,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -79,6 +83,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -88,10 +93,12 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.theupnextapp.R
 import com.theupnextapp.core.designsystem.ui.components.SectionHeadingText
+import com.theupnextapp.core.designsystem.ui.components.ShimmerSeasonEpisodes
+import com.theupnextapp.domain.TraktUserList
 import com.theupnextapp.domain.TraktUserListItem
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Locale
-import androidx.compose.foundation.rememberScrollState as rememberHorizontalScrollState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Suppress("LongMethod")
@@ -107,15 +114,17 @@ fun WatchlistListContent(
     statusFilter: String? = null,
     availableStatuses: List<String> = emptyList(),
     totalWatchlistCount: Int = 0,
+    userCustomLists: List<TraktUserList> = emptyList(),
+    selectedListTraktId: Int? = null,
+    onSelectList: (Int?) -> Unit = {},
+    isLoading: Boolean = false,
+    isPullRefreshing: Boolean = false,
     onStatusFilterChange: (String?) -> Unit = {},
     header: @Composable () -> Unit = {},
     onItemClick: (item: TraktUserListItem) -> Unit,
     onRemoveItem: (item: TraktUserListItem) -> Unit,
     contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
-    var isSearchVisible by remember { mutableStateOf(false) }
-    var isSortMenuExpanded by remember { mutableStateOf(false) }
-
     val coroutineScope = rememberCoroutineScope()
     val showScrollToTop by remember {
         derivedStateOf {
@@ -131,8 +140,8 @@ fun WatchlistListContent(
             modifier = Modifier.fillMaxHeight().widthIn(max = 600.dp).testTag("watchlist_column"),
             state = lazyListState,
             contentPadding = PaddingValues(
-                start = contentPadding.calculateStartPadding(androidx.compose.ui.platform.LocalLayoutDirection.current),
-                end = contentPadding.calculateEndPadding(androidx.compose.ui.platform.LocalLayoutDirection.current),
+                start = contentPadding.calculateStartPadding(LocalLayoutDirection.current),
+                end = contentPadding.calculateEndPadding(LocalLayoutDirection.current),
                 top = contentPadding.calculateTopPadding(),
                 bottom = contentPadding.calculateBottomPadding()
             ),
@@ -143,223 +152,111 @@ fun WatchlistListContent(
             }
 
             item {
-                Column(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                    ) {
-                        SectionHeadingText(
-                            modifier = Modifier.weight(1f),
-                            text =
-                                if (statusFilter != null || watchlistSearchQuery.isNotBlank()) {
-                                    "${stringResource(id = R.string.title_favorites_list)} (${watchlistItems.size} of $totalWatchlistCount)"
-                                } else {
-                                    stringResource(id = R.string.title_favorites_list)
-                                },
-                        )
-                        Row(modifier = Modifier.padding(end = 16.dp)) {
-                            IconButton(onClick = { isSearchVisible = !isSearchVisible }) {
-                                Icon(
-                                    imageVector = Icons.Default.Search,
-                                    contentDescription = "Search Watchlist",
-                                )
-                            }
-                            Box {
-                                IconButton(onClick = { isSortMenuExpanded = true }) {
-                                    Icon(
-                                        imageVector = Icons.Default.Menu,
-                                        contentDescription = "Sort/Filter Watchlist",
-                                    )
-                                }
-                                DropdownMenu(
-                                    expanded = isSortMenuExpanded,
-                                    onDismissRequest = { isSortMenuExpanded = false },
-                                ) {
-                                    DropdownMenuItem(
-                                        text = {
-                                            Text(
-                                                stringResource(id = R.string.watchlist_sort_recently_added),
-                                                fontWeight = if (watchlistSortOption == WatchlistSortOption.ADDED) FontWeight.Bold else null,
-                                            )
-                                        },
-                                        onClick = {
-                                            onSortOptionChange(WatchlistSortOption.ADDED)
-                                            isSortMenuExpanded = false
-                                        },
-                                    )
-                                    DropdownMenuItem(
-                                        text = {
-                                            Text(
-                                                stringResource(id = R.string.watchlist_sort_title),
-                                                fontWeight = if (watchlistSortOption == WatchlistSortOption.TITLE) FontWeight.Bold else null,
-                                            )
-                                        },
-                                        onClick = {
-                                            onSortOptionChange(WatchlistSortOption.TITLE)
-                                            isSortMenuExpanded = false
-                                        },
-                                    )
-                                    DropdownMenuItem(
-                                        text = {
-                                            Text(
-                                                stringResource(id = R.string.watchlist_sort_release_year),
-                                                fontWeight = if (watchlistSortOption == WatchlistSortOption.RELEASE_YEAR) FontWeight.Bold else null,
-                                            )
-                                        },
-                                        onClick = {
-                                            onSortOptionChange(WatchlistSortOption.RELEASE_YEAR)
-                                            isSortMenuExpanded = false
-                                        },
-                                    )
-                                    DropdownMenuItem(
-                                        text = {
-                                            Text(
-                                                stringResource(id = R.string.watchlist_sort_rating),
-                                                fontWeight = if (watchlistSortOption == WatchlistSortOption.RATING) FontWeight.Bold else null,
-                                            )
-                                        },
-                                        onClick = {
-                                            onSortOptionChange(WatchlistSortOption.RATING)
-                                            isSortMenuExpanded = false
-                                        },
-                                    )
-                                }
-                            }
-                        }
-                    }
-                    Text(
-                        text = stringResource(id = R.string.watchlist_description),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
-                        modifier = Modifier.padding(horizontal = 16.dp).padding(top = 4.dp, bottom = 8.dp),
-                    )
+                WatchlistHeaderControls(
+                    userCustomLists = userCustomLists,
+                    selectedListTraktId = selectedListTraktId,
+                    onSelectList = onSelectList,
+                    watchlistItemsSize = watchlistItems.size,
+                    totalWatchlistCount = totalWatchlistCount,
+                    watchlistSearchQuery = watchlistSearchQuery,
+                    onSearchQueryChange = onSearchQueryChange,
+                    watchlistSortOption = watchlistSortOption,
+                    onSortOptionChange = onSortOptionChange,
+                    availableStatuses = availableStatuses,
+                    statusFilter = statusFilter,
+                    onStatusFilterChange = onStatusFilterChange,
+                )
+            }
 
-                    AnimatedVisibility(visible = isSearchVisible) {
-                        OutlinedTextField(
-                            value = watchlistSearchQuery,
-                            onValueChange = onSearchQueryChange,
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.dp)
-                                    .padding(top = 12.dp),
-                            placeholder = { Text(stringResource(id = R.string.watchlist_search_placeholder)) },
-                            singleLine = true,
-                            trailingIcon = {
-                                if (watchlistSearchQuery.isNotEmpty()) {
-                                    IconButton(onClick = { onSearchQueryChange("") }) {
-                                        Icon(Icons.Default.Clear, contentDescription = "Clear Search")
-                                    }
+            if (watchlistItems.isEmpty()) {
+                item {
+                    if (isLoading && !isPullRefreshing) {
+                        ShimmerSeasonEpisodes(modifier = Modifier.padding(top = 32.dp))
+                    } else {
+                        EmptyWatchlistContent()
+                    }
+                }
+            } else if (selectedListTraktId == null) {
+                itemsIndexed(
+                    items = watchlistItems,
+                    key = { _, item -> item.traktID ?: item.id ?: item.hashCode() },
+                ) { index, watchlistItem ->
+                    val dismissState =
+                        rememberSwipeToDismissBoxState(
+                            confirmValueChange = { dismissValue ->
+                                if (dismissValue == SwipeToDismissBoxValue.EndToStart || dismissValue == SwipeToDismissBoxValue.StartToEnd) {
+                                    onRemoveItem(watchlistItem)
+                                    true
+                                } else {
+                                    false
                                 }
                             },
                         )
-                    }
 
-                    // Status filter chips
-                    if (availableStatuses.isNotEmpty()) {
-                        Row(
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.dp)
-                                    .padding(top = 8.dp)
-                                    .horizontalScroll(rememberHorizontalScrollState()),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            FilterChip(
-                                selected = statusFilter == null,
-                                onClick = { onStatusFilterChange(null) },
-                                label = { Text(stringResource(id = R.string.watchlist_filter_all)) },
-                            )
-                            availableStatuses.forEach { status ->
-                                FilterChip(
-                                    selected = statusFilter == status,
-                                    onClick = {
-                                        onStatusFilterChange(
-                                            if (statusFilter == status) null else status,
-                                        )
-                                    },
-                                    label = { Text(getLocalizedStatus(status)) },
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-
-            itemsIndexed(
-                items = watchlistItems,
-                key = { _, item -> item.traktID ?: item.id ?: item.hashCode() },
-            ) { index, watchlistItem ->
-                val dismissState =
-                    rememberSwipeToDismissBoxState(
-                        confirmValueChange = { dismissValue ->
-                            if (dismissValue == SwipeToDismissBoxValue.EndToStart || dismissValue == SwipeToDismissBoxValue.StartToEnd) {
-                                onRemoveItem(watchlistItem)
-                                true
-                            } else {
-                                false
-                            }
-                        },
+                    // Educational Peek Animation for the first item
+                    val peekDelayMillis = 800L
+                    val peekSlideOffset = -80f
+                    val peekReturnDelayMillis = 600L
+                    var peekOffset by remember { mutableFloatStateOf(0f) }
+                    val animatedPeekOffset by animateFloatAsState(
+                        targetValue = peekOffset,
+                        animationSpec = tween(durationMillis = 400),
+                        label = "peekAnimation",
                     )
 
-                // Educational Peek Animation for the first item
-                val peekDelayMillis = 800L
-                val peekSlideOffset = -80f
-                val peekReturnDelayMillis = 600L
-                var peekOffset by remember { androidx.compose.runtime.mutableFloatStateOf(0f) }
-                val animatedPeekOffset by androidx.compose.animation.core.animateFloatAsState(
-                    targetValue = peekOffset,
-                    animationSpec = androidx.compose.animation.core.tween(durationMillis = 400),
-                    label = "peekAnimation",
-                )
+                    if (index == 0) {
+                        LaunchedEffect(Unit) {
+                            delay(peekDelayMillis)
+                            peekOffset = peekSlideOffset // Slide left
+                            delay(peekReturnDelayMillis)
+                            peekOffset = 0f // Slide back
+                        }
+                    }
 
-                if (index == 0) {
-                    LaunchedEffect(Unit) {
-                        kotlinx.coroutines.delay(peekDelayMillis)
-                        peekOffset = peekSlideOffset // Slide left
-                        kotlinx.coroutines.delay(peekReturnDelayMillis)
-                        peekOffset = 0f // Slide back
+                    SwipeToDismissBox(
+                        modifier = Modifier.animateItem().fillMaxWidth().padding(horizontal = 16.dp),
+                        state = dismissState,
+                        backgroundContent = {
+                            val isPeeking = animatedPeekOffset < -10f
+                            val color =
+                                when {
+                                    dismissState.targetValue != SwipeToDismissBoxValue.Settled -> MaterialTheme.colorScheme.error
+                                    isPeeking -> MaterialTheme.colorScheme.error
+                                    else -> Color.Transparent
+                                }
+                            Box(
+                                modifier =
+                                    Modifier
+                                        .fillMaxSize()
+                                        .clip(RoundedCornerShape(12.dp))
+                                        .background(color)
+                                        .padding(horizontal = 24.dp),
+                                contentAlignment = Alignment.CenterEnd,
+                            ) {
+                                if (dismissState.targetValue != SwipeToDismissBoxValue.Settled || isPeeking) {
+                                    Icon(
+                                        imageVector = Icons.Default.Delete,
+                                        contentDescription = stringResource(id = R.string.watchlist_remove_content_desc),
+                                        tint = MaterialTheme.colorScheme.onError,
+                                    )
+                                }
+                            }
+                        },
+                    ) {
+                        Box(modifier = Modifier.offset(x = animatedPeekOffset.dp)) {
+                            WatchlistListItemCard(
+                                item = watchlistItem,
+                                onClick = { onItemClick(watchlistItem) },
+                            )
+                        }
                     }
                 }
-
-                SwipeToDismissBox(
-                    modifier = Modifier.animateItem().fillMaxWidth().padding(horizontal = 16.dp),
-                    state = dismissState,
-                    backgroundContent = {
-                        val isPeeking = animatedPeekOffset < -10f
-                        val color =
-                            when {
-                                dismissState.targetValue != SwipeToDismissBoxValue.Settled -> MaterialTheme.colorScheme.error
-                                isPeeking -> MaterialTheme.colorScheme.error
-                                else -> Color.Transparent
-                            }
-                        Box(
-                            modifier =
-                                Modifier
-                                    .fillMaxSize()
-                                    .clip(RoundedCornerShape(12.dp))
-                                    .background(color)
-                                    .padding(horizontal = 24.dp),
-                            contentAlignment = Alignment.CenterEnd,
-                        ) {
-                            if (dismissState.targetValue != SwipeToDismissBoxValue.Settled || isPeeking) {
-                                Icon(
-                                    imageVector = Icons.Default.Delete,
-                                    contentDescription = stringResource(id = R.string.watchlist_remove_content_desc),
-                                    tint = MaterialTheme.colorScheme.onError,
-                                )
-                            }
-                        }
-                    },
-                ) {
-                    Box(modifier = Modifier.offset(x = animatedPeekOffset.dp)) {
+            } else {
+                items(
+                    items = watchlistItems,
+                    key = { item -> item.traktID ?: item.id ?: item.hashCode() },
+                ) { watchlistItem ->
+                    Box(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
                         WatchlistListItemCard(
                             item = watchlistItem,
                             onClick = { onItemClick(watchlistItem) },
@@ -393,6 +290,217 @@ fun WatchlistListContent(
                     imageVector = Icons.Default.ArrowUpward,
                     contentDescription = stringResource(id = R.string.scroll_to_top),
                 )
+            }
+        }
+    }
+}
+
+@Suppress("LongMethod")
+@Composable
+private fun WatchlistHeaderControls(
+    userCustomLists: List<TraktUserList>,
+    selectedListTraktId: Int?,
+    onSelectList: (Int?) -> Unit,
+    watchlistItemsSize: Int,
+    totalWatchlistCount: Int,
+    watchlistSearchQuery: String,
+    onSearchQueryChange: (String) -> Unit,
+    watchlistSortOption: WatchlistSortOption,
+    onSortOptionChange: (WatchlistSortOption) -> Unit,
+    availableStatuses: List<String>,
+    statusFilter: String?,
+    onStatusFilterChange: (String?) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var isSearchVisible by remember { mutableStateOf(false) }
+    var isSortMenuExpanded by remember { mutableStateOf(false) }
+    val currentCustomList = userCustomLists.find { it.traktId == selectedListTraktId }
+    val currentListTitle = currentCustomList?.name ?: stringResource(id = R.string.title_favorites_list)
+
+    Column(
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+    ) {
+        if (userCustomLists.isNotEmpty()) {
+            Row(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .padding(bottom = 8.dp)
+                        .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                FilterChip(
+                    selected = selectedListTraktId == null,
+                    onClick = { onSelectList(null) },
+                    label = { Text(stringResource(id = R.string.title_favorites_list)) },
+                )
+                userCustomLists.forEach { customList ->
+                    FilterChip(
+                        selected = selectedListTraktId == customList.traktId,
+                        onClick = { onSelectList(customList.traktId) },
+                        label = {
+                            val count = customList.itemCount
+                            val chipText = if (count > 0) "${customList.name} ($count)" else customList.name
+                            Text(chipText)
+                        },
+                    )
+                }
+            }
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            SectionHeadingText(
+                modifier = Modifier.weight(1f),
+                text =
+                    if (statusFilter != null || watchlistSearchQuery.isNotBlank()) {
+                        "$currentListTitle ($watchlistItemsSize of $totalWatchlistCount)"
+                    } else {
+                        currentListTitle
+                    },
+            )
+            Row(modifier = Modifier.padding(end = 16.dp)) {
+                IconButton(onClick = { isSearchVisible = !isSearchVisible }) {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Search Watchlist",
+                    )
+                }
+                Box {
+                    IconButton(onClick = { isSortMenuExpanded = true }) {
+                        Icon(
+                            imageVector = Icons.Default.Menu,
+                            contentDescription = "Sort/Filter Watchlist",
+                        )
+                    }
+                    DropdownMenu(
+                        expanded = isSortMenuExpanded,
+                        onDismissRequest = { isSortMenuExpanded = false },
+                    ) {
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    stringResource(id = R.string.watchlist_sort_recently_added),
+                                    fontWeight = if (watchlistSortOption == WatchlistSortOption.ADDED) FontWeight.Bold else null,
+                                )
+                            },
+                            onClick = {
+                                onSortOptionChange(WatchlistSortOption.ADDED)
+                                isSortMenuExpanded = false
+                            },
+                        )
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    stringResource(id = R.string.watchlist_sort_title),
+                                    fontWeight = if (watchlistSortOption == WatchlistSortOption.TITLE) FontWeight.Bold else null,
+                                )
+                            },
+                            onClick = {
+                                onSortOptionChange(WatchlistSortOption.TITLE)
+                                isSortMenuExpanded = false
+                            },
+                        )
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    stringResource(id = R.string.watchlist_sort_release_year),
+                                    fontWeight = if (watchlistSortOption == WatchlistSortOption.RELEASE_YEAR) FontWeight.Bold else null,
+                                )
+                            },
+                            onClick = {
+                                onSortOptionChange(WatchlistSortOption.RELEASE_YEAR)
+                                isSortMenuExpanded = false
+                            },
+                        )
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    stringResource(id = R.string.watchlist_sort_rating),
+                                    fontWeight = if (watchlistSortOption == WatchlistSortOption.RATING) FontWeight.Bold else null,
+                                )
+                            },
+                            onClick = {
+                                onSortOptionChange(WatchlistSortOption.RATING)
+                                isSortMenuExpanded = false
+                            },
+                        )
+                    }
+                }
+            }
+        }
+        val descriptionText =
+            when {
+                currentCustomList != null ->
+                    currentCustomList.description?.takeIf { it.isNotBlank() }
+                        ?: stringResource(id = R.string.trakt_custom_list_default_description)
+                else -> stringResource(id = R.string.watchlist_description)
+            }
+        Text(
+            text = descriptionText,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+            modifier =
+                Modifier
+                    .padding(horizontal = 16.dp)
+                    .padding(top = 4.dp, bottom = 8.dp),
+        )
+
+        AnimatedVisibility(visible = isSearchVisible) {
+            OutlinedTextField(
+                value = watchlistSearchQuery,
+                onValueChange = onSearchQueryChange,
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .padding(top = 12.dp),
+                placeholder = { Text(stringResource(id = R.string.watchlist_search_placeholder)) },
+                singleLine = true,
+                trailingIcon = {
+                    if (watchlistSearchQuery.isNotEmpty()) {
+                        IconButton(onClick = { onSearchQueryChange("") }) {
+                            Icon(Icons.Default.Clear, contentDescription = "Clear Search")
+                        }
+                    }
+                },
+            )
+        }
+
+        // Status filter chips
+        if (availableStatuses.isNotEmpty()) {
+            Row(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .padding(top = 8.dp)
+                        .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                FilterChip(
+                    selected = statusFilter == null,
+                    onClick = { onStatusFilterChange(null) },
+                    label = { Text(stringResource(id = R.string.watchlist_filter_all)) },
+                )
+                availableStatuses.forEach { status ->
+                    FilterChip(
+                        selected = statusFilter == status,
+                        onClick = {
+                            onStatusFilterChange(
+                                if (statusFilter == status) null else status,
+                            )
+                        },
+                        label = { Text(getLocalizedStatus(status)) },
+                    )
+                }
             }
         }
     }
@@ -508,7 +616,7 @@ fun WatchlistListItemCard(
 @Composable
 private fun getLocalizedStatus(status: String?): String {
     if (status == null) return ""
-    return when (status.lowercase(java.util.Locale.ROOT)) {
+    return when (status.lowercase(Locale.ROOT)) {
         "returning series" -> stringResource(R.string.status_returning_series)
         "in production" -> stringResource(R.string.status_in_production)
         "planned" -> stringResource(R.string.status_planned)

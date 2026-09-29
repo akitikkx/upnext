@@ -127,6 +127,7 @@
     <string name="trakt_loading_favorites">Loading your Trakt watchlist…</string>
     <string name="trakt_no_favorites_message">Watchlist Empty</string>
     <string name="trakt_no_favorites_description">Add shows to your watchlist on Trakt, and they\'ll appear here!</string>
+    <string name="trakt_custom_list_default_description">Shows in this Trakt custom list.</string>
     <string name="library_connect_to_trakt_dialog_title">Heads up!</string>
     <string name="library_connect_to_trakt_dialog_message">You are about to be redirected to your browser and outside of the UpNext TV Series Manager
         app, where you will be taken to the Trakt website. From there, you will need to authorise UpNext TV Series Manager access to your Trakt account

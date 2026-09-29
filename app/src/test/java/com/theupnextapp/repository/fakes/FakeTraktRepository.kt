@@ -102,6 +102,28 @@ class FakeTraktRepository : TraktRepository {
     private val _traktUserCustomLists = MutableStateFlow<List<TraktUserList>>(emptyList())
     override val traktUserCustomLists: Flow<List<TraktUserList>> = _traktUserCustomLists.asStateFlow()
 
+    val customListItemsFlowMap = mutableMapOf<Int, MutableStateFlow<List<TraktUserListItem>>>()
+    override fun getCustomListItems(listTraktId: Int): Flow<List<TraktUserListItem>> =
+        customListItemsFlowMap.getOrPut(listTraktId) { MutableStateFlow(emptyList()) }
+
+    var refreshUserCustomListsResult: Result<Unit> = Result.success(Unit)
+    var refreshUserCustomListsCallCount = 0
+        private set
+
+    override suspend fun refreshUserCustomLists(token: String): Result<Unit> {
+        refreshUserCustomListsCallCount++
+        return refreshUserCustomListsResult
+    }
+
+    var refreshCustomListItemsResult: Result<Unit> = Result.success(Unit)
+    var refreshCustomListItemsCallCount = 0
+        private set
+
+    override suspend fun refreshCustomListItems(token: String, listTraktId: Int): Result<Unit> {
+        refreshCustomListItemsCallCount++
+        return refreshCustomListItemsResult
+    }
+
     private val _isLoadingWatchlistShows = MutableStateFlow(false)
     override val isLoadingWatchlistShows: StateFlow<Boolean> = _isLoadingWatchlistShows.asStateFlow()
 
@@ -415,6 +437,15 @@ class FakeTraktRepository : TraktRepository {
 
     fun setWatchlistShows(shows: List<TraktUserListItem>) {
         _traktWatchlistShows.value = shows
+    }
+
+    fun setUserCustomLists(lists: List<TraktUserList>) {
+        _traktUserCustomLists.value = lists
+    }
+
+    fun setCustomListItems(listTraktId: Int, items: List<TraktUserListItem>) {
+        val flow = customListItemsFlowMap.getOrPut(listTraktId) { MutableStateFlow(emptyList()) }
+        flow.value = items
     }
 
     fun setLoading(loading: Boolean) {

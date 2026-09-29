@@ -24,6 +24,8 @@ package com.theupnextapp.datasource
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.squareup.moshi.Moshi
 import com.theupnextapp.common.utils.models.DatabaseTables
+import com.theupnextapp.database.DatabaseCustomList
+import com.theupnextapp.database.DatabaseCustomListItem
 import com.theupnextapp.database.DatabaseWatchlistShows
 import com.theupnextapp.database.TraktDao
 import com.theupnextapp.database.UpnextDao
@@ -659,6 +661,99 @@ constructor(
             traktError?.errorDescription ?: traktError?.error ?: defaultMessage
         } catch (e: Exception) {
             defaultMessage
+        }
+    }
+
+    suspend fun refreshUserCustomLists(token: String): Result<Unit> {
+        if (token.isEmpty()) return Result.failure(IllegalArgumentException("Token is empty"))
+        return withContext(Dispatchers.IO) {
+            try {
+                val bearerToken = formatBearerToken(token)
+                val response = traktService.getUserCustomListsAsync(
+                    token = bearerToken,
+                    userSlug = "me",
+                ).await()
+
+                val lists = response.mapNotNull { item ->
+                    val traktId = item.ids?.trakt
+                    if (traktId != null && traktId > 0) {
+                        DatabaseCustomList(
+                            traktId = traktId,
+                            slug = item.ids.slug,
+                            name = item.name.orEmpty(),
+                            description = item.description,
+                            itemCount = item.item_count ?: 0,
+                            updatedAt = item.updated_at,
+                            likes = item.likes ?: 0,
+                        )
+                    } else {
+                        null
+                    }
+                }
+
+                traktDao.insertCustomLists(lists)
+                val activeIds = lists.map { it.traktId }
+                if (activeIds.isNotEmpty()) {
+                    traktDao.deleteMissingCustomLists(activeIds)
+                }
+                Result.success(Unit)
+            } catch (e: Exception) {
+                logTraktException("Error refreshing user custom lists", e)
+                Result.failure(e)
+            }
+        }
+    }
+
+    suspend fun refreshCustomListItems(token: String, listTraktId: Int): Result<Unit> {
+        if (token.isEmpty()) return Result.failure(IllegalArgumentException("Token is empty"))
+        return withContext(Dispatchers.IO) {
+            try {
+                val bearerToken = formatBearerToken(token)
+                val response = traktService.getCustomListItemsAsync(
+                    token = bearerToken,
+                    userSlug = "me",
+                    traktId = listTraktId.toString(),
+                    limit = 1000,
+                ).await()
+
+                val items = response.mapNotNull { networkItem ->
+                    val show = networkItem.show
+                    val traktId = show?.ids?.trakt
+                    if (traktId != null && traktId > 0) {
+                        DatabaseCustomListItem(
+                            listTraktId = listTraktId,
+                            traktID = traktId,
+                            id = networkItem.id,
+                            title = show.title,
+                            year = show.year?.toString(),
+                            mediumImageUrl = show.mediumImageUrl,
+                            originalImageUrl = show.originalImageUrl,
+                            imdbID = show.ids.imdb,
+                            slug = show.ids.slug,
+                            tmdbID = show.ids.tmdb,
+                            tvdbID = show.ids.tvdb,
+                            tvMazeID = show.ids.tvMazeID,
+                            network = null,
+                            status = null,
+                            rating = null,
+                            rank = networkItem.rank,
+                            listedAt = networkItem.listed_at,
+                        )
+                    } else {
+                        null
+                    }
+                }
+
+                traktDao.insertCustomListItems(items)
+                val activeIds = items.map { it.traktID }
+                if (activeIds.isNotEmpty()) {
+                    traktDao.deleteMissingCustomListItems(listTraktId, activeIds)
+                }
+                Result.success(Unit)
+            } catch (e: Exception) {
+                logTraktException("Error refreshing custom list items for list $listTraktId", e)
+                Result.failure(e)
+            }
         }
     }
 

@@ -41,6 +41,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -87,6 +88,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.theupnextapp.R
 import com.theupnextapp.core.designsystem.ui.components.ShimmerSeasonEpisodes
 import com.theupnextapp.domain.TraktAuthState
+import com.theupnextapp.domain.TraktUserList
 import com.theupnextapp.domain.TraktUserListItem
 import com.theupnextapp.navigation.Destinations
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -107,7 +109,7 @@ fun TraktAccountScreen(
     code: String? = null,
     contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
-    val watchlistLazyListState = androidx.compose.foundation.lazy.rememberLazyListState()
+    val watchlistLazyListState = rememberLazyListState()
 
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
@@ -126,6 +128,8 @@ fun TraktAccountScreen(
     val watchlistStatusFilter by viewModel.watchlistStatusFilter.collectAsStateWithLifecycle()
     val availableStatuses by viewModel.availableStatuses.collectAsStateWithLifecycle()
     val totalWatchlistCount by viewModel.totalWatchlistCount.collectAsStateWithLifecycle()
+    val userCustomLists by viewModel.userCustomLists.collectAsStateWithLifecycle()
+    val selectedListTraktId by viewModel.selectedListTraktId.collectAsStateWithLifecycle()
     val isPullRefreshing by viewModel.isPullRefreshing.collectAsStateWithLifecycle()
 
     val onRefreshWatchlist = {
@@ -222,6 +226,9 @@ fun TraktAccountScreen(
                 watchlistStatusFilter = watchlistStatusFilter,
                 availableStatuses = availableStatuses,
                 totalWatchlistCount = totalWatchlistCount,
+                userCustomLists = userCustomLists,
+                selectedListTraktId = selectedListTraktId,
+                onSelectList = viewModel::onSelectList,
                 onStatusFilterChange = viewModel::onStatusFilterChange,
                 onRefreshWatchlist = onRefreshWatchlist,
                 contentPadding = contentPadding,
@@ -275,12 +282,15 @@ internal fun AccountContent(
     watchlistSearchQuery: String,
     watchlistSortOption: WatchlistSortOption,
     watchlistLazyListState: LazyListState,
-    isPullRefreshing: Boolean,
+    isPullRefreshing: Boolean = false,
     onSearchQueryChange: (String) -> Unit,
     onSortOptionChange: (WatchlistSortOption) -> Unit,
     watchlistStatusFilter: String? = null,
     availableStatuses: List<String> = emptyList(),
     totalWatchlistCount: Int = 0,
+    userCustomLists: List<TraktUserList> = emptyList(),
+    selectedListTraktId: Int? = null,
+    onSelectList: (Int?) -> Unit = {},
     onStatusFilterChange: (String?) -> Unit = {},
     onRefreshWatchlist: () -> Unit,
     onConnectToTraktClick: () -> Unit,
@@ -314,7 +324,61 @@ internal fun AccountContent(
                         onRefresh = onRefreshWatchlist,
                         modifier = Modifier.weight(1f).fillMaxWidth(),
                     ) {
-                        if (!isLoadingWatchlists && !isWatchlistShowsEmpty) {
+                        if (isWatchlistShowsEmpty && isLoadingWatchlists && !isPullRefreshing && userCustomLists.isEmpty()) {
+                            Box(
+                                modifier = Modifier.fillMaxSize().padding(contentPadding),
+                                contentAlignment = Alignment.TopCenter,
+                            ) {
+                                Column(
+                                    modifier = Modifier.fillMaxHeight().widthIn(max = 600.dp).verticalScroll(rememberScrollState()),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                ) {
+                                    Column(
+                                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).padding(top = 16.dp),
+                                        horizontalAlignment = Alignment.Start,
+                                    ) {
+                                        TraktProfileHeader(onLogoutClick = onLogoutClick)
+                                        Spacer(modifier = Modifier.height(16.dp))
+                                        OutlinedCard(
+                                            onClick = onWatchHistoryClick,
+                                            modifier = Modifier.fillMaxWidth(),
+                                        ) {
+                                            Row(
+                                                modifier = Modifier.padding(16.dp),
+                                                verticalAlignment = Alignment.CenterVertically,
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.Default.History,
+                                                    contentDescription = null,
+                                                    tint = MaterialTheme.colorScheme.primary,
+                                                )
+                                                Spacer(modifier = Modifier.width(16.dp))
+                                                Column(modifier = Modifier.weight(1f)) {
+                                                    Text(
+                                                        text = stringResource(R.string.trakt_account_history_title),
+                                                        style = MaterialTheme.typography.titleMedium,
+                                                        fontWeight = FontWeight.Bold,
+                                                    )
+                                                    Text(
+                                                        text = stringResource(R.string.trakt_account_history_desc),
+                                                        style = MaterialTheme.typography.bodySmall,
+                                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                    )
+                                                }
+                                                Icon(
+                                                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                                    contentDescription = null,
+                                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                )
+                                            }
+                                        }
+                                        Spacer(modifier = Modifier.height(16.dp))
+                                    }
+
+                                    ShimmerSeasonEpisodes(modifier = Modifier.padding(top = 32.dp))
+                                }
+                            }
+                        } else {
                             WatchlistListContent(
                                 watchlistItems = watchlistShowsList,
                                 watchlistSearchQuery = watchlistSearchQuery,
@@ -325,12 +389,17 @@ internal fun AccountContent(
                                 statusFilter = watchlistStatusFilter,
                                 availableStatuses = availableStatuses,
                                 totalWatchlistCount = totalWatchlistCount,
+                                userCustomLists = userCustomLists,
+                                selectedListTraktId = selectedListTraktId,
+                                onSelectList = onSelectList,
+                                isLoading = isLoadingWatchlists,
+                                isPullRefreshing = isPullRefreshing,
                                 onStatusFilterChange = onStatusFilterChange,
                                 modifier = Modifier.fillMaxSize(),
                                 header = {
                                     Column(
                                         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).padding(top = 16.dp),
-                                        horizontalAlignment = Alignment.Start
+                                        horizontalAlignment = Alignment.Start,
                                     ) {
                                         TraktProfileHeader(onLogoutClick = onLogoutClick)
                                         Spacer(modifier = Modifier.height(16.dp))
@@ -374,64 +443,6 @@ internal fun AccountContent(
                                 onRemoveItem = onRemoveItem,
                                 contentPadding = contentPadding,
                             )
-                        } else {
-                            Box( // Empty Watchlist Content wrapper
-                                modifier = Modifier.fillMaxSize().padding(contentPadding),
-                                contentAlignment = Alignment.TopCenter
-                            ) {
-                                Column(
-                                    modifier = Modifier.fillMaxHeight().widthIn(max = 600.dp).verticalScroll(rememberScrollState()),
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                ) {
-                                    Column(
-                                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).padding(top = 16.dp),
-                                        horizontalAlignment = Alignment.Start
-                                    ) {
-                                        TraktProfileHeader(onLogoutClick = onLogoutClick)
-                                        Spacer(modifier = Modifier.height(16.dp))
-                                        OutlinedCard(
-                                            onClick = onWatchHistoryClick,
-                                            modifier = Modifier.fillMaxWidth(),
-                                        ) {
-                                            Row(
-                                                modifier = Modifier.padding(16.dp),
-                                                verticalAlignment = Alignment.CenterVertically,
-                                            ) {
-                                                Icon(
-                                                    imageVector = Icons.Default.History,
-                                                    contentDescription = null,
-                                                    tint = MaterialTheme.colorScheme.primary,
-                                                )
-                                                Spacer(modifier = Modifier.width(16.dp))
-                                                Column(modifier = Modifier.weight(1f)) {
-                                                    Text(
-                                                        text = stringResource(R.string.trakt_account_history_title),
-                                                        style = MaterialTheme.typography.titleMedium,
-                                                        fontWeight = FontWeight.Bold,
-                                                    )
-                                                    Text(
-                                                        text = stringResource(R.string.trakt_account_history_desc),
-                                                        style = MaterialTheme.typography.bodySmall,
-                                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                    )
-                                                }
-                                                Icon(
-                                                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                                                    contentDescription = null,
-                                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                )
-                                            }
-                                        }
-                                        Spacer(modifier = Modifier.height(16.dp))
-                                    }
-
-                                    if (isLoadingWatchlists && !isPullRefreshing) {
-                                        ShimmerSeasonEpisodes(modifier = Modifier.padding(top = 32.dp))
-                                    } else {
-                                        EmptyWatchlistContent()
-                                    }
-                                }
-                            }
                         }
                     }
                 }

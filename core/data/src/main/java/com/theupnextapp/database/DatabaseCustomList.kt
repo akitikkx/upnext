@@ -19,14 +19,36 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.theupnextapp.domain
+package com.theupnextapp.database
 
-data class TraktUserList(
-    val traktId: Int? = null,
-    val slug: String? = null,
-    val name: String = "",
-    val description: String? = null,
-    val itemCount: Int = 0,
-    val updatedAt: String? = null,
-    val likes: Int = 0,
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import com.theupnextapp.domain.TraktUserList
+
+@Entity(tableName = "trakt_custom_lists")
+data class DatabaseCustomList(
+    @PrimaryKey
+    val traktId: Int,
+    val slug: String?,
+    val name: String,
+    val description: String?,
+    val itemCount: Int,
+    val updatedAt: String?,
+    val likes: Int,
 )
+
+fun DatabaseCustomList.asDomainModel(): TraktUserList {
+    return TraktUserList(
+        traktId = traktId,
+        slug = slug,
+        name = name,
+        description = description,
+        itemCount = itemCount,
+        updatedAt = updatedAt,
+        likes = likes,
+    )
+}
+
+fun List<DatabaseCustomList>.asDomainModel(): List<TraktUserList> {
+    return map { it.asDomainModel() }
+}

@@ -158,6 +158,11 @@ interface TraktRepository : TrackingProvider {
 
     suspend fun clearWatchlist()
 
+    // Custom Lists Management
+    fun getCustomListItems(listTraktId: Int): Flow<List<TraktUserListItem>>
+    suspend fun refreshUserCustomLists(token: String): Result<Unit>
+    suspend fun refreshCustomListItems(token: String, listTraktId: Int): Result<Unit>
+
     // Public lists refresh
     suspend fun refreshTraktTrendingShows(forceRefresh: Boolean)
 
