@@ -13,6 +13,8 @@ import com.theupnextapp.domain.TraktShowStats
 import com.theupnextapp.domain.TraktTrendingShows
 import com.theupnextapp.domain.TraktUserList
 import com.theupnextapp.domain.TraktUserListItem
+import com.theupnextapp.domain.WatchHistoryItem
+import com.theupnextapp.domain.WatchHistorySyncResult
 import com.theupnextapp.network.models.trakt.NetworkTraktHistoryResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktMyScheduleResponse
 import com.theupnextapp.network.models.trakt.NetworkTraktPersonResponse
@@ -60,6 +62,15 @@ class FakeTraktRepository : TraktRepository {
 
     private val _traktWatchlistShows = MutableStateFlow<List<TraktUserListItem>>(emptyList())
     override val traktWatchlistShows: Flow<List<TraktUserListItem>> = _traktWatchlistShows.asStateFlow()
+
+    private val _watchHistory = MutableStateFlow<List<WatchHistoryItem>>(emptyList())
+    override val watchHistory: Flow<List<WatchHistoryItem>> = _watchHistory.asStateFlow()
+
+    private val _isLoadingWatchHistory = MutableStateFlow(false)
+    override val isLoadingWatchHistory: StateFlow<Boolean> = _isLoadingWatchHistory.asStateFlow()
+
+    private val _watchHistoryError = MutableStateFlow<String?>(null)
+    override val watchHistoryError: StateFlow<String?> = _watchHistoryError.asStateFlow()
 
     private val _traktAccessToken = MutableStateFlow<TraktAccessToken?>(null)
     override val traktAccessToken: StateFlow<TraktAccessToken?> = _traktAccessToken.asStateFlow()
@@ -313,8 +324,80 @@ class FakeTraktRepository : TraktRepository {
         token: String,
         page: Int,
         limit: Int,
+        startAt: String?,
+        endAt: String?,
     ): Result<TraktHistoryPage> =
         recentHistoryResult
+
+    override suspend fun syncWatchHistory(forceFull: Boolean): Result<WatchHistorySyncResult> {
+        return recentHistoryResult.map { page ->
+            val mapped = page.items.mapNotNull { item ->
+                val id = item.id ?: return@mapNotNull null
+                val traktId = item.show?.ids?.trakt ?: return@mapNotNull null
+                WatchHistoryItem(
+                    historyId = id,
+                    watchedAt = item.watchedAt.orEmpty(),
+                    watchedAtEpochMillis = 0L,
+                    showTraktId = traktId,
+                    episodeTraktId = item.episode?.ids?.trakt,
+                    showTvmazeId = null,
+                    showImdbId = item.show?.ids?.imdb,
+                    showTitle = item.show?.title.orEmpty(),
+                    seasonNumber = item.episode?.season ?: 0,
+                    episodeNumber = item.episode?.number ?: 0,
+                    episodeTitle = item.episode?.title.orEmpty(),
+                    episodeImageUrl = null,
+                    showPosterUrl = null,
+                )
+            }
+            if (forceFull) {
+                _watchHistory.value = mapped
+            } else {
+                _watchHistory.value = (_watchHistory.value + mapped).distinctBy { it.historyId }
+            }
+            WatchHistorySyncResult(
+                totalItemCount = page.totalItemCount,
+                itemsFetchedCount = page.items.size,
+            )
+        }
+    }
+
+    override suspend fun loadOlderWatchHistory(): Result<WatchHistorySyncResult> {
+        return recentHistoryResult.map { page ->
+            val mapped = page.items.mapNotNull { item ->
+                val id = item.id ?: return@mapNotNull null
+                val traktId = item.show?.ids?.trakt ?: return@mapNotNull null
+                WatchHistoryItem(
+                    historyId = id,
+                    watchedAt = item.watchedAt.orEmpty(),
+                    watchedAtEpochMillis = 0L,
+                    showTraktId = traktId,
+                    episodeTraktId = item.episode?.ids?.trakt,
+                    showTvmazeId = null,
+                    showImdbId = item.show?.ids?.imdb,
+                    showTitle = item.show?.title.orEmpty(),
+                    seasonNumber = item.episode?.season ?: 0,
+                    episodeNumber = item.episode?.number ?: 0,
+                    episodeTitle = item.episode?.title.orEmpty(),
+                    episodeImageUrl = null,
+                    showPosterUrl = null,
+                )
+            }
+            _watchHistory.value = (_watchHistory.value + mapped).distinctBy { it.historyId }
+            WatchHistorySyncResult(
+                totalItemCount = page.totalItemCount,
+                itemsFetchedCount = page.items.size,
+            )
+        }
+    }
+
+    override suspend fun clearWatchHistory() {
+        _watchHistory.value = emptyList()
+    }
+
+    fun setWatchHistory(items: List<WatchHistoryItem>) {
+        _watchHistory.value = items
+    }
 
     override suspend fun getTraktRecommendations(token: String): Result<NetworkTraktRecommendationsResponse> =
         Result.success(

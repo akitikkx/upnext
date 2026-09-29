@@ -50,6 +50,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import javax.inject.Provider
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
@@ -82,6 +83,7 @@ object RepositoryModule {
         traktAuthDataSource: TraktAuthDataSource,
         traktRecommendationsDataSource: TraktRecommendationsDataSource,
         traktAccountDataSource: TraktAccountDataSource,
+        dashboardRepositoryProvider: Provider<DashboardRepository>,
     ): TraktRepository {
         return TraktRepositoryImpl(
             upnextDao = upnextDao,
@@ -90,6 +92,7 @@ object RepositoryModule {
             traktAuthDataSource = traktAuthDataSource,
             traktRecommendationsDataSource = traktRecommendationsDataSource,
             traktAccountDataSource = traktAccountDataSource,
+            dashboardRepositoryProvider = dashboardRepositoryProvider,
         )
     }
 

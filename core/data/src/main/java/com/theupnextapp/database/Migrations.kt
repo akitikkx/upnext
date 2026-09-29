@@ -293,3 +293,41 @@ val MIGRATION_33_34 =
             )
         }
     }
+
+val MIGRATION_34_35 =
+    object : Migration(
+        34,
+        35,
+    ) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `watch_history` (
+                    `historyId` INTEGER NOT NULL,
+                    `watchedAt` TEXT NOT NULL,
+                    `watchedAtEpochMillis` INTEGER NOT NULL,
+                    `showTraktId` INTEGER NOT NULL,
+                    `episodeTraktId` INTEGER,
+                    `showTvmazeId` INTEGER,
+                    `showImdbId` TEXT,
+                    `showTitle` TEXT NOT NULL,
+                    `seasonNumber` INTEGER NOT NULL,
+                    `episodeNumber` INTEGER NOT NULL,
+                    `episodeTitle` TEXT NOT NULL,
+                    `episodeImageUrl` TEXT,
+                    `showPosterUrl` TEXT,
+                    PRIMARY KEY(`historyId`)
+                )
+                """.trimIndent(),
+            )
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS `index_watch_history_watchedAtEpochMillis` ON `watch_history` (`watchedAtEpochMillis`)",
+            )
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS `index_watch_history_showTraktId` ON `watch_history` (`showTraktId`)",
+            )
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS `index_watch_history_watchedAt` ON `watch_history` (`watchedAt`)",
+            )
+        }
+    }

@@ -39,6 +39,7 @@ import org.junit.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import javax.inject.Provider
 
 class TraktRepositoryImplTest {
     private val upnextDao: UpnextDao = mock()
@@ -47,6 +48,8 @@ class TraktRepositoryImplTest {
     private val traktAuthDataSource: TraktAuthDataSource = mock()
     private val traktRecommendationsDataSource: TraktRecommendationsDataSource = mock()
     private val traktAccountDataSource: TraktAccountDataSource = mock()
+    private val dashboardRepository: DashboardRepository = mock()
+    private val dashboardRepositoryProvider: Provider<DashboardRepository> = Provider { dashboardRepository }
 
     private val trendingShowsFlow = MutableStateFlow<List<DatabaseTrendingShows>>(emptyList())
     private val popularShowsFlow = MutableStateFlow<List<DatabaseTraktPopularShows>>(emptyList())
@@ -61,6 +64,7 @@ class TraktRepositoryImplTest {
         whenever(traktDao.getTraktPopular()).thenReturn(popularShowsFlow)
         whenever(traktDao.getTraktMostAnticipated()).thenReturn(mostAnticipatedShowsFlow)
         whenever(traktDao.getWatchlistShows()).thenReturn(flowOf(emptyList()))
+        whenever(traktDao.getWatchHistoryFlow()).thenReturn(flowOf(emptyList()))
 
         repository =
             TraktRepositoryImpl(
@@ -70,6 +74,7 @@ class TraktRepositoryImplTest {
                 traktAuthDataSource,
                 traktRecommendationsDataSource,
                 traktAccountDataSource,
+                dashboardRepositoryProvider,
             )
     }
 

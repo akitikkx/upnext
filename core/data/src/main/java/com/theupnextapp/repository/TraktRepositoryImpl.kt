@@ -22,6 +22,7 @@
 package com.theupnextapp.repository
 
 import com.theupnextapp.database.DatabaseTraktAccess
+import com.theupnextapp.database.DatabaseWatchHistory
 import com.theupnextapp.database.DatabaseWatchlistShows
 import com.theupnextapp.database.TraktDao
 import com.theupnextapp.database.UpnextDao
@@ -31,6 +32,7 @@ import com.theupnextapp.datasource.TraktAuthDataSource
 import com.theupnextapp.datasource.TraktRecommendationsDataSource
 import com.theupnextapp.domain.ShowSeasonEpisode
 import com.theupnextapp.domain.TableUpdate
+import com.theupnextapp.domain.TrackingProvider
 import com.theupnextapp.domain.TraktAccessToken
 import com.theupnextapp.domain.TraktCast
 import com.theupnextapp.domain.TraktCheckInStatus
@@ -42,6 +44,9 @@ import com.theupnextapp.domain.TraktShowStats
 import com.theupnextapp.domain.TraktTrendingShows
 import com.theupnextapp.domain.TraktUserList
 import com.theupnextapp.domain.TraktUserListItem
+import com.theupnextapp.domain.TrendingShow
+import com.theupnextapp.domain.WatchHistoryItem
+import com.theupnextapp.domain.WatchHistorySyncResult
 import com.theupnextapp.domain.isTraktAccessTokenValid
 import com.theupnextapp.network.TvMazeService
 import com.theupnextapp.network.models.trakt.NetworkTraktHistoryResponse
@@ -68,10 +73,13 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-
-import com.theupnextapp.domain.TrackingProvider
-import com.theupnextapp.domain.TrendingShow
+import timber.log.Timber
+import java.time.Instant
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import javax.inject.Provider
 
 class TraktRepositoryImpl(
     upnextDao: UpnextDao,
@@ -80,11 +88,14 @@ class TraktRepositoryImpl(
     private val traktAuthDataSource: TraktAuthDataSource,
     private val traktRecommendationsDataSource: TraktRecommendationsDataSource,
     private val traktAccountDataSource: TraktAccountDataSource,
+    private val dashboardRepositoryProvider: Provider<DashboardRepository>,
 ) : BaseRepository(upnextDao, tvMazeService), TraktRepository, TrackingProvider {
     private val repositoryScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     companion object {
         private const val FLOW_STOP_TIMEOUT_MS = 5000L
+        private const val SYNC_HISTORY_PAGE_SIZE = 100
+        private const val OLDER_HISTORY_PAGE_SIZE = 50
     }
 
     override val providerId: String = "trakt"
@@ -102,6 +113,17 @@ class TraktRepositoryImpl(
         )
 
     override val isAuthorized: StateFlow<Boolean> = isAuthorizedOnTrakt()
+
+    override val watchHistory: Flow<List<WatchHistoryItem>> =
+        traktDao.getWatchHistoryFlow().map { list ->
+            list.asDomainModel()
+        }
+
+    private val _isLoadingWatchHistory = MutableStateFlow(false)
+    override val isLoadingWatchHistory: StateFlow<Boolean> = _isLoadingWatchHistory.asStateFlow()
+
+    private val _watchHistoryError = MutableStateFlow<String?>(null)
+    override val watchHistoryError: StateFlow<String?> = _watchHistoryError.asStateFlow()
 
     private val _isLoadingTraktTrending = MutableStateFlow(false)
     override val isLoadingTraktTrending: StateFlow<Boolean> = _isLoadingTraktTrending.asStateFlow()
@@ -522,8 +544,198 @@ class TraktRepositoryImpl(
         token: String,
         page: Int,
         limit: Int,
+        startAt: String?,
+        endAt: String?,
     ): Result<TraktHistoryPage> {
-        return traktAccountDataSource.getTraktRecentHistory(token, page, limit)
+        return traktAccountDataSource.getTraktRecentHistory(
+            token = token,
+            page = page,
+            limit = limit,
+            startAt = startAt,
+            endAt = endAt,
+        )
+    }
+
+    override suspend fun syncWatchHistory(forceFull: Boolean): Result<WatchHistorySyncResult> {
+        return withContext(Dispatchers.IO) {
+            _isLoadingWatchHistory.value = true
+            _watchHistoryError.value = null
+            try {
+                val token = traktAccessToken.value?.access_token
+                    ?: getTraktAccessTokenSync()?.access_token
+                    ?: run {
+                        _isLoadingWatchHistory.value = false
+                        return@withContext Result.failure(Exception("Not authorized on Trakt"))
+                    }
+
+                val latestTimestamp = if (forceFull) null else traktDao.getLatestWatchedTimestamp()
+                val response = traktAccountDataSource.getTraktRecentHistory(
+                    token = token,
+                    page = 1,
+                    limit = SYNC_HISTORY_PAGE_SIZE,
+                    startAt = latestTimestamp,
+                )
+
+                if (response.isSuccess) {
+                    val historyPage = response.getOrNull()
+                    val items = historyPage?.items.orEmpty()
+                    val dbItems = items.mapNotNull { mapToDatabaseWatchHistory(it) }
+                    if (dbItems.isNotEmpty()) {
+                        traktDao.insertWatchHistory(dbItems)
+                        enrichHistoryImages(dbItems)
+                    }
+                    _isLoadingWatchHistory.value = false
+                    Result.success(
+                        WatchHistorySyncResult(
+                            totalItemCount = historyPage?.totalItemCount,
+                            itemsFetchedCount = items.size,
+                        ),
+                    )
+                } else {
+                    val error = response.exceptionOrNull() ?: Exception("Failed to sync watch history")
+                    _watchHistoryError.value = error.message
+                    _isLoadingWatchHistory.value = false
+                    Result.failure(error)
+                }
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to sync watch history")
+                _watchHistoryError.value = e.message
+                _isLoadingWatchHistory.value = false
+                Result.failure(e)
+            }
+        }
+    }
+
+    override suspend fun loadOlderWatchHistory(): Result<WatchHistorySyncResult> {
+        return withContext(Dispatchers.IO) {
+            _isLoadingWatchHistory.value = true
+            try {
+                val token = traktAccessToken.value?.access_token
+                    ?: getTraktAccessTokenSync()?.access_token
+                    ?: run {
+                        _isLoadingWatchHistory.value = false
+                        return@withContext Result.failure(Exception("Not authorized on Trakt"))
+                    }
+
+                val oldestTimestamp = traktDao.getOldestWatchedTimestamp()
+                val response = traktAccountDataSource.getTraktRecentHistory(
+                    token = token,
+                    page = 1,
+                    limit = OLDER_HISTORY_PAGE_SIZE,
+                    endAt = oldestTimestamp,
+                )
+
+                if (response.isSuccess) {
+                    val historyPage = response.getOrNull()
+                    val items = historyPage?.items.orEmpty()
+                    val dbItems = items.mapNotNull { mapToDatabaseWatchHistory(it) }
+                    if (dbItems.isNotEmpty()) {
+                        traktDao.insertWatchHistory(dbItems)
+                        enrichHistoryImages(dbItems)
+                    }
+                    _isLoadingWatchHistory.value = false
+                    Result.success(
+                        WatchHistorySyncResult(
+                            totalItemCount = historyPage?.totalItemCount,
+                            itemsFetchedCount = items.size,
+                        ),
+                    )
+                } else {
+                    val error = response.exceptionOrNull() ?: Exception("Failed to load older watch history")
+                    _isLoadingWatchHistory.value = false
+                    Result.failure(error)
+                }
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to load older watch history")
+                _isLoadingWatchHistory.value = false
+                Result.failure(e)
+            }
+        }
+    }
+
+    override suspend fun clearWatchHistory() {
+        withContext(Dispatchers.IO) {
+            traktDao.clearWatchHistory()
+        }
+    }
+
+    private fun enrichHistoryImages(history: List<DatabaseWatchHistory>) {
+        if (history.isEmpty()) return
+        repositoryScope.launch(Dispatchers.IO) {
+            val distinctShows = history.mapNotNull { item ->
+                if (item.showImdbId != null) item.showTraktId to item.showImdbId else null
+            }.distinctBy { it.first }
+
+            val dashboardRepo = dashboardRepositoryProvider.get()
+
+            for ((showTraktId, imdbId) in distinctShows) {
+                try {
+                    val (showPosterUrl, _) = dashboardRepo.getShowImageAndTvmazeId(imdbId)
+                    if (!showPosterUrl.isNullOrEmpty()) {
+                        traktDao.updateShowPosterForShow(showTraktId, showPosterUrl)
+                    }
+                } catch (e: Exception) {
+                    Timber.d(e, "Failed to resolve show poster for showTraktId: $showTraktId")
+                }
+            }
+
+            val missingEpisodeImages = history.filter { it.episodeImageUrl.isNullOrEmpty() && it.showImdbId != null }
+            for (item in missingEpisodeImages) {
+                try {
+                    val (episodeStillUrl, _) = dashboardRepo.getEpisodeImageAndTvmazeId(
+                        item.showImdbId,
+                        item.seasonNumber,
+                        item.episodeNumber,
+                    )
+                    if (!episodeStillUrl.isNullOrEmpty()) {
+                        traktDao.updateWatchHistoryImages(
+                            historyId = item.historyId,
+                            episodeImageUrl = episodeStillUrl,
+                            showPosterUrl = item.showPosterUrl,
+                        )
+                    }
+                } catch (e: Exception) {
+                    Timber.d(e, "Failed to resolve episode image for historyId: ${item.historyId}")
+                }
+            }
+        }
+    }
+
+    private fun mapToDatabaseWatchHistory(item: NetworkTraktHistoryResponse): DatabaseWatchHistory? {
+        val historyId = item.id ?: return null
+        val traktId = item.show?.ids?.trakt ?: return null
+        val watchedAt = item.watchedAt.orEmpty()
+        val watchedAtEpochMillis = parseIsoToEpochMillis(watchedAt)
+        return DatabaseWatchHistory(
+            historyId = historyId,
+            watchedAt = watchedAt,
+            watchedAtEpochMillis = watchedAtEpochMillis,
+            showTraktId = traktId,
+            episodeTraktId = item.episode?.ids?.trakt,
+            showTvmazeId = null,
+            showImdbId = item.show?.ids?.imdb,
+            showTitle = item.show?.title.orEmpty(),
+            seasonNumber = item.episode?.season ?: 0,
+            episodeNumber = item.episode?.number ?: 0,
+            episodeTitle = item.episode?.title.orEmpty(),
+            episodeImageUrl = null,
+            showPosterUrl = null,
+        )
+    }
+
+    private fun parseIsoToEpochMillis(dateString: String): Long {
+        if (dateString.isEmpty()) return System.currentTimeMillis()
+        return try {
+            Instant.parse(dateString).toEpochMilli()
+        } catch (e: Exception) {
+            try {
+                ZonedDateTime.parse(dateString, DateTimeFormatter.ISO_ZONED_DATE_TIME)
+                    .toInstant()
+                    .toEpochMilli()
+            } catch (e2: Exception) {
+                System.currentTimeMillis()
+            }
+        }
     }
 
     override suspend fun getTraktShowProgress(token: String, showId: String): Result<NetworkTraktShowProgressResponse> {

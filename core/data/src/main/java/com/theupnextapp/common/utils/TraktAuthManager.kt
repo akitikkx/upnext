@@ -30,6 +30,7 @@ import com.theupnextapp.domain.isTraktAccessTokenValid
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.work.RefreshWatchedProgressWorker
 import com.theupnextapp.work.RefreshWatchlistWorker
+import com.theupnextapp.work.SyncWatchHistoryWorker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -117,6 +118,15 @@ class TraktAuthManager @Inject constructor(
                                 "refresh_watched_progress_work",
                                 ExistingWorkPolicy.KEEP,
                                 refreshWatchedWork
+                            )
+
+                            val syncHistoryWork = OneTimeWorkRequest.Builder(SyncWatchHistoryWorker::class.java)
+                                .build()
+
+                            workManager.enqueueUniqueWork(
+                                "sync_watch_history_work",
+                                ExistingWorkPolicy.KEEP,
+                                syncHistoryWork
                             )
                         }
                     }

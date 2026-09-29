@@ -160,4 +160,34 @@ class MigrationTest {
             assertEquals("simkl", it.getString(it.getColumnIndexOrThrow("providerId")))
         }
     }
+
+    @Test
+    @Throws(IOException::class)
+    fun migrate34To35() {
+        helper.createDatabase(TEST_DB_NAME, 34).apply {
+            close()
+        }
+
+        val db = helper.runMigrationsAndValidate(TEST_DB_NAME, 35, true, MIGRATION_34_35)
+
+        db.execSQL(
+            """
+            INSERT INTO watch_history (historyId, watchedAt, watchedAtEpochMillis, showTraktId, episodeTraktId, showTvmazeId, showImdbId, showTitle, seasonNumber, episodeNumber, episodeTitle, episodeImageUrl, showPosterUrl)
+            VALUES (12345, '2026-09-20T12:00:00.000Z', 1790000000000, 100, 200, 300, 'tt100', 'Severance', 1, 1, 'Good News About Hell', 'http://episode.jpg', 'http://poster.jpg')
+            """.trimIndent()
+        )
+
+        val cursor = db.query("SELECT * FROM watch_history WHERE historyId = 12345")
+        cursor.use {
+            assertTrue(it.moveToFirst())
+            assertEquals(1, it.count)
+            assertEquals("Severance", it.getString(it.getColumnIndexOrThrow("showTitle")))
+            assertEquals("Good News About Hell", it.getString(it.getColumnIndexOrThrow("episodeTitle")))
+            assertEquals(1, it.getInt(it.getColumnIndexOrThrow("seasonNumber")))
+            assertEquals(1, it.getInt(it.getColumnIndexOrThrow("episodeNumber")))
+            assertEquals(1790000000000L, it.getLong(it.getColumnIndexOrThrow("watchedAtEpochMillis")))
+            assertEquals("http://episode.jpg", it.getString(it.getColumnIndexOrThrow("episodeImageUrl")))
+            assertEquals("http://poster.jpg", it.getString(it.getColumnIndexOrThrow("showPosterUrl")))
+        }
+    }
 }

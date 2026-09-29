@@ -25,6 +25,7 @@ import com.theupnextapp.database.DatabaseTraktAccess
 import com.theupnextapp.database.DatabaseTraktMostAnticipated
 import com.theupnextapp.database.DatabaseTraktPopularShows
 import com.theupnextapp.database.DatabaseTrendingShows
+import com.theupnextapp.database.DatabaseWatchHistory
 import com.theupnextapp.database.DatabaseWatchedEpisode
 import com.theupnextapp.database.DatabaseWatchlistShows
 import com.theupnextapp.database.TraktDao
@@ -175,4 +176,56 @@ class FakeTraktDao : TraktDao {
         showTraktId: Int,
         season: Int,
     ) {}
+
+    // WATCH HISTORY
+    private val _watchHistory = mutableListOf<DatabaseWatchHistory>()
+
+    override suspend fun insertWatchHistory(history: List<DatabaseWatchHistory>) {
+        _watchHistory.removeAll { existing -> history.any { it.historyId == existing.historyId } }
+        _watchHistory.addAll(history)
+    }
+
+    override suspend fun insertWatchHistoryItem(item: DatabaseWatchHistory) {
+        _watchHistory.removeAll { it.historyId == item.historyId }
+        _watchHistory.add(item)
+    }
+
+    override fun getWatchHistoryFlow(): Flow<List<DatabaseWatchHistory>> = flowOf(_watchHistory)
+
+    override suspend fun getWatchHistoryRaw(): List<DatabaseWatchHistory> = _watchHistory.toList()
+
+    override suspend fun getLatestWatchedTimestamp(): String? =
+        _watchHistory.maxByOrNull { it.watchedAtEpochMillis }?.watchedAt
+
+    override suspend fun getOldestWatchedTimestamp(): String? =
+        _watchHistory.minByOrNull { it.watchedAtEpochMillis }?.watchedAt
+
+    override suspend fun updateWatchHistoryImages(historyId: Long, episodeImageUrl: String?, showPosterUrl: String?) {
+        val index = _watchHistory.indexOfFirst { it.historyId == historyId }
+        if (index != -1) {
+            val item = _watchHistory[index]
+            _watchHistory[index] = item.copy(episodeImageUrl = episodeImageUrl, showPosterUrl = showPosterUrl)
+        }
+    }
+
+    override suspend fun updateShowPosterForShow(showTraktId: Int, showPosterUrl: String) {
+        for (i in _watchHistory.indices) {
+            if (_watchHistory[i].showTraktId == showTraktId && _watchHistory[i].showPosterUrl == null) {
+                _watchHistory[i] = _watchHistory[i].copy(showPosterUrl = showPosterUrl)
+            }
+        }
+    }
+
+    override suspend fun getWatchHistoryCount(): Int = _watchHistory.size
+
+    override suspend fun getWatchHistoryItemsMissingImages(limit: Int): List<DatabaseWatchHistory> =
+        _watchHistory.filter { it.episodeImageUrl == null || it.showPosterUrl == null }.take(limit)
+
+    override suspend fun deleteWatchHistoryItem(historyId: Long) {
+        _watchHistory.removeAll { it.historyId == historyId }
+    }
+
+    override suspend fun clearWatchHistory() {
+        _watchHistory.clear()
+    }
 }

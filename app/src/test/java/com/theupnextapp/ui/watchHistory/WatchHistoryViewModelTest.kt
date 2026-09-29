@@ -171,7 +171,7 @@ class WatchHistoryViewModelTest {
         // First page returns 30 items to avoid triggering endOfListReached
         val firstPageList = List(30) { index ->
             NetworkTraktHistoryResponse(
-                id = index.toLong(),
+                id = (index + 100).toLong(),
                 watchedAt = "2026-09-15T20:30:00.000Z",
                 action = "watch",
                 type = "episode",
