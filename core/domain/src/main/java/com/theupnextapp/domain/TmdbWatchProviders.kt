@@ -23,12 +23,24 @@ package com.theupnextapp.domain
 
 data class TmdbWatchProviders(
     val id: Int?,
-    val providers: List<TmdbWatchProvider>?
-)
+    val providers: List<TmdbWatchProvider>?,
+    val link: String? = null,
+    val countryCode: String? = null,
+) {
+    val flatrateProviders: List<TmdbWatchProvider>
+        get() = providers?.filter { it.tier == "Stream" || it.tier == "Flatrate" } ?: emptyList()
+
+    val freeProviders: List<TmdbWatchProvider>
+        get() = providers?.filter { it.tier == "Free" || it.tier == "Free with Ads" } ?: emptyList()
+
+    val buyRentProviders: List<TmdbWatchProvider>
+        get() = providers?.filter { it.tier == "Buy" || it.tier == "Rent" } ?: emptyList()
+}
 
 data class TmdbWatchProvider(
     val id: Int,
     val name: String,
     val logoUrl: String,
-    val tier: String
+    val tier: String,
+    val displayPriority: Int = 0,
 )

@@ -329,6 +329,14 @@
     <string name="title_popular_shows">Popular</string>
     <string name="title_anticipated_shows">Anticipated</string>
     <string name="show_detail_where_to_watch">Where to Watch</string>
+    <string name="watch_providers_tier_all">All</string>
+    <string name="watch_providers_tier_stream">Stream</string>
+    <string name="watch_providers_tier_free">Free</string>
+    <string name="watch_providers_tier_buy">Buy / Rent</string>
+    <string name="watch_providers_powered_by_justwatch">Powered by JustWatch</string>
+    <string name="watch_providers_not_available">Not currently streaming in %1$s</string>
+    <string name="watch_providers_check_justwatch">Check on JustWatch</string>
+    <string name="watch_providers_select_region">Select Region</string>
     <string name="trakt_unlock_personalization">Unlock Personalization</string>
     <string name="trakt_connect_benefits">Connect your Trakt account to automatically track your watch progress, sync your history securely, and manage your watchlists seamlessly.</string>
     <string name="person_detail_biography">Biography</string>

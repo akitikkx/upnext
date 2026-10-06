@@ -67,6 +67,7 @@ class ShowDetailRepositoryImpl(
     private val episodeDetailsCache = ConcurrentHashMap<String, EpisodeDetail>()
     private val episodePeopleCache = ConcurrentHashMap<String, EpisodePeople>()
     private val traktSeasonsCache = ConcurrentHashMap<Int, List<TraktSeason>>()
+    private val watchProvidersCache = ConcurrentHashMap<String, TmdbWatchProviders>()
     override fun getShowSummary(showId: Int): Flow<Result<ShowDetailSummary>> {
         return flow {
             emit(Result.Loading(true))
@@ -312,44 +313,66 @@ class ShowDetailRepositoryImpl(
 
     override fun getShowWatchProviders(
         imdbID: String?,
-        countryCode: String
+        tmdbID: Int?,
+        countryCode: String,
     ): Flow<Result<TmdbWatchProviders>> {
         return flow {
-            emit(Result.Loading(true))
-            if (imdbID.isNullOrBlank()) {
-                emit(Result.Loading(false))
-                emit(Result.Success(TmdbWatchProviders(id = null, providers = emptyList())))
+            val resolvedCountry = countryCode.ifBlank { "US" }
+            val cacheKey = "${tmdbID ?: imdbID}-$resolvedCountry"
+            val cached = watchProvidersCache[cacheKey]
+            if (cached != null) {
+                emit(Result.Success(cached))
                 return@flow
             }
 
-            // Extract TMDb ID using Trakt idLookup
-            val idLookupResponse = safeApiCall(Dispatchers.IO) {
-                traktService.idLookupAsync(idType = "imdb", id = imdbID).await()
-            }
-            var tmdbId: Int? = null
-            if (idLookupResponse is Result.Success) {
-                tmdbId = idLookupResponse.data?.firstOrNull()?.show?.ids?.tmdb
-            }
-            
-            // Fallback to getShowInfoAsync if lookup failed
-            if (tmdbId == null) {
-                 val fallbackResponse = safeApiCall(Dispatchers.IO) {
-                    traktService.getShowInfoAsync(imdbID).await()
-                 }
-                 if (fallbackResponse is Result.Success) {
-                     tmdbId = fallbackResponse.data?.ids?.tmdb
-                 }
+            emit(Result.Loading(true))
+            var targetTmdbId = tmdbID
+
+            if (targetTmdbId == null) {
+                if (imdbID.isNullOrBlank()) {
+                    val emptyProviders = TmdbWatchProviders(
+                        id = null,
+                        providers = emptyList(),
+                        countryCode = resolvedCountry,
+                    )
+                    emit(Result.Loading(false))
+                    emit(Result.Success(emptyProviders))
+                    return@flow
+                }
+
+                // Extract TMDb ID using Trakt idLookup
+                val idLookupResponse = safeApiCall(Dispatchers.IO) {
+                    traktService.idLookupAsync(idType = "imdb", id = imdbID).await()
+                }
+                if (idLookupResponse is Result.Success) {
+                    targetTmdbId = idLookupResponse.data?.firstOrNull()?.show?.ids?.tmdb
+                }
+
+                // Fallback to getShowInfoAsync if lookup failed
+                if (targetTmdbId == null) {
+                    val fallbackResponse = safeApiCall(Dispatchers.IO) {
+                        traktService.getShowInfoAsync(imdbID).await()
+                    }
+                    if (fallbackResponse is Result.Success) {
+                        targetTmdbId = fallbackResponse.data?.ids?.tmdb
+                    }
+                }
             }
 
-            if (tmdbId == null) {
+            if (targetTmdbId == null) {
+                val emptyProviders = TmdbWatchProviders(
+                    id = null,
+                    providers = emptyList(),
+                    countryCode = resolvedCountry,
+                )
                 emit(Result.Loading(false))
-                emit(Result.Success(TmdbWatchProviders(id = null, providers = emptyList())))
+                emit(Result.Success(emptyProviders))
                 return@flow
             }
 
             // With valid TMDb ID retrieved, fetch the providers
             val tmdbProvidersResponse = safeApiCall(Dispatchers.IO) {
-                tmdbService.getShowWatchProvidersAsync(tmdbId).await()
+                tmdbService.getShowWatchProvidersAsync(targetTmdbId).await()
             }
 
             when (tmdbProvidersResponse) {
@@ -359,12 +382,11 @@ class ShowDetailRepositoryImpl(
 
                 is Result.Success -> {
                     val results = tmdbProvidersResponse.data?.results ?: emptyMap()
-                    
-                    val key = results.keys.firstOrNull { it.equals(countryCode, ignoreCase = true) }
+                    val key = results.keys.firstOrNull { it.equals(resolvedCountry, ignoreCase = true) }
                     val countryNode = if (key != null) results[key] else null
-                    
+
                     val parsedProvidersList = mutableListOf<TmdbWatchProvider>()
-                    
+
                     countryNode?.flatrate?.forEach {
                         if (it.provider_id != null && it.provider_name != null && it.logo_path != null) {
                             parsedProvidersList.add(
@@ -372,24 +394,96 @@ class ShowDetailRepositoryImpl(
                                     id = it.provider_id,
                                     name = it.provider_name,
                                     logoUrl = it.logo_path,
-                                    tier = "Flatrate"
-                                )
+                                    tier = "Stream",
+                                    displayPriority = it.display_priority ?: 999,
+                                ),
                             )
                         }
                     }
-                    
+
+                    countryNode?.free?.forEach {
+                        if (it.provider_id != null && it.provider_name != null && it.logo_path != null) {
+                            parsedProvidersList.add(
+                                TmdbWatchProvider(
+                                    id = it.provider_id,
+                                    name = it.provider_name,
+                                    logoUrl = it.logo_path,
+                                    tier = "Free",
+                                    displayPriority = it.display_priority ?: 999,
+                                ),
+                            )
+                        }
+                    }
+
+                    countryNode?.ads?.forEach {
+                        if (it.provider_id != null && it.provider_name != null && it.logo_path != null) {
+                            parsedProvidersList.add(
+                                TmdbWatchProvider(
+                                    id = it.provider_id,
+                                    name = it.provider_name,
+                                    logoUrl = it.logo_path,
+                                    tier = "Free with Ads",
+                                    displayPriority = it.display_priority ?: 999,
+                                ),
+                            )
+                        }
+                    }
+
+                    countryNode?.buy?.forEach {
+                        if (it.provider_id != null && it.provider_name != null && it.logo_path != null) {
+                            parsedProvidersList.add(
+                                TmdbWatchProvider(
+                                    id = it.provider_id,
+                                    name = it.provider_name,
+                                    logoUrl = it.logo_path,
+                                    tier = "Buy",
+                                    displayPriority = it.display_priority ?: 999,
+                                ),
+                            )
+                        }
+                    }
+
+                    countryNode?.rent?.forEach {
+                        if (it.provider_id != null && it.provider_name != null && it.logo_path != null) {
+                            parsedProvidersList.add(
+                                TmdbWatchProvider(
+                                    id = it.provider_id,
+                                    name = it.provider_name,
+                                    logoUrl = it.logo_path,
+                                    tier = "Rent",
+                                    displayPriority = it.display_priority ?: 999,
+                                ),
+                            )
+                        }
+                    }
+
+                    val sortedProviders = parsedProvidersList
+                        .distinctBy { "${it.id}-${it.tier}" }
+                        .sortedBy { it.displayPriority }
+
+                    val domainProviders = TmdbWatchProviders(
+                        id = targetTmdbId,
+                        providers = sortedProviders,
+                        link = countryNode?.link,
+                        countryCode = resolvedCountry,
+                    )
+
+                    watchProvidersCache[cacheKey] = domainProviders
                     emit(Result.Loading(false))
-                    emit(Result.Success(TmdbWatchProviders(
-                        id = tmdbId,
-                        providers = parsedProvidersList.distinctBy { it.id }
-                    )))
+                    emit(Result.Success(domainProviders))
                     return@flow
                 }
                 else -> {}
             }
 
+            val emptyProviders = TmdbWatchProviders(
+                id = targetTmdbId,
+                providers = emptyList(),
+                countryCode = resolvedCountry,
+            )
+            watchProvidersCache[cacheKey] = emptyProviders
             emit(Result.Loading(false))
-            emit(Result.Success(TmdbWatchProviders(id = tmdbId, providers = emptyList())))
+            emit(Result.Success(emptyProviders))
         }
         .catch {
             crashlytics.recordException(it)

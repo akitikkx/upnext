@@ -31,7 +31,8 @@ data class NetworkTmdbWatchProviderRegion(
     val flatrate: List<NetworkTmdbWatchProvider>?,
     val rent: List<NetworkTmdbWatchProvider>?,
     val buy: List<NetworkTmdbWatchProvider>?,
-    val free: List<NetworkTmdbWatchProvider>?
+    val free: List<NetworkTmdbWatchProvider>?,
+    val ads: List<NetworkTmdbWatchProvider>? = null,
 )
 
 data class NetworkTmdbWatchProvider(

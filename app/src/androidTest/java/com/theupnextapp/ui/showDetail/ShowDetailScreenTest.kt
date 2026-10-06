@@ -4,11 +4,14 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
-import com.theupnextapp.domain.ShowDetailArg
-import com.theupnextapp.domain.ShowDetailSummary
 import androidx.test.platform.app.InstrumentationRegistry
 import com.theupnextapp.R
+import com.theupnextapp.domain.ShowDetailArg
+import com.theupnextapp.domain.ShowDetailSummary
+import com.theupnextapp.domain.TmdbWatchProvider
+import com.theupnextapp.domain.TmdbWatchProviders
 import org.junit.Rule
 import org.junit.Test
 
@@ -123,5 +126,78 @@ class ShowDetailScreenTest {
         }
 
         rule.onNodeWithText("TV-MA").assertIsDisplayed()
+    }
+
+    @Test
+    fun watchProvidersSection_whenProvidersAvailable_displaysHeaderAndProviders() {
+        val providers =
+            TmdbWatchProviders(
+                id = 123,
+                link = "https://www.justwatch.com/example",
+                countryCode = "US",
+                providers =
+                    listOf(
+                        TmdbWatchProvider(
+                            id = 8,
+                            name = "Netflix",
+                            logoUrl = "/netflix.jpg",
+                            tier = "Stream",
+                        ),
+                    ),
+            )
+
+        rule.setContent {
+            WatchProvidersSection(
+                uiState =
+                    ShowDetailViewModel.ShowDetailUiState(
+                        watchProviders = providers,
+                        isWatchProvidersLoading = false,
+                    ),
+            )
+        }
+
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        rule.onNodeWithText(context.getString(R.string.show_detail_where_to_watch)).assertIsDisplayed()
+        rule.onNodeWithText("US").assertIsDisplayed()
+        rule.onNodeWithText("Netflix").assertIsDisplayed()
+        rule.onNodeWithText("Stream").assertIsDisplayed()
+        rule.onNodeWithTag("watch_providers_list").assertIsDisplayed()
+    }
+
+    @Test
+    fun watchProvidersSection_whenNoProvidersAvailable_displaysEmptyState() {
+        val emptyProviders =
+            TmdbWatchProviders(
+                id = 123,
+                link = "https://www.justwatch.com/example",
+                countryCode = "US",
+                providers = emptyList(),
+            )
+
+        rule.setContent {
+            WatchProvidersSection(
+                uiState =
+                    ShowDetailViewModel.ShowDetailUiState(
+                        watchProviders = emptyProviders,
+                        isWatchProvidersLoading = false,
+                    ),
+            )
+        }
+
+        rule.onNodeWithTag("watch_providers_empty").assertIsDisplayed()
+    }
+
+    @Test
+    fun watchProvidersSection_whenLoading_displaysShimmer() {
+        rule.setContent {
+            WatchProvidersSection(
+                uiState =
+                    ShowDetailViewModel.ShowDetailUiState(
+                        isWatchProvidersLoading = true,
+                    ),
+            )
+        }
+
+        rule.onNodeWithTag("watch_providers_loading").assertIsDisplayed()
     }
 }
