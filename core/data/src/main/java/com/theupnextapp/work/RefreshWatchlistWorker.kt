@@ -84,9 +84,14 @@ constructor(
 
     private suspend fun refreshWatchlistShows(token: String) {
         traktRepository.refreshWatchlist(token = token)
+        try {
+            traktRepository.refreshUserCustomLists(token = token)
+        } catch (e: Exception) {
+            Timber.tag(TAG).d(e, "Optional custom lists refresh failed")
+        }
         Timber
             .tag(TAG)
-            .d("Finished refreshing watchlist from repository.")
+            .d("Finished refreshing watchlist and custom lists from repository.")
     }
 
     private fun logSuccessToFirebase() {

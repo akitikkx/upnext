@@ -331,3 +331,55 @@ val MIGRATION_34_35 =
             )
         }
     }
+
+    val MIGRATION_35_36: Migration = object : Migration(
+        35,
+        36,
+    ) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `trakt_custom_lists` (
+                    `traktId` INTEGER NOT NULL,
+                    `slug` TEXT,
+                    `name` TEXT NOT NULL,
+                    `description` TEXT,
+                    `itemCount` INTEGER NOT NULL,
+                    `updatedAt` TEXT,
+                    `likes` INTEGER NOT NULL,
+                    PRIMARY KEY(`traktId`)
+                )
+                """.trimIndent(),
+            )
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `trakt_custom_list_items` (
+                    `listTraktId` INTEGER NOT NULL,
+                    `traktID` INTEGER NOT NULL,
+                    `id` INTEGER,
+                    `title` TEXT,
+                    `year` TEXT,
+                    `mediumImageUrl` TEXT,
+                    `originalImageUrl` TEXT,
+                    `imdbID` TEXT,
+                    `slug` TEXT,
+                    `tmdbID` INTEGER,
+                    `tvdbID` INTEGER,
+                    `tvMazeID` INTEGER,
+                    `network` TEXT,
+                    `status` TEXT,
+                    `rating` REAL,
+                    `rank` INTEGER,
+                    `listedAt` TEXT,
+                    PRIMARY KEY(`listTraktId`, `traktID`)
+                )
+                """.trimIndent(),
+            )
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS `index_trakt_custom_list_items_listTraktId` ON `trakt_custom_list_items` (`listTraktId`)",
+            )
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS `index_trakt_custom_list_items_traktID` ON `trakt_custom_list_items` (`traktID`)",
+            )
+        }
+    }

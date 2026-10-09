@@ -23,19 +23,26 @@ package com.theupnextapp.ui.traktAccount
 
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkManager
+import com.google.firebase.perf.FirebasePerformance
+import com.google.firebase.perf.metrics.Trace
 import com.theupnextapp.common.utils.TraktAuthManager
 import com.theupnextapp.common.utils.TraktConstants
+import com.theupnextapp.domain.TraktUserList
 import com.theupnextapp.domain.TraktUserListItem
 import com.theupnextapp.domain.isTraktAccessTokenValid
 import com.theupnextapp.repository.TraktRepository
 import com.theupnextapp.ui.common.BaseTraktViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -68,6 +75,26 @@ class TraktAccountViewModel
         // Specific loading state for fetching watchlist shows
         val isLoadingWatchlistShows: StateFlow<Boolean> = traktRepository.isLoadingWatchlistShows
 
+        val userCustomLists: StateFlow<List<TraktUserList>> =
+            traktRepository.traktUserCustomLists.stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyList(),
+            )
+
+        private val _selectedListTraktId = MutableStateFlow<Int?>(null)
+        val selectedListTraktId: StateFlow<Int?> = _selectedListTraktId.asStateFlow()
+
+        @OptIn(ExperimentalCoroutinesApi::class)
+        private val selectedListRawShows: Flow<List<TraktUserListItem>> =
+            _selectedListTraktId.flatMapLatest { listId ->
+                if (listId == null) {
+                    traktRepository.traktWatchlistShows
+                } else {
+                    traktRepository.getCustomListItems(listId)
+                }
+            }
+
         private val _watchlistSearchQuery = MutableStateFlow("")
         val watchlistSearchQuery: StateFlow<String> = _watchlistSearchQuery.asStateFlow()
 
@@ -79,7 +106,7 @@ class TraktAccountViewModel
 
         // Available status values derived from the raw watchlist data
         val availableStatuses: StateFlow<List<String>> =
-            traktRepository.traktWatchlistShows.map { shows ->
+            selectedListRawShows.map { shows ->
                 shows
                     .mapNotNull { it.status }
                     .filter { it.isNotBlank() }
@@ -93,7 +120,7 @@ class TraktAccountViewModel
 
         // Total count before filtering (for "X of Y" badge)
         val totalWatchlistCount: StateFlow<Int> =
-            traktRepository.traktWatchlistShows.map { shows ->
+            selectedListRawShows.map { shows ->
                 shows.distinctBy { it.traktID }.size
             }.stateIn(
                 scope = viewModelScope,
@@ -104,7 +131,7 @@ class TraktAccountViewModel
         // Watchlist shows data
         val watchlistShows: StateFlow<List<TraktUserListItem>> =
             combine(
-                traktRepository.traktWatchlistShows,
+                selectedListRawShows,
                 _watchlistSearchQuery,
                 _watchlistSortOption,
                 _watchlistStatusFilter,
@@ -139,6 +166,18 @@ class TraktAccountViewModel
                 started = SharingStarted.WhileSubscribed(5000),
                 initialValue = emptyList(),
             )
+
+        fun onSelectList(traktId: Int?) {
+            _selectedListTraktId.value = traktId
+            if (traktId != null) {
+                viewModelScope.launch {
+                    val token = traktRepository.getTraktAccessTokenSync()?.access_token ?: traktAccessToken.firstOrNull()?.access_token
+                    if (!token.isNullOrEmpty()) {
+                        traktRepository.refreshCustomListItems(token, traktId)
+                    }
+                }
+            }
+        }
 
         fun onSearchQueryChange(query: String) {
             _watchlistSearchQuery.value = query
@@ -189,17 +228,18 @@ class TraktAccountViewModel
                     if (token != null && token.isTraktAccessTokenValid()) {
                         token.access_token?.let {
                             traktRepository.refreshWatchlist(it)
+                            traktRepository.refreshUserCustomLists(it)
                         }
                     }
                 }
             }
             viewModelScope.launch {
-                var trace: com.google.firebase.perf.metrics.Trace? = null
+                var trace: Trace? = null
                 isScreenLoading.collect { loading ->
                     if (loading) {
                         if (trace == null) {
                             try {
-                                trace = com.google.firebase.perf.FirebasePerformance.getInstance().newTrace("trakt_account_data_load")
+                                trace = FirebasePerformance.getInstance().newTrace("trakt_account_data_load")
                                 trace?.start()
                             } catch (e: Exception) {
                                 // Ignored in unit tests
@@ -219,7 +259,7 @@ class TraktAccountViewModel
 
         fun onRemoveFromWatchlistClick(traktId: Int) {
             viewModelScope.launch {
-                val token = traktAccessToken.value?.access_token
+                val token = traktRepository.getTraktAccessTokenSync()?.access_token ?: traktAccessToken.firstOrNull()?.access_token
                 if (!token.isNullOrEmpty()) {
                     traktRepository.removeFromWatchlist(traktId, token)
                     // No immediate refreshWatchlist needed — optimistic local
@@ -233,10 +273,16 @@ class TraktAccountViewModel
 
         fun onRefreshWatchlist() {
             viewModelScope.launch {
-                val token = traktAccessToken.value?.access_token
+                val token = traktRepository.getTraktAccessTokenSync()?.access_token ?: traktAccessToken.firstOrNull()?.access_token
                 if (!token.isNullOrEmpty()) {
                     _isPullRefreshing.value = true
-                    traktRepository.refreshWatchlist(token)
+                    val listId = _selectedListTraktId.value
+                    if (listId == null) {
+                        traktRepository.refreshWatchlist(token)
+                    } else {
+                        traktRepository.refreshCustomListItems(token, listId)
+                    }
+                    traktRepository.refreshUserCustomLists(token)
                     _isPullRefreshing.value = false
                 }
             }
@@ -244,9 +290,15 @@ class TraktAccountViewModel
 
         fun onSilentRefreshWatchlist() {
             viewModelScope.launch {
-                val token = traktAccessToken.value?.access_token
+                val token = traktRepository.getTraktAccessTokenSync()?.access_token ?: traktAccessToken.firstOrNull()?.access_token
                 if (!token.isNullOrEmpty()) {
-                    traktRepository.refreshWatchlist(token)
+                    val listId = _selectedListTraktId.value
+                    if (listId == null) {
+                        traktRepository.refreshWatchlist(token)
+                    } else {
+                        traktRepository.refreshCustomListItems(token, listId)
+                    }
+                    traktRepository.refreshUserCustomLists(token)
                 }
             }
         }

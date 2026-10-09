@@ -44,6 +44,7 @@ import com.theupnextapp.database.MIGRATION_31_32
 import com.theupnextapp.database.MIGRATION_32_33
 import com.theupnextapp.database.MIGRATION_33_34
 import com.theupnextapp.database.MIGRATION_34_35
+import com.theupnextapp.database.MIGRATION_35_36
 import com.theupnextapp.database.RecentSearchDao
 import com.theupnextapp.database.TraktDao
 import com.theupnextapp.database.TvMazeDao
@@ -92,6 +93,7 @@ class RoomModule {
                 MIGRATION_32_33,
                 MIGRATION_33_34,
                 MIGRATION_34_35,
+                MIGRATION_35_36,
             )
             .fallbackToDestructiveMigrationOnDowngrade(dropAllTables = true)
             .build()

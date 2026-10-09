@@ -21,6 +21,8 @@
 
 package com.theupnextapp.database.fakes
 
+import com.theupnextapp.database.DatabaseCustomList
+import com.theupnextapp.database.DatabaseCustomListItem
 import com.theupnextapp.database.DatabaseTraktAccess
 import com.theupnextapp.database.DatabaseTraktMostAnticipated
 import com.theupnextapp.database.DatabaseTraktPopularShows
@@ -227,5 +229,69 @@ class FakeTraktDao : TraktDao {
 
     override suspend fun clearWatchHistory() {
         _watchHistory.clear()
+    }
+
+    private val _customLists = mutableListOf<DatabaseCustomList>()
+    private val _customListItems = mutableListOf<DatabaseCustomListItem>()
+
+    override suspend fun insertCustomLists(lists: List<DatabaseCustomList>) {
+        _customLists.removeAll { existing -> lists.any { it.traktId == existing.traktId } }
+        _customLists.addAll(lists)
+    }
+
+    override fun getCustomListsFlow(): Flow<List<DatabaseCustomList>> = flowOf(_customLists)
+
+    override suspend fun getCustomListsRaw(): List<DatabaseCustomList> = _customLists.toList()
+
+    override suspend fun getCustomListByTraktId(traktId: Int): DatabaseCustomList? =
+        _customLists.firstOrNull { it.traktId == traktId }
+
+    override suspend fun deleteMissingCustomLists(activeTraktIds: List<Int>) {
+        _customLists.removeAll { it.traktId !in activeTraktIds }
+    }
+
+    override suspend fun deleteCustomList(traktId: Int) {
+        _customLists.removeAll { it.traktId == traktId }
+    }
+
+    override suspend fun clearCustomLists() {
+        _customLists.clear()
+    }
+
+    override suspend fun insertCustomListItems(items: List<DatabaseCustomListItem>) {
+        _customListItems.removeAll { existing ->
+            items.any { it.listTraktId == existing.listTraktId && it.traktID == existing.traktID }
+        }
+        _customListItems.addAll(items)
+    }
+
+    override fun getCustomListItemsFlow(listTraktId: Int): Flow<List<DatabaseCustomListItem>> =
+        flowOf(_customListItems.filter { it.listTraktId == listTraktId })
+
+    override suspend fun getCustomListItemsRaw(listTraktId: Int): List<DatabaseCustomListItem> =
+        _customListItems.filter { it.listTraktId == listTraktId }
+
+    override suspend fun clearCustomListItems(listTraktId: Int) {
+        _customListItems.removeAll { it.listTraktId == listTraktId }
+    }
+
+    override suspend fun deleteMissingCustomListItems(listTraktId: Int, activeTraktIds: List<Int>) {
+        _customListItems.removeAll { it.listTraktId == listTraktId && it.traktID !in activeTraktIds }
+    }
+
+    override suspend fun updateCustomListItemImages(showTraktId: Int, posterUrl: String?, heroImageUrl: String?, tvMazeId: Int?) {
+        for (i in _customListItems.indices) {
+            if (_customListItems[i].traktID == showTraktId) {
+                _customListItems[i] = _customListItems[i].copy(
+                    originalImageUrl = posterUrl,
+                    mediumImageUrl = heroImageUrl,
+                    tvMazeID = tvMazeId,
+                )
+            }
+        }
+    }
+
+    override suspend fun clearAllCustomListItems() {
+        _customListItems.clear()
     }
 }

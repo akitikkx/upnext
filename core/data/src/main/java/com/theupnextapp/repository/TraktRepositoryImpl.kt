@@ -205,15 +205,17 @@ class TraktRepositoryImpl(
     private val _watchlistShow = MutableStateFlow<TraktUserListItem?>(null)
     override val watchlistShow: StateFlow<TraktUserListItem?> = _watchlistShow.asStateFlow()
 
-    // TODO: Implement Trakt User Lists logic in DataSource if needed, currently just empty flows/states
     private val _isLoadingUserCustomLists = MutableStateFlow(false)
     override val isLoadingUserCustomLists: StateFlow<Boolean> = _isLoadingUserCustomLists.asStateFlow()
 
     private val _userCustomListsError = MutableStateFlow<String?>(null)
     override val userCustomListsError: StateFlow<String?> = _userCustomListsError.asStateFlow()
 
-    // Assuming we don't have this implemented yet or it was missing in my analysis
-    override val traktUserCustomLists: Flow<List<TraktUserList>> = kotlinx.coroutines.flow.flowOf(emptyList())
+    override val traktUserCustomLists: Flow<List<TraktUserList>> =
+        traktDao.getCustomListsFlow().map { it.asDomainModel() }
+
+    override fun getCustomListItems(listTraktId: Int): Flow<List<TraktUserListItem>> =
+        traktDao.getCustomListItemsFlow(listTraktId).map { it.asDomainModel() }
 
     override suspend fun getTraktAccessToken(code: String): Result<TraktAccessToken> {
         return traktAuthDataSource.getAccessToken(code)
@@ -296,20 +298,10 @@ class TraktRepositoryImpl(
             withContext(Dispatchers.IO) {
                 traktDao.insertWatchlistShow(
                     DatabaseWatchlistShows(
-                        id = traktId,
-                        traktID = traktId,
-                        imdbID = imdbID,
-                        title = title,
-                        originalImageUrl = originalImageUrl,
-                        mediumImageUrl = mediumImageUrl,
-                        year = year,
-                        tvMazeID = tvMazeID,
-                        slug = null,
-                        tmdbID = tmdbID,
-                        tvdbID = null,
-                        network = network,
-                        status = status,
-                        rating = rating
+                        id = traktId, traktID = traktId, imdbID = imdbID, title = title,
+                        originalImageUrl = originalImageUrl, mediumImageUrl = mediumImageUrl,
+                        year = year, tvMazeID = tvMazeID, slug = null, tmdbID = tmdbID,
+                        tvdbID = null, network = network, status = status, rating = rating,
                     )
                 )
             }
@@ -341,59 +333,31 @@ class TraktRepositoryImpl(
     }
 
     @Deprecated("Use refreshWatchlist instead", ReplaceWith("refreshWatchlist(token)"))
-    override suspend fun refreshFavoriteShows(
-        forceRefresh: Boolean,
-        token: String?,
-    ) {
+    override suspend fun refreshFavoriteShows(forceRefresh: Boolean, token: String?) {
         refreshWatchlist(token ?: "")
     }
 
     @Deprecated("Use refreshWatchlist instead")
-    override suspend fun refreshFavoriteShows(token: String): Result<Unit> {
-        return refreshWatchlist(token)
+    override suspend fun refreshFavoriteShows(token: String): Result<Unit> = refreshWatchlist(token)
+
+    @Deprecated("Use addToWatchlist instead")
+    override suspend fun addShowToFavorites(imdbId: String, token: String): Result<Unit> {
+        val traktId = getTraktIdLookup(imdbId).getOrNull()
+        return if (traktId != null) addToWatchlist(traktId, imdbId, token) else Result.failure(Exception("Trakt ID not found for $imdbId"))
     }
 
     @Deprecated("Use addToWatchlist instead")
-    override suspend fun addShowToFavorites(
-        imdbId: String,
-        token: String,
-    ): Result<Unit> {
-        val traktIdResult = getTraktIdLookup(imdbId)
-        val traktId = traktIdResult.getOrNull()
-        if (traktId != null) {
-            return addToWatchlist(traktId, imdbId, token)
-        }
-        return Result.failure(Exception("Trakt ID not found for $imdbId"))
-    }
-
-    @Deprecated("Use addToWatchlist instead")
-    override suspend fun addShowToList(
-        imdbID: String?,
-        token: String?,
-    ) {
-        if (imdbID != null && token != null) {
-            addShowToFavorites(imdbID, token)
-        }
+    override suspend fun addShowToList(imdbID: String?, token: String?) {
+        if (imdbID != null && token != null) addShowToFavorites(imdbID, token)
     }
 
     @Deprecated("Use removeFromWatchlist instead")
-    override suspend fun removeShowFromFavorites(
-        traktId: Int,
-        imdbId: String,
-        token: String,
-    ): Result<Unit> {
-        return removeFromWatchlist(traktId, token)
-    }
+    override suspend fun removeShowFromFavorites(traktId: Int, imdbId: String, token: String): Result<Unit> =
+        removeFromWatchlist(traktId, token)
 
     @Deprecated("Use removeFromWatchlist instead")
-    override suspend fun removeShowFromList(
-        traktId: Int?,
-        imdbID: String?,
-        token: String?,
-    ) {
-        if (traktId != null && imdbID != null && token != null) {
-            removeShowFromFavorites(traktId, imdbID, token)
-        }
+    override suspend fun removeShowFromList(traktId: Int?, imdbID: String?, token: String?) {
+        if (traktId != null && imdbID != null && token != null) removeShowFromFavorites(traktId, imdbID, token)
     }
 
     override suspend fun checkInToShow(
@@ -463,6 +427,58 @@ class TraktRepositoryImpl(
 
     override suspend fun clearWatchlist() {
         traktDao.deleteAllWatchlistShows()
+        traktDao.clearCustomLists()
+        traktDao.clearAllCustomListItems()
+    }
+
+    override suspend fun refreshUserCustomLists(token: String): Result<Unit> {
+        if (token.isEmpty()) return Result.failure(IllegalArgumentException("Token is empty"))
+        return withContext(Dispatchers.IO) {
+            _isLoadingUserCustomLists.value = true
+            _userCustomListsError.value = null
+            val result = traktAccountDataSource.refreshUserCustomLists(token)
+            if (result.isFailure) {
+                _userCustomListsError.value = result.exceptionOrNull()?.message
+            }
+            _isLoadingUserCustomLists.value = false
+            result
+        }
+    }
+
+    override suspend fun refreshCustomListItems(token: String, listTraktId: Int): Result<Unit> {
+        if (token.isEmpty()) return Result.failure(IllegalArgumentException("Token is empty"))
+        return withContext(Dispatchers.IO) {
+            val result = traktAccountDataSource.refreshCustomListItems(token, listTraktId)
+            if (result.isSuccess) {
+                enrichCustomListImages(listTraktId)
+            }
+            result
+        }
+    }
+
+    private fun enrichCustomListImages(listTraktId: Int) {
+        repositoryScope.launch(Dispatchers.IO) {
+            val items = traktDao.getCustomListItemsRaw(listTraktId)
+            val missing = items.filter { it.originalImageUrl.isNullOrEmpty() && !it.imdbID.isNullOrEmpty() }
+            if (missing.isEmpty()) return@launch
+
+            val dashboardRepo = dashboardRepositoryProvider.get()
+            for (item in missing) {
+                try {
+                    val (posterUrl, tvMazeId) = dashboardRepo.getShowImageAndTvmazeId(item.imdbID)
+                    if (!posterUrl.isNullOrEmpty() || tvMazeId != null) {
+                        traktDao.updateCustomListItemImages(
+                            showTraktId = item.traktID,
+                            posterUrl = posterUrl,
+                            heroImageUrl = item.mediumImageUrl,
+                            tvMazeId = tvMazeId,
+                        )
+                    }
+                } catch (e: Exception) {
+                    Timber.d(e, "Failed image enrichment for custom list item: ${item.traktID}")
+                }
+            }
+        }
     }
 
     override fun tableUpdate(tableName: String): Flow<TableUpdate?> {

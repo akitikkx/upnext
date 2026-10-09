@@ -190,4 +190,49 @@ class MigrationTest {
             assertEquals("http://poster.jpg", it.getString(it.getColumnIndexOrThrow("showPosterUrl")))
         }
     }
+
+    @Test
+    @Throws(IOException::class)
+    fun migrate35To36() {
+        helper.createDatabase(TEST_DB_NAME, 35).apply {
+            close()
+        }
+
+        val db = helper.runMigrationsAndValidate(TEST_DB_NAME, 36, true, MIGRATION_35_36)
+
+        db.execSQL(
+            """
+            INSERT INTO trakt_custom_lists (traktId, slug, name, description, itemCount, updatedAt, likes)
+            VALUES (9876, 'best-sci-fi', 'Best Sci-Fi', 'Top rated sci-fi shows', 5, '2026-09-20T12:00:00.000Z', 42)
+            """.trimIndent(),
+        )
+
+        val listCursor = db.query("SELECT * FROM trakt_custom_lists WHERE traktId = 9876")
+        listCursor.use {
+            assertTrue(it.moveToFirst())
+            assertEquals(1, it.count)
+            assertEquals("Best Sci-Fi", it.getString(it.getColumnIndexOrThrow("name")))
+            assertEquals("best-sci-fi", it.getString(it.getColumnIndexOrThrow("slug")))
+            assertEquals("Top rated sci-fi shows", it.getString(it.getColumnIndexOrThrow("description")))
+            assertEquals(5, it.getInt(it.getColumnIndexOrThrow("itemCount")))
+            assertEquals(42, it.getInt(it.getColumnIndexOrThrow("likes")))
+        }
+
+        db.execSQL(
+            """
+            INSERT INTO trakt_custom_list_items (listTraktId, traktID, id, title, year, mediumImageUrl, originalImageUrl, imdbID, slug, tmdbID, tvdbID, tvMazeID, network, status, rating, rank, listedAt)
+            VALUES (9876, 100, 1, 'Dark', '2017', 'http://med.jpg', 'http://orig.jpg', 'tt5753856', 'dark', 70523, 334824, 17825, 'Netflix', 'ended', 8.9, 1, '2026-09-20T12:00:00.000Z')
+            """.trimIndent(),
+        )
+
+        val itemCursor = db.query("SELECT * FROM trakt_custom_list_items WHERE listTraktId = 9876 AND traktID = 100")
+        itemCursor.use {
+            assertTrue(it.moveToFirst())
+            assertEquals(1, it.count)
+            assertEquals("Dark", it.getString(it.getColumnIndexOrThrow("title")))
+            assertEquals("tt5753856", it.getString(it.getColumnIndexOrThrow("imdbID")))
+            assertEquals(8.9, it.getDouble(it.getColumnIndexOrThrow("rating")), 0.01)
+            assertEquals(1, it.getInt(it.getColumnIndexOrThrow("rank")))
+        }
+    }
 }

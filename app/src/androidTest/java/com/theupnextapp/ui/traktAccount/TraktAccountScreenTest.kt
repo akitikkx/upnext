@@ -13,6 +13,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeUp
 import com.theupnextapp.domain.TraktAuthState
+import com.theupnextapp.domain.TraktUserList
 import com.theupnextapp.domain.TraktUserListItem
 import androidx.test.platform.app.InstrumentationRegistry
 import com.theupnextapp.R
@@ -279,5 +280,89 @@ class TraktAccountScreenTest {
         // When filtered, heading should show "X of Y"
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         rule.onNodeWithText(context.getString(R.string.title_favorites_list), substring = true).assertIsDisplayed()
+    }
+
+    @Test
+    fun accountContent_customListsChips_renderAndSwitchList() {
+        var selectedListId: Int? = null
+        val customLists = listOf(
+            TraktUserList(traktId = 101, name = "Sci-Fi", itemCount = 5),
+            TraktUserList(traktId = 102, name = "Anime", itemCount = 8),
+        )
+
+        rule.setContent {
+            AccountContent(
+                traktAuthState = TraktAuthState.LoggedIn,
+                watchlistShowsList = listOf(
+                    TraktUserListItem(
+                        id = 1, traktID = 1, title = "Foundation", originalImageUrl = "",
+                        mediumImageUrl = "", imdbID = "", slug = "", tmdbID = 1,
+                        tvdbID = 1, tvMazeID = 1, year = "2021", network = "Apple TV+",
+                        status = "Returning Series", rating = 8.0,
+                    ),
+                ),
+                isWatchlistShowsEmpty = false,
+                isLoadingConnection = false,
+                isLoadingWatchlists = false,
+                isDisconnecting = false,
+                watchlistSearchQuery = "",
+                watchlistSortOption = WatchlistSortOption.ADDED,
+                watchlistLazyListState = rememberLazyListState(),
+                isPullRefreshing = false,
+                userCustomLists = customLists,
+                selectedListTraktId = null,
+                onSelectList = { selectedListId = it },
+                onSearchQueryChange = {},
+                onSortOptionChange = {},
+                onRefreshWatchlist = {},
+                onConnectToTraktClick = {},
+                onWatchlistClick = {},
+                onRemoveItem = {},
+                onLogoutClick = {},
+            )
+        }
+
+        // Custom list chips should be displayed
+        rule.onNodeWithText("Sci-Fi (5)").assertIsDisplayed()
+        rule.onNodeWithText("Anime (8)").assertIsDisplayed()
+
+        // Clicking a chip triggers onSelectList
+        rule.onNodeWithText("Sci-Fi (5)").performClick()
+        assert(selectedListId == 101) { "Expected selectedListId == 101, got $selectedListId" }
+    }
+
+    @Test
+    fun accountContent_offlineFirst_showsContentWhenWatchlistNotEmptyEvenIfLoading() {
+        rule.setContent {
+            AccountContent(
+                traktAuthState = TraktAuthState.LoggedIn,
+                watchlistShowsList = listOf(
+                    TraktUserListItem(
+                        id = 1, traktID = 1, title = "Severance", originalImageUrl = "",
+                        mediumImageUrl = "", imdbID = "", slug = "", tmdbID = 1,
+                        tvdbID = 1, tvMazeID = 1, year = "2022", network = "Apple TV+",
+                        status = "Returning Series", rating = 9.0,
+                    ),
+                ),
+                isWatchlistShowsEmpty = false,
+                isLoadingConnection = false,
+                isLoadingWatchlists = true, // Network is actively loading in background!
+                isDisconnecting = false,
+                watchlistSearchQuery = "",
+                watchlistSortOption = WatchlistSortOption.ADDED,
+                watchlistLazyListState = rememberLazyListState(),
+                isPullRefreshing = false,
+                onSearchQueryChange = {},
+                onSortOptionChange = {},
+                onRefreshWatchlist = {},
+                onConnectToTraktClick = {},
+                onWatchlistClick = {},
+                onRemoveItem = {},
+                onLogoutClick = {},
+            )
+        }
+
+        // Offline-first: cached shows are displayed immediately even though isLoadingWatchlists is true
+        rule.onNodeWithText("Severance").assertIsDisplayed()
     }
 }

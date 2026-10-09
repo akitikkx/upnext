@@ -4,6 +4,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.work.WorkManager
 import com.theupnextapp.common.utils.TraktAuthManager
 import com.theupnextapp.domain.TraktAccessToken
+import com.theupnextapp.domain.TraktUserList
 import com.theupnextapp.domain.TraktUserListItem
 import com.theupnextapp.repository.fakes.FakeTraktRepository
 import kotlinx.coroutines.Dispatchers
@@ -316,5 +317,88 @@ class TraktAccountViewModelTest {
             assert(viewModel.watchlistShows.value.size == 3) { "Expected all 3 shows after clearing filter" }
 
             job.cancel()
+        }
+
+    @Test
+    fun `userCustomLists exposes custom lists from repository`() =
+        runTest {
+            val customLists = listOf(
+                TraktUserList(traktId = 101, name = "Sci-Fi Favorites", itemCount = 5),
+                TraktUserList(traktId = 102, name = "Family Watch", itemCount = 12),
+            )
+            traktRepository.setUserCustomLists(customLists)
+
+            viewModel = TraktAccountViewModel(traktRepository, workManager, traktAuthManager)
+
+            val job = launch { viewModel.userCustomLists.collect {} }
+            advanceUntilIdle()
+
+            assert(viewModel.userCustomLists.value == customLists)
+            job.cancel()
+        }
+
+    @Test
+    fun `onSelectList switches source from primary watchlist to custom list items`() =
+        runTest {
+            val primaryShows = listOf(
+                TraktUserListItem(id = 1, traktID = 1, title = "Watchlist Show 1", originalImageUrl = "", mediumImageUrl = "", imdbID = "", slug = "", tmdbID = 1, tvdbID = 1, tvMazeID = 1, year = "2024", network = null, status = null, rating = null),
+            )
+            val customListShows = listOf(
+                TraktUserListItem(id = 2, traktID = 2, title = "Custom List Show A", originalImageUrl = "", mediumImageUrl = "", imdbID = "", slug = "", tmdbID = 2, tvdbID = 2, tvMazeID = 2, year = "2023", network = null, status = null, rating = null),
+                TraktUserListItem(id = 3, traktID = 3, title = "Custom List Show B", originalImageUrl = "", mediumImageUrl = "", imdbID = "", slug = "", tmdbID = 3, tvdbID = 3, tvMazeID = 3, year = "2022", network = null, status = null, rating = null),
+            )
+            traktRepository.setWatchlistShows(primaryShows)
+            traktRepository.setCustomListItems(101, customListShows)
+
+            viewModel = TraktAccountViewModel(traktRepository, workManager, traktAuthManager)
+
+            val job = launch { viewModel.watchlistShows.collect {} }
+            advanceUntilIdle()
+
+            assert(viewModel.watchlistShows.value.size == 1)
+            assert(viewModel.watchlistShows.value[0].title == "Watchlist Show 1")
+            assert(viewModel.selectedListTraktId.value == null)
+
+            // Switch to custom list 101
+            viewModel.onSelectList(101)
+            advanceUntilIdle()
+
+            assert(viewModel.selectedListTraktId.value == 101)
+            assert(viewModel.watchlistShows.value.size == 2)
+            assert(viewModel.watchlistShows.value[0].title == "Custom List Show A")
+            assert(viewModel.watchlistShows.value[1].title == "Custom List Show B")
+
+            // Switch back to primary watchlist
+            viewModel.onSelectList(null)
+            advanceUntilIdle()
+
+            assert(viewModel.selectedListTraktId.value == null)
+            assert(viewModel.watchlistShows.value.size == 1)
+            assert(viewModel.watchlistShows.value[0].title == "Watchlist Show 1")
+
+            job.cancel()
+        }
+
+    @Test
+    fun `onSelectList with custom list id triggers refreshCustomListItems when token exists`() =
+        runTest {
+            traktRepository.setAccessToken(
+                TraktAccessToken(
+                    access_token = "valid_token",
+                    created_at = 1000,
+                    expires_in = 7200,
+                    refresh_token = "refresh_token",
+                    scope = "public",
+                    token_type = "bearer",
+                )
+            )
+            viewModel = TraktAccountViewModel(traktRepository, workManager, traktAuthManager)
+
+            assert(traktRepository.refreshCustomListItemsCallCount == 0)
+
+            viewModel.onSelectList(555)
+            advanceUntilIdle()
+
+            assert(traktRepository.refreshCustomListItemsCallCount == 1)
         }
 }
