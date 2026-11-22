@@ -43,8 +43,18 @@ platform :android do
       tag: "v#{lane_context[:VERSION_NAME]}-#{lane_context[:VERSION_CODE]}"
     )
 
-    # Push commit and tag to remote
-    push_to_git_remote
+    # Push commit and tag to remote with fallback for branch protection
+    begin
+      push_to_git_remote
+    rescue => e
+      UI.important("Failed to push directly to main (branch protection active): #{e.message}")
+      sh("git push origin refs/tags/v#{lane_context[:VERSION_NAME]}-#{lane_context[:VERSION_CODE]}")
+      branch_name = "chore/version-bump-#{lane_context[:VERSION_CODE]}"
+      sh("git checkout -b #{branch_name}")
+      sh("git push origin #{branch_name}")
+      sh("gh pr create --title \"Version Bump: #{lane_context[:VERSION_NAME]} (#{lane_context[:VERSION_CODE]}) [skip ci]\" --body \"Automated version bump from release pipeline.\" --base main --head #{branch_name} || true")
+      sh("gh pr merge --auto --squash --delete-branch || true")
+    end
   end
 
   private_lane :increment_version_properties do
