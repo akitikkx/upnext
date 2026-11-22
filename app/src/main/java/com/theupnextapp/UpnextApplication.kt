@@ -36,6 +36,10 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import coil.ImageLoader
+import coil.ImageLoaderFactory
+import coil.disk.DiskCache
+import coil.memory.MemoryCache
 import com.theupnextapp.common.utils.TraktAuthManager
 import com.theupnextapp.common.utils.UpnextPreferenceManager
 import com.theupnextapp.common.utils.models.TableUpdateInterval
@@ -59,7 +63,7 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltAndroidApp
-class UpnextApplication : Application(), Configuration.Provider {
+class UpnextApplication : Application(), Configuration.Provider, ImageLoaderFactory {
     private val applicationScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
     @Inject
@@ -88,6 +92,24 @@ class UpnextApplication : Application(), Configuration.Provider {
                 .setWorkerFactory(workerFactory)
                 .setMinimumLoggingLevel(if (BuildConfig.DEBUG) Log.DEBUG else Log.INFO)
                 .build()
+
+    override fun newImageLoader(): ImageLoader {
+        return ImageLoader.Builder(this)
+            .memoryCache {
+                MemoryCache.Builder(this)
+                    .maxSizePercent(IMAGE_MEMORY_CACHE_PERCENT)
+                    .build()
+            }
+            .diskCache {
+                DiskCache.Builder()
+                    .directory(cacheDir.resolve("image_cache"))
+                    .maxSizeBytes(IMAGE_DISK_CACHE_BYTES)
+                    .build()
+            }
+            .crossfade(true)
+            .respectCacheHeaders(false)
+            .build()
+    }
 
     private fun setupTheme() {
         val selectedTheme = preferenceManager.getSelectedTheme()
@@ -293,5 +315,10 @@ class UpnextApplication : Application(), Configuration.Provider {
         Timber
             .tag(tag = "UpnextApplication")
             .d(message = "Enqueued ${RefreshDashboardShowsWorker.WORK_NAME}")
+    }
+
+    companion object {
+        private const val IMAGE_MEMORY_CACHE_PERCENT = 0.25
+        private const val IMAGE_DISK_CACHE_BYTES = 104_857_600L // 100 MB
     }
 }

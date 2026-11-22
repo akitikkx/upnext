@@ -80,7 +80,9 @@
     <string name="btn_show_detail_remove_from_favorites">Supprimer de la liste de surveillance</string>
     <string name="show_detail_similar_shows_heading">Émissions similaires</string>
     <string name="show_detail_season_premiere_date">Première : %1$s</string>
+    <string name="show_detail_season_premieres_date">Première : %1$s</string>
     <string name="show_detail_season_end_date">Terminé : %1$s</string>
+    <string name="show_detail_season_ending_date">Fin : %1$s</string>
     <string name="tv_maze_creative_commons_attribution_text_multiple">Toutes les images sous licence CC BY-SA 4.0</string>
     <string name="btn_mark_season_watched">Marquer la saison regardée</string>
     <string name="btn_mark_season_unwatched">Marquer la saison sans surveillance</string>

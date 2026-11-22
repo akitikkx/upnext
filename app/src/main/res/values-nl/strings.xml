@@ -80,7 +80,9 @@
     <string name="btn_show_detail_remove_from_favorites">Verwijderen uit volglijst</string>
     <string name="show_detail_similar_shows_heading">Soortgelijke shows</string>
     <string name="show_detail_season_premiere_date">In première: %1$s</string>
+    <string name="show_detail_season_premieres_date">Gaat in première: %1$s</string>
     <string name="show_detail_season_end_date">Beëindigd: %1$s</string>
+    <string name="show_detail_season_ending_date">Eindigt: %1$s</string>
     <string name="tv_maze_creative_commons_attribution_text_multiple">Alle afbeeldingen zijn gelicentieerd onder CC BY-SA 4.0</string>
     <string name="btn_mark_season_watched">Mark seizoen gekeken</string>
     <string name="btn_mark_season_unwatched">Markeer seizoen onbewaakt</string>

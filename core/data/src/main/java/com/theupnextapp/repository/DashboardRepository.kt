@@ -317,8 +317,10 @@ class DashboardRepositoryImpl(
             tvmazeId?.let { imdbToTvmazeIdCache[imdbId] = it }
         }
 
-        var originalImage: String? = null
-        var mediumImage: String? = null
+        var episodeMedium: String? = null
+        var episodeOriginal: String? = null
+        var showMedium: String? = null
+        var showOriginal: String? = null
 
         try {
             // Only lookup TVMaze ID from IMDB ID if not already cached
@@ -332,8 +334,8 @@ class DashboardRepositoryImpl(
                     val showImg = showLookup.image.original.ifEmpty { showLookup.image.medium }
                     showImageCache.putIfAbsent(imdbId, Pair(showImg, it))
                 }
-                originalImage = showLookup?.image?.original
-                mediumImage = showLookup?.image?.medium
+                showOriginal = showLookup?.image?.original?.ifEmpty { null }
+                showMedium = showLookup?.image?.medium?.ifEmpty { null }
             }
 
             if (tvmazeId != null) {
@@ -341,15 +343,21 @@ class DashboardRepositoryImpl(
                     tvMazeService.getEpisodeByNumberAsync(tvmazeId.toString(), season, number).await()
                 }
                 if (episode != null) {
-                    originalImage = episode.image?.original ?: originalImage
-                    mediumImage = episode.image?.medium ?: mediumImage
+                    episodeOriginal = episode.image?.original?.ifEmpty { null }
+                    episodeMedium = episode.image?.medium?.ifEmpty { null }
                 }
             }
         } catch (e: Exception) {
             Timber.d(e)
             firebaseCrashlytics.recordException(e)
         }
-        val result = Pair(originalImage ?: mediumImage, tvmazeId)
+        val fallbackShowImage = showMedium
+            ?: showOriginal
+            ?: showImageCache[imdbId]?.first?.ifEmpty { null }
+        val selectedImage = episodeMedium
+            ?: episodeOriginal
+            ?: fallbackShowImage
+        val result = Pair(selectedImage, tvmazeId)
         if (result.first != null || result.second != null) {
             episodeImageCache[cacheKey] = result
         }

@@ -34,6 +34,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.defaultMinSize
@@ -41,18 +42,22 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -64,6 +69,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -80,6 +86,7 @@ import com.theupnextapp.R
 import com.theupnextapp.common.utils.DateUtils
 import com.theupnextapp.core.designsystem.ui.components.PosterImage
 import com.theupnextapp.core.designsystem.ui.components.ShimmerSeasons
+import com.theupnextapp.core.designsystem.ui.modifiers.bounceClick
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.ShowSeason
 import com.theupnextapp.navigation.Destinations
@@ -284,13 +291,17 @@ fun ShowSeasonCard(
     onClick: () -> Unit,
 ) {
     Card(
-        shape = MaterialTheme.shapes.large,
+        shape = RoundedCornerShape(12.dp),
+        colors =
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+            ),
         modifier =
             Modifier
                 .widthIn(max = 600.dp)
                 .fillMaxWidth()
-                .padding(4.dp),
-        onClick = onClick,
+                .padding(horizontal = 4.dp, vertical = 6.dp)
+                .bounceClick(onClick = onClick),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -302,6 +313,8 @@ fun ShowSeasonCard(
                     url = url,
                     modifier =
                         Modifier
+                            .padding(8.dp)
+                            .clip(RoundedCornerShape(8.dp))
                             .width(dimensionResource(id = R.dimen.compose_search_poster_width))
                             .height(dimensionResource(id = R.dimen.compose_search_poster_height)),
                     alignment = Alignment.TopCenter,
@@ -314,7 +327,7 @@ fun ShowSeasonCard(
             ) {
                 if (item.seasonNumber.toString().isNotEmpty()) {
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(4.dp),
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 2.dp, vertical = 2.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween,
                     ) {
@@ -324,16 +337,34 @@ fun ShowSeasonCard(
                                     R.string.show_detail_season_and_number,
                                     item.seasonNumber.toString(),
                                 ),
-                            style = MaterialTheme.typography.bodyLarge,
+                            style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                         )
                         if (isAuthorizedOnTrakt && item.isWatched == true) {
                             Icon(
-                                imageVector = Icons.Outlined.CheckCircle,
+                                imageVector = Icons.Default.CheckCircle,
                                 contentDescription = "Watched",
-                                tint = MaterialTheme.colorScheme.secondary,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(20.dp),
                             )
                         }
+                    }
+                }
+
+                val episodeCount = item.episodeCount
+                if (episodeCount != null && episodeCount > 0) {
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Surface(
+                        shape = RoundedCornerShape(6.dp),
+                        color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.7f),
+                    ) {
+                        Text(
+                            text = stringResource(R.string.show_detail_season_count, episodeCount),
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                        )
                     }
                 }
 
@@ -341,14 +372,19 @@ fun ShowSeasonCard(
                 if (!premiereDate.isNullOrEmpty()) {
                     val date = DateUtils.getDisplayDate(premiereDate)
                     if (date != null) {
+                        val isPremiereFuture = DateUtils.isDateInFuture(premiereDate)
+                        val premiereStringRes =
+                            if (isPremiereFuture) {
+                                R.string.show_detail_season_premieres_date
+                            } else {
+                                R.string.show_detail_season_premiere_date
+                            }
+                        Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text =
-                                stringResource(
-                                    R.string.show_detail_season_premiere_date,
-                                    date,
-                                ),
-                            modifier = Modifier.padding(2.dp),
+                            text = stringResource(premiereStringRes, date),
+                            modifier = Modifier.padding(horizontal = 2.dp),
                             style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }
@@ -357,14 +393,19 @@ fun ShowSeasonCard(
                 if (!endDate.isNullOrEmpty()) {
                     val date = DateUtils.getDisplayDate(endDate)
                     if (date != null) {
+                        val isEndFuture = DateUtils.isDateInFuture(endDate)
+                        val endStringRes =
+                            if (isEndFuture) {
+                                R.string.show_detail_season_ending_date
+                            } else {
+                                R.string.show_detail_season_end_date
+                            }
+                        Spacer(modifier = Modifier.height(2.dp))
                         Text(
-                            text =
-                                stringResource(
-                                    R.string.show_detail_season_end_date,
-                                    date,
-                                ),
-                            modifier = Modifier.padding(2.dp),
+                            text = stringResource(endStringRes, date),
+                            modifier = Modifier.padding(horizontal = 2.dp),
                             style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }

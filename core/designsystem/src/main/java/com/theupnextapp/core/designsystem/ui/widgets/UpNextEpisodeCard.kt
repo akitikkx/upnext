@@ -23,11 +23,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.theupnextapp.core.designsystem.ui.modifiers.bounceClick
 
 @Suppress("MagicNumber")
@@ -60,7 +62,11 @@ fun UpNextEpisodeCard(
             ) {
                 // Background image
                 AsyncImage(
-                    model = imageUrl,
+                    model =
+                        ImageRequest.Builder(LocalContext.current)
+                            .data(imageUrl)
+                            .crossfade(true)
+                            .build(),
                     contentDescription = showTitle,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize(),
