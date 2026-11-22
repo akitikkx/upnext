@@ -80,7 +80,9 @@
     <string name="trakt_watched_progress_sheet_title_with_show_name">Your \"%1$s\" watched progress</string>
     <string name="show_detail_season_count">%1$d Episodes</string>
     <string name="show_detail_season_premiere_date">Premiered: %1$s</string>
+    <string name="show_detail_season_premieres_date">Premieres: %1$s</string>
     <string name="show_detail_season_end_date">Ended: %1$s</string>
+    <string name="show_detail_season_ending_date">Ends: %1$s</string>
     <string name="show_detail_season_and_episode_number">Season %1$s Episode %2$s</string>
     <string name="show_detail_show_seasons_title">Seasons Summary</string>
     <string name="show_detail_show_season_episodes_title">Season episodes</string>

@@ -17,7 +17,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v7
         with:
-          token: ${{ secrets.GH_PAT != '' && secrets.GH_PAT || github.token }}
+          token: ${{ github.token }}
           fetch-depth: 0
       - name: Check for recent commits
         id: check
@@ -50,7 +50,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v7
         with:
-          token: ${{ secrets.GH_PAT != '' && secrets.GH_PAT || github.token }}
+          token: ${{ github.token }}
           fetch-depth: 0
 
       - name: Set up JDK 17

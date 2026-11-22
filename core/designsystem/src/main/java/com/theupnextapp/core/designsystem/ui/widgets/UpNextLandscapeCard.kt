@@ -29,11 +29,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.theupnextapp.core.designsystem.ui.modifiers.bounceClick
 
 @Composable
@@ -66,7 +68,11 @@ fun UpNextLandscapeCard(
             ) {
                 // Background image
                 AsyncImage(
-                    model = imageUrl,
+                    model =
+                        ImageRequest.Builder(LocalContext.current)
+                            .data(imageUrl)
+                            .crossfade(true)
+                            .build(),
                     contentDescription = showTitle,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize(),

@@ -101,4 +101,82 @@ class ShowSeasonCardTest {
         composeTestRule.onNodeWithText("Mark Season Watched").performClick()
         assertTrue(toggled)
     }
+
+    @Test
+    fun showSeasonCard_displaysEpisodeCount_whenAvailable() {
+        val season = mockSeason.copy(episodeCount = 12)
+        composeTestRule.setContent {
+            ShowSeasonCard(
+                item = season,
+                isAuthorizedOnTrakt = false,
+                onClick = {},
+            )
+        }
+
+        composeTestRule.onNodeWithText("12 Episodes").assertIsDisplayed()
+    }
+
+    @Test
+    fun showSeasonCard_futureEndDate_displaysEndsLabel() {
+        // Date far in the future
+        val season = mockSeason.copy(endDate = "2035-12-31")
+        composeTestRule.setContent {
+            ShowSeasonCard(
+                item = season,
+                isAuthorizedOnTrakt = false,
+                onClick = {},
+            )
+        }
+
+        // Should say "Ends: Dec 31, 2035", not "Ended: Dec 31, 2035"
+        composeTestRule.onNodeWithText("Ends: Dec 31, 2035").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Ended: Dec 31, 2035").assertDoesNotExist()
+    }
+
+    @Test
+    fun showSeasonCard_pastEndDate_displaysEndedLabel() {
+        // Date in the past
+        val season = mockSeason.copy(endDate = "2015-05-20")
+        composeTestRule.setContent {
+            ShowSeasonCard(
+                item = season,
+                isAuthorizedOnTrakt = false,
+                onClick = {},
+            )
+        }
+
+        // Should say "Ended: May 20, 2015"
+        composeTestRule.onNodeWithText("Ended: May 20, 2015").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Ends: May 20, 2015").assertDoesNotExist()
+    }
+
+    @Test
+    fun showSeasonCard_futurePremiereDate_displaysPremieresLabel() {
+        val season = mockSeason.copy(premiereDate = "2035-09-15")
+        composeTestRule.setContent {
+            ShowSeasonCard(
+                item = season,
+                isAuthorizedOnTrakt = false,
+                onClick = {},
+            )
+        }
+
+        composeTestRule.onNodeWithText("Premieres: Sep 15, 2035").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Premiered: Sep 15, 2035").assertDoesNotExist()
+    }
+
+    @Test
+    fun showSeasonCard_pastPremiereDate_displaysPremieredLabel() {
+        val season = mockSeason.copy(premiereDate = "2015-01-10")
+        composeTestRule.setContent {
+            ShowSeasonCard(
+                item = season,
+                isAuthorizedOnTrakt = false,
+                onClick = {},
+            )
+        }
+
+        composeTestRule.onNodeWithText("Premiered: Jan 10, 2015").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Premieres: Jan 10, 2015").assertDoesNotExist()
+    }
 }

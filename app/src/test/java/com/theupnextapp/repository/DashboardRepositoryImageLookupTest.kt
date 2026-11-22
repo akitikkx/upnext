@@ -168,7 +168,46 @@ class DashboardRepositoryImageLookupTest {
         fakeTvMazeService.mockShowLookupResponse = null
 
         val episodeResult = repository.getEpisodeImageAndTvmazeId(imdbId, 1, 1)
-        assertEquals("http://example.com/ep_orig.jpg", episodeResult.first)
+        assertEquals("http://example.com/ep_med.jpg", episodeResult.first)
+        assertEquals(tvmazeId, episodeResult.second)
+    }
+
+    @Test
+    fun `getEpisodeImageAndTvmazeId falls back to original when medium is null`() = runTest {
+        val imdbId = "tt88888"
+        val tvmazeId = 55
+        fakeTvMazeService.mockShowLookupResponse = createMockShowLookup(id = tvmazeId)
+        fakeTvMazeService.mockNextEpisodeResponse = createMockEpisodeResponse(
+            id = 202,
+            original = "http://example.com/ep_only_orig.jpg",
+            medium = "",
+        )
+
+        val episodeResult = repository.getEpisodeImageAndTvmazeId(imdbId, 1, 1)
+        assertEquals("http://example.com/ep_only_orig.jpg", episodeResult.first)
+        assertEquals(tvmazeId, episodeResult.second)
+    }
+
+    @Test
+    fun `getEpisodeImageAndTvmazeId falls back to show image when episode image is empty`() = runTest {
+        val imdbId = "tt77777"
+        val tvmazeId = 66
+        fakeTvMazeService.mockShowLookupResponse = createMockShowLookup(
+            id = tvmazeId,
+            original = "http://example.com/show_poster.jpg",
+            medium = "http://example.com/show_poster_med.jpg",
+        )
+        fakeTvMazeService.mockNextEpisodeResponse = createMockEpisodeResponse(
+            id = 303,
+            original = "",
+            medium = "",
+        )
+
+        // Warm show cache first
+        repository.getShowImageAndTvmazeId(imdbId)
+
+        val episodeResult = repository.getEpisodeImageAndTvmazeId(imdbId, 1, 1)
+        assertEquals("http://example.com/show_poster.jpg", episodeResult.first)
         assertEquals(tvmazeId, episodeResult.second)
     }
 

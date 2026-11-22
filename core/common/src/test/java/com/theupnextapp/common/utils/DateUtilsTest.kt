@@ -43,4 +43,28 @@ class DateUtilsTest {
         
         assertEquals("Feb 9, 2015", formatted)
     }
+
+    @Test
+    fun isDateInFuture_futureDate_returnsTrue() {
+        val futureDate = "2030-05-20"
+        val fixedNow = 1768859608000L // year 2026
+
+        val result = DateUtils.isDateInFuture(futureDate, nowMillis = fixedNow)
+        assertEquals(true, result)
+    }
+
+    @Test
+    fun isDateInFuture_pastDate_returnsFalse() {
+        val pastDate = "2020-01-15"
+        val fixedNow = 1768859608000L // year 2026
+
+        val result = DateUtils.isDateInFuture(pastDate, nowMillis = fixedNow)
+        assertEquals(false, result)
+    }
+
+    @Test
+    fun isDateInFuture_invalidDate_returnsFalse() {
+        val result = DateUtils.isDateInFuture("invalid-date-string")
+        assertEquals(false, result)
+    }
 }

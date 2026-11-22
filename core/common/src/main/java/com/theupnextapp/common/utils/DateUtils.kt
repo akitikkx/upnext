@@ -99,6 +99,14 @@ object DateUtils {
         return parseDate(dateStamp)
     }
 
+    fun isDateInFuture(
+        dateString: String,
+        nowMillis: Long = System.currentTimeMillis(),
+    ): Boolean {
+        val date = parseDate(dateString) ?: return false
+        return date.time > nowMillis
+    }
+
     /**
      * Formats a given timestamp (in milliseconds) into a String representation.
      * @param timestampMillis The time in milliseconds since epoch.

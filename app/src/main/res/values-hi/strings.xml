@@ -80,7 +80,9 @@
     <string name="btn_show_detail_remove_from_favorites">निगरानी सूची से हटाएँ</string>
     <string name="show_detail_similar_shows_heading">समान शो</string>
     <string name="show_detail_season_premiere_date">प्रीमियर: %1$s</string>
+    <string name="show_detail_season_premieres_date">प्रीमियर: %1$s</string>
     <string name="show_detail_season_end_date">समाप्त: %1$s</string>
+    <string name="show_detail_season_ending_date">समाप्ति: %1$s</string>
     <string name="tv_maze_creative_commons_attribution_text_multiple">सभी छवियाँ CC BY-SA 4.0 के अंतर्गत लाइसेंसीकृत हैं</string>
     <string name="btn_mark_season_watched">मार्क सीज़न देखा गया</string>
     <string name="btn_mark_season_unwatched">मार्क सीज़न नहीं देखा गया</string>

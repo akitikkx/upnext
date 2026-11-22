@@ -163,12 +163,11 @@ fun MainScreen(
         if (isDetailFlowActive) {
             listDetailNavigator.navigateTo(ListDetailPaneScaffoldRole.Detail)
         } else {
-            // In single-pane mode, if detail is inactive, guarantee we are at the List pane
-            if (isPortrait || isCompactHeight) {
-                listDetailNavigator.navigateTo(ListDetailPaneScaffoldRole.List)
-            } else if (listDetailNavigator.canNavigateBack()) {
-                listDetailNavigator.navigateBack(BackNavigationBehavior.PopUntilScaffoldValueChange)
-            } else {
+            // When detail is inactive, drain the backstack back to the root list pane
+            while (listDetailNavigator.canNavigateBack()) {
+                listDetailNavigator.navigateBack(BackNavigationBehavior.PopUntilCurrentDestinationChange)
+            }
+            if (listDetailNavigator.currentDestination?.pane != ListDetailPaneScaffoldRole.List) {
                 listDetailNavigator.navigateTo(ListDetailPaneScaffoldRole.List)
             }
         }
