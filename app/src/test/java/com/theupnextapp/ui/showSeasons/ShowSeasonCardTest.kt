@@ -103,6 +103,22 @@ class ShowSeasonCardTest {
     }
 
     @Test
+    fun showSeasonCard_clickAnimatedToggleWatched_callsCallback() {
+        var toggled = false
+        composeTestRule.setContent {
+            ShowSeasonCard(
+                item = mockSeason,
+                isAuthorizedOnTrakt = true,
+                onToggleWatched = { toggled = true },
+                onClick = {},
+            )
+        }
+
+        composeTestRule.onNodeWithContentDescription("Watched").performClick()
+        assertTrue(toggled)
+    }
+
+    @Test
     fun showSeasonCard_displaysEpisodeCount_whenAvailable() {
         val season = mockSeason.copy(episodeCount = 12)
         composeTestRule.setContent {

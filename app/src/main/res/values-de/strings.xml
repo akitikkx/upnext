@@ -149,5 +149,6 @@
     <string name="nav_title_explore">Entdecken</string>
     <string name="nav_title_settings">Einstellungen</string>
     <string name="nav_title_account">Konto</string>
+    <string name="search_clear_query_description">Suchanfrage löschen</string>
 
 </resources>

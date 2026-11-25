@@ -13,6 +13,8 @@
 package com.theupnextapp.ui.traktAccount
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
@@ -69,6 +71,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -77,8 +80,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -88,7 +94,9 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.theupnextapp.R
 import com.theupnextapp.core.designsystem.ui.components.SectionHeadingText
+import com.theupnextapp.core.designsystem.ui.modifiers.bounceScale
 import com.theupnextapp.domain.TraktUserListItem
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Locale
 import androidx.compose.foundation.rememberScrollState as rememberHorizontalScrollState
@@ -131,8 +139,8 @@ fun WatchlistListContent(
             modifier = Modifier.fillMaxHeight().widthIn(max = 600.dp).testTag("watchlist_column"),
             state = lazyListState,
             contentPadding = PaddingValues(
-                start = contentPadding.calculateStartPadding(androidx.compose.ui.platform.LocalLayoutDirection.current),
-                end = contentPadding.calculateEndPadding(androidx.compose.ui.platform.LocalLayoutDirection.current),
+                start = contentPadding.calculateStartPadding(LocalLayoutDirection.current),
+                end = contentPadding.calculateEndPadding(LocalLayoutDirection.current),
                 top = contentPadding.calculateTopPadding(),
                 bottom = contentPadding.calculateBottomPadding()
             ),
@@ -263,6 +271,7 @@ fun WatchlistListContent(
 
                     // Status filter chips
                     if (availableStatuses.isNotEmpty()) {
+                        val haptic = LocalHapticFeedback.current
                         Row(
                             modifier =
                                 Modifier
@@ -274,18 +283,24 @@ fun WatchlistListContent(
                         ) {
                             FilterChip(
                                 selected = statusFilter == null,
-                                onClick = { onStatusFilterChange(null) },
+                                onClick = {
+                                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                    onStatusFilterChange(null)
+                                },
                                 label = { Text(stringResource(id = R.string.watchlist_filter_all)) },
+                                modifier = Modifier.bounceScale(),
                             )
                             availableStatuses.forEach { status ->
                                 FilterChip(
                                     selected = statusFilter == status,
                                     onClick = {
+                                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                                         onStatusFilterChange(
                                             if (statusFilter == status) null else status,
                                         )
                                     },
                                     label = { Text(getLocalizedStatus(status)) },
+                                    modifier = Modifier.bounceScale(),
                                 )
                             }
                         }
@@ -313,18 +328,18 @@ fun WatchlistListContent(
                 val peekDelayMillis = 800L
                 val peekSlideOffset = -80f
                 val peekReturnDelayMillis = 600L
-                var peekOffset by remember { androidx.compose.runtime.mutableFloatStateOf(0f) }
-                val animatedPeekOffset by androidx.compose.animation.core.animateFloatAsState(
+                var peekOffset by remember { mutableFloatStateOf(0f) }
+                val animatedPeekOffset by animateFloatAsState(
                     targetValue = peekOffset,
-                    animationSpec = androidx.compose.animation.core.tween(durationMillis = 400),
+                    animationSpec = tween(durationMillis = 400),
                     label = "peekAnimation",
                 )
 
                 if (index == 0) {
                     LaunchedEffect(Unit) {
-                        kotlinx.coroutines.delay(peekDelayMillis)
+                        delay(peekDelayMillis)
                         peekOffset = peekSlideOffset // Slide left
-                        kotlinx.coroutines.delay(peekReturnDelayMillis)
+                        delay(peekReturnDelayMillis)
                         peekOffset = 0f // Slide back
                     }
                 }

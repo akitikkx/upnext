@@ -12,7 +12,9 @@
 
 package com.theupnextapp.ui.animation
 
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -23,6 +25,11 @@ import com.theupnextapp.core.designsystem.ui.components.AnimatedWatchedToggleBut
 import com.theupnextapp.core.designsystem.ui.components.AnimatedWatchlistIconButton
 import com.theupnextapp.core.designsystem.ui.theme.LocalReducedMotion
 import com.theupnextapp.core.designsystem.ui.widgets.UpNextEpisodeCard
+import com.theupnextapp.domain.ShowSeason
+import com.theupnextapp.ui.episodeDetail.EpisodeTraktActions
+import com.theupnextapp.ui.search.SearchInputField
+import com.theupnextapp.ui.showSeasons.ShowSeasonCard
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -118,5 +125,88 @@ class DelightAnimationAndAccessibilityDeviceTest {
             .performClick()
 
         assertTrue("Mark watched button on card should be clickable", markWatchedClicked)
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun searchInputField_onDevice_clearsInputState() {
+        val queryState = mutableStateOf("Severance")
+        var reported = "Severance"
+        composeTestRule.setContent {
+            SearchInputField(
+                inputLabel = "Search for a show...",
+                valueState = queryState,
+                onValueChange = { reported = it },
+            )
+        }
+
+        composeTestRule.waitForIdle()
+        composeTestRule
+            .onNodeWithTag("search_clear_button")
+            .assertIsDisplayed()
+            .performClick()
+
+        composeTestRule.waitForIdle()
+        assertEquals("", queryState.value)
+        assertEquals("", reported)
+        composeTestRule.onNodeWithTag("search_clear_button").assertDoesNotExist()
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun showSeasonCard_onDevice_animatedWatchedToggleOperates() {
+        var toggled = false
+        val season =
+            ShowSeason(
+                id = 101,
+                seasonNumber = 2,
+                episodeCount = 8,
+                name = "Season 2",
+                premiereDate = null,
+                endDate = null,
+                originalImageUrl = null,
+                mediumImageUrl = null,
+                isWatched = false,
+            )
+
+        composeTestRule.setContent {
+            ShowSeasonCard(
+                item = season,
+                isAuthorizedOnTrakt = true,
+                onToggleWatched = { toggled = true },
+                onClick = {},
+            )
+        }
+
+        composeTestRule.waitForIdle()
+        composeTestRule
+            .onNodeWithTag("season_watched_toggle_2")
+            .assertIsDisplayed()
+            .performClick()
+
+        assertTrue("Season animated watched toggle should trigger callback on device", toggled)
+    }
+
+    @Test
+    fun episodeTraktActions_onDevice_toggleWatchedOperates() {
+        var toggled = false
+        composeTestRule.setContent {
+            EpisodeTraktActions(
+                isWatched = false,
+                isCheckingIn = false,
+                isCheckInSuccessful = false,
+                onToggleWatchedClick = { toggled = true },
+                onCheckInClick = {},
+                onCancelCheckInClick = {},
+            )
+        }
+
+        composeTestRule.waitForIdle()
+        composeTestRule
+            .onNodeWithTag("episode_toggle_watched_button")
+            .assertIsDisplayed()
+            .performClick()
+
+        assertTrue("Episode toggle watched button should trigger callback on device", toggled)
     }
 }

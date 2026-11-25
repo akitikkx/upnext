@@ -52,8 +52,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -74,6 +72,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -84,6 +83,7 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.theupnextapp.R
 import com.theupnextapp.common.utils.DateUtils
+import com.theupnextapp.core.designsystem.ui.components.AnimatedWatchedToggleButton
 import com.theupnextapp.core.designsystem.ui.components.PosterImage
 import com.theupnextapp.core.designsystem.ui.components.ShimmerSeasons
 import com.theupnextapp.core.designsystem.ui.modifiers.bounceClick
@@ -266,8 +266,16 @@ fun ShowSeasons(
                 }
             }
         }
-        items(list) { showSeason ->
-            Box(modifier = Modifier.padding(horizontal = 8.dp)) {
+        items(
+            items = list,
+            key = { it.seasonNumber ?: it.hashCode() },
+        ) { showSeason ->
+            Box(
+                modifier =
+                    Modifier
+                        .animateItem()
+                        .padding(horizontal = 8.dp),
+            ) {
                 ShowSeasonCard(
                     item = showSeason,
                     fallbackImageUrl = showBackgroundUrl,
@@ -340,12 +348,12 @@ fun ShowSeasonCard(
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                         )
-                        if (isAuthorizedOnTrakt && item.isWatched == true) {
-                            Icon(
-                                imageVector = Icons.Default.CheckCircle,
-                                contentDescription = "Watched",
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(20.dp),
+                        if (isAuthorizedOnTrakt) {
+                            AnimatedWatchedToggleButton(
+                                isWatched = item.isWatched == true,
+                                onToggle = onToggleWatched,
+                                contentDescription = if (item.isWatched == true) "Watched" else "Mark as watched",
+                                modifier = Modifier.testTag("season_watched_toggle_${item.seasonNumber}"),
                             )
                         }
                     }
@@ -413,7 +421,11 @@ fun ShowSeasonCard(
                 if (isAuthorizedOnTrakt) {
                     Button(
                         onClick = onToggleWatched,
-                        modifier = Modifier.padding(top = 8.dp),
+                        modifier =
+                            Modifier
+                                .padding(top = 8.dp)
+                                .bounceClick(onClick = onToggleWatched)
+                                .testTag("season_watched_button_${item.seasonNumber}"),
                         colors =
                             if (item.isWatched == true) {
                                 ButtonDefaults.buttonColors(

@@ -22,7 +22,6 @@
 package com.theupnextapp.ui.search
 
 import androidx.activity.compose.ReportDrawnWhen
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,10 +36,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
@@ -57,6 +58,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -65,6 +68,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.theupnextapp.R
+import com.theupnextapp.core.designsystem.ui.modifiers.bounceClick
 import com.theupnextapp.core.designsystem.ui.widgets.SearchListCard
 import com.theupnextapp.domain.RecentSearch
 import com.theupnextapp.domain.ShowSearch
@@ -212,6 +216,8 @@ fun SearchInputField(
     valueState: MutableState<String>,
     onValueChange: (value: String) -> Unit,
 ) {
+    val haptic = LocalHapticFeedback.current
+
     OutlinedTextField(
         value = valueState.value,
         onValueChange = {
@@ -219,6 +225,31 @@ fun SearchInputField(
             onValueChange(valueState.value)
         },
         label = { Text(inputLabel) },
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        },
+        trailingIcon = {
+            if (valueState.value.isNotEmpty()) {
+                IconButton(
+                    onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                        valueState.value = ""
+                        onValueChange("")
+                    },
+                    modifier = Modifier.testTag("search_clear_button"),
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Clear,
+                        contentDescription = stringResource(id = R.string.search_clear_query_description),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        },
         singleLine = true,
         shape = CircleShape,
         modifier =
@@ -238,12 +269,18 @@ fun SearchResultsList(
 ) {
     LazyColumn(
         contentPadding = contentPadding,
-        modifier = Modifier.imePadding()
+        modifier = Modifier.imePadding(),
     ) {
-        items(list) { result ->
+        items(
+            items = list,
+            key = { it.id },
+        ) { result ->
             SearchListCard(
                 item = result,
-                modifier = Modifier.testTag("search_result_card")
+                modifier =
+                    Modifier
+                        .animateItem()
+                        .testTag("search_result_card"),
             ) {
                 onClick(result)
             }
@@ -259,6 +296,8 @@ fun RecentSearchesList(
     onClearRecentSearches: () -> Unit,
     contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
+    val haptic = LocalHapticFeedback.current
+
     Column(modifier = Modifier.imePadding()) {
         Row(
             modifier =
@@ -273,7 +312,13 @@ fun RecentSearchesList(
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
             )
-            TextButton(onClick = onClearRecentSearches) {
+            TextButton(
+                onClick = onClearRecentSearches,
+                modifier =
+                    Modifier
+                        .bounceClick(onClick = onClearRecentSearches)
+                        .testTag("search_clear_recent_button"),
+            ) {
                 Text(
                     text = stringResource(id = R.string.search_clear_recent),
                     style = MaterialTheme.typography.labelMedium,
@@ -281,11 +326,22 @@ fun RecentSearchesList(
             }
         }
         LazyColumn(contentPadding = contentPadding) {
-            items(list) { recentSearch ->
+            items(
+                items = list,
+                key = { it.id },
+            ) { recentSearch ->
                 ListItem(
                     headlineContent = { Text(recentSearch.query) },
                     leadingContent = { Icon(Icons.Default.History, contentDescription = null) },
-                    modifier = Modifier.minimumInteractiveComponentSize().clickable { onRecentSearchClick(recentSearch.query) },
+                    modifier =
+                        Modifier
+                            .animateItem()
+                            .minimumInteractiveComponentSize()
+                            .bounceClick {
+                                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                onRecentSearchClick(recentSearch.query)
+                            }
+                            .testTag("recent_search_item"),
                 )
             }
         }
