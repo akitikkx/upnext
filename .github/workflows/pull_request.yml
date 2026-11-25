@@ -61,6 +61,7 @@ jobs:
         with:
           name: unit-test-report
           path: '**/build/reports/tests/'
+          retention-days: 1
 
       - name: Upload Roborazzi Verification Reports
         if: ${{ failure() }}
@@ -68,6 +69,7 @@ jobs:
         with:
           name: roborazzi-report
           path: '**/build/outputs/roborazzi/'
+          retention-days: 1
           
       - name: Clean up temporary files
         if: ${{ always() }}
@@ -172,6 +174,7 @@ jobs:
         with:
           name: upnext-debug
           path: app/build/outputs/apk/debug/**.apk
+          retention-days: 1
           
       - name: Clean up temporary files
         if: ${{ always() }}
@@ -260,6 +263,7 @@ jobs:
             **/build/reports/androidTests/
             **/build/outputs/connected_android_test_additional_output/
             **/build/reports/maestro/
+          retention-days: 1
           
       - name: Clean up temporary files
         if: ${{ always() }}
