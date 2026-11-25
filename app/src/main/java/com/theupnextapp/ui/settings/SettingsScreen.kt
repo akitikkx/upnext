@@ -40,6 +40,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
+import com.theupnextapp.BuildConfig
 import com.theupnextapp.R
 import com.theupnextapp.common.utils.TraktConstants
 import com.theupnextapp.domain.Theme
@@ -49,6 +50,7 @@ import com.theupnextapp.domain.Theme
 fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
     val theme by viewModel.themeStream.collectAsState()
     val dataSaver by viewModel.dataSaverStream.collectAsState()
+    val reducedMotion by viewModel.reducedMotionStream.collectAsState()
     val notificationsEnabled by viewModel.areNotificationsEnabled.collectAsState()
     val traktToken by viewModel.traktAccessToken.collectAsState()
     val context = LocalContext.current
@@ -188,11 +190,27 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
 
         Divider(modifier = Modifier.padding(vertical = 8.dp))
 
+        // Accessibility & Sensory Section
+        SettingsSectionHeader(title = stringResource(id = R.string.settings_accessibility))
+
+        ListItem(
+            headlineContent = { Text(stringResource(id = R.string.settings_reduced_motion)) },
+            supportingContent = { Text(stringResource(id = R.string.settings_reduced_motion_desc)) },
+            trailingContent = {
+                Switch(
+                    checked = reducedMotion,
+                    onCheckedChange = { viewModel.onReducedMotionToggled(it) },
+                )
+            },
+        )
+
+        Divider(modifier = Modifier.padding(vertical = 8.dp))
+
         // About Section
         SettingsSectionHeader(title = stringResource(id = R.string.settings_about))
         ListItem(
             headlineContent = { Text(stringResource(id = R.string.settings_version)) },
-            supportingContent = { Text(com.theupnextapp.BuildConfig.VERSION_NAME) },
+            supportingContent = { Text(BuildConfig.VERSION_NAME) },
         )
     }
 }

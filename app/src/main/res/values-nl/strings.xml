@@ -15,6 +15,9 @@
     <string name="settings_connect">Verbinden</string>
     <string name="settings_about">Over</string>
     <string name="settings_version">Versie</string>
+    <string name="settings_accessibility">Toegankelijkheid &amp; zintuiglijk</string>
+    <string name="settings_reduced_motion">Rustige bewegingsmodus</string>
+    <string name="settings_reduced_motion_desc">Verminder animaties, overgangen en stuiteren voor een rustigere visuele ervaring</string>
     <string name="dashboard_my_upnext">Mijn Upnext</string>
     <string name="dashboard_tonight_on_tv">Vanavond op TV</string>
     <string name="dashboard_no_tv_schedule">Geen tv-schema</string>

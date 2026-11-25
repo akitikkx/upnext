@@ -69,6 +69,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -79,6 +80,7 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.theupnextapp.R
 import com.theupnextapp.common.utils.DateUtils
+import com.theupnextapp.core.designsystem.ui.components.AnimatedWatchedToggleButton
 import com.theupnextapp.core.designsystem.ui.components.PosterImage
 import com.theupnextapp.core.designsystem.ui.components.ShimmerSeasonEpisodes
 import com.theupnextapp.core.designsystem.ui.modifiers.bounceClick
@@ -392,28 +394,17 @@ fun ShowSeasonEpisodeCard(
                     }
 
                     if (isAuthorizedOnTrakt) {
-                        IconButton(onClick = { onToggleWatched(item) }) {
-                            Icon(
-                                imageVector =
-                                    if (item.isWatched) {
-                                        Icons.Filled.CheckCircle
-                                    } else {
-                                        Icons.Outlined.CheckCircle
-                                    },
-                                contentDescription =
-                                    if (item.isWatched) {
-                                        stringResource(R.string.episode_mark_unwatched)
-                                    } else {
-                                        stringResource(R.string.episode_mark_watched)
-                                    },
-                                tint =
-                                    if (item.isWatched) {
-                                        MaterialTheme.colorScheme.primary
-                                    } else {
-                                        MaterialTheme.colorScheme.onSurfaceVariant
-                                    },
-                            )
-                        }
+                        AnimatedWatchedToggleButton(
+                            isWatched = item.isWatched,
+                            onToggle = { onToggleWatched(item) },
+                            contentDescription =
+                                if (item.isWatched) {
+                                    stringResource(R.string.episode_mark_unwatched)
+                                } else {
+                                    stringResource(R.string.episode_mark_watched)
+                                },
+                            modifier = Modifier.testTag("season_episode_watched_button_${item.number}"),
+                        )
                     }
                 }
 

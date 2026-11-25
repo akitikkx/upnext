@@ -15,6 +15,9 @@
     <string name="settings_connect">कनेक्ट करें</string>
     <string name="settings_about">के बारे में</string>
     <string name="settings_version">संस्करण</string>
+    <string name="settings_accessibility">सुलभता और संवेदी</string>
+    <string name="settings_reduced_motion">शांत गति मोड</string>
+    <string name="settings_reduced_motion_desc">शांत दृश्य अनुभव के लिए एनिमेशन, बदलाव और बाउंस कम करें</string>
     <string name="dashboard_my_upnext">मेरा Upnext</string>
     <string name="dashboard_tonight_on_tv">आज रात टीवी पर</string>
     <string name="dashboard_no_tv_schedule">कोई टीवी शेड्यूल नहीं</string>

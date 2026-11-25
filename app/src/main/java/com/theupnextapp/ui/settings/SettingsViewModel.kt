@@ -48,6 +48,13 @@ class SettingsViewModel
                 initialValue = false,
             )
 
+        val reducedMotionStream: StateFlow<Boolean> =
+            settingsRepository.reducedMotionStream.stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = false,
+            )
+
         fun onThemeSelected(theme: Theme) {
             viewModelScope.launch {
                 settingsRepository.setTheme(theme)
@@ -63,6 +70,12 @@ class SettingsViewModel
         fun onNotificationsToggled(enabled: Boolean) {
             viewModelScope.launch {
                 settingsRepository.setNotificationsEnabled(enabled)
+            }
+        }
+
+        fun onReducedMotionToggled(enabled: Boolean) {
+            viewModelScope.launch {
+                settingsRepository.setReducedMotionEnabled(enabled)
             }
         }
 

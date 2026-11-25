@@ -25,6 +25,7 @@ import androidx.activity.compose.ReportDrawnWhen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -84,7 +85,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -103,6 +106,7 @@ import com.theupnextapp.common.utils.DateUtils
 import com.theupnextapp.core.designsystem.ui.components.CastMember
 import com.theupnextapp.core.designsystem.ui.components.PosterImage
 import com.theupnextapp.core.designsystem.ui.components.SectionHeadingText
+import com.theupnextapp.core.designsystem.ui.modifiers.bounceScale
 import com.theupnextapp.domain.ShowDetailArg
 import com.theupnextapp.domain.ShowNextEpisode
 import com.theupnextapp.domain.ShowPreviousEpisode
@@ -766,6 +770,9 @@ private fun ShowDetailButtonsExpanded(
             )
         }
         if (isAuthorizedOnTrakt == true) {
+            val watchlistInteraction = remember { MutableInteractionSource() }
+            val haptic = LocalHapticFeedback.current
+
             if (isLoading) {
                 Box(modifier = Modifier.fillMaxWidth().height(48.dp), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator(
@@ -777,8 +784,16 @@ private fun ShowDetailButtonsExpanded(
             } else {
                 if (isWatchlist == true) {
                     OutlinedButton(
-                        onClick = onWatchlistClick,
-                        modifier = Modifier.fillMaxWidth().height(48.dp),
+                        onClick = {
+                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            onWatchlistClick()
+                        },
+                        interactionSource = watchlistInteraction,
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .height(48.dp)
+                                .bounceScale(watchlistInteraction),
                     ) {
                         Icon(
                             imageVector =
@@ -796,8 +811,16 @@ private fun ShowDetailButtonsExpanded(
                     }
                 } else {
                     Button(
-                        onClick = onWatchlistClick,
-                        modifier = Modifier.fillMaxWidth().height(48.dp),
+                        onClick = {
+                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            onWatchlistClick()
+                        },
+                        interactionSource = watchlistInteraction,
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .height(48.dp)
+                                .bounceScale(watchlistInteraction),
                     ) {
                         Icon(
                             imageVector = ImageVector.vectorResource(id = R.drawable.ic_watchlist_add),
@@ -878,6 +901,9 @@ private fun ShowDetailButtonsCompact(
             Text(text = stringResource(id = R.string.btn_show_detail_seasons))
         }
         if (isAuthorizedOnTrakt == true) {
+            val watchlistInteraction = remember { MutableInteractionSource() }
+            val haptic = LocalHapticFeedback.current
+
             if (isLoading) {
                 Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator(
@@ -889,8 +915,16 @@ private fun ShowDetailButtonsCompact(
             } else {
                 if (isWatchlist == true) {
                     OutlinedButton(
-                        onClick = onWatchlistClick,
-                        modifier = Modifier.widthIn(min = 120.dp).fillMaxHeight(),
+                        onClick = {
+                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            onWatchlistClick()
+                        },
+                        interactionSource = watchlistInteraction,
+                        modifier =
+                            Modifier
+                                .widthIn(min = 120.dp)
+                                .fillMaxHeight()
+                                .bounceScale(watchlistInteraction),
                     ) {
                         Icon(
                             imageVector = ImageVector.vectorResource(id = R.drawable.ic_watchlist_remove),
@@ -905,8 +939,16 @@ private fun ShowDetailButtonsCompact(
                     }
                 } else {
                     Button(
-                        onClick = onWatchlistClick,
-                        modifier = Modifier.widthIn(min = 120.dp).fillMaxHeight(),
+                        onClick = {
+                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            onWatchlistClick()
+                        },
+                        interactionSource = watchlistInteraction,
+                        modifier =
+                            Modifier
+                                .widthIn(min = 120.dp)
+                                .fillMaxHeight()
+                                .bounceScale(watchlistInteraction),
                     ) {
                         Icon(
                             imageVector = ImageVector.vectorResource(id = R.drawable.ic_watchlist_add),

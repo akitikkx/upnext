@@ -39,10 +39,16 @@ class SettingsRepositoryImpl @Inject constructor(
     private val THEME_STATE = stringPreferencesKey("theme_state")
     private val DATA_SAVER_ENABLED = booleanPreferencesKey("data_saver_enabled")
     private val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
+    private val REDUCED_MOTION_ENABLED = booleanPreferencesKey("reduced_motion_enabled")
 
     override val areNotificationsEnabled: Flow<Boolean> = dataStore.data
         .map { preferences ->
             preferences[NOTIFICATIONS_ENABLED] ?: true // Default to true
+        }
+
+    override val reducedMotionStream: Flow<Boolean> = dataStore.data
+        .map { preferences ->
+            preferences[REDUCED_MOTION_ENABLED] ?: false // Default to false
         }
 
     override val themeStream: Flow<Theme> = dataStore.data
@@ -90,6 +96,12 @@ class SettingsRepositoryImpl @Inject constructor(
     override suspend fun setOnboardingCompleted(completed: Boolean) {
         dataStore.edit { preferences ->
             preferences[ONBOARDING_COMPLETED] = completed
+        }
+    }
+
+    override suspend fun setReducedMotionEnabled(enabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[REDUCED_MOTION_ENABLED] = enabled
         }
     }
 }

@@ -15,6 +15,9 @@
     <string name="settings_connect">Verbinden</string>
     <string name="settings_about">Über</string>
     <string name="settings_version">Version</string>
+    <string name="settings_accessibility">Barrierefreiheit &amp; Sinne</string>
+    <string name="settings_reduced_motion">Ruhiger Bewegungsmodus</string>
+    <string name="settings_reduced_motion_desc">Animationen, Übergänge und Sprünge für ein ruhigeres visuelles Erlebnis reduzieren</string>
     <string name="dashboard_my_upnext">Mein Upnext</string>
     <string name="dashboard_tonight_on_tv">Heute im TV</string>
     <string name="dashboard_no_tv_schedule">Kein TV-Programm</string>
