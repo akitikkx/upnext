@@ -149,5 +149,6 @@
     <string name="nav_title_explore">अन्वेषण</string>
     <string name="nav_title_settings">सेटिंग्स</string>
     <string name="nav_title_account">खाता</string>
+    <string name="search_clear_query_description">खोज क्वेरी साफ़ करें</string>
 
 </resources>

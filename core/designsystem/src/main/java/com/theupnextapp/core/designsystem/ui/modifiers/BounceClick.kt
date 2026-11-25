@@ -79,14 +79,15 @@ fun Modifier.bounceClick(
  * respecting [LocalReducedMotion] to avoid discomfort for neurodivergent users.
  */
 fun Modifier.bounceScale(
-    interactionSource: InteractionSource,
+    interactionSource: InteractionSource? = null,
 ): Modifier = composed {
     val isReducedMotion = LocalReducedMotion.current
     if (isReducedMotion) {
         return@composed this
     }
 
-    val isPressed by interactionSource.collectIsPressedAsState()
+    val source = interactionSource ?: remember { MutableInteractionSource() }
+    val isPressed by source.collectIsPressedAsState()
     val scale by animateFloatAsState(
         targetValue = if (isPressed) 0.95f else 1f,
         animationSpec =

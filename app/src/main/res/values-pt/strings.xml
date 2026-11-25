@@ -149,5 +149,6 @@
     <string name="nav_title_explore">Explorar</string>
     <string name="nav_title_settings">Configurações</string>
     <string name="nav_title_account">Conta</string>
+    <string name="search_clear_query_description">Limpar pesquisa</string>
 
 </resources>

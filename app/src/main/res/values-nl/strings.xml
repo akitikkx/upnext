@@ -149,5 +149,6 @@
     <string name="nav_title_explore">Ontdekken</string>
     <string name="nav_title_settings">Instellingen</string>
     <string name="nav_title_account">Account</string>
+    <string name="search_clear_query_description">Zoekopdracht wissen</string>
 
 </resources>

@@ -35,6 +35,7 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import com.theupnextapp.core.designsystem.ui.theme.LocalReducedMotion
 import com.theupnextapp.navigation.Destinations
 import com.theupnextapp.ui.episodeDetail.EpisodeDetailScreen
 import com.theupnextapp.ui.main.TopBar
@@ -64,6 +65,7 @@ fun AppNavigation(
     onBack: () -> Unit,
 ) {
     val currentKey = backStack.lastOrNull()
+    val isReducedMotion = LocalReducedMotion.current
 
     // Extract title from navigation arguments for detail screens
     val dynamicTitle: String? =
@@ -105,24 +107,34 @@ fun AppNavigation(
                 onBack = onBack,
                 modifier = Modifier.weight(1f),
                 transitionSpec = {
-                    ((slideInHorizontally(
-                        initialOffsetX = { it },
-                        animationSpec = tween(300),
-                    ) + fadeIn(animationSpec = tween(300))) togetherWith
-                    (slideOutHorizontally(
-                        targetOffsetX = { -it },
-                        animationSpec = tween(300),
-                    ) + fadeOut(animationSpec = tween(300)))).using(null)
+                    if (isReducedMotion) {
+                        (fadeIn(animationSpec = tween(150)) togetherWith
+                            fadeOut(animationSpec = tween(150))).using(null)
+                    } else {
+                        ((slideInHorizontally(
+                            initialOffsetX = { it },
+                            animationSpec = tween(300),
+                        ) + fadeIn(animationSpec = tween(300))) togetherWith
+                        (slideOutHorizontally(
+                            targetOffsetX = { -it },
+                            animationSpec = tween(300),
+                        ) + fadeOut(animationSpec = tween(300)))).using(null)
+                    }
                 },
                 popTransitionSpec = {
-                    ((slideInHorizontally(
-                        initialOffsetX = { -it },
-                        animationSpec = tween(300),
-                    ) + fadeIn(animationSpec = tween(300))) togetherWith
-                    (slideOutHorizontally(
-                        targetOffsetX = { it },
-                        animationSpec = tween(300),
-                    ) + fadeOut(animationSpec = tween(300)))).using(null)
+                    if (isReducedMotion) {
+                        (fadeIn(animationSpec = tween(150)) togetherWith
+                            fadeOut(animationSpec = tween(150))).using(null)
+                    } else {
+                        ((slideInHorizontally(
+                            initialOffsetX = { -it },
+                            animationSpec = tween(300),
+                        ) + fadeIn(animationSpec = tween(300))) togetherWith
+                        (slideOutHorizontally(
+                            targetOffsetX = { it },
+                            animationSpec = tween(300),
+                        ) + fadeOut(animationSpec = tween(300)))).using(null)
+                    }
                 },
                 entryDecorators = listOf(
                     rememberSaveableStateHolderNavEntryDecorator(),

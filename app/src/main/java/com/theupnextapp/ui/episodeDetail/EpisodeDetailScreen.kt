@@ -67,10 +67,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -82,6 +85,7 @@ import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import com.theupnextapp.R
 import com.theupnextapp.core.designsystem.ui.components.CastMember
+import com.theupnextapp.core.designsystem.ui.modifiers.bounceScale
 import com.theupnextapp.domain.EpisodeDetail
 import com.theupnextapp.domain.EpisodeDetailArg
 import com.theupnextapp.domain.TraktCast
@@ -540,6 +544,7 @@ fun EpisodeSummaryCard(
                 OutlinedButton(
                     onClick = onPreviousEpisodeClick,
                     enabled = canNavigatePrevious,
+                    modifier = Modifier.bounceScale(),
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -553,6 +558,7 @@ fun EpisodeSummaryCard(
                 OutlinedButton(
                     onClick = onNextEpisodeClick,
                     enabled = canNavigateNext,
+                    modifier = Modifier.bounceScale(),
                 ) {
                     Text(text = stringResource(id = R.string.episode_detail_next))
                     Spacer(modifier = Modifier.width(4.dp))
@@ -619,14 +625,24 @@ fun EpisodeTraktActions(
     onCancelCheckInClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val haptic = LocalHapticFeedback.current
+
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         if (isWatched) {
             Button(
-                onClick = onToggleWatchedClick,
-                modifier = Modifier.fillMaxWidth().height(48.dp),
+                onClick = {
+                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                    onToggleWatchedClick()
+                },
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                        .bounceScale()
+                        .testTag("episode_toggle_watched_button"),
                 colors =
                     ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -645,8 +661,16 @@ fun EpisodeTraktActions(
             }
         } else {
             OutlinedButton(
-                onClick = onToggleWatchedClick,
-                modifier = Modifier.fillMaxWidth().height(48.dp),
+                onClick = {
+                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                    onToggleWatchedClick()
+                },
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                        .bounceScale()
+                        .testTag("episode_toggle_watched_button"),
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
@@ -662,8 +686,16 @@ fun EpisodeTraktActions(
 
         if (isCheckInSuccessful) {
             OutlinedButton(
-                onClick = onCancelCheckInClick,
-                modifier = Modifier.fillMaxWidth().height(48.dp),
+                onClick = {
+                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                    onCancelCheckInClick()
+                },
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                        .bounceScale()
+                        .testTag("episode_cancel_check_in_button"),
                 colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
             ) {
                 if (isCheckingIn) {
@@ -685,8 +717,16 @@ fun EpisodeTraktActions(
             }
         } else {
             Button(
-                onClick = onCheckInClick,
-                modifier = Modifier.fillMaxWidth().height(48.dp),
+                onClick = {
+                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                    onCheckInClick()
+                },
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                        .bounceScale()
+                        .testTag("episode_check_in_button"),
                 enabled = !isCheckingIn,
             ) {
                 if (isCheckingIn) {
