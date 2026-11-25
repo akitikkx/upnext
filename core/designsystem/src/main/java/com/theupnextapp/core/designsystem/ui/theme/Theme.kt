@@ -20,6 +20,8 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalContext
 import com.theupnextapp.domain.Theme
 
@@ -45,10 +47,13 @@ private val LightColorTheme =
         tertiary = Teal700,
     )
 
+val LocalReducedMotion = staticCompositionLocalOf { false }
+
 @Composable
 fun UpnextTheme(
     themeState: Theme = Theme.SYSTEM,
     dynamicColor: Boolean = false,
+    reducedMotion: Boolean = false,
     content: @Composable () -> Unit,
 ) {
     val darkTheme =
@@ -68,9 +73,13 @@ fun UpnextTheme(
             else -> LightColorTheme
         }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content,
-    )
+    CompositionLocalProvider(
+        LocalReducedMotion provides reducedMotion,
+    ) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = Typography,
+            content = content,
+        )
+    }
 }

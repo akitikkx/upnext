@@ -36,6 +36,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.theupnextapp.core.designsystem.ui.components.AnimatedWatchedToggleButton
 import com.theupnextapp.core.designsystem.ui.modifiers.bounceClick
 
 @Composable
@@ -44,6 +45,7 @@ fun UpNextLandscapeCard(
     episodeInfo: String? = null,
     airDateRibbon: String? = null,
     progressPercentage: Float? = null,
+    isWatched: Boolean = false,
     imageUrl: String?,
     modifier: Modifier = Modifier,
     onCardClick: () -> Unit = {},
@@ -122,17 +124,12 @@ fun UpNextLandscapeCard(
                         color = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f),
                         modifier = Modifier.size(36.dp).align(Alignment.BottomEnd),
                     ) {
-                        IconButton(
-                            onClick = onMarkAsWatchedClick,
+                        AnimatedWatchedToggleButton(
+                            isWatched = isWatched,
+                            onToggle = onMarkAsWatchedClick,
                             modifier = Modifier.testTag("mark_watched_card_button"),
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.CheckCircle,
-                                contentDescription = "Mark as Watched",
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(24.dp),
-                            )
-                        }
+                            iconSize = 20.dp,
+                        )
                     }
                 }
 

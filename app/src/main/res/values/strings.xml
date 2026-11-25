@@ -285,6 +285,9 @@
     <string name="settings_connect">Connect</string>
     <string name="settings_about">About</string>
     <string name="settings_version">Version</string>
+    <string name="settings_accessibility">Accessibility &amp; Sensory</string>
+    <string name="settings_reduced_motion">Calm Motion Mode</string>
+    <string name="settings_reduced_motion_desc">Reduce animations, transitions, and bounces for a calmer visual experience</string>
     <string name="dashboard_my_upnext">My Upnext</string>
     <string name="dashboard_tonight_on_tv">Tonight on TV</string>
     <string name="dashboard_no_tv_schedule">No TV Schedule</string>

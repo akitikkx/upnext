@@ -36,6 +36,7 @@ class SettingsViewModelTest {
 
         val themeFlow = MutableStateFlow(Theme.DARK)
         val dataSaverFlow = MutableStateFlow(true)
+        val reducedMotionFlow = MutableStateFlow(false)
         val traktTokenFlow =
             MutableStateFlow(
                 TraktAccessToken(
@@ -50,6 +51,7 @@ class SettingsViewModelTest {
 
         `when`(mockSettingsRepository.themeStream).thenReturn(themeFlow)
         `when`(mockSettingsRepository.dataSaverStream).thenReturn(dataSaverFlow)
+        `when`(mockSettingsRepository.reducedMotionStream).thenReturn(reducedMotionFlow)
         `when`(mockTraktRepository.traktAccessToken).thenReturn(traktTokenFlow)
 
         viewModel = SettingsViewModel(mockSettingsRepository, mockTraktRepository)
@@ -74,6 +76,22 @@ class SettingsViewModelTest {
             viewModel.onDataSaverToggled(false)
             testDispatcher.scheduler.advanceUntilIdle()
             verify(mockSettingsRepository).setDataSaverEnabled(false)
+        }
+
+    @Test
+    fun `onReducedMotionToggled calls repository with true`() =
+        runTest {
+            viewModel.onReducedMotionToggled(true)
+            testDispatcher.scheduler.advanceUntilIdle()
+            verify(mockSettingsRepository).setReducedMotionEnabled(true)
+        }
+
+    @Test
+    fun `onReducedMotionToggled calls repository with false`() =
+        runTest {
+            viewModel.onReducedMotionToggled(false)
+            testDispatcher.scheduler.advanceUntilIdle()
+            verify(mockSettingsRepository).setReducedMotionEnabled(false)
         }
 
     @Test

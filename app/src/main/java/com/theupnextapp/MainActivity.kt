@@ -99,6 +99,7 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
         setContent {
             val settingsViewModel: SettingsViewModel = hiltViewModel()
             val themeState by settingsViewModel.themeStream.collectAsState()
+            val reducedMotion by settingsViewModel.reducedMotionStream.collectAsState()
 
             val onboardingViewModel: OnboardingViewModel = hiltViewModel()
             val isOnboardingCompleted by onboardingViewModel.isOnboardingCompleted.collectAsState()
@@ -106,7 +107,10 @@ class MainActivity : AppCompatActivity(), TabConnectionCallback {
 
             val shouldShowMainScreen = isOnboardingCompleted == true || authCodeState.value != null
 
-            UpnextTheme(themeState = themeState) {
+            UpnextTheme(
+                themeState = themeState,
+                reducedMotion = reducedMotion,
+            ) {
                 Box(
                     modifier =
                         Modifier

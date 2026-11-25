@@ -16,6 +16,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -30,6 +31,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.theupnextapp.core.designsystem.ui.components.AnimatedWatchedToggleButton
 import com.theupnextapp.core.designsystem.ui.modifiers.bounceClick
 
 @Suppress("MagicNumber")
@@ -38,6 +40,8 @@ fun UpNextEpisodeCard(
     showTitle: String,
     episodeInfo: String? = null,
     airDateRibbon: String? = null,
+    progressPercentage: Float? = null,
+    isWatched: Boolean = false,
     imageUrl: String?,
     modifier: Modifier = Modifier,
     onCardClick: () -> Unit = {},
@@ -99,18 +103,27 @@ fun UpNextEpisodeCard(
                         color = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
                         modifier = Modifier.size(36.dp).align(Alignment.BottomEnd),
                     ) {
-                        IconButton(
-                            onClick = onMarkAsWatchedClick,
+                        AnimatedWatchedToggleButton(
+                            isWatched = isWatched,
+                            onToggle = onMarkAsWatchedClick,
                             modifier = Modifier.testTag("mark_watched_card_button"),
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.CheckCircle,
-                                contentDescription = "Mark as Watched",
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(24.dp),
-                            )
-                        }
+                            iconSize = 20.dp,
+                        )
                     }
+                }
+
+                // Docked Linear Progress Indicator along the bottom edge of thumbnail
+                if (progressPercentage != null && progressPercentage > 0f) {
+                    LinearProgressIndicator(
+                        progress = { (progressPercentage / 100f).coerceIn(0f, 1f) },
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .height(4.dp)
+                                .align(Alignment.BottomCenter),
+                        color = MaterialTheme.colorScheme.primary,
+                        trackColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                    )
                 }
             }
 

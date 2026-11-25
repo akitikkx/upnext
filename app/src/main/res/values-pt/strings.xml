@@ -15,6 +15,9 @@
     <string name="settings_connect">Ligar</string>
     <string name="settings_about">Sobre</string>
     <string name="settings_version">Versão</string>
+    <string name="settings_accessibility">Acessibilidade e sensorial</string>
+    <string name="settings_reduced_motion">Modo de movimento calmo</string>
+    <string name="settings_reduced_motion_desc">Reduza animações, transições e saltos para uma experiência visual mais calma</string>
     <string name="dashboard_my_upnext">O meu Upnext</string>
     <string name="dashboard_tonight_on_tv">Hoje na TV</string>
     <string name="dashboard_no_tv_schedule">Sem programação de TV</string>
